@@ -26,7 +26,6 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -250,7 +249,7 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  SubscriptionIterator keepTyping(ChatId chatId) =>
+  Stream<dynamic> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated

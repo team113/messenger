@@ -467,10 +467,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionIterator recentChatsTopEvents(
-    int count,
-    Future<void> Function(QueryResult) listener,
-  ) {
+  Stream<QueryResult> recentChatsTopEvents(int count) {
     final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -479,7 +476,6 @@ abstract class ChatGraphQlMixin {
             RecentChatsTopEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
     );
   }
 
@@ -537,14 +533,18 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver);
-    return client.subscribe2(
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? Function() getVersion,
+  ) {
+    final variables = ChatEventsArguments(id: id, ver: getVersion());
+    return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      getVersion: getVersion,
     );
   }
 
@@ -870,10 +870,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  SubscriptionIterator keepTyping(
-    ChatId id,
-    Future<void> Function(QueryResult) listener,
-  ) {
+  Stream<QueryResult> keepTyping(ChatId id) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -881,7 +878,6 @@ abstract class ChatGraphQlMixin {
         document: KeepTypingSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
     );
   }
 
@@ -1250,11 +1246,10 @@ abstract class ChatGraphQlMixin {
   /// which have already been applied to the state of some [Chat], so a client
   /// side is expected to handle all the events idempotently considering the
   /// `Chat.ver`.
-  SubscriptionIterator favoriteChatsEvents(
-    FavoriteChatsListVersion? ver,
-    Future<void> Function(QueryResult) listener,
+  Stream<QueryResult> favoriteChatsEvents(
+    FavoriteChatsListVersion? Function() getVersion,
   ) {
-    final variables = FavoriteChatsEventsArguments(ver: ver);
+    final variables = FavoriteChatsEventsArguments(ver: getVersion());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'FavoriteChatsEvents',
@@ -1262,7 +1257,7 @@ abstract class ChatGraphQlMixin {
             FavoriteChatsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
+      getVersion: getVersion,
     );
   }
 }

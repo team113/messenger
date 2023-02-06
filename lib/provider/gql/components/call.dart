@@ -135,10 +135,9 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionIterator callEvents(
+  Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
-    Future<void> Function(QueryResult) listener,
   ) {
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
@@ -147,7 +146,6 @@ abstract class CallGraphQlMixin {
         document: CallEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
     );
   }
 
@@ -190,9 +188,8 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionIterator incomingCallsTopEvents(
-    int count,
-    Future<void> Function(QueryResult) listener, {
+  Stream<QueryResult> incomingCallsTopEvents(
+    int count, {
     VoidCallback? onError,
   }) {
     final variables = IncomingCallsTopEventsArguments(count: count);
@@ -203,7 +200,6 @@ abstract class CallGraphQlMixin {
             IncomingCallsTopEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
       onError: onError,
     );
   }

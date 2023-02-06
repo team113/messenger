@@ -23,7 +23,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/base.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
@@ -52,7 +51,7 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
-  SubscriptionIterator? _remoteSubscription;
+  StreamIterator<UserEvents>? _remoteSubscription;
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
@@ -87,8 +86,12 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    var ver = _userLocal.get(id)?.ver;
-    _remoteSubscription = _userRepository.userEvents(id, ver, _userEvent);
+    _remoteSubscription = StreamIterator(
+      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+    );
+    while (await _remoteSubscription!.moveNext()) {
+      await _userEvent(_remoteSubscription!.current);
+    }
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.

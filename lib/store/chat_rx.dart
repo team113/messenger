@@ -39,7 +39,6 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException;
 import '/provider/hive/chat.dart';
@@ -120,14 +119,14 @@ class HiveRxChat extends RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamSubscription<ChatEvents>? _remoteSubscription;
+  StreamIterator<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
 
-  /// Indicator whether [_remoteSubscription] is started or is being
-  /// started used in [subscribe].
-  bool _remoteSubscriptionStarted = false;
+  /// Indicator whether [_remoteSubscription] is initialized or is being
+  /// initialized used in [subscribe].
+  bool _remoteSubscriptionInitialized = false;
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
@@ -246,7 +245,7 @@ class HiveRxChat extends RxChat {
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _messagesSubscription?.cancel();
-      _remoteSubscriptionStarted = false;
+      _remoteSubscriptionInitialized = false;
       await _local.close();
       status.value = RxStatus.empty();
       _worker?.dispose();
@@ -259,7 +258,7 @@ class HiveRxChat extends RxChat {
 
   /// Subscribes to the remote updates of the [chat] if not subscribed already.
   void subscribe() {
-    if (!_remoteSubscriptionStarted) {
+    if (!_remoteSubscriptionInitialized) {
       _initRemoteSubscription();
     }
   }
@@ -764,12 +763,16 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscriptionStarted = true;
-    var ver = _chatLocal.get(id)?.ver;
+    _remoteSubscriptionInitialized = true;
 
     _remoteSubscription?.cancel();
-    _remoteSubscription =
-        _chatRepository.chatEvents(id, ver).listen(_chatEvent);
+    _remoteSubscription = StreamIterator(
+        _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver));
+    while (await _remoteSubscription!.moveNext()) {
+      await _chatEvent(_remoteSubscription!.current);
+    }
+
+    _remoteSubscriptionInitialized = false;
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
@@ -797,12 +800,12 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = _remoteSubscriptionStarted;
+        bool putChat = _remoteSubscriptionInitialized;
         for (var event in versioned.events) {
-          putChat = _remoteSubscriptionStarted;
+          putChat = _remoteSubscriptionInitialized;
 
           // Subscription was already disposed while processing the events.
-          if (!_remoteSubscriptionStarted) {
+          if (!_remoteSubscriptionInitialized) {
             return;
           }
 

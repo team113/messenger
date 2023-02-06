@@ -365,18 +365,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  SubscriptionIterator myUserEvents(
-    MyUserVersion? ver,
-    Future<void> Function(QueryResult) listener,
-  ) {
-    final variables = MyUserEventsArguments(ver: ver);
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function() getVersion) {
+    final variables = MyUserEventsArguments(ver: getVersion());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
+      getVersion: getVersion,
     );
   }
 
@@ -434,19 +431,18 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  SubscriptionIterator userEvents(
+  Stream<QueryResult> userEvents(
     UserId id,
-    UserVersion? ver,
-    Future<void> Function(QueryResult) listener,
+    UserVersion? Function() getVersion,
   ) {
-    final variables = UserEventsArguments(id: id, ver: ver);
+    final variables = UserEventsArguments(id: id, ver: getVersion());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
+      getVersion: getVersion,
     );
   }
 
@@ -1030,15 +1026,12 @@ abstract class UserGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionIterator keepOnline(
-    Future<void> Function(QueryResult) listener,
-  ) {
+  Stream<QueryResult> keepOnline() {
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'KeepOnline',
         document: KeepOnlineSubscription().document,
       ),
-      listener,
     );
   }
 

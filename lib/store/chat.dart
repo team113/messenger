@@ -40,7 +40,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, UploadAttachmentException;
 import '/provider/gql/graphql.dart';
@@ -109,12 +108,12 @@ class ChatRepository implements AbstractChatRepository {
   /// [_recentChatsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  SubscriptionIterator? _remoteSubscription;
+  StreamIterator? _remoteSubscription;
 
   /// [_favoriteChatsEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  SubscriptionIterator? _favoriteChatsSubscription;
+  StreamIterator? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
@@ -721,33 +720,36 @@ class ChatRepository implements AbstractChatRepository {
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
-  Stream<ChatEvents> chatEvents(ChatId chatId, ChatVersion? ver) {
-    return _graphQlProvider.chatEvents(chatId, ver).asyncExpand((event) async* {
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        var data = _chat(chat);
-        yield ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
-          ChatEventsVersioned(
-            mixin.events.map((e) => chatEvent(e)).toList(),
-            mixin.ver,
-          ),
-        );
-      }
-    });
-  }
+  Stream<ChatEvents> chatEvents(
+    ChatId chatId,
+    ChatVersion? Function() getVersion,
+  ) =>
+      _graphQlProvider
+          .chatEvents(chatId, getVersion)
+          .asyncExpand((event) async* {
+        var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+          yield const ChatEventsInitialized();
+        } else if (events.$$typename == 'Chat') {
+          var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+          var data = _chat(chat);
+          yield ChatEventsChat(data.chat);
+        } else if (events.$$typename == 'ChatEventsVersioned') {
+          var mixin =
+              events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+          yield ChatEventsEvent(
+            ChatEventsVersioned(
+              mixin.events.map((e) => chatEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
+      });
 
   @override
-  SubscriptionIterator keepTyping(ChatId chatId) {
-    return _graphQlProvider.keepTyping(chatId, (event) async {});
-  }
+  Stream<dynamic> keepTyping(ChatId chatId) =>
+      _graphQlProvider.keepTyping(chatId);
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
@@ -1008,7 +1010,10 @@ class ChatRepository implements AbstractChatRepository {
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
-    _remoteSubscription = _recentChatsRemoteEvents(_recentChatsRemoteEvent);
+    _remoteSubscription = StreamIterator(_recentChatsRemoteEvents());
+    while (await _remoteSubscription!.moveNext()) {
+      await _recentChatsRemoteEvent(_remoteSubscription!.current);
+    }
   }
 
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
@@ -1044,39 +1049,28 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Subscribes to the remote updates of the [chats].
-  SubscriptionIterator _recentChatsRemoteEvents(
-    Future<void> Function(RecentChatsEvent) listener,
-  ) {
-    return _graphQlProvider.recentChatsTopEvents(
-      3,
-      (event) async {
-        RecentChatsEvent? recentChatsEvent;
+  Stream<RecentChatsEvent> _recentChatsRemoteEvents() =>
+      _graphQlProvider.recentChatsTopEvents(3).asyncExpand((event) async* {
         var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
             .recentChatsTopEvents;
 
         if (events.$$typename == 'SubscriptionInitialized') {
-          recentChatsEvent = const RecentChatsTopInitialized();
+          yield const RecentChatsTopInitialized();
         } else if (events.$$typename == 'RecentChatsTop') {
           var list = (events
                   as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
               .list;
-          recentChatsEvent = RecentChatsTop(list.map((e) => _chat(e)).toList());
+          yield RecentChatsTop(list.map((e) => _chat(e)).toList());
         } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-          recentChatsEvent = EventRecentChatsUpdated(_chat(mixin.chat));
+          yield EventRecentChatsUpdated(_chat(mixin.chat));
         } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
-          recentChatsEvent = EventRecentChatsDeleted(mixin.chatId);
+          yield EventRecentChatsDeleted(mixin.chatId);
         }
-
-        if (recentChatsEvent != null) {
-          await listener(recentChatsEvent);
-        }
-      },
-    );
-  }
+      });
 
   // TODO: Chat list can be huge, so we should implement pagination and
   //       loading on demand.
@@ -1186,9 +1180,13 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteChatsSubscription() async {
-    var ver = _sessionLocal.getFavoriteChatsListVersion();
     _favoriteChatsSubscription?.cancel();
-    _favoriteChatsSubscription = _favoriteChatsEvents(ver, _favoriteChatsEvent);
+    _favoriteChatsSubscription = StreamIterator(
+      _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
+    );
+    while (await _favoriteChatsSubscription!.moveNext()) {
+      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
+    }
   }
 
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
@@ -1237,43 +1235,33 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
-  SubscriptionIterator _favoriteChatsEvents(
-    FavoriteChatsListVersion? ver,
-    Future<void> Function(FavoriteChatsEvents) listener,
-  ) {
-    return _graphQlProvider.favoriteChatsEvents(
-      ver,
-      (event) async {
-        FavoriteChatsEvents? favoriteChatsEvents;
+  Stream<FavoriteChatsEvents> _favoriteChatsEvents(
+          FavoriteChatsListVersion? Function() getVersion) =>
+      _graphQlProvider
+          .favoriteChatsEvents(getVersion)
+          .asyncExpand((event) async* {
         var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
             .favoriteChatsEvents;
         if (events.$$typename == 'SubscriptionInitialized') {
           events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
-          favoriteChatsEvents = const FavoriteChatsEventsInitialized();
+          yield const FavoriteChatsEventsInitialized();
         } else if (events.$$typename == 'FavoriteChatsList') {
           var chatsList = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
           var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
-          favoriteChatsEvents =
-              FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+          yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
         } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
           var mixin = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
-          favoriteChatsEvents = FavoriteChatsEventsEvent(
+          yield FavoriteChatsEventsEvent(
             FavoriteChatsEventsVersioned(
               mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
               mixin.ver,
             ),
           );
         }
-
-        if (favoriteChatsEvents != null) {
-          await listener(favoriteChatsEvents);
-        }
-      },
-    );
-  }
+      });
 
   /// Constructs a [ChatEvents] from the
   /// [FavoriteChatsEventsVersionedMixin$Events].

@@ -194,18 +194,17 @@ abstract class ContactGraphQlMixin {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
-  SubscriptionIterator contactsEvents(
-    ChatContactsListVersion? ver,
-    Future<void> Function(QueryResult) listener,
+  Stream<QueryResult> contactsEvents(
+    ChatContactsListVersion? Function() getVersion,
   ) {
-    final variables = ContactsEventsArguments(ver: ver);
+    final variables = ContactsEventsArguments(ver: getVersion());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ContactsEvents',
         document: ContactsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
+      getVersion: getVersion,
     );
   }
 

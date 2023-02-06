@@ -22,12 +22,11 @@ import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
-import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
 import '/domain/model/session.dart';
-import '/util/backoff.dart';
+import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'exceptions.dart';
@@ -176,72 +175,19 @@ class GraphQlClient {
     }
   }
 
-  Stream<QueryResult> subscribe2(SubscriptionOptions options) {
-    final SubscriptionHandle handle = SubscriptionHandle(_subscribe, options);
-    return handle.stream;
-  }
-
   /// Subscribes to a GraphQL subscription according to the [options] specified.
-  SubscriptionIterator subscribe(
-    SubscriptionOptions options,
-    Future<void> Function(QueryResult) listener, {
+  Stream<QueryResult> subscribe(
+    SubscriptionOptions options, {
     VoidCallback? onError,
-    SubscriptionIterator? subscriptionIterator,
+    Version? Function()? getVersion,
   }) {
-    // return SubscriptionIterator(Future(() {
-    //   final StreamController<QueryResult> dummy = StreamController.broadcast();
-    //   return StreamIterator(dummy.stream);
-    // }));
-
-    if (subscriptionIterator == null) {
-      subscriptionIterator = SubscriptionIterator(
-        _subscribe(options).then((value) => StreamIterator(value)),
-      );
-    } else {
-      subscriptionIterator.iterator =
-          Future.delayed(Backoff.get(subscriptionIterator.id))
-              .then((_) => _subscribe(options))
-              .then((stream) => StreamIterator(stream));
-    }
-
-    subscriptionIterator.iterator.then((iterator) async {
-      while (await iterator
-          .moveNext()
-          .onError<ResubscriptionRequiredException>((_, __) {
-        onError?.call();
-        subscribe(
-          options,
-          listener,
-          subscriptionIterator: subscriptionIterator,
-        );
-        return false;
-      }).onError<StaleVersionException>((_, __) {
-        onError?.call();
-        options.variables['ver'] = null;
-        subscribe(
-          options,
-          listener,
-          subscriptionIterator: subscriptionIterator,
-        );
-        return false;
-      }).onError((e, __) {
-        Log.print(
-          'Unexpected error in subscription: $e',
-          options.operationName,
-        );
-        onError?.call();
-        subscribe(
-          options,
-          listener,
-          subscriptionIterator: subscriptionIterator,
-        );
-        return false;
-      })) {
-        await listener(iterator.current);
-      }
-    });
-
-    return subscriptionIterator;
+    final SubscriptionHandle handle = SubscriptionHandle(
+      _subscribe,
+      options,
+      onError: onError,
+      getVersion: getVersion,
+    );
+    return handle.stream;
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified
@@ -497,58 +443,57 @@ class SubscriptionConnection {
 
 /// Wrapper around a [StreamIterator], representing an ongoing GraphQL
 /// subscription.
-class SubscriptionIterator {
-  SubscriptionIterator(this.iterator);
-
-  /// [StreamIterator] of an subscription stream.
-  Future<StreamIterator<QueryResult>> iterator;
-
-  /// Unique ID of this [SubscriptionIterator].
-  final String id = const Uuid().v4();
-
-  void cancel() {
-    iterator.then((value) => value.cancel());
-  }
-}
-
-/// Wrapper around a [StreamIterator], representing an ongoing GraphQL
-/// subscription.
 class SubscriptionHandle {
-  SubscriptionHandle(this._subscribe, this._options) {
-    print('[SubscriptionHandle] CTOR');
+  SubscriptionHandle(
+    this._subscribe,
+    this._options, {
+    this.onError,
+    this.getVersion,
+  }) {
     _controller = StreamController.broadcast(
       onListen: () {
-        print('[SubscriptionHandle] onListen');
         subscribe();
       },
       onCancel: () {
-        print('[SubscriptionHandle] onCancel');
         cancel();
       },
     );
   }
 
+  /// Callback called to initialize the subscription.
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _subscribe;
+
+  /// Callback called when need to acquire a relevant version.
+  final Version? Function()? getVersion;
+
+  /// Callback called when an error is captured.
+  final VoidCallback? onError;
+
+  /// [SubscriptionOptions] used in the [_subscribe].
   final SubscriptionOptions _options;
 
+  /// [StreamController] of the subscription events stream.
   late final StreamController<QueryResult> _controller;
+
+  /// [StreamSubscription] capturing `onError` and `onDone` events.
   StreamSubscription? _subscription;
 
+  /// [Timer] retrying the subscribing.
   Timer? _backoff;
+
+  /// Current delay of exponential backoff subscribing.
   Duration _backoffDuration = Duration.zero;
 
+  /// [Stream] of the subscription events.
   Stream<QueryResult> get stream => _controller.stream;
 
+  /// Subscribes to the subscription events.
   Future<void> subscribe() async {
-    print('[SubscriptionHandle] subscribe');
-
     _subscription?.cancel();
 
     try {
       _subscription = (await _subscribe(_options)).listen(
         (e) {
-          print('[SubscriptionHandle] handle');
-
           if (_backoff != null) {
             _backoffDuration = Duration.zero;
             _backoff?.cancel();
@@ -558,32 +503,29 @@ class SubscriptionHandle {
           _controller.add(e);
         },
         onDone: () {
-          print('[SubscriptionHandle] onDone');
           resubscribe();
         },
         onError: (e) {
+          onError?.call();
           if (e is ResubscriptionRequiredException) {
-            print(
-                '[SubscriptionHandle] onError ResubscriptionRequiredException');
             resubscribe();
           } else if (e is StaleVersionException) {
-            print('[SubscriptionHandle] onError StaleVersionException');
-            _options.variables['ver'] = null;
-            resubscribe();
+            resubscribe(noVersion: true);
           } else {
-            print('[SubscriptionHandle] onError $e');
             resubscribe();
           }
         },
       );
     } catch (e) {
-      print('[SubscriptionHandle] catch $e');
       resubscribe();
     }
   }
 
-  void resubscribe() {
-    print('[SubscriptionHandle] resubscribe with $_backoffDuration');
+  /// Resubscribes to the subscription events.
+  void resubscribe({bool noVersion = false}) {
+    if (getVersion != null) {
+      _options.variables['ver'] = noVersion ? null : getVersion!.call()?.val;
+    }
 
     if (_backoff?.isActive != true) {
       _backoff?.cancel();
@@ -596,6 +538,7 @@ class SubscriptionHandle {
     }
   }
 
+  /// Cancels this subscription.
   void cancel() {
     _backoff?.cancel();
     _backoffDuration = Duration.zero;

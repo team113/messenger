@@ -22,29 +22,8 @@ import 'package:get/get.dart';
 
 /// Helper to execute methods with backoff algorithm.
 class Backoff {
-  /// Backoff delays of the operations.
-  static final Map<String, Duration> _backoffs = {};
-
-  /// [Timer]s resetting the [_backoffs].
-  static final Map<String, Timer> _resetTimers = {};
-
   /// Maximal [Duration] of the backoff.
   static final Duration _maxBackoff = 64.seconds;
-
-  /// Returns delay for an operation with the provided [key].
-  static Duration get(String key) {
-    _resetTimers[key]?.cancel();
-
-    Duration backoff = _backoffs[key] ?? Duration.zero;
-
-    _backoffs[key] = increaseBackoff(backoff);
-    _resetTimers[key] = Timer(
-      const Duration(seconds: 10),
-      () => _backoffs[key] = Duration.zero,
-    );
-
-    return backoff;
-  }
 
   /// Calls the provided [callback] using the exponential backoff algorithm.
   static Future<T> run<T>(

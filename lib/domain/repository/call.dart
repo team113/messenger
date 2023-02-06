@@ -26,7 +26,6 @@ import '../model/my_user.dart';
 import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/base.dart';
 import '/store/event/chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
@@ -140,10 +139,9 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  SubscriptionIterator heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
-    Future<void> Function(ChatCallEvents) listener,
   );
 }
 

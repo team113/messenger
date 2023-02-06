@@ -141,7 +141,7 @@ void main() async {
   };
 
   when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
+    (_) => Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,
         source: null,
@@ -149,16 +149,14 @@ void main() async {
           'myUserEvents': {'__typename': 'MyUser', ...myUserData},
         },
       ),
-    ])),
+    ]),
   );
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(null))
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getBlacklist(
     first: 120,
@@ -190,14 +188,14 @@ void main() async {
       Get.put(MyUserService(authService, myUserRepository));
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.recentChats(
     first: 120,

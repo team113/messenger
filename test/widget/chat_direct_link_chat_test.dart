@@ -119,13 +119,12 @@ void main() async {
   );
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(null))
+      .thenAnswer((_) => const Stream.empty());
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
@@ -175,14 +174,13 @@ void main() async {
       (WidgetTester tester) async {
     BigInt ver = BigInt.one;
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatVersion('0'),
-    )).thenAnswer((_) => Future.value(chatEvents.stream));
+    )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -199,7 +197,7 @@ void main() async {
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
 
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.createChatDirectLink(any,
             groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -254,7 +252,7 @@ void main() async {
     );
 
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -266,7 +264,7 @@ void main() async {
             }
           },
         )
-      ])),
+      ]),
     );
 
     UserRepository userRepository = Get.put(

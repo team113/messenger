@@ -184,12 +184,10 @@ void main() async {
     }
   };
 
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(null))
+      .thenAnswer((_) => const Stream.empty());
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -245,19 +243,19 @@ void main() async {
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('fc95f181-ae23-41b7-b246-5d6bdbe577a1'),
     ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('c36343e2-e8af-4d55-9982-38ba68d2b785'),
     ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+  )).thenAnswer((_) => const Stream.empty());
 
   ChatService chatService = await init(graphQlProvider);
 

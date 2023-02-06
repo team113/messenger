@@ -98,7 +98,7 @@ void main() async {
       'MyUserService successfully adds, removes, confirms email and resends confirmation code',
       () async {
     when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -106,7 +106,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru'))).thenAnswer(
@@ -130,8 +130,7 @@ void main() async {
     );
 
     when(graphQlProvider.resendEmail()).thenAnswer((_) => Future.value());
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.confirmEmailCode(ConfirmationCode('1234'))).thenAnswer(
       (_) => Future.value(ConfirmUserEmail$Mutation.fromJson({
@@ -216,7 +215,7 @@ void main() async {
       'MyUserService throws AddUserEmailException, ResendUserEmailConfirmationException, ConfirmUserEmailException',
       () async {
     when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -224,7 +223,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru')))

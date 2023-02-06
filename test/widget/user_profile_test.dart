@@ -129,7 +129,7 @@ void main() async {
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+    (_) => const Stream.empty(),
   );
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), sessionProvider);
@@ -195,12 +195,11 @@ void main() async {
     final StreamController<QueryResult> contactEvents = StreamController();
     when(
       graphQlProvider.contactsEvents(ChatContactsListVersion('0')),
-    ).thenAnswer((_) => Future.value(contactEvents.stream));
+    ).thenAnswer((_) => contactEvents.stream);
 
     when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.chatContacts(
       first: 120,
@@ -212,7 +211,7 @@ void main() async {
         Future.value((Contacts$Query.fromJson(chatContactsData).chatContacts)));
 
     when(graphQlProvider.myUserEvents(MyUserVersion('0'))).thenAnswer(
-      (_) => Future.value(const Stream.empty()),
+      (_) => const Stream.empty(),
     );
 
     when(graphQlProvider.recentChats(
@@ -234,20 +233,20 @@ void main() async {
     );
 
     when(graphQlProvider.contactsEvents(null))
-        .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+        .thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.myUserEvents(null))
-        .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+        .thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.userEvents(
       const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
       UserVersion('1'),
-    )).thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+    )).thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.getMyUser()).thenAnswer(
       (_) => Future.value(GetMyUser$Query.fromJson({'myUser': userData})),
@@ -256,7 +255,7 @@ void main() async {
     final StreamController<QueryResult> myUserEvents = StreamController();
     when(
       graphQlProvider.myUserEvents(MyUserVersion('0')),
-    ).thenAnswer((_) => Future.value(myUserEvents.stream));
+    ).thenAnswer((_) => myUserEvents.stream);
 
     when(graphQlProvider.createChatContact(
         name: UserName('user name'),

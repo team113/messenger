@@ -45,7 +45,6 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -199,7 +198,7 @@ class ChatController extends GetxController {
 
   /// [StreamSubscription] to [ChatService.keepTyping] indicating an ongoing
   /// typing in this [chat].
-  SubscriptionIterator? _typingSubscription;
+  StreamSubscription? _typingSubscription;
 
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
@@ -1022,7 +1021,7 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _typingSubscription ??= _chatService.keepTyping(id);
+    _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
       _typingSubscription?.cancel();

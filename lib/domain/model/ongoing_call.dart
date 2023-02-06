@@ -26,7 +26,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
-import '/provider/gql/base.dart';
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -261,7 +260,7 @@ class OngoingCall {
 
   /// Heartbeat subscription indicating that [MyUser] is connected and this
   /// [OngoingCall] is alive on a client side.
-  SubscriptionIterator? _heartbeat;
+  StreamSubscription? _heartbeat;
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
@@ -358,7 +357,7 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(CallService calls) async {
+  void connect(CallService calls) {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
@@ -369,9 +368,7 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (calls.heartbeat(
-      callChatItemId!,
-      deviceId!,
+    _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
@@ -516,7 +513,7 @@ class OngoingCall {
             break;
         }
       },
-    ));
+    );
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.
