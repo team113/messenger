@@ -30,7 +30,7 @@ Feature: Chat messages have correct sending status
     When I long press "123" message
     And I tap `Delete` button
     And I tap `Proceed` button
-    Then I wait until text "123" is absent
+    Then I wait until "123" message is absent
 
   Scenario: User resends message
     Given I do not have Internet
