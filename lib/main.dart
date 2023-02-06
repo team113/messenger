@@ -22,7 +22,10 @@
 library main;
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:collection/collection.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -35,6 +38,7 @@ import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
+import '/domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
@@ -54,17 +58,59 @@ import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   await Config.init();
+
+  bool isSeparateWindow = args.firstOrNull == 'multi_window';
+  StoredCall? call;
+  Credentials? credentials;
+
+  if (isSeparateWindow) {
+    PlatformUtils.windowId = int.parse(args[1]);
+    final argument = json.decode(args[2]) as Map<String, dynamic>;
+    call = StoredCall.fromJson(json.decode(argument['call'] as String));
+    credentials =
+        Credentials.fromJson(json.decode(argument['credentials'] as String));
+
+    WindowController windowController =
+        WindowController.fromWindowId(PlatformUtils.windowId!);
+    windowController.setOnWindowClose(() async {
+      await DesktopMultiWindow.invokeMethod(
+        DesktopMultiWindow.mainWindowId,
+        'call_${call!.chatId.val}',
+      );
+    });
+  }
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
 
-    await _initHive();
+    String hiveDir =
+        'hive${isSeparateWindow ? '/${PlatformUtils.windowId}' : ''}';
+    await _initHive(hiveDir, credentials: credentials);
 
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
       await windowManager.ensureInitialized();
+
+      WindowManager.instance.setPreventClose(true);
+      WindowManager.instance.addListener(
+        DesktopWindowListener(
+          onClose: () {
+            Future.sync(() async {
+              try {
+                var windows = await DesktopMultiWindow.getAllSubWindowIds();
+                await Future.wait(windows
+                    .map((e) => WindowController.fromWindowId(e).close()));
+                await Future.delayed(100.milliseconds);
+              } finally {
+                await WindowManager.instance.setPreventClose(false);
+                WindowManager.instance.close();
+              }
+            });
+          },
+        ),
+      );
 
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();
@@ -87,12 +133,17 @@ Future<void> main() async {
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
-    router = RouterState(authService);
-
-    Get.put(NotificationService())
-        .init(onNotificationResponse: onNotificationResponse);
-
     await authService.init();
+    router = RouterState(authService);
+    if (isSeparateWindow) {
+      router.call(call!.chatId, call: call);
+    }
+
+    if (!PlatformUtils.isPopup) {
+      Get.put(NotificationService())
+          .init(onNotificationResponse: onNotificationResponse);
+    }
+
     await L10n.init();
 
     Get.put(BackgroundWorker(Get.find()));
@@ -176,8 +227,8 @@ class App extends StatelessWidget {
 
 /// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
 /// the [Get]'s context.
-Future<void> _initHive() async {
-  await Hive.initFlutter('hive');
+Future<void> _initHive(String dir, {Credentials? credentials}) async {
+  await Hive.initFlutter(dir);
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
@@ -187,15 +238,19 @@ Future<void> _initHive() async {
   // If mismatch is detected, then clean the existing [Hive] cache.
   if (stored != version) {
     await Hive.close();
-    await Hive.clean('hive');
-    await Hive.initFlutter('hive');
+    await Hive.clean(dir);
+    await Hive.initFlutter(dir);
     Hive.openBox('version').then((box) async {
       await box.put(0, version);
       await box.close();
     });
   }
 
-  await Get.put(SessionDataHiveProvider()).init();
+  var sessionProvider = Get.put(SessionDataHiveProvider());
+  await sessionProvider.init();
+  if (credentials != null) {
+    await sessionProvider.setCredentials(credentials);
+  }
   await Get.put(WindowPreferencesHiveProvider()).init();
 }
 

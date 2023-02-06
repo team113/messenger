@@ -557,7 +557,11 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   void dispose() {
-    _audioPlayer?.dispose();
+    _audioPlayer?.dispose().onError((e, _) {
+      if (e is! MissingPluginException) {
+        throw e!;
+      }
+    });
     AudioCache.instance.clear('audio/pop.mp3');
 
     super.dispose();
@@ -640,12 +644,18 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      _audioPlayer?.play(
+                      _audioPlayer
+                          ?.play(
                         AssetSource('audio/pop.mp3'),
                         volume: 0.3,
                         position: Duration.zero,
                         mode: PlayerMode.lowLatency,
-                      );
+                      )
+                          .onError((e, _) {
+                        if (e is! MissingPluginException) {
+                          throw e!;
+                        }
+                      });
                     },
                   ),
           ),

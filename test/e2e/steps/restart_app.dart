@@ -41,7 +41,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
     await Future.delayed(Duration.zero);
     await Hive.close();
 
-    await main();
+    await main([]);
     await context.world.appDriver.waitForAppToSettle();
   },
 );

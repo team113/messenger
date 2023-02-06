@@ -33,6 +33,7 @@ import '/provider/gql/exceptions.dart'
     show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
@@ -68,7 +69,7 @@ class CallService extends DisposableService {
   }) async {
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
-    if (WebUtils.containsCall(chatId)) {
+    if (PlatformUtils.inPopup(chatId)) {
       throw CallIsInPopupException();
     } else if (stored != null &&
         stored.value.state.value != OngoingCallState.ended) {
@@ -98,7 +99,7 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
+    if (PlatformUtils.inPopup(chatId)) {
       throw CallIsInPopupException();
     }
 
@@ -163,7 +164,7 @@ class CallService extends DisposableService {
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
       // required to await the decline.
-      if (WebUtils.isPopup) {
+      if (PlatformUtils.isPopup) {
         await _callsRepo.decline(chatId);
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
@@ -177,7 +178,7 @@ class CallService extends DisposableService {
 
   /// Constructs an [OngoingCall] from the provided [stored] call.
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    StoredCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
@@ -250,9 +251,12 @@ class CallService extends DisposableService {
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
       _callsRepo.moveCredentials(callId, newCallId);
-      if (WebUtils.isPopup) {
-        WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
-      }
+
+      PlatformUtils.moveCall(
+        chatId,
+        newChatId,
+        newState: call.value.toStored(),
+      );
     }
   }
 

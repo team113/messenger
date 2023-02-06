@@ -129,10 +129,10 @@ class WebUtils {
 
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
-  static WebStoredCall? getCall(ChatId chatId) => null;
+  static StoredCall? getCall(ChatId chatId) => null;
 
   /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) {
+  static void setCall(StoredCall call) {
     // No-op.
   }
 
@@ -147,7 +147,7 @@ class WebUtils {
   static void moveCall(
     ChatId chatId,
     ChatId newChatId, {
-    WebStoredCall? newState,
+    StoredCall? newState,
   }) {
     // No-op.
   }

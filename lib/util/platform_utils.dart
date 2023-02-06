@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +32,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/model/session.dart';
 import '/routes.dart';
 import 'web/web_utils.dart';
 
@@ -44,10 +49,21 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// Map of window IDs in that opened a call.
+  final Map<ChatId, int> _popupCalls = {};
+
+  /// ID of the windows this application opened.
+  ///
+  /// If not null it mean that application opened in separate window on desktop.
+  int? windowId;
+
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
+
+  /// Controller of this popup window.
+  WindowController? _windowController;
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -76,6 +92,15 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
+  /// Indicates whether the current window is a popup.
+  bool get isPopup {
+    if (isWeb) {
+      return WebUtils.isPopup;
+    } else {
+      return windowId != null;
+    }
+  }
+
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
     StreamController<bool>? controller;
@@ -83,7 +108,7 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      _WindowListener listener = _WindowListener(
+      DesktopWindowListener listener = DesktopWindowListener(
         onBlur: () => controller!.add(false),
         onFocus: () => controller!.add(true),
       );
@@ -111,7 +136,7 @@ class PlatformUtilsImpl {
   Stream<MapEntry<Size, Offset>> get onResized {
     StreamController<MapEntry<Size, Offset>>? controller;
 
-    final _WindowListener listener = _WindowListener(
+    final DesktopWindowListener listener = DesktopWindowListener(
       onResized: (pair) => controller!.add(pair),
     );
 
@@ -127,7 +152,7 @@ class PlatformUtilsImpl {
   Stream<Offset> get onMoved {
     StreamController<Offset>? controller;
 
-    final _WindowListener listener = _WindowListener(
+    final DesktopWindowListener listener = DesktopWindowListener(
       onMoved: (position) => controller!.add(position),
     );
 
@@ -157,7 +182,7 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowListener(
+      var windowListener = DesktopWindowListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -190,6 +215,19 @@ class PlatformUtilsImpl {
 
     _downloadDirectory = '$path${Config.downloads}';
     return _downloadDirectory!;
+  }
+
+  /// Returns controller of this popup window.
+  WindowController get windowController {
+    if (_windowController != null) {
+      return _windowController!;
+    }
+
+    if (windowId == null) {
+      throw ArgumentError.notNull('windowId');
+    }
+
+    return WindowController.fromWindowId(windowId!);
   }
 
   /// Enters fullscreen mode.
@@ -364,6 +402,85 @@ class PlatformUtilsImpl {
     await Share.shareXFiles([XFile(path)]);
     File(path).delete();
   }
+
+  /// Sets [title] of the window.
+  Future<void> setTitle(String title) async {
+    if (isWeb) {
+      WebUtils.title(title);
+    } else if (isDesktop) {
+      if (windowId != null) {
+        windowController.setTitle(title);
+      } else {
+        WindowManager.instance.setTitle(title);
+      }
+    }
+  }
+
+  /// Opens a new popup window with the provided [call].
+  Future<int?> openPopup(OngoingCall call, Credentials? credentials) async {
+    if (isWeb) {
+      bool window = WebUtils.openPopupCall(
+        call.chatId.value,
+        withAudio: call.audioState.value == LocalTrackState.enabling ||
+            call.audioState.value == LocalTrackState.enabled,
+        withVideo: call.videoState.value == LocalTrackState.enabling ||
+            call.videoState.value == LocalTrackState.enabled,
+        withScreen: call.screenShareState.value == LocalTrackState.enabling ||
+            call.screenShareState.value == LocalTrackState.enabled,
+      );
+
+      if (!window) {
+        throw Exception('Popup window not opened');
+      }
+    } else if (isDesktop) {
+      var desktopWindow = await DesktopMultiWindow.createWindow(
+        json.encode({
+          'call': json.encode(call.toStored().toJson()),
+          'credentials': json.encode(credentials?.toJson()),
+        }),
+      );
+      await desktopWindow.setFrame(const Offset(0, 0) & const Size(700, 700));
+      await desktopWindow.center();
+      await desktopWindow.setTitle('Call');
+      await desktopWindow.show();
+
+      _popupCalls[call.chatId.value] = desktopWindow.windowId;
+
+      return desktopWindow.windowId;
+    }
+
+    return null;
+  }
+
+  /// Indicates that a call with the provide [chatId] is opened in popup.
+  bool inPopup(ChatId chatId) =>
+      WebUtils.containsCall(chatId) || _popupCalls.containsKey(chatId);
+
+  /// Moves a popup call [from] the old [to] the new [ChatId].
+  void moveCall(ChatId from, ChatId to, {StoredCall? newState}) {
+    if (isWeb) {
+      WebUtils.moveCall(from, to, newState: newState);
+    } else {
+      int? id = _popupCalls.remove(from);
+      if (id != null) {
+        _popupCalls[to] = id;
+      }
+    }
+  }
+
+  /// Removes the provided popup [call].
+  void removeCall(OngoingCall call) {
+    if (PlatformUtils.isWeb) {
+      if (call.callChatItemId == null || call.connected) {
+        WebUtils.removeCall(call.chatId.value);
+      }
+    } else {
+      int? id = _popupCalls.remove(call.chatId.value);
+      if (id != null) {
+        WindowController.fromWindowId(id).close();
+      }
+    }
+  }
 }
 
 /// Determining whether a [BuildContext] is mobile or not.
@@ -382,14 +499,15 @@ extension MobileExtensionOnContext on BuildContext {
 }
 
 /// Listener interface for receiving window events.
-class _WindowListener extends WindowListener {
-  _WindowListener({
+class DesktopWindowListener extends WindowListener {
+  DesktopWindowListener({
     this.onLeaveFullscreen,
     this.onEnterFullscreen,
     this.onFocus,
     this.onBlur,
     this.onResized,
     this.onMoved,
+    this.onClose,
   });
 
   /// Callback, called when the window exits fullscreen.
@@ -409,6 +527,9 @@ class _WindowListener extends WindowListener {
 
   /// Callback, called when the window moves.
   final void Function(Offset offset)? onMoved;
+
+  /// Callback, called when the window closes.
+  final VoidCallback? onClose;
 
   @override
   void onWindowEnterFullScreen() => onEnterFullscreen?.call();
@@ -433,4 +554,9 @@ class _WindowListener extends WindowListener {
   @override
   void onWindowMoved() async =>
       onMoved?.call(await windowManager.getPosition());
+
+  @override
+  void onWindowClose() {
+    onClose?.call();
+  }
 }

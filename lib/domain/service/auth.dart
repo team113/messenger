@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -30,6 +31,7 @@ import '../repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 /// Authentication service exposing [credentials] of the authenticated session.
@@ -118,31 +120,61 @@ class AuthService extends GetxService {
     RememberedSession? remembered = creds?.rememberedSession;
 
     // Listen to the [Credentials] changes if this window is a popup.
-    if (WebUtils.isPopup) {
-      _storageSubscription = WebUtils.onStorageChange.listen((e) {
-        if (e.key == 'credentials') {
-          if (e.newValue == null) {
-            _authRepository.token = null;
-            credentials.value = null;
-            _status.value = RxStatus.empty();
-          } else {
-            Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
-            _authRepository.token = creds.session.token;
-            _authRepository.applyToken();
-            credentials.value = creds;
-            _status.value = RxStatus.success();
-          }
-
-          if (_tokenGuard.isLocked) {
-            _tokenGuard.release();
-          }
+    if (PlatformUtils.isPopup) {
+      onCredentials(String? newCredentials) {
+        if (newCredentials == null) {
+          _authRepository.token = null;
+          credentials.value = null;
+          _status.value = RxStatus.empty();
+        } else {
+          Credentials creds = Credentials.fromJson(json.decode(newCredentials));
+          _authRepository.token = creds.session.token;
+          _authRepository.applyToken();
+          credentials.value = creds;
+          _status.value = RxStatus.success();
         }
-      });
+
+        if (_tokenGuard.isLocked) {
+          _tokenGuard.release();
+        }
+      }
+
+      if (PlatformUtils.isWeb) {
+        _storageSubscription = WebUtils.onStorageChange.listen((e) {
+          if (e.key == 'credentials') {
+            onCredentials(e.newValue);
+          }
+        });
+      } else {
+        DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
+          if (methodCall.method == 'credentials') {
+            onCredentials(methodCall.arguments);
+          }
+        });
+      }
     } else {
       // Update the [Credentials] otherwise.
       WebUtils.credentials = creds;
-      _sessionSubscription = _sessionProvider.boxEvents
-          .listen((e) => WebUtils.credentials = e.value?.credentials);
+      _sessionSubscription = _sessionProvider.boxEvents.listen((e) async {
+        if (PlatformUtils.isWeb) {
+          WebUtils.credentials = e.value?.credentials;
+        } else if (!PlatformUtils.isPopup) {
+          try {
+            List<int> windows = await DesktopMultiWindow.getAllSubWindowIds();
+            for (var w in windows) {
+              DesktopMultiWindow.invokeMethod(
+                w,
+                'credentials',
+                e.value?.credentials == null
+                    ? null
+                    : json.encode(e.value?.credentials.toJson()),
+              );
+            }
+          } catch (_) {
+            // No-op.
+          }
+        }
+      });
       WebUtils.removeAllCalls();
     }
 
@@ -324,9 +356,9 @@ class AuthService extends GetxService {
     bool alreadyRenewing = _tokenGuard.isLocked;
 
     // Acquire the lock if this window is a popup.
-    if (WebUtils.isPopup) {
+    if (PlatformUtils.isPopup) {
       // The lock will be release once new [Credentials] are acquired via the
-      // [WebUtils.onStorageChange] stream.
+      // [WebUtils.onStorageChange] stream or method handler.
       await _tokenGuard.acquire();
       alreadyRenewing = true;
     }

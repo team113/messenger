@@ -343,6 +343,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
+    if (_state.route.startsWith(Routes.call)) {
+      return;
+    }
+
     _state.routes.value = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
@@ -726,6 +730,13 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+
+  /// Changes router location to the [Routes.call] page.
+  void call(ChatId id, {StoredCall? call}) {
+    go('${Routes.call}/$id');
+
+    arguments = {'call': call};
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

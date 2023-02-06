@@ -385,6 +385,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.0"
+  desktop_multi_window:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "045641d533cb926ac2a0285355be18decb636e4a"
+      url: "https://github.com/krida2000/desktop_multi_window"
+    source: git
+    version: "0.2.0"
   dio:
     dependency: "direct main"
     description:

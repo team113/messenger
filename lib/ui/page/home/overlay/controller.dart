@@ -16,17 +16,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/l10n/l10n.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -35,10 +39,17 @@ export 'view.dart';
 
 /// Controller of an [OngoingCall]s overlay.
 class CallOverlayController extends GetxController {
-  CallOverlayController(this._callService, this._settingsRepo);
+  CallOverlayController(
+    this._callService,
+    this._authService,
+    this._settingsRepo,
+  );
 
   /// Call service used to expose the [calls].
   final CallService _callService;
+
+  /// Authentication service used to get the stored [Credentials].
+  final AuthService _authService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -58,57 +69,70 @@ class CallOverlayController extends GetxController {
 
   @override
   void onInit() {
-    _subscription = _callService.calls.changes.listen((event) {
+    _subscription = _callService.calls.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
           bool window = false;
 
           var ongoingCall = event.value!.value;
-          if (PlatformUtils.isWeb &&
-              !PlatformUtils.isMobile &&
+          if (PlatformUtils.isDesktop &&
               _settings.value?.enablePopups != false) {
-            window = WebUtils.openPopupCall(
-              event.key!,
-              withAudio:
-                  ongoingCall.audioState.value == LocalTrackState.enabling ||
-                      ongoingCall.audioState.value == LocalTrackState.enabled,
-              withVideo:
-                  ongoingCall.videoState.value == LocalTrackState.enabling ||
-                      ongoingCall.videoState.value == LocalTrackState.enabled,
-              withScreen: ongoingCall.screenShareState.value ==
-                      LocalTrackState.enabling ||
-                  ongoingCall.screenShareState.value == LocalTrackState.enabled,
-            );
+            window = true;
+            try {
+              int? windowId = await PlatformUtils.openPopup(
+                ongoingCall,
+                _authService.credentials.value,
+              );
 
-            // If [window] is `true`, then a new popup window is created, so
-            // treat this call as a popup windowed call.
-            if (window) {
-              WebUtils.setCall(ongoingCall.toStored());
-              if (ongoingCall.callChatItemId == null ||
-                  ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  event.value!.value.call,
-                  (ChatCall? call) {
-                    WebUtils.setCall(
-                      WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ),
-                    );
+              if (PlatformUtils.isWeb) {
+                WebUtils.setCall(ongoingCall.toStored());
+                if (ongoingCall.callChatItemId == null ||
+                    ongoingCall.deviceId == null) {
+                  _workers[event.key!] = ever(
+                    ongoingCall.call,
+                    (ChatCall? call) {
+                      WebUtils.setCall(ongoingCall.toStored());
 
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
+                      if (call?.id != null) {
+                        _workers[event.key!]?.dispose();
+                      }
+                    },
+                  );
+                }
+              } else {
+                DesktopMultiWindow.invokeMethod(
+                  windowId!,
+                  'call',
+                  json.encode(ongoingCall.toStored().toJson()),
                 );
+
+                if (ongoingCall.callChatItemId == null ||
+                    ongoingCall.deviceId == null) {
+                  _workers[event.key!] = ever(
+                    ongoingCall.call,
+                    (ChatCall? call) {
+                      DesktopMultiWindow.invokeMethod(
+                        windowId,
+                        'call',
+                        json.encode(ongoingCall.toStored()),
+                      );
+
+                      if (call?.id != null) {
+                        _workers[event.key!]?.dispose();
+                      }
+                    },
+                  );
+                }
               }
-            } else {
-              Future.delayed(Duration.zero, () {
-                ongoingCall.addError('err_call_popup_was_blocked'.l10n);
-              });
+            } catch (e) {
+              if (PlatformUtils.isWeb) {
+                Future.delayed(Duration.zero, () {
+                  ongoingCall.addError('err_call_popup_was_blocked'.l10n);
+                });
+              }
+
+              Log.error(e);
+              window = false;
             }
           }
 
@@ -122,11 +146,7 @@ class CallOverlayController extends GetxController {
 
         case OperationKind.removed:
           calls.removeWhere((e) => e.call == event.value!);
-
-          OngoingCall call = event.value!.value;
-          if (call.callChatItemId == null || call.connected) {
-            WebUtils.removeCall(event.key!);
-          }
+          PlatformUtils.removeCall(event.value!.value);
           break;
 
         case OperationKind.updated:

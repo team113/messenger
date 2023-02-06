@@ -409,17 +409,17 @@ class WebUtils {
 
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
-  static WebStoredCall? getCall(ChatId chatId) {
+  static StoredCall? getCall(ChatId chatId) {
     var data = html.window.localStorage['call_$chatId'];
     if (data != null) {
-      return WebStoredCall.fromJson(json.decode(data));
+      return StoredCall.fromJson(json.decode(data));
     }
 
     return null;
   }
 
   /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) =>
+  static void setCall(StoredCall call) =>
       html.window.localStorage['call_${call.chatId}'] =
           json.encode(call.toJson());
 
@@ -433,7 +433,7 @@ class WebUtils {
   static void moveCall(
     ChatId chatId,
     ChatId newChatId, {
-    WebStoredCall? newState,
+    StoredCall? newState,
   }) {
     newState ??= WebUtils.getCall(chatId);
     WebUtils.removeCall(chatId);

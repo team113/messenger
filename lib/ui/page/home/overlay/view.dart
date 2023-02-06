@@ -34,7 +34,7 @@ class CallOverlayView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CallOverlayController>(
-      init: CallOverlayController(Get.find(), Get.find()),
+      init: CallOverlayController(Get.find(), Get.find(), Get.find()),
       builder: (CallOverlayController c) => Obx(
         () {
           return Stack(

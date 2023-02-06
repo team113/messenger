@@ -7,6 +7,10 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+#include "desktop_multi_window/desktop_multi_window_plugin.h"
+#include "medea_flutter_webrtc/medea_flutter_webrtc_plugin.h"
+#include "medea_jason/medea_jason_plugin.h"
+
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
@@ -58,6 +62,15 @@ static void my_application_activate(GApplication* application) {
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
+
+  desktop_multi_window_plugin_set_window_created_callback([](FlPluginRegistry* registry){
+    g_autoptr(FlPluginRegistrar) medea_flutter_webrtc_registrar =
+        fl_plugin_registry_get_registrar_for_plugin(registry, "MedeaFlutterWebrtcPlugin");
+    medea_flutter_webrtc_plugin_register_with_registrar(medea_flutter_webrtc_registrar);
+    g_autoptr(FlPluginRegistrar) medea_jason_registrar =
+        fl_plugin_registry_get_registrar_for_plugin(registry, "MedeaJasonPlugin");
+    medea_jason_plugin_register_with_registrar(medea_jason_registrar);
+  });
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }

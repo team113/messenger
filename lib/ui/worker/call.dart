@@ -20,6 +20,7 @@ import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -364,28 +365,42 @@ class CallWorker extends DisposableService {
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
-    _storageSubscription = WebUtils.onStorageChange.listen((s) {
-      if (s.key == null) {
-        stop();
-      } else if (s.key?.startsWith('call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
-        if (s.newValue == null) {
-          _callService.remove(chatId);
+    onCall(ChatId chatId, String? call) {
+      if (call == null) {
+        _callService.remove(chatId);
+        _workers.remove(chatId)?.dispose();
+        if (_workers.isEmpty) {
+          stop();
+        }
+      } else {
+        var storedCall = StoredCall.fromJson(json.decode(call));
+        if (storedCall.state != OngoingCallState.local &&
+            storedCall.state != OngoingCallState.pending) {
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
           }
-        } else {
-          var call = WebStoredCall.fromJson(json.decode(s.newValue!));
-          if (call.state != OngoingCallState.local &&
-              call.state != OngoingCallState.pending) {
-            _workers.remove(chatId)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-          }
         }
       }
-    });
+    }
+
+    if (PlatformUtils.isWeb) {
+      _storageSubscription = WebUtils.onStorageChange.listen((s) {
+        if (s.key == null) {
+          stop();
+        } else if (s.key!.startsWith('call_')) {
+          ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
+          onCall(chatId, s.newValue);
+        }
+      });
+    } else if (PlatformUtils.isDesktop) {
+      DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
+        if (methodCall.method.startsWith('call_')) {
+          ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
+          onCall(chatId, methodCall.arguments);
+        }
+      });
+      DesktopMultiWindow.setMethodHandlers();
+    }
   }
 }

@@ -437,8 +437,8 @@ class CallController extends GetxController {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
     } else {
-      // If not [WebUtils.isPopup], then subtract the title bar from the height.
-      if (fullscreen.isTrue && !WebUtils.isPopup) {
+      // If not [PlatformUtils.isPopup], then subtract the title bar from the height.
+      if (fullscreen.isTrue && !PlatformUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - titleHeight);
       } else {
@@ -568,14 +568,14 @@ class CallController extends GetxController {
         secondaryBottomShifted = secondaryBottom.value;
       }
 
-      // Update the [WebUtils.title] if this call is in a popup.
-      if (WebUtils.isPopup) {
+      // Update the window title if this call is in a popup.
+      if (PlatformUtils.isPopup) {
         _titleSubscription?.cancel();
         _durationSubscription?.cancel();
 
         if (v != null) {
           void updateTitle() {
-            WebUtils.title(
+            PlatformUtils.setTitle(
               '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
             );
           }
@@ -588,14 +588,6 @@ class CallController extends GetxController {
         }
       }
     }
-
-    _chatService
-        .get(_currentCall.value.chatId.value)
-        .then(onChat)
-        .whenComplete(() {
-      members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
-    });
 
     _chatWorker = ever(
       _currentCall.value.chatId,
@@ -802,39 +794,48 @@ class CallController extends GetxController {
       }
     }
 
-    _membersTracksSubscriptions = _currentCall.value.members.map(
-      (k, v) =>
-          MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
-    );
+    _chatService
+        .get(_currentCall.value.chatId.value)
+        .then(onChat)
+        .whenComplete(() {
+      members.forEach((_, value) => _putMember(value));
+      _insureCorrectGrouping();
 
-    _membersSubscription = _currentCall.value.members.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putMember(e.value!);
-          _membersTracksSubscriptions[e.key!] = e.value!.tracks.changes.listen(
-            (c) => onTracksChanged(e.value!, c),
-          );
+      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _putMember(e.value!);
+            _membersTracksSubscriptions[e.key!] =
+                e.value!.tracks.changes.listen(
+              (c) => onTracksChanged(e.value!, c),
+            );
 
-          _insureCorrectGrouping();
-          break;
+            _insureCorrectGrouping();
+            break;
 
-        case OperationKind.removed:
-          bool wasNotEmpty = primary.isNotEmpty;
-          paneled.removeWhere((m) => m.member.id == e.key);
-          locals.removeWhere((m) => m.member.id == e.key);
-          focused.removeWhere((m) => m.member.id == e.key);
-          remotes.removeWhere((m) => m.member.id == e.key);
-          _membersTracksSubscriptions.remove(e.key)?.cancel();
-          _insureCorrectGrouping();
-          if (wasNotEmpty && primary.isEmpty) {
-            focusAll();
-          }
-          break;
+          case OperationKind.removed:
+            bool wasNotEmpty = primary.isNotEmpty;
+            paneled.removeWhere((m) => m.member.id == e.key);
+            locals.removeWhere((m) => m.member.id == e.key);
+            focused.removeWhere((m) => m.member.id == e.key);
+            remotes.removeWhere((m) => m.member.id == e.key);
+            _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _insureCorrectGrouping();
+            if (wasNotEmpty && primary.isEmpty) {
+              focusAll();
+            }
+            break;
 
-        case OperationKind.updated:
-          _insureCorrectGrouping();
-          break;
-      }
+          case OperationKind.updated:
+            _insureCorrectGrouping();
+            break;
+        }
+      });
+
+      _membersTracksSubscriptions = _currentCall.value.members.map(
+        (k, v) =>
+            MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
+      );
     });
   }
 
@@ -1400,9 +1401,11 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy -
-          ((WebUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
+          ((PlatformUtils.isPopup || router.context!.isMobile)
+              ? 0
+              : titleHeight) -
           secondaryPanningOffset!.dy;
-    } else if (WebUtils.isPopup) {
+    } else if (PlatformUtils.isPopup) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
     } else {

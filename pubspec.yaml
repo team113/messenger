@@ -17,6 +17,9 @@ dependencies:
   chewie: ^1.4.0
   collection: ^1.17.0
   desktop_drop: ^0.4.0
+  desktop_multi_window:
+    git:
+      url: https://github.com/krida2000/desktop_multi_window
   dio: ^4.0.6
   dough:
     git:

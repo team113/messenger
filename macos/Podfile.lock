@@ -6,6 +6,8 @@ PODS:
     - ReachabilitySwift
   - desktop_drop (0.0.1):
     - FlutterMacOS
+  - desktop_multi_window (0.0.1):
+    - FlutterMacOS
   - flutter_app_badger (1.3.0):
     - FlutterMacOS
   - flutter_local_notifications (0.0.1):
@@ -41,6 +43,7 @@ DEPENDENCIES:
   - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
+  - desktop_multi_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_multi_window/macos`)
   - flutter_app_badger (from `Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
@@ -67,6 +70,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
+  desktop_multi_window:
+    :path: Flutter/ephemeral/.symlinks/plugins/desktop_multi_window/macos
   flutter_app_badger:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos
   flutter_local_notifications:
@@ -98,6 +103,7 @@ SPEC CHECKSUMS:
   audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
+  desktop_multi_window: 566489c048b501134f9d7fb6a2354c60a9126486
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24

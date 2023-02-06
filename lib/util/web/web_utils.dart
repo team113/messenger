@@ -49,19 +49,22 @@ class WebStorageEvent {
 }
 
 /// Model of an [OngoingCall] stored in the browser's storage.
-class WebStoredCall {
-  const WebStoredCall({
+class StoredCall {
+  const StoredCall({
     required this.chatId,
     this.call,
     this.creds,
     this.deviceId,
     this.state = OngoingCallState.local,
+    this.withAudio = true,
+    this.withVideo = false,
+    this.withScreen = false,
   });
 
-  /// [ChatCall] of this [WebStoredCall].
+  /// [ChatCall] of this [StoredCall].
   final ChatCall? call;
 
-  /// [ChatId] of this [WebStoredCall].
+  /// [ChatId] of this [StoredCall].
   final ChatId chatId;
 
   /// Stored [OngoingCall.creds].
@@ -73,9 +76,18 @@ class WebStoredCall {
   /// Stored [OngoingCall.state].
   final OngoingCallState state;
 
-  /// Constructs a [WebStoredCall] from the provided [data].
-  factory WebStoredCall.fromJson(Map<dynamic, dynamic> data) {
-    return WebStoredCall(
+  /// Indicator whether microphone is enabled.
+  final bool withAudio;
+
+  /// Indicator whether camera is enabled.
+  final bool withVideo;
+
+  /// Indicator whether screen share is enabled.
+  final bool withScreen;
+
+  /// Constructs a [StoredCall] from the provided [data].
+  factory StoredCall.fromJson(Map<dynamic, dynamic> data) {
+    return StoredCall(
       chatId: ChatId(data['chatId']),
       call: data['call'] == null
           ? null
@@ -109,10 +121,13 @@ class WebStoredCall {
       state: data['state'] == null
           ? OngoingCallState.local
           : OngoingCallState.values[data['state']],
+      withAudio: data['withAudio'],
+      withVideo: data['withVideo'],
+      withScreen: data['withScreen'],
     );
   }
 
-  /// Returns a [Map] containing this [WebStoredCall] data.
+  /// Returns a [Map] containing this [StoredCall] data.
   Map<String, dynamic> toJson() {
     return {
       'chatId': chatId.val,
@@ -145,6 +160,9 @@ class WebStoredCall {
       'creds': creds?.val,
       'deviceId': deviceId?.val,
       'state': state.index,
+      'withAudio': withAudio,
+      'withVideo': withVideo,
+      'withScreen': withScreen,
     };
   }
 }
@@ -181,17 +199,23 @@ class WebCallPreferences {
   }
 }
 
-/// Extension adding a conversion from an [OngoingCall] to a [WebStoredCall].
+/// Extension adding a conversion from an [OngoingCall] to a [StoredCall].
 extension WebStoredOngoingCallConversion on OngoingCall {
-  /// Constructs a [WebStoredCall] containing all necessary information of this
+  /// Constructs a [StoredCall] containing all necessary information of this
   /// [OngoingCall] to be stored in the browser's storage.
-  WebStoredCall toStored() {
-    return WebStoredCall(
+  StoredCall toStored() {
+    return StoredCall(
       chatId: chatId.value,
       call: call.value,
       creds: creds,
       state: state.value,
       deviceId: deviceId,
+      withAudio: audioState.value == LocalTrackState.enabling ||
+          audioState.value == LocalTrackState.enabled,
+      withVideo: videoState.value == LocalTrackState.enabling ||
+          videoState.value == LocalTrackState.enabled,
+      withScreen: screenShareState.value == LocalTrackState.enabling ||
+          screenShareState.value == LocalTrackState.enabled,
     );
   }
 }

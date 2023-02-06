@@ -28,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
+        - Opening in separate window on desktop. ([#93], [#87])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -84,6 +85,8 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#63]: /../../issues/63
+[#87]: /../../issues/87
+[#93]: /../../pull/93
 [#102]: /../../issues/102
 [#126]: /../../issues/126
 [#134]: /../../issues/134

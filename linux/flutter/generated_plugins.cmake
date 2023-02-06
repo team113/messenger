@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   desktop_drop
+  desktop_multi_window
   medea_flutter_webrtc
   medea_jason
   screen_retriever

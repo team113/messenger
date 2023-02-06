@@ -1270,7 +1270,6 @@ class OngoingCall {
     for (Track t in members.values.expand((e) => e.tracks)) {
       t.dispose();
     }
-    members.removeWhere((id, _) => id != _me);
   }
 
   /// Updates the local media settings with [audioDevice], [videoDevice] or

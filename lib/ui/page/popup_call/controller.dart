@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -26,6 +27,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/service/call.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -43,6 +45,9 @@ class PopupCallController extends GetxController {
   /// [CallService] maintaining the [call].
   final CallService _calls;
 
+  /// Controller of a popup window on desktop.
+  WindowController? _windowController;
+
   /// [StreamSubscription] to [WebUtils.onStorageChange] communicating with the
   /// main application.
   StreamSubscription? _storageSubscription;
@@ -56,46 +61,113 @@ class PopupCallController extends GetxController {
 
   @override
   void onInit() {
-    Uri uri = Uri.parse(router.route);
+    if (!PlatformUtils.isWeb) {
+      _windowController =
+          WindowController.fromWindowId(PlatformUtils.windowId!);
+    }
 
-    WebStoredCall? stored = WebUtils.getCall(chatId);
-    if (stored == null || WebUtils.credentials == null) {
-      return WebUtils.closeWindow();
+    StoredCall? stored;
+    if (PlatformUtils.isWeb) {
+      stored = WebUtils.getCall(chatId);
+    } else if (PlatformUtils.isDesktop) {
+      stored = router.arguments!['call'];
+    }
+
+    if (stored == null ||
+        (PlatformUtils.isWeb && WebUtils.credentials == null)) {
+      if (PlatformUtils.isWeb) {
+        WebUtils.closeWindow();
+      } else {
+        _windowController?.close();
+      }
+      return;
+    }
+
+    bool withAudio, withVideo, withScreen;
+    if (PlatformUtils.isWeb) {
+      Uri uri = Uri.parse(router.route);
+      withAudio = uri.queryParameters['audio'] != 'false';
+      withVideo = uri.queryParameters['video'] == 'true';
+      withScreen = uri.queryParameters['screen'] == 'true';
+    } else {
+      withAudio = stored.withAudio;
+      withVideo = stored.withVideo;
+      withScreen = stored.withScreen;
     }
 
     call = _calls.addStored(
       stored,
-      withAudio: uri.queryParameters['audio'] != 'false',
-      withVideo: uri.queryParameters['video'] == 'true',
-      withScreen: uri.queryParameters['screen'] == 'true',
+      withAudio: withAudio,
+      withVideo: withVideo,
+      withScreen: withScreen,
     );
 
     _stateWorker = ever(
       call.value.state,
       (OngoingCallState state) {
-        WebUtils.setCall(call.value.toStored());
-        if (state == OngoingCallState.ended) {
-          WebUtils.closeWindow();
+        if (PlatformUtils.isWeb) {
+          WebUtils.setCall(call.value.toStored());
+          if (state == OngoingCallState.ended) {
+            WebUtils.closeWindow();
+          }
+        } else {
+          DesktopMultiWindow.invokeMethod(
+            DesktopMultiWindow.mainWindowId,
+            'call_${call.value.chatId.value.val}',
+            json.encode(call.value.toStored().toJson()),
+          );
+          if (state == OngoingCallState.ended) {
+            _windowController?.close();
+          }
         }
       },
     );
 
-    _storageSubscription = WebUtils.onStorageChange.listen((e) {
-      if (e.key == null) {
-        WebUtils.closeWindow();
-      } else if (e.newValue == null) {
-        if (e.key == 'credentials' || e.key == 'call_${call.value.chatId}') {
+    if (PlatformUtils.isWeb) {
+      _storageSubscription = WebUtils.onStorageChange.listen((e) {
+        if (e.key == null) {
           WebUtils.closeWindow();
+        } else if (e.newValue == null) {
+          if (e.key == 'credentials' || e.key == 'call_${call.value.chatId}') {
+            WebUtils.closeWindow();
+          }
+        } else if (e.key == 'call_${call.value.chatId}') {
+          var newValue = StoredCall.fromJson(json.decode(e.newValue!));
+          call.value.call.value = newValue.call;
+          call.value.creds = call.value.creds ?? newValue.creds;
+          call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
+          call.value.chatId.value = newValue.chatId;
+          _tryToConnect();
         }
-      } else if (e.key == 'call_${call.value.chatId}') {
-        var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
-        call.value.call.value = stored.call;
-        call.value.creds = call.value.creds ?? stored.creds;
-        call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-        call.value.chatId.value = stored.chatId;
-        _tryToConnect();
-      }
-    });
+      });
+    } else {
+      _windowController!.setOnWindowClose(() async {
+        if (call.value.deviceId != null) {
+          _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        }
+        await DesktopMultiWindow.invokeMethod(
+          DesktopMultiWindow.mainWindowId,
+          'call_${call.value.chatId.value.val}',
+        );
+      });
+
+      DesktopMultiWindow.addMethodHandler((methodCall, _) async {
+        if (methodCall.arguments == null) {
+          _windowController?.close();
+        }
+
+        if (methodCall.method == 'call') {
+          var newValue = StoredCall.fromJson(json.decode(methodCall.arguments));
+
+          call.value.call.value = newValue.call;
+          call.value.creds = call.value.creds ?? newValue.creds;
+          call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
+          call.value.chatId.value = newValue.chatId;
+          _tryToConnect();
+        }
+      });
+      DesktopMultiWindow.setMethodHandlers();
+    }
 
     _tryToConnect();
     Wakelock.enable().onError((_, __) => false);
@@ -105,7 +177,14 @@ class PopupCallController extends GetxController {
   @override
   void onClose() {
     Wakelock.disable().onError((_, __) => false);
-    WebUtils.removeCall(call.value.chatId.value);
+    if (PlatformUtils.isWeb) {
+      WebUtils.removeCall(call.value.chatId.value);
+    } else {
+      DesktopMultiWindow.invokeMethod(
+        DesktopMultiWindow.mainWindowId,
+        'call_${call.value.chatId.value.val}',
+      );
+    }
     _storageSubscription?.cancel();
     _stateWorker.dispose();
     _calls.leave(call.value.chatId.value);
