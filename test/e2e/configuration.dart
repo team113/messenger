@@ -200,7 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  // FlutterError.onError = ignoreOverflowErrors;
+  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);
