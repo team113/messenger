@@ -43,9 +43,9 @@ Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
 ///
 /// Examples:
 /// - When I long press "Name" chat.
-final StepDefinitionGeneric selectText = when1<String, CustomWorld>(
-  'I select {string} text',
-  (text, context) async {
+final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
+  'I select {string} text from {int} to {int} symbols',
+  (text, from, to, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
     RxChat? chat =
@@ -73,11 +73,11 @@ final StepDefinitionGeneric selectText = when1<String, CustomWorld>(
     print(paragraph);
 
     final TestGesture gesture = await context.world.appDriver.nativeDriver
-        .startGesture(textOffsetToPosition(paragraph, 2),
+        .startGesture(textOffsetToPosition(paragraph, from),
             kind: PointerDeviceKind.mouse);
     await context.world.appDriver.nativeDriver.pump();
 
-    await gesture.moveTo(textOffsetToPosition(paragraph, 10));
+    await gesture.moveTo(textOffsetToPosition(paragraph, to));
 
     await gesture.up();
 

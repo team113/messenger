@@ -88,3 +88,30 @@ final StepDefinitionGeneric longPressMessageByAttachment =
     await context.world.appDriver.waitForAppToSettle();
   },
 );
+
+/// Long presses a [ChatMessage] with the provided attachment attached to it in
+/// the currently opened [Chat].
+///
+/// Examples:
+/// - Then I long press message with "test.jpg"
+/// - Then I long press message with "test.txt"
+final StepDefinitionGeneric tapMessageByAttachment = then1<String, CustomWorld>(
+  'I tap {string} message',
+  (text, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    ChatMessage message = chat!.messages
+        .map((e) => e.value)
+        .whereType<ChatMessage>()
+        .firstWhere((e) => e.text?.val == text);
+
+    Finder finder =
+        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+
+    // await context.world.appDriver.nativeDriver.longPress(finder);
+    await context.world.appDriver.nativeDriver.tap(finder);
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);

@@ -143,6 +143,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeUserInSearchResults,
         checkCopyText,
+        tapMessageByAttachment,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,

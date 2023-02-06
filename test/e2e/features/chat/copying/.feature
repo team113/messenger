@@ -15,7 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat items are deleted correctly
+Feature: Text message are copying correctly
 
   Background: User is in dialog with Bob
     Given I am Alice
@@ -23,17 +23,21 @@ Feature: Chat items are deleted correctly
     And Bob has dialog with me
     And I am in chat with Bob
 
-  Scenario: User deletes message
+  Scenario: User copies text of message
     When I fill `MessageField` field with "For selection"
     And I tap `Send` button
     Then I wait until status of "For selection" message is sent
 
-    When I select "For selection" text
-#    Then I pause for 5 seconds
     When I long press "For selection" message
-#    Then I pause for 5 seconds
     And I tap `CopyButton` button
-    And copied text is "r select"
-#    And I tap `DeleteForAll` button
-#    And I tap `Proceed` button
-#    Then I wait until text "For deletion" is absent
+    And copied text is "For selection"
+
+    When I select "For selection" text from 2 to 10 symbols
+    And I long press "For selection" message
+    And I tap `CopyButton` button
+    Then copied text is "r select"
+
+    Then I tap "For selection" message
+    And I long press "For selection" message
+    And I tap `CopyButton` button
+    Then copied text is "For selection"
