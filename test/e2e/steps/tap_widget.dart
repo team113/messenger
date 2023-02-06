@@ -17,7 +17,6 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 
@@ -37,32 +36,29 @@ import '../parameters/keys.dart';
 final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
   (key, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        try {
-          final finder =
-              context.world.appDriver.findByKeySkipOffstage(key.name).first;
+      final finder =
+          context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
-        if (await context.world.appDriver.isPresent(finder)) {
-          Offset? position =
-              (finder.evaluate().first.renderObject as RenderBox?)
-                  ?.localToGlobal(Offset.zero);
+      if (await context.world.appDriver.isPresent(finder)) {
+        Offset? position = (finder.evaluate().first.renderObject as RenderBox?)
+            ?.localToGlobal(Offset.zero);
 
-          if ((position?.dy ?? 0) + 200 >
-              MediaQuery.of(router.context!).size.height) {
-            await context.world.appDriver.scrollIntoView(finder);
-          }
-
-          await context.world.appDriver.waitForAppToSettle();
-          await context.world.appDriver.tap(
-            finder,
-            timeout: context.configuration.timeout,
-          );
-          await context.world.appDriver.waitForAppToSettle();
-          return true;
+        if ((position?.dy ?? 0) + 200 >
+            MediaQuery.of(router.context!).size.height) {
+          await context.world.appDriver.scrollIntoView(finder);
         }
+
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
+        return true;
+      }
 
       return false;
     }, timeout: const Duration(seconds: 20));

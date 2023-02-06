@@ -285,8 +285,7 @@ class HiveRxChat extends RxChat {
 
       _fragment!.init();
 
-        updateReads();
-      }
+      updateReads();
 
       _initLocalSubscription();
       await _initAttachments(messages.map((e) => e.value));
@@ -375,7 +374,7 @@ class HiveRxChat extends RxChat {
 
     await _fragment!.loadInitialPage();
 
-Future.delayed(Duration.zero, updateReads);
+    Future.delayed(Duration.zero, updateReads);
 
     status.value = RxStatus.success();
   }
@@ -809,7 +808,7 @@ Future.delayed(Duration.zero, updateReads);
       await Future.wait(futures);
     }
   }
-  
+
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
     return messages

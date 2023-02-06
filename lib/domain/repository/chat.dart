@@ -242,7 +242,7 @@ abstract class RxChat {
 
   /// Indicates whether the [messages] has previous page.
   bool get hasPreviousPage;
-  
+
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
 

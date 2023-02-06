@@ -77,7 +77,7 @@ class ContactsTabController extends GetxController {
 
   /// Indicator whether a loading indicator should be showed.
   RxBool isLoadingNextPage = RxBool(false);
-  
+
   /// Indicator whether an ongoing reordering is happening or not.
   ///
   /// Used to discard a broken [FadeInAnimation].

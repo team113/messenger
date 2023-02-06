@@ -107,7 +107,7 @@ class PaginatedFragment<T> {
   Future<void> loadInitialPage() async {
     ItemsPage<T>? fetched;
 
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     if (initialCursor != null) {
       fetched = await onFetchPage(
         first: pageSize ~/ 2 - 1,
@@ -159,7 +159,7 @@ class PaginatedFragment<T> {
     if (!_isNextPageLoading) {
       _isNextPageLoading = true;
 
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
       ItemsPage<T>? fetched = await onFetchPage(
         first: pageSize,
         after: _lastItemCursor,
@@ -201,7 +201,7 @@ class PaginatedFragment<T> {
 
     _isPrevPageLoading = true;
 
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     ItemsPage<T>? fetched =
         await onFetchPage(last: pageSize, before: _firstItemCursor);
 

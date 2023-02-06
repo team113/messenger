@@ -391,19 +391,21 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              [...c.contacts.mapIndexed((i, e) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                              [
+                                ...c.contacts.mapIndexed((i, e) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: _contact(context, e, c),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }), if(c.isLoadingNextPage.isTrue)
-                              _loadingIndicator(),
+                                  );
+                                }),
+                                if (c.isLoadingNextPage.isTrue)
+                                  _loadingIndicator(),
                               ],
                             ),
                           ),
@@ -553,7 +555,7 @@ class ContactsTabView extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
   Future<void> _removeFromContacts(

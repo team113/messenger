@@ -87,7 +87,7 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether a loading indicator should be showed.
   RxBool isLoadingNextPage = RxBool(false);
-  
+
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 

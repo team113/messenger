@@ -127,7 +127,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Subscription to the [PaginatedFragment.elements] changes.
   StreamSubscription? _fragmentSubscription;
-  
+
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
 

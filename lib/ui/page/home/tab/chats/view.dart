@@ -496,11 +496,12 @@ class ChatsTabView extends StatelessWidget {
                           key: const Key('Chats'),
                           child: ListView.builder(
                             controller: c.scrollController,
-                            itemCount: c.chats.length + (c.isLoadingNextPage.isTrue ? 1 : 0),,
+                            itemCount: c.chats.length +
+                                (c.isLoadingNextPage.isTrue ? 1 : 0),
                             itemBuilder: (_, i) {
                               if (c.chats.length == i) {
-                        return _loadingIndicator();
-                      }
+                                return _loadingIndicator();
+                              }
 
                               final RxChat chat = c.chats[i];
                               return AnimationConfiguration.staggeredList(
@@ -590,7 +591,7 @@ class ChatsTabView extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Returns an animated [OutlinedRoundedButton]s for creating a group.
   Widget _createGroup(BuildContext context, ChatsTabController c) {
     return Obx(() {
