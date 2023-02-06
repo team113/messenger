@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -618,23 +619,184 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     switch (message.action) {
       case ChatMemberInfoAction.created:
         if (widget.chat.value?.isGroup == true) {
-          content = Text('label_group_created'.l10n);
+          content = FutureBuilder(
+            future: widget.getUser?.call(message.authorId),
+            builder: (context, snapshot) {
+              if (snapshot.data != null) {
+                return Obx(() {
+                  final User user = snapshot.data!.user.value;
+                  final Map<String, dynamic> args = {
+                    'author': user.name?.val ?? user.num.val,
+                  };
+
+                  return RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'label_group_created_by1'.l10nfmt(args),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => router.user(message.user.id, push: true),
+                        ),
+                        TextSpan(
+                          text: 'label_group_created_by2'.l10nfmt(args),
+                          style: style.systemMessageStyle.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                      style: style.systemMessageStyle.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  );
+                });
+              }
+
+              return Text('label_group_created'.l10n);
+            },
+          );
         } else {
           content = Text('label_dialog_created'.l10n);
         }
         break;
 
       case ChatMemberInfoAction.added:
-        content = Text(
-          'label_was_added'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        content = FutureBuilder(
+          future: widget.getUser?.call(message.authorId),
+          builder: (context, snapshot) {
+            if (snapshot.data != null && message.authorId != message.user.id) {
+              return Obx(() {
+                final User user = snapshot.data!.user.value;
+                final Map<String, dynamic> args = {
+                  'author': user.name?.val ?? user.num.val,
+                  'user': message.user.name?.val ?? message.user.num.val,
+                };
+
+                return RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_user_added_user1'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => router.user(user.id, push: true),
+                      ),
+                      TextSpan(
+                        text: 'label_user_added_user2'.l10nfmt(args),
+                        style: style.systemMessageStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_user_added_user3'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                    ],
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                );
+              });
+            }
+
+            final Map<String, dynamic> args = {
+              'author': message.user.name?.val ?? message.user.num.val,
+            };
+
+            return RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'label_was_added1'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(message.user.id, push: true),
+                  ),
+                  TextSpan(
+                    text: 'label_was_added2'.l10nfmt(args),
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            );
+          },
         );
         break;
 
       case ChatMemberInfoAction.removed:
-        content = Text(
-          'label_was_removed'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        content = FutureBuilder(
+          future: widget.getUser?.call(message.authorId),
+          builder: (context, snapshot) {
+            if (snapshot.data != null && message.authorId != message.user.id) {
+              return Obx(() {
+                final User user = snapshot.data!.user.value;
+                final Map<String, dynamic> args = {
+                  'author': user.name?.val ?? user.num.val,
+                  'user': message.user.name?.val ?? message.user.num.val,
+                };
+
+                return RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_user_removed_user1'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                      TextSpan(
+                        text: 'label_user_removed_user2'.l10nfmt(args),
+                        style: style.systemMessageStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_user_removed_user3'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                    ],
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                );
+              });
+            }
+
+            final Map<String, dynamic> args = {
+              'author': message.user.name?.val ?? message.user.num.val,
+            };
+
+            return RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'label_was_removed1'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(message.user.id, push: true),
+                  ),
+                  TextSpan(
+                    text: 'label_was_removed2'.l10nfmt(args),
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            );
+          },
         );
         break;
 

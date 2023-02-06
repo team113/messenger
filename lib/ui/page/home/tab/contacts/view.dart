@@ -543,14 +543,15 @@ class ContactsTabView extends StatelessWidget {
                   trailing: const Icon(Icons.star),
                 ),
           ContextMenuButton(
+            label: 'btn_delete_contact'.l10n,
+            onPressed: () => _removeFromContacts(c, context, contact),
+            trailing: const Icon(Icons.delete),
+          ),
+          const ContextMenuDivider(),
+          ContextMenuButton(
             label: 'btn_select'.l10n,
             onPressed: c.toggleSelecting,
             trailing: const Icon(Icons.select_all),
-          ),
-          ContextMenuButton(
-            label: 'btn_delete'.l10n,
-            onPressed: () => _removeFromContacts(c, context, contact),
-            trailing: const Icon(Icons.delete),
           ),
         ],
         subtitle: [

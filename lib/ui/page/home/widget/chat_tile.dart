@@ -64,7 +64,7 @@ class ChatTile extends StatelessWidget {
   final List<Widget> subtitle;
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
-  final List<ContextMenuButton> actions;
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;

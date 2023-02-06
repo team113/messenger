@@ -1333,14 +1333,14 @@ class PublicsTabView extends StatelessWidget {
             case ChatMemberInfoAction.added:
               content = Text(
                 'label_was_added'
-                    .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                    .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
               );
               break;
 
             case ChatMemberInfoAction.removed:
               content = Text(
                 'label_was_removed'
-                    .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                    .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
               );
               break;
 

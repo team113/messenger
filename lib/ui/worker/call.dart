@@ -298,7 +298,7 @@ class CallWorker extends DisposableService {
         await _audioPlayer?.play(
           AssetSource('audio/$asset'),
           position: Duration.zero,
-          mode: PlayerMode.mediaPlayer,
+          mode: PlayerMode.lowLatency,
         );
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {

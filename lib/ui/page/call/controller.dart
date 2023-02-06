@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -273,6 +274,9 @@ class CallController extends GetxController {
 
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
+
+  final AudioPlayer _reconnectPlayer = AudioPlayer();
+  Worker? _reconnectWorker;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -728,7 +732,6 @@ class CallController extends GetxController {
       // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
         persisted = [
-          ReconnectButton(this),
           ScreenButton(this),
           VideoButton(this),
           EndCallButton(this),
@@ -763,7 +766,6 @@ class CallController extends GetxController {
       RemoteAudioButton(this),
       VideoButton(this),
       AudioButton(this),
-      ReconnectButton(this),
     ]);
 
     _buttonsWorker = ever(buttons, (List<CallButton> list) {
@@ -856,6 +858,20 @@ class CallController extends GetxController {
           break;
       }
     });
+
+    AudioCache.instance.loadAll(['audio/ringing.mp3']);
+    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) async {
+      if (b) {
+        await _reconnectPlayer.setReleaseMode(ReleaseMode.loop);
+        await _reconnectPlayer.play(
+          AssetSource('audio/ringing.mp3'),
+          position: Duration.zero,
+          mode: PlayerMode.lowLatency,
+        );
+      } else {
+        await _reconnectPlayer.stop();
+      }
+    });
   }
 
   @override
@@ -873,6 +889,7 @@ class CallController extends GetxController {
     _durationSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
+    _reconnectPlayer.dispose();
 
     secondaryEntry?.remove();
 

@@ -26,10 +26,12 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -40,6 +42,7 @@ class ChatWorker extends DisposableService {
     this._chatService,
     this._myUserService,
     this._notificationService,
+    this._userService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
@@ -50,6 +53,8 @@ class ChatWorker extends DisposableService {
 
   /// [NotificationService], used to show a new [Chat] message notification.
   final NotificationService _notificationService;
+
+  final UserService _userService;
 
   /// [Duration] indicating whether the difference between [ChatItem.at] and
   /// [DateTime.now] is small enough to show a new message notification.
@@ -142,6 +147,7 @@ class ChatWorker extends DisposableService {
         }
       },
       me: () => _chatService.me,
+      getUser: _userService.get,
     );
   }
 }
@@ -153,10 +159,11 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?)? onNotification,
     UserId? Function()? me,
+    Future<RxUser?> Function(UserId)? getUser,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
     worker = ever(
       c,
-      (Chat chat) {
+      (Chat chat) async {
         if (chat.lastItem != null) {
           if (chat.lastItem!.at.isAfter(updatedAt) &&
               DateTime.now()
@@ -191,17 +198,41 @@ class _ChatWatchData {
                   break;
 
                 case ChatMemberInfoAction.added:
-                  body.write(
-                    'label_was_added'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
-                  );
+                  final RxUser? author = await getUser?.call(msg.authorId);
+                  if (author?.id == msg.user.id || author == null) {
+                    body.write(
+                      'label_was_added'.l10nfmt({
+                        'author': msg.user.name?.val ?? msg.user.num.val,
+                      }),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_added_user'.l10nfmt({
+                        'author': author.user.value.name?.val ??
+                            author.user.value.num.val,
+                        'user': msg.user.name?.val ?? msg.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
                 case ChatMemberInfoAction.removed:
-                  body.write(
-                    'label_was_removed'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
-                  );
+                  final RxUser? author = await getUser?.call(msg.authorId);
+                  if (author?.id == msg.user.id || author == null) {
+                    body.write(
+                      'label_was_removed'.l10nfmt({
+                        'author': msg.user.name?.val ?? msg.user.num.val,
+                      }),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_removed_user'.l10nfmt({
+                        'author': author.user.value.name?.val ??
+                            author.user.value.num.val,
+                        'user': msg.user.name?.val ?? msg.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
                 case ChatMemberInfoAction.artemisUnknown:
