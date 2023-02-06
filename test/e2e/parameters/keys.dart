@@ -24,6 +24,7 @@ enum WidgetKey {
   AddMemberButton,
   AddPhone,
   AlertDialog,
+  CopyButton,
   AlertNoButton,
   AlertYesButton,
   Approve,

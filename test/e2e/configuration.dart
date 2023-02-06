@@ -142,6 +142,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactPosition,
         seeDraftInDialog,
         seeUserInSearchResults,
+        checkCopyText,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,

@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -82,5 +83,20 @@ final StepDefinitionGeneric selectText = when1<String, CustomWorld>(
 
     await context.world.appDriver.nativeDriver.pump();
     await gesture.removePointer();
+  },
+);
+
+/// Long presses a [Chat] with the provided name.
+///
+/// Examples:
+/// - When I long press "Name" chat.
+final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
+  'copied text is {string}',
+  (text, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+    ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
+    // print('selected text:');
+    expect(text, cdata?.text);
+    // print(cdata?.text);
   },
 );

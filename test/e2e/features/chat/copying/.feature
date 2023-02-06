@@ -24,15 +24,16 @@ Feature: Chat items are deleted correctly
     And I am in chat with Bob
 
   Scenario: User deletes message
-    When I fill `MessageField` field with "For deletion"
+    When I fill `MessageField` field with "For selection"
     And I tap `Send` button
-    Then I wait until status of "For deletion" message is sent
+    Then I wait until status of "For selection" message is sent
 
-    When I select "For deletion" text
+    When I select "For selection" text
 #    Then I pause for 5 seconds
-    When I long press "For deletion" message
+    When I long press "For selection" message
 #    Then I pause for 5 seconds
-    And I tap `Delete` button
-    And I tap `DeleteForAll` button
-    And I tap `Proceed` button
-    Then I wait until text "For deletion" is absent
+    And I tap `CopyButton` button
+    And copied text is "r select"
+#    And I tap `DeleteForAll` button
+#    And I tap `Proceed` button
+#    Then I wait until text "For deletion" is absent

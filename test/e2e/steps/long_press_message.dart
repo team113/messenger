@@ -56,7 +56,7 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
                 .translate(-10, 10),
             kind: PointerDeviceKind.mouse);
     await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
-    // await gesture.up();
+    await gesture.up();
     await gesture.removePointer();
     await context.world.appDriver.waitForAppToSettle();
   },

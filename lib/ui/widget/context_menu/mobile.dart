@@ -292,14 +292,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               left: false,
                               bottom: false,
                               child: Padding(
-                                padding: EdgeInsets.only(left:widget.unconstrained ? 10 : _bounds.left,
-                                ),child: SizedBox(
+                                padding: EdgeInsets.only(
+                                  left:
+                                      widget.unconstrained ? 10 : _bounds.left,
+                                ),
+                                child: SizedBox(
                                   width: widget.unconstrained
                                       ? null
-                                      :_bounds.width,
+                                      : _bounds.width,
                                   height: widget.unconstrained
                                       ? null
-                                      :_bounds.height,
+                                      : _bounds.height,
                                   child: widget.child,
                                 ),
                               ),
