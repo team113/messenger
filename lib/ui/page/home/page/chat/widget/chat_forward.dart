@@ -287,7 +287,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns a visual representation of the provided [forward].
-  Widget _forwardedMessage(Rx<ChatItem> forward, bool v) {
+  Widget _forwardedMessage(Rx<ChatItem> forward, bool openedMobilePopup) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItem item = msg.item;
@@ -372,7 +372,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (item.text != null && item.text!.val.isNotEmpty) {
           content = SelectionRegion(
             onSelectionChanged: (s) => _selection = s,
-            enabled: PlatformUtils.isDesktop ? true : v,
+            enabled: PlatformUtils.isDesktop ? true : openedMobilePopup,
             child: Text(
               item.text!.val,
               style: style.boldBody,
@@ -532,7 +532,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Builds a visual representation of the [ChatForwardWidget.note].
-  List<Widget> _note(bool v) {
+  List<Widget> _note(bool openedMobilePopup) {
     ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
@@ -594,7 +594,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               ),
               child: SelectionRegion(
                 onSelectionChanged: (s) => _selection = s,
-                enabled: PlatformUtils.isDesktop ? true : v,
+                enabled: PlatformUtils.isDesktop ? true : openedMobilePopup,
                 child: Text(item.text!.val, style: style.boldBody),
               ),
             ),
@@ -679,7 +679,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool v) child,
+    Widget Function(bool openedMobilePopup) child,
   ) {
     ChatItem? item = widget.note.value?.value;
 

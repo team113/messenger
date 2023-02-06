@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
-        - Messages selection. ([#118], [#17])
+        - Selection text in messages. ([#118], [#17])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])

@@ -1256,7 +1256,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool v) child, {
+    Widget Function(bool openedMobilePopup) child, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
