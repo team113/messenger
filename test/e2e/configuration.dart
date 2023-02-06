@@ -87,6 +87,7 @@ import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_chat.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
@@ -152,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilAttachmentFetched,
+        untilChatExists,
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
@@ -198,7 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  FlutterError.onError = ignoreOverflowErrors;
+  // FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);
