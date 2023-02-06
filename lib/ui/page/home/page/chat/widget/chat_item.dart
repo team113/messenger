@@ -20,6 +20,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -57,7 +58,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item_reads.dart';
-import 'custom_selection.dart';
+import 'selection_region.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -494,8 +495,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 
-  /// Selected text of this widget.
-  final RxString selectedText = RxString('');
+  /// [SelectedContent] of a [CustomSelection] within this [ChatForwardWidget].
+  SelectedContent? _selection;
 
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
@@ -820,9 +821,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         9,
                         files.isEmpty ? 10 : 0,
                       ),
-                      child: CustomSelection(
-                        onSelectionChanged: (s) =>
-                            selectedText.value = s?.plainText ?? '',
+                      child: SelectionRegion(
+                        onSelectionChanged: (s) => _selection = s,
                         enabled: PlatformUtils.isDesktop ? true : v,
                         child: Text(
                           text,
@@ -1484,9 +1484,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () {
-                                if (selectedText.isNotEmpty &&
-                                    PlatformUtils.isDesktop) {
-                                  widget.onCopy?.call(selectedText.value);
+                                if (_selection?.plainText.isNotEmpty == true) {
+                                  widget.onCopy?.call(_selection!.plainText);
                                 } else {
                                   widget.onCopy?.call(copyable!);
                                 }

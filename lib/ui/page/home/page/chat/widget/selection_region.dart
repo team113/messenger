@@ -21,9 +21,10 @@ import 'package:flutter/rendering.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/util/platform_utils.dart';
 
-/// Custom text selection widget.
-class CustomSelection extends StatelessWidget {
-  const CustomSelection({
+/// [SelectionArea] wrapping the [child] with an ability to enable or disable
+/// the selection.
+class SelectionRegion extends StatelessWidget {
+  const SelectionRegion({
     super.key,
     this.enabled = true,
     this.onSelectionChanged,
@@ -36,7 +37,7 @@ class CustomSelection extends StatelessWidget {
   /// Callback, called when the selected content changes.
   final void Function(SelectedContent?)? onSelectionChanged;
 
-  /// [Widget] with text for selecting it.
+  /// [Widget] to wrap with [SelectionArea].
   final Widget child;
 
   @override

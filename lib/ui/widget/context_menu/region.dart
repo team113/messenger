@@ -241,14 +241,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           double qx = 1, qy = 1;
           if (position.dx > (constraints.maxWidth) / 2) qx = -1;
           if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          Alignment alignment = Alignment(qx, qy);
+          final Alignment alignment = Alignment(qx, qy);
           return Listener(
             onPointerUp: (d) {
-              _displayed = false;
               entry?.remove();
+
+              _displayed = false;
               if (widget.indicateOpenedMenu) {
                 _darkened = false;
               }
+
               setState(() {});
             },
             child: Container(
