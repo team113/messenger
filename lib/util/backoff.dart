@@ -22,6 +22,9 @@ import 'package:get/get.dart';
 
 /// Helper to execute methods with backoff algorithm.
 class Backoff {
+  /// Minimal [Duration] of the backoff.
+  static const Duration _minBackoff = Duration(microseconds: 500);
+
   /// Maximal [Duration] of the backoff.
   static final Duration _maxBackoff = 64.seconds;
 
@@ -50,7 +53,7 @@ class Backoff {
   /// Increases the provided [backoff].
   static Duration increaseBackoff(Duration backoff) {
     if (backoff.inMilliseconds == 0) {
-      backoff = 125.milliseconds;
+      backoff = _minBackoff;
     } else if (backoff < _maxBackoff) {
       backoff *= 2;
     }

@@ -22,6 +22,7 @@ import 'dart:collection';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '/util/backoff.dart';
 
 import '/util/platform_utils.dart';
 
@@ -76,23 +77,14 @@ class _RetryImageState extends State<RetryImage> {
   /// Naive [_FIFOCache] caching the images.
   static final _FIFOCache _cache = _FIFOCache();
 
-  /// [Timer] retrying the image fetching.
-  Timer? _timer;
-
   /// Byte data of the fetched image.
   Uint8List? _image;
 
   /// Image fetching progress.
   double _progress = 0;
 
-  /// Starting period of exponential backoff image fetching.
-  static const Duration _minBackoffPeriod = Duration(microseconds: 500);
-
-  /// Maximum possible period of exponential backoff image fetching.
-  static const Duration _maxBackoffPeriod = Duration(seconds: 32);
-
-  /// Current period of exponential backoff image fetching.
-  Duration _backoffPeriod = _minBackoffPeriod;
+  /// [CancelToken] canceling the [_loadImage] operation.
+  final CancelToken _cancelToken = CancelToken();
 
   @override
   void initState() {
@@ -110,7 +102,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _cancelToken.cancel();
     super.dispose();
   }
 
@@ -171,57 +163,50 @@ class _RetryImageState extends State<RetryImage> {
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadImage() async {
-    _timer?.cancel();
+    return Backoff.run(
+      () async {
+        Uint8List? cached = _cache[widget.url];
+        if (cached != null) {
+          _image = cached;
+          if (mounted) {
+            setState(() {});
+          }
+        } else {
+          Response? data;
 
-    Uint8List? cached = _cache[widget.url];
-    if (cached != null) {
-      _image = cached;
-      _backoffPeriod = _minBackoffPeriod;
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      Response? data;
-
-      try {
-        data = await PlatformUtils.dio.get(
-          widget.url,
-          onReceiveProgress: (received, total) {
-            if (total > 0) {
-              _progress = received / total;
-              if (mounted) {
-                setState(() {});
-              }
+          try {
+            data = await PlatformUtils.dio.get(
+              widget.url,
+              onReceiveProgress: (received, total) {
+                if (total > 0) {
+                  _progress = received / total;
+                  if (mounted) {
+                    setState(() {});
+                  }
+                }
+              },
+              options: Options(responseType: ResponseType.bytes),
+                cancelToken: _cancelToken,
+            );
+          } on DioError catch (e) {
+            if (e.response?.statusCode == 403) {
+              await widget.onForbidden?.call();
             }
-          },
-          options: Options(responseType: ResponseType.bytes),
-        );
-      } on DioError catch (e) {
-        if (e.response?.statusCode == 403) {
-          await widget.onForbidden?.call();
-        }
-      }
+          }
 
-      if (data?.data != null && data!.statusCode == 200) {
-        _cache[widget.url] = data.data;
-        _image = data.data;
-        _backoffPeriod = _minBackoffPeriod;
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        _timer = Timer(
-          _backoffPeriod,
-          () {
-            if (_backoffPeriod < _maxBackoffPeriod) {
-              _backoffPeriod *= 2;
+          if (data?.data != null && data!.statusCode == 200) {
+            _cache[widget.url] = data.data;
+            _image = data.data;
+            if (mounted) {
+              setState(() {});
             }
-
-            _loadImage();
-          },
-        );
-      }
-    }
+          } else {
+            throw Exception('Image data is not loaded');
+          }
+        }
+      },
+      _cancelToken,
+    );
   }
 }
 
