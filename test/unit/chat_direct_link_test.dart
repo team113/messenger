@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,6 +33,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -81,6 +83,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -137,6 +141,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   when(graphQlProvider.myUserEvents(null)).thenAnswer(
     (_) => Future.value(Stream.fromIterable([
       QueryResult.internal(
@@ -157,6 +171,15 @@ void main() async {
     (_) => Future.value(const Stream.empty()),
   );
 
+  when(graphQlProvider.getBlacklist(
+    first: 120,
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+  );
+
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
@@ -170,6 +193,7 @@ void main() async {
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
+    blacklistedUsersProvider,
     galleryItemProvider,
     userRepository,
   );

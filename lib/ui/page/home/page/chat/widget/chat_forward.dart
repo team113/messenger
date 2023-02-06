@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,7 +40,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -47,7 +47,10 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_item.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -59,6 +62,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
@@ -94,6 +98,9 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [User] posted these [forwards].
   final RxUser? user;
+
+  /// [LastChatRead] to display under this [ChatItem].
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -145,6 +152,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
   Offset _offset = Offset.zero;
+
+  /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
 
   /// [Duration] to animate [_offset] changes with.
   ///
@@ -665,9 +675,49 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    const int maxAvatars = 5;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        if (user != null) {
+          avatars.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: FutureBuilder<RxUser?>(
+                future: widget.getUser?.call(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                  }
+                  return AvatarWidget.fromUser(user, radius: 10);
+                },
+              ),
+            ),
+          );
+        }
+      }
+
+      if (widget.reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -681,6 +731,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -704,13 +756,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -718,6 +784,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -747,8 +814,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 +
-                            (_fromMe ? SwipeableStatus.width : -10),
+                        (constraints.maxWidth +
+                                    (_fromMe ? SwipeableStatus.width : 0)) *
+                                0.84 -
+                            20,
                       ),
                     ),
                     child: Padding(
@@ -764,31 +833,34 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.l10n,
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_copy'.l10n
+                                    : 'btn_copy_text'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/copy_small.svg',
-                                  width: 14.82,
-                                  height: 17,
+                                  height: 18,
                                 ),
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 18,
                               ),
                               onPressed: widget.onReply,
                             ),
                             ContextMenuButton(
                               key: const Key('ForwardButton'),
-                              label: 'btn_forward'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_forward'.l10n
+                                  : 'btn_forward_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/forward.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 18,
                               ),
                               onPressed: () async {
                                 final List<ChatItemQuote> quotes = [];
@@ -823,17 +895,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
+                                  height: 18,
                                 ),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
-                              label: 'btn_delete_message'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
+                                height: 18,
                               ),
                               onPressed: () async {
                                 bool deletable = widget.authorId == widget.me &&
@@ -870,7 +942,30 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: child,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child,
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: const Offset(-12, -4),
+                                  child: WidgetButton(
+                                    onPressed: () => ChatItemReads.show(
+                                      context,
+                                      reads: widget.reads,
+                                      getUser: widget.getUser,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

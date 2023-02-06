@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,6 +40,7 @@ class ChatTile extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.height = 94,
+    this.darken = 0,
   }) : super(key: key);
 
   /// [Chat] this [ChatTile] represents.
@@ -71,28 +73,32 @@ class ChatTile extends StatelessWidget {
   /// Height of this [ChatTile].
   final double height;
 
+  /// Amount of darkening to apply to the background of this [ChatTile].
+  final double darken;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ChatTile_${chat?.chat.value.id}'),
+      key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
+      indicateOpenedMenu: true,
       child: SizedBox(
         height: height,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
             selectedColor: style.cardSelectedColor,
-            unselectedColor: style.cardColor,
+            unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
                 selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
+            unselectedHoverColor: style.cardHoveredColor.darken(darken),
             selectedHoverColor: style.cardSelectedColor,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
@@ -123,7 +129,7 @@ class ChatTile extends StatelessWidget {
                                         maxLines: 1,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headline5,
+                                            .headlineSmall,
                                       );
                                     }),
                                   ),

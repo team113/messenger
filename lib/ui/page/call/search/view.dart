@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,9 +24,9 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/selected_tile.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -42,6 +43,7 @@ class SearchView extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     this.onBack,
+    this.onSelected,
   }) : super(key: key);
 
   /// [SearchCategory]ies to search through.
@@ -71,6 +73,9 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
+  /// Callback, called on the selected items changes.
+  final void Function(SearchViewResults? results)? onSelected;
+
   /// Callback, called when the back button is pressed.
   ///
   /// If `null`, then no back button will be displayed.
@@ -79,7 +84,7 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -89,53 +94,9 @@ class SearchView extends StatelessWidget {
         Get.find(),
         chat: chat,
         categories: categories,
+        onSelected: onSelected,
       ),
       builder: (SearchController c) {
-        Widget tile({
-          Key? key,
-          RxUser? user,
-          RxChatContact? contact,
-          void Function()? onTap,
-          bool selected = false,
-        }) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ContactTile(
-              key: key,
-              contact: contact,
-              user: user,
-              onTap: onTap,
-              selected: selected,
-              darken: 0.05,
-              trailing: [
-                if (selectable)
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: selected
-                          ? CircleAvatar(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              radius: 12,
-                              child: const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                            )
-                          : const CircleAvatar(
-                              backgroundColor: Color(0xFFD7D7D7),
-                              radius: 12,
-                            ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }
-
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2),
           constraints: const BoxConstraints(maxHeight: 650),
@@ -166,84 +127,119 @@ class SearchView extends StatelessWidget {
                 child: Obx(() {
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
-                      c.users.isEmpty) {
+                      c.users.isEmpty &&
+                      c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
-                      return Center(child: Text('label_nothing_found'.l10n));
+                      return Center(
+                        child: Text(
+                          'label_nothing_found'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
                     } else if (c.searchStatus.value.isEmpty) {
-                      return Center(child: Text('label_use_search'.l10n));
+                      return Center(
+                        child: Text(
+                          'label_use_search'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
                     }
 
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  return FlutterListView(
+                  return Scrollbar(
                     controller: c.controller,
-                    delegate: FlutterListViewDelegate(
-                      (context, i) {
-                        dynamic e = c.getIndex(i);
-                        Widget child = Container();
+                    child: FlutterListView(
+                      controller: c.controller,
+                      delegate: FlutterListViewDelegate(
+                        (context, i) {
+                          final dynamic e = c.getIndex(i);
+                          final Widget child;
 
-                        if (e is RxUser) {
-                          child = Obx(() {
-                            return tile(
-                              key: Key('SearchUser_${e.id}'),
-                              user: e,
-                              selected: c.selectedUsers.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectUser(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        } else if (e is RxChatContact) {
-                          child = Obx(() {
-                            return tile(
-                              key: Key('SearchContact_${e.id}'),
-                              contact: e,
-                              selected: c.selectedContacts.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectContact(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        }
+                          if (e is RxUser) {
+                            child = Obx(() {
+                              return SelectedTile(
+                                key: Key('SearchUser_${e.id}'),
+                                user: e,
+                                selected: c.selectedUsers.contains(e),
+                                darken: 0.05,
+                                onTap: selectable
+                                    ? () => c.select(user: e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else if (e is RxChatContact) {
+                            child = Obx(() {
+                              return SelectedTile(
+                                key: Key('SearchContact_${e.id}'),
+                                contact: e,
+                                darken: 0.05,
+                                selected: c.selectedContacts.contains(e),
+                                onTap: selectable
+                                    ? () => c.select(contact: e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else if (e is RxChat) {
+                            child = Obx(() {
+                              return SelectedTile(
+                                chat: e,
+                                darken: 0.05,
+                                selected: c.selectedChats.contains(e),
+                                onTap: selectable
+                                    ? () => c.select(chat: e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else {
+                            child = const SizedBox();
+                          }
 
-                        return child;
-                      },
-                      childCount:
-                          c.contacts.length + c.users.length + c.recent.length,
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 18),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Obx(() {
-                  bool enabled = this.enabled &&
-                      (c.selectedContacts.isNotEmpty ||
-                          c.selectedUsers.isNotEmpty);
-
-                  return OutlinedRoundedButton(
-                    key: const Key('SearchSubmitButton'),
-                    maxWidth: double.infinity,
-                    title: Text(
-                      submit ?? 'btn_submit'.l10n,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: enabled ? Colors.white : Colors.black,
+                          return child;
+                        },
+                        childCount: c.chats.length +
+                            c.contacts.length +
+                            c.users.length +
+                            c.recent.length,
                       ),
                     ),
-                    onPressed:
-                        enabled ? () => onSubmit?.call(c.selected()) : null,
-                    color: Theme.of(context).colorScheme.secondary,
                   );
                 }),
               ),
+              if (onSubmit != null) ...[
+                const SizedBox(height: 18),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Obx(() {
+                    final bool enabled = this.enabled &&
+                        (c.selectedContacts.isNotEmpty ||
+                            c.selectedUsers.isNotEmpty);
+
+                    return OutlinedRoundedButton(
+                      key: const Key('SearchSubmitButton'),
+                      maxWidth: double.infinity,
+                      title: Text(
+                        submit ?? 'btn_submit'.l10n,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: enabled ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      onPressed:
+                          enabled ? () => onSubmit?.call(c.selected()) : null,
+                      color: Theme.of(context).colorScheme.secondary,
+                    );
+                  }),
+                ),
+              ],
               const SizedBox(height: 12),
             ],
           ),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -51,6 +52,7 @@ import 'component/common.dart';
 import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
+import 'widget/dock.dart';
 
 export 'view.dart';
 
@@ -143,7 +145,7 @@ class CallController extends GetxController {
   final RxBool cameraSwitched = RxBool(false);
 
   /// Indicator whether the speaker was switched or not.
-  final RxBool speakerSwitched = RxBool(true);
+  late final RxBool speakerSwitched;
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
@@ -153,6 +155,9 @@ class CallController extends GetxController {
 
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
+
+  /// [DateTime] of when the last [Listener.onPointerDown] callback happened.
+  DateTime? downAt;
 
   /// Position of a [Listener.onPointerDown] callback used in
   /// [Listener.onPointerUp] since the latter does not provide this info.
@@ -167,17 +172,6 @@ class CallController extends GetxController {
 
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
-
-  /// Temporary indicator whether the secondary view should always be on top.
-  final RxBool panelUp = RxBool(false);
-
-  /// Temporary indicator whether a left mouse button clicks on
-  /// [RtcVideoRenderer]s should call [focus], [unfocus] and [center] or not.
-  final RxBool handleLmb = RxBool(false);
-
-  /// Timeout of a [handleLmb] used to decline any clicks happened after it
-  /// reaches zero.
-  int lmbTimeout = 7;
 
   /// Error happened in a call.
   final RxString error = RxString('');
@@ -208,6 +202,11 @@ class CallController extends GetxController {
 
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
+
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
@@ -281,10 +280,10 @@ class CallController extends GetxController {
   static const double _maxHeight = 0.99;
 
   /// Min width of the minimized view in pixels.
-  static const double _minWidth = 500;
+  static const double _minWidth = 300;
 
   /// Min height of the minimized view in pixels.
-  static const double _minHeight = 500;
+  static const double _minHeight = 300;
 
   /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.80;
@@ -513,9 +512,11 @@ class CallController extends GetxController {
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
@@ -602,33 +603,52 @@ class CallController extends GetxController {
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
-        DateTime begunAt = DateTime.now();
-        _durationTimer = Timer.periodic(
-          const Duration(seconds: 1),
-          (_) {
-            duration.value = DateTime.now().difference(begunAt);
-            if (hoveredRendererTimeout > 0) {
-              --hoveredRendererTimeout;
-              if (hoveredRendererTimeout == 0) {
-                hoveredRenderer.value = null;
-                isCursorHidden.value = true;
-              }
-            }
+      switch (state) {
+        case OngoingCallState.active:
+          if (_durationTimer == null) {
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) {
+                dockRect.value = dockKey.globalPaintBounds;
+                relocateSecondary();
+              },
+            );
+            DateTime begunAt = DateTime.now();
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                duration.value = DateTime.now().difference(begunAt);
+                if (hoveredRendererTimeout > 0) {
+                  --hoveredRendererTimeout;
+                  if (hoveredRendererTimeout == 0) {
+                    hoveredRenderer.value = null;
+                    isCursorHidden.value = true;
+                  }
+                }
 
-            if (lmbTimeout > 0) {
-              --lmbTimeout;
-            }
+                if (errorTimeout.value > 0) {
+                  --errorTimeout.value;
+                }
+              },
+            );
 
-            if (errorTimeout.value > 0) {
-              --errorTimeout.value;
-            }
-          },
-        );
+            keepUi();
+            _ensureSpeakerphone();
+          }
+          break;
 
-        keepUi();
+        case OngoingCallState.joining:
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => SchedulerBinding.instance.addPostFrameCallback(
+              (_) => relocateSecondary(),
+            ),
+          );
+          break;
+
+        case OngoingCallState.pending:
+        case OngoingCallState.local:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       refresh();
@@ -809,7 +829,6 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
-
           break;
 
         case OperationKind.updated:
@@ -879,7 +898,15 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }
@@ -896,6 +923,7 @@ class CallController extends GetxController {
   Future<void> toggleVideo() async {
     keepUi();
     await _currentCall.value.toggleVideo();
+    await _ensureSpeakerphone();
   }
 
   /// Changes the local video device to the next one from the
@@ -921,22 +949,45 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
-        !PlatformUtils.isWeb) {
-      List<MediaDeviceInfo> outputs =
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      final List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        int selected = _currentCall.value.outputDevice.value == null
-            ? 0
-            : outputs.indexWhere(
-                (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
-        selected += 1;
-        var deviceId = outputs[(selected) % outputs.length].deviceId();
-        speakerSwitched.value = deviceId == 'speakerphone';
-        await _currentCall.value.setOutputDevice(deviceId);
+        MediaDeviceInfo? device;
+
+        if (PlatformUtils.isIOS) {
+          device = _currentCall.value.devices.output().firstWhereOrNull(
+              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
+        } else {
+          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
+        }
+
+        if (device == null) {
+          if (speakerSwitched.value) {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+            speakerSwitched.value = !(device != null);
+          } else {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+            speakerSwitched.value = (device != null);
+          }
+
+          if (device == null) {
+            int selected = _currentCall.value.outputDevice.value == null
+                ? 0
+                : outputs.indexWhere((e) =>
+                    e.deviceId() == _currentCall.value.outputDevice.value!);
+            selected += 1;
+            device = outputs[(selected) % outputs.length];
+          }
+        }
+
+        await _currentCall.value.setOutputDevice(device.deviceId());
       }
     } else {
-      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
       //       switching.
       speakerSwitched.toggle();
     }
@@ -1132,25 +1183,19 @@ class CallController extends GetxController {
   }
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
-  Future<void> openSettings(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (_) => CallSettingsView(
-        _currentCall,
-        lmbValue: handleLmb.value,
-        onLmbChanged: (b) {
-          lmbTimeout = 7;
-          handleLmb.value = b ?? false;
-        },
-        panelValue: panelUp.value,
-        onPanelChanged: (b) => panelUp.value = b ?? false,
-      ),
-    );
+  Future<dynamic> openSettings(BuildContext context) {
+    return CallSettingsView.show(context, call: _currentCall);
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
-    keepUi(false);
+    if (isMobile) {
+      panelController.close().then((_) {
+        isPanelOpen.value = false;
+        keepUi(false);
+      });
+    }
+
     await ParticipantView.show(
       context,
       call: _currentCall,
@@ -1189,8 +1234,15 @@ class CallController extends GetxController {
         !_secondaryRelocated) {
       _secondaryRelocated = true;
 
-      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
-      final Rect? dockBounds = dockKey.globalPaintBounds;
+      Rect? secondaryBounds, dockBounds;
+
+      try {
+        secondaryBounds = secondaryKey.globalPaintBounds;
+        dockBounds = dockKey.globalPaintBounds;
+      } catch (_) {
+        // No-op.
+      }
+
       Rect intersect =
           secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
 
@@ -1572,38 +1624,6 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales the secondary view by the provided [scale].
-  void scaleSecondary(double scale) {
-    _scaleSWidth(scale);
-    _scaleSHeight(scale);
-  }
-
-  /// Scales the [secondaryWidth] according to the provided [scale].
-  void _scaleSWidth(double scale) {
-    double width = _applySWidth(secondaryUnscaledSize! * scale);
-    if (width != secondaryWidth.value) {
-      double widthDifference = width - secondaryWidth.value;
-      secondaryWidth.value = width;
-      secondaryLeft.value =
-          _applySLeft(secondaryLeft.value! - widthDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(widthDifference / 2, 0);
-    }
-  }
-
-  /// Scales the [secondaryHeight] according to the provided [scale].
-  void _scaleSHeight(double scale) {
-    double height = _applySHeight(secondaryUnscaledSize! * scale);
-    if (height != secondaryHeight.value) {
-      double heightDifference = height - secondaryHeight.value;
-      secondaryHeight.value = height;
-      secondaryTop.value =
-          _applySTop(secondaryTop.value! - heightDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(0, heightDifference / 2);
-    }
-  }
-
   /// Returns corrected according to secondary constraints [width] value.
   double _applySWidth(double width) {
     if (_minSWidth > size.width * _maxSWidth) {
@@ -1864,6 +1884,11 @@ class CallController extends GetxController {
           } else {
             paneled.add(participant);
           }
+
+          if (state.value == OngoingCallState.local || outgoing) {
+            SchedulerBinding.instance
+                .addPostFrameCallback((_) => relocateSecondary());
+          }
           break;
 
         case MediaOwnerKind.remote:
@@ -1931,6 +1956,32 @@ class CallController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
+  Future<void> _ensureSpeakerphone() async {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
+          _currentCall.value.videoState.value == LocalTrackState.enabling) {
+        final bool ear;
+
+        if (PlatformUtils.isIOS) {
+          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-piece');
+        } else {
+          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-speaker');
+        }
+
+        if (ear) {
+          await toggleSpeaker();
+        }
+      }
+    }
   }
 }
 

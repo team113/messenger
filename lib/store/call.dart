@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -360,8 +361,8 @@ class CallRepository extends DisposableInterface
   void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
-      _credentialsProvider.put(newCallId, creds);
       _credentialsProvider.remove(callId);
+      _credentialsProvider.put(newCallId, creds);
     }
   }
 

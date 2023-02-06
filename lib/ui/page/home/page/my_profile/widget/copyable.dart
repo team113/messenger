@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -109,6 +110,6 @@ class CopyableTextField extends StatelessWidget {
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: copy ?? state.text));
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+    MessagePopup.success('label_copied'.l10n);
   }
 }

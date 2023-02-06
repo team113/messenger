@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -91,9 +92,13 @@ class ParticipantWidget extends StatelessWidget {
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
-        return useCallCover &&
-                participant.user.value?.user.value.callCover != null
-            ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
+        return useCallCover
+            ? [
+                CallCoverWidget(
+                  participant.user.value?.user.value.callCover,
+                  user: participant.user.value?.user.value,
+                ),
+              ]
             : [
                 Center(
                   child: Padding(

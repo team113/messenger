@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -247,7 +248,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.button!.color;
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -377,7 +378,7 @@ class _DesktopControlsState extends State<DesktopControls>
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true)!.insert(_volumeEntry!);
+          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
           setState(() {});
         }
       },
@@ -495,7 +496,8 @@ class _DesktopControlsState extends State<DesktopControls>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).backgroundColor.withOpacity(0.5),
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

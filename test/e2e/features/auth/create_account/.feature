@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,29 +15,29 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-# TODO: Uncomment when `MyProfile` modals are implemented.
-#Feature: Account creation
-#
-#  Scenario: User creates a new account and deletes it
-#    When I tap `StartButton` button
-#    And I wait until `IntroductionView` is present
-#    And I tap `CloseButton` button
-#
-#    Then I tap `MenuButton` button
-#    And I tap `MyProfileButton` button
-#    And I wait until `MyProfileView` is present
-#
-#    Then I fill `NameField` field with "Alice"
-#
-#    When I tap `PasswordExpandable` widget
-#    Then I fill `NewPasswordField` field with "123"
-#    And I fill `RepeatPasswordField` field with "123"
-#
-#    Then I tap `ChangePasswordButton` button
-#    And I wait until `CurrentPasswordField` is present
-#
-#    When I tap `DeleteAccountButton` button
-#    And I wait until `AlertDialog` is present
-#    And I tap `AlertYesButton` button
-#
-#    Then I wait until `AuthView` is present
+Feature: Account creation
+
+  Scenario: User creates a new account and deletes it
+    When I tap `StartButton` button
+    And I wait until `IntroductionView` is present
+    And I tap `CloseButton` button
+
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    And I wait until `MyProfileView` is present
+    And I wait until `NameField` is present
+    And I fill `NameField` field with "Alice"
+    And I tap `Approve` button
+
+    When I tap `SetPassword` button
+    And I fill `NewPasswordField` field with "123"
+    And I fill `RepeatPasswordField` field with "123"
+    And I tap `Proceed` button
+    And I tap `CloseButton` button
+    Then I wait until `ChangePassword` is present
+
+    # TODO: https://github.com/team113/messenger/issues/339
+    # When I tap `DangerZone` button
+    # And I tap `DeleteAccount` button
+    # And I tap `Proceed` button
+    # Then I wait until `AuthView` is present

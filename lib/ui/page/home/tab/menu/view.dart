@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,9 +22,10 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -43,36 +45,33 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: const Color(0x55000000),
-                  color: Colors.white,
-                  child: InkWell(
-                    onTap: context.isNarrow &&
-                            ModalRoute.of(context)?.canPop == true
-                        ? Navigator.of(context).pop
-                        : null,
-                    customBorder: const CircleBorder(),
-                    child: Center(
-                      child: Obx(() {
-                        return AvatarWidget.fromMyUser(
-                          c.myUser.value,
-                          radius: 17,
-                          badge: false,
-                        );
-                      }),
+            title: WidgetButton(
+              onPressed: () => StatusView.show(context),
+              child: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: InkWell(
+                      onTap: context.isNarrow &&
+                              ModalRoute.of(context)?.canPop == true
+                          ? Navigator.of(context).pop
+                          : null,
+                      customBorder: const CircleBorder(),
+                      child: Center(
+                        child: Obx(() {
+                          return AvatarWidget.fromMyUser(
+                            c.myUser.value,
+                            radius: 17,
+                          );
+                        }),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: WidgetButton(
-                    onPressed: () {
-                      // TODO: Display status changing modal.
-                    },
+                  const SizedBox(width: 10),
+                  Flexible(
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -87,42 +86,37 @@ class MenuTabView extends StatelessWidget {
                                   'dot'.l10n * 3,
                               style: const TextStyle(color: Colors.black),
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Obx(() {
-                                  return Text(
-                                    c.myUser.value?.presence
-                                            .localizedString() ??
-                                        'dot'.l10n * 3,
-                                    style: Theme.of(context).textTheme.caption,
-                                  );
-                                }),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.expand_more,
-                                  size: 18,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              ],
-                            ),
+                            Obx(() {
+                              return Text(
+                                c.myUser.value?.status?.val ??
+                                    'label_online'.l10n,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                              );
+                            }),
                           ],
                         );
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-              ],
+                  const SizedBox(width: 10),
+                ],
+              ),
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : const [SizedBox(width: 23)],
+                : const [SizedBox(width: 30)],
           ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+          body: SafeScrollbar(
+            controller: c.scrollController,
             child: ListView.builder(
+              controller: c.scrollController,
+              key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {
                 final Widget child;
@@ -190,7 +184,7 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headline5!,
+                                                .headlineSmall!,
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
@@ -216,6 +210,7 @@ class MenuTabView extends StatelessWidget {
                 switch (ProfileTab.values[i]) {
                   case ProfileTab.public:
                     child = card(
+                      key: const Key('PublicInformation'),
                       icon: Icons.person,
                       title: 'label_public_information'.l10n,
                       subtitle: 'label_public_section_hint'.l10n,
@@ -224,6 +219,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.signing:
                     child = card(
+                      key: const Key('Signing'),
                       icon: Icons.lock,
                       title: 'label_login_options'.l10n,
                       subtitle: 'label_login_section_hint'.l10n,
@@ -247,14 +243,14 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.calls:
-                    if (PlatformUtils.isMobile) {
-                      return const SizedBox();
-                    } else {
+                    if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                       child = card(
                         icon: Icons.call,
                         title: 'label_calls'.l10n,
                         subtitle: 'label_calls_displaying'.l10n,
                       );
+                    } else {
+                      return const SizedBox();
                     }
                     break;
 
@@ -270,12 +266,30 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.notifications:
+                    child = card(
+                      icon: Icons.notifications,
+                      title: 'label_notifications'.l10n,
+                      subtitle: 'label_sound_and_vibrations'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.language:
                     child = card(
+                      key: const Key('Language'),
                       icon: Icons.language,
                       title: 'label_language'.l10n,
                       subtitle: L10n.chosen.value?.name ??
                           'label_current_language'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.blacklist:
+                    child = card(
+                      key: const Key('Blocked'),
+                      icon: Icons.block,
+                      title: 'label_blocked_users'.l10n,
+                      subtitle: 'label_your_blacklist'.l10n,
                     );
                     break;
 
@@ -289,11 +303,11 @@ class MenuTabView extends StatelessWidget {
                     } else {
                       return const SizedBox();
                     }
-
                     break;
 
                   case ProfileTab.danger:
                     child = card(
+                      key: const Key('DangerZone'),
                       icon: Icons.dangerous,
                       title: 'label_danger_zone'.l10n,
                       subtitle: 'label_delete_account'.l10n,

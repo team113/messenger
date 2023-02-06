@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -107,26 +108,28 @@ class ChatService extends DisposableService {
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {
       text ??= const ChatMessageText(' ');
-    }
+    } else if (text != null) {
+      text = ChatMessageText(text.val.trim());
 
-    if (text != null && text.val.length > ChatMessageText.maxLength) {
-      final List<ChatMessageText> chunks = text.split();
-      int i = 0;
+      if (text.val.length > ChatMessageText.maxLength) {
+        final List<ChatMessageText> chunks = text.split();
+        int i = 0;
 
-      return Future.forEach<ChatMessageText>(
-        chunks,
-        (text) => _chatRepository.sendChatMessage(
-          chatId,
-          text: text,
-          attachments: i++ != chunks.length - 1 ? null : attachments,
-          repliesTo: repliesTo,
-        ),
-      );
+        return Future.forEach<ChatMessageText>(
+          chunks,
+          (text) => _chatRepository.sendChatMessage(
+            chatId,
+            text: text,
+            attachments: i++ != chunks.length - 1 ? null : attachments,
+            repliesTo: repliesTo,
+          ),
+        );
+      }
     }
 
     return _chatRepository.sendChatMessage(
       chatId,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
       repliesTo: repliesTo,
     );
@@ -272,11 +275,15 @@ class ChatService extends DisposableService {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {
+    if (text != null) {
+      text = ChatMessageText(text.val.trim());
+    }
+
     return _chatRepository.forwardChatItems(
       from,
       to,
       items,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
     );
   }

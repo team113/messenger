@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,9 +32,19 @@ class Themes {
           onBackground: Colors.black,
         );
 
-    SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-        ? SystemUiOverlayStyle.dark
-        : SystemUiOverlayStyle.light);
+    SystemChrome.setSystemUIOverlayStyle(
+      colors.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.light,
+    );
 
     return ThemeData.light().copyWith(
         extensions: [
@@ -88,7 +99,7 @@ class Themes {
                   ?.copyWith(color: colors.primary),
               systemOverlayStyle: const SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.blue,
-                statusBarColor: Color(0xFFF8F8F8),
+                statusBarColor: Colors.transparent,
               ),
               elevation: 0,
               centerTitle: true,
@@ -107,34 +118,34 @@ class Themes {
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          headline3: const TextStyle(
+          displaySmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: const TextStyle(color: Colors.black, fontSize: 18),
-          headline5: const TextStyle(
+          headlineMedium: const TextStyle(color: Colors.black, fontSize: 18),
+          headlineSmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          caption: TextStyle(
+          bodySmall: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          button: const TextStyle(
+          labelLarge: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: TextStyle(
+          titleMedium: const TextStyle(color: Colors.black, fontSize: 15),
+          titleSmall: TextStyle(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyText1: const TextStyle(
+          bodyLarge: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
@@ -226,9 +237,17 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light()
-            .scrollbarTheme
-            .copyWith(thickness: MaterialStateProperty.all(6)),
+        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
+              interactive: true,
+              thickness: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.dragged) ||
+                    states.contains(MaterialState.hovered)) {
+                  return 6;
+                }
+
+                return 4;
+              }),
+            ),
         radioTheme: ThemeData.light().radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {

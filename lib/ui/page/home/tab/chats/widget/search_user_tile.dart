@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -48,8 +49,9 @@ class SearchUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final ChatId? chatId = user?.user.value.dialog?.id ??
-          contact?.user.value?.user.value.dialog?.id;
+      final ChatId? chatId = user?.dialog.value?.id ??
+          user?.user.value.dialog?.id ??
+          contact?.user.value?.dialog.value?.id;
 
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
@@ -76,6 +78,18 @@ class SearchUserTile extends StatelessWidget {
               )}',
               style: const TextStyle(color: Color(0xFF888888)),
             ),
+          ],
+          trailing: [
+            if (user?.user.value.isBlacklisted == true ||
+                contact?.user.value?.user.value.isBlacklisted == true)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: Color(0xFFC0C0C0),
+                  size: 20,
+                ),
+              )
           ],
         ),
       );

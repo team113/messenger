@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -105,16 +106,10 @@ class ScreenShareController extends GetxController {
   void onClose() {
     _callsSubscription?.cancel();
     _displaysSubscription?.cancel();
+
+    freeTracks();
     _mediaManager.free();
     _jason.free();
-
-    for (RtcVideoRenderer t in renderers.values) {
-      t.dispose();
-    }
-
-    for (LocalMediaTrack t in _localTracks) {
-      t.free();
-    }
 
     super.onClose();
   }
@@ -132,6 +127,19 @@ class ScreenShareController extends GetxController {
     renderer.srcObject = tracks.first.getTrack();
 
     renderers[display] = renderer;
+  }
+
+  /// Disposes the [renderers] and frees the [LocalMediaTrack]s being used.
+  void freeTracks() {
+    for (RtcVideoRenderer t in renderers.values) {
+      t.dispose();
+    }
+    renderers.clear();
+
+    for (LocalMediaTrack t in _localTracks) {
+      t.free();
+    }
+    _localTracks.clear();
   }
 
   /// Constructs the [MediaStreamSettings] with the provided [screenDevice].

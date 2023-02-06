@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -52,6 +53,8 @@ class ReactiveTextField extends StatelessWidget {
     this.filled,
     this.treatErrorAsStatus = true,
     this.textAlign = TextAlign.start,
+    this.fillColor = Colors.white,
+    this.maxLength,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -134,6 +137,12 @@ class ReactiveTextField extends StatelessWidget {
   /// [TextAlign] of this [ReactiveTextField].
   final TextAlign textAlign;
 
+  /// Fill color of the [TextField].
+  final Color fillColor;
+
+  /// Maximum number of characters allowed in this [TextField].
+  final int? maxLength;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -178,13 +187,10 @@ class ReactiveTextField extends StatelessWidget {
                       height: 24,
                       child: ElasticAnimatedSwitcher(
                         child: state.status.value.isLoading
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: SvgLoader.asset(
-                                  'assets/icons/timer.svg',
-                                  height: 17,
-                                ),
+                            ? SvgLoader.asset(
+                                'assets/icons/timer.svg',
+                                width: 17,
+                                height: 17,
                               )
                             : state.status.value.isSuccess
                                 ? const SizedBox(
@@ -271,7 +277,7 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                fillColor: Colors.white,
+                fillColor: fillColor,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,
@@ -296,6 +302,7 @@ class ReactiveTextField extends StatelessWidget {
               minLines: minLines,
               maxLines: maxLines,
               textInputAction: textInputAction,
+              maxLength: maxLength,
             ),
 
             // Displays an error, if any.

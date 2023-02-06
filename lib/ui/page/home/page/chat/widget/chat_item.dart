@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -53,7 +54,9 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -61,10 +64,13 @@ import 'video_thumbnail/video_thumbnail.dart';
 class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
     Key? key,
-    required this.chat,
     required this.item,
+    required this.chat,
     required this.me,
     this.user,
+    this.avatar = true,
+    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
+    this.reads = const [],
     this.getUser,
     this.animation,
     this.onHide,
@@ -91,6 +97,15 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
+  final bool avatar;
+
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
+  final EdgeInsets margin;
+
+  /// [LastChatRead] to display under this [ChatItem].
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -160,6 +175,7 @@ class ChatItemWidget extends StatefulWidget {
     if (isVideo) {
       attachment = Stack(
         alignment: Alignment.center,
+        fit: filled ? StackFit.expand : StackFit.loose,
         children: [
           isLocal
               ? e.file.bytes == null
@@ -175,14 +191,17 @@ class ChatItemWidget extends StatefulWidget {
                   height: 300,
                   onError: onError,
                 ),
-          Container(
-            width: 60,
-            height: 60,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0x80000000),
+          Center(
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x80000000),
+              ),
+              child:
+                  const Icon(Icons.play_arrow, color: Colors.white, size: 48),
             ),
-            child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
           ),
         ],
       );
@@ -204,6 +223,7 @@ class ChatItemWidget extends StatefulWidget {
           (e as ImageAttachment).big.url,
           key: key,
           fit: BoxFit.cover,
+          width: filled ? double.infinity : null,
           height: 300,
           onForbidden: onError,
         ),
@@ -481,6 +501,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Total [Offset] applied to this [ChatItemWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -610,7 +633,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
-        asStack: true,
+        translate: false,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -619,6 +642,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
+        padding: const EdgeInsets.only(bottom: 8),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -666,7 +690,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!_fromMe && widget.chat.value?.isGroup == true) &&
+    if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
@@ -704,7 +728,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -756,7 +780,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     );
                   }),
-                if (!_fromMe && widget.chat.value?.isGroup == true)
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
@@ -782,7 +808,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        (!_fromMe && widget.chat.value?.isGroup == true)
+                        !_fromMe &&
+                                widget.chat.value?.isGroup == true &&
+                                widget.avatar
                             ? 0
                             : 10,
                         9,
@@ -818,14 +846,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.only(
                       topLeft: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
                       topRight: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -961,7 +993,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.subtitle2,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
                   ],
@@ -977,7 +1009,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1187,7 +1219,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     Text(
                       snapshot.data?.user.value.name?.val ??
                           snapshot.data?.user.value.num.val ??
-                          '...',
+                          'dot'.l10n * 3,
                       style: style.boldBody.copyWith(color: color),
                     ),
                     if (content != null) ...[
@@ -1227,9 +1259,49 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     bool isSent = item.status.value == SendingStatus.sent;
 
+    const int maxAvatars = 5;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        if (user != null) {
+          avatars.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: FutureBuilder<RxUser?>(
+                future: widget.getUser?.call(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                  }
+                  return AvatarWidget.fromUser(user, radius: 10);
+                },
+              ),
+            ),
+          );
+        }
+      }
+
+      if (widget.reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1238,6 +1310,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1261,13 +1335,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -1275,6 +1363,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -1319,7 +1408,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(item.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 15),
+                    child: Opacity(
+                      opacity: widget.avatar ? 1 : 0,
+                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+                    ),
                   ),
                 ),
               Flexible(
@@ -1328,8 +1420,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 +
-                            (_fromMe ? SwipeableStatus.width : -10),
+                        (constraints.maxWidth +
+                                    (_fromMe ? SwipeableStatus.width : 0)) *
+                                0.84 -
+                            20,
                       ),
                     ),
                     child: Material(
@@ -1344,33 +1438,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),
-                              label: 'btn_copy_text'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_copy'.l10n
+                                  : 'btn_copy_text'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
-                                width: 14.82,
-                                height: 17,
+                                height: 18,
                               ),
                               onPressed: () => widget.onCopy?.call(copyable!),
                             ),
                           if (item.status.value == SendingStatus.sent) ...[
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 18,
                               ),
                               onPressed: widget.onReply,
                             ),
                             if (item is ChatMessage)
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
-                                label: 'btn_forward'.l10n,
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_forward'.l10n
+                                    : 'btn_forward_message'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/forward.svg',
-                                  width: 18.8,
-                                  height: 16,
+                                  height: 18,
                                 ),
                                 onPressed: () async {
                                   await ChatForwardView.show(
@@ -1391,18 +1488,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
+                                  height: 18,
                                 ),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete_message'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
+                                height: 18,
                               ),
                               onPressed: () async {
                                 bool deletable = _fromMe &&
@@ -1441,7 +1538,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (item.status.value == SendingStatus.error) ...[
                             ContextMenuButton(
                               key: const Key('Resend'),
-                              label: 'btn_resend_message'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_resend'.l10n
+                                  : 'btn_resend_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
@@ -1451,7 +1550,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete_message'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
@@ -1473,9 +1574,39 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
+                            ContextMenuButton(
+                              label: 'btn_select'.l10n,
+                              trailing: const Icon(Icons.select_all),
+                            ),
                           ],
                         ],
-                        child: child,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            child,
+                            if (avatars.isNotEmpty)
+                              Transform.translate(
+                                offset: Offset(-12, -widget.margin.bottom),
+                                child: WidgetButton(
+                                  onPressed: () => ChatItemReads.show(
+                                    context,
+                                    reads: widget.reads,
+                                    getUser: widget.getUser,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   );

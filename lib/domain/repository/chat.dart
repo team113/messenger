@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -240,6 +242,19 @@ abstract class RxChat {
 
   /// Indicates whether the [messages] has previous page.
   bool get hasPreviousPage;
+  
+  /// [LastChatRead]s of this [chat].
+  RxList<LastChatRead> get reads;
+
+  /// Indicates whether this [RxChat] is blacklisted or not.
+  bool get blacklisted =>
+      chat.value.isDialog &&
+      members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .isBlacklisted ==
+          true;
 
   /// Loads initial page of the [messages] from the service.
   Future<void> fetchMessages();

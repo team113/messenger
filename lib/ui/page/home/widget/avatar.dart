@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,7 +17,7 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -365,8 +366,13 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
-      return Badge(
+      return badges.Badge(
         showBadge: isOnline,
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: Colors.white,
+          padding: EdgeInsets.all(badgeSize / 3),
+          elevation: 0,
+        ),
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -374,14 +380,11 @@ class AvatarWidget extends StatelessWidget {
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
-        padding: EdgeInsets.all(badgeSize / 3),
-        badgeColor: Colors.white,
-        animationType: BadgeAnimationType.scale,
-        position: BadgePosition.bottomEnd(
+        badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
+        position: badges.BadgePosition.bottomEnd(
           bottom: -badgeSize / 5,
           end: -badgeSize / 5,
         ),
-        elevation: 0,
         child: Container(
           constraints: BoxConstraints(
             minHeight: minHeight,
@@ -401,7 +404,7 @@ class AvatarWidget extends StatelessWidget {
               ? Center(
                   child: Text(
                     (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontSize: 15 * (maxWidth / 40.0),
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

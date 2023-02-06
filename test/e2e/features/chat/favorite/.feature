@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,8 @@ Feature: Favorite chats
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I have "Alice and Charlie" group with Charlie
+    And I wait until "Alice and Bob" chat is present
+    And I wait until "Alice and Charlie" chat is present
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat

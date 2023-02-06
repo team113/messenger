@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -205,7 +206,7 @@ class ElementStyleTabView extends StatelessWidget {
                                           const BoxConstraints(maxWidth: 160),
                                       child: Text(
                                         'Username',
-                                        style: context.textTheme.bodyText1
+                                        style: context.textTheme.bodyLarge
                                             ?.copyWith(
                                           fontSize: 17,
                                           color: const Color(0xFFBBBBBB),
@@ -243,7 +244,7 @@ class ElementStyleTabView extends StatelessWidget {
                               children: [
                                 Text(
                                   '10:04',
-                                  style: context.textTheme.bodyText1?.copyWith(
+                                  style: context.textTheme.bodyLarge?.copyWith(
                                       color: const Color(0xFFBBBBBB)),
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
@@ -269,7 +270,6 @@ class ElementStyleTabView extends StatelessWidget {
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
                                       'assets/icons/add_user.svg',
-                                      color: const Color(0xFFBBBBBB),
                                       width: 19,
                                     ),
                                   ),
@@ -283,7 +283,6 @@ class ElementStyleTabView extends StatelessWidget {
                                   hint: 'btn_call_settings'.l10n,
                                   child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
-                                    color: const Color(0xFFBBBBBB),
                                     width: 16,
                                   ),
                                 ),
@@ -497,7 +496,7 @@ class ElementStyleTabView extends StatelessWidget {
                       const SizedBox(height: 5),
                       Text(
                         'Drop any\nvideo here',
-                        style: context.textTheme.bodyText1?.copyWith(
+                        style: context.textTheme.bodyLarge?.copyWith(
                           color: const Color(0xFFBBBBBB),
                         ),
                         textAlign: TextAlign.center,
@@ -557,16 +556,18 @@ class ElementStyleTabView extends StatelessWidget {
                             children: [
                               Text(
                                 'Иван Иванович',
-                                style: context.textTheme.headline4?.copyWith(
-                                    color: Colors.white, fontSize: 20),
+                                style: context.textTheme.headlineMedium
+                                    ?.copyWith(
+                                        color: Colors.white, fontSize: 20),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
                               const SizedBox(height: 5),
                               Text(
                                 '10:04',
-                                style: context.textTheme.headline4?.copyWith(
-                                    color: Colors.white, fontSize: 15),
+                                style: context.textTheme.headlineMedium
+                                    ?.copyWith(
+                                        color: Colors.white, fontSize: 15),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -606,7 +607,7 @@ class ElementStyleTabView extends StatelessWidget {
                             'Добавить участника',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.headline4
+                            style: context.textTheme.headlineMedium
                                 ?.copyWith(color: Colors.white, fontSize: 17),
                           ),
                         ),

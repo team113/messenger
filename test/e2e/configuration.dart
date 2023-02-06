@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,6 +28,7 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import '../mock/overflow_error.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
@@ -46,9 +48,10 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
-import 'steps/contact_is_favorite.dart';
 import 'steps/contact.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
+import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
@@ -71,18 +74,22 @@ import 'steps/sees_as_online.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
+import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_chat.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
@@ -102,6 +109,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contact,
         copyFromField,
         downloadFile,
+        dragContactDown,
         fillField,
         fillFieldN,
         goToUserPage,
@@ -112,6 +120,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
@@ -144,8 +153,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilAttachmentFetched,
+        untilChatExists,
+        untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
+        updateAvatar,
         updateName,
         user,
         waitForAppToSettle,
@@ -188,6 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
+  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);

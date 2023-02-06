@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +18,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -62,6 +64,9 @@ class ChatInfoController extends GetxController {
 
   /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -366,8 +371,6 @@ class ChatInfoController extends GetxController {
       await _callService.join(chatId);
       return;
     }
-
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
 
     try {
       await _callService.redialChatCallMember(chatId, userId);

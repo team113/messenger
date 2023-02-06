@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -372,7 +373,7 @@ void main() async {
 
     ChatController chatController =
         Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -383,6 +384,7 @@ void main() async {
 
     AttachmentId id1 =
         Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .send
             .attachments
             .first
             .value
@@ -396,7 +398,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,

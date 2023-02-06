@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,11 +24,11 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Variant of a [ConfirmDialog].
-class ConfirmDialogVariant {
+class ConfirmDialogVariant<T> {
   const ConfirmDialogVariant({required this.child, this.onProceed});
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
-  final void Function()? onProceed;
+  final T? Function()? onProceed;
 
   /// [Widget] representing this [ConfirmDialogVariant].
   final Widget child;
@@ -67,7 +68,7 @@ class ConfirmDialog extends StatefulWidget {
   final int initial;
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
-  static Future<ConfirmDialog?> show(
+  static Future<T?> show<T>(
     BuildContext context, {
     String? description,
     required String title,
@@ -76,7 +77,7 @@ class ConfirmDialog extends StatefulWidget {
     List<Widget> additional = const [],
     int initial = 0,
   }) {
-    return ModalPopup.show<ConfirmDialog?>(
+    return ModalPopup.show<T?>(
       context: context,
       child: ConfirmDialog(
         description: description,
@@ -98,6 +99,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
   late ConfirmDialogVariant _variant;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   @override
   void didUpdateWidget(ConfirmDialog oldWidget) {
     if (!widget.variants.contains(_variant)) {
@@ -116,7 +120,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -141,7 +145,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                     child: DefaultTextStyle.merge(
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText1
+                          .bodyLarge
                           ?.copyWith(color: Colors.black, fontSize: 18),
                       child: variant.child,
                     ),
@@ -193,12 +197,16 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            child: ListView.separated(
-              physics: const ClampingScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (c, i) => button(widget.variants[i]),
-              separatorBuilder: (c, i) => const SizedBox(height: 10),
-              itemCount: widget.variants.length,
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (c, i) => button(widget.variants[i]),
+                separatorBuilder: (c, i) => const SizedBox(height: 10),
+                itemCount: widget.variants.length,
+              ),
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)
@@ -213,8 +221,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               style: thin?.copyWith(color: Colors.white),
             ),
             onPressed: () {
-              _variant.onProceed?.call();
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_variant.onProceed?.call());
             },
             color: Theme.of(context).colorScheme.secondary,
           ),

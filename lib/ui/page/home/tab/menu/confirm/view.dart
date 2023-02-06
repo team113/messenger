@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,7 +41,7 @@ class ConfirmLogoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -240,16 +241,20 @@ class ConfirmLogoutView extends StatelessWidget {
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: ListView(
-              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 16),
-              ],
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           );
         });

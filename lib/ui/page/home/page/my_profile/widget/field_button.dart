@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,6 +33,7 @@ class FieldButton extends StatelessWidget {
     this.trailing,
     this.prefix,
     this.style,
+    this.fillColor = Colors.white,
   }) : super(key: key);
 
   /// Optional label of this [FieldButton].
@@ -63,6 +65,9 @@ class FieldButton extends StatelessWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
+  /// Fill color of the [ReactiveTextField].
+  final Color fillColor;
+
   @override
   Widget build(BuildContext context) {
     final Widget widget = WidgetButton(
@@ -77,6 +82,7 @@ class FieldButton extends StatelessWidget {
           trailing: trailing,
           prefix: prefix,
           style: style,
+          fillColor: fillColor,
         ),
       ),
     );

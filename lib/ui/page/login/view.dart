@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -76,7 +77,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
+                    style: theme.displaySmall?.copyWith(fontSize: 18),
                   ),
                 ),
               );
@@ -85,7 +86,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: theme.headline3?.copyWith(
+                  style: theme.displaySmall?.copyWith(
                     fontSize: 15,
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -113,7 +114,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
+                    style: theme.displaySmall?.copyWith(fontSize: 18),
                   ),
                 ),
               );
@@ -121,7 +122,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: theme.headline3?.copyWith(
+                  style: theme.displaySmall?.copyWith(
                     fontSize: 15,
                     color: const Color(0xFF888888),
                   ),
@@ -151,7 +152,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
+                    style: theme.displaySmall?.copyWith(fontSize: 18),
                   ),
                 ),
               );
@@ -159,7 +160,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: theme.headline3?.copyWith(
+                  style: theme.displaySmall?.copyWith(
                     fontSize: 15,
                     color: const Color(0xFF888888),
                   ),
@@ -208,7 +209,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_entrance'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
+                    style: theme.displaySmall?.copyWith(fontSize: 18),
                   ),
                 ),
               );
@@ -219,7 +220,7 @@ class LoginView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
                     child: Text(
                       'label_password_changed'.l10n,
-                      style: theme.headline3?.copyWith(
+                      style: theme.displaySmall?.copyWith(
                         fontSize: 15,
                         color: const Color(0xFF888888),
                       ),
@@ -285,16 +286,20 @@ class LoginView extends StatelessWidget {
             fadeInCurve: Curves.easeOut,
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
-            child: ListView(
-              key: Key('${c.stage.value}'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 12),
-              ],
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                key: Key('${c.stage.value}'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });

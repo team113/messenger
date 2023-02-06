@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
@@ -179,5 +181,23 @@ class WebUtils {
   /// an error.
   static void consoleError(Object? object) {
     // No-op.
+  }
+
+  /// Requests the permission to use a camera.
+  static Future<void> cameraPermission() async {
+    try {
+      await Permission.camera.request();
+    } catch (_) {
+      // No-op.
+    }
+  }
+
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    try {
+      await Permission.microphone.request();
+    } catch (_) {
+      // No-op.
+    }
   }
 }

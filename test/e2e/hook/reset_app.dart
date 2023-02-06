@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
@@ -46,6 +48,8 @@ class ResetAppHook extends Hook {
     await Future.delayed(Duration.zero);
     await Hive.close();
     await Hive.clean('hive');
+
+    svg.cache.clear();
   }
 
   @override

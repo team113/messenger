@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,7 +19,9 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -44,6 +47,9 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
+  /// Reactive value of the [RxChat]-dialog with this [RxUser].
+  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
@@ -53,6 +59,17 @@ class HiveRxUser extends RxUser {
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
+
+  @override
+  Rx<RxChat?> get dialog {
+    final Chat? chat = user.value.dialog;
+
+    if (_dialog.value == null && chat != null) {
+      _userRepository.getChat?.call(chat.id).then((v) => _dialog.value = v);
+    }
+
+    return _dialog;
+  }
 
   @override
   void listenUpdates() {
@@ -194,9 +211,11 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blacklistEvent:
-        var saved = _userLocal.get(id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsBlacklistEventsEvent).event;
-        if (saved != null && saved.blacklistedVer > versioned.ver) {
+
+        // TODO: Properly account `MyUserVersion` returned.
+        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
           break;
         }
 
@@ -206,7 +225,19 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.isBlacklisted:
-        // TODO: Handle this case.
+        var versioned = events as UserEventsIsBlacklisted;
+        var userEntity = _userLocal.get(id);
+
+        if (userEntity != null) {
+          // TODO: Properly account `MyUserVersion` returned.
+          if (userEntity.blacklistedVer > versioned.ver) {
+            break;
+          }
+
+          userEntity.value.isBlacklisted = versioned.blacklisted;
+          userEntity.blacklistedVer = versioned.ver;
+          _userLocal.put(userEntity);
+        }
         break;
     }
   }

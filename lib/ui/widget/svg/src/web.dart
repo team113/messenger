@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,7 +43,6 @@ Widget svgFromAsset(
   String asset, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.contain,
   double? height,
@@ -56,7 +56,6 @@ Widget svgFromAsset(
     key: key,
     loader: _AssetSvgLoader(path),
     alignment: alignment,
-    color: color,
     excludeFromSemantics: excludeFromSemantics,
     fit: fit,
     height: height,
@@ -76,7 +75,6 @@ Widget svgFromBytes(
   Uint8List bytes, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -88,7 +86,6 @@ Widget svgFromBytes(
       key: key,
       loader: _BytesSvgLoader(bytes),
       alignment: alignment,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,
@@ -107,7 +104,6 @@ Widget svgFromFile(
   File file, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -119,7 +115,6 @@ Widget svgFromFile(
       key: key,
       loader: _FileSvgLoader(file),
       alignment: alignment,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,
@@ -212,7 +207,6 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-    this.color,
   }) : super(key: key);
 
   /// Loader to load the SVG from.
@@ -247,9 +241,6 @@ class _BrowserSvg extends StatefulWidget {
   /// The value indicates the purpose of the picture, and will be
   /// read out by screen readers.
   final String? semanticsLabel;
-
-  /// If non-`null`, this color is blended with each image pixel.
-  final Color? color;
 
   @override
   _BrowserSvgState createState() => _BrowserSvgState();
@@ -320,7 +311,6 @@ class _BrowserSvgState extends State<_BrowserSvg> {
       : rendererCanvasKit
           ? SvgPicture.memory(
               _imageBytes!,
-              color: widget.color,
               height: widget.height,
               fit: widget.fit,
               width: widget.width,
@@ -331,7 +321,6 @@ class _BrowserSvgState extends State<_BrowserSvg> {
               alignment: Alignment.center,
               child: Image.network(
                 _image!,
-                color: widget.color,
                 height: widget.height,
                 fit: widget.fit,
                 width: widget.width,

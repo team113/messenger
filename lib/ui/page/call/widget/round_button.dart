@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -36,6 +37,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.hint,
     this.withBlur = false,
     this.style,
+    this.border,
     this.child,
   }) : super(key: key);
 
@@ -67,6 +69,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional [TextStyle] of the [text].
   final TextStyle? style;
+
+  /// Optional [BoxBorder] of this [RoundFloatingButton].
+  final BoxBorder? border;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -135,6 +140,15 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       ),
     );
 
+    if (widget.border != null) {
+      button = DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration:
+            BoxDecoration(border: widget.border, shape: BoxShape.circle),
+        child: button,
+      );
+    }
+
     return widget.text == null
         ? button
         : Column(
@@ -148,7 +162,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    context.textTheme.caption?.copyWith(
+                    context.textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                       fontSize: 13,
                     ),
@@ -219,6 +233,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     });
 
-    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }
 }

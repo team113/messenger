@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -125,12 +126,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
           padding: context.isMobile
-              ? const EdgeInsets.symmetric(horizontal: 18)
+              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
               : const EdgeInsets.fromLTRB(12, 6, 12, 6),
           margin:
               context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          height: context.isMobile ? 50 : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
@@ -163,7 +163,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (context.isMobile && widget.trailing != null) ...[
+              if (PlatformUtils.isMobile && widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(

@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -41,4 +42,13 @@ Feature: Favorite contacts
     When I long press "Bob" contact
     And I tap `UnfavoriteContactButton` button
     Then I see "Bob" contact as unfavorited
-    And I see "Bob" contact last in contacts list
+
+  Scenario: User reorders favorite contacts
+    Given "Bob" contact is favorite
+    And "Charlie" contact is favorite
+
+    When I drag "Charlie" contact 200 pixels down
+    Then I see "Charlie" contact last in contacts list
+
+    When I drag "Bob" contact 200 pixels down
+    Then I see "Bob" contact last in contacts list
