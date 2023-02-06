@@ -88,6 +88,7 @@ import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
@@ -151,6 +152,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilAttachmentFetched,
+        untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
         updateAvatar,
