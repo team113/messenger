@@ -59,6 +59,7 @@ class MessageFieldView extends StatelessWidget {
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
+    this.paid = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -85,6 +86,8 @@ class MessageFieldView extends StatelessWidget {
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
+
+  final bool paid;
 
   @override
   Widget build(BuildContext context) {
@@ -504,7 +507,7 @@ class MessageFieldView extends StatelessWidget {
                             )
                           : SvgLoader.asset(
                               key: sendKey ?? const Key('Send'),
-                              'assets/icons/send.svg',
+                              'assets/icons/send${paid ? '_paid' : ''}.svg',
                               height: 22.85,
                               width: 25.18,
                             ),

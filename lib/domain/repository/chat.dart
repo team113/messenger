@@ -245,6 +245,32 @@ abstract class RxChat {
               .isBlacklisted ==
           true;
 
+  double get messageCost {
+    if (chat.value.isDialog) {
+      return members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .messageCost ??
+          0;
+    }
+
+    return 0;
+  }
+
+  double get callCost {
+    if (chat.value.isDialog) {
+      return members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .callCost ??
+          0;
+    }
+
+    return 0;
+  }
+
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
 

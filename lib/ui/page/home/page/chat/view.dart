@@ -198,7 +198,7 @@ class _ChatViewState extends State<ChatView>
                           WidgetButton(
                             onPressed: () => c.call(true),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_video_call.svg',
+                              'assets/icons/chat_video_call${c.chat?.callCost == 0 ? '' : '_paid'}.svg',
                               height: 17,
                             ),
                           ),
@@ -206,7 +206,7 @@ class _ChatViewState extends State<ChatView>
                           WidgetButton(
                             onPressed: () => c.call(false),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call.svg',
+                              'assets/icons/chat_audio_call${c.chat?.callCost == 0 ? '' : '_paid'}.svg',
                               height: 19,
                             ),
                           ),
@@ -564,6 +564,7 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
+            paid: c.chat?.messageCost != 0,
             avatar: !previousSame,
             margin: EdgeInsets.only(
               top: previousSame ? 1.5 : 6,
@@ -725,6 +726,8 @@ class _ChatViewState extends State<ChatView>
           child: child,
         );
       });
+    } else if (element is PaidElement) {
+      return _paidElement(c, element.messages, element.calls);
     }
 
     return const SizedBox();
@@ -929,6 +932,57 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
+  Widget _paidElement(ChatController c, double messageCost, double callCost) {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final User? user = c.chat!.members.values
+        .firstWhereOrNull((e) => e.id != c.me)
+        ?.user
+        .value;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: Column(
+            children: [
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${user?.name?.val ?? user?.num.val}',
+                      style: style.systemMessageStyle.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => router.user(user!.id, push: true),
+                    ),
+                    const TextSpan(text: ' has set a fee for:'),
+                  ],
+                  style: style.systemMessageStyle,
+                ),
+              ),
+              Text(
+                '''- incoming messages - \$$messageCost per message
+- incoming calls - \$$callCost per minute''',
+                style: style.systemMessageStyle,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
@@ -952,6 +1006,7 @@ class _ChatViewState extends State<ChatView>
         onChanged: c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
+        paid: c.chat?.messageCost != 0,
       );
     });
   }

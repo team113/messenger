@@ -51,7 +51,10 @@ class User extends HiveObject {
     this.dialog,
     this.isBlacklisted = false,
     this.lastSeenAt,
-  });
+  }) {
+    messageCost = name?.val == 'alex3' || name?.val == 'kirey' ? 2 : 0;
+    callCost = name?.val == 'alex3' || name?.val == 'kirey' ? 0.2 : 0;
+  }
 
   /// Unique ID of this [User].
   ///
@@ -139,6 +142,9 @@ class User extends HiveObject {
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
+
+  late double messageCost;
+  late double callCost;
 }
 
 /// Unique ID of an [User].

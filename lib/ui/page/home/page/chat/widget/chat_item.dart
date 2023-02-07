@@ -89,6 +89,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
+    this.paid = false,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -155,6 +156,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
+
+  final bool paid;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -905,6 +908,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    final Color background;
+    final Border border = _fromMe
+        ? _isRead
+            ? style.secondaryBorder
+            : Border.all(
+                color: const Color(0xFFDAEDFF),
+                width: 0.5,
+              )
+        : style.primaryBorder;
+
+    if (widget.paid) {
+      background = _fromMe
+          ? _isRead
+              ? Color.fromARGB(255, 224, 249, 210)
+              : style.unreadMessageColor
+          : style.messageColor;
+    } else {
+      background = _fromMe
+          ? _isRead
+              ? style.readMessageColor
+              : style.unreadMessageColor
+          : style.messageColor;
+    }
+
     return _rounded(
       context,
       Container(
@@ -913,20 +940,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             decoration: BoxDecoration(
-              color: _fromMe
-                  ? _isRead
-                      ? style.readMessageColor
-                      : style.unreadMessageColor
-                  : style.messageColor,
+              color: background,
               borderRadius: BorderRadius.circular(15),
-              border: _fromMe
-                  ? _isRead
-                      ? style.secondaryBorder
-                      : Border.all(
-                          color: const Color(0xFFDAEDFF),
-                          width: 0.5,
-                        )
-                  : style.primaryBorder,
+              border: border,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

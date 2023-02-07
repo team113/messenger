@@ -174,6 +174,8 @@ class ChatController extends GetxController {
 
   final RxBool bottomLoader = RxBool(false);
 
+  bool paid = false;
+
   LoaderElement? _topLoader;
   LoaderElement? _bottomLoader;
 
@@ -507,6 +509,8 @@ class ChatController extends GetxController {
     );
   }
 
+  PaidElement? _paidElement;
+
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
@@ -626,6 +630,11 @@ class ChatController extends GetxController {
 
       for (Rx<ChatItem> e in chat!.messages) {
         add(e);
+      }
+
+      if (chat?.messageCost != 0 || chat?.callCost != 0) {
+        _paidElement = PaidElement(chat!.messageCost, chat!.callCost);
+        elements[_paidElement!.id] = _paidElement!;
       }
 
       // _topLoader = LoaderElement(
@@ -1406,6 +1415,19 @@ class UnreadMessagesElement extends ListElement {
 class LoaderElement extends ListElement {
   LoaderElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('2')));
+}
+
+class PaidElement extends ListElement {
+  PaidElement(this.messages, this.calls)
+      : super(
+          ListElementId(
+            PreciseDateTime(DateTime.now().add(const Duration(days: 365))),
+            const ChatItemId('2'),
+          ),
+        );
+
+  final double messages;
+  final double calls;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
