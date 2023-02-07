@@ -516,10 +516,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> incomingCallsTopEvents(
-    int count, {
-    VoidCallback? onError,
-  }) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
       data: {

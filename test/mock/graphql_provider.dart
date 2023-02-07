@@ -40,10 +40,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   void disconnect() {}
 
   @override
-  Stream<QueryResult> incomingCallsTopEvents(
-    int count, {
-    VoidCallback? onError,
-  }) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     Future.delayed(
         Duration.zero,
         () => ongoingCallStream.add(QueryResult.internal(

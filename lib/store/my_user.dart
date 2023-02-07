@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -90,7 +91,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [_myUserRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator<MyUserEventsVersioned>? _remoteSubscription;
+  StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
@@ -552,21 +553,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
     _remoteSubscription =
-        StreamIterator(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
-
-    while (await _remoteSubscription!.moveNext()) {
-      _myUserRemoteEvent(_remoteSubscription!.current);
+        StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
+    while (await _remoteSubscription!.hasNext) {
+      try {
+        _myUserRemoteEvent(await _remoteSubscription!.next);
+      } catch (_) {
+        // No-op.
+      }
     }
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
   void _initKeepOnlineSubscription() {
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen(
-      (_) {
-        // No-op.
-      },
-    );
+    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen((_) {});
   }
 
   /// Saves the provided [user] in [Hive].

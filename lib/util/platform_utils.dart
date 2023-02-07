@@ -267,10 +267,10 @@ class PlatformUtilsImpl {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) {
-    onError(e) {
-      // Rethrow if any other than `404` error is thrown.
-      if (e is! DioError || e.response?.statusCode != 404) {
-        throw e;
+    // Rethrows the [exception], if any other than `404` is thrown.
+    void onError(dynamic exception) {
+      if (exception is! DioError || exception.response?.statusCode != 404) {
+        throw exception;
       }
     }
 

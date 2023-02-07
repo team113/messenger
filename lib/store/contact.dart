@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -40,7 +41,6 @@ import 'event/contact.dart';
 import 'model/contact.dart';
 import 'user.dart';
 
-// TODO: Implement [favorites] sorting.
 /// Implementation of an [AbstractContactRepository].
 class ContactRepository implements AbstractContactRepository {
   ContactRepository(
@@ -77,7 +77,7 @@ class ContactRepository implements AbstractContactRepository {
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
   Future<void> init() async {
@@ -279,12 +279,16 @@ class ContactRepository implements AbstractContactRepository {
   /// Initializes [_chatContactsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(
+    _remoteSubscription = StreamQueue(
       _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
     );
 
-    while (await _remoteSubscription!.moveNext()) {
-      await _contactRemoteEvent(_remoteSubscription!.current);
+    while (await _remoteSubscription!.hasNext) {
+      try {
+        await _contactRemoteEvent(await _remoteSubscription!.next);
+      } catch (_) {
+        // No-op.
+      }
     }
   }
 

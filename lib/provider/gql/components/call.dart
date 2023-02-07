@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -188,10 +186,7 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> incomingCallsTopEvents(
-    int count, {
-    VoidCallback? onError,
-  }) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -200,7 +195,6 @@ abstract class CallGraphQlMixin {
             IncomingCallsTopEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onError: onError,
     );
   }
 

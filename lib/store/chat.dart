@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -49,6 +50,7 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'chat_rx.dart';
@@ -108,15 +110,18 @@ class ChatRepository implements AbstractChatRepository {
   /// [_recentChatsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamQueue<RecentChatsEvent>? _remoteSubscription;
 
   /// [_favoriteChatsEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _favoriteChatsSubscription;
+  StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
+
+  /// [dio.CancelToken] for cancelling the [_recentChats] query.
+  final dio.CancelToken _cancelToken = dio.CancelToken();
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -142,8 +147,8 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    // TODO: Should be called with backoff algorithm.
-    HashMap<ChatId, ChatData> chats = await _recentChats();
+    HashMap<ChatId, ChatData> chats =
+        await Backoff.run(_recentChats, _cancelToken);
 
     for (HiveChat c in _chatLocal.chats) {
       if (!chats.containsKey(c.value.id)) {
@@ -168,6 +173,7 @@ class ChatRepository implements AbstractChatRepository {
       c.value.dispose();
     }
 
+    _cancelToken.cancel();
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
@@ -1011,9 +1017,13 @@ class ChatRepository implements AbstractChatRepository {
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(_recentChatsRemoteEvents());
-    while (await _remoteSubscription!.moveNext()) {
-      await _recentChatsRemoteEvent(_remoteSubscription!.current);
+    _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
+    while (await _remoteSubscription!.hasNext) {
+      try {
+        await _recentChatsRemoteEvent(await _remoteSubscription!.next);
+      } catch (_) {
+        // No-op.
+      }
     }
   }
 
@@ -1181,11 +1191,15 @@ class ChatRepository implements AbstractChatRepository {
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteChatsSubscription() async {
     _favoriteChatsSubscription?.cancel();
-    _favoriteChatsSubscription = StreamIterator(
+    _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
     );
-    while (await _favoriteChatsSubscription!.moveNext()) {
-      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
+    while (await _favoriteChatsSubscription!.hasNext) {
+      try {
+        await _favoriteChatsEvent(await _favoriteChatsSubscription!.next);
+      } catch (_) {
+        // No-op.
+      }
     }
   }
 

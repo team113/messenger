@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -119,7 +120,7 @@ class HiveRxChat extends RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator<ChatEvents>? _remoteSubscription;
+  StreamQueue<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
@@ -766,10 +767,16 @@ class HiveRxChat extends RxChat {
     _remoteSubscriptionInitialized = true;
 
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(
-        _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver));
-    while (await _remoteSubscription!.moveNext()) {
-      await _chatEvent(_remoteSubscription!.current);
+    _remoteSubscription = StreamQueue(
+      _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
+    );
+
+    while (await _remoteSubscription!.hasNext) {
+      try {
+        await _chatEvent(await _remoteSubscription!.next);
+      } catch (_) {
+        // No-op.
+      }
     }
 
     _remoteSubscriptionInitialized = false;

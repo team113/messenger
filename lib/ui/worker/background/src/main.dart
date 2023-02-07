@@ -388,15 +388,7 @@ class _BackgroundService {
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].
   void _subscribe() {
-    _subscription = _provider
-        .incomingCallsTopEvents(
-      3,
-      onError: () => _setForegroundNotificationInfo(
-        title: 'label_service_reconnecting'.l10n,
-        content: '${DateTime.now()}',
-      ),
-    )
-        .listen(
+    _subscription = _provider.incomingCallsTopEvents(3).listen(
       (event) {
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
@@ -470,6 +462,12 @@ class _BackgroundService {
             _callKeep.reportEndCallWithUUID(call.chatId.val, 0);
             break;
         }
+      },
+      onError: (e) {
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
       },
     );
   }

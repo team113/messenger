@@ -209,7 +209,7 @@ class _RetryImageState extends State<RetryImage> {
               setState(() {});
             }
           } else {
-            throw Exception('Image data is not loaded');
+            throw Exception('Image is not loaded');
           }
         }
       },

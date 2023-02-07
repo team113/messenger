@@ -17,50 +17,56 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
 
-/// Helper to execute methods with backoff algorithm.
+/// Backoff algorithm helper.
 class Backoff {
   /// Minimal [Duration] of the backoff.
-  static const Duration _minBackoff = Duration(microseconds: 500);
+  static const Duration _minBackoff = Duration(milliseconds: 500);
 
   /// Maximal [Duration] of the backoff.
-  static final Duration _maxBackoff = 64.seconds;
+  static const Duration _maxBackoff = Duration(milliseconds: 32000);
 
-  /// Calls the provided [callback] using the exponential backoff algorithm.
+  /// Returns result of the provided [callback] using the exponential backoff
+  /// algorithm on any errors.
   static Future<T> run<T>(
     Future<T> Function() callback, [
     CancelToken? cancelToken,
   ]) async {
-    Duration backoff = Duration.zero;
+    final CancelableOperation operation = CancelableOperation.fromFuture(
+      Future(() async {
+        Duration backoff = Duration.zero;
 
-    while (true) {
-      await Future.delayed(backoff);
+        while (true) {
+          await Future.delayed(backoff);
+          if (cancelToken?.isCancelled == true) {
+            throw OperationCanceledException();
+          }
 
-      if (cancelToken?.isCancelled == true) {
-        throw OperationCanceledException();
-      }
+          try {
+            return await callback();
+          } catch (e) {
+            if (backoff.inMilliseconds == 0) {
+              backoff = _minBackoff;
+            } else if (backoff < _maxBackoff) {
+              backoff *= 2;
+            }
+          }
+        }
+      }),
+    );
 
-      try {
-        return await callback();
-      } catch (e) {
-        backoff = increaseBackoff(backoff);
-      }
+    cancelToken?.whenCancel.then((_) => operation.cancel());
+
+    final result = await operation.valueOrCancellation();
+    if (operation.isCanceled) {
+      throw OperationCanceledException();
     }
-  }
 
-  /// Increases the provided [backoff].
-  static Duration increaseBackoff(Duration backoff) {
-    if (backoff.inMilliseconds == 0) {
-      backoff = _minBackoff;
-    } else if (backoff < _maxBackoff) {
-      backoff *= 2;
-    }
-
-    return backoff;
+    return result;
   }
 }
 
-/// Exception indicates that operation has been canceled.
+/// Exception of a [Backoff] operating being manually canceled.
 class OperationCanceledException implements Exception {}
