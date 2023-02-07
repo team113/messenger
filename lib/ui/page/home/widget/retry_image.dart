@@ -37,6 +37,7 @@ class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
     Key? key,
+    this.checksum,
     this.fit,
     this.height,
     this.width,
@@ -47,6 +48,9 @@ class RetryImage extends StatefulWidget {
 
   /// URL of an image to display.
   final String url;
+
+  /// SHA-256 checksum of the image to display.
+  final String? checksum;
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
@@ -74,9 +78,6 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// Naive [_FIFOCache] caching the images.
-  static final _FIFOCache _cache = _FIFOCache();
-
   /// Byte data of the fetched image.
   Uint8List? _image;
 
@@ -165,7 +166,11 @@ class _RetryImageState extends State<RetryImage> {
   Future<void> _loadImage() async {
     return Backoff.run(
       () async {
-        Uint8List? cached = _cache[widget.url];
+        Uint8List? cached;
+        if (widget.checksum != null) {
+          cached = FIFOCache.get(widget.checksum!);
+        }
+
         if (cached != null) {
           _image = cached;
           if (mounted) {
@@ -195,7 +200,10 @@ class _RetryImageState extends State<RetryImage> {
           }
 
           if (data?.data != null && data!.statusCode == 200) {
-            _cache[widget.url] = data.data;
+            if (widget.checksum != null) {
+              FIFOCache.set(widget.checksum!, data.data);
+            }
+
             _image = data.data;
             if (mounted) {
               setState(() {});
@@ -214,7 +222,7 @@ class _RetryImageState extends State<RetryImage> {
 ///
 /// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
 /// [_maxLength], then the first inserted element is removed.
-class _FIFOCache {
+class FIFOCache {
   /// Maximum allowed length of [_cache].
   static const int _maxLength = 1000;
 
@@ -222,15 +230,15 @@ class _FIFOCache {
   static const int _maxSize = 100 << 20; // 100 MiB
 
   /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  final LinkedHashMap<String, Uint8List> _cache =
+  static final LinkedHashMap<String, Uint8List> _cache =
       LinkedHashMap<String, Uint8List>();
 
   /// Returns the total size [_cache] occupies.
-  int get size =>
+  static int get size =>
       _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
 
   /// Puts the provided [bytes] to the cache.
-  void operator []=(String key, Uint8List bytes) {
+  static void set(String key, Uint8List bytes) {
     if (!_cache.containsKey(key)) {
       while (size >= _maxSize) {
         _cache.remove(_cache.keys.first);
@@ -245,5 +253,8 @@ class _FIFOCache {
   }
 
   /// Returns the [Uint8List] of the provided [key], if any is cached.
-  Uint8List? operator [](String key) => _cache[key];
+  static Uint8List? get(String key) => _cache[key];
+
+  /// Indicates whether an item with the provided [key] exists.
+  static bool exists(String key) => _cache.containsKey(key);
 }

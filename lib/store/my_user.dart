@@ -402,9 +402,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         filename: file.name,
         contentType: file.mime,
       );
-    } else if (file.bytes != null) {
+    } else if (file.bytes.value != null) {
       upload = dio.MultipartFile.fromBytes(
-        file.bytes!,
+        file.bytes.value!,
         filename: file.name,
         contentType: file.mime,
       );
