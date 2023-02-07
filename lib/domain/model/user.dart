@@ -53,7 +53,7 @@ class User extends HiveObject {
     this.lastSeenAt,
   }) {
     messageCost = name?.val == 'alex3' || name?.val == 'kirey' ? 2 : 0;
-    callCost = name?.val == 'alex3' || name?.val == 'kirey' ? 0.2 : 0;
+    callCost = name?.val == 'alex3' || name?.val == 'kirey' ? 1 : 0;
   }
 
   /// Unique ID of this [User].
