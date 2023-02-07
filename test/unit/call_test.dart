@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -717,7 +716,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
-    return GetChat$Query.fromJson(chatData);
+    return GetChat$Query.fromJson({'chat': chatData});
   }
 
   Map<String, dynamic> userData = {
