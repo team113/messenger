@@ -95,10 +95,10 @@ final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   'copied text is {string}',
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
-    // var data = await WebUtils.getCopied();
+    // ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
+    var data = await WebUtils.getCopied();
     // print('selected text:');
-    expect(text, cdata?.text);
+    expect(text, data);
     // print(cdata?.text);
   },
 );
