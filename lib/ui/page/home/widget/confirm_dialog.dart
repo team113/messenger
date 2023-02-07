@@ -77,7 +77,7 @@ class ConfirmDialog extends StatefulWidget {
     List<Widget> additional = const [],
     int initial = 0,
   }) {
-    return ModalPopup.show<T>(
+    return ModalPopup.show<T?>(
       context: context,
       child: ConfirmDialog(
         description: description,

@@ -25,6 +25,7 @@ Feature: Blacklist
 
     When I go to Bob's page
     And I tap `Block` button
+    And I tap `Proceed` button
     Then Bob sends message to me and receives blacklisted exception
 
     When I tap `Unblock` button
