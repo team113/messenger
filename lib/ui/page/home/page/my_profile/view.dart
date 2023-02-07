@@ -242,6 +242,7 @@ class MyProfileView extends StatelessWidget {
                     },
                     initIndex: c.listInitIndex,
                     childCount: ProfileTab.values.length,
+                    preferItemHeight: 200,
                   ),
                 ),
               );
