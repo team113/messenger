@@ -24,9 +24,9 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/ui/widget/text_field.dart';
 
-/// Controller of the [ChatItemReads] popup.
-class ChatItemReadsController extends GetxController {
-  ChatItemReadsController({this.reads = const [], this.getUser});
+/// Controller of the [ChatItemInfo] popup.
+class ChatItemInfoController extends GetxController {
+  ChatItemInfoController({this.reads = const [], this.getUser});
 
   /// [LastChatRead]s themselves.
   final Iterable<LastChatRead> reads;
@@ -54,7 +54,7 @@ class ChatItemReadsController extends GetxController {
     super.onInit();
   }
 
-  /// Initialize this [ChatItemReadsController].
+  /// Initialize this [ChatItemInfoController].
   Future<void> _init() async {
     final List<Future> futures = reads
         .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))

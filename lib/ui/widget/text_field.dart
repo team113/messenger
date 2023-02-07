@@ -358,7 +358,7 @@ abstract class ReactiveFieldState {
   /// Indicator whether [controller]'s text should be approved.
   bool approvable = false;
 
-  /// Reactive value of `focus.hasFocus`.
+  /// Reactive value of [focus.hasFocus].
   final RxBool isFocused = RxBool(false);
 
   /// Reactive error message.

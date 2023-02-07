@@ -41,8 +41,8 @@ import 'controller.dart';
 /// [User]s.
 ///
 /// Intended to be displayed with the [show] method.
-class ChatItemReads extends StatelessWidget {
-  const ChatItemReads({
+class ChatItemInfo extends StatelessWidget {
+  const ChatItemInfo({
     super.key,
     this.id,
     this.reads = const [],
@@ -59,7 +59,7 @@ class ChatItemReads extends StatelessWidget {
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
-  /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
+  /// Displays a [ChatItemInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     ChatItemId? id,
@@ -68,7 +68,7 @@ class ChatItemReads extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
-      child: ChatItemReads(id: id, reads: reads, getUser: getUser),
+      child: ChatItemInfo(id: id, reads: reads, getUser: getUser),
     );
   }
 
@@ -79,8 +79,8 @@ class ChatItemReads extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: ChatItemReadsController(reads: reads, getUser: getUser),
-      builder: (ChatItemReadsController c) {
+      init: ChatItemInfoController(reads: reads, getUser: getUser),
+      builder: (ChatItemInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -120,78 +120,75 @@ class ChatItemReads extends StatelessWidget {
                 ),
               ),
             Obx(() {
-              if (c.users.length > 9) {
-                return Container(
-                  padding: ModalPopup.padding(context),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: SizedBox(
-                    height: 50,
-                    child: CustomAppBar(
-                      border: !c.search.isEmpty.value ||
-                              c.search.isFocused.value
-                          ? Border.all(
-                              color: Theme.of(context).colorScheme.secondary,
-                              width: 2,
-                            )
-                          : null,
-                      margin: const EdgeInsets.only(top: 4),
-                      title: Theme(
-                        data: MessageFieldView.theme(context),
-                        child: Transform.translate(
-                          offset: const Offset(0, 1),
-                          child: ReactiveTextField(
-                            key: const Key('SearchField'),
-                            state: c.search,
-                            hint: 'label_search'.l10n,
-                            maxLines: 1,
-                            filled: false,
-                            dense: true,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            style: style.boldBody.copyWith(fontSize: 17),
-                            onChanged: () => c.query.value = c.search.text,
-                          ),
+              if (c.users.length < 10) return const SizedBox();
+              return Container(
+                padding: ModalPopup.padding(context),
+                margin: const EdgeInsets.only(bottom: 12),
+                child: SizedBox(
+                  height: 50,
+                  child: CustomAppBar(
+                    border: !c.search.isEmpty.value || c.search.isFocused.value
+                        ? Border.all(
+                            color: Theme.of(context).colorScheme.secondary,
+                            width: 2,
+                          )
+                        : null,
+                    margin: const EdgeInsets.only(top: 4),
+                    title: Theme(
+                      data: MessageFieldView.theme(context),
+                      child: Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: ReactiveTextField(
+                          key: const Key('SearchField'),
+                          state: c.search,
+                          hint: 'label_search'.l10n,
+                          maxLines: 1,
+                          filled: false,
+                          dense: true,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          style: style.boldBody.copyWith(fontSize: 17),
+                          onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
-                      leading: [
-                        Container(
-                          padding: const EdgeInsets.only(left: 20, right: 12),
-                          child: SvgLoader.asset(
-                            'assets/icons/search.svg',
-                            width: 17.77,
-                          ),
-                        )
-                      ],
-                      actions: [
-                        Obx(() {
-                          return AnimatedSwitcher(
-                            duration: 250.milliseconds,
-                            child: !c.search.isEmpty.value
-                                ? WidgetButton(
-                                    onPressed: () {
-                                      c.search.clear();
-                                      c.search.unsubmit();
-                                      c.query.value = '';
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 12,
-                                        right: 18,
-                                      ),
-                                      child: SvgLoader.asset(
-                                        'assets/icons/close_primary.svg',
-                                        height: 15,
-                                      ),
-                                    ),
-                                  )
-                                : null,
-                          );
-                        }),
-                      ],
                     ),
+                    leading: [
+                      Container(
+                        padding: const EdgeInsets.only(left: 20, right: 12),
+                        child: SvgLoader.asset(
+                          'assets/icons/search.svg',
+                          width: 17.77,
+                        ),
+                      )
+                    ],
+                    actions: [
+                      Obx(() {
+                        return AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: !c.search.isEmpty.value
+                              ? WidgetButton(
+                                  onPressed: () {
+                                    c.search.clear();
+                                    c.search.unsubmit();
+                                    c.query.value = '';
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      right: 18,
+                                    ),
+                                    child: SvgLoader.asset(
+                                      'assets/icons/close_primary.svg',
+                                      height: 15,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        );
+                      }),
+                    ],
                   ),
-                );
-              }
-              return const SizedBox();
+                ),
+              );
             }),
             if (reads.isNotEmpty)
               Flexible(
@@ -217,11 +214,12 @@ class ChatItemReads extends StatelessWidget {
                           if (users.isEmpty)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              child:
-                                  Center(child: Text('label_not_found'.l10n)),
+                              child: Center(
+                                  child: Text('label_nothing_found'.l10n)),
                             )
                           else
                             ...users.map((e) {
+                              final DateTime time = reads.first.at.val;
                               return ContactTile(
                                 user: e,
                                 dense: true,
@@ -234,9 +232,8 @@ class ChatItemReads extends StatelessWidget {
                                   const SizedBox(height: 3),
                                   Text(
                                     'label_read_at'.l10nfmt({
-                                      'date': DateFormat('dd.MM.yyyy, kk:mm')
-                                          .format(reads.first.at.val)
-                                          .toString()
+                                      'date':
+                                          '${DateFormat.yMd().format(time)} ${DateFormat.Hm().format(time)}'
                                     }),
                                     style: TextStyle(
                                       color:

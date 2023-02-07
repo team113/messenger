@@ -835,7 +835,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? 'btn_info'.l10n
                                   : 'btn_message_info'.l10n,
                               trailing: const Icon(Icons.info_outline),
-                              onPressed: () => ChatItemReads.show(
+                              onPressed: () => ChatItemInfo.show(
                                 context,
                                 id: widget.forwards.first.value.id,
                                 reads: widget.chat.value?.lastReads.where(
@@ -971,10 +971,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 Transform.translate(
                                   offset: const Offset(-12, -4),
                                   child: WidgetButton(
-                                    onPressed: () => ChatItemReads.show(
+                                    onPressed: () => ChatItemInfo.show(
                                       context,
                                       id: widget.forwards.first.value.id,
-                                      reads: widget.reads,
+                                      reads: widget.chat.value?.lastReads.where(
+                                            (e) =>
+                                                !e.at.val.isBefore(widget
+                                                    .forwards
+                                                    .first
+                                                    .value
+                                                    .at
+                                                    .val) &&
+                                                e.memberId !=
+                                                    widget.forwards.first.value
+                                                        .authorId,
+                                          ) ??
+                                          [],
                                       getUser: widget.getUser,
                                     ),
                                     child: Row(

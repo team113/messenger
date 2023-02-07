@@ -559,7 +559,6 @@ label_no_messages = No messages
 label_no_registration = no registration
 label_no_users = No users
 label_nobody = No one
-label_not_found = Not found
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID

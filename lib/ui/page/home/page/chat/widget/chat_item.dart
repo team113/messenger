@@ -1434,7 +1434,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
                             trailing: const Icon(Icons.info_outline),
-                            onPressed: () => ChatItemReads.show(
+                            onPressed: () => ChatItemInfo.show(
                               context,
                               id: widget.item.value.id,
                               reads: widget.chat.value?.lastReads.where(
@@ -1602,9 +1602,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               Transform.translate(
                                 offset: Offset(-12, -widget.margin.bottom),
                                 child: WidgetButton(
-                                  onPressed: () => ChatItemReads.show(
+                                  onPressed: () => ChatItemInfo.show(
                                     context,
-                                    reads: widget.reads,
+                                    reads: widget.chat.value?.lastReads.where(
+                                          (e) =>
+                                              !e.at.val.isBefore(
+                                                  widget.item.value.at.val) &&
+                                              e.memberId !=
+                                                  widget.item.value.authorId,
+                                        ) ??
+                                        [],
                                     id: widget.item.value.id,
                                     getUser: widget.getUser,
                                   ),
