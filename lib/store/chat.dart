@@ -519,12 +519,12 @@ class ChatRepository implements AbstractChatRepository {
           contentType: attachment.file.mime,
         );
       } else if (attachment.file.stream != null ||
-          attachment.file.bytes != null) {
+          attachment.file.bytes.value != null) {
         await attachment.file.readFile();
         attachment.read.value?.complete(null);
         attachment.status.refresh();
         upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes!,
+          attachment.file.bytes.value!,
           filename: attachment.file.name,
           contentType: attachment.file.mime,
         );
@@ -634,9 +634,9 @@ class ChatRepository implements AbstractChatRepository {
           filename: file.name,
           contentType: file.mime,
         );
-      } else if (file.bytes != null) {
+      } else if (file.bytes.value != null) {
         upload = dio.MultipartFile.fromBytes(
-          file.bytes!,
+          file.bytes.value!,
           filename: file.name,
           contentType: file.mime,
         );
