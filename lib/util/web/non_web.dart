@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:permission_handler/permission_handler.dart';
@@ -160,6 +161,14 @@ class WebUtils {
   /// Indicates whether the browser's storage contains a call identified by the
   /// provided [chatId].
   static bool containsCall(ChatId chatId) => false;
+
+  static void copy(String text) => Clipboard.setData(ClipboardData(text: text));
+
+  static Future<String?> getCopied() async {
+    var val = await Clipboard.getData(Clipboard.kTextPlain);
+    return val?.text;
+  }
+  // static void copy(String text) => Clipboard.setData(ClipboardData(text: text));
 
   /// Indicates whether the browser's storage contains any calls.
   static bool containsCalls() => false;

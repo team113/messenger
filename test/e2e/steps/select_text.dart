@@ -28,6 +28,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -95,6 +96,7 @@ final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
     ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
+    // var data = await WebUtils.getCopied();
     // print('selected text:');
     expect(text, cdata?.text);
     // print(cdata?.text);
