@@ -60,9 +60,6 @@ class MyProfileController extends GetxController {
   /// [FlutterListViewController] of the profile's [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
-  int listInitIndex = 0;
-
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
 
@@ -144,10 +141,15 @@ class MyProfileController extends GetxController {
       _mediaManager = null;
     }
 
-    listInitIndex = router.profileSection.value?.index ?? 0;
-
     bool ignoreWorker = false;
     bool ignorePositions = false;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration.zero, () {
+        listController.sliverController
+            .jumpToIndex(router.profileSection.value?.index ?? 0);
+      });
+    });
 
     _profileWorker = ever(
       router.profileSection,
