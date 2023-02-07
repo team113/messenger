@@ -628,10 +628,10 @@ class ChatController extends GetxController {
         add(e);
       }
 
-      _topLoader = LoaderElement(
-        PreciseDateTime(DateTime.fromMicrosecondsSinceEpoch(0)),
-      );
-      elements[_topLoader!.id] = _topLoader!;
+      // _topLoader = LoaderElement(
+      //   PreciseDateTime(DateTime.fromMicrosecondsSinceEpoch(0)),
+      // );
+      // elements[_topLoader!.id] = _topLoader!;
 
       _messagesSubscription = chat!.messages.changes.listen((e) {
         switch (e.op) {

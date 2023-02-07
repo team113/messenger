@@ -441,20 +441,20 @@ class ContactsTabView extends StatelessWidget {
                                     ),
                                   );
                                 }),
-                                Center(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints.tight(
-                                        const Size.square(40),
-                                      ),
-                                      child: const Center(
-                                        child: CustomProgressIndicator(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                // Center(
+                                //   child: Padding(
+                                //     padding:
+                                //         const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                                //     child: ConstrainedBox(
+                                //       constraints: BoxConstraints.tight(
+                                //         const Size.square(40),
+                                //       ),
+                                //       child: const Center(
+                                //         child: CustomProgressIndicator(),
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),

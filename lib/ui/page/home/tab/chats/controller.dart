@@ -160,7 +160,7 @@ class ChatsTabController extends GetxController {
     }
 
     timer = Rx(Timer(2.seconds, () => timer.value = null));
-    chats.add(const LoaderElement());
+    // chats.add(const LoaderElement());
 
     // _timer = Timer(
     //   2.seconds,
