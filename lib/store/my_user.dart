@@ -806,9 +806,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
-    MyUserVersion? Function() getVersion,
+    MyUserVersion? Function() ver,
   ) =>
-      _graphQlProvider.myUserEvents(getVersion).asyncExpand((event) async* {
+      _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
         var events =
             MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 

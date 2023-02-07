@@ -22,8 +22,8 @@ import 'dart:collection';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '/util/backoff.dart';
 
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].

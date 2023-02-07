@@ -727,13 +727,8 @@ class ChatRepository implements AbstractChatRepository {
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
-  Stream<ChatEvents> chatEvents(
-    ChatId chatId,
-    ChatVersion? Function() getVersion,
-  ) =>
-      _graphQlProvider
-          .chatEvents(chatId, getVersion)
-          .asyncExpand((event) async* {
+  Stream<ChatEvents> chatEvents(ChatId chatId, ChatVersion? Function() ver) =>
+      _graphQlProvider.chatEvents(chatId, ver).asyncExpand((event) async* {
         var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
         if (events.$$typename == 'SubscriptionInitialized') {
           events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
@@ -1250,11 +1245,9 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
   Stream<FavoriteChatsEvents> _favoriteChatsEvents(
-    FavoriteChatsListVersion? Function() getVersion,
+    FavoriteChatsListVersion? Function() ver,
   ) =>
-      _graphQlProvider
-          .favoriteChatsEvents(getVersion)
-          .asyncExpand((event) async* {
+      _graphQlProvider.favoriteChatsEvents(ver).asyncExpand((event) async* {
         var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
             .favoriteChatsEvents;
         if (events.$$typename == 'SubscriptionInitialized') {

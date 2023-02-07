@@ -468,9 +468,9 @@ class ContactRepository implements AbstractContactRepository {
   /// client side is expected to handle all the events idempotently considering
   /// the [ChatContactVersion].
   Stream<ChatContactsEvents> _chatContactsRemoteEvents(
-    ChatContactsListVersion? Function() getVersion,
+    ChatContactsListVersion? Function() ver,
   ) =>
-      _graphQlProvider.contactsEvents(getVersion).asyncExpand((event) async* {
+      _graphQlProvider.contactsEvents(ver).asyncExpand((event) async* {
         var events = ContactsEvents$Subscription.fromJson(event.data!)
             .chatContactsEvents;
 

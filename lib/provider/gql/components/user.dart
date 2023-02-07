@@ -332,18 +332,18 @@ abstract class UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// If `ver` argument is not specified (or is `null`) an initial state of the
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
   /// authenticated [MyUser] will be emitted after `SubscriptionInitialized` and
   /// before any other [MyUserEvent]s (and won't be emitted ever again until
   /// this subscription completes). This allows to skip calling [getMyUser]
   /// before establishing this subscription.
   ///
-  /// If the specified `ver` is not fresh (was queried quite a time ago), it may
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
   /// initialization. In such case:
   /// - either a fresh version should be obtained via [getMyUser];
-  /// - or a re-subscription should be done without specifying a `ver` argument
-  /// (so the fresh `ver` may be obtained in the emitted initial state of the
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
   /// [MyUser]).
   ///
   /// ### Completion
@@ -365,15 +365,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function() getVersion) {
-    final variables = MyUserEventsArguments(ver: getVersion());
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
+    final variables = MyUserEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      getVersion: getVersion,
+      ver: ver,
     );
   }
 
@@ -396,18 +396,18 @@ abstract class UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// If `ver` argument is not specified (or is `null`) an initial state of the
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
   /// [User] will be emitted after `SubscriptionInitialized` and before any
   /// other [UserEvent]s (and won't be emitted ever again until this
   /// subscription completes). This allows to skip doing [getUser] before
   /// establishing this subscription.
   ///
-  /// If the specified `ver` is not fresh (was queried quite a time ago), it may
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
   /// initialization. In such case:
   /// - either a fresh version should be obtained via [getUser];
-  /// - or a re-subscription should be done without specifying a `ver` argument
-  /// (so the fresh `ver` may be obtained in the emitted initial state of the
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
   /// [User]).
   ///
   /// ### Completion
@@ -431,18 +431,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Stream<QueryResult> userEvents(
-    UserId id,
-    UserVersion? Function() getVersion,
-  ) {
-    final variables = UserEventsArguments(id: id, ver: getVersion());
+  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
+    final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      getVersion: getVersion,
+      ver: ver,
     );
   }
 

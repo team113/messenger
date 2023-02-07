@@ -201,13 +201,8 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
-  Stream<UserEvents> userEvents(
-    UserId id,
-    UserVersion? Function() getVersion,
-  ) {
-    return _graphQlProvider
-        .userEvents(id, getVersion)
-        .asyncExpand((event) async* {
+  Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
+    return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;

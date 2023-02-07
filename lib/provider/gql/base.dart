@@ -177,10 +177,9 @@ class GraphQlClient {
   /// Subscribes to a GraphQL subscription according to the [options] specified.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
-    Version? Function()? getVersion,
+    Version? Function()? ver,
   }) {
-    return SubscriptionHandle(_subscribe, options, getVersion: getVersion)
-        .stream;
+    return SubscriptionHandle(_subscribe, options, ver: ver).stream;
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -439,11 +438,11 @@ class SubscriptionConnection {
 /// Steady [StreamController] listening to the provided GraphQL subscription
 /// events and resubscribing on the errors.
 class SubscriptionHandle {
-  SubscriptionHandle(this._listen, this._options, {this.getVersion});
+  SubscriptionHandle(this._listen, this._options, {this.ver});
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
   /// required.
-  final Version? Function()? getVersion;
+  final Version? Function()? ver;
 
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
@@ -509,8 +508,8 @@ class SubscriptionHandle {
 
   /// Resubscribes to the events.
   void _resubscribe({bool noVersion = false}) {
-    if (getVersion != null) {
-      _options.variables['ver'] = noVersion ? null : getVersion!()?.val;
+    if (ver != null) {
+      _options.variables['ver'] = noVersion ? null : ver!()?.val;
     }
 
     if (_backoff?.isActive != true) {
