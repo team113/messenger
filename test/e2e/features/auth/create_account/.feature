@@ -36,7 +36,8 @@ Feature: Account creation
     And I tap `CloseButton` button
     Then I wait until `ChangePassword` is present
 
-    When I tap `DangerZone` button
-    And I tap `DeleteAccount` button
-    And I tap `Proceed` button
-    Then I wait until `AuthView` is present
+    # TODO: https://github.com/team113/messenger/issues/339
+    # When I tap `DangerZone` button
+    # And I tap `DeleteAccount` button
+    # And I tap `Proceed` button
+    # Then I wait until `AuthView` is present

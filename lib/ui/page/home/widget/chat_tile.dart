@@ -81,7 +81,7 @@ class ChatTile extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ChatTile_${chat?.chat.value.id}'),
+      key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,

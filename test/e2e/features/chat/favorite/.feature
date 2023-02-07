@@ -22,6 +22,8 @@ Feature: Favorite chats
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I have "Alice and Charlie" group with Charlie
+    And I wait until "Alice and Bob" chat is present
+    And I wait until "Alice and Charlie" chat is present
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
