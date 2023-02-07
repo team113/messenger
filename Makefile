@@ -186,7 +186,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.fmt check=$(check) dockerized=no
 else
-	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	dart format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
 endif
 
 
