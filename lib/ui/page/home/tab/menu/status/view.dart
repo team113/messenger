@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -28,6 +27,7 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 import 'controller.dart';
 

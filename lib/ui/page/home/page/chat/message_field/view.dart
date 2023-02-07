@@ -15,14 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -38,7 +36,6 @@ import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';

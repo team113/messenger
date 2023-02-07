@@ -522,8 +522,6 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
-      bool previousSame = false, nextSame = false;
-
       ListElement? previous;
       if (i > 0) {
         previous = c.elements.values.elementAt(i - 1);
@@ -534,6 +532,7 @@ class _ChatViewState extends State<ChatView>
         next = c.elements.values.elementAt(i + 1);
       }
 
+      bool previousSame = false;
       if (previous != null) {
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
@@ -545,6 +544,7 @@ class _ChatViewState extends State<ChatView>
                     const Duration(minutes: 30));
       }
 
+      bool nextSame = false;
       if (next != null) {
         nextSame = (next is ChatMessageElement &&
                 next.item.value.authorId == e.value.authorId &&

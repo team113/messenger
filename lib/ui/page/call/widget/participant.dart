@@ -100,41 +100,6 @@ class ParticipantWidget extends StatelessWidget {
             user: participant.user.value?.user.value,
           )
         ];
-
-        return useCallCover &&
-                participant.user.value?.user.value.callCover != null
-            ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
-            : [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AnimatedContainer(
-                      key: const Key('AnimatedContainerAvatar'),
-                      duration: 150.milliseconds,
-                      curve: Curves.ease,
-                      width: expanded ? 180 : 120,
-                      height: expanded ? 180 : 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: expanded
-                            ? [
-                                const CustomBoxShadow(
-                                  color: Color(0x44000000),
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: AvatarWidget.fromRxUser(
-                        participant.user.value,
-                        radius: expanded ? 90 : 60,
-                        badge: false,
-                      ),
-                    ),
-                  ),
-                ),
-              ];
       }
 
       return Stack(

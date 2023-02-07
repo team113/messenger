@@ -616,211 +616,210 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     final List<Widget> widgets = [];
 
-    if (widget.children.length > 1 && !PlatformUtils.isMobile) {
+    if (!PlatformUtils.isMobile) {
       widgets.addAll([
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayLeft && left) || _showControls ? 1 : 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32, bottom: 32),
-                child: WidgetButton(
-                  onPressed: left
-                      ? () {
-                          node.requestFocus();
-                          _pageController.animateToPage(
-                            _page - 1,
-                            curve: Curves.linear,
-                            duration: const Duration(milliseconds: 200),
-                          );
-                        }
-                      : null,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    width: 60 + 16,
-                    height: double.infinity,
-                    child: Center(
-                      child: ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(60),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x794E5A78),
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_left_rounded,
-                              color: left ? Colors.white : Colors.grey,
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayRight && right) || _showControls ? 1 : 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32, bottom: 32),
-                child: WidgetButton(
-                  onPressed: right
-                      ? () {
-                          node.requestFocus();
-                          _pageController.animateToPage(
-                            _page + 1,
-                            curve: Curves.linear,
-                            duration: const Duration(milliseconds: 200),
-                          );
-                        }
-                      : null,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    width: 60 + 16,
-                    height: double.infinity,
-                    child: Center(
-                      child: ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(60),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x794E5A78),
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_right_rounded,
-                              color: right ? Colors.white : Colors.grey,
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ]);
-    }
-
-    widgets.addAll([
-      FadeTransition(
-        opacity: fade,
-        child: Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8, top: 8),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayClose || _showControls) ? 1 : 0,
-              child: SizedBox(
-                width: 60,
-                height: 60,
-                child: RoundFloatingButton(
-                  color: const Color(0x794E5A78),
-                  onPressed: _dismiss,
-                  withBlur: true,
-                  child: const Icon(
-                    Icons.close_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      if (widget.onTrashPressed == null)
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8),
+        if (widget.children.length > 1) ...[
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayFullscreen || _showControls) ? 1 : 0,
+                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: left
+                        ? () {
+                            node.requestFocus();
+                            _pageController.animateToPage(
+                              _page - 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_left_rounded,
+                                color: left ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayRight && right) || _showControls ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: right
+                        ? () {
+                            node.requestFocus();
+                            _pageController.animateToPage(
+                              _page + 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_right_rounded,
+                                color: right ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8, top: 8),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayClose || _showControls) ? 1 : 0,
                 child: SizedBox(
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
                     color: const Color(0x794E5A78),
-                    onPressed: _toggleFullscreen,
+                    onPressed: _dismiss,
                     withBlur: true,
-                    assetWidth: 22,
-                    asset: _isFullscreen.value
-                        ? 'fullscreen_exit_white'
-                        : 'fullscreen_enter_white',
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Column(
-          children: [
-            MouseRegion(
-              opaque: false,
-              onEnter: (d) => setState(() => _displayFullscreen = true),
-              onExit: (d) => setState(() => _displayFullscreen = false),
-              child: const SizedBox(width: 100, height: 100),
-            ),
-            Expanded(
-              child: MouseRegion(
-                opaque: false,
-                onEnter: (d) => setState(() => _displayLeft = true),
-                onExit: (d) => setState(() => _displayLeft = false),
-                child: const SizedBox(width: 100),
+        if (widget.onTrashPressed == null)
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity: (_displayFullscreen || _showControls) ? 1 : 0,
+                  child: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: const Color(0x794E5A78),
+                      onPressed: _toggleFullscreen,
+                      withBlur: true,
+                      assetWidth: 22,
+                      asset: _isFullscreen.value
+                          ? 'fullscreen_exit_white'
+                          : 'fullscreen_enter_white',
+                    ),
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
-      ),
-      Align(
-        alignment: Alignment.centerRight,
-        child: Column(
-          children: [
-            MouseRegion(
-              opaque: false,
-              onEnter: (d) => setState(() => _displayClose = true),
-              onExit: (d) => setState(() => _displayClose = false),
-              child: const SizedBox(width: 100, height: 100),
-            ),
-            Expanded(
-              child: MouseRegion(
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Column(
+            children: [
+              MouseRegion(
                 opaque: false,
-                onEnter: (d) => setState(() => _displayRight = true),
-                onExit: (d) => setState(() => _displayRight = false),
-                child: const SizedBox(width: 100),
+                onEnter: (d) => setState(() => _displayFullscreen = true),
+                onExit: (d) => setState(() => _displayFullscreen = false),
+                child: const SizedBox(width: 100, height: 100),
               ),
-            ),
-          ],
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayLeft = true),
+                  onExit: (d) => setState(() => _displayLeft = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    ]);
+        Align(
+          alignment: Alignment.centerRight,
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayClose = true),
+                onExit: (d) => setState(() => _displayClose = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayRight = true),
+                  onExit: (d) => setState(() => _displayRight = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]);
+    }
 
     widgets.addAll([
       if (widget.onTrashPressed != null)

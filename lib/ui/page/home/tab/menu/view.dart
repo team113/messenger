@@ -17,9 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/rive_asset.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:rive/rive.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';

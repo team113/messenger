@@ -17,17 +17,21 @@
 
 import 'package:flutter/material.dart';
 
+/// Animated [ClipRRect] clipping the provided [child].
 class AnimatedClipRRect extends ImplicitlyAnimatedWidget {
   const AnimatedClipRRect({
     super.key,
     super.curve,
-    required super.duration,
+    super.duration = const Duration(milliseconds: 250),
     super.onEnd,
     required this.child,
     this.borderRadius = BorderRadius.zero,
   });
 
+  /// [BorderRadius] to clip the [child] with.
   final BorderRadius borderRadius;
+
+  /// [Widget] to clip.
   final Widget child;
 
   @override
@@ -35,8 +39,10 @@ class AnimatedClipRRect extends ImplicitlyAnimatedWidget {
       _AnimatedClipRRectState();
 }
 
+/// State of an [AnimatedClipRRect] maintaining its [_borderRadius].
 class _AnimatedClipRRectState
     extends ImplicitlyAnimatedWidgetState<AnimatedClipRRect> {
+  /// [Tween] of the [BorderRadius].
   Tween<BorderRadius>? _borderRadius;
 
   @override
@@ -44,7 +50,7 @@ class _AnimatedClipRRectState
     _borderRadius = visitor(
       _borderRadius,
       widget.borderRadius,
-      (dynamic value) => Tween<BorderRadius>(begin: value as BorderRadius),
+      (value) => Tween<BorderRadius>(begin: value as BorderRadius),
     ) as Tween<BorderRadius>?;
   }
 

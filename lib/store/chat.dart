@@ -153,7 +153,6 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    await Future.delayed(Duration(seconds: 5));
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
     for (HiveChat c in _chatLocal.chats) {

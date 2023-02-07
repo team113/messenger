@@ -154,12 +154,13 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
                   return true;
                 }).map((e) {
-                  return e.entry == null
-                      ? KeyedSubtree(
-                          key: e.itemKey,
-                          child: widget.itemBuilder(e.item),
-                        )
-                      : const SizedBox();
+                  if (e.entry == null) {
+                    return KeyedSubtree(
+                      key: e.itemKey,
+                      child: widget.itemBuilder(e.item),
+                    );
+                  }
+                  return const SizedBox.shrink();
                 }).toList(),
               ),
             ),

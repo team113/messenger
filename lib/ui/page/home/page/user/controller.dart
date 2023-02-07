@@ -91,6 +91,13 @@ class UserController extends GetxController {
 
   final GlobalKey avatarKey = GlobalKey();
 
+  /// Status of a [blacklist] progression.
+  ///
+  /// May be:
+  /// - `status.isLoading`, meaning [blacklist] is executing.
+  /// - `status.isEmpty`, meaning no [blacklist] is executing.
+  final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -250,12 +257,24 @@ class UserController extends GetxController {
 
   /// Blacklists the [user] for the authenticated [MyUser].
   Future<void> blacklist() async {
-    await _userService.blacklistUser(id);
-    reason.clear();
+    blacklistStatus.value = RxStatus.loading();
+    try {
+      await _userService.blacklistUser(id);
+      reason.clear();
+    } finally {
+      blacklistStatus.value = RxStatus.empty();
+    }
   }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() => _userService.unblacklistUser(id);
+  Future<void> unblacklist() async {
+    blacklistStatus.value = RxStatus.loading();
+    try {
+      await _userService.unblacklistUser(id);
+    } finally {
+      blacklistStatus.value = RxStatus.empty();
+    }
+  }
 
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {

@@ -471,4 +471,7 @@ class FIFOCache {
 
   /// Returns the [Uint8List] of the provided [key], if any is cached.
   static Uint8List? get(String key) => _cache[key];
+
+  /// Indicates whether an item with the provided [key] exists.
+  static bool exists(String key) => _cache.containsKey(key);
 }

@@ -20,8 +20,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
@@ -29,7 +27,9 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
+import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';

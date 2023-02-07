@@ -20,12 +20,10 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
-import 'package:skeletons/skeletons.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';

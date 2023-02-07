@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:skeletons/skeletons.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
