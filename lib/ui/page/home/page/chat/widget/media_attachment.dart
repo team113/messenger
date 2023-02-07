@@ -114,7 +114,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         final StorageFile image;
 
         final StorageFile original = (attachment as ImageAttachment).original;
-        if (original.checksum != null && FIFOCache.exist(original.checksum!)) {
+        if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
           image = original;
         } else {
           image = attachment.big;
