@@ -216,7 +216,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       child: Obx(() {
         return _rounded(
           context,
-          (v) => Padding(
+          (bool enabledPopup) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
             child: ClipRRect(
               clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
@@ -245,7 +245,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (widget.note.value != null) ..._note(v),
+                        if (widget.note.value != null) ..._note(enabledPopup),
                         if (widget.note.value == null &&
                             !_fromMe &&
                             widget.chat.value?.isGroup == true)
@@ -271,7 +271,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? const Radius.circular(15)
                                   : Radius.zero,
                             ),
-                            child: _forwardedMessage(e, v),
+                            child: _forwardedMessage(e, enabledPopup),
                           ),
                         ),
                       ],
@@ -287,7 +287,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns a visual representation of the provided [forward].
-  Widget _forwardedMessage(Rx<ChatItem> forward, bool openedMobilePopup) {
+  Widget _forwardedMessage(Rx<ChatItem> forward, bool enabledPopup) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItem item = msg.item;
@@ -372,7 +372,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (item.text != null && item.text!.val.isNotEmpty) {
           content = SelectionRegion(
             onSelectionChanged: (s) => _selection = s,
-            enabled: PlatformUtils.isDesktop ? true : openedMobilePopup,
+            enabled: PlatformUtils.isDesktop ? true : enabledPopup,
             child: Text(
               item.text!.val,
               style: style.boldBody,
@@ -532,7 +532,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Builds a visual representation of the [ChatForwardWidget.note].
-  List<Widget> _note(bool openedMobilePopup) {
+  List<Widget> _note(bool enabledPopup) {
     ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
@@ -594,7 +594,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               ),
               child: SelectionRegion(
                 onSelectionChanged: (s) => _selection = s,
-                enabled: PlatformUtils.isDesktop ? true : openedMobilePopup,
+                enabled: PlatformUtils.isDesktop ? true : enabledPopup,
                 child: Text(item.text!.val, style: style.boldBody),
               ),
             ),
@@ -679,7 +679,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool openedMobilePopup) child,
+    Widget Function(bool enabledPopup) child,
   ) {
     ChatItem? item = widget.note.value?.value;
 
@@ -845,12 +845,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
-                          builder: (v) {
+                          builder: (bool enabledPopup) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                child(v),
+                                child(enabledPopup),
                                 if (avatars.isNotEmpty)
                                   Transform.translate(
                                     offset: const Offset(-12, -4),

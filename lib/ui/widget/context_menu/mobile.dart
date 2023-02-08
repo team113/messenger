@@ -115,6 +115,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     HapticFeedback.selectionClick();
 
     widget.onOpened?.call();
+
     _rect = _globalKey.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(

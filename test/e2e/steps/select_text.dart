@@ -18,8 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -28,9 +26,10 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/util/web/web_utils.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '../configuration.dart';
+import '../mock/platform_utils.dart';
 import '../world/custom_world.dart';
 
 Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
@@ -49,14 +48,14 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
   (text, from, to, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    RxChat? chat =
+    final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    ChatMessage message = chat!.messages
+    final ChatMessage message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
 
-    Finder finder = context.world.appDriver
+    final Finder finder = context.world.appDriver
         .findByKeySkipOffstage('MyMessage_${message.id}');
     final RenderParagraph paragraph =
         context.world.appDriver.nativeDriver.renderObject<RenderParagraph>(
@@ -65,13 +64,7 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
         matching: find.byType(RichText, skipOffstage: false),
         skipOffstage: false,
       ),
-      // context.world.appDriver.findByDescendant(
-      //   finder,
-      //   context.world.appDriver.findBy(RichText, FindType.type),
-      //   matchRoot: true,
-      // ),
     );
-    print(paragraph);
 
     final TestGesture gesture = await context.world.appDriver.nativeDriver
         .startGesture(textOffsetToPosition(paragraph, from),
@@ -94,11 +87,7 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
 final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   'copied text is {string}',
   (text, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    // ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
-    var data = await WebUtils.getCopied();
-    // print('selected text:');
-    expect(text, data);
-    // print(cdata?.text);
+    final String? copied = (PlatformUtils as PlatformUtilsMock).copied;
+    expect(text, copied);
   },
 );

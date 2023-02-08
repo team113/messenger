@@ -193,6 +193,9 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
+  /// Copy [text] to clipboard.
+  void copy(String? text) => Clipboard.setData(ClipboardData(text: text));
+
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {

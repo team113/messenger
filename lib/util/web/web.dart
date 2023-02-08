@@ -341,12 +341,6 @@ class WebUtils {
     });
   }
 
-  static void copy(String text) =>
-      html.window.navigator.clipboard?.writeText(text);
-
-  static Future<String?> getCopied() async =>
-      await html.window.navigator.clipboard?.readText();
-
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
     try {

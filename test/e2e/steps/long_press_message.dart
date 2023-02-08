@@ -48,16 +48,17 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
     Finder finder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
-    // await context.world.appDriver.nativeDriver.longPress(finder);
-    final TestGesture gesture = await context.world.appDriver.nativeDriver
-        .startGesture(
-            context.world.appDriver.nativeDriver
-                .getTopRight(finder)
-                .translate(-10, 10),
-            kind: PointerDeviceKind.mouse);
+    final TestGesture gesture =
+        await context.world.appDriver.nativeDriver.startGesture(
+      context.world.appDriver.nativeDriver
+          .getTopRight(finder)
+          .translate(-10, 10),
+      kind: PointerDeviceKind.mouse,
+    );
     await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
     await gesture.up();
     await gesture.removePointer();
+
     await context.world.appDriver.waitForAppToSettle();
   },
 );
@@ -100,17 +101,16 @@ final StepDefinitionGeneric tapMessageByAttachment = then1<String, CustomWorld>(
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    RxChat? chat =
+    final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    ChatMessage message = chat!.messages
+    final ChatMessage message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
 
-    Finder finder =
+    final Finder finder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
-    // await context.world.appDriver.nativeDriver.longPress(finder);
     await context.world.appDriver.nativeDriver.tap(finder);
     await context.world.appDriver.waitForAppToSettle();
   },

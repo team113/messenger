@@ -24,6 +24,9 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
+  /// Copied text to clipboard.
+  String? copied;
+
   @override
   Future<File?> download(
     String url,
@@ -43,4 +46,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
     return File('test/path');
   }
+
+  @override
+  void copy(String? text) => copied = text;
 }

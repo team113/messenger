@@ -731,7 +731,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (v) => Container(
+      (bool enabledPopup) => Container(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
@@ -822,7 +822,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                       child: SelectionRegion(
                         onSelectionChanged: (s) => _selection = s,
-                        enabled: PlatformUtils.isDesktop ? true : v,
+                        enabled: PlatformUtils.isDesktop ? true : enabledPopup,
                         child: Text(
                           text,
                           key: Key('MyMessage_${widget.item.value.id}'),
@@ -1256,7 +1256,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool openedMobilePopup) child, {
+    Widget Function(bool enabledPopup) child, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
@@ -1388,10 +1388,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
-                  child: Container(
-                    // delay: item.status.value == SendingStatus.sending
-                    //     ? const Duration(seconds: 2)
-                    //     : Duration.zero,
+                  child: AnimatedDelayedSwitcher(
+                    delay: item.status.value == SendingStatus.sending
+                        ? const Duration(seconds: 2)
+                        : Duration.zero,
                     child: item.status.value == SendingStatus.sending
                         ? const Padding(
                             key: Key('Sending'),
@@ -1439,12 +1439,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
-                        builder: (v) {
+                        builder: (bool enabledPopup) {
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              child(v),
+                              child(enabledPopup),
                               if (avatars.isNotEmpty)
                                 Transform.translate(
                                   offset: Offset(-12, -widget.margin.bottom),
