@@ -159,7 +159,6 @@ class PaginatedFragment<T> {
           elements.insertAfter(i, (e) => compare(i, e) == 1);
         }
       });
-
     }
 
     await _loadNextPage(onItemsLoaded: onItemsLoaded);
