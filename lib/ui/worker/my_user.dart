@@ -17,6 +17,7 @@
 
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/domain/model/my_user.dart';
@@ -80,7 +81,8 @@ class MyUserWorker extends DisposableService {
               ThumbnailToolbarAssetIcon('assets/ico/$number.ico'),
             );
           }
-        } catch (_) {
+        } catch (e, stackTrace) {
+          MessagePopup.error('$e\n\n$stackTrace');
           // No-op.
         }
       } else {
