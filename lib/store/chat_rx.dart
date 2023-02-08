@@ -49,6 +49,7 @@ import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/stream_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 
@@ -770,20 +771,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
-
-    while (await _remoteSubscription!.hasNext) {
-      ChatEvents? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _chatEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_chatEvent);
 
     _remoteSubscriptionInitialized = false;
   }

@@ -53,6 +53,7 @@ import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
+import '/util/stream_utils.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
@@ -1013,20 +1014,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
     _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
-
-    while (await _remoteSubscription!.hasNext) {
-      RecentChatsEvent? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _recentChatsRemoteEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_recentChatsRemoteEvent);
   }
 
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
@@ -1196,13 +1184,7 @@ class ChatRepository implements AbstractChatRepository {
     _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
     );
-    while (await _favoriteChatsSubscription!.hasNext) {
-      try {
-        await _favoriteChatsEvent(await _favoriteChatsSubscription!.next);
-      } catch (_) {
-        // No-op.
-      }
-    }
+    await _remoteSubscription!.execute(_favoriteChatsEvent);
   }
 
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]

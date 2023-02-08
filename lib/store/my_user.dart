@@ -47,6 +47,7 @@ import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -554,20 +555,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.cancel();
     _remoteSubscription =
         StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
-
-    while (await _remoteSubscription!.hasNext) {
-      MyUserEventsVersioned? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _myUserRemoteEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_myUserRemoteEvent);
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.

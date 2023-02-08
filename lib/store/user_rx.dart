@@ -28,6 +28,7 @@ import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
 class HiveRxUser extends RxUser {
@@ -91,20 +92,7 @@ class HiveRxUser extends RxUser {
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );
-
-    while (await _remoteSubscription!.hasNext) {
-      UserEvents? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _userEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
