@@ -481,6 +481,11 @@ class SubscriptionHandle {
       _subscription = (await _listen(_options)).listen(
         (e) {
           if (_backoff != null) {
+            Log.print(
+              'Successfully resubscribed 👍',
+              _options.operationName,
+            );
+
             _backoffDuration = Duration.zero;
             _backoff?.cancel();
             _backoff = null;
@@ -508,6 +513,8 @@ class SubscriptionHandle {
 
   /// Resubscribes to the events.
   void _resubscribe({bool noVersion = false}) {
+    Log.print('Reconnecting in $_backoffDuration...', _options.operationName);
+
     if (ver != null) {
       _options.variables['ver'] = noVersion ? null : ver!()?.val;
     }
