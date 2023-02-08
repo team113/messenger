@@ -144,8 +144,8 @@ else
 #          https://github.com/getsentry/sentry-dart/issues/444
 #       2) Linux/Windows `--split-debug-info` can be tracked here:
 #          https://github.com/getsentry/sentry-dart/issues/433
-	flutter build $(or $(platform),apk) --profile \
-		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+	flutter build $(or $(platform),apk) \
+		$(if $(call eq,$(platform),web),--profile --web-renderer html --source-maps,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 		    --split-debug-info=symbols \
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \

@@ -403,7 +403,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     color: Colors.black.withOpacity(0.2),
-                    child: const Center(child: CustomProgressIndicator()),
+                    child: const Center(
+                      child: CustomProgressIndicator(size: 64),
+                    ),
                   );
                 }
 

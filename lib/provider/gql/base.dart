@@ -67,7 +67,7 @@ class GraphQlClient {
   static const int minReconnectPeriodMillis = 1000;
 
   /// Maximum possible period of exponential backoff reconnection.
-  static const int maxReconnectPeriodMillis = 30000;
+  static const int maxReconnectPeriodMillis = 32000;
 
   /// Authorization bearer token.
   AccessToken? token;
@@ -524,7 +524,7 @@ class SubscriptionHandle {
       _backoff = Timer(_backoffDuration, _subscribe);
       if (_backoffDuration == Duration.zero) {
         _backoffDuration = const Duration(milliseconds: 500);
-      } else if (_backoffDuration < const Duration(seconds: 16)) {
+      } else if (_backoffDuration < const Duration(seconds: 32)) {
         _backoffDuration *= 2;
       }
     }
