@@ -554,11 +554,18 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.cancel();
     _remoteSubscription =
         StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
+
     while (await _remoteSubscription!.hasNext) {
+      MyUserEventsVersioned? event;
+
       try {
-        _myUserRemoteEvent(await _remoteSubscription!.next);
+        event = await _remoteSubscription!.next;
       } catch (_) {
         // No-op.
+      }
+
+      if (event != null) {
+        await _myUserRemoteEvent(event);
       }
     }
   }
@@ -566,7 +573,14 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
   void _initKeepOnlineSubscription() {
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen((_) {});
+    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen(
+      (_) {
+        // No-op.
+      },
+      onError: (_) {
+        // No-op.
+      },
+    );
   }
 
   /// Saves the provided [user] in [Hive].

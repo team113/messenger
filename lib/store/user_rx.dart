@@ -87,14 +87,22 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    _remoteSubscription?.cancel();
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );
+
     while (await _remoteSubscription!.hasNext) {
+      UserEvents? event;
+
       try {
-        await _userEvent(await _remoteSubscription!.next);
+        event = await _remoteSubscription!.next;
       } catch (_) {
         // No-op.
+      }
+
+      if (event != null) {
+        await _userEvent(event);
       }
     }
   }

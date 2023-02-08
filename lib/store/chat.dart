@@ -1013,11 +1013,18 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
     _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
+
     while (await _remoteSubscription!.hasNext) {
+      RecentChatsEvent? event;
+
       try {
-        await _recentChatsRemoteEvent(await _remoteSubscription!.next);
+        event = await _remoteSubscription!.next;
       } catch (_) {
         // No-op.
+      }
+
+      if (event != null) {
+        await _recentChatsRemoteEvent(event);
       }
     }
   }

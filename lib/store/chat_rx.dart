@@ -772,10 +772,16 @@ class HiveRxChat extends RxChat {
     );
 
     while (await _remoteSubscription!.hasNext) {
+      ChatEvents? event;
+
       try {
-        await _chatEvent(await _remoteSubscription!.next);
+        event = await _remoteSubscription!.next;
       } catch (_) {
         // No-op.
+      }
+
+      if (event != null) {
+        await _chatEvent(event);
       }
     }
 

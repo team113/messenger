@@ -284,10 +284,16 @@ class ContactRepository implements AbstractContactRepository {
     );
 
     while (await _remoteSubscription!.hasNext) {
+      ChatContactsEvents? event;
+
       try {
-        await _contactRemoteEvent(await _remoteSubscription!.next);
+        event = await _remoteSubscription!.next;
       } catch (_) {
         // No-op.
+      }
+
+      if (event != null) {
+        await _contactRemoteEvent(event);
       }
     }
   }

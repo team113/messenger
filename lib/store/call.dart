@@ -612,6 +612,9 @@ class CallRepository extends DisposableInterface
             break;
         }
       },
+      onError: (_) {
+        // No-op.
+      },
     );
   }
 }
