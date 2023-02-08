@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -28,11 +29,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
-import '/provider/gql/exceptions.dart'
-    show
-        GraphQlProviderExceptions,
-        ResubscriptionRequiredException,
-        StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/gallery_item.dart';
@@ -41,11 +37,11 @@ import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
+import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
 import 'user.dart';
 
-// TODO: Implement [favorites] sorting.
 /// Implementation of an [AbstractContactRepository].
 class ContactRepository implements AbstractContactRepository {
   ContactRepository(
@@ -82,7 +78,7 @@ class ContactRepository implements AbstractContactRepository {
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
   Future<void> init() async {
@@ -282,22 +278,12 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   /// Initializes [_chatContactsRemoteEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _sessionLocal.getChatContactsListVersion();
+  Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(await _chatContactsRemoteEvents(ver));
-
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    })) {
-      await _contactRemoteEvent(_remoteSubscription!.current);
-    }
+    _remoteSubscription = StreamQueue(
+      _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
+    );
+    await _remoteSubscription!.execute(_contactRemoteEvent);
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
@@ -475,10 +461,10 @@ class ContactRepository implements AbstractContactRepository {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the [ChatContactVersion].
-  Future<Stream<ChatContactsEvents>> _chatContactsRemoteEvents(
-          ChatContactsListVersion? ver) async =>
-      (await _graphQlProvider.contactsEvents(ver)).asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
+  Stream<ChatContactsEvents> _chatContactsRemoteEvents(
+    ChatContactsListVersion? Function() ver,
+  ) =>
+      _graphQlProvider.contactsEvents(ver).asyncExpand((event) async* {
         var events = ContactsEvents$Subscription.fromJson(event.data!)
             .chatContactsEvents;
 
