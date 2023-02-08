@@ -1047,9 +1047,7 @@ class ChatController extends GetxController {
   Future<void> download(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
-    } else if (attachment.path != null) {
-      await attachment.open();
-    } else {
+    } else if (await attachment.open() == false) {
       try {
         await attachment.download();
       } catch (e) {
