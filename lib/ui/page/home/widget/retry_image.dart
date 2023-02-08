@@ -164,58 +164,62 @@ class _RetryImageState extends State<RetryImage> {
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadImage() async {
-    return Backoff.run(
-      () async {
-        Uint8List? cached;
-        if (widget.checksum != null) {
-          cached = FIFOCache.get(widget.checksum!);
-        }
-
-        if (cached != null) {
-          _image = cached;
-          if (mounted) {
-            setState(() {});
-          }
-        } else {
-          Response? data;
-
-          try {
-            data = await PlatformUtils.dio.get(
-              widget.url,
-              onReceiveProgress: (received, total) {
-                if (total > 0) {
-                  _progress = received / total;
-                  if (mounted) {
-                    setState(() {});
-                  }
-                }
-              },
-              options: Options(responseType: ResponseType.bytes),
-              cancelToken: _cancelToken,
-            );
-          } on DioError catch (e) {
-            if (e.response?.statusCode == 403) {
-              await widget.onForbidden?.call();
-              return;
-            }
+    try {
+      await Backoff.run(
+        () async {
+          Uint8List? cached;
+          if (widget.checksum != null) {
+            cached = FIFOCache.get(widget.checksum!);
           }
 
-          if (data?.data != null && data!.statusCode == 200) {
-            if (widget.checksum != null) {
-              FIFOCache.set(widget.checksum!, data.data);
-            }
-
-            _image = data.data;
+          if (cached != null) {
+            _image = cached;
             if (mounted) {
               setState(() {});
             }
           } else {
-            throw Exception('Image is not loaded');
+            Response? data;
+
+            try {
+              data = await PlatformUtils.dio.get(
+                widget.url,
+                onReceiveProgress: (received, total) {
+                  if (total > 0) {
+                    _progress = received / total;
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  }
+                },
+                options: Options(responseType: ResponseType.bytes),
+                cancelToken: _cancelToken,
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 403) {
+                await widget.onForbidden?.call();
+                return;
+              }
+            }
+
+            if (data?.data != null && data!.statusCode == 200) {
+              if (widget.checksum != null) {
+                FIFOCache.set(widget.checksum!, data.data);
+              }
+
+              _image = data.data;
+              if (mounted) {
+                setState(() {});
+              }
+            } else {
+              throw Exception('Image is not loaded');
+            }
           }
-        }
-      },
-      _cancelToken,
-    );
+        },
+        _cancelToken,
+      );
+    } on OperationCanceledException {
+      // No-op.
+    }
   }
 }
 
