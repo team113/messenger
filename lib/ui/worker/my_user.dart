@@ -68,13 +68,15 @@ class MyUserWorker extends DisposableService {
   /// Updates the application's badge with the provided [count].
   void _updateBadge(int count) async {
     if (_lastUnreadChatsCount != count) {
+      _lastUnreadChatsCount = count;
+
       if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
         try {
           if (count == 0) {
-            WindowsTaskbar.resetOverlayIcon();
+            await WindowsTaskbar.resetOverlayIcon();
           } else {
             final String number = count > 9 ? '9+' : '$count';
-            WindowsTaskbar.setOverlayIcon(
+            await WindowsTaskbar.setOverlayIcon(
               ThumbnailToolbarAssetIcon('assets/ico/$number.ico'),
             );
           }
@@ -85,9 +87,9 @@ class MyUserWorker extends DisposableService {
         try {
           if (await FlutterAppBadger.isAppBadgeSupported()) {
             if (count == 0) {
-              FlutterAppBadger.removeBadge();
+              await FlutterAppBadger.removeBadge();
             } else {
-              FlutterAppBadger.updateBadgeCount(count);
+              await FlutterAppBadger.updateBadgeCount(count);
             }
           }
         } catch (_) {
@@ -95,6 +97,5 @@ class MyUserWorker extends DisposableService {
         }
       }
     }
-    _lastUnreadChatsCount = count;
   }
 }

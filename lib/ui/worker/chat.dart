@@ -70,7 +70,7 @@ class ChatWorker extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
-  /// Indicator whether the icon on the taskbar is flashed.
+  /// Indicator whether the icon in the taskbar has a flash effect applied.
   bool _flashed = false;
 
   /// Returns the currently authenticated [MyUser].
@@ -96,6 +96,7 @@ class ChatWorker extends DisposableService {
 
     if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
       PlatformUtils.isFocused.then((value) => _focused = value);
+
       _onFocusChanged = PlatformUtils.onFocusChanged.listen((_) async {
         _focused = await PlatformUtils.isFocused;
         if (_focused) {
@@ -147,7 +148,8 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: c.chat.value.id.val,
           );
-          _flashTaskbarAppIcon();
+
+          _flashTaskbarIcon();
         }
       }
     }
@@ -163,15 +165,16 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: tag,
           );
-          _flashTaskbarAppIcon();
+
+          _flashTaskbarIcon();
         }
       },
       me: () => _chatService.me,
     );
   }
 
-  /// Flashes app icon on the taskbar.
-  void _flashTaskbarAppIcon() {
+  /// Applies the flashing effect to the application's icon in the taskbar.
+  void _flashTaskbarIcon() {
     if (PlatformUtils.isWindows &&
         !PlatformUtils.isWeb &&
         !_focused &&
@@ -181,6 +184,7 @@ class ChatWorker extends DisposableService {
           mode: TaskbarFlashMode.tray | TaskbarFlashMode.timer,
           flashCount: 1,
         );
+
         _flashed = true;
       } catch (_) {
         // No-op.
