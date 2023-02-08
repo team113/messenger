@@ -108,8 +108,8 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) async {
-    return Future.value(Stream.fromIterable([
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+    return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,
         source: null,
@@ -117,12 +117,12 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
           'myUserEvents': {'__typename': 'MyUser', ...userData},
         },
       )
-    ]));
+    ]);
   }
 
   @override
-  Future<Stream<QueryResult<Object?>>> keepOnline() {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
   }
 
   @override

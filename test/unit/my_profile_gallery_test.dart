@@ -100,8 +100,8 @@ void main() async {
   test(
       'MyUserService successfully adds and removes gallery items, avatar and call cover',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -109,11 +109,10 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         )
-      ])),
+      ]),
     );
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.uploadUserGalleryItem(any)).thenAnswer(
       (_) => Future.value(UploadUserGalleryItem$Mutation.fromJson({
@@ -316,8 +315,8 @@ void main() async {
   test(
       'MyUserService throws UploadUserGalleryItemException, UpdateUserAvatarException, UpdateUserCallCoverException',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -325,7 +324,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(graphQlProvider.uploadUserGalleryItem(any)).thenThrow(

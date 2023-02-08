@@ -55,11 +55,11 @@ void main() async {
   await chatHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
+    (_) => const Stream.empty()
   );
   when(graphQlProvider.contactsEvents(any)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+    (_) => const Stream.empty()
   );
 
   setUp(() async {
@@ -132,15 +132,33 @@ void main() async {
   }
 
   test('ContactService successfully renames contact', () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(const Stream.empty()),
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
+        QueryResult.internal(
+          parserFn: (_) => null,
+          source: null,
+          data: {
+            'chatContactsEvents': {
+              '__typename': 'ChatContactsList',
+              'chatContacts': chatContactsData,
+              'favoriteChatContacts': {'nodes': []},
+            }
+          },
+        )
+      ]),
     );
 
-    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+    when(graphQlProvider.recentChats(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+        (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+        when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
       (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
     );
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(
       graphQlProvider.changeContactName(
@@ -171,8 +189,20 @@ void main() async {
 
   test('ContactService throws UpdateChatContactNameException on contact rename',
       () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(const Stream.empty()),
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
+        QueryResult.internal(
+          parserFn: (_) => null,
+          source: null,
+          data: {
+            'chatContactsEvents': {
+              '__typename': 'ChatContactsList',
+              'chatContacts': chatContactsData,
+              'favoriteChatContacts': {'nodes': []},
+            }
+          },
+        )
+      ]),
     );
 
     when(

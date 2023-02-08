@@ -507,14 +507,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
-  Future<Stream<QueryResult>> callEvents(
+  Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) =>
-      Future.value(_heartbeat.stream);
+      _heartbeat.stream;
 
   @override
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(
@@ -528,11 +528,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         parserFn: (_) => null,
       )),
     );
-    return Future.value(chatEventsStream.stream);
+    return chatEventsStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
       data: {
@@ -543,12 +543,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       },
       parserFn: (_) => null,
     ));
-    return Future.value(ongoingCallStream.stream);
+    return ongoingCallStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(int count) => const Stream.empty();
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(

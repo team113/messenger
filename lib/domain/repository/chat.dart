@@ -152,7 +152,7 @@ abstract class AbstractChatRepository {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId id);
+  Stream<dynamic> keepTyping(ChatId id);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].

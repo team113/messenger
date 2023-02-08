@@ -178,7 +178,12 @@ class ChatItemWidget extends StatefulWidget {
         alignment: Alignment.center,
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
-          MediaAttachment(key: key, attachment: e, height: 300),
+          MediaAttachment(
+            key: key,
+            attachment: e,
+            height: 300,
+            onError: onError,
+          ),
           Center(
             child: Container(
               width: 60,
@@ -200,6 +205,7 @@ class ChatItemWidget extends StatefulWidget {
         height: 300,
         width: filled ? double.infinity : null,
         fit: BoxFit.cover,
+        onError: onError,
       );
 
       if (!isLocal) {

@@ -32,11 +32,9 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/settings.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
-import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
@@ -372,13 +370,13 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
-  ) async {
-    return (await _graphQlProvider.callEvents(id, deviceId))
+  ) {
+    return _graphQlProvider
+        .callEvents(id, deviceId)
         .asyncExpand((event) async* {
-      GraphQlProviderExceptions.fire(event);
       var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -402,10 +400,10 @@ class CallRepository extends DisposableInterface
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
-  Future<Stream<IncomingChatCallsTopEvent>> _incomingEvents(int count) async =>
-      (await _graphQlProvider.incomingCallsTopEvents(count))
+  Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) =>
+      _graphQlProvider
+          .incomingCallsTopEvents(count)
           .asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
         var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
 
@@ -585,7 +583,7 @@ class CallRepository extends DisposableInterface
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
     _events?.cancel();
-    _events = (await _incomingEvents(count)).listen(
+    _events = _incomingEvents(count).listen(
       (e) async {
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
@@ -614,13 +612,8 @@ class CallRepository extends DisposableInterface
             break;
         }
       },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _subscribe(count);
-        } else {
-          Log.print(e.toString(), 'CallService');
-          throw e;
-        }
+      onError: (_) {
+        // No-op.
       },
     );
   }
