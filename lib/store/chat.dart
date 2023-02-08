@@ -1191,7 +1191,7 @@ class ChatRepository implements AbstractChatRepository {
     _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
     );
-    await _remoteSubscription!.execute(_favoriteChatsEvent);
+    await _favoriteChatsSubscription!.execute(_favoriteChatsEvent);
   }
 
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
