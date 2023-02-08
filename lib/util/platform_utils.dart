@@ -278,15 +278,19 @@ class PlatformUtilsImpl {
 
     // return File('test/path');
 
-    // Rethrows the [exception], if any other than `404` is thrown.
-    void onError(dynamic exception) {
-      if (exception is! DioError || exception.response?.statusCode != 404) {
-        throw exception;
-      }
-    }
+    dynamic completeWith;
 
-    CancelableOperation<File?> operation = CancelableOperation.fromFuture(
+    CancelableOperation<File?>? operation;
+    operation = CancelableOperation.fromFuture(
       Future(() async {
+        // Rethrows the [exception], if any other than `404` is thrown.
+        void onError(dynamic exception) {
+          if (exception is! DioError || exception.response?.statusCode != 404) {
+            completeWith = exception;
+            operation?.cancel();
+          }
+        }
+
         if (PlatformUtils.isWeb) {
           await Backoff.run(
             () async {
@@ -354,7 +358,12 @@ class PlatformUtilsImpl {
 
     cancelToken?.whenCancel.whenComplete(operation.cancel);
 
-    return operation.valueOrCancellation();
+    final File? result = await operation.valueOrCancellation();
+    if (completeWith != null) {
+      throw completeWith;
+    }
+
+    return result;
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
