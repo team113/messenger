@@ -551,16 +551,16 @@ class RecentChatTile extends StatelessWidget {
     Widget? content;
 
     if (e is LocalAttachment) {
-      if (e.file.isImage && e.file.bytes != null) {
-        content = Image.memory(e.file.bytes!, fit: BoxFit.cover);
+      if (e.file.isImage && e.file.bytes.value != null) {
+        content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
         // TODO: `video_player` being used doesn't support desktop platforms.
         if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes != null) {
+            e.file.bytes.value != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
-              bytes: e.file.bytes!,
+              bytes: e.file.bytes.value!,
               key: key,
               height: 300,
             ),
@@ -590,6 +590,7 @@ class RecentChatTile extends StatelessWidget {
     if (e is ImageAttachment) {
       content = RetryImage(
         e.medium.url,
+        checksum: e.medium.checksum,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -604,6 +605,7 @@ class RecentChatTile extends StatelessWidget {
             fit: BoxFit.cover,
             child: VideoThumbnail.url(
               url: e.original.url,
+              checksum: e.original.checksum,
               key: key,
               height: 300,
               onError: onError,

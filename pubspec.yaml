@@ -16,6 +16,7 @@ dependencies:
   carousel_slider: ^4.2.1
   chewie: ^1.4.0
   collection: ^1.17.0
+  crypto: ^3.0.2
   desktop_drop: ^0.4.0
   dio: ^4.0.6
   dough:

@@ -387,10 +387,9 @@ class _BackgroundService {
   }
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].
-  Future<void> _subscribe() async {
-    _subscription = (await _provider.incomingCallsTopEvents(3)).listen(
+  void _subscribe() {
+    _subscription = _provider.incomingCallsTopEvents(3).listen(
       (event) {
-        GraphQlProviderExceptions.fire(event);
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
         switch (e.$$typename) {
@@ -465,19 +464,10 @@ class _BackgroundService {
         }
       },
       onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.l10n,
-            content: '${DateTime.now()}',
-          );
-          _subscribe();
-        } else {
-          _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.l10n,
-            content: e,
-          );
-          throw e;
-        }
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
       },
     );
   }

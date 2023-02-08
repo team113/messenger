@@ -29,7 +29,6 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
@@ -202,13 +201,8 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
-  Future<Stream<UserEvents>> userEvents(
-    UserId id,
-    UserVersion? ver,
-  ) async {
-    return (await _graphQlProvider.userEvents(id, ver))
-        .asyncExpand((event) async* {
-      GraphQlProviderExceptions.fire(event);
+  Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
+    return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;

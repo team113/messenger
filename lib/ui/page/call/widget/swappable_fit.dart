@@ -135,15 +135,12 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                     return SizedBox(
                       width: size,
                       height: size,
-                      child: GestureDetector(
-                        onLongPress: () => _center(e.item),
-                        child: e.entry == null
-                            ? KeyedSubtree(
-                                key: e.itemKey,
-                                child: widget.itemBuilder(e.item),
-                              )
-                            : null,
-                      ),
+                      child: e.entry == null
+                          ? KeyedSubtree(
+                              key: e.itemKey,
+                              child: widget.itemBuilder(e.item),
+                            )
+                          : null,
                     );
                   }).toList(),
                 ),
@@ -157,21 +154,13 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
                   return true;
                 }).map((e) {
-                  return GestureDetector(
-                    onLongPress: () {
-                      if (_centered == e.item) {
-                        _uncenter();
-                      } else {
-                        _center(e.item);
-                      }
-                    },
-                    child: e.entry == null
-                        ? KeyedSubtree(
-                            key: e.itemKey,
-                            child: widget.itemBuilder(e.item),
-                          )
-                        : null,
-                  );
+                  if (e.entry == null) {
+                    return KeyedSubtree(
+                      key: e.itemKey,
+                      child: widget.itemBuilder(e.item),
+                    );
+                  }
+                  return const SizedBox.shrink();
                 }).toList(),
               ),
             ),
