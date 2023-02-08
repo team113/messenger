@@ -21,6 +21,7 @@ import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/stream_utils.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -770,20 +771,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
-
-    while (await _remoteSubscription!.hasNext) {
-      ChatEvents? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _chatEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_chatEvent);
 
     _remoteSubscriptionInitialized = false;
   }

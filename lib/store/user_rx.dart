@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/stream_utils.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -91,20 +92,7 @@ class HiveRxUser extends RxUser {
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );
-
-    while (await _remoteSubscription!.hasNext) {
-      UserEvents? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _userEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.

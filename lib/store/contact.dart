@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/stream_utils.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
@@ -288,20 +289,7 @@ class ContactRepository implements AbstractContactRepository {
     _remoteSubscription = StreamQueue(
       _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
     );
-
-    while (await _remoteSubscription!.hasNext) {
-      ChatContactsEvents? event;
-
-      try {
-        event = await _remoteSubscription!.next;
-      } catch (_) {
-        // No-op.
-      }
-
-      if (event != null) {
-        await _contactRemoteEvent(event);
-      }
-    }
+    await _remoteSubscription!.execute(_contactRemoteEvent);
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
