@@ -123,9 +123,8 @@ void main() async {
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
-  when(graphQlProvider.contactsEvents(any)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.contactsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
@@ -149,12 +148,10 @@ void main() async {
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
-    (_) => const Stream.empty()
-  );
-  when(graphQlProvider.contactsEvents(any)).thenAnswer(
-    (_) => const Stream.empty()
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.contactsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));

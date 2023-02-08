@@ -17,6 +17,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
@@ -55,12 +56,10 @@ void main() async {
   await chatHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
-    (_) => const Stream.empty()
-  );
-  when(graphQlProvider.contactsEvents(any)).thenAnswer(
-    (_) => const Stream.empty()
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.contactsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   setUp(() async {
     Get.reset();
@@ -77,6 +76,11 @@ void main() async {
     'emails': [],
     'phones': [],
     'favoritePosition': null,
+    'ver': '0'
+  };
+
+  var chatContactsData = {
+    'nodes': [chatContact],
     'ver': '0'
   };
 
@@ -155,7 +159,7 @@ void main() async {
       before: null,
     )).thenAnswer(
         (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
-        when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
       (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
     );
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());

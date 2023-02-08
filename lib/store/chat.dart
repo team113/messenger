@@ -214,7 +214,7 @@ class ChatRepository implements AbstractChatRepository {
       _isReady.value = true;
     }
 
-await Backoff.run(_fragment.loadInitialPage, _cancelToken);
+    await Backoff.run(_fragment.loadInitialPage, _cancelToken);
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
