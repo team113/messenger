@@ -232,7 +232,7 @@ class CallService extends DisposableService {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) =>

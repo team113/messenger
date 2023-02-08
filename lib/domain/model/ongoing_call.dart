@@ -362,7 +362,7 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(CallService calls) async {
+  void connect(CallService calls) {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
@@ -401,7 +401,7 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
+    _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:

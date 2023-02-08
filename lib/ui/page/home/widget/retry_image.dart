@@ -26,6 +26,7 @@ import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
@@ -90,8 +91,6 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// [Timer] retrying the image fetching.
-  Timer? _timer;
   Timer? _fallbackTimer;
 
   /// Byte data of the fetched image.
@@ -101,6 +100,9 @@ class _RetryImageState extends State<RetryImage> {
   /// Image fetching progress.
   double _progress = 0;
 
+  /// [CancelToken] canceling the [_loadImage] operation.
+  CancelToken _cancelToken = CancelToken();
+
   /// Starting period of exponential backoff image fetching.
   static const Duration _minBackoffPeriod = Duration(microseconds: 500);
 
@@ -108,11 +110,9 @@ class _RetryImageState extends State<RetryImage> {
   static const Duration _maxBackoffPeriod = Duration(seconds: 32);
 
   /// Current period of exponential backoff image fetching.
-  Duration _backoffPeriod = _minBackoffPeriod;
   Duration _fallbackPeriod = _minBackoffPeriod;
 
   bool _canceled = false;
-  CancelToken? _token;
 
   @override
   void initState() {
@@ -142,7 +142,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _cancelToken.cancel();
     _fallbackTimer?.cancel();
     super.dispose();
   }
@@ -175,11 +175,11 @@ class _RetryImageState extends State<RetryImage> {
             ? () {
                 if (_canceled) {
                   _canceled = false;
-                  _token = CancelToken();
+                  _cancelToken = CancelToken();
                   _loadImage();
                 } else {
                   _canceled = true;
-                  _token?.cancel();
+                  _cancelToken.cancel();
                 }
 
                 setState(() {});
@@ -347,91 +347,74 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads the [_image] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  FutureOr<void> _loadImage() async {
-    _timer?.cancel();
-
-    _token = CancelToken();
-
-    Uint8List? cached;
-    if (widget.checksum != null) {
-      cached = FIFOCache.get(widget.checksum!);
-    } else {
-      cached = FIFOCache.get(widget.url);
-    }
-
-    if (cached != null) {
-      _image = cached;
-      _backoffPeriod = _minBackoffPeriod;
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      Response? data;
-
-      try {
-        // for (int i = 0; i < 100; ++i) {
-        //   await Future.delayed(const Duration(milliseconds: 50));
-        //   _progress = i / 100;
-        //   if (mounted) {
-        //     setState(() {});
-        //   }
-
-        //   if (_token?.isCancelled == true) {
-        //     return;
-        //   }
-        // }
-
-        if (_token?.isCancelled == true) {
-          return;
-        }
-
-        data = await PlatformUtils.dio.get(
-          widget.url,
-          onReceiveProgress: (received, total) {
-            if (total > 0) {
-              _progress = received / total;
-              if (mounted) {
-                setState(() {});
-              }
-            }
-          },
-          cancelToken: _token,
-          options: Options(responseType: ResponseType.bytes),
-        );
-      } on DioError catch (e) {
-        if (e.response?.statusCode == 403) {
-          await widget.onForbidden?.call();
-        }
-      }
-
-      if (_token?.isCancelled == true) {
-        return;
-      }
-
-      if (data?.data != null && data!.statusCode == 200) {
+  Future<void> _loadImage() async {
+    return Backoff.run(
+      () async {
+        Uint8List? cached;
         if (widget.checksum != null) {
-          FIFOCache.set(widget.checksum!, data.data);
+          cached = FIFOCache.get(widget.checksum!);
+        }
+
+        if (cached != null) {
+          _image = cached;
+          if (mounted) {
+            setState(() {});
+          }
         } else {
-          FIFOCache.set(widget.url, data.data);
-        }
-        _image = data.data;
-        _backoffPeriod = _minBackoffPeriod;
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        _timer = Timer(
-          _backoffPeriod,
-          () {
-            if (_backoffPeriod < _maxBackoffPeriod) {
-              _backoffPeriod *= 2;
+          Response? data;
+
+          try {
+            // for (int i = 0; i < 100; ++i) {
+            //   await Future.delayed(const Duration(milliseconds: 50));
+            //   _progress = i / 100;
+            //   if (mounted) {
+            //     setState(() {});
+            //   }
+
+            //   if (_token?.isCancelled == true) {
+            //     return;
+            //   }
+            // }
+
+            if (_cancelToken.isCancelled) {
+              return;
             }
 
-            _loadImage();
-          },
-        );
-      }
-    }
+            data = await PlatformUtils.dio.get(
+              widget.url,
+              onReceiveProgress: (received, total) {
+                if (total > 0) {
+                  _progress = received / total;
+                  if (mounted) {
+                    setState(() {});
+                  }
+                }
+              },
+              options: Options(responseType: ResponseType.bytes),
+              cancelToken: _cancelToken,
+            );
+          } on DioError catch (e) {
+            if (e.response?.statusCode == 403) {
+              await widget.onForbidden?.call();
+            }
+          }
+
+          if (data?.data != null && data!.statusCode == 200) {
+            if (widget.checksum != null) {
+              FIFOCache.set(widget.checksum!, data.data);
+            }
+
+            _image = data.data;
+            if (mounted) {
+              setState(() {});
+            }
+          } else {
+            throw Exception('Image is not loaded');
+          }
+        }
+      },
+      _cancelToken,
+    );
   }
 }
 

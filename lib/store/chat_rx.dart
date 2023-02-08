@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -40,12 +41,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ConnectionException,
-        NotChatMemberException,
-        PostChatMessageException,
-        ResubscriptionRequiredException,
-        StaleVersionException;
+    show ConnectionException, PostChatMessageException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -115,7 +111,7 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
-  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
+  /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
 
   /// [ChatItemHiveProvider.boxEvents] subscription.
@@ -124,7 +120,7 @@ class HiveRxChat extends RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator<ChatEvents>? _remoteSubscription;
+  StreamQueue<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
@@ -264,7 +260,7 @@ class HiveRxChat extends RxChat {
   /// Subscribes to the remote updates of the [chat] if not subscribed already.
   void subscribe() {
     if (!_remoteSubscriptionInitialized) {
-      _initRemoteSubscription(id);
+      _initRemoteSubscription();
     }
   }
 
@@ -767,32 +763,26 @@ class HiveRxChat extends RxChat {
   }
 
   /// Initializes [ChatRepository.chatEvents] subscription.
-  Future<void> _initRemoteSubscription(
-    ChatId chatId, {
-    bool noVersion = false,
-  }) async {
+  Future<void> _initRemoteSubscription() async {
     _remoteSubscriptionInitialized = true;
-    var ver = noVersion ? null : _chatLocal.get(id)?.ver;
 
     _remoteSubscription?.cancel();
-    _remoteSubscription =
-        StreamIterator(await _chatRepository.chatEvents(chatId, ver));
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      Future.delayed(Duration.zero, () => _initRemoteSubscription(chatId));
-      return false;
-    }).onError<NotChatMemberException>((_, __) {
-      _chatRepository.remove(id);
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      Future.delayed(
-        Duration.zero,
-        () => _initRemoteSubscription(chatId, noVersion: true),
-      );
-      return false;
-    })) {
-      await _chatEvent(_remoteSubscription!.current);
+    _remoteSubscription = StreamQueue(
+      _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
+    );
+
+    while (await _remoteSubscription!.hasNext) {
+      ChatEvents? event;
+
+      try {
+        event = await _remoteSubscription!.next;
+      } catch (_) {
+        // No-op.
+      }
+
+      if (event != null) {
+        await _chatEvent(event);
+      }
     }
 
     _remoteSubscriptionInitialized = false;

@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -24,8 +25,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
-import '/provider/gql/exceptions.dart'
-    show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
@@ -53,7 +52,7 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
-  StreamIterator<UserEvents>? _remoteSubscription;
+  StreamQueue<UserEvents>? _remoteSubscription;
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
@@ -87,20 +86,24 @@ class HiveRxUser extends RxUser {
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _userLocal.get(id)?.ver;
-    _remoteSubscription =
-        StreamIterator(await _userRepository.userEvents(id, ver));
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    })) {
-      await _userEvent(_remoteSubscription!.current);
+  Future<void> _initRemoteSubscription() async {
+    _remoteSubscription?.cancel();
+    _remoteSubscription = StreamQueue(
+      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+    );
+
+    while (await _remoteSubscription!.hasNext) {
+      UserEvents? event;
+
+      try {
+        event = await _remoteSubscription!.next;
+      } catch (_) {
+        // No-op.
+      }
+
+      if (event != null) {
+        await _userEvent(event);
+      }
     }
   }
 

@@ -139,7 +139,7 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   );
