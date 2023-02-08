@@ -467,7 +467,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
+  Stream<QueryResult> recentChatsTopEvents(int count) {
     final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -533,14 +533,15 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
+    final variables = ChatEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -866,7 +867,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  Future<Stream<QueryResult>> keepTyping(ChatId id) {
+  Stream<QueryResult> keepTyping(ChatId id) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -1242,9 +1243,10 @@ abstract class ChatGraphQlMixin {
   /// which have already been applied to the state of some [Chat], so a client
   /// side is expected to handle all the events idempotently considering the
   /// `Chat.ver`.
-  Future<Stream<QueryResult>> favoriteChatsEvents(
-      FavoriteChatsListVersion? ver) {
-    final variables = FavoriteChatsEventsArguments(ver: ver);
+  Stream<QueryResult> favoriteChatsEvents(
+    FavoriteChatsListVersion? Function() ver,
+  ) {
+    final variables = FavoriteChatsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'FavoriteChatsEvents',
@@ -1252,6 +1254,7 @@ abstract class ChatGraphQlMixin {
             FavoriteChatsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 }
