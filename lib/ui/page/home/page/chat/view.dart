@@ -953,27 +953,28 @@ class _ChatViewState extends State<ChatView>
             color: style.systemMessageColor,
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // RichText(
-              //   textAlign: TextAlign.center,
-              //   text: TextSpan(
-              //     children: [
-              //       TextSpan(
-              //         text: '${user?.name?.val ?? user?.num.val}',
-              //         style: style.systemMessageStyle.copyWith(
-              //           color: Theme.of(context).colorScheme.secondary,
-              //         ),
-              //         recognizer: TapGestureRecognizer()
-              //           ..onTap = () => router.user(user!.id, push: true),
-              //       ),
-              //       const TextSpan(text: ' has set a fee for:'),
-              //     ],
-              //     style: style.systemMessageStyle,
-              //   ),
-              // ),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${user?.name?.val ?? user?.num.val}',
+                      style: style.systemMessageStyle.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => router.user(user!.id, push: true),
+                    ),
+                    const TextSpan(text: ' has set a fee for:'),
+                  ],
+                  style: style.systemMessageStyle,
+                ),
+              ),
               Text(
-                '''\$$messageCost per message
-\$$callCost per call minute''',
+                '''- \$$messageCost per message
+- \$$callCost per call minute''',
                 style: style.systemMessageStyle,
               ),
             ],

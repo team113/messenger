@@ -184,7 +184,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       mirror: widget.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
-      autoRotate: !widget.mirror,
+      // autoRotate: !widget.mirror,
     );
 
     // Wait for the size to be determined if necessary.
