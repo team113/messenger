@@ -152,7 +152,7 @@ class PreciseDateTime extends NewType<DateTime>
   ///
   /// ```dart
   /// final newYearsDay =
-  ///     DateTime.fromMillisecondsSinceEpoch(1640979000000, isUtc: true);
+  ///    PreciseDateTime.fromMillisecondsSinceEpoch(1640979000000, isUtc: true);
   /// print(newYearsDay); // 2022-01-01 10:00:00.000Z
   /// ```
   static PreciseDateTime fromMillisecondsSinceEpoch(

@@ -66,17 +66,11 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// [ScrollController] of a contacts [ListView].
-  final ScrollController listController = ScrollController();
-
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
-
-  /// Indicator whether a loading indicator should be showed.
-  RxBool isLoadingNextPage = RxBool(false);
 
   /// Indicator whether an ongoing reordering is happening or not.
   ///
@@ -100,9 +94,6 @@ class ContactsTabController extends GetxController {
 
   /// Settings repository maintaining the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
-
-  /// [List] ot the [Future]s representing ongoing next page loadings.
-  final List<FutureOr> _nextPageLoadings = [];
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _rxUserWorkers = {};
@@ -128,9 +119,12 @@ class ContactsTabController extends GetxController {
   bool get sortByName =>
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
+  /// Indicates whether a loading indicator should be showed.
+  RxBool get hasNextPage => _contactService.hasNextPage;
+
   @override
   void onInit() {
-    listController.addListener(_scrollListener);
+    scrollController.addListener(_scrollListener);
 
     contacts.value = _contactService.contacts.values.toList();
     favorites.value = _contactService.favorites.values.toList();
@@ -157,7 +151,7 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
-    listController.removeListener(_scrollListener);
+    scrollController.removeListener(_scrollListener);
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -377,22 +371,13 @@ class ContactsTabController extends GetxController {
 
   /// Uploads next page of [ChatContact]s based on the
   /// [ScrollController.position] value.
-  void _scrollListener() async {
-    if (listController.hasClients) {
-      if (_contactService.hasNextPage &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height + 200) {
-        isLoadingNextPage.value = true;
-
-        FutureOr future = _contactService.loadNextPage();
-        _nextPageLoadings.add(future);
-        await future;
-        _nextPageLoadings.remove(future);
-
-        if (_nextPageLoadings.isEmpty) {
-          isLoadingNextPage.value = false;
-        }
-      }
+  void _scrollListener() {
+    if (scrollController.hasClients &&
+        _contactService.hasNextPage.isTrue &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent -
+                (MediaQuery.of(router.context!).size.height + 200)) {
+      _contactService.loadNextPage();
     }
   }
 

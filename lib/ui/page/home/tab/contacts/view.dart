@@ -404,8 +404,13 @@ class ContactsTabView extends StatelessWidget {
                                     ),
                                   );
                                 }),
-                                if (c.isLoadingNextPage.isTrue)
-                                  _loadingIndicator(),
+                                Obx(() {
+                                  if (c.hasNextPage.isTrue) {
+                                    return _loadingIndicator();
+                                  } else {
+                                    return const SizedBox();
+                                  }
+                                }),
                               ],
                             ),
                           ),

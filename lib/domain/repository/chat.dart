@@ -42,7 +42,7 @@ abstract class AbstractChatRepository {
   RxBool get isReady;
 
   /// Indicates whether the [chats] has next page.
-  bool get hasNextPage;
+  RxBool get hasNextPage;
 
   /// Initializes this repository.
   ///
@@ -238,10 +238,10 @@ abstract class RxChat {
   Rx<ChatMessage?> get draft;
 
   /// Indicates whether the [messages] has next page.
-  bool get hasNextPage;
+  RxBool get hasNextPage;
 
   /// Indicates whether the [messages] has previous page.
-  bool get hasPreviousPage;
+  RxBool get hasPreviousPage;
 
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;

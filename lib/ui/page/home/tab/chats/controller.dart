@@ -76,17 +76,11 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// [ScrollController] of a chats [ListView].
-  final ScrollController listController = ScrollController();
-
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
-
-  /// Indicator whether a loading indicator should be showed.
-  RxBool isLoadingNextPage = RxBool(false);
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
@@ -122,9 +116,6 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// [List] ot the [Future]s representing ongoing next page loadings.
-  final List<FutureOr> _nextPageLoadings = [];
-
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -150,9 +141,12 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ChatService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
+  /// Indicates whether a loading indicator should be showed.
+  RxBool get hasNextPage => _chatService.hasNextPage;
+
   @override
   void onInit() {
-    listController.addListener(_scrollListener);
+    scrollController.addListener(_scrollListener);
     chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
@@ -240,7 +234,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    listController.removeListener(_scrollListener);
+    scrollController.removeListener(_scrollListener);
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -559,22 +553,13 @@ class ChatsTabController extends GetxController {
 
   /// Uploads next page of [Chat]s based on the [ScrollController.position]
   /// value.
-  void _scrollListener() async {
-    if (listController.hasClients) {
-      if (_chatService.hasNextPage &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height + 200) {
-        isLoadingNextPage.value = true;
-
-        FutureOr future = _chatService.loadNextPage();
-        _nextPageLoadings.add(future);
-        await future;
-        _nextPageLoadings.remove(future);
-
-        if (_nextPageLoadings.isEmpty) {
-          isLoadingNextPage.value = false;
-        }
-      }
+  void _scrollListener() {
+    if (scrollController.hasClients &&
+        hasNextPage.isTrue &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent -
+                (MediaQuery.of(router.context!).size.height + 200)) {
+      _chatService.loadNextPage();
     }
   }
 

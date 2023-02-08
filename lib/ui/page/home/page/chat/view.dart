@@ -357,7 +357,27 @@ class _ChatViewState extends State<ChatView>
                                       ? const NeverScrollableScrollPhysics()
                                       : const BouncingScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
-                                    (context, i) => _listElement(context, c, i),
+                                    (context, i) {
+                                      final widget =
+                                          _listElement(context, c, i);
+
+                                      if (c.elements.length - 1 == i) {
+                                        return Obx(() {
+                                          if (c.hasPreviousPage.isTrue) {
+                                            return Column(
+                                              children: [
+                                                widget,
+                                                _loadingIndicator()
+                                              ],
+                                            );
+                                          } else {
+                                            return widget;
+                                          }
+                                        });
+                                      } else {
+                                        return widget;
+                                      }
+                                    },
                                     // ignore: invalid_use_of_protected_member
                                     childCount: c.elements.value.length,
                                     keepPosition: true,

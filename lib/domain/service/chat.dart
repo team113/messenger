@@ -52,7 +52,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Indicates whether the [chats] has next page.
-  bool get hasNextPage => _chatRepository.hasNextPage;
+  RxBool get hasNextPage => _chatRepository.hasNextPage;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;

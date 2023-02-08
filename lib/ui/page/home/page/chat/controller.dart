@@ -219,14 +219,8 @@ class ChatController extends GetxController {
   /// [List] ot the [Future]s representing ongoing next page loadings.
   final List<FutureOr> _nextPageLoadings = [];
 
-  /// [List] ot the [Future]s representing ongoing previous page loadings.
-  final List<FutureOr> _prevPageLoadings = [];
-
   /// [LoadingElement] currently displayed on the top of the chat.
   LoadingElement? _topLoadingElement;
-
-  /// [LoadingElement] currently displayed on the bottom of the chat.
-  LoadingElement? _bottomLoadingElement;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
@@ -286,6 +280,9 @@ class ChatController extends GetxController {
   /// takes part in the [Chat.ongoingCall], if any.
   bool get inCall =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Indicates whether a previous page of the [elements] is exists.
+  RxBool get hasPreviousPage => chat!.hasPreviousPage;
 
   @override
   void onInit() {
@@ -1149,7 +1146,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _loadMessages() async {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (chat!.hasNextPage &&
+      if (chat!.hasNextPage.isTrue &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height * 2 + 200) {
         if (_nextPageLoadings.isEmpty) {
@@ -1164,16 +1161,16 @@ class ChatController extends GetxController {
             }
 
             elements.remove(DateTimeElement(items.first.at.toDay()).id);
-            elements.remove(_topLoadingElement!.id);
+            elements.remove(_topLoadingElement?.id);
             _topLoadingElement = null;
 
+            await Future.delayed(15.milliseconds);
             SchedulerBinding.instance.addPostFrameCallback((_) {
               if (_nextPageLoadings.isNotEmpty) {
                 _topLoadingElement = LoadingElement.top();
                 elements[_topLoadingElement!.id] = _topLoadingElement!;
               }
             });
-            await Future.delayed(1.milliseconds);
           },
         );
 
@@ -1187,29 +1184,19 @@ class ChatController extends GetxController {
         return;
       }
 
-      if (chat!.hasPreviousPage &&
+      if (hasPreviousPage.isTrue &&
+          !_isPrevPageLoading &&
           listController.position.pixels >
               listController.position.maxScrollExtent -
                   (MediaQuery.of(router.context!).size.height * 2 + 200)) {
         _isPrevPageLoading = true;
 
-        if (_prevPageLoadings.isEmpty) {
-          _bottomLoadingElement = LoadingElement.bottom();
-          elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
-        }
+        await chat!.loadPreviousPage();
 
-        FutureOr future = chat!.loadPreviousPage();
-        _prevPageLoadings.add(future);
-        await future;
-        _prevPageLoadings.remove(future);
-
-        if (_prevPageLoadings.isEmpty) {
-          elements.remove(_bottomLoadingElement!.id);
-          await Future.delayed(
-            10.milliseconds,
-            () => _isPrevPageLoading = false,
-          );
-        }
+        await Future.delayed(
+          10.milliseconds,
+          () => _isPrevPageLoading = false,
+        );
       }
     }
   }

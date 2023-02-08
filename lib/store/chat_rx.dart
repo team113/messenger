@@ -118,7 +118,7 @@ class HiveRxChat extends RxChat {
   final ChatItemHiveProvider _local;
 
   /// [PaginatedFragment] loading [messages] with pagination.
-  PaginatedFragment<HiveChatItem>? _fragment;
+  late final PaginatedFragment<HiveChatItem> _fragment;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -160,10 +160,10 @@ class HiveRxChat extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  bool get hasNextPage => _fragment?.hasNextPage ?? true;
+  RxBool get hasNextPage => _fragment.hasNextPage;
 
   @override
-  bool get hasPreviousPage => _fragment?.hasPreviousPage ?? true;
+  RxBool get hasPreviousPage => _fragment.hasPreviousPage;
 
   @override
   UserCallCover? get callCover {
@@ -226,50 +226,48 @@ class HiveRxChat extends RxChat {
       }
     });
 
+    _fragment = PaginatedFragment<HiveChatItem>(
+      compare: (a, b) => a.value.at.compareTo(b.value.at),
+      equal: (a, b) => a.value.id == b.value.id,
+      ignore: (e) => e.value.status.value != SendingStatus.sent,
+      onDelete: (e) =>
+          _guard.protect(() async => _local.remove(e.value.timestamp)),
+      onFetchPage: ({
+        int? first,
+        String? after,
+        int? last,
+        String? before,
+      }) async {
+        ChatItemsCursor? afterCursor;
+        if (after != null) {
+          afterCursor = ChatItemsCursor(after);
+        }
+
+        ChatItemsCursor? beforeCursor;
+        if (before != null) {
+          beforeCursor = ChatItemsCursor(before);
+        }
+
+        return await _chatRepository.messages(
+          chat.value.id,
+          after: afterCursor,
+          first: first,
+          before: beforeCursor,
+          last: last,
+        );
+      },
+      initialCursor: lastReadItemCursor?.val,
+    );
+
     return _guard.protect(() async {
       await _local.init(userId: me);
 
-      _fragment = PaginatedFragment<HiveChatItem>(
-        cache: _local.messages.toList().reversed.toList(),
-        compare: (a, b) => a.value.at.compareTo(b.value.at),
-        equal: (a, b) => a.value.id == b.value.id,
-        ignore: (e) => e.value.status.value != SendingStatus.sent,
-        onDelete: (e) =>
-            _guard.protect(() async => _local.remove(e.value.timestamp)),
-        onFetchPage: ({
-          int? first,
-          String? after,
-          int? last,
-          String? before,
-        }) async {
-          ChatItemsCursor? afterCursor;
-          if (after != null) {
-            afterCursor = ChatItemsCursor(after);
-          }
-
-          ChatItemsCursor? beforeCursor;
-          if (before != null) {
-            beforeCursor = ChatItemsCursor(before);
-          }
-
-          return await _chatRepository.messages(
-            chat.value.id,
-            after: afterCursor,
-            first: first,
-            before: beforeCursor,
-            last: last,
-          );
-        },
-        initialCursor: lastReadItemCursor?.val,
-      );
-
-      _fragmentSubscription = _fragment!.elements.changes.listen((event) {
+      _fragment.cache = _local.messages.toList().reversed.toList();
+      _fragmentSubscription = _fragment.elements.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
-            messages.insertAfter(
-              Rx<ChatItem>(event.element.value),
-              (e) => event.element.value.at.compareTo(e.value.at) == 1,
-            );
+            insert(event.element.value);
+            put(event.element);
             break;
 
           case OperationKind.removed:
@@ -282,13 +280,10 @@ class HiveRxChat extends RxChat {
         }
         messages.refresh();
       });
+      _fragment.init();
 
-      _fragment!.init();
-
-      updateReads();
-
+      Future.delayed(Duration.zero, updateReads);
       _initLocalSubscription();
-      await _initAttachments(messages.map((e) => e.value));
 
       status.value = RxStatus.success();
     });
@@ -304,7 +299,6 @@ class HiveRxChat extends RxChat {
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _fragmentSubscription?.cancel();
-      // TODO: remove `_messagesSubscription`?
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
@@ -364,45 +358,31 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> fetchMessages() async {
-    if (!status.value.isLoading) {
-      status.value = RxStatus.loadingMore();
-    }
-
-    while (_fragment == null) {
+    while (!status.value.isSuccess) {
       await Future.delayed(1.milliseconds);
     }
 
-    await _fragment!.loadInitialPage();
+    status.value = RxStatus.loadingMore();
+
+    await _fragment.loadInitialPage();
 
     Future.delayed(Duration.zero, updateReads);
-
-    status.value = RxStatus.success();
   }
 
   @override
-  FutureOr<void> loadNextPage({
+  Future<void> loadNextPage({
     Future<void> Function(List<ChatItem>)? onItemsLoaded,
   }) async {
-    await _fragment?.loadNextPage(
+    await _fragment.loadNextPage(
       onItemsLoaded: (items) async {
         await onItemsLoaded?.call(items.map((e) => e.value).toList());
-
-        _guard.protect(() async {
-          for (HiveChatItem item in items) {
-            if (item.value.chatId == id) {
-              put(item);
-            } else {
-              _chatRepository.putChatItem(item);
-            }
-          }
-        });
       },
     );
   }
 
   @override
-  FutureOr<void> loadPreviousPage() async {
-    await _fragment?.loadPreviousPage();
+  Future<void> loadPreviousPage() async {
+    await _fragment.loadPreviousPage();
   }
 
   @override
@@ -453,6 +433,36 @@ class HiveRxChat extends RxChat {
       }
 
       put(stored, ignoreVersion: true);
+    }
+  }
+
+  /// Inserts the provided [item] to the [messages].
+  void insert(ChatItem item) {
+    if (!PlatformUtils.isWeb) {
+      if (item is ChatMessage) {
+        for (var a in item.attachments.whereType<FileAttachment>()) {
+          a.init();
+        }
+      } else if (item is ChatForward) {
+        ChatItem nested = item.item;
+        if (nested is ChatMessage) {
+          for (var a in nested.attachments.whereType<FileAttachment>()) {
+            a.init();
+          }
+        }
+      }
+    }
+
+    int i = messages.indexWhere((e) => e.value.timestamp == item.timestamp);
+    if (i == -1) {
+      //Rx<ChatItem> item = Rx<ChatItem>(item);
+      messages.insertAfter(
+        Rx<ChatItem>(item),
+        (e) => item.at.compareTo(e.value.at) == 1,
+      );
+    } else {
+      messages[i].value = item;
+      messages[i].refresh();
     }
   }
 
@@ -785,30 +795,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Initializes [FileAttachment]s placed in the provided [items].
-  Future<void> _initAttachments(Iterable<ChatItem> items) async {
-    if (!PlatformUtils.isWeb) {
-      final List<Future> futures = [];
-
-      for (ChatItem item in items) {
-        if (item is ChatMessage) {
-          futures.addAll(item.attachments
-              .whereType<FileAttachment>()
-              .map((e) => e.init()));
-        } else if (item is ChatForward) {
-          ChatItem nested = item.item;
-          if (nested is ChatMessage) {
-            futures.addAll(nested.attachments
-                .whereType<FileAttachment>()
-                .map((e) => e.init()));
-          }
-        }
-      }
-
-      await Future.wait(futures);
-    }
-  }
-
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
     return messages
@@ -828,32 +814,7 @@ class HiveRxChat extends RxChat {
           messages.removeAt(i);
         }
       } else {
-        if (!PlatformUtils.isWeb) {
-          ChatItem item = event.value.value;
-          if (item is ChatMessage) {
-            for (var a in item.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
-          } else if (item is ChatForward) {
-            ChatItem nested = item.item;
-            if (nested is ChatMessage) {
-              for (var a in nested.attachments.whereType<FileAttachment>()) {
-                a.init();
-              }
-            }
-          }
-        }
-
-        if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
-          messages.insertAfter(
-            item,
-            (e) => item.value.at.compareTo(e.value.at) == 1,
-          );
-        } else {
-          messages[i].value = event.value.value;
-          messages[i].refresh();
-        }
+        insert(event.value.value);
       }
     }
   }

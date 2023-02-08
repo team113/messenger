@@ -43,7 +43,7 @@ class ContactService extends DisposableService {
       _contactRepository.favorites;
 
   /// Indicates whether the [contacts] has next page.
-  bool get hasNextPage => _contactRepository.hasNextPage;
+  RxBool get hasNextPage => _contactRepository.hasNextPage;
 
   @override
   void onInit() {

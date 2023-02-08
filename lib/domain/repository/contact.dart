@@ -33,7 +33,7 @@ abstract class AbstractContactRepository {
   RxObsMap<ChatContactId, RxChatContact> get favorites;
 
   /// Indicates whether the [contacts] has next page.
-  bool get hasNextPage;
+  RxBool get hasNextPage;
 
   /// Indicates whether this repository was initialized and [contacts] can be
   /// used.

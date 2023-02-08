@@ -496,15 +496,11 @@ class ChatsTabView extends StatelessWidget {
                           key: const Key('Chats'),
                           child: ListView.builder(
                             controller: c.scrollController,
-                            itemCount: c.chats.length +
-                                (c.isLoadingNextPage.isTrue ? 1 : 0),
+                            itemCount: c.chats.length,
                             itemBuilder: (_, i) {
-                              if (c.chats.length == i) {
-                                return _loadingIndicator();
-                              }
-
                               final RxChat chat = c.chats[i];
-                              return AnimationConfiguration.staggeredList(
+                              Widget widget =
+                                  AnimationConfiguration.staggeredList(
                                 position: i,
                                 duration: const Duration(milliseconds: 375),
                                 child: SlideAnimation(
@@ -538,6 +534,20 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                               );
+
+                              if (c.chats.length - 1 == i) {
+                                return Obx(() {
+                                  if (c.hasNextPage.isTrue) {
+                                    return Column(
+                                      children: [widget, _loadingIndicator()],
+                                    );
+                                  } else {
+                                    return widget;
+                                  }
+                                });
+                              } else {
+                                return widget;
+                              }
                             },
                           ),
                         ),

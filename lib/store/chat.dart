@@ -107,7 +107,7 @@ class ChatRepository implements AbstractChatRepository {
   final SessionDataHiveProvider _sessionLocal;
 
   /// [PaginatedFragment] loading [chats] with pagination.
-  PaginatedFragment<HiveChat>? _fragment;
+  late final PaginatedFragment<HiveChat> _fragment;
 
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -135,7 +135,7 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  bool get hasNextPage => _fragment?.hasNextPage ?? true;
+  RxBool get hasNextPage => _fragment.hasNextPage;
 
   @override
   RxBool get isReady => _isReady;
@@ -187,11 +187,14 @@ class ChatRepository implements AbstractChatRepository {
       },
     );
 
-    _fragmentSubscription = _fragment!.elements.changes.listen((event) {
+    _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           _chats[event.element.value.id] =
-              HiveRxChat(this, _chatLocal, _draftLocal, event.element)..init();
+              HiveRxChat(this, _chatLocal, _draftLocal, event.element)
+                ..init()
+                ..subscribe();
+          _putEntry(event.element);
           break;
 
         case OperationKind.removed:
@@ -204,13 +207,13 @@ class ChatRepository implements AbstractChatRepository {
       }
     });
 
-    _fragment!.init();
+    _fragment.init();
 
     if (!_chatLocal.isEmpty) {
       _isReady.value = true;
     }
 
-    await _fragment!.loadInitialPage();
+    await _fragment.loadInitialPage();
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
@@ -289,7 +292,7 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   FutureOr<void> loadNextPage() async {
-    await _fragment?.loadNextPage();
+    await _fragment.loadNextPage();
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -1037,9 +1040,6 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _putChat(HiveChat chat) async {
     var saved = _chatLocal.get(chat.value.id);
     if (saved == null || saved.ver < chat.ver) {
-      if (saved != null && chat.cursor == null) {
-        chat.cursor = saved.cursor;
-      }
       await _chatLocal.put(chat);
     }
   }

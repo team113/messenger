@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show PageInfoMixin;
 import '/store/chat_rx.dart';
@@ -25,11 +26,11 @@ import '/util/obs/rxlist.dart';
 /// Helper to uploads items with pagination.
 class PaginatedFragment<T> {
   PaginatedFragment({
-    this.pageSize = 5,
+    this.pageSize = 30,
     this.initialCursor,
     required this.compare,
     required this.equal,
-    required this.cache,
+    this.cache = const [],
     required this.onFetchPage,
     required this.onDelete,
     this.ignore,
@@ -59,15 +60,16 @@ class PaginatedFragment<T> {
   final void Function(T item) onDelete;
 
   /// [List] of the cached items.
-  final List<T> cache;
+  List<T> cache;
 
-  /// Indicated whether item should not be deleted from the [cache].
+  /// Indicated whether item should not be deleted from the [cache] if not
+  /// exists on the remote.
   final bool Function(T)? ignore;
 
-  /// List of the elements.
+  /// List of the elements fetched from [cache] and remote.
   final RxObsList<T> elements = RxObsList<T>();
 
-  /// Elements uploaded by [onFetchPage].
+  /// Elements synchronized with the remote.
   final List<T> _synced = [];
 
   /// Indicator whether next page is loading.
@@ -77,10 +79,10 @@ class PaginatedFragment<T> {
   bool _isPrevPageLoading = false;
 
   /// Indicator whether next page is exist.
-  bool _hasNextPage = true;
+  final RxBool _hasNextPage = RxBool(false);
 
   /// Indicator whether previous page is exist.
-  bool _hasPreviousPage = true;
+  final RxBool _hasPreviousPage = RxBool(false);
 
   /// Cursor of the last element in the [_synced].
   String? _firstItemCursor;
@@ -89,10 +91,10 @@ class PaginatedFragment<T> {
   String? _lastItemCursor;
 
   /// Indicates whether next page is exist.
-  bool get hasNextPage => _hasNextPage;
+  RxBool get hasNextPage => _hasNextPage;
 
   /// Indicates whether previous page is exist.
-  bool get hasPreviousPage => _hasPreviousPage;
+  RxBool get hasPreviousPage => _hasPreviousPage;
 
   /// Gets initial elements page from the [cache].
   void init() {
@@ -123,8 +125,8 @@ class PaginatedFragment<T> {
       return;
     }
 
-    _hasNextPage = fetched.pageInfo.hasNextPage;
-    _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
+    _hasNextPage.value = fetched.pageInfo.hasNextPage;
+    _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
     _firstItemCursor = fetched.pageInfo.startCursor;
     _lastItemCursor = fetched.pageInfo.endCursor;
 
@@ -145,28 +147,40 @@ class PaginatedFragment<T> {
   FutureOr<void> loadNextPage({
     Future<void> Function(List<T>)? onItemsLoaded,
   }) async {
-    if (!_hasNextPage) {
+    if (_hasNextPage.isFalse) {
       return;
     }
 
     if (cache.length > elements.length) {
-      Iterable<T> cached = cache.skip(elements.length).take(pageSize);
-      for (T i in cached) {
-        elements.insertAfter(i, (e) => compare(i, e) == 1);
-      }
+      Future.sync(() async {
+        Iterable<T> cached = cache.skip(elements.length).take(pageSize);
+        await onItemsLoaded?.call(cached.toList());
+        for (T i in cached) {
+          elements.insertAfter(i, (e) => compare(i, e) == 1);
+        }
+      });
+
     }
 
+    await _loadNextPage(onItemsLoaded: onItemsLoaded);
+  }
+
+  /// Loads next page of the [elements].
+  Future<void> _loadNextPage({
+    Future<void> Function(List<T>)? onItemsLoaded,
+  }) async {
     if (!_isNextPageLoading) {
       _isNextPageLoading = true;
 
       await Future.delayed(const Duration(seconds: 2));
+
       ItemsPage<T>? fetched = await onFetchPage(
         first: pageSize,
         after: _lastItemCursor,
       );
 
       if (fetched != null) {
-        _hasNextPage = fetched.pageInfo.hasNextPage;
+        _hasNextPage.value = fetched.pageInfo.hasNextPage;
         _lastItemCursor = fetched.pageInfo.endCursor;
 
         syncItems(fetched.items);
@@ -185,7 +199,7 @@ class PaginatedFragment<T> {
 
         if (_synced.length < elements.length) {
           _isNextPageLoading = false;
-          await loadNextPage();
+          await _loadNextPage(onItemsLoaded: onItemsLoaded);
         }
       }
 
@@ -195,7 +209,7 @@ class PaginatedFragment<T> {
 
   /// Loads previous page of the [elements].
   FutureOr<void> loadPreviousPage() async {
-    if (_isPrevPageLoading || !_hasPreviousPage) {
+    if (_isPrevPageLoading || _hasPreviousPage.isFalse) {
       return;
     }
 
@@ -206,14 +220,16 @@ class PaginatedFragment<T> {
         await onFetchPage(last: pageSize, before: _firstItemCursor);
 
     if (fetched != null) {
-      _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
+      _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
       _firstItemCursor = fetched.pageInfo.startCursor;
 
       for (T i in fetched.items) {
         _synced.insertAfter(i, (e) => compare(i, e) == 1);
-        cache.insertAfter(i, (e) => compare(i, e) == 1);
-        if (!elements.none((e) => equal(e, i))) {
+        if (elements.none((e) => equal(e, i))) {
           elements.insertAfter(i, (e) => compare(i, e) == 1);
+        }
+        if (cache.none((e) => equal(e, i))) {
+          cache.insertAfter(i, (e) => compare(i, e) == 1);
         }
       }
     }
