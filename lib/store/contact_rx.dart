@@ -28,17 +28,13 @@ import '/store/model/contact.dart';
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact extends RxChatContact {
   HiveRxChatContact(this._userRepository, HiveChatContact hiveChatContact)
-      : contact = Rx<ChatContact>(hiveChatContact.value),
-        cursor = hiveChatContact.cursor;
+      : contact = Rx<ChatContact>(hiveChatContact.value);
 
   @override
   final Rx<ChatContact> contact;
 
   @override
   final Rx<RxUser?> user = Rx(null);
-
-  /// Cursor of this [HiveRxChatContact].
-  final ChatContactsCursor? cursor;
 
   /// [AbstractUserRepository] fetching and updating the [user].
   final AbstractUserRepository _userRepository;

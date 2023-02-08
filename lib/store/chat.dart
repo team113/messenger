@@ -129,7 +129,7 @@ class ChatRepository implements AbstractChatRepository {
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
 
-  /// [dio.CancelToken] for cancelling the [_recentChats] query.
+  /// [dio.CancelToken] for cancelling the [PaginatedFragment.loadInitialPage].
   final dio.CancelToken _cancelToken = dio.CancelToken();
 
   @override
@@ -293,7 +293,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  FutureOr<void> loadNextPage() async {
+  Future<void> loadNextPage() async {
     await _fragment.loadNextPage();
   }
 
@@ -1163,12 +1163,10 @@ class ChatRepository implements AbstractChatRepository {
     ))
         .recentChats;
 
-    List<HiveChat> chats = <HiveChat>[];
-    for (var c in query.edges) {
-      chats.add(_chat(c.node, cursor: c.cursor));
-    }
-
-    return ChatsQuery(chats, query.pageInfo);
+    return ChatsQuery(
+      query.edges.map((e) => _chat(e.node, cursor: e.cursor)).toList(),
+      query.pageInfo,
+    );
   }
 
   /// Puts the provided [data] to [Hive].

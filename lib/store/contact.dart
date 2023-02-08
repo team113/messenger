@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -36,6 +37,7 @@ import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -75,6 +77,9 @@ class ContactRepository implements AbstractContactRepository {
 
   /// [PaginatedFragment] loading [contacts] with pagination.
   late final PaginatedFragment<HiveChatContact> _fragment;
+
+  /// [dio.CancelToken] for cancelling the [PaginatedFragment.loadInitialPage].
+  final CancelToken _cancelToken = CancelToken();
 
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -152,7 +157,7 @@ class ContactRepository implements AbstractContactRepository {
       isReady.value = true;
     }
 
-    await _fragment.loadInitialPage();
+    await Backoff.run(_fragment.loadInitialPage, _cancelToken);
 
     _initRemoteSubscription();
 

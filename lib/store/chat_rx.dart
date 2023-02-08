@@ -45,7 +45,6 @@ import '/provider/gql/exceptions.dart'
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
-import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
@@ -64,7 +63,6 @@ class HiveRxChat extends RxChat {
     this._draftLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
-        cursor = hiveChat.cursor,
         lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
@@ -92,9 +90,6 @@ class HiveRxChat extends RxChat {
 
   @override
   final Rx<ChatMessage?> draft;
-
-  /// Cursor ot this [HiveRxChat].
-  final RecentChatsCursor? cursor;
 
   /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
   ChatItemsCursor? lastReadItemCursor;
@@ -263,7 +258,7 @@ class HiveRxChat extends RxChat {
       _fragmentSubscription = _fragment.elements.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
-            insert(event.element.value);
+            add(event.element.value);
             put(event.element);
             break;
 
@@ -364,6 +359,8 @@ class HiveRxChat extends RxChat {
     await _fragment.loadInitialPage();
 
     Future.delayed(Duration.zero, updateReads);
+
+    status.value = RxStatus.success();
   }
 
   @override
@@ -433,8 +430,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Inserts the provided [item] to the [messages].
-  void insert(ChatItem item) {
+  /// Adds the provided [item] to the [messages].
+  void add(ChatItem item) {
     if (!PlatformUtils.isWeb) {
       if (item is ChatMessage) {
         for (var a in item.attachments.whereType<FileAttachment>()) {
@@ -452,7 +449,6 @@ class HiveRxChat extends RxChat {
 
     int i = messages.indexWhere((e) => e.value.timestamp == item.timestamp);
     if (i == -1) {
-      //Rx<ChatItem> item = Rx<ChatItem>(item);
       messages.insertAfter(
         Rx<ChatItem>(item),
         (e) => item.at.compareTo(e.value.at) == 1,
@@ -811,7 +807,7 @@ class HiveRxChat extends RxChat {
           messages.removeAt(i);
         }
       } else {
-        insert(event.value.value);
+        add(event.value.value);
       }
     }
   }

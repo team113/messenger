@@ -95,7 +95,7 @@ abstract class AbstractChatRepository {
   });
 
   /// Loads next page of a [Chat]s.
-  FutureOr<void> loadNextPage();
+  Future<void> loadNextPage();
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item);
@@ -260,12 +260,12 @@ abstract class RxChat {
   Future<void> fetchMessages();
 
   /// Loads next page of the [messages] from the service.
-  FutureOr<void> loadNextPage({
+  Future<void> loadNextPage({
     Future<void> Function(List<ChatItem>)? onItemsLoaded,
   });
 
   /// Fetches previous page of the [messages] from the service.
-  FutureOr<void> loadPreviousPage();
+  Future<void> loadPreviousPage();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

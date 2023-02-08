@@ -144,7 +144,7 @@ class PaginatedFragment<T> {
   }
 
   /// Loads next page of the [elements].
-  FutureOr<void> loadNextPage({
+  Future<void> loadNextPage({
     Future<void> Function(List<T>)? onItemsLoaded,
   }) async {
     if (_hasNextPage.isFalse) {

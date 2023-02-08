@@ -209,8 +209,8 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
 
-  /// Indicator whether [_scrollListener] should not be react on
-  /// [FlutterListViewController.position] changes.
+  /// Indicator whether [_loadMessages] and [_updateFabStates] should not be
+  /// react on [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
@@ -219,7 +219,7 @@ class ChatController extends GetxController {
   /// [List] ot the [Future]s representing ongoing next page loadings.
   final List<FutureOr> _nextPageLoadings = [];
 
-  /// [LoadingElement] currently displayed on the top of the chat.
+  /// Currently displayed [LoadingElement] in the top of the [elements] list.
   LoadingElement? _topLoadingElement;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
@@ -1152,7 +1152,7 @@ class ChatController extends GetxController {
           elements[_topLoadingElement!.id] = _topLoadingElement!;
         }
 
-        FutureOr future = chat!.loadNextPage(
+        final Future future = chat!.loadNextPage(
           onItemsLoaded: (items) async {
             if (items.isEmpty) {
               return;
