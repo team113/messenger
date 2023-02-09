@@ -1257,6 +1257,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
     }
 
+    final List<LastChatRead> reads = widget.chat.value?.lastReads
+            .where(
+              (e) =>
+                  !e.at.val.isBefore(widget.item.value.at.val) &&
+                  e.memberId != widget.item.value.authorId,
+            )
+            .toList() ??
+        [];
+
     bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
@@ -1443,14 +1452,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             onPressed: () => ChatItemInfo.show(
                               context,
                               id: widget.item.value.id,
-                              reads: widget.chat.value?.lastReads.where(
-                                    (e) =>
-                                        !e.at.val.isBefore(
-                                            widget.item.value.at.val) &&
-                                        e.memberId !=
-                                            widget.item.value.authorId,
-                                  ) ??
-                                  [],
+                              reads: reads,
                               getUser: widget.getUser,
                             ),
                           ),
@@ -1610,14 +1612,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 child: WidgetButton(
                                   onPressed: () => ChatItemInfo.show(
                                     context,
-                                    reads: widget.chat.value?.lastReads.where(
-                                          (e) =>
-                                              !e.at.val.isBefore(
-                                                  widget.item.value.at.val) &&
-                                              e.memberId !=
-                                                  widget.item.value.authorId,
-                                        ) ??
-                                        [],
+                                    reads: reads,
                                     id: widget.item.value.id,
                                     getUser: widget.getUser,
                                   ),

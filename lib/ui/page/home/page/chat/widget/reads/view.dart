@@ -152,7 +152,7 @@ class ChatItemInfo extends StatelessWidget {
                       ),
                     ),
                     leading: [
-                      Container(
+                      Padding(
                         padding: const EdgeInsets.only(left: 20, right: 12),
                         child: SvgLoader.asset(
                           'assets/icons/search.svg',

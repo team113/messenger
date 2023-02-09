@@ -675,6 +675,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    final List<LastChatRead> reads = widget.chat.value?.lastReads
+            .where(
+              (e) =>
+                  !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
+                  e.memberId != widget.forwards.first.value.authorId,
+            )
+            .toList() ??
+        [];
+
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
 
@@ -838,15 +847,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               onPressed: () => ChatItemInfo.show(
                                 context,
                                 id: widget.forwards.first.value.id,
-                                reads: widget.chat.value?.lastReads.where(
-                                      (e) =>
-                                          !e.at.val.isBefore(widget
-                                              .forwards.first.value.at.val) &&
-                                          e.memberId !=
-                                              widget.forwards.first.value
-                                                  .authorId,
-                                    ) ??
-                                    [],
+                                reads: reads,
                                 getUser: widget.getUser,
                               ),
                             ),
@@ -974,19 +975,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     onPressed: () => ChatItemInfo.show(
                                       context,
                                       id: widget.forwards.first.value.id,
-                                      reads: widget.chat.value?.lastReads.where(
-                                            (e) =>
-                                                !e.at.val.isBefore(widget
-                                                    .forwards
-                                                    .first
-                                                    .value
-                                                    .at
-                                                    .val) &&
-                                                e.memberId !=
-                                                    widget.forwards.first.value
-                                                        .authorId,
-                                          ) ??
-                                          [],
+                                      reads: reads,
                                       getUser: widget.getUser,
                                     ),
                                     child: Row(
