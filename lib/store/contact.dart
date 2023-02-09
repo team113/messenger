@@ -138,7 +138,7 @@ class ContactRepository implements AbstractContactRepository {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          contacts[event.element.value.id] =
+          contacts[event.element.value.id] ??=
               HiveRxChatContact(_userRepo, event.element)..init();
           _putEntry(event.element);
           break;

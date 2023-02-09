@@ -23,7 +23,6 @@ import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/contact.dart';
-import '/store/model/contact.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact extends RxChatContact {

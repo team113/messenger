@@ -136,9 +136,6 @@ class ChatController extends GetxController {
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
-
   /// Indicator whether an ongoing horizontal scroll is happening.
   ///
   /// Used to discard any vertical gestures while this is `true`.

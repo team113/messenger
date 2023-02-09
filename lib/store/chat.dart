@@ -191,7 +191,7 @@ class ChatRepository implements AbstractChatRepository {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          _chats[event.element.value.id] =
+          _chats[event.element.value.id] ??=
               HiveRxChat(this, _chatLocal, _draftLocal, event.element)
                 ..init()
                 ..subscribe();
