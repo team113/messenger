@@ -275,7 +275,7 @@ Widget _name(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.login.text.isEmpty
           ? null
@@ -303,7 +303,7 @@ Widget _status(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.status.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.status.text.isEmpty
           ? null
@@ -375,7 +375,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                     ),
                   );
 
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.link.isEmpty.value
               ? null
@@ -444,7 +444,7 @@ Widget _login(MyProfileController c, BuildContext context) {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.login.text));
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.login.text.isEmpty
               ? null
@@ -552,7 +552,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               hint: 'label_email'.l10n,
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
@@ -726,7 +726,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               ),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
             ),

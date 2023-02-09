@@ -31,6 +31,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
+import 'backoff.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -108,14 +109,14 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a stream broadcasting the application's window size changes.
-  Stream<Size> get onResized {
-    StreamController<Size>? controller;
+  Stream<MapEntry<Size, Offset>> get onResized {
+    StreamController<MapEntry<Size, Offset>>? controller;
 
     final _WindowListener listener = _WindowListener(
-      onResized: (size) => controller!.add(size),
+      onResized: (pair) => controller!.add(pair),
     );
 
-    controller = StreamController<Size>(
+    controller = StreamController<MapEntry<Size, Offset>>(
       onListen: () => WindowManager.instance.addListener(listener),
       onCancel: () => WindowManager.instance.removeListener(listener),
     );
@@ -265,50 +266,47 @@ class PlatformUtilsImpl {
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-  }) {
-    // Calls the provided [callback] using the exponential backoff algorithm.
-    Future<T?> withBackoff<T>(Future<T> Function() callback) async {
-      Duration backoff = Duration.zero;
-      T? result;
+  }) async {
+    dynamic completeWith;
 
-      while (result == null) {
-        try {
-          await Future.delayed(backoff);
-
-          if (cancelToken?.isCancelled == true) {
-            return null;
-          }
-
-          result = await callback();
-          return result;
-        } catch (e) {
-          // Rethrow if any other than `404` error is thrown.
-          if (e is! DioError || e.response?.statusCode != 404) {
-            rethrow;
-          }
-
-          if (backoff.inMilliseconds == 0) {
-            backoff = 125.milliseconds;
-          } else if (backoff < 16.seconds) {
-            backoff *= 2;
+    CancelableOperation<File?>? operation;
+    operation = CancelableOperation.fromFuture(
+      Future(() async {
+        // Rethrows the [exception], if any other than `404` is thrown.
+        void onError(dynamic exception) {
+          if (exception is! DioError || exception.response?.statusCode != 404) {
+            completeWith = exception;
+            operation?.cancel();
           }
         }
-      }
 
-      return result;
-    }
-
-    CancelableOperation<File?> operation = CancelableOperation.fromFuture(
-      Future(() async {
         if (PlatformUtils.isWeb) {
-          await withBackoff(() => WebUtils.downloadFile(url, filename));
+          await Backoff.run(
+            () async {
+              try {
+                await WebUtils.downloadFile(url, filename);
+              } catch (e) {
+                onError(e);
+              }
+            },
+            cancelToken,
+          );
         } else {
           File? file;
 
           // Retry fetching the size unless any other that `404` error is
           // thrown.
-          file = await withBackoff<File?>(
-            () => fileExists(filename, size: size, url: url),
+          file = await Backoff.run(
+            () async {
+              try {
+                return await fileExists(filename, size: size, url: url);
+              } catch (e) {
+                onError(e);
+              }
+
+              return null;
+            },
+            cancelToken,
           );
 
           if (file == null) {
@@ -323,13 +321,20 @@ class PlatformUtilsImpl {
 
             // Retry the downloading unless any other that `404` error is
             // thrown.
-            await withBackoff(
-              () => dio.download(
-                url,
-                file!.path,
-                onReceiveProgress: onReceiveProgress,
-                cancelToken: cancelToken,
-              ),
+            await Backoff.run(
+              () async {
+                try {
+                  await dio.download(
+                    url,
+                    file!.path,
+                    onReceiveProgress: onReceiveProgress,
+                    cancelToken: cancelToken,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
+              },
+              cancelToken,
             );
 
             return file;
@@ -342,7 +347,12 @@ class PlatformUtilsImpl {
 
     cancelToken?.whenCancel.whenComplete(operation.cancel);
 
-    return operation.valueOrCancellation();
+    final File? result = await operation.valueOrCancellation();
+    if (completeWith != null) {
+      throw completeWith;
+    }
+
+    return result;
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
@@ -405,7 +415,7 @@ class _WindowListener extends WindowListener {
   final VoidCallback? onBlur;
 
   /// Callback, called when the window resizes.
-  final void Function(Size size)? onResized;
+  final void Function(MapEntry<Size, Offset> pair)? onResized;
 
   /// Callback, called when the window moves.
   final void Function(Offset offset)? onMoved;
@@ -423,8 +433,12 @@ class _WindowListener extends WindowListener {
   void onWindowBlur() => onBlur?.call();
 
   @override
-  void onWindowResized() async =>
-      onResized?.call(await windowManager.getSize());
+  void onWindowResized() async => onResized?.call(
+        MapEntry<Size, Offset>(
+          await windowManager.getSize(),
+          await windowManager.getPosition(),
+        ),
+      );
 
   @override
   void onWindowMoved() async =>

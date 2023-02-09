@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -33,15 +34,20 @@ import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/animated_cliprrect.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -74,6 +80,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             return FloatingFit<Participant>(
               primary: c.primary.first,
               panel: c.secondary.first,
+              onSwapped: (p, _) => c.center(p),
               fit: !c.minimized.isFalse,
               intersection: c.dockRect,
               onManipulated: (bool m) => c.secondaryManipulated.value = m,
@@ -110,9 +117,12 @@ Widget mobileCall(CallController c, BuildContext context) {
             );
           }
 
+          final Participant? center =
+              c.secondary.isNotEmpty ? c.primary.firstOrNull : null;
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
-            center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
+            center: center,
             fit: c.minimized.value,
             itemBuilder: (e) {
               return Obx(() {
@@ -120,25 +130,114 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                // TODO: Implement opened context menu detection for
-                //       `hovered` indicator.
-                return Stack(
-                  children: [
-                    const ParticipantDecoratorWidget(),
-                    IgnorePointer(
-                      child: ParticipantWidget(
-                        e,
-                        offstageUntilDetermined: true,
-                        useCallCover: true,
+                // Builds the [Participant] with a [AnimatedClipRRect].
+                Widget builder(bool animated) {
+                  final Widget stack = Stack(
+                    children: [
+                      const ParticipantDecoratorWidget(),
+                      IgnorePointer(
+                        child: ParticipantWidget(
+                          e,
+                          offstageUntilDetermined: true,
+                          useCallCover: true,
+                        ),
                       ),
+                      ParticipantOverlayWidget(
+                        e,
+                        muted: muted,
+                        hovered: animated,
+                        preferBackdrop: !c.minimized.value,
+                      ),
+                    ],
+                  );
+
+                  return AnimatedClipRRect(
+                    key: Key(e.member.id.toString()),
+                    borderRadius: animated
+                        ? BorderRadius.circular(10)
+                        : BorderRadius.zero,
+                    child: AnimatedContainer(
+                      duration: 200.milliseconds,
+                      decoration: BoxDecoration(
+                        color: animated
+                            ? const Color(0xFF132131)
+                            : const Color(0x00132131),
+                      ),
+                      width: animated
+                          ? MediaQuery.of(context).size.width - 20
+                          : null,
+                      height: animated
+                          ? MediaQuery.of(context).size.height / 2
+                          : null,
+                      child: stack,
                     ),
-                    ParticipantOverlayWidget(
-                      e,
-                      muted: muted,
-                      hovered: false,
-                      preferBackdrop: !c.minimized.value,
-                    ),
+                  );
+                }
+
+                return ContextMenuRegion(
+                  actions: [
+                    if (center == e)
+                      ContextMenuButton(
+                        label: 'btn_call_uncenter'.l10n,
+                        onPressed: c.focusAll,
+                        trailing: const Icon(Icons.center_focus_weak),
+                      )
+                    else
+                      ContextMenuButton(
+                        label: 'btn_call_center'.l10n,
+                        onPressed: () => c.center(e),
+                        trailing: const Icon(Icons.center_focus_strong),
+                      ),
+                    if (e.member.id != c.me.id) ...[
+                      if (e.video.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label: e.video.value?.renderer.value != null
+                              ? 'btn_call_disable_video'.l10n
+                              : 'btn_call_enable_video'.l10n,
+                          onPressed: () => c.toggleVideoEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.videocam)
+                              : const Icon(Icons.videocam_off),
+                        ),
+                      if (e.audio.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label:
+                              (e.audio.value?.direction.value.isEnabled == true)
+                                  ? 'btn_call_disable_audio'.l10n
+                                  : 'btn_call_enable_audio'.l10n,
+                          onPressed: () => c.toggleAudioEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.volume_up)
+                              : const Icon(Icons.volume_off),
+                        ),
+                      ContextMenuButton(
+                        label: 'btn_call_remove_participant'.l10n,
+                        onPressed: () {},
+                        trailing: const Icon(Icons.remove_circle),
+                      ),
+                    ] else ...[
+                      ContextMenuButton(
+                        label: c.videoState.value.isEnabled
+                            ? 'btn_call_video_off'.l10n
+                            : 'btn_call_video_on'.l10n,
+                        onPressed: c.toggleVideo,
+                        trailing: c.videoState.value.isEnabled
+                            ? const Icon(Icons.videocam)
+                            : const Icon(Icons.videocam_off),
+                      ),
+                      ContextMenuButton(
+                        label: c.audioState.value.isEnabled
+                            ? 'btn_call_audio_off'.l10n
+                            : 'btn_call_audio_on'.l10n,
+                        onPressed: c.toggleAudio,
+                        trailing: e.video.value?.renderer.value != null
+                            ? const Icon(Icons.mic)
+                            : const Icon(Icons.mic_off),
+                      ),
+                    ],
                   ],
+                  unconstrained: true,
+                  builder: builder,
                 );
               });
             },
@@ -159,20 +258,55 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         return Stack(
           children: [
-            // Show an [AvatarWidget], if no [CallCover] is available.
-            if (!c.isGroup &&
-                c.chat.value?.callCover == null &&
-                c.minimized.value)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AvatarWidget.fromRxChat(c.chat.value, radius: 60),
-                ),
-              ),
+            // Display a [CallCover] of the call.
+            Obx(() {
+              final bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
-            // Or a [CallCover] otherwise.
-            if (c.chat.value?.callCover != null)
-              CallCoverWidget(c.chat.value?.callCover),
+              if (isDialog) {
+                final User? user = c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        ?.user
+                        .value ??
+                    c.chat.value?.chat.value.members
+                        .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
+                        ?.user;
+
+                return CallCoverWidget(c.chat.value?.callCover, user: user);
+              } else {
+                if (c.chat.value?.avatar.value != null) {
+                  final Avatar avatar = c.chat.value!.avatar.value!;
+                  return CallCoverWidget(
+                    UserCallCover(
+                      full: avatar.full,
+                      original: avatar.original,
+                      square: avatar.full,
+                      vertical: avatar.full,
+                    ),
+                  );
+                }
+              }
+
+              return const SizedBox();
+            }),
+
+            // Dim the primary view in a non-active call.
+            Obx(() {
+              final Widget child;
+
+              if (c.state.value == OngoingCallState.active) {
+                child = const SizedBox();
+              } else {
+                child = IgnorePointer(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: const Color(0x70000000),
+                  ),
+                );
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
 
             // Display call's state info only if minimized.
             AnimatedSwitcher(
@@ -233,6 +367,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                     )
                   : Container(),
             ),
+
+            if (isOutgoing)
+              const Padding(
+                padding: EdgeInsets.all(21.0),
+                child: Center(
+                  child: SpinKitDoubleBounce(
+                    color: Color(0xFFEEEEEE),
+                    size: 66,
+                    duration: Duration(milliseconds: 4500),
+                  ),
+                ),
+              ),
           ],
         );
       }));
@@ -601,7 +747,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                                       highlight: c.withVideo,
                                     ).build(expanded: true)),
                                     padding(
-                                        DeclineButton(c).build(expanded: true)),
+                                      DeclineButton(c).build(expanded: true),
+                                    ),
                                   ],
                           ),
                         ),
@@ -720,33 +867,40 @@ Widget _chat(BuildContext context, CallController c) {
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
+                            Text(
+                              c.duration.value.hhMmSs(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(color: Colors.white),
+                            ),
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 3),
+                          padding: const EdgeInsets.only(top: 5),
                           child: Row(
                             children: [
                               Text(
-                                'label_a_of_b'.l10nfmt({
-                                  'a': '${actualMembers.length}',
-                                  'b': '${c.chat.value?.members.length}',
-                                }),
+                                c.chat.value?.members.values
+                                        .firstWhereOrNull(
+                                          (e) => e.id != c.me.id.userId,
+                                        )
+                                        ?.user
+                                        .value
+                                        .status
+                                        ?.val ??
+                                    'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
                                     ?.copyWith(color: Colors.white),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                width: 1,
-                                height: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.color,
-                              ),
+                              const Spacer(),
                               Text(
-                                c.duration.value.hhMmSs(),
+                                'label_a_of_b'.l10nfmt({
+                                  'a': '${actualMembers.length}',
+                                  'b': '${c.chat.value?.members.length}',
+                                }),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall

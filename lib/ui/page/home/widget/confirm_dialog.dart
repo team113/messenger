@@ -68,7 +68,7 @@ class ConfirmDialog extends StatefulWidget {
   final int initial;
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
-  static Future<ConfirmDialog?> show(
+  static Future<T?> show<T>(
     BuildContext context, {
     String? description,
     required String title,
@@ -77,7 +77,7 @@ class ConfirmDialog extends StatefulWidget {
     List<Widget> additional = const [],
     int initial = 0,
   }) {
-    return ModalPopup.show<ConfirmDialog?>(
+    return ModalPopup.show<T?>(
       context: context,
       child: ConfirmDialog(
         description: description,

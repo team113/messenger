@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
@@ -47,6 +48,8 @@ class ResetAppHook extends Hook {
     await Future.delayed(Duration.zero);
     await Hive.close();
     await Hive.clean('hive');
+
+    svg.cache.clear();
   }
 
   @override
