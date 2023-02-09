@@ -325,6 +325,16 @@ class UserView extends StatelessWidget {
             onPressed: c.isBlacklisted == true
                 ? c.unblacklist
                 : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CircularProgressIndicator();
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
           );
         }),
         action(text: 'btn_report'.l10n, onPressed: () {}),

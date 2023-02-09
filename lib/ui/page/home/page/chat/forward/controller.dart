@@ -107,6 +107,7 @@ class ChatForwardController extends GetxController {
 
         try {
           final List<Future> uploads = send.attachments
+              .map((e) => e.value)
               .whereType<LocalAttachment>()
               .map((e) => e.upload.value?.future)
               .whereNotNull()
