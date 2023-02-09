@@ -57,8 +57,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
-import 'reads/view.dart';
 import 'media_attachment.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatItem] visual representation.

@@ -147,9 +147,33 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
+                      final Widget child;
+
+                      if (c.searching.value) {
+                        child = SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          key: const Key('CloseSearch'),
+                          height: 15,
+                        );
+                      } else {
+                        child = c.groupCreating.value
+                            ? SvgLoader.asset(
+                                'assets/icons/close_primary.svg',
+                                key: const Key('CloseGroupSearching'),
+                                height: 15,
+                              )
+                            : SvgLoader.asset(
+                                'assets/icons/group.svg',
+                                key: const Key('CreateGroup'),
+                                width: 21.77,
+                                height: 18.44,
+                              );
+                      }
+
                       return WidgetButton(
-                        key:
-                            c.searching.value ? const Key('CloseSearch') : null,
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : null,
                         onPressed: () {
                           if (c.searching.value) {
                             c.closeSearch(!c.groupCreating.value);
@@ -165,13 +189,10 @@ class ChatsTabView extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 12, right: 18),
                           height: double.infinity,
                           child: SizedBox(
-                            width: c.searching.value || c.groupCreating.value
-                                ? 15
-                                : 21.77,
-                            child: SvgLoader.asset(
-                              c.searching.value || c.groupCreating.value
-                                  ? 'assets/icons/close_primary.svg'
-                                  : 'assets/icons/group.svg',
+                            width: 21.77,
+                            child: AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
                             ),
                           ),
                         ),
