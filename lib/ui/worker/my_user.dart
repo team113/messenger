@@ -77,7 +77,9 @@ class MyUserWorker extends DisposableService {
           } else {
             final String number = count > 9 ? '9+' : '$count';
             await WindowsTaskbar.setOverlayIcon(
-              ThumbnailToolbarAssetIcon('assets/ico/$number.ico'),
+              ThumbnailToolbarAssetIcon(
+                'assets/icons/notification/$number.ico',
+              ),
             );
           }
         } catch (_) {

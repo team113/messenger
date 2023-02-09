@@ -121,8 +121,8 @@ flutter:
     - assets/audio/
     - assets/conf.toml
     - assets/fonts/
-    - assets/ico/
     - assets/icons/
+    - assets/icons/notification
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
