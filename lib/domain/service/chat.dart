@@ -321,8 +321,10 @@ class ChatService extends DisposableService {
 extension ChatIsRoute on Chat {
   /// Indicates whether the provided [route] represents this [Chat].
   bool isRoute(String route, UserId? me) {
+    final UserId? member =
+        members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
+
     final bool byId = route.startsWith('${Routes.chat}/$id');
-    UserId? member = members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
     final bool byUser = isDialog &&
         member != null &&
         route.startsWith('${Routes.chat}/${ChatId.local(member)}');

@@ -208,9 +208,7 @@ class ChatRepository implements AbstractChatRepository {
             chat.init();
           }
 
-          chat ??= await _createLocalDialogChat(
-            UserId(id.val.replaceFirst('local_', '')),
-          );
+          chat ??= await _createLocalDialog(id.userId);
 
           _chats[id] = chat;
         }
@@ -223,46 +221,17 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> remove(ChatId id) => _chatLocal.remove(id);
 
-  /// Creates a local dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<HiveRxChat> _createLocalDialogChat(UserId responderId) async {
-    final ChatId chatId = ChatId.local(responderId);
-    final ChatData chatData = ChatData(
-      HiveChat(
-        Chat(
-          chatId,
-          members: [
-            ChatMember(
-              (await _userRepo.get(responderId))!.user.value,
-              PreciseDateTime.now(),
-            ),
-            ChatMember(
-              (await _userRepo.get(me!))!.user.value,
-              PreciseDateTime.now(),
-            ),
-          ],
-          kindIndex: ChatKind.values.indexOf(ChatKind.dialog),
-        ),
-        ChatVersion('0'),
-        null,
-        null,
-      ),
-      null,
-      null,
-    );
-
-    return _putEntry(chatData);
-  }
-
   /// Ensures the provided [Chat] is remotely accessible.
-  Future<HiveRxChat> ensureRemoteDialog(ChatId localId) async {
-    assert(localId.isLocal);
+  Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
+    if (chatId.isLocal) {
+      final ChatData chat = _chat(
+        await _graphQlProvider.createDialogChat(chatId.userId),
+      );
 
-    final ChatData chat = _chat(
-      await _graphQlProvider.createDialogChat(localId.userId),
-    );
+      return _putEntry(chat);
+    }
 
-    return _putEntry(chat);
+    return await get(chatId);
   }
 
   @override
@@ -672,7 +641,7 @@ class ChatRepository implements AbstractChatRepository {
     List<AttachmentId>? attachments,
   }) async {
     if (to.isLocal) {
-      to = (await ensureRemoteDialog(to)).id;
+      to = (await ensureRemoteDialog(to))!.id;
     }
 
     await _graphQlProvider.forwardChatItems(
@@ -834,6 +803,62 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
+
+  @override
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition newPosition;
+
+    if (position == null) {
+      final List<HiveRxChat> favorites = _chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList();
+
+      favorites.sort(
+        (a, b) => a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!),
+      );
+
+      final double? lowestFavorite = favorites.isEmpty
+          ? null
+          : favorites.first.chat.value.favoritePosition!.val;
+
+      newPosition = ChatFavoritePosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    chat?.chat.update((c) => c?.favoritePosition = newPosition);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.favoriteChat(id, newPosition);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChat(ChatId id) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+
+    chat?.chat.update((c) => c?.favoritePosition = null);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.unfavoriteChat(id);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
@@ -1231,62 +1256,6 @@ class ChatRepository implements AbstractChatRepository {
     return q.toData();
   }
 
-  @override
-  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
-    final HiveRxChat? chat = _chats[id];
-    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
-    final ChatFavoritePosition newPosition;
-
-    if (position == null) {
-      final List<HiveRxChat> favorites = _chats.values
-          .where((e) => e.chat.value.favoritePosition != null)
-          .toList();
-
-      favorites.sort(
-        (a, b) => a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!),
-      );
-
-      final double? lowestFavorite = favorites.isEmpty
-          ? null
-          : favorites.first.chat.value.favoritePosition!.val;
-
-      newPosition = ChatFavoritePosition(
-        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
-      );
-    } else {
-      newPosition = position;
-    }
-
-    chat?.chat.update((c) => c?.favoritePosition = newPosition);
-    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-
-    try {
-      await _graphQlProvider.favoriteChat(id, newPosition);
-    } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> unfavoriteChat(ChatId id) async {
-    final HiveRxChat? chat = _chats[id];
-    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
-
-    chat?.chat.update((c) => c?.favoritePosition = null);
-    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-
-    try {
-      await _graphQlProvider.unfavoriteChat(id);
-    } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
-  }
-
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteChatsSubscription() async {
     _favoriteChatsSubscription?.cancel();
@@ -1382,6 +1351,37 @@ class ChatRepository implements AbstractChatRepository {
     } else {
       throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
     }
+  }
+
+  /// Returns a [HiveRxChat] being a local [Chat]-dialog between the given
+  /// [responderId] and the authenticated [MyUser].
+  Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
+    final ChatId chatId = ChatId.local(responderId);
+    final ChatData chatData = ChatData(
+      HiveChat(
+        Chat(
+          chatId,
+          members: [
+            ChatMember(
+              (await _userRepo.get(responderId))!.user.value,
+              PreciseDateTime.now(),
+            ),
+            ChatMember(
+              (await _userRepo.get(me!))!.user.value,
+              PreciseDateTime.now(),
+            ),
+          ],
+          kindIndex: ChatKind.values.indexOf(ChatKind.dialog),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
+      ),
+      null,
+      null,
+    );
+
+    return _putEntry(chatData);
   }
 }
 

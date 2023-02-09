@@ -243,7 +243,7 @@ class LastChatRead {
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
-  const ChatId(String val) : super(val);
+  const ChatId(super.val);
 
   /// Constructs a dummy [ChatId].
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');

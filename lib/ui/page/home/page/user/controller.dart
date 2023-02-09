@@ -232,9 +232,7 @@ class UserController extends GetxController {
   }
 
   /// Opens a [Chat]-dialog with this [user].
-  ///
-  /// Creates a new one if it doesn't exist.
-  Future<void> openChat() async {
+  void openChat() {
     router.chat(user!.user.value.dialog, push: true);
   }
 

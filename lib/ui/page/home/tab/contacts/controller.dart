@@ -278,9 +278,8 @@ class ContactsTabController extends GetxController {
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
   Future<void> _call(User user, bool withVideo) async {
-    ChatId dialog = user.dialog;
     try {
-      await _calls.call(dialog, withVideo: withVideo);
+      await _calls.call(user.dialog, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {

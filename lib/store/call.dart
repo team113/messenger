@@ -53,7 +53,7 @@ class CallRepository extends DisposableInterface
   });
 
   /// Callback, called when the provided [Chat] should be remotely accessible.
-  Future<RxChat> Function(ChatId id)? ensureRemoteDialog;
+  Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -197,7 +197,7 @@ class CallRepository extends DisposableInterface
   }) async {
     // TODO: Call should be displayed right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
-      chatId = (await ensureRemoteDialog!.call(chatId)).id;
+      chatId = (await ensureRemoteDialog!.call(chatId))!.id;
     }
 
     if (calls[chatId] != null) {

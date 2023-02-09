@@ -140,13 +140,11 @@ class User extends HiveObject {
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
 
-  /// Returns [ChatId] of the dialog with this [User].
+  /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);
 
-  /// Sets the [dialog] value of this [User].
-  set dialog(ChatId dialog) {
-    _dialog = dialog;
-  }
+  /// Sets the provided [ChatId] as a [dialog] of this [User].
+  set dialog(ChatId dialog) => _dialog = dialog;
 }
 
 /// Unique ID of an [User].
