@@ -198,7 +198,7 @@ class _ChatViewState extends State<ChatView>
                           WidgetButton(
                             onPressed: () => c.call(true),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_video_call${c.chat?.callCost == 0 ? '' : '_paid'}.svg',
+                              'assets/icons/chat_video_call${c.chat?.callCost == 0 ? '' : ''}.svg',
                               height: 17,
                             ),
                           ),
@@ -206,7 +206,7 @@ class _ChatViewState extends State<ChatView>
                           WidgetButton(
                             onPressed: () => c.call(false),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call${c.chat?.callCost == 0 ? '' : '_paid'}.svg',
+                              'assets/icons/chat_audio_call${c.chat?.callCost == 0 ? '' : ''}.svg',
                               height: 19,
                             ),
                           ),
@@ -972,6 +972,7 @@ class _ChatViewState extends State<ChatView>
                   style: style.systemMessageStyle,
                 ),
               ),
+              const SizedBox(height: 5),
               Text(
                 '''- \$$messageCost per message
 - \$$callCost per call minute''',

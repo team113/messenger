@@ -507,7 +507,7 @@ class MessageFieldView extends StatelessWidget {
                             )
                           : SvgLoader.asset(
                               key: sendKey ?? const Key('Send'),
-                              'assets/icons/send${paid ? '_paid' : ''}.svg',
+                              'assets/icons/send${paid ? '' : ''}.svg',
                               height: 22.85,
                               width: 25.18,
                             ),

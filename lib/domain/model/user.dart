@@ -52,8 +52,14 @@ class User extends HiveObject {
     this.isBlacklisted = false,
     this.lastSeenAt,
   }) {
-    messageCost = name?.val == 'alex3' || name?.val == 'kirey' ? 2 : 0;
-    callCost = name?.val == 'alex3' || name?.val == 'kirey' ? 1 : 0;
+    messageCost =
+        name?.val == 'alex3' || name?.val == 'alex1' || name?.val == 'kirey'
+            ? 2
+            : 0;
+    callCost =
+        name?.val == 'alex3' || name?.val == 'alex1' || name?.val == 'kirey'
+            ? 1
+            : 0;
   }
 
   /// Unique ID of this [User].
