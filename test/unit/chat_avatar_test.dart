@@ -109,7 +109,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   test('ChatService successfully adds and resets chat avatar', () async {
     when(graphQlProvider.updateChatAvatar(

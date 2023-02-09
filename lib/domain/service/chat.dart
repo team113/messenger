@@ -249,7 +249,7 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
+  Stream<dynamic> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated

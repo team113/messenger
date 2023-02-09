@@ -152,6 +152,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           url: attachment.original.url,
           checksum: attachment.original.checksum,
           height: widget.height,
+          onError: widget.onError,
         );
       }
     }
