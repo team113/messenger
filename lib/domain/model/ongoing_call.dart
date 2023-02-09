@@ -268,6 +268,8 @@ class OngoingCall {
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
 
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
   StreamSubscription? _devicesSubscription;
 
   /// [ChatItemId] of this [OngoingCall].
@@ -306,6 +308,7 @@ class OngoingCall {
       members[_me] = CallMember.me(_me);
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
+        print('[$runtimeType] onDeviceChange');
         final List<MediaDeviceInfo> previous =
             List.from(devices, growable: false);
 
@@ -565,9 +568,9 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
-              await _updateTracks();
-            }
+            // if (!isActive || members.length <= 1) {
+            await _updateTracks();
+            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -623,15 +626,15 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
-              await _updateTracks();
-            }
+            // if (!isActive || members.length <= 1) {
+            await _updateTracks();
+            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              _errors.add('unmuteAudio() call failed with $e');
+              _errors.add('unmuteAudio() call failed with $e, ${e.message()}');
               rethrow;
             }
           } catch (e) {
@@ -671,9 +674,9 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
-              await _updateTracks();
-            }
+            // if (!isActive || members.length <= 1) {
+            await _updateTracks();
+            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -1237,7 +1240,9 @@ class OngoingCall {
       _initRoom();
     }
 
+    print('joinRoom...');
     await _room?.join('$link/$_me?token=$creds');
+    print('done');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1248,6 +1253,7 @@ class OngoingCall {
     if (_room != null) {
       try {
         MediaUtils.jason?.closeRoom(_room!);
+        _room!.free();
       } catch (_) {
         // No-op, as the room might be in a detached state.
       }
@@ -1288,9 +1294,9 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          if (!isActive || members.length <= 1) {
-            await _updateTracks();
-          }
+          // if (!isActive || members.length <= 1) {
+          await _updateTracks();
+          // }
         } catch (_) {
           // No-op.
         }

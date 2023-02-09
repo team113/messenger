@@ -35,4 +35,13 @@ class MediaUtils {
 
     return _devicesController!.stream;
   }
+
+  static Future<List<MediaDeviceInfo>> enumerateDevices([
+    MediaDeviceKind? kind,
+  ]) async {
+    return (await mediaManager?.enumerateDevices() ?? [])
+        .whereNot((e) => e.deviceId().isEmpty)
+        .where((e) => kind == null || e.kind() == kind)
+        .toList();
+  }
 }

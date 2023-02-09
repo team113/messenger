@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -41,52 +42,32 @@ class MicrophoneSwitchController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// Client for communicating with the [_mediaManager].
-  Jason? _jason;
-
-  /// Handle to a media manager tracking all the connected devices.
-  MediaManagerHandle? _mediaManager;
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
 
   @override
   void onInit() async {
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => _enumerateDevices());
+    _devicesSubscription = MediaUtils.onDeviceChange.listen(
+      (e) => devices.value =
+          e.where((d) => d.kind() == MediaDeviceKind.audioinput).toList(),
+    );
 
-      await WebUtils.microphonePermission();
-      await _enumerateDevices();
-    } catch (_) {
-      // [Jason] may be unsupported on the current platform.
-      _jason = null;
-      _mediaManager = null;
-    }
+    await WebUtils.microphonePermission();
+    devices.value =
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioinput);
 
     super.onInit();
   }
 
   @override
   void onClose() {
-    _mediaManager?.free();
-    _mediaManager = null;
-    _jason?.free();
-    _jason = null;
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default microphone device.
   Future<void> setAudioDevice(String id) async {
     await _settingsRepository.setAudioDevice(id);
-  }
-
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
-  /// available media input devices, such as microphones, cameras, and so forth.
-  Future<void> _enumerateDevices() async {
-    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
-        .where(
-          (e) =>
-              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.audioinput,
-        )
-        .toList();
   }
 }

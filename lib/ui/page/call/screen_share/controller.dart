@@ -24,6 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/service/call.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import 'view.dart';
 
@@ -58,12 +59,6 @@ class ScreenShareController extends GetxController {
   /// identified by the [OngoingCall.chatId] is removed.
   final CallService _callService;
 
-  /// Handle to a media manager tracking all the connected devices.
-  late MediaManagerHandle _mediaManager;
-
-  /// Client for communication with a media server.
-  late Jason _jason;
-
   /// Stored [LocalMediaTrack]s to free in the [onClose].
   final List<LocalMediaTrack> _localTracks = [];
 
@@ -92,9 +87,6 @@ class ScreenShareController extends GetxController {
       }
     });
 
-    _jason = Jason();
-    _mediaManager = _jason.mediaManager();
-
     for (var e in call.value.displays) {
       initRenderer(e);
     }
@@ -106,19 +98,15 @@ class ScreenShareController extends GetxController {
   void onClose() {
     _callsSubscription?.cancel();
     _displaysSubscription?.cancel();
-
     freeTracks();
-    _mediaManager.free();
-    _jason.free();
-
     super.onClose();
   }
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
   Future<void> initRenderer(MediaDisplayInfo display) async {
-    final List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
-      _mediaStreamSettings(display.deviceId()),
-    );
+    final List<LocalMediaTrack> tracks = await MediaUtils.mediaManager
+            ?.initLocalTracks(_mediaStreamSettings(display.deviceId())) ??
+        [];
 
     _localTracks.addAll(tracks);
 
