@@ -122,7 +122,7 @@ flutter:
     - assets/conf.toml
     - assets/fonts/
     - assets/icons/
-    - assets/icons/notification
+    - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
