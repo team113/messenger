@@ -919,44 +919,44 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Border border;
     final TextStyle textStyle;
 
-    if (widget.paid) {
-      final Color borderColor = _fromMe
-          ? _isRead
-              // ? Color(0xFF61C061)
-              ? Color.fromARGB(255, 52, 204, 89)
-              : Color(0xFFE4F9D9)
-          : Color(0xFFEFF9E8);
+    // if (widget.paid) {
+    //   final Color borderColor = _fromMe
+    //       ? _isRead
+    //           // ? Color(0xFF61C061)
+    //           ? Color.fromARGB(255, 52, 204, 89)
+    //           : Color(0xFFE4F9D9)
+    //       : Color(0xFFEFF9E8);
 
-      border = Border.all(color: borderColor, width: 0.5);
+    //   border = Border.all(color: borderColor, width: 0.5);
 
-      background = _fromMe
-          ? _isRead
-              ? Color(0xFF67C967)
-              : Color(0xFFECFCE3)
-          : Color.fromRGBO(250, 255, 246, 1);
+    //   background = _fromMe
+    //       ? _isRead
+    //           ? Color(0xFF67C967)
+    //           : Color(0xFFECFCE3)
+    //       : Color.fromRGBO(250, 255, 246, 1);
 
-      textStyle = _fromMe
-          // ? style.boldBody.copyWith(color: Colors.white)
-          ? style.boldBody
-          : style.boldBody;
-    } else {
-      border = _fromMe
-          ? _isRead
-              ? style.secondaryBorder
-              : Border.all(
-                  color: const Color(0xFFDAEDFF),
-                  width: 0.5,
-                )
-          : style.primaryBorder;
+    //   textStyle = _fromMe
+    //       // ? style.boldBody.copyWith(color: Colors.white)
+    //       ? style.boldBody
+    //       : style.boldBody;
+    // } else {
+    border = _fromMe
+        ? _isRead
+            ? style.secondaryBorder
+            : Border.all(
+                color: const Color(0xFFDAEDFF),
+                width: 0.5,
+              )
+        : style.primaryBorder;
 
-      background = _fromMe
-          ? _isRead
-              ? style.readMessageColor
-              : style.unreadMessageColor
-          : style.messageColor;
+    background = _fromMe
+        ? _isRead
+            ? style.readMessageColor
+            : style.unreadMessageColor
+        : style.messageColor;
 
-      textStyle = style.boldBody;
-    }
+    textStyle = style.boldBody;
+    // }
 
     return _rounded(
       context,
