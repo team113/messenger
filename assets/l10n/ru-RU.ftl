@@ -222,6 +222,7 @@ btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
 colon_space = :{" "}
 comma_space = ,{" "}
+date_hours = {$day}.{$month}.{$year} {$hour}:{$minute}
 dot = .
 dot_space = .{" "}
 err_account_not_found = Указанный аккаунт не найден

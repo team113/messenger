@@ -233,8 +233,13 @@ class ChatItemInfo extends StatelessWidget {
                                   const SizedBox(height: 3),
                                   Text(
                                     'label_read_at'.l10nfmt({
-                                      'date':
-                                          '${DateFormat.yMd().format(time)} ${DateFormat.Hm().format(time)}'
+                                      'date': 'date_hours'.l10nfmt({
+                                        'day': DateFormat.d().format(time),
+                                        'month': DateFormat.M().format(time),
+                                        'year': DateFormat.y().format(time),
+                                        'hour': DateFormat.H().format(time),
+                                        'minute': DateFormat.m().format(time),
+                                      })
                                     }),
                                     style: TextStyle(
                                       color:

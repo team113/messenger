@@ -679,7 +679,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             .where(
               (e) =>
                   !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
-                  e.memberId != widget.forwards.first.value.authorId,
+                  e.memberId != widget.authorId,
             )
             .toList() ??
         [];

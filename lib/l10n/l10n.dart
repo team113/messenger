@@ -21,8 +21,6 @@ import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 
 /// Localization of this application.
 class L10n {
@@ -68,8 +66,6 @@ class L10n {
 
     if (languages.contains(lang)) {
       chosen.value = lang;
-      await initializeDateFormatting(lang.name);
-      Intl.defaultLocale = lang.locale.toString();
       _bundle = FluentBundle(lang.toString())
         ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
       if (refresh) {
