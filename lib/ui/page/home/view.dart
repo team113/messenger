@@ -93,7 +93,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return GetBuilder(
@@ -314,6 +317,11 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),

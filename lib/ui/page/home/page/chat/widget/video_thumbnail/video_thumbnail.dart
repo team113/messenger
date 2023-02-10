@@ -158,13 +158,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                 ],
               ),
             )
-          : SizedBox(
-              width: 250,
-              height: widget.height ?? 250,
-              child: _hasError
-                  ? null
-                  : const Center(child: CircularProgressIndicator()),
-            ),
+          : SizedBox(width: 250, height: widget.height ?? 250),
     );
   }
 
