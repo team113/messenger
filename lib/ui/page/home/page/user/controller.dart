@@ -374,7 +374,9 @@ class UserController extends GetxController {
 
       if (user != null) {
         messageCost = TextFieldState(
-          text: user!.user.value.messageCost.toString(),
+          text: user!.user.value.messageCost == 0
+              ? null
+              : user!.user.value.messageCost.toString(),
           approvable: true,
           onChanged: (s) async {
             if (s.text.isNotEmpty) {
@@ -389,11 +391,14 @@ class UserController extends GetxController {
           },
           onSubmitted: (s) {
             user?.user.value.messageCost = double.tryParse(s.text) ?? 0;
+            user?.dialog.value?.chat.refresh();
           },
         );
 
         callsCost = TextFieldState(
-          text: user!.user.value.callCost.toString(),
+          text: user!.user.value.callCost == 0
+              ? null
+              : user!.user.value.callCost.toString(),
           approvable: true,
           onChanged: (s) async {
             if (s.text.isNotEmpty) {
@@ -408,6 +413,7 @@ class UserController extends GetxController {
           },
           onSubmitted: (s) {
             user?.user.value.callCost = double.tryParse(s.text) ?? 0;
+            user?.dialog.value?.chat.refresh();
           },
         );
       }
