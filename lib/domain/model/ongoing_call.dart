@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/util/media_utils.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -29,6 +28,7 @@ import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'chat.dart';
@@ -556,9 +556,7 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            // if (!isActive || members.length <= 1) {
             await _updateTracks();
-            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -614,9 +612,7 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
-            // if (!isActive || members.length <= 1) {
             await _updateTracks();
-            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -662,9 +658,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            // if (!isActive || members.length <= 1) {
             await _updateTracks();
-            // }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -1241,7 +1235,6 @@ class OngoingCall {
     if (_room != null) {
       try {
         MediaUtils.jason?.closeRoom(_room!);
-        _room!.free();
       } catch (_) {
         // No-op, as the room might be in a detached state.
       }
@@ -1282,9 +1275,7 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          // if (!isActive || members.length <= 1) {
           await _updateTracks();
-          // }
         } catch (_) {
           // No-op.
         }
