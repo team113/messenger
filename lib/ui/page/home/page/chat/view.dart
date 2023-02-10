@@ -340,58 +340,89 @@ class _ChatViewState extends State<ChatView>
                             },
                           )
                         },
-                        child: Stack(
+                        child: Column(
                           children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ContextMenuInterceptor(child: Container()),
-                            ),
-                            Scrollbar(
-                              controller: c.listController,
-                              child: Obx(() {
-                                return FlutterListView(
-                                  key: const Key('MessagesList'),
-                                  controller: c.listController,
-                                  physics: c.isHorizontalScroll.isTrue ||
-                                          (PlatformUtils.isDesktop &&
-                                              c.isItemDragged.isTrue)
-                                      ? const NeverScrollableScrollPhysics()
-                                      : const BouncingScrollPhysics(),
-                                  delegate: FlutterListViewDelegate(
-                                    (context, i) => _listElement(context, c, i),
-                                    // ignore: invalid_use_of_protected_member
-                                    childCount: c.elements.value.length,
-                                    keepPosition: true,
-                                    onItemKey: (i) => c.elements.values
-                                        .elementAt(i)
-                                        .id
-                                        .toString(),
-                                    onItemSticky: (i) => c.elements.values
-                                        .elementAt(i) is DateTimeElement,
-                                    initIndex: c.initIndex,
-                                    initOffset: c.initOffset,
-                                    initOffsetBasedOnBottom: false,
-                                  ),
-                                );
-                              }),
-                            ),
                             Obx(() {
-                              if ((c.chat!.status.value.isSuccess ||
-                                      c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty) {
-                                return Center(
-                                  child: Text('label_no_messages'.l10n),
-                                );
-                              }
-                              if (c.chat!.status.value.isLoading) {
-                                return const Center(
-                                  child: CustomProgressIndicator(),
-                                );
+                              if (c.chat!.messageCost == 0 &&
+                                  c.chat!.callCost == 0) {
+                                return const SizedBox();
                               }
 
-                              return const SizedBox();
+                              return _paidElement(
+                                c,
+                                1.25,
+                                0.21,
+                                user: c.chat!.members.values
+                                    .firstWhereOrNull((e) => e.id != c.me)
+                                    ?.user
+                                    .value,
+                              );
                             }),
+                            Obx(() {
+                              if (c.chat?.messageCost == 0) {
+                                return const SizedBox();
+                              }
+
+                              return _paidElement(c, 1.25, 0.21);
+                            }),
+                            Expanded(
+                              child: Stack(
+                                children: [
+                                  // Required for the [Stack] to take [Scaffold]'s
+                                  // size.
+                                  IgnorePointer(
+                                    child: ContextMenuInterceptor(
+                                        child: Container()),
+                                  ),
+                                  Scrollbar(
+                                    controller: c.listController,
+                                    child: Obx(() {
+                                      return FlutterListView(
+                                        key: const Key('MessagesList'),
+                                        controller: c.listController,
+                                        physics: c.isHorizontalScroll.isTrue ||
+                                                (PlatformUtils.isDesktop &&
+                                                    c.isItemDragged.isTrue)
+                                            ? const NeverScrollableScrollPhysics()
+                                            : const BouncingScrollPhysics(),
+                                        delegate: FlutterListViewDelegate(
+                                          (context, i) =>
+                                              _listElement(context, c, i),
+                                          // ignore: invalid_use_of_protected_member
+                                          childCount: c.elements.value.length,
+                                          keepPosition: true,
+                                          onItemKey: (i) => c.elements.values
+                                              .elementAt(i)
+                                              .id
+                                              .toString(),
+                                          onItemSticky: (i) => c.elements.values
+                                              .elementAt(i) is DateTimeElement,
+                                          initIndex: c.initIndex,
+                                          initOffset: c.initOffset,
+                                          initOffsetBasedOnBottom: false,
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                  Obx(() {
+                                    if ((c.chat!.status.value.isSuccess ||
+                                            c.chat!.status.value.isEmpty) &&
+                                        c.chat!.messages.isEmpty) {
+                                      return Center(
+                                        child: Text('label_no_messages'.l10n),
+                                      );
+                                    }
+                                    if (c.chat!.status.value.isLoading) {
+                                      return const Center(
+                                        child: CustomProgressIndicator(),
+                                      );
+                                    }
+
+                                    return const SizedBox();
+                                  }),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -926,58 +957,149 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  Widget _paidElement(ChatController c, double messageCost, double callCost) {
+  Widget _paidElement(
+    ChatController c,
+    double messageCost,
+    double callCost, {
+    User? user,
+  }) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final User? user = c.chat!.members.values
-        .firstWhereOrNull((e) => e.id != c.me)
-        ?.user
-        .value;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.only(
+          left: 4,
+          right: 4,
+          top: 4,
+          bottom: 4,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            width: 0.5,
+            color: const Color(0xFFD1FFCB),
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: style.systemMessageBorder,
-            color: style.systemMessageColor,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          color: const Color(0xFFF8FFF6),
+        ),
+        child: RichText(
+          textAlign: TextAlign.start,
+          text: TextSpan(
             children: [
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${user?.name?.val ?? user?.num.val}',
-                      style: style.systemMessageStyle.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => router.user(user!.id, push: true),
-                    ),
-                    const TextSpan(text: ' has set a fee for:'),
-                  ],
-                  style: style.systemMessageStyle,
+              if (user != null) ...[
+                TextSpan(
+                  text: user.name?.val ?? user.num.val,
+                  style: style.systemMessageStyle.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => router.user(user.id, push: true),
                 ),
+                const TextSpan(text: ' has set a fee of '),
+              ] else ...[
+                const TextSpan(text: 'You have set a fee of '),
+              ],
+              TextSpan(
+                text: '\$1.25',
+                style: style.systemMessageStyle.copyWith(color: Colors.black),
               ),
-              const SizedBox(height: 5),
-              Text(
-                '''- \$$messageCost per message
-- \$$callCost per call minute''',
-                style: style.systemMessageStyle,
+              const TextSpan(text: ' per incoming message and '),
+              TextSpan(
+                text: '\$1.25',
+                style: style.systemMessageStyle.copyWith(color: Colors.black),
               ),
+              const TextSpan(text: ' for incoming calls.'),
             ],
+            style: style.systemMessageStyle,
           ),
         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             RichText(
+//               textAlign: TextAlign.center,
+//               text: TextSpan(
+//                 children: [
+//                   TextSpan(
+//                     text: '${user?.name?.val ?? user?.num.val}',
+//                     style: style.systemMessageStyle.copyWith(
+//                       color: Theme.of(context).colorScheme.secondary,
+//                     ),
+//                     recognizer: TapGestureRecognizer()
+//                       ..onTap = () => router.user(user!.id, push: true),
+//                   ),
+//                   const TextSpan(text: ' has set a fee for:'),
+//                 ],
+//                 style: style.systemMessageStyle,
+//               ),
+//             ),
+//             const SizedBox(height: 5),
+//             Text(
+//               '''- incoming message - \$$messageCost
+// - incoming call - \$$callCost/min''',
+//               style: style.systemMessageStyle,
+//             ),
+//           ],
+//         ),
       ),
     );
   }
+
+//   Widget _paidElement(ChatController c, double messageCost, double callCost) {
+//     final Style style = Theme.of(context).extension<Style>()!;
+//     final User? user = c.chat!.members.values
+//         .firstWhereOrNull((e) => e.id != c.me)
+//         ?.user
+//         .value;
+
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 12),
+//       child: Center(
+//         child: Container(
+//           padding: const EdgeInsets.symmetric(
+//             horizontal: 12,
+//             vertical: 8,
+//           ),
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(15),
+//             border: style.systemMessageBorder,
+//             color: style.systemMessageColor,
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               RichText(
+//                 textAlign: TextAlign.center,
+//                 text: TextSpan(
+//                   children: [
+//                     TextSpan(
+//                       text: '${user?.name?.val ?? user?.num.val}',
+//                       style: style.systemMessageStyle.copyWith(
+//                         color: Theme.of(context).colorScheme.secondary,
+//                       ),
+//                       recognizer: TapGestureRecognizer()
+//                         ..onTap = () => router.user(user!.id, push: true),
+//                     ),
+//                     const TextSpan(text: ' has set a fee for:'),
+//                   ],
+//                   style: style.systemMessageStyle,
+//                 ),
+//               ),
+//               const SizedBox(height: 5),
+//               Text(
+//                 '''- incoming message - \$$messageCost
+// - incoming call - \$$callCost/min''',
+//                 style: style.systemMessageStyle,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.

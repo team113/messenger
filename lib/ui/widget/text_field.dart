@@ -44,6 +44,7 @@ class ReactiveTextField extends StatelessWidget {
     this.prefix,
     this.suffixColor,
     this.suffixSize,
+    this.suffixText,
     this.trailing,
     this.trailingWidth = 24,
     this.type,
@@ -53,6 +54,7 @@ class ReactiveTextField extends StatelessWidget {
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
+    this.prefixStyle,
     this.filled,
     this.treatErrorAsStatus = true,
     this.prefixIcon,
@@ -88,6 +90,7 @@ class ReactiveTextField extends StatelessWidget {
 
   final Color? suffixColor;
   final double? suffixSize;
+  final String? suffixText;
 
   /// Optional content padding.
   final EdgeInsets? padding;
@@ -136,6 +139,7 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional text prefix to display before the input.
   final String? prefixText;
+  final TextStyle? prefixStyle;
 
   /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
   /// be treated as a [RxStatus.error].
@@ -292,6 +296,8 @@ class ReactiveTextField extends StatelessWidget {
               decoration: InputDecoration(
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
+                suffixText: suffixText,
+                prefixStyle: prefixStyle,
                 prefix: prefix,
                 prefixIcon: prefixIcon,
                 prefixIconColor: prefixIconColor,

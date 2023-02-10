@@ -711,3 +711,4 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 btn_delete_contact = Delete contact
+label_get_paid_for_incoming = Get-Paid for Incoming

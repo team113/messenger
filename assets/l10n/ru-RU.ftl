@@ -733,3 +733,4 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
 btn_delete_contact = Удалить контакт
+label_get_paid_for_incoming = Get-Paid for Incoming

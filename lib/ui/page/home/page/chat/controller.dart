@@ -632,10 +632,10 @@ class ChatController extends GetxController {
         add(e);
       }
 
-      if (chat?.messageCost != 0 || chat?.callCost != 0) {
-        _paidElement = PaidElement(chat!.messageCost, chat!.callCost);
-        elements[_paidElement!.id] = _paidElement!;
-      }
+      // if (chat?.messageCost != 0 || chat?.callCost != 0) {
+      //   _paidElement = PaidElement(chat!.messageCost, chat!.callCost);
+      //   elements[_paidElement!.id] = _paidElement!;
+      // }
 
       // _topLoader = LoaderElement(
       //   PreciseDateTime(DateTime.fromMicrosecondsSinceEpoch(0)),

@@ -32,7 +32,7 @@ import '/util/platform_utils.dart';
 class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
-    Key? key,
+    super.key,
     this.source = MediaSourceKind.Device,
     this.borderRadius,
     this.enableContextMenu = true,
@@ -40,12 +40,12 @@ class RtcVideoView extends StatefulWidget {
     this.label,
     this.mirror = false,
     this.muted = false,
-    this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.framelessBuilder,
-  }) : super(key: key);
+    this.border,
+  });
 
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
@@ -87,8 +87,7 @@ class RtcVideoView extends StatefulWidget {
   /// Only effective under the web, since only web has default context menu.
   final bool enableContextMenu;
 
-  /// Optional outline of this video.
-  final Color? outline;
+  final Border? border;
 
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
@@ -176,6 +175,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// [GlobalKey] of the [VideoView].
   final GlobalKey _videoKey = GlobalKey();
 
+  final GlobalKey _animatedKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     Widget video = VideoView(
@@ -249,39 +250,23 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
-    Widget outlined(BoxFit? fit) => Container(
-          decoration: widget.outline == null
-              ? null
-              : BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: widget.outline!),
-                  borderRadius: widget.borderRadius,
-                ),
+    Widget outlined(BoxFit? fit) => AnimatedContainer(
+          key: _animatedKey,
+          duration: 200.milliseconds,
+          decoration: BoxDecoration(
+            border: widget.border,
+            borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
+          ),
           child: clipped(fit),
         );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        RtcVideoRenderer renderer = widget.renderer;
-
-        BoxFit? fit;
-        if (widget.source != MediaSourceKind.Display) {
-          fit = widget.fit;
-        }
-
-        // Calculate the default [BoxFit] if there's no explicit fit.
-        fit ??= RtcVideoView.determineBoxFit(
-          renderer,
-          widget.source,
-          constraints,
-          context,
-        );
-
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            outlined(fit),
-            AnimatedSwitcher(
+    Widget stack(BoxFit? fit) {
+      return Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          outlined(fit),
+          Positioned.fill(
+            child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(
@@ -331,8 +316,31 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                     )
                   : const SizedBox(width: 1, height: 1),
             ),
-          ],
+          ),
+        ],
+      );
+    }
+
+    if (widget.source == MediaSourceKind.Display || widget.fit != null) {
+      return stack(widget.fit ?? BoxFit.contain);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        BoxFit? fit;
+        if (widget.source != MediaSourceKind.Display) {
+          fit = widget.fit;
+        }
+
+        // Calculate the default [BoxFit] if there's no explicit fit.
+        fit ??= RtcVideoView.determineBoxFit(
+          widget.renderer,
+          widget.source,
+          constraints,
+          context,
         );
+
+        return stack(fit);
       },
     );
   }

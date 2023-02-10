@@ -96,6 +96,9 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [blacklist] is executing.
   final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
 
+  late final TextFieldState messageCost;
+  late final TextFieldState callsCost;
+
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
@@ -368,6 +371,47 @@ class UserController extends GetxController {
     try {
       user = await _userService.get(id);
       user?.listenUpdates();
+
+      if (user != null) {
+        messageCost = TextFieldState(
+          text: user!.user.value.messageCost.toString(),
+          approvable: true,
+          onChanged: (s) async {
+            if (s.text.isNotEmpty) {
+              if (!s.text.contains('.')) {
+                s.text = '${s.text}.00';
+              } else if (s.text.endsWith('.0')) {
+                s.text = '${s.text}0';
+              } else if (s.text.endsWith('.')) {
+                s.text = '${s.text}00';
+              }
+            }
+          },
+          onSubmitted: (s) {
+            user?.user.value.messageCost = double.tryParse(s.text) ?? 0;
+          },
+        );
+
+        callsCost = TextFieldState(
+          text: user!.user.value.callCost.toString(),
+          approvable: true,
+          onChanged: (s) async {
+            if (s.text.isNotEmpty) {
+              if (!s.text.contains('.')) {
+                s.text = '${s.text}.00';
+              } else if (s.text.endsWith('.0')) {
+                s.text = '${s.text}0';
+              } else if (s.text.endsWith('.')) {
+                s.text = '${s.text}00';
+              }
+            }
+          },
+          onSubmitted: (s) {
+            user?.user.value.callCost = double.tryParse(s.text) ?? 0;
+          },
+        );
+      }
+
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);

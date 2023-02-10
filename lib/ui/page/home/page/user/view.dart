@@ -17,7 +17,9 @@
 
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
@@ -44,6 +46,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'get_paid/view.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -221,6 +224,10 @@ class UserView extends StatelessWidget {
                       Block(
                         title: 'label_contact_information'.l10n,
                         children: [_num(c, context)],
+                      ),
+                      Block(
+                        title: 'label_get_paid_for_incoming'.l10n,
+                        children: [_paid(c, context)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
@@ -571,6 +578,79 @@ class UserView extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Returns a [User.name] copyable field.
+  Widget _paid(UserController c, BuildContext context) {
+    return Column(
+      children: [
+        _padding(
+          ReactiveTextField(
+            state: c.messageCost,
+            label: 'Fee per incoming message'.l10n,
+            prefixText: '\$',
+            // suffixText: 'per message',
+            prefixStyle: const TextStyle(color: Colors.black, fontSize: 15),
+            type: TextInputType.number,
+            formatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+              FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+            ],
+          ),
+        ),
+        _padding(
+          ReactiveTextField(
+            state: c.callsCost,
+            label: 'Fee per incoming call minute'.l10n,
+            prefixText: '\$',
+            prefixStyle: const TextStyle(color: Colors.black, fontSize: 15),
+            type: TextInputType.number,
+            formatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+              FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+          child: Row(
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'label_details'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await GetPaidView.show(context);
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    return _padding(
+      CopyableTextField(
+        key: const Key('PaidField'),
+        state: TextFieldState(
+          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+        ),
+        label: 'label_name'.l10n,
+        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
       ),
     );
   }
