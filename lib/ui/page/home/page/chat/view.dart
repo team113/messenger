@@ -415,12 +415,6 @@ class _ChatViewState extends State<ChatView>
                                       child: const Icon(Icons.arrow_downward),
                                     )
                                   : const SizedBox(),
-                          // : c.chat!.status.value.isLoadingMore || true
-                          //     ? const SizedBox.square(
-                          //         dimension: 40,
-                          //         child: CustomProgressIndicator(),
-                          //       )
-                          //     : const SizedBox(),
                         ),
                       );
                     }),

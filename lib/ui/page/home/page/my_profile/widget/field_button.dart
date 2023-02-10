@@ -16,8 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/util/platform_utils.dart';
+
+import '/themes.dart';
+import '/util/platform_utils.dart';
 
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -74,7 +75,9 @@ class FieldButton extends StatefulWidget {
   State<FieldButton> createState() => _FieldButtonState();
 }
 
+/// State of a [FieldButton] maintaining the [_hovered] indicator.
 class _FieldButtonState extends State<FieldButton> {
+  /// Indicator whether this [FieldButton] is hovered.
   bool _hovered = false;
 
   @override

@@ -315,7 +315,7 @@ class ChatInfoView extends StatelessWidget {
                 ),
                 if (c.chat?.chat.value.avatar != null) ...[
                   TextSpan(
-                    text: 'label_space_or_space'.l10n,
+                    text: 'space_or_space'.l10n,
                     style: const TextStyle(color: Colors.black, fontSize: 11),
                   ),
                   TextSpan(
@@ -628,10 +628,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -651,10 +648,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -699,10 +693,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -717,10 +708,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -735,10 +723,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -753,10 +738,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -771,10 +753,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),

@@ -21,8 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -40,12 +38,13 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
@@ -107,7 +106,6 @@ class MyProfileView extends StatelessWidget {
                                 alignment: Alignment.center,
                                 children: [
                                   WidgetButton(
-                                    // onPressed: c.uploadAvatar,
                                     onPressed: c.myUser.value?.avatar == null
                                         ? c.uploadAvatar
                                         : () async {
@@ -157,10 +155,10 @@ class MyProfileView extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 5),
-                              Obx(() {
-                                return SizedBox(
-                                  height: 20,
-                                  child: RichText(
+                              SizedBox(
+                                height: 20,
+                                child: Obx(() {
+                                  return RichText(
                                     text: TextSpan(
                                       children: [
                                         TextSpan(
@@ -170,7 +168,7 @@ class MyProfileView extends StatelessWidget {
                                         ),
                                         if (c.myUser.value?.avatar != null) ...[
                                           TextSpan(
-                                            text: 'label_space_or_space'.l10n,
+                                            text: 'space_or_space'.l10n,
                                             style: const TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 11),
@@ -190,32 +188,9 @@ class MyProfileView extends StatelessWidget {
                                         fontSize: 11,
                                       ),
                                     ),
-                                  ),
-                                );
-
-                                if (c.myUser.value?.avatar == null) {
-                                  return const SizedBox();
-                                }
-
-                                return Center(
-                                  child: WidgetButton(
-                                    key: const Key('DeleteAvatar'),
-                                    onPressed: c.deleteAvatar,
-                                    child: SizedBox(
-                                      height: 20,
-                                      child: Text(
-                                        'btn_delete'.l10n,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
+                                  );
+                                }),
+                              ),
                               const SizedBox(height: 10),
                               _name(c),
                               _presence(c, context),
@@ -1333,6 +1308,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           width: 23,
           height: 29,
           title: 'iOS',
+          link: 'messenger-ios.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(

@@ -193,7 +193,7 @@ class _HomeViewState extends State<HomeView> {
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
-                          beginOffset: const Offset(0.0, 1),
+                          beginOffset: const Offset(0.0, 5),
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
@@ -333,7 +333,6 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    backgroundColor: Colors.white,
                     body: Center(child: CustomProgressIndicator()),
                   )
               ],

@@ -86,6 +86,7 @@ class ChatInfoController extends GetxController {
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.

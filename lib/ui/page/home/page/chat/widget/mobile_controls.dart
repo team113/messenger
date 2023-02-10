@@ -345,7 +345,8 @@ class _MobileControlsState extends State<MobileControls>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).backgroundColor.withOpacity(0.5),
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

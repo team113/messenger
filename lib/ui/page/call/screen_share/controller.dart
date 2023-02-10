@@ -50,7 +50,10 @@ class ScreenShareController extends GetxController {
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
 
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// Currently selected [MediaDisplayInfo].
   final Rx<MediaDisplayInfo?> selected = Rx(null);
 
   /// Subscription for the [CallService.calls] changes.

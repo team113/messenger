@@ -29,7 +29,7 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
+  const CallCoverWidget(this.cover, {super.key, this.user});
 
   /// [UserCallCover] to display.
   final UserCallCover? cover;
@@ -66,6 +66,7 @@ class CallCoverWidget extends StatelessWidget {
             }
 
             return Container(
+              margin: const EdgeInsets.all(0.5),
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(

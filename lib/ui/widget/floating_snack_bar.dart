@@ -41,6 +41,7 @@ class FloatingSnackBar extends StatefulWidget {
   /// Callback, called when this [FloatingSnackBar] disappears.
   final VoidCallback? onEnd;
 
+  /// Bottom margin to apply to this [FloatingSnackBar].
   final double bottom;
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].

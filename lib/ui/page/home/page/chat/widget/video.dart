@@ -78,6 +78,7 @@ class _VideoState extends State<Video> {
   /// Indicator whether the [_initVideo] has failed.
   bool _hasError = false;
 
+  /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
   @override
@@ -89,8 +90,8 @@ class _VideoState extends State<Video> {
 
   @override
   void dispose() {
-    _loading?.cancel();
     widget.onController?.call(null);
+    _loading?.cancel();
     _controller.dispose();
     _chewie?.dispose();
     super.dispose();
