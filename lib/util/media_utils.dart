@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import 'log.dart';
+
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
 class MediaUtils {
@@ -18,7 +20,15 @@ class MediaUtils {
 
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
-    _jason ??= Jason();
+    if (_jason == null) {
+      _jason = Jason();
+      onPanic((e) {
+        Log.print('Panic: $e', 'Jason');
+        _jason = null;
+        _mediaManager = null;
+      });
+    }
+
     return _jason;
   }
 

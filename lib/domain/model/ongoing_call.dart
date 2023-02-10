@@ -1235,6 +1235,7 @@ class OngoingCall {
     if (_room != null) {
       try {
         MediaUtils.jason?.closeRoom(_room!);
+        _room!.free();
       } catch (_) {
         // No-op, as the room might be in a detached state.
       }
