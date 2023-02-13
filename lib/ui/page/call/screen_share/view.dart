@@ -35,8 +35,8 @@ class ScreenShareView extends StatelessWidget {
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
 
-  /// Size of the biggest side of a [RtcVideoView].
-  static const double videoSize = 350;
+  /// Height of a single [RtcVideoView] to display.
+  static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
   static Future<MediaDisplayInfo?> show<T>(
@@ -55,7 +55,7 @@ class ScreenShareView extends StatelessWidget {
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     Widget framelessBuilder = const SizedBox(
-      height: videoSize * (9 / 16),
+      height: videoHeight,
       child: Center(child: CircularProgressIndicator()),
     );
 
@@ -92,26 +92,20 @@ class ScreenShareView extends StatelessWidget {
                         final MediaDisplayInfo e = c.call.value.displays[i];
                         return GestureDetector(
                           onTap: () => c.selected.value = e,
-                          child: AnimatedContainer(
-                            duration: 200.milliseconds,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              border: c.selected.value == e
-                                  ? Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      width: 4,
-                                    )
-                                  : null,
-                            ),
-                            constraints:
-                                const BoxConstraints(maxWidth: videoSize),
-                            child: AnimatedSize(
-                              duration: 200.milliseconds,
-                              child: c.renderers[e] != null
-                                  ? RtcVideoView(
+                          child: SizedBox(
+                            height: videoHeight,
+                            child: c.renderers[e] != null
+                                ? Center(
+                                    child: RtcVideoView(
                                       c.renderers[e]!,
+                                      border: c.selected.value == e
+                                          ? Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                              width: 4,
+                                            )
+                                          : null,
                                       source: MediaSourceKind.Display,
                                       mirror: false,
                                       fit: BoxFit.contain,
@@ -119,9 +113,9 @@ class ScreenShareView extends StatelessWidget {
                                       respectAspectRatio: true,
                                       framelessBuilder: () => framelessBuilder,
                                       borderRadius: BorderRadius.circular(10),
-                                    )
-                                  : framelessBuilder,
-                            ),
+                                    ),
+                                  )
+                                : framelessBuilder,
                           ),
                         );
                       });

@@ -36,7 +36,7 @@ import '/util/platform_utils.dart';
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
-    Key? key,
+    super.key,
     this.checksum,
     this.fit,
     this.height,
@@ -44,7 +44,7 @@ class RetryImage extends StatefulWidget {
     this.borderRadius,
     this.onForbidden,
     this.filter,
-  }) : super(key: key);
+  });
 
   /// URL of an image to display.
   final String url;
@@ -163,21 +163,21 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads the [_image] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  Future<void> _loadImage() async {
-    try {
-      await Backoff.run(
-        () async {
-          Uint8List? cached;
-          if (widget.checksum != null) {
-            cached = FIFOCache.get(widget.checksum!);
-          }
+  FutureOr<void> _loadImage() async {
+    Uint8List? cached;
+    if (widget.checksum != null) {
+      cached = FIFOCache.get(widget.checksum!);
+    }
 
-          if (cached != null) {
-            _image = cached;
-            if (mounted) {
-              setState(() {});
-            }
-          } else {
+    if (cached != null) {
+      _image = cached;
+      if (mounted) {
+        setState(() {});
+      }
+    } else {
+      try {
+        await Backoff.run(
+          () async {
             Response? data;
 
             try {
@@ -213,12 +213,12 @@ class _RetryImageState extends State<RetryImage> {
             } else {
               throw Exception('Image is not loaded');
             }
-          }
-        },
-        _cancelToken,
-      );
-    } on OperationCanceledException {
-      // No-op.
+          },
+          _cancelToken,
+        );
+      } on OperationCanceledException {
+        // No-op.
+      }
     }
   }
 }

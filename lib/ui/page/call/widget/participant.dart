@@ -116,7 +116,8 @@ class ParticipantWidget extends StatelessWidget {
                               participant.source == MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      outline: outline,
+                      border:
+                          outline == null ? null : Border.all(color: outline!),
                       onSizeDetermined: onSizeDetermined,
                       enableContextMenu: false,
                       respectAspectRatio: respectAspectRatio,
