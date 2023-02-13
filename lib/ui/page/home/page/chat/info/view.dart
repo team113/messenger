@@ -304,32 +304,38 @@ class ChatInfoView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
-        SizedBox(
-          height: 20,
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'btn_upload'.l10n,
-                  recognizer: TapGestureRecognizer()..onTap = c.pickAvatar,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            WidgetButton(
+              key: const Key('UploadAvatar'),
+              onPressed: c.pickAvatar,
+              child: Text(
+                'btn_upload'.l10n,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 11,
                 ),
-                if (c.chat?.chat.value.avatar != null) ...[
-                  TextSpan(
-                    text: 'space_or_space'.l10n,
-                    style: const TextStyle(color: Colors.black, fontSize: 11),
-                  ),
-                  TextSpan(
-                    text: 'btn_delete'.l10n.toLowerCase(),
-                    recognizer: TapGestureRecognizer()..onTap = c.deleteAvatar,
-                  ),
-                ],
-              ],
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 11,
               ),
             ),
-          ),
+            if (c.chat?.chat.value.avatar != null) ...[
+              Text(
+                'space_or_space'.l10n,
+                style: const TextStyle(color: Colors.black, fontSize: 11),
+              ),
+              WidgetButton(
+                key: const Key('DeleteAvatar'),
+                onPressed: c.deleteAvatar,
+                child: Text(
+                  'btn_delete'.l10n.toLowerCase(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ],
     );
