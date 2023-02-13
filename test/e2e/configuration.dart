@@ -62,7 +62,6 @@ import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
-import 'steps/pause.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_chat_position.dart';
@@ -130,7 +129,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         noInternetConnection,
         openChatInfo,
         pasteToField,
-        pauseOneSecond,
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
