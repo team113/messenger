@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -121,6 +122,8 @@ class ChatController extends GetxController {
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
+
+  SelectedContent? selection;
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
@@ -988,9 +991,16 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
-    PlatformUtils.copy(text);
+    PlatformUtils.copy(selection?.plainText ?? text);
     MessagePopup.success('label_copied'.l10n);
   }
+
+  FocusNode get effectiveFocusNode {
+    _internalNode ??= FocusNode();
+    return _internalNode!;
+  }
+
+  FocusNode? _internalNode;
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].

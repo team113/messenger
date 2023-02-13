@@ -30,11 +30,14 @@ class SelectionRegion extends StatefulWidget {
     super.key,
     this.enabled = true,
     this.onSelectionChanged,
+    this.focus,
     required this.child,
   });
 
   /// Indicator whether selection is enabled or not.
   final bool enabled;
+
+  final FocusNode? focus;
 
   /// Callback, called when the selected content changes.
   final void Function(SelectedContent?)? onSelectionChanged;
@@ -55,6 +58,7 @@ class _SelectionRegionState extends State<SelectionRegion> {
   FocusNode? _internalNode;
   @override
   Widget build(BuildContext context) {
+    return widget.child;
     TextSelectionControls controls = EmptyTextSelectionControls();
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
@@ -70,12 +74,13 @@ class _SelectionRegionState extends State<SelectionRegion> {
     }
     if (widget.enabled) {
       return SelectableRegion(
-        focusNode: _effectiveFocusNode,
-        contextMenuBuilder: (_, state) => PlatformUtils.isMobile
-            ? AdaptiveTextSelectionToolbar.selectableRegion(
-                selectableRegionState: state as SelectableRegionState,
-              )
-            : const SizedBox(),
+        focusNode: widget.focus ?? FocusNode(),
+        // contextMenuBuilder: (_, state) => PlatformUtils.isMobile
+        //     ? AdaptiveTextSelectionToolbar(
+        //         anchors: (state as SelectableRegionState).contextMenuAnchors,
+        //         children: const [Text('asd')],
+        //       )
+        //     : const SizedBox(),
         onSelectionChanged: widget.onSelectionChanged,
         selectionControls: controls,
         child: widget.child,
@@ -89,7 +94,7 @@ class _SelectionRegionState extends State<SelectionRegion> {
 TargetPlatform get defaultTargetPlatform => TargetPlatform.iOS;
 typedef SelectableRegionContextMenuBuilder = Widget Function(
   BuildContext context,
-  _SelectableRegionState selectableRegionState,
+  CustomSelectableRegionState selectableRegionState,
 );
 const Set<PointerDeviceKind> _kLongPressSelectionDevices = <PointerDeviceKind>{
   PointerDeviceKind.touch,
@@ -97,12 +102,12 @@ const Set<PointerDeviceKind> _kLongPressSelectionDevices = <PointerDeviceKind>{
   PointerDeviceKind.invertedStylus,
 };
 
-class SelectableRegion extends StatefulWidget {
+class CustomSelectableRegion extends StatefulWidget {
   /// Create a new [SelectableRegion] widget.
   ///
   /// The [selectionControls] are used for building the selection handles and
   /// toolbar for mobile devices.
-  const SelectableRegion({
+  const CustomSelectableRegion({
     super.key,
     this.contextMenuBuilder,
     required this.focusNode,
@@ -185,11 +190,11 @@ class SelectableRegion extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _SelectableRegionState();
+  State<StatefulWidget> createState() => CustomSelectableRegionState();
 }
 
 /// State for a [SelectableRegion].
-class _SelectableRegionState extends State<SelectableRegion>
+class CustomSelectableRegionState extends State<CustomSelectableRegion>
     with TextSelectionDelegate
     implements SelectionRegistrar {
   late final Map<Type, Action<Intent>> _actions = <Type, Action<Intent>>{
@@ -270,7 +275,7 @@ class _SelectableRegionState extends State<SelectableRegion>
   }
 
   @override
-  void didUpdateWidget(SelectableRegion oldWidget) {
+  void didUpdateWidget(CustomSelectableRegion oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode.removeListener(_handleFocusChanged);

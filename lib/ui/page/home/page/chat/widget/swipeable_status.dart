@@ -141,7 +141,9 @@ class SwipeableStatus extends StatelessWidget {
                 size: 12,
               ),
             const SizedBox(width: 3),
-            swipeable,
+            SelectionContainer.disabled(
+              child: swipeable,
+            ),
           ],
         ),
       ),
