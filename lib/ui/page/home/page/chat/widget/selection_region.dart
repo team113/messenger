@@ -281,11 +281,6 @@ class _SelectableRegionState extends State<SelectableRegion>
     }
   }
 
-  Action<T> _makeOverridable<T extends Intent>(Action<T> defaultAction) {
-    return Action<T>.overridable(
-        context: context, defaultAction: defaultAction);
-  }
-
   void _handleFocusChanged() {
     if (!widget.focusNode.hasFocus) {
       _clearSelection();
@@ -798,8 +793,6 @@ class _SelectableRegionState extends State<SelectableRegion>
   /// Removes the ongoing selection.
   void _clearSelection() {
     _finalizeSelection();
-    _directionalHorizontalBaseline = null;
-    _adjustingSelectionEnd = null;
     _selectable?.dispatchSelectionEvent(const ClearSelectionEvent());
     _updateSelectedContentIfNeeded();
   }
@@ -832,67 +825,6 @@ class _SelectableRegionState extends State<SelectableRegion>
       selectionEndpoints: selectionEndpoints,
     );
   }
-
-  bool? _adjustingSelectionEnd;
-  bool _determineIsAdjustingSelectionEnd(bool forward) {
-    if (_adjustingSelectionEnd != null) {
-      return _adjustingSelectionEnd!;
-    }
-    final bool isReversed;
-    final SelectionPoint start = _selectionDelegate.value.startSelectionPoint!;
-    final SelectionPoint end = _selectionDelegate.value.endSelectionPoint!;
-    if (start.localPosition.dy > end.localPosition.dy) {
-      isReversed = true;
-    } else if (start.localPosition.dy < end.localPosition.dy) {
-      isReversed = false;
-    } else {
-      isReversed = start.localPosition.dx > end.localPosition.dx;
-    }
-    // Always move the selection edge that increases the selection range.
-    return _adjustingSelectionEnd = forward != isReversed;
-  }
-
-  void _granularlyExtendSelection(TextGranularity granularity, bool forward) {
-    _directionalHorizontalBaseline = null;
-    if (!_selectionDelegate.value.hasSelection) {
-      return;
-    }
-    _selectable?.dispatchSelectionEvent(
-      GranularlyExtendSelectionEvent(
-        forward: forward,
-        isEnd: _determineIsAdjustingSelectionEnd(forward),
-        granularity: granularity,
-      ),
-    );
-  }
-
-  double? _directionalHorizontalBaseline;
-
-  void _directionallyExtendSelection(bool forward) {
-    if (!_selectionDelegate.value.hasSelection) {
-      return;
-    }
-    final bool adjustingSelectionExtend =
-        _determineIsAdjustingSelectionEnd(forward);
-    final SelectionPoint baseLinePoint = adjustingSelectionExtend
-        ? _selectionDelegate.value.endSelectionPoint!
-        : _selectionDelegate.value.startSelectionPoint!;
-    _directionalHorizontalBaseline ??= baseLinePoint.localPosition.dx;
-    final Offset globalSelectionPointOffset = MatrixUtils.transformPoint(
-        context.findRenderObject()!.getTransformTo(null),
-        Offset(_directionalHorizontalBaseline!, 0));
-    _selectable?.dispatchSelectionEvent(
-      DirectionallyExtendSelectionEvent(
-        isEnd: _adjustingSelectionEnd!,
-        direction: forward
-            ? SelectionExtendDirection.nextLine
-            : SelectionExtendDirection.previousLine,
-        dx: globalSelectionPointOffset.dx,
-      ),
-    );
-  }
-
-  // [TextSelectionDelegate] overrides.
 
   /// Returns the [ContextMenuButtonItem]s representing the buttons in this
   /// platform's default selection menu.
@@ -1270,28 +1202,5 @@ class _SelectableRegionContainerDelegate
     _hasReceivedStartEvent.removeWhere(
         (Selectable selectable) => !selectableSet.contains(selectable));
     super.didChangeSelectables();
-  }
-}
-
-abstract class _NonOverrideAction<T extends Intent> extends ContextAction<T> {
-  Object? invokeAction(T intent, [BuildContext? context]);
-
-  @override
-  Object? invoke(T intent, [BuildContext? context]) {
-    if (callingAction != null) {
-      return callingAction!.invoke(intent);
-    }
-    return invokeAction(intent, context);
-  }
-}
-
-class _SelectAllAction extends _NonOverrideAction<SelectAllTextIntent> {
-  _SelectAllAction(this.state);
-
-  final _SelectableRegionState state;
-
-  @override
-  void invokeAction(SelectAllTextIntent intent, [BuildContext? context]) {
-    state.selectAll(SelectionChangedCause.keyboard);
   }
 }
