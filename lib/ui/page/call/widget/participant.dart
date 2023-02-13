@@ -23,7 +23,6 @@ import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
