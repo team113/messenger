@@ -548,7 +548,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'label_remove_from_contacts'.l10n,
+      'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
