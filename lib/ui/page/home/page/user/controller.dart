@@ -96,6 +96,9 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [blacklist] is executing.
   final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
 
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 

@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -47,6 +49,12 @@ class ScreenShareController extends GetxController {
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Currently selected [MediaDisplayInfo].
+  final Rx<MediaDisplayInfo?> selected = Rx(null);
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _callsSubscription;
@@ -98,6 +106,8 @@ class ScreenShareController extends GetxController {
     for (var e in call.value.displays) {
       initRenderer(e);
     }
+
+    selected.value = call.value.displays.firstOrNull;
 
     super.onInit();
   }

@@ -38,6 +38,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -95,9 +96,26 @@ class MyProfileView extends StatelessWidget {
                                 alignment: Alignment.center,
                                 children: [
                                   WidgetButton(
-                                    onPressed: c.uploadAvatar,
+                                    onPressed: c.myUser.value?.avatar == null
+                                        ? c.uploadAvatar
+                                        : () async {
+                                            await GalleryPopup.show(
+                                              context: context,
+                                              gallery: GalleryPopup(
+                                                initialKey: c.avatarKey,
+                                                children: [
+                                                  GalleryItem.image(
+                                                    c.myUser.value!.avatar!
+                                                        .original.url,
+                                                    c.myUser.value!.num.val,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
+                                      key: c.avatarKey,
                                       radius: 100,
                                       badge: false,
                                     ),
@@ -127,18 +145,14 @@ class MyProfileView extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Obx(() {
-                                if (c.myUser.value?.avatar == null) {
-                                  return const SizedBox();
-                                }
-
-                                return Center(
-                                  child: WidgetButton(
-                                    key: const Key('DeleteAvatar'),
-                                    onPressed: c.deleteAvatar,
-                                    child: SizedBox(
-                                      height: 20,
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    WidgetButton(
+                                      key: const Key('UploadAvatar'),
+                                      onPressed: c.uploadAvatar,
                                       child: Text(
-                                        'btn_delete'.l10n,
+                                        'btn_upload'.l10n,
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -147,7 +161,29 @@ class MyProfileView extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    if (c.myUser.value?.avatar != null) ...[
+                                      Text(
+                                        'space_or_space'.l10n,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                      WidgetButton(
+                                        key: const Key('DeleteAvatar'),
+                                        onPressed: c.deleteAvatar,
+                                        child: Text(
+                                          'btn_delete'.l10n.toLowerCase(),
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 );
                               }),
                               const SizedBox(height: 10),
