@@ -145,6 +145,7 @@ class _ChatViewState extends State<ChatView>
                   Scaffold(
                     resizeToAvoidBottomInset: true,
                     appBar: CustomAppBar(
+                      expandable: true,
                       title: Row(
                         children: [
                           Material(

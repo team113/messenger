@@ -40,11 +40,11 @@ class RtcVideoView extends StatefulWidget {
     this.label,
     this.mirror = false,
     this.muted = false,
+    this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.framelessBuilder,
-    this.border,
   });
 
   /// Renderer to display WebRTC video stream from.
@@ -87,6 +87,7 @@ class RtcVideoView extends StatefulWidget {
   /// Only effective under the web, since only web has default context menu.
   final bool enableContextMenu;
 
+  /// Optional border to apply to this [RtcVideoView].
   final Border? border;
 
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
@@ -175,8 +176,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// [GlobalKey] of the [VideoView].
   final GlobalKey _videoKey = GlobalKey();
 
-  final GlobalKey _animatedKey = GlobalKey();
-
   @override
   Widget build(BuildContext context) {
     Widget video = VideoView(
@@ -251,7 +250,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
     Widget outlined(BoxFit? fit) => AnimatedContainer(
-          key: _animatedKey,
+          // key: _animatedKey,
           duration: 200.milliseconds,
           decoration: BoxDecoration(
             border: widget.border,
@@ -260,13 +259,28 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           child: clipped(fit),
         );
 
-    Widget stack(BoxFit? fit) {
-      return Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          outlined(fit),
-          Positioned.fill(
-            child: AnimatedSwitcher(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        RtcVideoRenderer renderer = widget.renderer;
+
+        BoxFit? fit;
+        if (widget.source != MediaSourceKind.Display) {
+          fit = widget.fit;
+        }
+
+        // Calculate the default [BoxFit] if there's no explicit fit.
+        fit ??= RtcVideoView.determineBoxFit(
+          renderer,
+          widget.source,
+          constraints,
+          context,
+        );
+
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            outlined(fit),
+            AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(
@@ -316,31 +330,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                     )
                   : const SizedBox(width: 1, height: 1),
             ),
-          ),
-        ],
-      );
-    }
-
-    if (widget.source == MediaSourceKind.Display || widget.fit != null) {
-      return stack(widget.fit ?? BoxFit.contain);
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        BoxFit? fit;
-        if (widget.source != MediaSourceKind.Display) {
-          fit = widget.fit;
-        }
-
-        // Calculate the default [BoxFit] if there's no explicit fit.
-        fit ??= RtcVideoView.determineBoxFit(
-          widget.renderer,
-          widget.source,
-          constraints,
-          context,
+          ],
         );
-
-        return stack(fit);
       },
     );
   }

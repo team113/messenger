@@ -717,7 +717,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           FieldButton(
-            onPressed: () => c.removeChatMember(c.me!),
+            onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -769,12 +769,12 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
     RxUser user,
   ) async {
-    final bool? result = await MessagePopup.alert(
-      c.me == user.id ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
-      description: [
-        if (c.me == user.id)
-          TextSpan(text: 'alert_you_will_leave_group'.l10n)
-        else ...[
+    if (c.me == user.id) {
+      await _leaveGroup(c, context);
+    } else {
+      final bool? result = await MessagePopup.alert(
+        'label_remove_member'.l10n,
+        description: [
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
@@ -782,11 +782,23 @@ class ChatInfoView extends StatelessWidget {
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
-      ],
+      );
+
+      if (result == true) {
+        await c.removeChatMember(user.id);
+      }
+    }
+  }
+
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatInfoController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
     );
 
     if (result == true) {
-      await c.removeChatMember(user.id);
+      await c.removeChatMember(c.me!);
     }
   }
 

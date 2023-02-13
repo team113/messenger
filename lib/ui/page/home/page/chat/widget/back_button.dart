@@ -27,6 +27,18 @@ class StyledBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return WidgetButton(
+      onPressed: () => Navigator.maybePop(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Icon(
+          Icons.arrow_back_ios_rounded,
+          color: color ?? Theme.of(context).colorScheme.secondary,
+          size: 22,
+        ),
+      ),
+    );
+
     if (ModalRoute.of(context)?.canPop == true) {
       return WidgetButton(
         onPressed: () => Navigator.maybePop(context),

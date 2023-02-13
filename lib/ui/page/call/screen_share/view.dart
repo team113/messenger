@@ -36,7 +36,7 @@ class ScreenShareView extends StatelessWidget {
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
 
-  /// Height of a [RtcVideoView].
+  /// Height of a single [RtcVideoView] to display.
   static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
@@ -93,45 +93,30 @@ class ScreenShareView extends StatelessWidget {
                         final MediaDisplayInfo e = c.call.value.displays[i];
                         return GestureDetector(
                           onTap: () => c.selected.value = e,
-                          child: AnimatedContainer(
-                            duration: 200.milliseconds,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              // border: c.selected.value == e
-                              //     ? Border.all(
-                              //         color: Theme.of(context)
-                              //             .colorScheme
-                              //             .secondary,
-                              //         width: 2,
-                              //       )
-                              //     : null,
-                            ),
-                            child: SizedBox(
-                              height: videoHeight,
-                              child: c.renderers[e] != null
-                                  ? Center(
-                                      child: RtcVideoView(
-                                        c.renderers[e]!,
-                                        border: c.selected.value == e
-                                            ? Border.all(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                width: 4,
-                                              )
-                                            : null,
-                                        source: MediaSourceKind.Display,
-                                        mirror: false,
-                                        fit: BoxFit.contain,
-                                        enableContextMenu: false,
-                                        respectAspectRatio: true,
-                                        framelessBuilder: () =>
-                                            framelessBuilder,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    )
-                                  : framelessBuilder,
-                            ),
+                          child: SizedBox(
+                            height: videoHeight,
+                            child: c.renderers[e] != null
+                                ? Center(
+                                    child: RtcVideoView(
+                                      c.renderers[e]!,
+                                      border: c.selected.value == e
+                                          ? Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                              width: 4,
+                                            )
+                                          : null,
+                                      source: MediaSourceKind.Display,
+                                      mirror: false,
+                                      fit: BoxFit.contain,
+                                      enableContextMenu: false,
+                                      respectAspectRatio: true,
+                                      framelessBuilder: () => framelessBuilder,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  )
+                                : framelessBuilder,
                           ),
                         );
                       });
