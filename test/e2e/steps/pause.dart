@@ -17,21 +17,14 @@
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/config.dart';
 
-import 'configuration.dart';
-
-part 'suite.g.dart';
-
-/// Entry point of E2E tests.
-@GherkinTestSuite(
-  featurePaths: ['test/e2e/features/check/**.feature'],
-  executionOrder: ExecutionOrder.alphabetical,
-)
-void main() async {
-  Config.disableInfiniteAnimations = true;
-  executeTestSuite(
-    gherkinTestConfiguration,
-    appInitializationFn,
-  );
-}
+/// Examples:
+/// - And I pause for 1 second
+final StepDefinitionGeneric pauseOneSecond = then<FlutterWorld>(
+  'I pause for 1 second',
+  (context) async {
+    await Future.delayed(const Duration(seconds: 1));
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 60),
+);
