@@ -207,6 +207,8 @@ class ChatItemInfo extends StatelessWidget {
 
                         return true;
                       });
+                      final NumberFormat format = NumberFormat('00');
+
                       return ListView(
                         controller: c.scrollController,
                         shrinkWrap: true,
@@ -234,11 +236,11 @@ class ChatItemInfo extends StatelessWidget {
                                   Text(
                                     'label_read_at'.l10nfmt({
                                       'date': 'date_hours'.l10nfmt({
-                                        'day': DateFormat.d().format(time),
-                                        'month': DateFormat.M().format(time),
-                                        'year': DateFormat.y().format(time),
-                                        'hour': DateFormat.H().format(time),
-                                        'minute': DateFormat.m().format(time),
+                                        'day': format.format(time.day),
+                                        'month': format.format(time.month),
+                                        'year': time.year.toString(),
+                                        'hour': format.format(time.hour),
+                                        'minute': format.format(time.minute),
                                       })
                                     }),
                                     style: TextStyle(
