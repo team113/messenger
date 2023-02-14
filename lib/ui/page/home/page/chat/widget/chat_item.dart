@@ -57,8 +57,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
-import 'chat_item_reads.dart';
 import 'media_attachment.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatItem] visual representation.
@@ -1268,6 +1268,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
     }
 
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.item.value.at.val) &&
+          e.memberId != widget.item.value.authorId,
+    );
+
     bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
@@ -1475,6 +1481,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
                         actions: [
+                          ContextMenuButton(
+                            label: PlatformUtils.isMobile
+                                ? 'btn_info'.l10n
+                                : 'btn_message_info'.l10n,
+                            trailing: const Icon(Icons.info_outline),
+                            onPressed: () => MessageInfo.show(
+                              context,
+                              id: widget.item.value.id,
+                              reads: reads ?? [],
+                            ),
+                          ),
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),

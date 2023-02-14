@@ -50,7 +50,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
-import 'chat_item_reads.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -686,6 +686,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
+          e.memberId != widget.authorId,
+    );
+
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
 
@@ -850,10 +856,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   Transform.translate(
                                     offset: const Offset(-12, -4),
                                     child: WidgetButton(
-                                      onPressed: () => ChatItemReads.show(
+                                      onPressed: () => MessageInfo.show(
                                         context,
-                                        reads: widget.reads,
-                                        getUser: widget.getUser,
+                                        id: widget.forwards.first.value.id,
+                                        reads: reads ?? [],
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
@@ -867,6 +873,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             );
                           },
                           actions: [
+                            ContextMenuButton(
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_info'.l10n
+                                  : 'btn_message_info'.l10n,
+                              trailing: const Icon(Icons.info_outline),
+                              onPressed: () => MessageInfo.show(
+                                context,
+                                id: widget.forwards.first.value.id,
+                                reads: reads ?? [],
+                              ),
+                            ),
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
