@@ -345,45 +345,46 @@ class _ChatViewState extends State<ChatView>
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
-                            SelectionArea(
-                              onSelectionChanged: (a) {
-                                print('selected: ${a?.plainText}');
-                                c.selection = a;
-                              },
-                              // focusNode: FocusNode(),
-                              // contextMenuBuilder: (_, __) => const SizedBox(),
-                              // selectionControls: EmptyTextSelectionControls(),
-                              child: Scrollbar(
+                            Obx(() {
+                              final Widget child = Scrollbar(
                                 controller: c.listController,
-                                child: Obx(() {
-                                  return FlutterListView(
-                                    key: const Key('MessagesList'),
-                                    controller: c.listController,
-                                    physics: c.isHorizontalScroll.isTrue ||
-                                            (PlatformUtils.isDesktop &&
-                                                c.isItemDragged.isTrue)
-                                        ? const NeverScrollableScrollPhysics()
-                                        : const BouncingScrollPhysics(),
-                                    delegate: FlutterListViewDelegate(
-                                      (context, i) =>
-                                          _listElement(context, c, i),
-                                      // ignore: invalid_use_of_protected_member
-                                      childCount: c.elements.value.length,
-                                      keepPosition: true,
-                                      onItemKey: (i) => c.elements.values
-                                          .elementAt(i)
-                                          .id
-                                          .toString(),
-                                      onItemSticky: (i) => c.elements.values
-                                          .elementAt(i) is DateTimeElement,
-                                      initIndex: c.initIndex,
-                                      initOffset: c.initOffset,
-                                      initOffsetBasedOnBottom: false,
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ),
+                                child: FlutterListView(
+                                  key: const Key('MessagesList'),
+                                  controller: c.listController,
+                                  physics: c.isHorizontalScroll.isTrue ||
+                                          (PlatformUtils.isDesktop &&
+                                              c.isItemDragged.isTrue)
+                                      ? const NeverScrollableScrollPhysics()
+                                      : const BouncingScrollPhysics(),
+                                  delegate: FlutterListViewDelegate(
+                                    (context, i) => _listElement(context, c, i),
+                                    // ignore: invalid_use_of_protected_member
+                                    childCount: c.elements.value.length,
+                                    keepPosition: true,
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
+                                    onItemSticky: (i) => c.elements.values
+                                        .elementAt(i) is DateTimeElement,
+                                    initIndex: c.initIndex,
+                                    initOffset: c.initOffset,
+                                    initOffsetBasedOnBottom: false,
+                                  ),
+                                ),
+                              );
+
+                              if (PlatformUtils.isMobile) return child;
+
+                              return SelectionArea(
+                                onSelectionChanged: (a) => c.selection = a,
+                                contextMenuBuilder: (_, __) => const SizedBox(),
+                                selectionControls: EmptyTextSelectionControls(),
+                                child: ContextMenuInterceptor(
+                                  child: child,
+                                ),
+                              );
+                            }),
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&

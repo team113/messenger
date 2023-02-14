@@ -20,7 +20,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -60,7 +59,6 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item_reads.dart';
 import 'media_attachment.dart';
-import 'selection_region.dart';
 import 'swipeable_status.dart';
 
 /// [ChatItem] visual representation.
@@ -494,9 +492,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 
-  /// [SelectedContent] of a [CustomSelection] within this [ChatForwardWidget].
-  SelectedContent? _selection;
-
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -731,189 +726,195 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (bool enabledPopup) => Container(
-        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-        child: IntrinsicWidth(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            decoration: BoxDecoration(
-              color: _fromMe
-                  ? _isRead
-                      ? style.readMessageColor
-                      : style.unreadMessageColor
-                  : style.messageColor,
-              borderRadius: BorderRadius.circular(15),
-              border: _fromMe
-                  ? _isRead
-                      ? style.secondaryBorder
-                      : Border.all(
-                          color: const Color(0xFFDAEDFF),
-                          width: 0.5,
-                        )
-                  : style.primaryBorder,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (msg.repliesTo.isNotEmpty)
-                  ...msg.repliesTo.mapIndexed((i, e) {
-                    return AnimatedContainer(
+      (bool enabledPopup) {
+        late Widget textWidget;
+        if (text != null) {
+          textWidget = Text(
+            text,
+            key: Key('MyMessage_${widget.item.value.id}'),
+            style: style.boldBody,
+          );
+          if (PlatformUtils.isMobile && enabledPopup) {
+            textWidget = SelectionArea(child: textWidget);
+          }
+        }
+
+        return Container(
+          padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
+          child: IntrinsicWidth(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: _fromMe
+                    ? _isRead
+                        ? style.readMessageColor
+                        : style.unreadMessageColor
+                    : style.messageColor,
+                borderRadius: BorderRadius.circular(15),
+                border: _fromMe
+                    ? _isRead
+                        ? style.secondaryBorder
+                        : Border.all(
+                            color: const Color(0xFFDAEDFF),
+                            width: 0.5,
+                          )
+                    : style.primaryBorder,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (msg.repliesTo.isNotEmpty)
+                    ...msg.repliesTo.mapIndexed((i, e) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        decoration: BoxDecoration(
+                          color: e.authorId == widget.me
+                              ? _isRead || !_fromMe
+                                  ? const Color(0xFFDBEAFD)
+                                  : const Color(0xFFE6F1FE)
+                              : _isRead || !_fromMe
+                                  ? const Color(0xFFF9F9F9)
+                                  : const Color(0xFFFFFFFF),
+                          borderRadius: i == 0
+                              ? const BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15),
+                                )
+                              : BorderRadius.zero,
+                        ),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: _isRead || !_fromMe ? 1 : 0.55,
+                          child: WidgetButton(
+                            onPressed: () => widget.onRepliedTap?.call(e.id),
+                            child: _repliedMessage(e),
+                          ),
+                        ),
+                      );
+                    }),
+                  if (!_fromMe &&
+                      widget.chat.value?.isGroup == true &&
+                      widget.avatar)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        msg.attachments.isEmpty && text == null ? 4 : 8,
+                        9,
+                        files.isEmpty && media.isNotEmpty && text == null
+                            ? 8
+                            : files.isNotEmpty && text == null
+                                ? 0
+                                : 4,
+                      ),
+                      child: Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                  if (text != null)
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
-                      decoration: BoxDecoration(
-                        color: e.authorId == widget.me
-                            ? _isRead || !_fromMe
-                                ? const Color(0xFFDBEAFD)
-                                : const Color(0xFFE6F1FE)
-                            : _isRead || !_fromMe
-                                ? const Color(0xFFF9F9F9)
-                                : const Color(0xFFFFFFFF),
-                        borderRadius: i == 0
-                            ? const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
+                      opacity: _isRead || !_fromMe ? 1 : 0.7,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          !_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar
+                              ? 0
+                              : 10,
+                          9,
+                          files.isEmpty ? 10 : 0,
+                        ),
+                        child: textWidget,
+                      ),
+                    ),
+                  if (files.isNotEmpty)
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                        child: Column(
+                          children: files
+                              .map(
+                                (e) => ChatItemWidget.fileAttachment(
+                                  e,
+                                  fromMe: _fromMe,
+                                  onFileTap: widget.onFileTap,
+                                ),
                               )
-                            : BorderRadius.zero,
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  if (media.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: text != null ||
+                                msg.repliesTo.isNotEmpty ||
+                                (!_fromMe &&
+                                    widget.chat.value?.isGroup == true &&
+                                    widget.avatar)
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        topRight: text != null ||
+                                msg.repliesTo.isNotEmpty ||
+                                (!_fromMe &&
+                                    widget.chat.value?.isGroup == true &&
+                                    widget.avatar)
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        bottomLeft: const Radius.circular(15),
+                        bottomRight: const Radius.circular(15),
                       ),
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
                         opacity: _isRead || !_fromMe ? 1 : 0.55,
-                        child: WidgetButton(
-                          onPressed: () => widget.onRepliedTap?.call(e.id),
-                          child: _repliedMessage(e),
-                        ),
-                      ),
-                    );
-                  }),
-                if (!_fromMe &&
-                    widget.chat.value?.isGroup == true &&
-                    widget.avatar)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      msg.attachments.isEmpty && text == null ? 4 : 8,
-                      9,
-                      files.isEmpty && media.isNotEmpty && text == null
-                          ? 8
-                          : files.isNotEmpty && text == null
-                              ? 0
-                              : 4,
-                    ),
-                    child: Text(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
-                    ),
-                  ),
-                if (text != null)
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.7,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        !_fromMe &&
-                                widget.chat.value?.isGroup == true &&
-                                widget.avatar
-                            ? 0
-                            : 10,
-                        9,
-                        files.isEmpty ? 10 : 0,
-                      ),
-                      child: SelectionRegion(
-                        //
-                        onSelectionChanged: (s) => _selection = s,
-                        enabled: PlatformUtils.isDesktop ? true : enabledPopup,
-                        child: Text(
-                          text,
-                          key: Key('MyMessage_${widget.item.value.id}'),
-                          style: style.boldBody,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (files.isNotEmpty)
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.55,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: Column(
-                        children: files
-                            .map(
-                              (e) => ChatItemWidget.fileAttachment(
-                                e,
-                                fromMe: _fromMe,
-                                onFileTap: widget.onFileTap,
+                        child: media.length == 1
+                            ? ChatItemWidget.mediaAttachment(
+                                context,
+                                media.first,
+                                media,
+                                filled: false,
+                                key: _galleryKeys[0],
+                                onError: widget.onAttachmentError,
+                                onGallery: widget.onGallery,
+                              )
+                            : SizedBox(
+                                width: media.length * 120,
+                                height: max(media.length * 60, 300),
+                                child: FitView(
+                                  dividerColor: Colors.transparent,
+                                  children: media
+                                      .mapIndexed(
+                                        (i, e) =>
+                                            ChatItemWidget.mediaAttachment(
+                                          context,
+                                          e,
+                                          media,
+                                          key: _galleryKeys[i],
+                                          onError: widget.onAttachmentError,
+                                          onGallery: widget.onGallery,
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
                               ),
-                            )
-                            .toList(),
                       ),
                     ),
-                  ),
-                if (media.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: text != null ||
-                              msg.repliesTo.isNotEmpty ||
-                              (!_fromMe &&
-                                  widget.chat.value?.isGroup == true &&
-                                  widget.avatar)
-                          ? Radius.zero
-                          : files.isEmpty
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                      topRight: text != null ||
-                              msg.repliesTo.isNotEmpty ||
-                              (!_fromMe &&
-                                  widget.chat.value?.isGroup == true &&
-                                  widget.avatar)
-                          ? Radius.zero
-                          : files.isEmpty
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                      bottomLeft: const Radius.circular(15),
-                      bottomRight: const Radius.circular(15),
-                    ),
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: _isRead || !_fromMe ? 1 : 0.55,
-                      child: media.length == 1
-                          ? ChatItemWidget.mediaAttachment(
-                              context,
-                              media.first,
-                              media,
-                              filled: false,
-                              key: _galleryKeys[0],
-                              onError: widget.onAttachmentError,
-                              onGallery: widget.onGallery,
-                            )
-                          : SizedBox(
-                              width: media.length * 120,
-                              height: max(media.length * 60, 300),
-                              child: FitView(
-                                dividerColor: Colors.transparent,
-                                children: media
-                                    .mapIndexed(
-                                      (i, e) => ChatItemWidget.mediaAttachment(
-                                        context,
-                                        e,
-                                        media,
-                                        key: _galleryKeys[i],
-                                        onError: widget.onAttachmentError,
-                                        onGallery: widget.onGallery,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
       avatarOffset: avatarOffset,
     );
   }
@@ -1310,7 +1311,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     return SwipeableStatus(
-      //
       animation: widget.animation,
       translate: _fromMe,
       isSent: isSent && _fromMe,
@@ -1327,194 +1327,282 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         duration: _offsetDuration,
         offset: _offset,
         curve: Curves.ease,
-        child: Row(
-          crossAxisAlignment:
-              _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          mainAxisAlignment:
-              _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-          children: [
-            if (_fromMe)
-              Padding(
-                key: Key('MessageStatus_${item.id}'),
-                padding: const EdgeInsets.only(top: 16),
-                child: AnimatedDelayedSwitcher(
-                  delay: item.status.value == SendingStatus.sending
-                      ? const Duration(seconds: 2)
-                      : Duration.zero,
-                  child: item.status.value == SendingStatus.sending
-                      ? const Padding(
-                          key: Key('Sending'),
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: Icon(Icons.access_alarm, size: 15),
-                        )
-                      : item.status.value == SendingStatus.error
-                          ? const Padding(
-                              key: Key('Error'),
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Icon(
-                                Icons.error_outline,
-                                size: 15,
-                                color: Colors.red,
-                              ),
-                            )
-                          : Container(key: const Key('Sent')),
-                ),
-              ),
-            if (!_fromMe && widget.chat.value!.isGroup)
-              Padding(
-                padding: EdgeInsets.only(top: 8 + avatarOffset),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => router.user(item.authorId, push: true),
-                  child: Opacity(
-                    opacity: widget.avatar ? 1 : 0,
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragStart: (d) {
+            _draggingStarted = true;
+            setState(() => _offsetDuration = Duration.zero);
+          },
+          onHorizontalDragUpdate: (d) {
+            if (_draggingStarted && !_dragging) {
+              if (widget.animation?.value == 0 &&
+                  _offset.dx == 0 &&
+                  d.delta.dx > 0) {
+                _dragging = true;
+                widget.onDrag?.call(_dragging);
+              } else {
+                _draggingStarted = false;
+              }
+            }
+
+            if (_dragging) {
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
+
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
+            }
+          },
+          onHorizontalDragEnd: (d) {
+            if (_dragging) {
+              _dragging = false;
+              _draggingStarted = false;
+              _offset = Offset.zero;
+              _totalOffset = Offset.zero;
+              _offsetDuration = 200.milliseconds;
+              widget.onDrag?.call(_dragging);
+              setState(() {});
+            }
+          },
+          child: Row(
+            crossAxisAlignment:
+                _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            mainAxisAlignment:
+                _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (_fromMe)
+                Padding(
+                  key: Key('MessageStatus_${item.id}'),
+                  padding: const EdgeInsets.only(top: 16),
+                  child: AnimatedDelayedSwitcher(
+                    delay: item.status.value == SendingStatus.sending
+                        ? const Duration(seconds: 2)
+                        : Duration.zero,
+                    child: item.status.value == SendingStatus.sending
+                        ? const Padding(
+                            key: Key('Sending'),
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Icon(Icons.access_alarm, size: 15),
+                          )
+                        : item.status.value == SendingStatus.error
+                            ? const Padding(
+                                key: Key('Error'),
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Icon(
+                                  Icons.error_outline,
+                                  size: 15,
+                                  color: Colors.red,
+                                ),
+                              )
+                            : Container(key: const Key('Sent')),
                   ),
                 ),
-              ),
-            Flexible(
-              child: LayoutBuilder(builder: (context, constraints) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: min(
-                      550,
-                      (constraints.maxWidth +
-                                  (_fromMe ? SwipeableStatus.width : 0)) *
-                              0.84 -
-                          20,
+              if (!_fromMe && widget.chat.value!.isGroup)
+                Padding(
+                  padding: EdgeInsets.only(top: 8 + avatarOffset),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => router.user(item.authorId, push: true),
+                    child: Opacity(
+                      opacity: widget.avatar ? 1 : 0,
+                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
                     ),
                   ),
-                  child: Material(
-                    key: Key('Message_${item.id}'),
-                    type: MaterialType.transparency,
-                    child: ContextMenuRegion(
-                      builder: (bool enabledPopup) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            child(enabledPopup),
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => ChatItemReads.show(
-                                    context,
-                                    reads: widget.reads,
-                                    getUser: widget.getUser,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
+                ),
+              Flexible(
+                child: LayoutBuilder(builder: (context, constraints) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: min(
+                        550,
+                        (constraints.maxWidth +
+                                    (_fromMe ? SwipeableStatus.width : 0)) *
+                                0.84 -
+                            20,
+                      ),
+                    ),
+                    child: Material(
+                      key: Key('Message_${item.id}'),
+                      type: MaterialType.transparency,
+                      child: ContextMenuRegion(
+                        builder: (bool enabledPopup) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child(enabledPopup),
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: Offset(-12, -widget.margin.bottom),
+                                  child: WidgetButton(
+                                    onPressed: () => ChatItemReads.show(
+                                      context,
+                                      reads: widget.reads,
+                                      getUser: widget.getUser,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: avatars,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
-                        );
-                      },
-                      preventContextMenu: false,
-                      alignment: _fromMe
-                          ? Alignment.bottomRight
-                          : Alignment.bottomLeft,
-                      actions: [
-                        if (copyable != null)
-                          ContextMenuButton(
-                            key: const Key('CopyButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_copy'.l10n
-                                : 'btn_copy_text'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/copy_small.svg',
-                              height: 18,
-                            ),
-                            onPressed: () {
-                              if (_selection?.plainText.isNotEmpty == true) {
-                                widget.onCopy?.call(_selection!.plainText);
-                              } else {
-                                widget.onCopy?.call(copyable!);
-                              }
-                            },
-                          ),
-                        if (item.status.value == SendingStatus.sent) ...[
-                          ContextMenuButton(
-                            key: const Key('ReplyButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_reply'.l10n
-                                : 'btn_reply_message'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/reply.svg',
-                              height: 18,
-                            ),
-                            onPressed: widget.onReply,
-                          ),
-                          if (item is ChatMessage)
+                            ],
+                          );
+                        },
+                        preventContextMenu: false,
+                        alignment: _fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
+                        actions: [
+                          if (copyable != null)
                             ContextMenuButton(
-                              key: const Key('ForwardButton'),
+                              key: const Key('CopyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_forward'.l10n
-                                  : 'btn_forward_message'.l10n,
+                                  ? 'btn_copy'.l10n
+                                  : 'btn_copy_text'.l10n,
                               trailing: SvgLoader.asset(
-                                'assets/icons/forward.svg',
+                                'assets/icons/copy_small.svg',
+                                height: 18,
+                              ),
+                              onPressed: () => widget.onCopy?.call(copyable!),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/reply.svg',
+                                height: 18,
+                              ),
+                              onPressed: widget.onReply,
+                            ),
+                            if (item is ChatMessage)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_forward'.l10n
+                                    : 'btn_forward_message'.l10n,
+                                trailing: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  height: 18,
+                                ),
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [ChatItemQuote(item: item)],
+                                  );
+                                },
+                              ),
+                            if (item is ChatMessage &&
+                                _fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !_isRead))
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                trailing: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  height: 18,
+                                ),
+                                onPressed: widget.onEdit,
+                              ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
                               onPressed: () async {
-                                await ChatForwardView.show(
+                                bool deletable = _fromMe &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage);
+
+                                await ConfirmDialog.show(
                                   context,
-                                  widget.chat.value!.id,
-                                  [ChatItemQuote(item: item)],
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onHide,
+                                      child: Text(
+                                        'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
+                                      ),
+                                    ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
+                                        ),
+                                      )
+                                  ],
                                 );
                               },
                             ),
-                          if (item is ChatMessage &&
-                              _fromMe &&
-                              (item.at
-                                      .add(ChatController.editMessageTimeout)
-                                      .isAfter(PreciseDateTime.now()) ||
-                                  !_isRead))
+                          ],
+                          if (item.status.value == SendingStatus.error) ...[
                             ContextMenuButton(
-                              key: const Key('EditButton'),
-                              label: 'btn_edit'.l10n,
+                              key: const Key('Resend'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_resend'.l10n
+                                  : 'btn_resend_message'.l10n,
                               trailing: SvgLoader.asset(
-                                'assets/icons/edit.svg',
-                                height: 18,
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
                               ),
-                              onPressed: widget.onEdit,
+                              onPressed: widget.onResend,
                             ),
-                          ContextMenuButton(
-                            key: const Key('Delete'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/delete_small.svg',
-                              height: 18,
-                            ),
-                            onPressed: () async {
-                              bool deletable = _fromMe &&
-                                  !widget.chat.value!
-                                      .isRead(widget.item.value, widget.me) &&
-                                  (widget.item.value is ChatMessage);
-
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                description: deletable
-                                    ? null
-                                    : 'label_message_will_deleted_for_you'.l10n,
-                                variants: [
-                                  ConfirmDialogVariant(
-                                    onProceed: widget.onHide,
-                                    child: Text(
-                                      'label_delete_for_me'.l10n,
-                                      key: const Key('HideForMe'),
-                                    ),
-                                  ),
-                                  if (deletable)
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
                                     ConfirmDialogVariant(
                                       onProceed: widget.onDelete,
                                       child: Text(
@@ -1522,62 +1610,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         key: const Key('DeleteForAll'),
                                       ),
                                     )
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                        if (item.status.value == SendingStatus.error) ...[
-                          ContextMenuButton(
-                            key: const Key('Resend'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_resend'.l10n
-                                : 'btn_resend_message'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/send_small.svg',
-                              width: 18.37,
-                              height: 16,
+                                  ],
+                                );
+                              },
                             ),
-                            onPressed: widget.onResend,
-                          ),
-                          ContextMenuButton(
-                            key: const Key('Delete'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/delete_small.svg',
-                              width: 17.75,
-                              height: 17,
+                            ContextMenuButton(
+                              label: 'btn_select'.l10n,
+                              trailing: const Icon(Icons.select_all),
                             ),
-                            onPressed: () async {
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                variants: [
-                                  ConfirmDialogVariant(
-                                    onProceed: widget.onDelete,
-                                    child: Text(
-                                      'label_delete_for_everyone'.l10n,
-                                      key: const Key('DeleteForAll'),
-                                    ),
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                          ContextMenuButton(
-                            label: 'btn_select'.l10n,
-                            trailing: const Icon(Icons.select_all),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ),
-          ],
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );

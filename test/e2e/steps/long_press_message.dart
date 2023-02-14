@@ -50,10 +50,8 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
 
     final TestGesture gesture =
         await context.world.appDriver.nativeDriver.startGesture(
-      context.world.appDriver.nativeDriver
-          .getTopRight(finder)
-          .translate(-10, 10),
-      kind: PointerDeviceKind.mouse,
+      context.world.appDriver.nativeDriver.getCenter(finder),
+      kind: PointerDeviceKind.touch,
     );
     await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
     await gesture.up();

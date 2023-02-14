@@ -66,17 +66,17 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
       ),
     );
 
-    final TestGesture gesture = await context.world.appDriver.nativeDriver
-        .startGesture(textOffsetToPosition(paragraph, from),
-            kind: PointerDeviceKind.mouse);
-    await context.world.appDriver.nativeDriver.pump();
-
+    final TestGesture gesture =
+        await context.world.appDriver.nativeDriver.startGesture(
+      textOffsetToPosition(paragraph, from),
+      kind: PointerDeviceKind.mouse,
+    );
+    await gesture
+        .moveTo(textOffsetToPosition(paragraph, from).translate(0, 10));
     await gesture.moveTo(textOffsetToPosition(paragraph, to));
-
-    await gesture.up();
-
     await context.world.appDriver.nativeDriver.pump();
-    await gesture.removePointer();
+    await gesture.cancel();
+    await context.world.appDriver.nativeDriver.pump();
   },
 );
 

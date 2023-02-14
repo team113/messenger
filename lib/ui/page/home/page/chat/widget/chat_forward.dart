@@ -19,7 +19,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -52,7 +51,6 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'chat_item_reads.dart';
-import 'selection_region.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -150,9 +148,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
-
-  /// [SelectedContent] of a [CustomSelection] within this [ChatForwardWidget].
-  SelectedContent? _selection;
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
@@ -370,14 +365,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = SelectionRegion(
-            onSelectionChanged: (s) => _selection = s,
-            enabled: PlatformUtils.isDesktop ? true : enabledPopup,
-            child: Text(
-              item.text!.val,
-              style: style.boldBody,
-            ),
+          content = Text(
+            item.text!.val,
+            style: style.boldBody,
           );
+          if (PlatformUtils.isMobile && enabledPopup) {
+            content = SelectionArea(child: content);
+          }
         }
       } else if (item is ChatCall) {
         String title = 'label_chat_call_ended'.l10n;
@@ -561,6 +555,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
 
+      Widget textWidget = Text(item.text!.val, style: style.boldBody);
+      if (PlatformUtils.isMobile && enabledPopup) {
+        textWidget = SelectionArea(child: textWidget);
+      }
+
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
           Padding(
@@ -592,11 +591,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: SelectionRegion(
-                onSelectionChanged: (s) => _selection = s,
-                enabled: PlatformUtils.isDesktop ? true : enabledPopup,
-                child: Text(item.text!.val, style: style.boldBody),
-              ),
+              child: textWidget,
             ),
           ),
         if (files.isNotEmpty)
@@ -882,14 +877,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                onPressed: () {
-                                  if (_selection?.plainText.isNotEmpty ==
-                                      true) {
-                                    widget.onCopy?.call(_selection!.plainText);
-                                  } else {
-                                    widget.onCopy?.call(copyable!);
-                                  }
-                                },
+                                onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
