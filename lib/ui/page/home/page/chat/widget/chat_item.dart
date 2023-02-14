@@ -58,7 +58,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'media_attachment.dart';
-import 'reads/view.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatItem] visual representation.
@@ -1257,14 +1257,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
     }
 
-    final List<LastChatRead> reads = widget.chat.value?.lastReads
-            .where(
-              (e) =>
-                  !e.at.val.isBefore(widget.item.value.at.val) &&
-                  e.memberId != widget.item.value.authorId,
-            )
-            .toList() ??
-        [];
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.item.value.at.val) &&
+          e.memberId != widget.item.value.authorId,
+    );
 
     bool isSent = item.status.value == SendingStatus.sent;
 
@@ -1449,11 +1446,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
                             trailing: const Icon(Icons.info_outline),
-                            onPressed: () => ChatItemInfo.show(
+                            onPressed: () => MessageInfo.show(
                               context,
                               id: widget.item.value.id,
-                              reads: reads,
-                              getUser: widget.getUser,
+                              reads: reads ?? [],
                             ),
                           ),
                           if (copyable != null)
@@ -1610,11 +1606,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               Transform.translate(
                                 offset: Offset(-12, -widget.margin.bottom),
                                 child: WidgetButton(
-                                  onPressed: () => ChatItemInfo.show(
+                                  onPressed: () => MessageInfo.show(
                                     context,
-                                    reads: reads,
+                                    reads: reads ?? [],
                                     id: widget.item.value.id,
-                                    getUser: widget.getUser,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 2),

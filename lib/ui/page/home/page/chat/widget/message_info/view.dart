@@ -18,12 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -37,38 +34,31 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
-/// View displaying [ChatMessage] info and [reads] along with corresponding
-/// [User]s.
+/// View displaying [ChatItem] info.
 ///
 /// Intended to be displayed with the [show] method.
-class ChatItemInfo extends StatelessWidget {
-  const ChatItemInfo({
+class MessageInfo extends StatelessWidget {
+  const MessageInfo({
     super.key,
     this.id,
     this.reads = const [],
-    this.getUser,
   });
 
   /// [ChatItemId] of [ChatMessage] of this modal.
   final ChatItemId? id;
 
-  /// [LastChatRead]s themselves.
+  /// [LastChatRead]s of the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
-  /// Callback, called when a [RxUser] identified by the provided [UserId] is
-  /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
-
-  /// Displays a [ChatItemInfo] wrapped in a [ModalPopup].
+  /// Displays a [MessageInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     ChatItemId? id,
     Iterable<LastChatRead> reads = const [],
-    Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
       context: context,
-      child: ChatItemInfo(id: id, reads: reads, getUser: getUser),
+      child: MessageInfo(id: id, reads: reads),
     );
   }
 
@@ -79,8 +69,8 @@ class ChatItemInfo extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: ChatItemInfoController(reads: reads, getUser: getUser),
-      builder: (ChatItemInfoController c) {
+      init: MessageInfoController(Get.find(), reads: reads),
+      builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -101,7 +91,7 @@ class ChatItemInfo extends StatelessWidget {
                 child: WidgetButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: id!.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    MessagePopup.success('label_copied'.l10n);
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -111,16 +101,16 @@ class ChatItemInfo extends StatelessWidget {
                         style: thin?.copyWith(fontSize: 13),
                       ),
                       const SizedBox(width: 8),
-                      SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 12,
-                      ),
+                      SvgLoader.asset('assets/icons/copy.svg', height: 12),
                     ],
                   ),
                 ),
               ),
             Obx(() {
-              if (c.users.length < 10) return const SizedBox();
+              if (c.users.length < 10) {
+                return const SizedBox();
+              }
+
               return Container(
                 padding: ModalPopup.padding(context),
                 margin: const EdgeInsets.only(bottom: 12),
@@ -162,27 +152,24 @@ class ChatItemInfo extends StatelessWidget {
                     ],
                     actions: [
                       Obx(() {
+                        final Widget close = WidgetButton(
+                          onPressed: () {
+                            c.search.clear();
+                            c.search.unsubmit();
+                            c.query.value = '';
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            child: SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              height: 15,
+                            ),
+                          ),
+                        );
+
                         return AnimatedSwitcher(
                           duration: 250.milliseconds,
-                          child: !c.search.isEmpty.value
-                              ? WidgetButton(
-                                  onPressed: () {
-                                    c.search.clear();
-                                    c.search.unsubmit();
-                                    c.query.value = '';
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      right: 18,
-                                    ),
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      height: 15,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          child: !c.search.isEmpty.value ? close : null,
                         );
                       }),
                     ],
@@ -207,7 +194,6 @@ class ChatItemInfo extends StatelessWidget {
 
                         return true;
                       });
-                      final NumberFormat format = NumberFormat('00');
 
                       return ListView(
                         controller: c.scrollController,
@@ -235,13 +221,12 @@ class ChatItemInfo extends StatelessWidget {
                                   const SizedBox(height: 3),
                                   Text(
                                     'label_read_at'.l10nfmt({
-                                      'date': 'date_hours'.l10nfmt({
-                                        'day': format.format(time.day),
-                                        'month': format.format(time.month),
-                                        'year': time.year.toString(),
-                                        'hour': format.format(time.hour),
-                                        'minute': format.format(time.minute),
-                                      })
+                                      'day': '${time.day}'.padLeft(2, '0'),
+                                      'month': '${time.month}'.padLeft(2, '0'),
+                                      'year': '${time.year}'.padLeft(2, '0'),
+                                      'hour': '${time.hour}'.padLeft(2, '0'),
+                                      'minute':
+                                          '${time.minute}'.padLeft(2, '0'),
                                     }),
                                     style: TextStyle(
                                       color:

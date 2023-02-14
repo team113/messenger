@@ -26,6 +26,7 @@ import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
@@ -73,47 +74,7 @@ class ContactsTabView extends StatelessWidget {
 
               if (c.search.value != null) {
                 child = Theme(
-                  data: Theme.of(context).copyWith(
-                    shadowColor: const Color(0x55000000),
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                    inputDecorationTheme: InputDecorationTheme(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusColor: Colors.white,
-                      fillColor: Colors.white,
-                      hoverColor: Colors.transparent,
-                      filled: true,
-                      isDense: true,
-                      contentPadding: EdgeInsets.fromLTRB(
-                        15,
-                        PlatformUtils.isDesktop ? 30 : 23,
-                        15,
-                        0,
-                      ),
-                    ),
-                  ),
+                  data: MessageFieldView.theme(context),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(

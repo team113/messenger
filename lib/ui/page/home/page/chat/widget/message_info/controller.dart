@@ -20,44 +20,42 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
 
-/// Controller of the [ChatItemInfo] popup.
-class ChatItemInfoController extends GetxController {
-  ChatItemInfoController({this.reads = const [], this.getUser});
+/// Controller of the [MessageInfo] popup.
+class MessageInfoController extends GetxController {
+  MessageInfoController(this._userService, {this.reads = const []});
 
-  /// [LastChatRead]s themselves.
+  /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
-
-  /// Callback, called when a [RxUser] identified by the provided [UserId] is
-  /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Searching field state.
+  /// [TextFieldState] of the search field.
   final TextFieldState search = TextFieldState();
 
   /// Reactive value of the [search] field.
   final RxString query = RxString('');
 
-  /// Reactive list of [RxUser]s who read [ChatItem] of this popup.
+  /// [RxUser]s of the [reads].
   final RxList<RxUser> users = RxList();
+
+  /// [UserService] fetching the [users].
+  final UserService _userService;
 
   @override
   void onInit() {
-    _init();
-
+    _fetchUsers();
     super.onInit();
   }
 
-  /// Initialize this [ChatItemInfoController].
-  Future<void> _init() async {
+  /// Initialize this [MessageInfoController].
+  Future<void> _fetchUsers() async {
     final List<Future> futures = reads
-        .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))
+        .map((e) => _userService.get(e.memberId)..then((v) => users.add(v!)))
         .whereNotNull()
         .toList();
 
