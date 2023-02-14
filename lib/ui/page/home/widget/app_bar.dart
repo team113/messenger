@@ -219,28 +219,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     border: widget.border ?? style.cardBorder,
                     color: widget.background ?? style.cardColor,
                   ),
-                  child: bottom.isEmpty
-                      ? row
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 2.4),
-                            row,
-                            Container(
-                              color: Color.fromARGB(255, 237, 237, 237),
-                              child: Center(
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: 300),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: bottom,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // ...bottom,
-                          ],
-                        ),
+                  child: row,
                 ),
               ),
             ),
@@ -271,65 +250,57 @@ class _CustomAppBarState extends State<CustomAppBar> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _bar(
-                  context,
-                  [
-                    const SizedBox(height: 21),
-                    Center(
-                      child: Text(
-                        'Платный чат',
-                        style: textStyle.copyWith(fontSize: 18),
-                      ),
+                SizedBox(
+                  height: CustomAppBar.height,
+                  child: _bar(context),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 21),
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 237, 237, 237),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: style.cardRadius.bottomLeft,
+                      bottomRight: style.cardRadius.bottomRight,
                     ),
-                    const SizedBox(height: 21),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                      child: Row(
-                        children: [
-                          Text('Отправить сообщение', style: textStyle),
-                          Spacer(),
-                          Text('\$0.91', style: textStyle),
-                        ],
-                      ),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 21),
+                        Center(
+                          child: Text(
+                            'Платный чат',
+                            style: textStyle.copyWith(fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(height: 21),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
+                          child: Row(
+                            children: [
+                              Text('Отправить сообщение', style: textStyle),
+                              Spacer(),
+                              Text('\$0.91', style: textStyle),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
+                          child: Row(
+                            children: [
+                              Text('Совершить звонок', style: textStyle),
+                              Spacer(),
+                              Text('\$0.12/мин', style: textStyle),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                      child: Row(
-                        children: [
-                          Text('Совершить звонок', style: textStyle),
-                          Spacer(),
-                          Text('\$0.12/мин', style: textStyle),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // const SizedBox(height: 21),
-                    // Center(
-                    //   child: Text('You get paid for:', style: textStyle),
-                    // ),
-                    // const SizedBox(height: 6),
-                    // Padding(
-                    //   padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                    //   child: Row(
-                    //     children: [
-                    //       Text('- incoming messages', style: textStyle),
-                    //       Spacer(),
-                    //       Text('\$0.91', style: textStyle),
-                    //     ],
-                    //   ),
-                    // ),
-                    // Padding(
-                    //   padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                    //   child: Row(
-                    //     children: [
-                    //       Text('- incoming calls', style: textStyle),
-                    //       Spacer(),
-                    //       Text('\$0.12/min', style: textStyle),
-                    //     ],
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
                 Transform.translate(
                   offset: const Offset(0, -21),
