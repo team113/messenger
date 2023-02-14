@@ -1034,6 +1034,14 @@ class HiveRxChat extends RxChat {
                 } else {
                   read.at = at;
                 }
+
+                if (event.byUser.id == me) {
+                  final HiveChatItem? item =
+                      _local.get(at.microsecondsSinceEpoch.toString());
+                  if (item != null) {
+                    chatEntity.lastReadItemCursor = item.cursor!;
+                  }
+                }
               }
 
               LastChatRead? lastRead = chatEntity.value.lastReads

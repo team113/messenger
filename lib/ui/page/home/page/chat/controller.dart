@@ -168,6 +168,11 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  /// Keep position offset of the [FlutterListViewDelegate].
+  ///
+  /// Position will be keeping only when `scrollOffset` >= [keepPositionOffset].
+  final Rx<double> keepPositionOffset = Rx(50);
+
   /// Indicator whether a previous page of [RxChat.messages] is loading.
   bool _isPrevPageLoading = false;
 
@@ -213,11 +218,14 @@ class ChatController extends GetxController {
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
-  /// [List] ot the [Future]s representing ongoing next page loadings.
-  final List<FutureOr> _nextPageLoadings = [];
-
   /// Currently displayed [LoadingElement] in the top of the [elements] list.
   LoadingElement? _topLoadingElement;
+
+  /// Currently displayed [LoadingElement] in the bottom of the [elements] list.
+  LoadingElement? _bottomLoadingElement;
+
+  /// Height of a [LoadingElement] displayed in the message list.
+  static const double loadingHeight = 70;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
@@ -246,9 +254,6 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Worker capturing any [RxChat.messages] changes.
-  Worker? _messagesWorker;
-
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -262,17 +267,6 @@ class ChatController extends GetxController {
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
 
-  /// Indicates whether the [listController] is at the bottom of a
-  /// [FlutterListView].
-  bool get atBottom {
-    if (listController.hasClients) {
-      return listController.position.pixels + 200 >=
-          listController.position.maxScrollExtent;
-    } else {
-      return false;
-    }
-  }
-
   /// Indicates whether this device of the currently authenticated [MyUser]
   /// takes part in the [Chat.ongoingCall], if any.
   bool get inCall =>
@@ -280,6 +274,9 @@ class ChatController extends GetxController {
 
   /// Indicates whether a previous page of the [elements] is exists.
   RxBool get hasPreviousPage => chat!.hasPreviousPage;
+
+  /// Indicates whether a next page of the [elements] is exists.
+  RxBool get hasNextPage => chat!.hasNextPage;
 
   @override
   void onInit() {
@@ -355,7 +352,6 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _chatSubscription?.cancel();
-    _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
@@ -751,42 +747,12 @@ class ChatController extends GetxController {
       updateTimer(chat!.chat.value);
       _chatSubscription = chat!.chat.listen(updateTimer);
 
-      _messagesWorker ??= ever(
-        chat!.messages,
-        (_) {
-          if (atBottom &&
-              status.value.isSuccess &&
-              !status.value.isLoadingMore &&
-              !_isPrevPageLoading) {
-            Future.delayed(
-              Duration.zero,
-              () => SchedulerBinding.instance.addPostFrameCallback(
-                (_) async {
-                  if (listController.hasClients) {
-                    try {
-                      _ignorePositionChanges = true;
-                      await listController.animateTo(
-                        listController.position.maxScrollExtent,
-                        duration: 100.milliseconds,
-                        curve: Curves.ease,
-                      );
-                    } finally {
-                      _ignorePositionChanges = false;
-                    }
-                  }
-                },
-              ),
-            );
-          }
-        },
-      );
-
       listController.sliverController.onPaintItemPositionsCallback =
           (height, positions) {
         if (positions.isNotEmpty) {
-          _topVisibleItem = positions.first;
+          _topVisibleItem = positions.last;
 
-          _lastVisibleItem = positions.lastWhereOrNull((e) {
+          _lastVisibleItem = positions.firstWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
             return element is ChatMessageElement ||
                 element is ChatMemberInfoElement ||
@@ -944,11 +910,10 @@ class ChatController extends GetxController {
 
       _itemToReturnTo = _topVisibleItem;
 
-      int index = elements.length - 1;
       try {
         _ignorePositionChanges = true;
         await listController.sliverController.animateToIndex(
-          index,
+          0,
           offset: 0,
           offsetBasedOnBottom: true,
           duration: 300.milliseconds,
@@ -1105,10 +1070,8 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (listController.position.pixels <
-          listController.position.maxScrollExtent -
-              MediaQuery.of(router.context!).size.height * 2 +
-              200) {
+      if (listController.position.pixels >
+          MediaQuery.of(router.context!).size.height * 2 + 200) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -1131,8 +1094,14 @@ class ChatController extends GetxController {
       if (stickyIndex.value != null) {
         final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
-        showSticky.value =
-            offset != null && listController.offset - offset < 35;
+        if (offset == null || offset == 0) {
+          showSticky.value = false;
+        } else {
+          showSticky.value = (listController.offset +
+                      MediaQuery.of(router.context!).size.height) -
+                  offset >
+              170;
+        }
       }
     });
   }
@@ -1141,57 +1110,49 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _loadMessages() async {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (chat!.hasNextPage.isTrue &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height * 2 + 200) {
-        if (_nextPageLoadings.isEmpty) {
+      if (hasNextPage.isTrue &&
+          listController.position.pixels >
+              listController.position.maxScrollExtent -
+                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+        if (_topLoadingElement == null) {
           _topLoadingElement = LoadingElement.top();
           elements[_topLoadingElement!.id] = _topLoadingElement!;
         }
 
-        final Future future = chat!.loadNextPage(
-          onItemsLoaded: (items) async {
-            if (items.isEmpty) {
-              return;
-            }
-
-            elements.remove(DateTimeElement(items.first.at.toDay()).id);
+        chat!.loadNextPage().whenComplete(() {
+          if (hasNextPage.isFalse) {
             elements.remove(_topLoadingElement?.id);
             _topLoadingElement = null;
-
-            await Future.delayed(15.milliseconds);
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              if (_nextPageLoadings.isNotEmpty) {
-                _topLoadingElement = LoadingElement.top();
-                elements[_topLoadingElement!.id] = _topLoadingElement!;
-              }
-            });
-          },
-        );
-
-        _nextPageLoadings.add(future);
-        await future;
-        _nextPageLoadings.remove(future);
-
-        if (_nextPageLoadings.isEmpty) {
-          elements.remove(_topLoadingElement?.id);
-        }
-        return;
+          }
+        });
       }
 
       if (hasPreviousPage.isTrue &&
           !_isPrevPageLoading &&
-          listController.position.pixels >
-              listController.position.maxScrollExtent -
-                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height * 2 + 200) {
+        keepPositionOffset.value = 0;
         _isPrevPageLoading = true;
+
+        _bottomLoadingElement =
+            LoadingElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
+        elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
 
         await chat!.loadPreviousPage();
 
-        await Future.delayed(
-          10.milliseconds,
-          () => _isPrevPageLoading = false,
-        );
+        final double offset = listController.position.pixels;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          keepPositionOffset.value = 50;
+          if (offset < loadingHeight) {
+            print('offset < loadingHeight');
+            print(loadingHeight - offset);
+            listController.jumpTo(
+              listController.position.pixels - (loadingHeight - offset + 10),
+            );
+          }
+          elements.remove(_bottomLoadingElement?.id);
+          _isPrevPageLoading = false;
+        });
       }
     }
   }
@@ -1249,7 +1210,7 @@ class ChatController extends GetxController {
     } else {
       if (chat?.messages.isEmpty == false) {
         if (chat!.chat.value.unreadCount == 0) {
-          index = elements.length - 1;
+          index = 0;
           offset = 0;
         } else if (_firstUnreadItem != null) {
           int i = elements.values.toList().indexWhere((e) {
@@ -1350,9 +1311,10 @@ class ListElementId implements Comparable<ListElementId> {
   int compareTo(ListElementId other) {
     int result = at.compareTo(other.at);
     if (result == 0) {
-      return id.val.compareTo(other.id.val);
+      result = id.val.compareTo(other.id.val);
     }
-    return result;
+    // Return reversed [result] because list displays in reverse mod.
+    return -result;
   }
 }
 
@@ -1426,10 +1388,10 @@ class UnreadMessagesElement extends ListElement {
 
 /// [ListElement] representing a loading indicator.
 class LoadingElement extends ListElement {
-  LoadingElement.bottom()
+  LoadingElement.bottom([PreciseDateTime? at])
       : super(
           ListElementId(
-            PreciseDateTime.now().add(1.days),
+            at ?? PreciseDateTime.now().add(1.days),
             const ChatItemId('0'),
           ),
         );

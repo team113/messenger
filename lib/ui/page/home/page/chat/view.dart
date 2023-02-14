@@ -175,11 +175,13 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
+                                    Obx(() {
+                                      return Text(
+                                        c.chat!.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      );
+                                    }),
                                     _chatSubtitle(c),
                                   ],
                                 ),
@@ -192,69 +194,80 @@ class _ChatViewState extends State<ChatView>
                       padding: const EdgeInsets.only(left: 4, right: 20),
                       leading: const [StyledBackButton()],
                       actions: [
-                        if (c.chat!.chat.value.ongoingCall == null) ...[
-                          WidgetButton(
-                            onPressed: () => c.call(true),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
-                            ),
-                          ),
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            onPressed: () => c.call(false),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call.svg',
-                              height: 19,
-                            ),
-                          ),
-                        ] else ...[
-                          AnimatedSwitcher(
-                            key: const Key('ActiveCallButton'),
-                            duration: 300.milliseconds,
-                            child: c.inCall
-                                ? WidgetButton(
-                                    key: const Key('Drop'),
-                                    onPressed: c.dropCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/call_end.svg',
-                                          width: 32,
+                        Obx(() {
+                          List<Widget> children;
+                          if (c.chat!.chat.value.ongoingCall == null) {
+                            children = [
+                              WidgetButton(
+                                onPressed: () => c.call(true),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
+                                ),
+                              ),
+                              const SizedBox(width: 28),
+                              WidgetButton(
+                                onPressed: () => c.call(false),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
+                              ),
+                            ];
+                          } else {
+                            children = [
+                              AnimatedSwitcher(
+                                key: const Key('ActiveCallButton'),
+                                duration: 300.milliseconds,
+                                child: c.inCall
+                                    ? WidgetButton(
+                                        key: const Key('Drop'),
+                                        onPressed: c.dropCall,
+                                        child: Container(
                                           height: 32,
+                                          width: 32,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/call_end.svg',
+                                              width: 32,
+                                              height: 32,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : WidgetButton(
+                                        key: const Key('Join'),
+                                        onPressed: c.joinCall,
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/audio_call_start.svg',
+                                              width: 15,
+                                              height: 15,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                : WidgetButton(
-                                    key: const Key('Join'),
-                                    onPressed: c.joinCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/audio_call_start.svg',
-                                          width: 15,
-                                          height: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ],
+                              ),
+                            ];
+                          }
+
+                          return Row(
+                            children: children,
+                          );
+                        }),
                       ],
                     ),
                     body: Listener(
@@ -356,37 +369,21 @@ class _ChatViewState extends State<ChatView>
                                               c.isItemDragged.isTrue)
                                       ? const NeverScrollableScrollPhysics()
                                       : const BouncingScrollPhysics(),
+                                  reverse: true,
                                   delegate: FlutterListViewDelegate(
-                                    (context, i) {
-                                      final widget =
-                                          _listElement(context, c, i);
-
-                                      if (c.elements.length - 1 == i) {
-                                        return Obx(() {
-                                          if (c.hasPreviousPage.isTrue) {
-                                            return Column(
-                                              children: [
-                                                widget,
-                                                _loadingIndicator()
-                                              ],
-                                            );
-                                          } else {
-                                            return widget;
-                                          }
-                                        });
-                                      } else {
-                                        return widget;
-                                      }
-                                    },
+                                    (context, i) => _listElement(context, c, i),
                                     // ignore: invalid_use_of_protected_member
                                     childCount: c.elements.value.length,
                                     keepPosition: true,
+                                    keepPositionOffset:
+                                        c.keepPositionOffset.value,
                                     onItemKey: (i) => c.elements.values
                                         .elementAt(i)
                                         .id
                                         .toString(),
                                     onItemSticky: (i) => c.elements.values
                                         .elementAt(i) is DateTimeElement,
+                                    stickyAtTailer: true,
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
@@ -442,22 +439,22 @@ class _ChatViewState extends State<ChatView>
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
-                          Rect previous = c.bottomBarRect.value ??
-                              const Rect.fromLTWH(0, 0, 0, 55);
-                          SchedulerBinding.instance.addPostFrameCallback((_) {
-                            c.bottomBarRect.value =
-                                c.bottomBarKey.globalPaintBounds;
-                            if (c.bottomBarRect.value != null &&
-                                c.listController.position.maxScrollExtent > 0 &&
-                                c.listController.position.pixels <
-                                    c.listController.position.maxScrollExtent) {
-                              Rect current = c.bottomBarRect.value!;
-                              c.listController.jumpTo(
-                                c.listController.position.pixels +
-                                    (current.height - previous.height),
-                              );
-                            }
-                          });
+                          Rect? previous = c.bottomBarRect.value;
+                          if (previous != null) {
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              c.bottomBarRect.value =
+                                  c.bottomBarKey.globalPaintBounds;
+                              if (c.bottomBarRect.value != null &&
+                                  c.listController.position.maxScrollExtent >
+                                      0) {
+                                Rect current = c.bottomBarRect.value!;
+                                c.listController.jumpTo(
+                                  c.listController.position.pixels -
+                                      (current.height - previous.height),
+                                );
+                              }
+                            });
+                          }
 
                           return true;
                         },
@@ -536,13 +533,13 @@ class _ChatViewState extends State<ChatView>
       }
 
       ListElement? previous;
-      if (i > 0) {
-        previous = c.elements.values.elementAt(i - 1);
+      if (i < c.elements.length - 1) {
+        previous = c.elements.values.elementAt(i + 1);
       }
 
       ListElement? next;
-      if (i < c.elements.length - 1) {
-        next = c.elements.values.elementAt(i + 1);
+      if (i > 0) {
+        next = c.elements.values.elementAt(i - 1);
       }
 
       bool previousSame = false;
@@ -573,45 +570,47 @@ class _ChatViewState extends State<ChatView>
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
-          builder: (_, u) => ChatItemWidget(
-            chat: c.chat!.chat,
-            item: e,
-            me: c.me!,
-            avatar: !previousSame,
-            margin: EdgeInsets.only(
-              top: previousSame ? 1.5 : 6,
-              bottom: nextSame ? 1.5 : 6,
-            ),
-            reads: c.chat!.members.length > 10
-                ? []
-                : c.chat!.reads.where((m) =>
-                    m.at == e.value.at &&
-                    m.memberId != c.me &&
-                    m.memberId != e.value.authorId),
-            user: u.data,
-            getUser: c.getUser,
-            animation: _animation,
-            onHide: () => c.hideChatItem(e.value),
-            onDelete: () => c.deleteMessage(e.value),
-            onReply: () {
-              if (c.send.replied.any((i) => i.id == e.value.id)) {
-                c.send.replied.removeWhere((i) => i.id == e.value.id);
-              } else {
-                c.send.replied.insert(0, e.value);
-              }
-            },
-            onCopy: c.copyText,
-            onRepliedTap: c.animateTo,
-            onGallery: c.calculateGallery,
-            onResend: () => c.resendItem(e.value),
-            onEdit: () => c.editMessage(e.value),
-            onDrag: (d) => c.isItemDragged.value = d,
-            onFileTap: (a) => c.download(e.value, a),
-            onAttachmentError: () async {
-              await c.chat?.updateAttachments(e.value);
-              await Future.delayed(Duration.zero);
-            },
-          ),
+          builder: (_, u) => Obx(() {
+            return ChatItemWidget(
+              chat: c.chat!.chat,
+              item: e,
+              me: c.me!,
+              avatar: !previousSame,
+              margin: EdgeInsets.only(
+                top: previousSame ? 1.5 : 6,
+                bottom: nextSame ? 1.5 : 6,
+              ),
+              reads: c.chat!.members.length > 10
+                  ? []
+                  : c.chat!.reads.where((m) =>
+                      m.at == e.value.at &&
+                      m.memberId != c.me &&
+                      m.memberId != e.value.authorId),
+              user: u.data,
+              getUser: c.getUser,
+              animation: _animation,
+              onHide: () => c.hideChatItem(e.value),
+              onDelete: () => c.deleteMessage(e.value),
+              onReply: () {
+                if (c.send.replied.any((i) => i.id == e.value.id)) {
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
+                } else {
+                  c.send.replied.insert(0, e.value);
+                }
+              },
+              onCopy: c.copyText,
+              onRepliedTap: c.animateTo,
+              onGallery: c.calculateGallery,
+              onResend: () => c.resendItem(e.value),
+              onEdit: () => c.editMessage(e.value),
+              onDrag: (d) => c.isItemDragged.value = d,
+              onFileTap: (a) => c.download(e.value, a),
+              onAttachmentError: () async {
+                await c.chat?.updateAttachments(e.value);
+                await Future.delayed(Duration.zero);
+              },
+            );
+          }),
         ),
       );
     } else if (element is ChatForwardElement) {
@@ -619,94 +618,96 @@ class _ChatViewState extends State<ChatView>
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
-          builder: (_, u) => ChatForwardWidget(
-            key: Key('ChatForwardWidget_${element.id}'),
-            chat: c.chat!.chat,
-            forwards: element.forwards,
-            note: element.note,
-            authorId: element.authorId,
-            me: c.me!,
-            reads: c.chat!.members.length > 10
-                ? []
-                : c.chat!.reads.where((m) =>
-                    m.at == element.forwards.last.value.at &&
-                    m.memberId != c.me &&
-                    m.memberId != element.authorId),
-            user: u.data,
-            getUser: c.getUser,
-            animation: _animation,
-            onHide: () async {
-              final List<Future> futures = [];
+          builder: (_, u) => Obx(() {
+            return ChatForwardWidget(
+              key: Key('ChatForwardWidget_${element.id}'),
+              chat: c.chat!.chat,
+              forwards: element.forwards,
+              note: element.note,
+              authorId: element.authorId,
+              me: c.me!,
+              reads: c.chat!.members.length > 10
+                  ? []
+                  : c.chat!.reads.where((m) =>
+                      m.at == element.forwards.last.value.at &&
+                      m.memberId != c.me &&
+                      m.memberId != element.authorId),
+              user: u.data,
+              getUser: c.getUser,
+              animation: _animation,
+              onHide: () async {
+                final List<Future> futures = [];
 
-              for (Rx<ChatItem> f in element.forwards) {
-                futures.add(c.hideChatItem(f.value));
-              }
-
-              if (element.note.value != null) {
-                futures.add(c.hideChatItem(element.note.value!.value));
-              }
-
-              await Future.wait(futures);
-            },
-            onDelete: () async {
-              final List<Future> futures = [];
-
-              for (Rx<ChatItem> f in element.forwards) {
-                futures.add(c.deleteMessage(f.value));
-              }
-
-              if (element.note.value != null) {
-                futures.add(c.deleteMessage(element.note.value!.value));
-              }
-
-              await Future.wait(futures);
-            },
-            onReply: () {
-              if (element.forwards.any(
-                      (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
-                  c.send.replied
-                      .any((i) => i.id == element.note.value?.value.id)) {
-                for (Rx<ChatItem> e in element.forwards) {
-                  c.send.replied.removeWhere((i) => i.id == e.value.id);
+                for (Rx<ChatItem> f in element.forwards) {
+                  futures.add(c.hideChatItem(f.value));
                 }
 
                 if (element.note.value != null) {
-                  c.send.replied
-                      .removeWhere((i) => i.id == element.note.value!.value.id);
+                  futures.add(c.hideChatItem(element.note.value!.value));
                 }
-              } else {
-                for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.send.replied.insert(0, e.value);
+
+                await Future.wait(futures);
+              },
+              onDelete: () async {
+                final List<Future> futures = [];
+
+                for (Rx<ChatItem> f in element.forwards) {
+                  futures.add(c.deleteMessage(f.value));
                 }
 
                 if (element.note.value != null) {
-                  c.send.replied.insert(0, element.note.value!.value);
+                  futures.add(c.deleteMessage(element.note.value!.value));
                 }
-              }
-            },
-            onCopy: c.copyText,
-            onGallery: c.calculateGallery,
-            onEdit: () => c.editMessage(element.note.value!.value),
-            onDrag: (d) => c.isItemDragged.value = d,
-            onForwardedTap: (id, chatId) {
-              if (chatId == c.id) {
-                c.animateTo(id);
-              } else {
-                router.chat(chatId, itemId: id, push: true);
-              }
-            },
-            onFileTap: c.download,
-            onAttachmentError: () async {
-              for (ChatItem item in [
-                element.note.value?.value,
-                ...element.forwards.map((e) => e.value),
-              ].whereNotNull()) {
-                await c.chat?.updateAttachments(item);
-              }
 
-              await Future.delayed(Duration.zero);
-            },
-          ),
+                await Future.wait(futures);
+              },
+              onReply: () {
+                if (element.forwards.any(
+                        (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
+                    c.send.replied
+                        .any((i) => i.id == element.note.value?.value.id)) {
+                  for (Rx<ChatItem> e in element.forwards) {
+                    c.send.replied.removeWhere((i) => i.id == e.value.id);
+                  }
+
+                  if (element.note.value != null) {
+                    c.send.replied.removeWhere(
+                        (i) => i.id == element.note.value!.value.id);
+                  }
+                } else {
+                  for (Rx<ChatItem> e in element.forwards.reversed) {
+                    c.send.replied.insert(0, e.value);
+                  }
+
+                  if (element.note.value != null) {
+                    c.send.replied.insert(0, element.note.value!.value);
+                  }
+                }
+              },
+              onCopy: c.copyText,
+              onGallery: c.calculateGallery,
+              onEdit: () => c.editMessage(element.note.value!.value),
+              onDrag: (d) => c.isItemDragged.value = d,
+              onForwardedTap: (id, chatId) {
+                if (chatId == c.id) {
+                  c.animateTo(id);
+                } else {
+                  router.chat(chatId, itemId: id, push: true);
+                }
+              },
+              onFileTap: c.download,
+              onAttachmentError: () async {
+                for (ChatItem item in [
+                  element.note.value?.value,
+                  ...element.forwards.map((e) => e.value),
+                ].whereNotNull()) {
+                  await c.chat?.updateAttachments(item);
+                }
+
+                await Future.delayed(Duration.zero);
+              },
+            );
+          }),
         ),
       );
     } else if (element is DateTimeElement) {
@@ -1082,11 +1083,10 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of a [LoadingElement].
   Widget _loadingIndicator() {
-    return Container(
+    return const SizedBox(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: const Center(
+      height: ChatController.loadingHeight,
+      child: Center(
         child: CircularProgressIndicator(),
       ),
     );
