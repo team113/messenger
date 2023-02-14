@@ -34,20 +34,16 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
-/// View displaying [ChatItem] info.
+/// View displaying the provided [ChatItem] info.
 ///
 /// Intended to be displayed with the [show] method.
 class MessageInfo extends StatelessWidget {
-  const MessageInfo({
-    super.key,
-    this.id,
-    this.reads = const [],
-  });
+  const MessageInfo({super.key, this.id, this.reads = const []});
 
-  /// [ChatItemId] of [ChatMessage] of this modal.
+  /// [ChatItemId] of a [ChatItem] this [MessageInfo] is about.
   final ChatItemId? id;
 
-  /// [LastChatRead]s of the [ChatItem] this [MessageInfo] is about.
+  /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
@@ -169,7 +165,7 @@ class MessageInfo extends StatelessWidget {
 
                         return AnimatedSwitcher(
                           duration: 250.milliseconds,
-                          child: !c.search.isEmpty.value ? close : null,
+                          child: c.search.isEmpty.value ? null : close,
                         );
                       }),
                     ],

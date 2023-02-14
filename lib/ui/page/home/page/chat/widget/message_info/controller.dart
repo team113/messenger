@@ -52,10 +52,15 @@ class MessageInfoController extends GetxController {
     super.onInit();
   }
 
-  /// Initialize this [MessageInfoController].
+  /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
     final List<Future> futures = reads
-        .map((e) => _userService.get(e.memberId)..then((v) => users.add(v!)))
+        .map((e) => _userService.get(e.memberId)
+          ..then((u) {
+            if (u != null) {
+              users.add(u);
+            }
+          }))
         .whereNotNull()
         .toList();
 
