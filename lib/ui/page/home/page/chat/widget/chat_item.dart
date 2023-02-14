@@ -892,19 +892,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: max(media.length * 60, 300),
                                 child: FitView(
                                   dividerColor: Colors.transparent,
-                                  children: media
-                                      .mapIndexed(
-                                        (i, e) =>
-                                            ChatItemWidget.mediaAttachment(
-                                          context,
-                                          e,
-                                          media,
-                                          key: _galleryKeys[i],
-                                          onError: widget.onAttachmentError,
-                                          onGallery: widget.onGallery,
-                                        ),
-                                      )
-                                      .toList(),
+                                  children: media.mapIndexed(
+                                    (i, e) {
+                                      return ChatItemWidget.mediaAttachment(
+                                        context,
+                                        e,
+                                        media,
+                                        key: _galleryKeys[i],
+                                        onError: widget.onAttachmentError,
+                                        onGallery: widget.onGallery,
+                                      );
+                                    },
+                                  ).toList(),
                                 ),
                               ),
                       ),
@@ -1447,35 +1446,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
-                        builder: (bool enabledPopup) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              child(enabledPopup),
-                              if (avatars.isNotEmpty)
-                                Transform.translate(
-                                  offset: Offset(-12, -widget.margin.bottom),
-                                  child: WidgetButton(
-                                    onPressed: () => ChatItemReads.show(
-                                      context,
-                                      reads: widget.reads,
-                                      getUser: widget.getUser,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: avatars,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
                         preventContextMenu: false,
                         alignment: _fromMe
                             ? Alignment.bottomRight
@@ -1637,6 +1607,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
+                        builder: (bool enabledPopup) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child(enabledPopup),
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: Offset(-12, -widget.margin.bottom),
+                                  child: WidgetButton(
+                                    onPressed: () => MessageInfo.show(
+                                      context,
+                                      reads: reads ?? [],
+                                      id: widget.item.value.id,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: avatars,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   );

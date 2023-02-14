@@ -79,7 +79,6 @@ dependencies:
   toml: ^0.13.1
   universal_io: ^2.0.4
   uuid: ^3.0.7
-  vector_math: ^2.1.4
   vibration: ^1.7.6
   video_player: ^2.5.1
   wakelock: ^0.6.2

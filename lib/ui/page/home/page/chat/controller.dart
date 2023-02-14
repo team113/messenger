@@ -123,6 +123,7 @@ class ChatController extends GetxController {
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
+  /// [SelectedContent] of a [SelectionArea] within this [ChatView].
   SelectedContent? selection;
 
   /// [FlutterListViewController] of a messages [FlutterListView].
@@ -994,13 +995,6 @@ class ChatController extends GetxController {
     PlatformUtils.copy(selection?.plainText ?? text);
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
-
-  FocusNode get effectiveFocusNode {
-    _internalNode ??= FocusNode();
-    return _internalNode!;
-  }
-
-  FocusNode? _internalNode;
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].

@@ -295,7 +295,7 @@ class _ChatViewState extends State<ChatView>
                         }
                       },
                       child: RawGestureDetector(
-                        behavior: HitTestBehavior.deferToChild,
+                        behavior: HitTestBehavior.translucent,
                         gestures: {
                           AllowMultipleHorizontalDragGestureRecognizer:
                               GestureRecognizerFactoryWithHandlers<

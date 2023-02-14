@@ -846,32 +846,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
-                          builder: (bool enabledPopup) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                child(enabledPopup),
-                                if (avatars.isNotEmpty)
-                                  Transform.translate(
-                                    offset: const Offset(-12, -4),
-                                    child: WidgetButton(
-                                      onPressed: () => MessageInfo.show(
-                                        context,
-                                        id: widget.forwards.first.value.id,
-                                        reads: reads ?? [],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: avatars,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
                           actions: [
                             ContextMenuButton(
                               label: PlatformUtils.isMobile
@@ -996,6 +970,32 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
+                          builder: (bool enabledPopup) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                child(enabledPopup),
+                                if (avatars.isNotEmpty)
+                                  Transform.translate(
+                                    offset: const Offset(-12, -4),
+                                    child: WidgetButton(
+                                      onPressed: () => MessageInfo.show(
+                                        context,
+                                        id: widget.forwards.first.value.id,
+                                        reads: reads ?? [],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: avatars,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
