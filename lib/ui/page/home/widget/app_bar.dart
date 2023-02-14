@@ -19,6 +19,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
@@ -84,6 +85,35 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
     return Stack(
       children: [
+        if (widget.expandable)
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Transform.translate(
+                offset: const Offset(0, 15),
+                child: Container(
+                  // padding: const EdgeInsets.all(4),
+                  width: 32, height: 32,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 8,
+                        color: Color(0x22000000),
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.monetization_on_outlined,
+                    color: Color(0xFF72B060),
+                    size: 32,
+                  ),
+                ),
+              ),
+            ),
+          ),
         _bar(context),
         if (widget.expandable)
           Positioned.fill(child: _button(() => _expand(context))),
@@ -95,26 +125,35 @@ class _CustomAppBarState extends State<CustomAppBar> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Transform.translate(
-        offset: const Offset(0, 12),
+        offset: const Offset(0, 15),
         child: WidgetButton(
           onPressed: onPressed,
           child: Container(
-            padding: const EdgeInsets.all(4),
+            // padding: const EdgeInsets.all(4),
+            width: 32, height: 32,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 8,
-                  color: Color(0x22000000),
-                  blurStyle: BlurStyle.outer,
-                )
-              ],
+              // boxShadow: [
+              //   BoxShadow(
+              //     blurRadius: 8,
+              //     color: Color(0x22000000),
+              //     blurStyle: BlurStyle.outer,
+              //   )
+              // ],
             ),
-            child: const Icon(
-              Icons.monetization_on_outlined,
-              color: Color(0xFF72B060),
+            child: Center(
+              child: SvgLoader.asset(
+                'assets/icons/paid_chat.svg',
+                width: 24,
+                height: 24,
+              ),
             ),
+            // child: const Icon(
+            //   Icons.monetization_on_outlined,
+            //   color: Color(0xFF72B060),
+            //   size: 32,
+            // ),
           ),
         ),
       ),
@@ -188,10 +227,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
                             const SizedBox(height: 2.4),
                             row,
                             Container(
-                              color: Color(0xFFF9F9F9),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: bottom,
+                              color: Color.fromARGB(255, 237, 237, 237),
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: 300),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: bottom,
+                                  ),
+                                ),
                               ),
                             ),
                             // ...bottom,
@@ -222,9 +266,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 _entry?.remove();
                 _entry = null;
               },
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-              ),
+              child: Container(color: Colors.black.withOpacity(0.5)),
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -232,57 +274,61 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 _bar(
                   context,
                   [
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 21),
                     Center(
-                      child: Text('alex3 has set a fee for:', style: textStyle),
-                    ),
-                    const SizedBox(height: 6),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                      child: Row(
-                        children: [
-                          Text('- incoming messages', style: textStyle),
-                          Spacer(),
-                          Text('\$0.91', style: textStyle),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                      child: Row(
-                        children: [
-                          Text('- incoming calls', style: textStyle),
-                          Spacer(),
-                          Text('\$0.12/min', style: textStyle),
-                        ],
+                      child: Text(
+                        'Платный чат',
+                        style: textStyle.copyWith(fontSize: 18),
                       ),
                     ),
                     const SizedBox(height: 21),
-                    Center(
-                      child: Text('You get paid for:', style: textStyle),
-                    ),
-                    const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
                       child: Row(
                         children: [
-                          Text('- incoming messages', style: textStyle),
+                          Text('Отправить сообщение', style: textStyle),
                           Spacer(),
                           Text('\$0.91', style: textStyle),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
                       child: Row(
                         children: [
-                          Text('- incoming calls', style: textStyle),
+                          Text('Совершить звонок', style: textStyle),
                           Spacer(),
-                          Text('\$0.12/min', style: textStyle),
+                          Text('\$0.12/мин', style: textStyle),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 31),
+                    const SizedBox(height: 32),
+                    // const SizedBox(height: 21),
+                    // Center(
+                    //   child: Text('You get paid for:', style: textStyle),
+                    // ),
+                    // const SizedBox(height: 6),
+                    // Padding(
+                    //   padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                    //   child: Row(
+                    //     children: [
+                    //       Text('- incoming messages', style: textStyle),
+                    //       Spacer(),
+                    //       Text('\$0.91', style: textStyle),
+                    //     ],
+                    //   ),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                    //   child: Row(
+                    //     children: [
+                    //       Text('- incoming calls', style: textStyle),
+                    //       Spacer(),
+                    //       Text('\$0.12/min', style: textStyle),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
                 Transform.translate(
@@ -296,19 +342,27 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 8,
-                            color: Color(0x22000000),
-                            blurStyle: BlurStyle.outer,
-                          )
-                        ],
+                        color: Color.fromARGB(255, 237, 237, 237),
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     blurRadius: 8,
+                        //     color: Color(0x22000000),
+                        //     blurStyle: BlurStyle.outer,
+                        //   )
+                        // ],
                       ),
-                      child: const Icon(
-                        Icons.monetization_on_outlined,
-                        color: Color(0xFF72B060),
+                      child: Center(
+                        child: SvgLoader.asset(
+                          'assets/icons/paid_chat.svg',
+                          width: 24,
+                          height: 24,
+                        ),
                       ),
+                      // child: const Icon(
+                      //   Icons.monetization_on_outlined,
+                      //   color: Color(0xFF72B060),
+                      //   size: 32,
+                      // ),
                     ),
                   ),
                 )
