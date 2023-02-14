@@ -87,6 +87,9 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
