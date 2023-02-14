@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
         - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
-        - Screen share display choosing on desktop. ([#228], [#222])
+        - Screen share display choosing on desktop. ([#347], [#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -169,6 +169,7 @@ All user visible changes to this project will be documented in this file. This p
 [#336]: /../../pull/336
 [#337]: /../../pull/337
 [#340]: /../../pull/340
+[#347]: /../../pull/347
 
 
 
