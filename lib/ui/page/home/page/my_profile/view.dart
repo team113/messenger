@@ -278,6 +278,7 @@ class MyProfileView extends StatelessWidget {
                     },
                     initIndex: ProfileTab.values.last.index,
                     childCount: ProfileTab.values.length,
+                    disableCacheItems: true,
                   ),
                 ),
               );

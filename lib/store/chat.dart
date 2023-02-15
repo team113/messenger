@@ -177,7 +177,7 @@ class ChatRepository implements AbstractChatRepository {
     _cancelToken.cancel();
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.cancel();
   }
 
@@ -1012,7 +1012,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
     await _remoteSubscription!.execute(_recentChatsRemoteEvent);
   }
