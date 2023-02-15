@@ -17,11 +17,11 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:permission_handler/permission_handler.dart';
 
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import 'web_utils.dart';
@@ -166,12 +166,12 @@ class WebUtils {
   static bool containsCalls() => false;
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, CallPreferences prefs) {
+  static void setCallPreferences(ChatId chatId, Rect prefs) {
     // No-op.
   }
 
   /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static CallPreferences? getCallPreference(ChatId chatId) => null;
+  static Rect? getCallPreference(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {

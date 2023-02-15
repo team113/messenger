@@ -17,10 +17,10 @@
 
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 
@@ -75,8 +75,8 @@ abstract class AbstractSettingsRepository {
   Future<void> setSortContactsByName(bool enabled);
 
   /// Sets call preferences.
-  Future<void> setCallPrefs(ChatId chatId, CallPreferences prefs);
+  Future<void> setCallPrefs(ChatId chatId, Rect prefs);
 
   /// Returns call preferences.
-  CallPreferences? getCallPrefs(ChatId id);
+  Rect? getCallPrefs(ChatId id);
 }

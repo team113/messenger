@@ -14,14 +14,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model/call_preferences.dart';
+import '/domain/model/rect.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
 
-/// [Hive] storage for [CallPreferences].
-class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
+/// [Hive] storage for [Rect].
+class CallsPreferencesHiveProvider extends HiveBaseProvider<Rect> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -30,13 +31,12 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(CallPreferencesAdapter());
+    Hive.maybeRegisterAdapter(RectAdapter());
   }
 
-  /// Puts the provided [CallPreferences] to [Hive].
-  Future<void> put(ChatId chatId, CallPreferences prefs) =>
-      putSafe(chatId.val, prefs);
+  /// Puts the provided [Rect] to [Hive].
+  Future<void> put(ChatId chatId, Rect prefs) => putSafe(chatId.val, prefs);
 
-  /// Returns a [CallPreferences] from [Hive] by its [id].
-  CallPreferences? get(ChatId id) => getSafe(id.val);
+  /// Returns a [Rect] from [Hive] by its [id].
+  Rect? get(ChatId id) => getSafe(id.val);
 }

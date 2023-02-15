@@ -38,8 +38,8 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/rect.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
 import 'web_utils.dart';
@@ -365,7 +365,7 @@ class WebUtils {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    CallPreferences? prefs = getCallPreferences(chatId);
+    Rect? prefs = getCallPreferences(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
     final height = min(prefs?.height ?? 500, screenH.toDouble());
@@ -472,15 +472,15 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, CallPreferences prefs) =>
+  static void setCallPreferences(ChatId chatId, Rect prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.toJson());
 
   /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static CallPreferences? getCallPreferences(ChatId chatId) {
+  static Rect? getCallPreferences(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return CallPreferences.fromJson(json.decode(data));
+      return Rect.zero.fromJson(json.decode(data));
     }
 
     return null;

@@ -29,7 +29,6 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -524,7 +523,7 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
-    CallPreferences? prefs =
+    Rect? prefs =
         _settingsRepository.getCallPrefs(_currentCall.value.chatId.value);
 
     if (isMobile) {
@@ -864,11 +863,11 @@ class CallController extends GetxController {
 
     _settingsRepository.setCallPrefs(
       chat.value!.id,
-      CallPreferences(
-        top: top.value,
-        left: left.value,
-        width: width.value,
-        height: height.value,
+      Rect.fromLTWH(
+        left.value,
+        top.value,
+        width.value,
+        height.value,
       ),
     );
 

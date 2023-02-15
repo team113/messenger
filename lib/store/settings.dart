@@ -18,11 +18,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
@@ -140,11 +140,11 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
-  Future<void> setCallPrefs(ChatId chatId, CallPreferences prefs) =>
+  Future<void> setCallPrefs(ChatId chatId, Rect prefs) =>
       _callsSettingsProvider.put(chatId, prefs);
 
   @override
-  CallPreferences? getCallPrefs(ChatId id) => _callsSettingsProvider.get(id);
+  Rect? getCallPrefs(ChatId id) => _callsSettingsProvider.get(id);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
