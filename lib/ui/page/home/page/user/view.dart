@@ -26,6 +26,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
@@ -226,12 +227,16 @@ class UserView extends StatelessWidget {
                   );
                 }),
               ),
-              bottomNavigationBar: c.isBlacklisted == true
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                      child: _blockedField(context, c),
-                    )
-                  : null,
+              bottomNavigationBar: Obx(() {
+                if (c.isBlacklisted != true) {
+                  return const SizedBox();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  child: _blockedField(context, c),
+                );
+              }),
             );
           });
         });
@@ -463,47 +468,7 @@ class UserView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          filled: false,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
+      data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
           key: const Key('BlockedField'),
