@@ -69,7 +69,7 @@ class PaginatedFragment<T> {
   /// List of the elements fetched from [cache] and remote.
   final RxObsList<T> elements = RxObsList<T>();
 
-  /// Elements synchronized with the remote.
+  /// Elements uploaded from the remote.
   final List<T> _synced = [];
 
   /// Indicator whether next page is loading.
@@ -84,11 +84,11 @@ class PaginatedFragment<T> {
   /// Indicator whether previous page is exist.
   final RxBool _hasPreviousPage = RxBool(false);
 
-  /// Cursor of the last element in the [_synced].
-  String? _firstItemCursor;
+  /// Cursor of the previous page.
+  String? _startCursor;
 
-  /// Cursor of the first element in the [_synced].
-  String? _lastItemCursor;
+  /// Cursor of the next page.
+  String? _endCursor;
 
   /// Indicates whether next page is exist.
   RxBool get hasNextPage => _hasNextPage;
@@ -107,6 +107,11 @@ class PaginatedFragment<T> {
 
   /// Loads the initial page ot the [elements].
   Future<void> loadInitialPage() async {
+    if (_synced.isNotEmpty) {
+      // Return if initial page is already fetched.
+      return;
+    }
+
     ItemsPage<T>? fetched;
 
     await Future.delayed(const Duration(seconds: 2));
@@ -127,26 +132,18 @@ class PaginatedFragment<T> {
 
     _hasNextPage.value = fetched.pageInfo.hasNextPage;
     _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
-    _firstItemCursor = fetched.pageInfo.startCursor;
-    _lastItemCursor = fetched.pageInfo.endCursor;
+    _startCursor = fetched.pageInfo.startCursor;
+    _endCursor = fetched.pageInfo.endCursor;
 
-    syncItems(fetched.items);
+    _syncItems(fetched.items);
 
     for (T i in fetched.items) {
-      _synced.insertAfter(i, (e) => compare(i, e) == 1);
-      if (elements.none((e) => equal(e, i))) {
-        elements.insertAfter(i, (e) => compare(i, e) == 1);
-      }
-      if (cache.none((e) => equal(e, i))) {
-        cache.insertAfter(i, (e) => compare(i, e) == 1);
-      }
+      _add(i);
     }
   }
 
   /// Loads next page of the [elements].
-  Future<void> loadNextPage({
-    Future<void> Function(List<T>)? onItemsLoaded,
-  }) async {
+  Future<void> loadNextPage() async {
     if (_hasNextPage.isFalse) {
       return;
     }
@@ -154,14 +151,13 @@ class PaginatedFragment<T> {
     if (cache.length > elements.length) {
       Future.sync(() async {
         Iterable<T> cached = cache.skip(elements.length).take(pageSize);
-        await onItemsLoaded?.call(cached.toList());
         for (T i in cached) {
           elements.insertAfter(i, (e) => compare(i, e) == 1);
         }
       });
     }
 
-    await _loadNextPage(onItemsLoaded: onItemsLoaded);
+    await _loadNextPage();
   }
 
   /// Loads next page of the [elements].
@@ -175,25 +171,19 @@ class PaginatedFragment<T> {
 
       ItemsPage<T>? fetched = await onFetchPage(
         first: pageSize,
-        after: _lastItemCursor,
+        after: _endCursor,
       );
 
       if (fetched != null) {
         _hasNextPage.value = fetched.pageInfo.hasNextPage;
-        _lastItemCursor = fetched.pageInfo.endCursor;
+        _endCursor = fetched.pageInfo.endCursor;
 
-        syncItems(fetched.items);
+        _syncItems(fetched.items);
 
         await onItemsLoaded?.call(fetched.items);
 
         for (T i in fetched.items) {
-          _synced.insertAfter(i, (e) => compare(i, e) == 1);
-          if (elements.none((e) => equal(e, i))) {
-            elements.insertAfter(i, (e) => compare(i, e) == 1);
-          }
-          if (cache.none((e) => equal(e, i))) {
-            cache.insertAfter(i, (e) => compare(i, e) == 1);
-          }
+          _add(i);
         }
 
         if (_synced.length < elements.length) {
@@ -216,30 +206,40 @@ class PaginatedFragment<T> {
 
     await Future.delayed(const Duration(seconds: 2));
     ItemsPage<T>? fetched =
-        await onFetchPage(last: pageSize, before: _firstItemCursor);
+        await onFetchPage(last: pageSize, before: _startCursor);
 
     if (fetched != null) {
       _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
-      _firstItemCursor = fetched.pageInfo.startCursor;
+      _startCursor = fetched.pageInfo.startCursor;
 
       for (T i in fetched.items) {
-        _synced.insertAfter(i, (e) => compare(i, e) == 1);
-        if (elements.none((e) => equal(e, i))) {
-          elements.insertAfter(i, (e) => compare(i, e) == 1);
-        }
-        if (cache.none((e) => equal(e, i))) {
-          cache.insertAfter(i, (e) => compare(i, e) == 1);
-        }
+        _add(i);
       }
     }
 
     _isPrevPageLoading = false;
   }
 
+  /// Inserts the provided [item] to the [_synced], [elements] and [cache].
+  void _add(T item) {
+    _synced.insertAfter(item, (e) => compare(item, e) == 1);
+
+    final int i = elements.indexWhere((e) => equal(e, item));
+    if (i == -1) {
+      elements.insertAfter(item, (e) => compare(item, e) == 1);
+    } else {
+      elements[i] = item;
+    }
+
+    if (cache.none((e) => equal(e, item))) {
+      cache.insertAfter(item, (e) => compare(item, e) == 1);
+    }
+  }
+
   /// Synchronizes the provided [fetched] elements with the [cache].
-  void syncItems(List<T> fetched) {
+  void _syncItems(List<T> fetched) {
     List<T> secondary =
-        cache.skip(_synced.length).take(pageSize).map((e) => e).toList();
+        cache.skip(_synced.length).take(fetched.length).map((e) => e).toList();
 
     if (fetched.isEmpty || secondary.isEmpty) {
       return;

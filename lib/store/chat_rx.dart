@@ -267,7 +267,7 @@ class HiveRxChat extends RxChat {
             break;
 
           case OperationKind.updated:
-            // No-op.
+            put(event.element);
             break;
         }
         messages.refresh();
@@ -364,14 +364,8 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> loadNextPage({
-    Future<void> Function(List<ChatItem>)? onItemsLoaded,
-  }) async {
-    await _fragment.loadNextPage(
-      onItemsLoaded: (items) async {
-        await onItemsLoaded?.call(items.map((e) => e.value).toList());
-      },
-    );
+  Future<void> loadNextPage() async {
+    await _fragment.loadNextPage();
   }
 
   @override
@@ -474,6 +468,12 @@ class HiveRxChat extends RxChat {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
+    put(HiveChatItem item, {bool ignoreVersion = false}) {
+      if(_fragment.hasPreviousPage.isFalse) {
+        this.put(item, ignoreVersion: ignoreVersion);
+      }
+    }
+
     // Copy the [attachments] list since we're going to manipulate it here.
     List<Attachment> uploaded = List.from(attachments ?? []);
     List<ChatItem> replies = List.from(repliesTo, growable: false);
@@ -1083,7 +1083,9 @@ class HiveRxChat extends RxChat {
                   }
                 }
 
-                put(item);
+                if(_fragment.hasPreviousPage.isFalse) {
+                  put(item);
+                }
 
                 if (item.value is ChatMemberInfo) {
                   var msg = item.value as ChatMemberInfo;

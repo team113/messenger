@@ -146,7 +146,7 @@ class ContactRepository implements AbstractContactRepository {
           contacts.remove(event.element.value.id)?.dispose();
           break;
         case OperationKind.updated:
-          // No-op.
+          _putEntry(event.element);
           break;
       }
     });

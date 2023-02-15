@@ -203,7 +203,7 @@ class ChatRepository implements AbstractChatRepository {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _putEntry(event.element);
           break;
       }
     });
