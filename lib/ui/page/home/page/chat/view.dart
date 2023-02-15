@@ -380,9 +380,7 @@ class _ChatViewState extends State<ChatView>
                                 onSelectionChanged: (a) => c.selection = a,
                                 contextMenuBuilder: (_, __) => const SizedBox(),
                                 selectionControls: EmptyTextSelectionControls(),
-                                child: ContextMenuInterceptor(
-                                  child: child,
-                                ),
+                                child: ContextMenuInterceptor(child: child),
                               );
                             }),
                             Obx(() {

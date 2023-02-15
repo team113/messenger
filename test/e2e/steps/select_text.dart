@@ -85,7 +85,7 @@ final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   },
 );
 
-/// Returns text [Offset] position.
+/// Returns texts [Offset] position.
 Offset _textOffsetToPosition(RenderParagraph paragraph, int offset) {
   const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
   final Offset localOffset =
