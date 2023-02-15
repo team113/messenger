@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/dot.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/attachment.dart';
@@ -61,6 +62,10 @@ class RecentChatTile extends StatelessWidget {
     this.onUnmute,
     this.onFavorite,
     this.onUnfavorite,
+    this.onSelect,
+    this.selecting,
+    this.onTap,
+    this.selectedForActions,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -103,6 +108,15 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when this [rxChat] add to favorites action is triggered.
   final void Function()? onFavorite;
+
+  ///FIXME:
+  final void Function()? onSelect;
+
+  final bool? selecting;
+
+  final void Function()? onTap;
+
+  final bool? selectedForActions;
 
   /// Callback, called when this [rxChat] remove from favorites action is
   /// triggered.
@@ -154,6 +168,11 @@ class RecentChatTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                 ],
+                // FIXME:
+                if (selecting == true) ...[
+                  const SizedBox(width: 5),
+                  Dot(selected: selectedForActions),
+                ],
                 _counter(),
               ],
             ),
@@ -204,10 +223,11 @@ class RecentChatTile extends StatelessWidget {
           ContextMenuButton(
             label: 'btn_select'.l10n,
             trailing: const Icon(Icons.select_all),
+            onPressed: onSelect,
           ),
         ],
         selected: selected,
-        onTap: () => router.chat(chat.id),
+        onTap: onTap ?? () => router.chat(chat.id),
       );
     });
   }

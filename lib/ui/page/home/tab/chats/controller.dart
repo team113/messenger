@@ -91,6 +91,11 @@ class ChatsTabController extends GetxController {
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
+  /// FIXME:
+  final RxBool selecting = RxBool(false);
+
+  final RxList<ChatId> selectedChats = RxList();
+
   /// Status of the [createGroup] progression.
   ///
   /// May be:
@@ -355,6 +360,26 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// FIXME:
+  Future<void> startSelecting() async {
+    selecting.value = true;
+    router.navigation.value = false;
+  }
+
+  void stopSelecting() async {
+    selecting.value = false;
+    selectedChats.clear();
+    router.navigation.value = true;
+  }
+
+  void selectChat(RxChat e) {
+    if (selectedChats.contains(e.id)) {
+      selectedChats.remove(e.id);
+    } else {
+      selectedChats.add(e.id);
     }
   }
 

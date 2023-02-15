@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -71,7 +72,9 @@ class ChatsTabView extends StatelessWidget {
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
-                  border: c.search.value == null && !c.searching.value
+                  border: c.search.value == null &&
+                          !c.searching.value &&
+                          !c.selecting.value
                       ? null
                       : Border.all(
                           color: Theme.of(context).colorScheme.secondary,
@@ -156,8 +159,10 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         ),
                       );
+                    } else if (c.selecting.value) {
+                      child = Text('Select chats'.l10n, key: const Key('2'));
                     } else {
-                      child = Text('label_chats'.l10n, key: const Key('2'));
+                      child = Text('label_chats'.l10n, key: const Key('3'));
                     }
 
                     return AnimatedSwitcher(
@@ -195,7 +200,7 @@ class ChatsTabView extends StatelessWidget {
                           height: 15,
                         );
                       } else {
-                        child = c.groupCreating.value
+                        child = c.groupCreating.value || c.selecting.value
                             ? SvgLoader.asset(
                                 'assets/icons/close_primary.svg',
                                 height: 15,
@@ -211,6 +216,10 @@ class ChatsTabView extends StatelessWidget {
                         onPressed: () {
                           if (c.searching.value) {
                             c.closeSearch(!c.groupCreating.value);
+                          } else if (c.selecting.value) {
+                            c.selecting.value
+                                ? c.stopSelecting()
+                                : c.startSelecting();
                           } else {
                             if (c.groupCreating.value) {
                               c.closeGroupCreating();
@@ -510,6 +519,9 @@ class ChatsTabView extends StatelessWidget {
                                         horizontal: 10,
                                       ),
                                       child: Obx(() {
+                                        final selectedForActions =
+                                            c.selectedChats.contains(chat.id);
+
                                         return RecentChatTile(
                                           chat,
                                           key: Key('RecentChat_${chat.id}'),
@@ -527,6 +539,13 @@ class ChatsTabView extends StatelessWidget {
                                               c.favoriteChat(chat.id),
                                           onUnfavorite: () =>
                                               c.unfavoriteChat(chat.id),
+                                          onSelect: () => c.startSelecting(),
+                                          onTap: c.selecting.value
+                                              ? () => c.selectChat(chat)
+                                              : null,
+                                          selecting: c.selecting.value,
+                                          selectedForActions:
+                                              selectedForActions,
                                         );
                                       }),
                                     ),
@@ -549,8 +568,9 @@ class ChatsTabView extends StatelessWidget {
 
                   return const Center(child: CircularProgressIndicator());
                 }),
-                bottomNavigationBar:
-                    c.groupCreating.value ? _createGroup(context, c) : null,
+                bottomNavigationBar: c.groupCreating.value
+                    ? _createGroup(context, c)
+                    : _selectButtons(context, c),
               );
             }),
             Obx(() {
@@ -647,5 +667,87 @@ class ChatsTabView extends StatelessWidget {
 
       return AnimatedSwitcher(duration: 250.milliseconds, child: child);
     });
+  }
+
+  Widget _selectButtons(BuildContext context, ChatsTabController c) {
+    Widget button({
+      Key? key,
+      Widget? leading,
+      required Widget child,
+      void Function()? onPressed,
+      Color? color,
+    }) {
+      return Expanded(
+        child: OutlinedRoundedButton(
+          key: key,
+          leading: leading,
+          title: child,
+          onPressed: onPressed,
+          color: color,
+          shadows: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+              blurStyle: BlurStyle.outer,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        8,
+        7,
+        8,
+        PlatformUtils.isMobile && !PlatformUtils.isWeb
+            ? router.context!.mediaQuery.padding.bottom + 7
+            : 12,
+      ),
+      child: Row(
+        children: [
+          button(
+            child: Text(
+              'btn_close'.l10n,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: const TextStyle(color: Colors.black),
+            ),
+            onPressed: () => c.stopSelecting(),
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Obx(() {
+            return button(
+              child: Text(
+                'Delete (${c.selectedChats.length})',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                    color:
+                        c.selectedChats.isEmpty ? Colors.black : Colors.white),
+              ),
+              onPressed:
+                  c.selectedChats.isEmpty ? null : () => _hideChats(context, c),
+              color: Theme.of(context).colorScheme.secondary,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+    bool clear = false;
+
+    final bool? res =
+        await MessagePopup.alert('label_delete_chats'.l10n, description: [
+      TextSpan(text: 'Do you want to delete ${c.selectedChats.length} chats?')
+    ]);
+
+    if (res == true) {
+      clear = true;
+    }
   }
 }
