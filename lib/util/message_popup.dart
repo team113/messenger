@@ -124,5 +124,6 @@ class MessagePopup {
   }
 
   /// Shows a [FloatingSnackBar] with the [title] message.
-  static void success(String title) => FloatingSnackBar.show(title);
+  static void success(String title, {double bottom = 16}) =>
+      FloatingSnackBar.show(title, bottom: bottom);
 }

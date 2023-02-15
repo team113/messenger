@@ -980,47 +980,7 @@ class _ChatViewState extends State<ChatView>
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          filled: false,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
+      data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
           key: const Key('BlockedField'),
