@@ -365,7 +365,7 @@ class WebUtils {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    Rect? prefs = getCallPreferences(chatId);
+    Rect? prefs = getCallRect(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
     final height = min(prefs?.height ?? 500, screenH.toDouble());
@@ -472,12 +472,12 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, Rect prefs) =>
+  static void setCallRect(ChatId chatId, Rect prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.toJson());
 
-  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static Rect? getCallPreferences(ChatId chatId) {
+  /// Returns the [Rect] stored by the provided [chatId], if any.
+  static Rect? getCallRect(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
       return Rect.zero.fromJson(json.decode(data));

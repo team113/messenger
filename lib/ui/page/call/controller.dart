@@ -310,7 +310,7 @@ class CallController extends GetxController {
   final ChatService _chatService;
 
   /// Settings repository, used to get the [buttons] value, set and get [Chat]s
-  /// [CallPreferences].
+  /// [Rect] call info.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Current [OngoingCall].

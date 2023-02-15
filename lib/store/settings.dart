@@ -59,8 +59,8 @@ class SettingsRepository extends DisposableInterface
   /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
 
-  /// [CallsPreferencesHiveProvider] persisting and returns chats
-  /// [CallPreferences].
+  /// [CallsPreferencesHiveProvider] persisting and returns chats call [Rect]
+  /// info.
   final CallsPreferencesHiveProvider _callsSettingsProvider;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.

@@ -166,12 +166,12 @@ class WebUtils {
   static bool containsCalls() => false;
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, Rect prefs) {
+  static void setCallRect(ChatId chatId, Rect prefs) {
     // No-op.
   }
 
-  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static Rect? getCallPreference(ChatId chatId) => null;
+  /// Returns the [Rect] stored by the provided [chatId], if any.
+  static Rect? getCallRect(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
