@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
@@ -35,17 +36,21 @@ import '/util/platform_utils.dart';
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
-    Key? key,
+    super.key,
+    this.checksum,
     this.fit,
     this.height,
     this.width,
     this.borderRadius,
     this.onForbidden,
     this.filter,
-  }) : super(key: key);
+  });
 
   /// URL of an image to display.
   final String url;
+
+  /// SHA-256 checksum of the image to display.
+  final String? checksum;
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
@@ -73,26 +78,14 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// Naive [_FIFOCache] caching the images.
-  static final _FIFOCache _cache = _FIFOCache();
-
-  /// [Timer] retrying the image fetching.
-  Timer? _timer;
-
   /// Byte data of the fetched image.
   Uint8List? _image;
 
   /// Image fetching progress.
   double _progress = 0;
 
-  /// Starting period of exponential backoff image fetching.
-  static const Duration _minBackoffPeriod = Duration(microseconds: 500);
-
-  /// Maximum possible period of exponential backoff image fetching.
-  static const Duration _maxBackoffPeriod = Duration(seconds: 32);
-
-  /// Current period of exponential backoff image fetching.
-  Duration _backoffPeriod = _minBackoffPeriod;
+  /// [CancelToken] canceling the [_loadImage] operation.
+  final CancelToken _cancelToken = CancelToken();
 
   @override
   void initState() {
@@ -110,7 +103,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _cancelToken.cancel();
     super.dispose();
   }
 
@@ -170,56 +163,61 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads the [_image] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  Future<void> _loadImage() async {
-    _timer?.cancel();
+  FutureOr<void> _loadImage() async {
+    Uint8List? cached;
+    if (widget.checksum != null) {
+      cached = FIFOCache.get(widget.checksum!);
+    }
 
-    Uint8List? cached = _cache[widget.url];
     if (cached != null) {
       _image = cached;
-      _backoffPeriod = _minBackoffPeriod;
       if (mounted) {
         setState(() {});
       }
     } else {
-      Response? data;
-
       try {
-        data = await PlatformUtils.dio.get(
-          widget.url,
-          onReceiveProgress: (received, total) {
-            if (total > 0) {
-              _progress = received / total;
+        await Backoff.run(
+          () async {
+            Response? data;
+
+            try {
+              data = await PlatformUtils.dio.get(
+                widget.url,
+                onReceiveProgress: (received, total) {
+                  if (total > 0) {
+                    _progress = received / total;
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  }
+                },
+                options: Options(responseType: ResponseType.bytes),
+                cancelToken: _cancelToken,
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 403) {
+                await widget.onForbidden?.call();
+                return;
+              }
+            }
+
+            if (data?.data != null && data!.statusCode == 200) {
+              if (widget.checksum != null) {
+                FIFOCache.set(widget.checksum!, data.data);
+              }
+
+              _image = data.data;
               if (mounted) {
                 setState(() {});
               }
+            } else {
+              throw Exception('Image is not loaded');
             }
           },
-          options: Options(responseType: ResponseType.bytes),
+          _cancelToken,
         );
-      } on DioError catch (e) {
-        if (e.response?.statusCode == 403) {
-          await widget.onForbidden?.call();
-        }
-      }
-
-      if (data?.data != null && data!.statusCode == 200) {
-        _cache[widget.url] = data.data;
-        _image = data.data;
-        _backoffPeriod = _minBackoffPeriod;
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        _timer = Timer(
-          _backoffPeriod,
-          () {
-            if (_backoffPeriod < _maxBackoffPeriod) {
-              _backoffPeriod *= 2;
-            }
-
-            _loadImage();
-          },
-        );
+      } on OperationCanceledException {
+        // No-op.
       }
     }
   }
@@ -229,7 +227,7 @@ class _RetryImageState extends State<RetryImage> {
 ///
 /// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
 /// [_maxLength], then the first inserted element is removed.
-class _FIFOCache {
+class FIFOCache {
   /// Maximum allowed length of [_cache].
   static const int _maxLength = 1000;
 
@@ -237,15 +235,15 @@ class _FIFOCache {
   static const int _maxSize = 100 << 20; // 100 MiB
 
   /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  final LinkedHashMap<String, Uint8List> _cache =
+  static final LinkedHashMap<String, Uint8List> _cache =
       LinkedHashMap<String, Uint8List>();
 
   /// Returns the total size [_cache] occupies.
-  int get size =>
+  static int get size =>
       _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
 
   /// Puts the provided [bytes] to the cache.
-  void operator []=(String key, Uint8List bytes) {
+  static void set(String key, Uint8List bytes) {
     if (!_cache.containsKey(key)) {
       while (size >= _maxSize) {
         _cache.remove(_cache.keys.first);
@@ -260,5 +258,8 @@ class _FIFOCache {
   }
 
   /// Returns the [Uint8List] of the provided [key], if any is cached.
-  Uint8List? operator [](String key) => _cache[key];
+  static Uint8List? get(String key) => _cache[key];
+
+  /// Indicates whether an item with the provided [key] exists.
+  static bool exists(String key) => _cache.containsKey(key);
 }

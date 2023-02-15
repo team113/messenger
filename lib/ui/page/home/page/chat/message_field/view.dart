@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -33,10 +32,10 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
@@ -87,6 +86,38 @@ class MessageFieldView extends StatelessWidget {
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
 
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  static ThemeData theme(BuildContext context) {
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide.none,
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: const Color(0x55000000),
+      iconTheme: const IconThemeData(color: Colors.blue),
+      inputDecorationTheme: InputDecorationTheme(
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: Colors.white,
+        fillColor: Colors.white,
+        hoverColor: Colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(
+          15,
+          PlatformUtils.isDesktop ? 30 : 23,
+          15,
+          0,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -96,47 +127,7 @@ class MessageFieldView extends StatelessWidget {
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            shadowColor: const Color(0x55000000),
-            iconTheme: const IconThemeData(color: Colors.blue),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusColor: Colors.white,
-              fillColor: Colors.white,
-              hoverColor: Colors.transparent,
-              filled: true,
-              isDense: true,
-              contentPadding: EdgeInsets.fromLTRB(
-                15,
-                PlatformUtils.isDesktop ? 30 : 23,
-                15,
-                0,
-              ),
-            ),
-          ),
+          data: theme(context),
           child: SafeArea(
             child: Container(
               key: const Key('SendField'),
@@ -539,76 +530,12 @@ class MessageFieldView extends StatelessWidget {
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       if (isImage || isVideo) {
-        final Widget child;
-
-        if (isImage) {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              if (e.file.path == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.file(
-                    File(e.file.path!),
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.file(
-                    File(e.file.path!),
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              if (e.file.isSvg) {
-                child = SvgLoader.bytes(
-                  e.file.bytes!,
-                  width: size,
-                  height: size,
-                );
-              } else {
-                child = Image.memory(
-                  e.file.bytes!,
-                  fit: BoxFit.cover,
-                  width: size,
-                  height: size,
-                );
-              }
-            }
-          } else {
-            child = RetryImage(
-              e.original.url,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            );
-          }
-        } else {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              child = const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-            }
-          } else {
-            child = VideoThumbnail.url(url: e.original.url);
-          }
-        }
+        final Widget child = MediaAttachment(
+          attachment: e,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        );
 
         final List<Attachment> attachments = c.attachments
             .where((e) {
@@ -622,36 +549,42 @@ class MessageFieldView extends StatelessWidget {
 
         return WidgetButton(
           key: key,
-          onPressed: () {
-            final int index = c.attachments.indexWhere((m) => m.value == e);
-            if (index != -1) {
-              GalleryPopup.show(
-                context: context,
-                gallery: GalleryPopup(
-                  initial: index,
-                  initialKey: key,
-                  onTrashPressed: (int i) {
-                    c.attachments.removeWhere((o) => o.value == attachments[i]);
-                  },
-                  children: attachments.map((o) {
-                    if (o is ImageAttachment ||
-                        (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(
-                        o.original.url,
-                        o.filename,
-                        size: o.original.size,
-                      );
-                    }
-                    return GalleryItem.video(
-                      o.original.url,
-                      o.filename,
-                      size: o.original.size,
+          onPressed: e is LocalAttachment
+              ? null
+              : () {
+                  final int index =
+                      c.attachments.indexWhere((m) => m.value == e);
+                  if (index != -1) {
+                    GalleryPopup.show(
+                      context: context,
+                      gallery: GalleryPopup(
+                        initial: index,
+                        initialKey: key,
+                        onTrashPressed: (int i) {
+                          c.attachments
+                              .removeWhere((o) => o.value == attachments[i]);
+                        },
+                        children: attachments.map((o) {
+                          if (o is ImageAttachment ||
+                              (o is LocalAttachment && o.file.isImage)) {
+                            return GalleryItem.image(
+                              o.original.url,
+                              o.filename,
+                              size: o.original.size,
+                              checksum: o.original.checksum,
+                            );
+                          }
+                          return GalleryItem.video(
+                            o.original.url,
+                            o.filename,
+                            size: o.original.size,
+                            checksum: o.original.checksum,
+                          );
+                        }).toList(),
+                      ),
                     );
-                  }).toList(),
-                ),
-              );
-            }
-          },
+                  }
+                },
           child: isVideo
               ? IgnorePointer(
                   child: Stack(
@@ -867,6 +800,7 @@ class MessageFieldView extends StatelessWidget {
                     )
                   : RetryImage(
                       image.small.url,
+                      checksum: image.small.checksum,
                       fit: BoxFit.cover,
                       height: double.infinity,
                       width: double.infinity,

@@ -235,13 +235,13 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) async {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(int count) {
+    return const Stream.empty();
   }
 
   @override
-  Future<Stream<QueryResult<Object?>>> keepOnline() {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
   }
 
   @override

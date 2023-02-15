@@ -34,6 +34,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -56,9 +57,9 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
-import 'chat_item_reads.dart';
+import 'media_attachment.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
-import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
@@ -171,26 +172,18 @@ class ChatItemWidget extends StatefulWidget {
       isVideo = e is FileAttachment;
     }
 
-    final Widget attachment;
+    Widget attachment;
     if (isVideo) {
       attachment = Stack(
         alignment: Alignment.center,
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
-          isLocal
-              ? e.file.bytes == null
-                  ? const CircularProgressIndicator()
-                  : VideoThumbnail.bytes(
-                      bytes: e.file.bytes!,
-                      key: key,
-                      height: 300,
-                    )
-              : VideoThumbnail.url(
-                  url: e.original.url,
-                  key: key,
-                  height: 300,
-                  onError: onError,
-                ),
+          MediaAttachment(
+            key: key,
+            attachment: e,
+            height: 300,
+            onError: onError,
+          ),
           Center(
             child: Container(
               width: 60,
@@ -205,29 +198,22 @@ class ChatItemWidget extends StatefulWidget {
           ),
         ],
       );
-    } else if (isLocal) {
-      if (e.file.bytes == null) {
-        attachment = const CircularProgressIndicator();
-      } else {
-        attachment = Image.memory(
-          e.file.bytes!,
-          key: key,
-          fit: BoxFit.cover,
-          height: 300,
+    } else {
+      attachment = MediaAttachment(
+        key: key,
+        attachment: e,
+        height: 300,
+        width: filled ? double.infinity : null,
+        fit: BoxFit.cover,
+        onError: onError,
+      );
+
+      if (!isLocal) {
+        attachment = KeyedSubtree(
+          key: const Key('SentImage'),
+          child: attachment,
         );
       }
-    } else {
-      attachment = KeyedSubtree(
-        key: const Key('SentImage'),
-        child: RetryImage(
-          (e as ImageAttachment).big.url,
-          key: key,
-          fit: BoxFit.cover,
-          width: filled ? double.infinity : null,
-          height: 300,
-          onForbidden: onError,
-        ),
-      );
     }
 
     return Padding(
@@ -246,14 +232,15 @@ class ChatItemWidget extends StatefulWidget {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  String link = o.original.url;
+                  StorageFile file = o.original;
                   GalleryItem? item;
 
                   if (o is FileAttachment) {
                     item = GalleryItem.video(
-                      link,
+                      file.url,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
                         item?.link = o.original.url;
@@ -261,9 +248,10 @@ class ChatItemWidget extends StatefulWidget {
                     );
                   } else if (o is ImageAttachment) {
                     item = GalleryItem.image(
-                      link,
+                      file.url,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
                         item?.link = o.original.url;
@@ -297,26 +285,37 @@ class ChatItemWidget extends StatefulWidget {
               key: Key('AttachmentStatus_${e.id}'),
               child: !isLocal
                   ? Container(key: const Key('Sent'))
-                  : e.status.value == SendingStatus.sent
-                      ? const Icon(
-                          Icons.check_circle,
-                          key: Key('Sent'),
-                          size: 48,
-                          color: Colors.green,
-                        )
-                      : e.status.value == SendingStatus.sending
-                          ? CircularProgressIndicator(
-                              key: const Key('Sending'),
-                              value: e.progress.value,
-                              backgroundColor: Colors.white,
-                              strokeWidth: 10,
-                            )
-                          : const Icon(
-                              Icons.error,
-                              key: Key('Error'),
+                  : Container(
+                      constraints: filled
+                          ? const BoxConstraints(minWidth: 300, minHeight: 300)
+                          : null,
+                      child: e.status.value == SendingStatus.sent
+                          ? const Icon(
+                              Icons.check_circle,
+                              key: Key('Sent'),
                               size: 48,
-                              color: Colors.red,
-                            ),
+                              color: Colors.green,
+                            )
+                          : e.status.value == SendingStatus.sending
+                              ? SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      key: const Key('Sending'),
+                                      value: e.progress.value,
+                                      backgroundColor: Colors.white,
+                                      strokeWidth: 10,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.error,
+                                  key: Key('Error'),
+                                  size: 48,
+                                  color: Colors.red,
+                                ),
+                    ),
             )
           ],
         ),
@@ -1077,6 +1076,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       )
                     : RetryImage(
                         image.medium.url,
+                        checksum: image.medium.checksum,
                         onForbidden: widget.onAttachmentError,
                         fit: BoxFit.cover,
                         width: double.infinity,
@@ -1257,6 +1257,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
     }
 
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.item.value.at.val) &&
+          e.memberId != widget.item.value.authorId,
+    );
+
     bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
@@ -1435,6 +1441,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
                         actions: [
+                          ContextMenuButton(
+                            label: PlatformUtils.isMobile
+                                ? 'btn_info'.l10n
+                                : 'btn_message_info'.l10n,
+                            trailing: const Icon(Icons.info_outline),
+                            onPressed: () => MessageInfo.show(
+                              context,
+                              id: widget.item.value.id,
+                              reads: reads ?? [],
+                            ),
+                          ),
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),
@@ -1589,10 +1606,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               Transform.translate(
                                 offset: Offset(-12, -widget.margin.bottom),
                                 child: WidgetButton(
-                                  onPressed: () => ChatItemReads.show(
+                                  onPressed: () => MessageInfo.show(
                                     context,
-                                    reads: widget.reads,
-                                    getUser: widget.getUser,
+                                    reads: reads ?? [],
+                                    id: widget.item.value.id,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 2),

@@ -989,7 +989,7 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+    MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -1021,7 +1021,7 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
+    _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
       _typingSubscription?.cancel();
@@ -1047,9 +1047,7 @@ class ChatController extends GetxController {
   Future<void> download(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
-    } else if (attachment.path != null) {
-      await attachment.open();
-    } else {
+    } else if (await attachment.open() == false) {
       try {
         await attachment.download();
       } catch (e) {

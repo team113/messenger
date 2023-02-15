@@ -23,7 +23,6 @@ import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
@@ -33,7 +32,7 @@ import 'video_view.dart';
 class ParticipantWidget extends StatelessWidget {
   const ParticipantWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.fit,
     this.muted = false,
     this.outline,
@@ -42,9 +41,8 @@ class ParticipantWidget extends StatelessWidget {
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.useCallCover = false,
     this.expanded = false,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantWidget] represents.
   final Participant participant;
@@ -77,10 +75,6 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether an [UserCallCover] should be used when no video is
-  /// available.
-  final bool useCallCover;
-
   /// Indicator whether this [ParticipantWidget] should have its background
   /// expanded.
   final bool expanded;
@@ -92,40 +86,12 @@ class ParticipantWidget extends StatelessWidget {
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
-        return useCallCover &&
-                participant.user.value?.user.value.callCover != null
-            ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
-            : [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AnimatedContainer(
-                      key: const Key('AnimatedContainerAvatar'),
-                      duration: 150.milliseconds,
-                      curve: Curves.ease,
-                      width: expanded ? 180 : 120,
-                      height: expanded ? 180 : 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: expanded
-                            ? [
-                                const CustomBoxShadow(
-                                  color: Color(0x44000000),
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: AvatarWidget.fromRxUser(
-                        participant.user.value,
-                        radius: expanded ? 90 : 60,
-                        showBadge: false,
-                      ),
-                    ),
-                  ),
-                ),
-              ];
+        return [
+          CallCoverWidget(
+            participant.user.value?.user.value.callCover,
+            user: participant.user.value?.user.value,
+          )
+        ];
       }
 
       return Stack(
@@ -149,7 +115,8 @@ class ParticipantWidget extends StatelessWidget {
                               participant.source == MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      outline: outline,
+                      border:
+                          outline == null ? null : Border.all(color: outline!),
                       onSizeDetermined: onSizeDetermined,
                       enableContextMenu: false,
                       respectAspectRatio: respectAspectRatio,

@@ -29,7 +29,7 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
+  const CallCoverWidget(this.cover, {super.key, this.user});
 
   /// [UserCallCover] to display.
   final UserCallCover? cover;
@@ -41,34 +41,66 @@ class CallCoverWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        cover == null
-            ? SvgLoader.asset(
-                'assets/images/background_dark.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
-            : Stack(
-                children: [
-                  RetryImage(
-                    cover!.full.url,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: const Color(0x55000000),
-                  )
-                ],
+        if (cover == null)
+          SvgLoader.asset(
+            'assets/images/background_dark.svg',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        if (user != null)
+          LayoutBuilder(builder: (context, constraints) {
+            final String? title = user?.name?.val ?? user?.num.val;
+            final int? color = user?.num.val.sum();
+
+            final Color gradient;
+
+            if (color != null) {
+              gradient =
+                  AvatarWidget.colors[color % AvatarWidget.colors.length];
+            } else if (title != null) {
+              gradient = AvatarWidget
+                  .colors[(title.hashCode) % AvatarWidget.colors.length];
+            } else {
+              gradient = const Color(0xFF555555);
+            }
+
+            return Container(
+              margin: const EdgeInsets.all(0.5),
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
               ),
-        if (user != null && cover == null)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AvatarWidget.fromUser(user, radius: 60),
-            ),
+              child: Center(
+                child: Text(
+                  title ?? '??',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: (15 * constraints.biggest.shortestSide / 100)
+                            .clamp(15, 108),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaleFactor: 1,
+                ),
+              ),
+            );
+          }),
+        if (cover != null)
+          RetryImage(
+            cover!.full.url,
+            key: Key(cover!.full.url),
+            checksum: cover!.full.checksum,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
           ),
       ],
     );

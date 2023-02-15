@@ -29,7 +29,7 @@ import '/ui/widget/context_menu/region.dart';
 /// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
   const ChatTile({
-    Key? key,
+    super.key,
     this.chat,
     this.title = const [],
     this.status = const [],
@@ -41,7 +41,7 @@ class ChatTile extends StatelessWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
-  }) : super(key: key);
+  });
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -81,7 +81,7 @@ class ChatTile extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ChatTile_${chat?.chat.value.id}'),
+      key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,
