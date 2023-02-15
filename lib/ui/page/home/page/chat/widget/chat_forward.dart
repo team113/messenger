@@ -45,6 +45,7 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -371,6 +372,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           );
           if (PlatformUtils.isMobile && enabledPopup) {
             content = SelectionArea(child: content);
+            if (PlatformUtils.isWeb) {
+              content = ContextMenuInterceptor(child: content);
+            }
           }
         }
       } else if (item is ChatCall) {
@@ -558,6 +562,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       Widget textWidget = Text(item.text!.val, style: style.boldBody);
       if (PlatformUtils.isMobile && enabledPopup) {
         textWidget = SelectionArea(child: textWidget);
+        if (PlatformUtils.isWeb) {
+          textWidget = ContextMenuInterceptor(child: textWidget);
+        }
       }
 
       return [

@@ -32,17 +32,10 @@ import '../configuration.dart';
 import '../mock/platform_utils.dart';
 import '../world/custom_world.dart';
 
-Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
-  const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
-  final Offset localOffset =
-      paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
-  return paragraph.localToGlobal(localOffset);
-}
-
-/// Long presses a [Chat] with the provided name.
+/// Select text messages specified symbols.
 ///
 /// Examples:
-/// - When I long press "Name" chat.
+/// - When I select "Example" text from 1 to 5 symbols.
 final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
   'I select {string} text from {int} to {int} symbols',
   (text, from, to, context) async {
@@ -68,22 +61,22 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
 
     final TestGesture gesture =
         await context.world.appDriver.nativeDriver.startGesture(
-      textOffsetToPosition(paragraph, from),
+      _textOffsetToPosition(paragraph, from),
       kind: PointerDeviceKind.mouse,
     );
     await gesture
-        .moveTo(textOffsetToPosition(paragraph, from).translate(0, 10));
-    await gesture.moveTo(textOffsetToPosition(paragraph, to));
+        .moveTo(_textOffsetToPosition(paragraph, from).translate(0, 10));
+    await gesture.moveTo(_textOffsetToPosition(paragraph, to));
     await context.world.appDriver.nativeDriver.pump();
     await gesture.cancel();
     await context.world.appDriver.nativeDriver.pump();
   },
 );
 
-/// Long presses a [Chat] with the provided name.
+/// Checks is copied text same as specified text.
 ///
 /// Examples:
-/// - When I long press "Name" chat.
+/// - When copied text is "Example".
 final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   'copied text is {string}',
   (text, context) async {
@@ -91,3 +84,11 @@ final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
     expect(text, copied);
   },
 );
+
+/// Returns text [Offset] position.
+Offset _textOffsetToPosition(RenderParagraph paragraph, int offset) {
+  const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
+  final Offset localOffset =
+      paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
+  return paragraph.localToGlobal(localOffset);
+}

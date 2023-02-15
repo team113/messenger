@@ -53,6 +53,7 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -727,7 +728,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       (bool enabledPopup) {
-        late Widget textWidget;
+        Widget? textWidget;
         if (text != null) {
           textWidget = Text(
             text,
@@ -736,6 +737,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           if (PlatformUtils.isMobile && enabledPopup) {
             textWidget = SelectionArea(child: textWidget);
+            if (PlatformUtils.isWeb) {
+              textWidget = ContextMenuInterceptor(child: textWidget);
+            }
           }
         }
 
@@ -813,7 +817,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         style: style.boldBody.copyWith(color: color),
                       ),
                     ),
-                  if (text != null)
+                  if (textWidget != null)
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
                       opacity: _isRead || !_fromMe ? 1 : 0.7,

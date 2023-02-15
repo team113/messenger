@@ -30,14 +30,14 @@ Feature: Text message are copying correctly
 
     When I long press "For selection" message
     And I tap `CopyButton` button
-    And copied text is "For selection"
+    Then copied text is "For selection"
 
     When I select "For selection" text from 2 to 10 symbols
     And I long press "For selection" message
     And I tap `CopyButton` button
     Then copied text is "r select"
 
-    Then I tap "For selection" message
+    When I tap "For selection" message
     And I long press "For selection" message
     And I tap `CopyButton` button
     Then copied text is "For selection"

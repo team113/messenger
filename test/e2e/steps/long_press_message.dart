@@ -54,8 +54,7 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
       kind: PointerDeviceKind.touch,
     );
     await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
-    await gesture.up();
-    await gesture.removePointer();
+    await gesture.cancel();
 
     await context.world.appDriver.waitForAppToSettle();
   },
@@ -88,13 +87,11 @@ final StepDefinitionGeneric longPressMessageByAttachment =
   },
 );
 
-/// Long presses a [ChatMessage] with the provided attachment attached to it in
-/// the currently opened [Chat].
+/// Taps a [ChatMessage] with the provided text in the currently opened [Chat].
 ///
 /// Examples:
-/// - Then I long press message with "test.jpg"
-/// - Then I long press message with "test.txt"
-final StepDefinitionGeneric tapMessageByAttachment = then1<String, CustomWorld>(
+/// - Then I tap "Example" message
+final StepDefinitionGeneric tapMessage = then1<String, CustomWorld>(
   'I tap {string} message',
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
@@ -110,6 +107,7 @@ final StepDefinitionGeneric tapMessageByAttachment = then1<String, CustomWorld>(
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
     await context.world.appDriver.nativeDriver.tap(finder);
+
     await context.world.appDriver.waitForAppToSettle();
   },
 );

@@ -308,10 +308,12 @@ void main() async {
     var message = find.text('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
 
-    final TestGesture gesture2 = await tester
-        .startGesture(tester.getCenter(message), kind: PointerDeviceKind.mouse);
+    final TestGesture gesture = await tester.startGesture(
+      tester.getCenter(message),
+      kind: PointerDeviceKind.mouse,
+    );
     await tester.pump(const Duration(seconds: 1));
-    await gesture2.up();
+    await gesture.cancel();
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
     await tester.tap(find.byKey(const Key('EditButton')));
