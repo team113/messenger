@@ -365,11 +365,15 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> loadNextPage() async {
     await _fragment.loadNextPage();
+
+    Future.delayed(Duration.zero, updateReads);
   }
 
   @override
   Future<void> loadPreviousPage() async {
     await _fragment.loadPreviousPage();
+
+    Future.delayed(Duration.zero, updateReads);
   }
 
   @override
