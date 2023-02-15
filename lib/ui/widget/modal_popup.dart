@@ -114,7 +114,7 @@ abstract class ModalPopup {
               padding: desktopPadding,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
                 constraints: desktopConstraints,
@@ -131,10 +131,11 @@ abstract class ModalPopup {
 /// [Row] with an optional [header] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
-    Key? key,
+    super.key,
     this.onBack,
+    this.onClose,
     this.header,
-  }) : super(key: key);
+  });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
   final Widget? header;
@@ -143,6 +144,7 @@ class ModalPopupHeader extends StatelessWidget {
   ///
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
+  final void Function()? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -165,10 +167,10 @@ class ModalPopupHeader extends StatelessWidget {
           else
             const SizedBox(width: 40),
           if (header != null) Expanded(child: header!) else const Spacer(),
-          if (!context.isMobile)
+          if (onClose != null || !context.isMobile)
             WidgetButton(
               key: const Key('CloseButton'),
-              onPressed: Navigator.of(context).pop,
+              onPressed: onClose ?? Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Icon(

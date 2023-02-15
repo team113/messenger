@@ -176,6 +176,9 @@ class ChatController extends GetxController {
 
   bool paid = false;
 
+  late final RxBool paidDisclaimer;
+  bool paidDisclaimerDismissed = false;
+
   LoaderElement? _topLoader;
   LoaderElement? _bottomLoader;
 
@@ -290,6 +293,11 @@ class ChatController extends GetxController {
       _userService,
       onChanged: updateDraft,
       onSubmit: () async {
+        if (!paidDisclaimerDismissed) {
+          paidDisclaimer.value = true;
+          return;
+        }
+
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             bool? result = await ChatForwardView.show(
@@ -382,8 +390,14 @@ class ChatController extends GetxController {
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
-      _callService.call(id, withVideo: withVideo);
+  Future<void> call(bool withVideo) async {
+    if (!paidDisclaimerDismissed) {
+      paidDisclaimer.value = true;
+      return;
+    }
+
+    await _callService.call(id, withVideo: withVideo);
+  }
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);
@@ -529,6 +543,12 @@ class ChatController extends GetxController {
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
       }
+
+      paid = chat!.members.values.any((e) =>
+          e.user.value.name?.val == 'alex1' ||
+          e.user.value.name?.val == 'alex2' ||
+          e.user.value.name?.val == 'kirey');
+      paidDisclaimer = RxBool(paid);
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {

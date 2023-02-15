@@ -899,45 +899,6 @@ class ChatsTabView extends StatelessWidget {
             onPressed: () => setState(() => clear = !clear),
             trailing: dot(clear),
           );
-
-          return Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: clear
-                ? style.cardSelectedColor.withOpacity(0.8)
-                : style.cardColor.darken(0.05),
-            child: InkWell(
-              onTap: () => setState(() => clear = !clear),
-              borderRadius: style.cardRadius,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: DefaultTextStyle.merge(
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(color: Colors.black),
-                        child: const Text(
-                          'Очистить чаты',
-                          // style: thin,
-                        ),
-                      ),
-                    ),
-                    IgnorePointer(
-                      child: dot(clear),
-                      // child: Radio<ConfirmDialogVariant>(
-                      //   value: variant,
-                      //   groupValue: _variant,
-                      //   onChanged: null,
-                      // ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
         })
       ],
     );

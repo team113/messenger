@@ -26,7 +26,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Custom stylized and decorated [AppBar].
-class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     this.title,
@@ -35,7 +35,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.padding,
     this.background,
     this.border,
-    this.expandable = false,
+    this.onBottom,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -55,7 +55,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 
   final Color? background;
 
-  final bool expandable;
+  final void Function()? onBottom;
 
   /// Height of the [CustomAppBar].
   static const double height = 60;
@@ -64,36 +64,18 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size(double.infinity, CustomAppBar.height);
 
   @override
-  State<CustomAppBar> createState() => _CustomAppBarState();
-}
-
-class _CustomAppBarState extends State<CustomAppBar> {
-  bool _expanded = false;
-  OverlayEntry? _entry;
-  GlobalKey _key = GlobalKey();
-
-  @override
-  void dispose() {
-    _entry?.remove();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final double top = MediaQuery.of(context).padding.top;
-
     return Stack(
       children: [
-        if (widget.expandable)
+        if (onBottom != null)
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Transform.translate(
                 offset: const Offset(0, 15),
                 child: Container(
-                  // padding: const EdgeInsets.all(4),
-                  width: 32, height: 32,
+                  width: 32,
+                  height: 32,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -115,8 +97,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             ),
           ),
         _bar(context),
-        if (widget.expandable)
-          Positioned.fill(child: _button(() => _expand(context))),
+        if (onBottom != null) Positioned.fill(child: _button(onBottom)),
       ],
     );
   }
@@ -124,36 +105,38 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget _button(void Function()? onPressed) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Transform.translate(
-        offset: const Offset(0, 15),
-        child: WidgetButton(
-          onPressed: onPressed,
-          child: Container(
-            // padding: const EdgeInsets.all(4),
-            width: 32, height: 32,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              // boxShadow: [
-              //   BoxShadow(
-              //     blurRadius: 8,
-              //     color: Color(0x22000000),
-              //     blurStyle: BlurStyle.outer,
-              //   )
-              // ],
-            ),
-            child: Center(
-              child: SvgLoader.asset(
-                'assets/icons/paid_chat.svg',
-                width: 24,
-                height: 24,
+      child: UnconstrainedBox(
+        child: Transform.translate(
+          offset: const Offset(0, 15),
+          child: WidgetButton(
+            onPressed: onPressed,
+            child: Container(
+              // padding: const EdgeInsets.all(4),
+              width: 32, height: 32,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                // boxShadow: [
+                //   BoxShadow(
+                //     blurRadius: 8,
+                //     color: Color(0x22000000),
+                //     blurStyle: BlurStyle.outer,
+                //   )
+                // ],
               ),
+              child: Center(
+                child: SvgLoader.asset(
+                  'assets/icons/paid_chat.svg',
+                  width: 24,
+                  height: 24,
+                ),
+              ),
+              // child: const Icon(
+              //   Icons.monetization_on_outlined,
+              //   color: Color(0xFF72B060),
+              //   size: 32,
+              // ),
             ),
-            // child: const Icon(
-            //   Icons.monetization_on_outlined,
-            //   color: Color(0xFF72B060),
-            //   size: 32,
-            // ),
           ),
         ),
       ),
@@ -165,17 +148,17 @@ class _CustomAppBarState extends State<CustomAppBar> {
     final double top = MediaQuery.of(context).padding.top;
 
     final Widget row = Padding(
-      padding: widget.padding ?? EdgeInsets.zero,
+      padding: padding ?? EdgeInsets.zero,
       child: Row(
         children: [
-          ...widget.leading,
+          ...leading,
           Expanded(
             child: DefaultTextStyle.merge(
               style: Theme.of(context).appBarTheme.titleTextStyle,
-              child: Center(child: widget.title ?? const SizedBox.shrink()),
+              child: Center(child: title ?? const SizedBox.shrink()),
             ),
           ),
-          ...widget.actions,
+          ...actions,
         ],
       ),
     );
@@ -194,7 +177,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
             child: Container(
               // height: CustomAppBar.height,
-              constraints: BoxConstraints(minHeight: CustomAppBar.height),
+              constraints: BoxConstraints(minHeight: height),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
                 boxShadow: const [
@@ -216,8 +199,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   duration: const Duration(milliseconds: 250),
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
-                    border: widget.border ?? style.cardBorder,
-                    color: widget.background ?? style.cardColor,
+                    border: border ?? style.cardBorder,
+                    color: background ?? style.cardColor,
                   ),
                   child: row,
                 ),
@@ -229,121 +212,121 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
   }
 
-  void _expand(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle textStyle = TextStyle(fontSize: 15);
+  // void _expand(BuildContext context) {
+  //   final Style style = Theme.of(context).extension<Style>()!;
+  //   final TextStyle textStyle = TextStyle(fontSize: 15);
 
-    _entry?.remove();
-    _entry = OverlayEntry(
-      builder: (context) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            GestureDetector(
-              behavior: HitTestBehavior.deferToChild,
-              onTap: () {
-                _entry?.remove();
-                _entry = null;
-              },
-              child: Container(color: Colors.black.withOpacity(0.5)),
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: CustomAppBar.height,
-                  child: _bar(context),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 21),
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 237, 237, 237),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: style.cardRadius.bottomLeft,
-                      bottomRight: style.cardRadius.bottomRight,
-                    ),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 21),
-                        Center(
-                          child: Text(
-                            'Платный чат',
-                            style: textStyle.copyWith(fontSize: 18),
-                          ),
-                        ),
-                        const SizedBox(height: 21),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
-                          child: Row(
-                            children: [
-                              Text('Отправить сообщение', style: textStyle),
-                              Spacer(),
-                              Text('\$0.91', style: textStyle),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
-                          child: Row(
-                            children: [
-                              Text('Совершить звонок', style: textStyle),
-                              Spacer(),
-                              Text('\$0.12/мин', style: textStyle),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -21),
-                  child: WidgetButton(
-                    onPressed: () {
-                      _entry?.remove();
-                      _entry = null;
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromARGB(255, 237, 237, 237),
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     blurRadius: 8,
-                        //     color: Color(0x22000000),
-                        //     blurStyle: BlurStyle.outer,
-                        //   )
-                        // ],
-                      ),
-                      child: Center(
-                        child: SvgLoader.asset(
-                          'assets/icons/paid_chat.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
-                      // child: const Icon(
-                      //   Icons.monetization_on_outlined,
-                      //   color: Color(0xFF72B060),
-                      //   size: 32,
-                      // ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
+  //   _entry?.remove();
+  //   _entry = OverlayEntry(
+  //     builder: (context) {
+  //       return Stack(
+  //         fit: StackFit.expand,
+  //         children: [
+  //           GestureDetector(
+  //             behavior: HitTestBehavior.deferToChild,
+  //             onTap: () {
+  //               _entry?.remove();
+  //               _entry = null;
+  //             },
+  //             child: Container(color: Colors.black.withOpacity(0.5)),
+  //           ),
+  //           Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               SizedBox(
+  //                 height: height,
+  //                 child: _bar(context),
+  //               ),
+  //               Container(
+  //                 margin: const EdgeInsets.symmetric(horizontal: 21),
+  //                 constraints: const BoxConstraints(maxWidth: 300),
+  //                 decoration: BoxDecoration(
+  //                   color: const Color.fromARGB(255, 237, 237, 237),
+  //                   borderRadius: BorderRadius.only(
+  //                     bottomLeft: style.cardRadius.bottomLeft,
+  //                     bottomRight: style.cardRadius.bottomRight,
+  //                   ),
+  //                 ),
+  //                 child: Center(
+  //                   child: Column(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: [
+  //                       const SizedBox(height: 21),
+  //                       Center(
+  //                         child: Text(
+  //                           'Платный чат',
+  //                           style: textStyle.copyWith(fontSize: 18),
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 21),
+  //                       Padding(
+  //                         padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
+  //                         child: Row(
+  //                           children: [
+  //                             Text('Отправить сообщение', style: textStyle),
+  //                             Spacer(),
+  //                             Text('\$0.91', style: textStyle),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 12),
+  //                       Padding(
+  //                         padding: const EdgeInsets.fromLTRB(21, 0, 21, 0),
+  //                         child: Row(
+  //                           children: [
+  //                             Text('Совершить звонок', style: textStyle),
+  //                             Spacer(),
+  //                             Text('\$0.12/мин', style: textStyle),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 32),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //               Transform.translate(
+  //                 offset: const Offset(0, -21),
+  //                 child: WidgetButton(
+  //                   onPressed: () {
+  //                     _entry?.remove();
+  //                     _entry = null;
+  //                   },
+  //                   child: Container(
+  //                     padding: const EdgeInsets.all(4),
+  //                     decoration: const BoxDecoration(
+  //                       shape: BoxShape.circle,
+  //                       color: Color.fromARGB(255, 237, 237, 237),
+  //                       // boxShadow: [
+  //                       //   BoxShadow(
+  //                       //     blurRadius: 8,
+  //                       //     color: Color(0x22000000),
+  //                       //     blurStyle: BlurStyle.outer,
+  //                       //   )
+  //                       // ],
+  //                     ),
+  //                     child: Center(
+  //                       child: SvgLoader.asset(
+  //                         'assets/icons/paid_chat.svg',
+  //                         width: 24,
+  //                         height: 24,
+  //                       ),
+  //                     ),
+  //                     // child: const Icon(
+  //                     //   Icons.monetization_on_outlined,
+  //                     //   color: Color(0xFF72B060),
+  //                     //   size: 32,
+  //                     // ),
+  //                   ),
+  //                 ),
+  //               )
+  //             ],
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
 
-    Overlay.of(context).insert(_entry!);
-  }
+  //   Overlay.of(context).insert(_entry!);
+  // }
 }
