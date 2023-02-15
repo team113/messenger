@@ -373,7 +373,7 @@ class ContactsTabController extends GetxController {
   /// [ScrollController.position] value.
   void _scrollListener() {
     if (scrollController.hasClients &&
-        _contactService.hasNextPage.isTrue &&
+        hasNextPage.isTrue &&
         scrollController.position.pixels >
             scrollController.position.maxScrollExtent -
                 (MediaQuery.of(router.context!).size.height + 200)) {

@@ -62,7 +62,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
           return true;
         }
       } catch (_) {
-        //No-op.
+        // No-op.
       }
 
       return false;

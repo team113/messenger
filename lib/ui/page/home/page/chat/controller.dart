@@ -1144,8 +1144,6 @@ class ChatController extends GetxController {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           keepPositionOffset.value = 50;
           if (offset < loadingHeight) {
-            print('offset < loadingHeight');
-            print(loadingHeight - offset);
             listController.jumpTo(
               listController.position.pixels - (loadingHeight - offset + 10),
             );
@@ -1313,7 +1311,7 @@ class ListElementId implements Comparable<ListElementId> {
     if (result == 0) {
       result = id.val.compareTo(other.id.val);
     }
-    // Return reversed [result] because list displays in reverse mod.
+    // Return reversed [result] because messages list displays in reverse mod.
     return -result;
   }
 }

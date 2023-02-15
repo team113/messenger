@@ -23,7 +23,7 @@ import '/api/backend/schema.dart' show PageInfoMixin;
 import '/store/chat_rx.dart';
 import '/util/obs/rxlist.dart';
 
-/// Helper to uploads items with pagination.
+/// Helper to fetches items with pagination.
 class PaginatedFragment<T> {
   PaginatedFragment({
     this.pageSize = 30,
@@ -36,10 +36,10 @@ class PaginatedFragment<T> {
     this.ignore,
   });
 
-  /// Page size of this [PaginatedFragment].
+  /// Size of a page to fetch.
   final int pageSize;
 
-  /// Initial cursor of this [PaginatedFragment].
+  /// Cursor to fetch initial items around.
   final String? initialCursor;
 
   /// Callback, called to compare items.
@@ -48,7 +48,7 @@ class PaginatedFragment<T> {
   /// Indicated whether items are equal.
   final bool Function(T a, T b) equal;
 
-  /// Callback, called to fetch elements page.
+  /// Callback, called to fetch items page.
   final Future<ItemsPage<T>?> Function({
     int? first,
     String? after,
@@ -62,7 +62,7 @@ class PaginatedFragment<T> {
   /// [List] of the cached items.
   List<T> cache;
 
-  /// Indicated whether item should not be deleted from the [cache] if not
+  /// Indicates whether item should not be deleted from the [cache] if not
   /// exists on the remote.
   final bool Function(T)? ignore;
 
@@ -84,10 +84,10 @@ class PaginatedFragment<T> {
   /// Indicator whether previous page is exist.
   final RxBool _hasPreviousPage = RxBool(false);
 
-  /// Cursor of the previous page.
+  /// Cursor to fetch the previous page.
   String? _startCursor;
 
-  /// Cursor of the next page.
+  /// Cursor to fetch the next page.
   String? _endCursor;
 
   /// Indicates whether next page is exist.
@@ -96,7 +96,7 @@ class PaginatedFragment<T> {
   /// Indicates whether previous page is exist.
   RxBool get hasPreviousPage => _hasPreviousPage;
 
-  /// Gets initial elements page from the [cache].
+  /// Gets initial page from the [cache].
   void init() {
     if (initialCursor != null) {
       elements.addAll(cache.take(pageSize ~/ 2));
@@ -105,7 +105,7 @@ class PaginatedFragment<T> {
     }
   }
 
-  /// Loads the initial page ot the [elements].
+  /// Fetches the initial page from the remote.
   Future<void> loadInitialPage() async {
     if (_synced.isNotEmpty) {
       // Return if initial page is already fetched.
@@ -142,7 +142,7 @@ class PaginatedFragment<T> {
     }
   }
 
-  /// Loads next page of the [elements].
+  /// Fetches next page of the [elements].
   Future<void> loadNextPage() async {
     if (_hasNextPage.isFalse) {
       return;
@@ -160,7 +160,7 @@ class PaginatedFragment<T> {
     await _loadNextPage();
   }
 
-  /// Loads next page of the [elements].
+  /// Fetches next page of the [elements].
   Future<void> _loadNextPage({
     Future<void> Function(List<T>)? onItemsLoaded,
   }) async {
@@ -196,7 +196,7 @@ class PaginatedFragment<T> {
     }
   }
 
-  /// Loads previous page of the [elements].
+  /// Fetches previous page of the [elements].
   FutureOr<void> loadPreviousPage() async {
     if (_isPrevPageLoading || _hasPreviousPage.isFalse) {
       return;
@@ -263,9 +263,9 @@ class PaginatedFragment<T> {
   }
 }
 
-/// Page loading result.
+/// Page fetching result.
 abstract class ItemsPage<T> {
-  /// Loaded items.
+  /// Fetched items.
   List<T> get items;
 
   /// Page info of this [ItemsPage].
