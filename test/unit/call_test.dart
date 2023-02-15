@@ -88,12 +88,7 @@ var chatData = {
 
 var chatsQuery = {
   'recentChats': {
-    'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
-    ],
+    'nodes': [chatData],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,

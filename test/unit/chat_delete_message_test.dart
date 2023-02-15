@@ -116,12 +116,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
+      'nodes': [chatData],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,

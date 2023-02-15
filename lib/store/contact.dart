@@ -127,10 +127,6 @@ class ContactRepository implements AbstractContactRepository {
           last: last,
         );
 
-        for (HiveChatContact item in query.items) {
-          _putEntry(item);
-        }
-
         return query;
       },
     );
@@ -306,9 +302,6 @@ class ContactRepository implements AbstractContactRepository {
     if (saved == null ||
         saved.ver <= contact.ver ||
         contact.ver.internal == BigInt.zero) {
-      if (saved != null && contact.cursor == null) {
-        contact.cursor = saved.cursor;
-      }
       await _contactLocal.put(contact);
     }
   }
@@ -399,7 +392,6 @@ class ContactRepository implements AbstractContactRepository {
                     name: node.name,
                   ),
                   versioned.ver,
-                  null,
                 ),
               );
 
@@ -522,13 +514,13 @@ class ContactRepository implements AbstractContactRepository {
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     List<HiveChatContact> contacts = <HiveChatContact>[];
-    for (var c in query.edges) {
-      List<HiveUser> users = c.node.getHiveUsers();
+    for (var c in query.nodes) {
+      List<HiveUser> users = c.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
 
-      contacts.add(c.node.toHive(cursor: c.cursor));
+      contacts.add(c.toHive());
     }
 
     return ContactsQuery(contacts, query.pageInfo);

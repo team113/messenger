@@ -219,6 +219,7 @@ class HiveRxChat extends RxChat {
     });
 
     _fragment = PaginatedFragment<HiveChatItem>(
+      initialCursor: lastReadItemCursor?.val,
       compare: (a, b) => a.value.at.compareTo(b.value.at),
       equal: (a, b) => a.value.id == b.value.id,
       ignore: (e) => e.value.status.value != SendingStatus.sent,
@@ -248,7 +249,6 @@ class HiveRxChat extends RxChat {
           last: last,
         );
       },
-      initialCursor: lastReadItemCursor?.val,
     );
 
     return _guard.protect(() async {
@@ -270,7 +270,6 @@ class HiveRxChat extends RxChat {
             put(event.element);
             break;
         }
-        messages.refresh();
       });
       _fragment.init();
 
@@ -469,7 +468,7 @@ class HiveRxChat extends RxChat {
     List<ChatItem> repliesTo = const [],
   }) async {
     put(HiveChatItem item, {bool ignoreVersion = false}) {
-      if(_fragment.hasPreviousPage.isFalse) {
+      if (_fragment.hasPreviousPage.isFalse) {
         this.put(item, ignoreVersion: ignoreVersion);
       }
     }
@@ -1083,7 +1082,7 @@ class HiveRxChat extends RxChat {
                   }
                 }
 
-                if(_fragment.hasPreviousPage.isFalse) {
+                if (_fragment.hasPreviousPage.isFalse) {
                   put(item);
                 }
 

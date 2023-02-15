@@ -180,10 +180,6 @@ class ChatRepository implements AbstractChatRepository {
           last: last,
         );
 
-        for (HiveChat item in query.items) {
-          _putEntry(item);
-        }
-
         return query;
       },
     );
@@ -1164,7 +1160,7 @@ class ChatRepository implements AbstractChatRepository {
         .recentChats;
 
     return ChatsQuery(
-      query.edges.map((e) => _chat(e.node, cursor: e.cursor)).toList(),
+      query.nodes.map((e) => _chat(e)).toList(),
       query.pageInfo,
     );
   }
@@ -1186,12 +1182,12 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Constructs a new [HiveChat] from the given [ChatMixin] fragment.
-  HiveChat _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
+  HiveChat _chat(ChatMixin q) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toHive(cursor: cursor);
+    return q.toHive();
   }
 
   @override

@@ -29,12 +29,9 @@ query Contacts(
         before: $before
         noFavorite: $noFavorite
     ) {
-        edges {
-            node {
-                __typename
-                ...ChatContact
-            }
-            cursor
+        nodes {
+            __typename
+            ...ChatContact
         }
         pageInfo {
             ...PageInfo

@@ -94,12 +94,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
+      'nodes': [chatData],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
@@ -111,7 +106,7 @@ void main() async {
 
   var chatContacts = {
     'chatContacts': {
-      'edges': [],
+      'nodes': [],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
@@ -143,12 +138,8 @@ void main() async {
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
-    (_) => const Stream.empty(),
-  );
-  when(graphQlProvider.contactsEvents(any)).thenAnswer(
-    (_) => const Stream.empty(),
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) => const Stream.empty());
 

@@ -25,7 +25,6 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
-import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
 import 'file.dart';
@@ -69,12 +68,11 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive({RecentChatsCursor? cursor}) => HiveChat(
+  HiveChat toHive() => HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
         lastReadItem?.cursor,
-        cursor: cursor,
       );
 }
 

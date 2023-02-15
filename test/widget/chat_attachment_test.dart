@@ -102,12 +102,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
+      'nodes': [chatData],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
@@ -157,7 +152,7 @@ void main() async {
       .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
             'chat': {
               'items': {
-                'edges': [],
+                'nodes': [],
                 'pageInfo': {
                   'endCursor': 'endCursor',
                   'hasNextPage': false,

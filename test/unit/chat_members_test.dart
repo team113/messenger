@@ -79,7 +79,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'edges': [],
+      'nodes': [],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,

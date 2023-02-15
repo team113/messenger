@@ -27,12 +27,9 @@ query RecentChats(
         last: $last
         before: $before
     ) {
-        edges {
-            node {
-                __typename
-                ...Chat
-            }
-            cursor
+        nodes {
+            __typename
+            ...Chat
         }
         pageInfo {
             ...PageInfo

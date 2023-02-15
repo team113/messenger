@@ -68,7 +68,7 @@ void main() async {
   Hive.init('./test/.temp_hive/user_profile_widget');
   var recentChats = {
     'recentChats': {
-      'edges': [],
+      'nodes': [],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
@@ -118,7 +118,7 @@ void main() async {
 
   var chatContactsData = {
     'chatContacts': {
-      'edges': [],
+      'nodes': [],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
