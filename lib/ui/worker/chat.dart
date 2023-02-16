@@ -166,7 +166,7 @@ class ChatWorker extends DisposableService {
             tag: tag,
           );
 
-          _flashTaskbarIcon();
+          await _flashTaskbarIcon();
         }
       },
       me: () => _chatService.me,
@@ -174,13 +174,13 @@ class ChatWorker extends DisposableService {
   }
 
   /// Applies the flashing effect to the application's icon in the taskbar.
-  void _flashTaskbarIcon() {
+  Future<void> _flashTaskbarIcon() async {
     if (PlatformUtils.isWindows &&
         !PlatformUtils.isWeb &&
         !_focused &&
         !_flashed) {
       try {
-        WindowsTaskbar.setFlashTaskbarAppIcon(
+        await WindowsTaskbar.setFlashTaskbarAppIcon(
           mode: TaskbarFlashMode.tray | TaskbarFlashMode.timer,
           flashCount: 1,
         );
