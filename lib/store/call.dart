@@ -590,7 +590,7 @@ class CallRepository extends DisposableInterface
   }
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
-  void _subscribe(int count) async {
+  void _subscribe(int count) {
     _events?.cancel();
     _events = _incomingEvents(count).listen(
       (e) async {

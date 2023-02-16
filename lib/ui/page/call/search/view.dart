@@ -24,6 +24,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/selected_tile.dart';
@@ -130,10 +131,13 @@ class SearchView extends StatelessWidget {
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
-                      return Center(
-                        child: Text(
-                          'label_nothing_found'.l10n,
-                          textAlign: TextAlign.center,
+                      return AnimatedDelayedSwitcher(
+                        delay: const Duration(milliseconds: 300),
+                        child: Center(
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       );
                     } else if (c.searchStatus.value.isEmpty) {
