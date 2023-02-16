@@ -207,6 +207,19 @@ class ConfirmLogoutView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedRoundedButton(
+                          key: const Key('ConfirmLogoutButton'),
+                          maxWidth: double.infinity,
+                          title: Text(
+                            'btn_logout'.l10n,
+                            style: const TextStyle(),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          color: const Color(0xFFEEEEEE),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedRoundedButton(
                           key: const Key('SetPasswordButton'),
                           maxWidth: double.infinity,
                           title: Text(
@@ -218,19 +231,6 @@ class ConfirmLogoutView extends StatelessWidget {
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('ConfirmLogoutButton'),
-                          maxWidth: double.infinity,
-                          title: Text(
-                            'btn_logout'.l10n,
-                            style: const TextStyle(),
-                          ),
-                          onPressed: () => Navigator.of(context).pop(true),
-                          color: const Color(0xFFEEEEEE),
-                        ),
-                      )
                     ],
                   ),
                 ]

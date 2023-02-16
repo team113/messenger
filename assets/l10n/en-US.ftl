@@ -717,3 +717,6 @@ label_make_call = Make a call
 label_send_message = Send message
 label_paid_chat = Paid chat
 btn_accept = Accept
+label_insufficient_funds = Insufficient funds
+label_message_cant_send_message_funds = Unfortunately, the message can not be sent. Please, add funds to your account.
+btn_add_funds = Add funds

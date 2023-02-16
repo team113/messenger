@@ -51,6 +51,7 @@ class MessageFieldController extends GetxController {
     String? text,
     List<ChatItemQuote> quotes = const [],
     List<Attachment> attachments = const [],
+    bool canSend = true,
   })  : quotes = RxList(quotes),
         attachments =
             RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()) {
@@ -59,8 +60,10 @@ class MessageFieldController extends GetxController {
       onChanged: (_) => onChanged?.call(),
       submitted: false,
       onSubmitted: (s) {
-        field.unsubmit();
-        onSubmit?.call();
+        if (canSend) {
+          field.unsubmit();
+          onSubmit?.call();
+        }
       },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {

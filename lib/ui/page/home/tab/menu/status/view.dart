@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -123,31 +124,37 @@ class StatusView extends StatelessWidget {
                       return Obx(() {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: FieldButton(
+                          child: RectangleButton(
+                            selected: c.presence.value == e,
+                            label: e.localizedString() ?? '',
                             onPressed: () => c.presence.value = e,
-                            text: e.localizedString(),
-                            trailing: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircleAvatar(
-                                backgroundColor: e.getColor(),
-                                radius: 12,
-                                child: AnimatedSwitcher(
-                                  duration: 200.milliseconds,
-                                  child: c.presence.value == e
-                                      ? const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 12,
-                                        )
-                                      : const SizedBox(key: Key('None')),
-                                ),
-                              ),
-                            ),
-                            fillColor: c.presence.value == e
-                                ? style.cardSelectedColor
-                                : Colors.white,
+                            trailingColor: e.getColor(),
                           ),
+                          // child: FieldButton(
+                          //   onPressed: () => c.presence.value = e,
+                          //   text: e.localizedString(),
+                          //   trailing: SizedBox(
+                          //     width: 20,
+                          //     height: 20,
+                          //     child: CircleAvatar(
+                          //       backgroundColor: e.getColor(),
+                          //       radius: 12,
+                          //       child: AnimatedSwitcher(
+                          //         duration: 200.milliseconds,
+                          //         child: c.presence.value == e
+                          //             ? const Icon(
+                          //                 Icons.check,
+                          //                 color: Colors.white,
+                          //                 size: 12,
+                          //               )
+                          //             : const SizedBox(key: Key('None')),
+                          //       ),
+                          //     ),
+                          //   ),
+                          //   fillColor: c.presence.value == e
+                          //       ? style.cardSelectedColor
+                          //       : Colors.white,
+                          // ),
                         );
                       });
                     }),

@@ -58,8 +58,9 @@ class MessageFieldView extends StatelessWidget {
     this.sendKey,
     this.canForward = false,
     this.canAttach = true,
+    this.canSend = true,
     this.constraints,
-    this.paid = false,
+    this.disabled = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -78,6 +79,8 @@ class MessageFieldView extends StatelessWidget {
   /// [MessageFieldView].
   final bool canAttach;
 
+  final bool canSend;
+
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId id)? onItemPressed;
 
@@ -87,14 +90,19 @@ class MessageFieldView extends StatelessWidget {
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
 
-  final bool paid;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: controller ?? MessageFieldController(Get.find(), Get.find()),
+      init: controller ??
+          MessageFieldController(
+            Get.find(),
+            Get.find(),
+            canSend: canSend,
+          ),
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
@@ -456,7 +464,7 @@ class MessageFieldView extends StatelessWidget {
               height: 56,
               child: Center(
                 child: SvgLoader.asset(
-                  'assets/icons/attach.svg',
+                  'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
                   height: 22,
                   width: 22,
                 ),
@@ -492,7 +500,7 @@ class MessageFieldView extends StatelessWidget {
             return GestureDetector(
               onLongPress: canForward ? c.forwarding.toggle : null,
               child: WidgetButton(
-                onPressed: c.field.submit,
+                onPressed: canSend ? c.field.submit : null,
                 child: SizedBox(
                   width: 56,
                   height: 56,
@@ -507,7 +515,7 @@ class MessageFieldView extends StatelessWidget {
                             )
                           : SvgLoader.asset(
                               key: sendKey ?? const Key('Send'),
-                              'assets/icons/send${paid ? '' : ''}.svg',
+                              'assets/icons/send${disabled ? '_disabled' : ''}.svg',
                               height: 22.85,
                               width: 25.18,
                             ),

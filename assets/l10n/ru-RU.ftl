@@ -739,3 +739,7 @@ label_make_call = Совершить звонок
 label_send_message = Отправить сообщение
 label_paid_chat = Платный чат
 btn_accept = Принять
+label_insufficient_funds = Недостаточно средств
+label_not_enough_funds_on_your_account = На Вашем счету недостаточно средств.
+label_message_cant_send_message_funds = К сожалению, сообщение не может быть отправлено. Пожалуйста, пополните Ваш счёт.
+btn_add_funds = Пополнить счёт

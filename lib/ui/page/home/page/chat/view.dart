@@ -235,17 +235,21 @@ class _ChatViewState extends State<ChatView>
                       actions: [
                         if (c.chat!.chat.value.ongoingCall == null) ...[
                           WidgetButton(
-                            onPressed: () => c.call(true),
+                            onPressed: c.paid && c.paidDisclaimer.value
+                                ? null
+                                : () => c.call(true),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_video_call${c.chat?.callCost == 0 ? '' : ''}.svg',
+                              'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
                               height: 17,
                             ),
                           ),
                           const SizedBox(width: 28),
                           WidgetButton(
-                            onPressed: () => c.call(false),
+                            onPressed: c.paid && c.paidDisclaimer.value
+                                ? null
+                                : () => c.call(false),
                             child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call${c.chat?.callCost == 0 ? '' : ''}.svg',
+                              'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
                               height: 19,
                             ),
                           ),
@@ -535,70 +539,6 @@ class _ChatViewState extends State<ChatView>
                                                       style: thin),
                                                 ],
                                               ),
-                                              const SizedBox(height: 34),
-                                              StatefulBuilder(
-                                                builder: (context, setState) {
-                                                  Widget dot(bool selected) {
-                                                    return SizedBox(
-                                                      width: 30,
-                                                      child: AnimatedSwitcher(
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    200),
-                                                        child: selected
-                                                            ? CircleAvatar(
-                                                                backgroundColor: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .secondary,
-                                                                radius: 11,
-                                                                child:
-                                                                    const Icon(
-                                                                  Icons.check,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  size: 14,
-                                                                ),
-                                                              )
-                                                            : Container(
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: const Color(
-                                                                        0xFFD7D7D7),
-                                                                    width: 1,
-                                                                  ),
-                                                                ),
-                                                                width: 22,
-                                                                height: 22,
-                                                              ),
-                                                      ),
-                                                    );
-                                                  }
-
-                                                  return FieldButton(
-                                                    text:
-                                                        'label_do_not_show_for_this_chat'
-                                                            .l10n,
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      color: Color(0xFF888888),
-                                                    ),
-                                                    maxLines: null,
-                                                    onPressed: () => setState(
-                                                      () => c.paidDisclaimerDismissed =
-                                                          !c.paidDisclaimerDismissed,
-                                                    ),
-                                                    trailing: dot(
-                                                      c.paidDisclaimerDismissed,
-                                                    ),
-                                                  );
-                                                },
-                                              )
                                             ],
                                           ),
                                         ),
@@ -607,20 +547,47 @@ class _ChatViewState extends State<ChatView>
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 30,
                                           ),
-                                          child: OutlinedRoundedButton(
-                                            key: const Key('Accept'),
-                                            maxWidth: double.infinity,
-                                            title: Text(
-                                              'btn_accept'.l10n,
-                                              style: thin?.copyWith(
-                                                color: Colors.white,
+                                          child: Row(
+                                            children: [
+                                              if (context.isMobile) ...[
+                                                Expanded(
+                                                  child: OutlinedRoundedButton(
+                                                    key: const Key('Close'),
+                                                    maxWidth: double.infinity,
+                                                    title:
+                                                        Text('btn_close'.l10n),
+                                                    onPressed: () {
+                                                      c.paidDisclaimer.value =
+                                                          false;
+                                                    },
+                                                    color:
+                                                        const Color(0xFFEEEEEE),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                              ],
+                                              Expanded(
+                                                child: OutlinedRoundedButton(
+                                                  key: const Key('Accept'),
+                                                  maxWidth: double.infinity,
+                                                  title: Text(
+                                                    'btn_accept'.l10n,
+                                                    style: thin?.copyWith(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    c.paidDisclaimer.value =
+                                                        false;
+                                                    c.paidDisclaimerDismissed =
+                                                        true;
+                                                  },
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                ),
                                               ),
-                                            ),
-                                            onPressed: () =>
-                                                c.paidDisclaimer.value = false,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            ],
                                           ),
                                         ),
                                         const SizedBox(height: 16),
@@ -1332,13 +1299,17 @@ class _ChatViewState extends State<ChatView>
         );
       }
 
+      final bool disabled = c.paid && c.paidDisclaimer.value;
+
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
-        paid: c.chat?.messageCost != 0,
+        canSend: !disabled,
+        canAttach: !disabled,
+        disabled: disabled,
       );
     });
   }

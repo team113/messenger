@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/application_settings.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -63,6 +64,7 @@ import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'insufficient_funds/view.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 
@@ -295,6 +297,11 @@ class ChatController extends GetxController {
       onSubmit: () async {
         if (paid && !paidDisclaimerDismissed) {
           paidDisclaimer.value = true;
+          return;
+        }
+
+        if (paid) {
+          await InsufficientFundsView.show(router.context!);
           return;
         }
 

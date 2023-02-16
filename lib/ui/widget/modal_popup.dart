@@ -60,8 +60,8 @@ abstract class ModalPopup {
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
+            topLeft: Radius.circular(14),
+            topRight: Radius.circular(14),
           ),
         ),
         constraints:
@@ -167,7 +167,7 @@ class ModalPopupHeader extends StatelessWidget {
           else
             const SizedBox(width: 40),
           if (header != null) Expanded(child: header!) else const Spacer(),
-          if (onClose != null || !context.isMobile)
+          if (!context.isMobile)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: onClose ?? Navigator.of(context).pop,
