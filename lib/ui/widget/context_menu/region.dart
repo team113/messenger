@@ -116,14 +116,15 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
-  /// [OverlayEntry] widget of context menu.
-  OverlayEntry? entry;
+  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  OverlayEntry? _entry;
 
   @override
   void dispose() {
-    if (entry != null && entry!.mounted) {
-      entry?.remove();
+    if (_entry?.mounted == true) {
+      _entry?.remove();
     }
+
     super.dispose();
   }
 
@@ -241,15 +242,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
-      entry = OverlayEntry(builder: (_) {
+      _entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
           double qx = 1, qy = 1;
           if (position.dx > (constraints.maxWidth) / 2) qx = -1;
           if (position.dy > (constraints.maxHeight) / 2) qy = -1;
           final Alignment alignment = Alignment(qx, qy);
+
           return Listener(
             onPointerUp: (d) {
-              entry?.remove();
+              _entry?.remove();
 
               _displayed = false;
               if (widget.indicateOpenedMenu) {
@@ -281,7 +283,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         });
       });
 
-      Overlay.of(context, rootOverlay: true).insert(entry!);
+      Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
   }
 }

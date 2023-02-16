@@ -35,7 +35,7 @@ import '../world/custom_world.dart';
 /// Select text messages specified symbols.
 ///
 /// Examples:
-/// - When I select "Example" text from 1 to 5 symbols.
+/// - When I select "Example" text from 1 to 5 symbols
 final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
   'I select {string} text from {int} to {int} symbols',
   (text, from, to, context) async {
@@ -76,12 +76,11 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
 /// Checks is copied text same as specified text.
 ///
 /// Examples:
-/// - When copied text is "Example".
+/// - When copied text is "Example"
 final StepDefinitionGeneric checkCopyText = when1<String, CustomWorld>(
   'copied text is {string}',
   (text, context) async {
-    final String? copied = (PlatformUtils as PlatformUtilsMock).copied;
-    expect(text, copied);
+    expect(text, (PlatformUtils as PlatformUtilsMock).clipboard);
   },
 );
 

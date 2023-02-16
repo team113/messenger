@@ -374,7 +374,9 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               );
 
-                              if (PlatformUtils.isMobile) return child;
+                              if (PlatformUtils.isMobile) {
+                                return child;
+                              }
 
                               return SelectionArea(
                                 onSelectionChanged: (a) => c.selection = a,

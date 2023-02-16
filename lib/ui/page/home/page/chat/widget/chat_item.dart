@@ -727,7 +727,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (bool enabledPopup) {
+      (menu) {
         Widget? textWidget;
         if (text != null) {
           textWidget = Text(
@@ -735,7 +735,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             key: Key('MyMessage_${widget.item.value.id}'),
             style: style.boldBody,
           );
-          if (PlatformUtils.isMobile && enabledPopup) {
+          if (PlatformUtils.isMobile && menu) {
             textWidget = SelectionArea(child: textWidget);
             if (PlatformUtils.isWeb) {
               textWidget = ContextMenuInterceptor(child: textWidget);
@@ -1261,7 +1261,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool enabledPopup) child, {
+    Widget Function(bool menu) builder, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
@@ -1611,12 +1611,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: (bool enabledPopup) {
+                        builder: (bool menu) {
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              child(enabledPopup),
+                              builder(menu),
                               if (avatars.isNotEmpty)
                                 Transform.translate(
                                   offset: Offset(-12, -widget.margin.bottom),

@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
         - Message info modal. ([#335], [#330])
-        - Selection text in messages. ([#118], [#17])
+        - Message text selection. ([#118], [#17])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])

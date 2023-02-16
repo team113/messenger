@@ -15,15 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Text message are copying correctly
+Feature: Text messages selection and copying
 
-  Background: User is in dialog with Bob
+  Scenario: User copies text of a message
     Given I am Alice
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
 
-  Scenario: User copies text of message
     When I fill `MessageField` field with "For selection"
     And I tap `Send` button
     Then I wait until status of "For selection" message is sent
