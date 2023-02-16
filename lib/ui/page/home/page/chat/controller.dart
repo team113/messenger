@@ -293,7 +293,7 @@ class ChatController extends GetxController {
       _userService,
       onChanged: updateDraft,
       onSubmit: () async {
-        if (!paidDisclaimerDismissed) {
+        if (paid && !paidDisclaimerDismissed) {
           paidDisclaimer.value = true;
           return;
         }
@@ -391,7 +391,7 @@ class ChatController extends GetxController {
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    if (!paidDisclaimerDismissed) {
+    if (paid && !paidDisclaimerDismissed) {
       paidDisclaimer.value = true;
       return;
     }

@@ -182,9 +182,8 @@ class _ChatViewState extends State<ChatView>
                   Scaffold(
                     resizeToAvoidBottomInset: true,
                     appBar: CustomAppBar(
-                      onBottom: () async {
-                        c.paidDisclaimer.value = true;
-                      },
+                      onBottom:
+                          c.paid ? () => c.paidDisclaimer.value = true : null,
                       title: Row(
                         children: [
                           Material(
