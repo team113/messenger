@@ -231,6 +231,10 @@ class ChatService extends DisposableService {
     await _chatRepository.hideChatItem(item.chatId, item.id);
   }
 
+  Future<void> clearChat(ChatId id, ChatItemId untilId) async {
+    await _chatRepository.clearChat(id, untilId);
+  }
+
   /// Creates a new [Attachment] from the provided [LocalAttachment] linked to
   /// the authenticated [MyUser] for a later use in the [sendChatMessage]
   /// method.

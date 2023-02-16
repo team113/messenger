@@ -18,6 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
+import 'package:messenger/ui/widget/dot.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/chat.dart';
@@ -539,7 +542,8 @@ class ChatsTabView extends StatelessWidget {
                                               c.favoriteChat(chat.id),
                                           onUnfavorite: () =>
                                               c.unfavoriteChat(chat.id),
-                                          onSelect: () => c.startSelecting(),
+                                          onSelect: () => c.clearChat(
+                                              chat.id, const ChatItemId('ds')),
                                           onTap: c.selecting.value
                                               ? () => c.selectChat(chat)
                                               : null,
@@ -738,13 +742,24 @@ class ChatsTabView extends StatelessWidget {
   }
 
   Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
-    final Style style = Theme.of(context).extension<Style>()!;
     bool clear = false;
 
-    final bool? res =
-        await MessagePopup.alert('label_delete_chats'.l10n, description: [
-      TextSpan(text: 'Do you want to delete ${c.selectedChats.length} chats?')
-    ]);
+    final bool? res = await MessagePopup.alert(
+      'label_delete_chats'.l10n,
+      description: [
+        TextSpan(text: 'Do you want to delete ${c.selectedChats.length} chats?')
+      ],
+      additional: [
+        const SizedBox(height: 21),
+        StatefulBuilder(builder: (context, setState) {
+          return FieldButton(
+            text: 'btn_clear_history'.l10n,
+            onPressed: () => setState(() => clear = !clear),
+            trailing: Dot(selected: clear),
+          );
+        })
+      ],
+    );
 
     if (res == true) {
       clear = true;

@@ -23,6 +23,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -333,6 +334,15 @@ class ChatsTabController extends GetxController {
       await _chatService.toggleChatMute(id, MuteDuration.forever());
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  Future<void> clearChat(ChatId id, ChatItemId untilId) async {
+    try {
+      await _chatService.clearChat(id, untilId);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

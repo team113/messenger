@@ -185,6 +185,21 @@ abstract class ChatGraphQlMixin {
         as ChatEventsVersionedMixin?);
   }
 
+  Future<ChatEventsVersionedMixin?> clearChat(
+      ChatId id, ChatItemId untilId) async {
+    ClearChatArguments variables =
+        ClearChatArguments(chatId: id, untilId: untilId);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+          operationName: 'ClearChat',
+          document: ClearChatMutation(variables: variables).document),
+    );
+
+    return (ClearChat$Mutation.fromJson(result.data!).clearChat
+        as ChatEventsVersionedMixin?);
+  }
+
   /// Fetches [ChatItem]s of a [Chat] identified by its [id] ordered by their
   /// posting time.
   ///

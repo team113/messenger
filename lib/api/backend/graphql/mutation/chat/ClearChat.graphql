@@ -1,0 +1,11 @@
+mutation ClearChat ($chatId: ChatId!, $untilId: ChatItemId!) {
+    clearChat(id: $chatId, untilId: $untilId) {
+        __typename
+        ... on ChatEventsVersioned {
+            ...ChatEventsVersioned
+        }
+        ... on ClearChatError {
+            code
+        }
+    }
+}
