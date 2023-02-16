@@ -24,6 +24,7 @@ import 'package:messenger/ui/widget/text_field.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -43,6 +44,19 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
   (key, quantity, text, context) => _fillField(key, text * quantity, context),
+);
+
+/// Enters the given user's ID into the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - Then I fill `SearchField` field with user Bob
+StepDefinitionGeneric fillFieldWithUser =
+    when2<WidgetKey, TestUser, CustomWorld>(
+  'I fill {key} field with user {user}',
+  (WidgetKey key, TestUser user, context) {
+    String text = context.world.sessions[user.name]!.userNum.val;
+    return _fillField(key, text, context);
+  },
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided

@@ -202,6 +202,7 @@ class _ChatViewState extends State<ChatView>
                           ),
                           const SizedBox(width: 28),
                           WidgetButton(
+                            key: const Key('AudioCall'),
                             onPressed: () => c.call(false),
                             child: SvgLoader.asset(
                               'assets/icons/chat_audio_call.svg',

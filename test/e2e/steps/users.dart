@@ -34,11 +34,12 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     var password = UserPassword('123');
 
-    await createUser(
+    final me = await createUser(
       user,
       context.world,
       password: password,
     );
+    context.world.me = me.userId;
 
     await Get.find<AuthService>().signIn(
       password,

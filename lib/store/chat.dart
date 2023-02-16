@@ -149,24 +149,30 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    HashMap<ChatId, ChatData> chats =
-        await Backoff.run(_recentChats, _cancelToken);
+    try {
+      HashMap<ChatId, ChatData> chats =
+          await Backoff.run(_recentChats, _cancelToken);
 
-    for (HiveChat c in _chatLocal.chats) {
-      if (!c.value.id.isLocal && !chats.containsKey(c.value.id)) {
-        _chatLocal.remove(c.value.id);
+      for (HiveChat c in _chatLocal.chats) {
+        if (!c.value.id.isLocal && !chats.containsKey(c.value.id)) {
+          _chatLocal.remove(c.value.id);
+        }
+      }
+
+      for (ChatData c in chats.values) {
+        _chats[c.chat.value.id]?.subscribe();
+        _putEntry(c);
+      }
+
+      _initRemoteSubscription();
+      _initFavoriteChatsSubscription();
+
+      _isReady.value = true;
+    } catch (e) {
+      if (e is! OperationCanceledException) {
+        rethrow;
       }
     }
-
-    for (ChatData c in chats.values) {
-      _chats[c.chat.value.id]?.subscribe();
-      _putEntry(c);
-    }
-
-    _initRemoteSubscription();
-    _initFavoriteChatsSubscription();
-
-    _isReady.value = true;
   }
 
   @override
@@ -256,7 +262,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (chatId.isLocal) {
       local = await rxChat?.postChatMessage(
-        existingDateTime: PreciseDateTime.now().add(1.seconds),
+        existingDateTime: PreciseDateTime.now().add(10.seconds),
         text: text,
         attachments: attachments,
         repliesTo: repliesTo,

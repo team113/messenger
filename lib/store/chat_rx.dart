@@ -393,6 +393,10 @@ class HiveRxChat extends RxChat {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
+    while (!_local.isReady) {
+      await Future.delayed(1.milliseconds);
+    }
+
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
@@ -649,23 +653,9 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      if (!_local.isEmpty) {
-        for (HiveChatItem i in _local.messages) {
-          if (messages.none((e) => e.value.id == i.value.id)) {
-            messages.add(Rx<ChatItem>(i.value));
-          }
-        }
-      }
-
       _initLocalSubscription();
 
       saved.forEach(_local.put);
-
-      if (!PlatformUtils.isWeb) {
-        _initAttachments();
-      }
-
-      fetchMessages();
     }
 
     if (chat.value.name != null) {

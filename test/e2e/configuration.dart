@@ -64,6 +64,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/see_chat_as.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
@@ -105,13 +106,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
-        contactIsFavorite,
         contact,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithUser,
         goToUserPage,
         hasDialogWithMe,
         haveGroupNamed,
@@ -139,6 +141,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
+        seeLocalChat,
+        seeRemoteChat,
         seeUserInSearchResults,
         seesAs,
         sendsAttachmentToMe,
@@ -207,7 +211,7 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<Session> createUser(
+Future<CustomUser> createUser(
   TestUser user,
   CustomWorld world, {
   UserPassword? password,
@@ -215,7 +219,7 @@ Future<Session> createUser(
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
-  world.sessions[user.name] = CustomUser(
+  final customUser = CustomUser(
     Session(
       result.createUser.session.token,
       result.createUser.session.expireAt,
@@ -224,16 +228,15 @@ Future<Session> createUser(
     result.createUser.user.num,
   );
 
+  world.sessions[user.name] = customUser;
+
   provider.token = result.createUser.session.token;
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
   }
   provider.disconnect();
-  return Session(
-    result.createUser.session.token,
-    result.createUser.session.expireAt,
-  );
+  return customUser;
 }
 
 /// Extension adding an ability to find the [Widget]s without skipping the
