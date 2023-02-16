@@ -312,53 +312,56 @@ class UserView extends StatelessWidget {
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
-          return action(
-            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: isMuted
-                ? SvgLoader.asset(
-                    'assets/icons/btn_mute.svg',
-                    width: 18.68,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  ),
-            onPressed: isMuted ? c.unmuteChat : c.muteChat,
-          );
-        }),
-        action(
-          text: 'btn_hide_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _hideChat(c, context),
-        ),
-        action(
-          text: 'btn_clear_history'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _clearChat(c, context),
-        ),
-        Obx(() {
-          return action(
-            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true
-                ? c.unblacklist
-                : () => _blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SizedBox();
-              } else {
-                child = const CircularProgressIndicator();
-              }
+            return action(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgLoader.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
+          ),
+          action(
+            text: 'btn_clear_history'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
+          ),
+          Obx(() {
+            return action(
+              key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+              text: c.isBlacklisted == true
+                  ? 'btn_unblock'.l10n
+                  : 'btn_block'.l10n,
+              onPressed: c.isBlacklisted == true
+                  ? c.unblacklist
+                  : () => _blacklistUser(c, context),
+              trailing: Obx(() {
+                final Widget child;
+                if (c.blacklistStatus.value.isEmpty) {
+                  child = const SizedBox();
+                } else {
+                  child = const CircularProgressIndicator();
+                }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
-            }),
-          );
-        }),
-        action(text: 'btn_report'.l10n, onPressed: () {}),
+                return AnimatedSwitcher(
+                    duration: 200.milliseconds, child: child);
+              }),
+            );
+          }),
+          action(text: 'btn_report'.l10n, onPressed: () {}),
+        ],
       ],
     );
   }
