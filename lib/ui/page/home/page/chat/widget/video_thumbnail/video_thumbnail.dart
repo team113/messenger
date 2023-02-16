@@ -91,9 +91,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [VideoPlayerController] to display the first frame of the video.
   VideoPlayerController? _controller;
 
-  /// Indicator whether the [_initVideo] has failed.
-  bool _hasError = false;
-
   @override
   void initState() {
     _initVideo();
@@ -158,13 +155,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                 ],
               ),
             )
-          : SizedBox(
-              width: 250,
-              height: widget.height ?? 250,
-              child: _hasError
-                  ? null
-                  : const Center(child: CircularProgressIndicator()),
-            ),
+          : SizedBox(width: 250, height: widget.height ?? 250),
     );
   }
 
@@ -187,16 +178,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
         if (widget.onError != null) {
           await widget.onError?.call();
-        } else {
-          _hasError = true;
         }
-      } else {
-        // Plugin is not supported on the current platform.
-        _hasError = true;
       }
-    } catch (_) {
-      _hasError = true;
-      rethrow;
     }
 
     if (mounted) {
