@@ -276,9 +276,10 @@ class MyProfileView extends StatelessWidget {
                           return const SizedBox();
                       }
                     },
-                    initIndex: ProfileTab.values.last.index,
+                    initIndex: c.listInitIndex,
                     childCount: ProfileTab.values.length,
                     disableCacheItems: true,
+                    preferItemHeight: 100,
                   ),
                 ),
               );
