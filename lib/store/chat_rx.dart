@@ -416,6 +416,8 @@ class HiveRxChat extends RxChat {
       put(message, ignoreVersion: true);
     }
 
+    // If the [ChatMessage] being posted is local, then no remote queries should
+    // be performed, so return the constructed item right away.
     if (id.isLocal) {
       return message.value;
     }

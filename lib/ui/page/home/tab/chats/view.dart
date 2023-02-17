@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -456,61 +457,70 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      child = SafeScrollbar(
-                        controller: c.scrollController,
-                        child: AnimationLimiter(
-                          key: const Key('Chats'),
-                          child: ListView.builder(
-                            controller: c.scrollController,
-                            itemCount: c.chats.length,
-                            itemBuilder: (_, i) {
-                              final RxChat chat = c.chats[i];
+                      if (c.chats.none((e) => !e.id.isLocal)) {
+                        child = Center(
+                          key: const Key('NoChats'),
+                          child: Text('label_no_chats'.l10n),
+                        );
+                      } else {
+                        child = SafeScrollbar(
+                          controller: c.scrollController,
+                          child: AnimationLimiter(
+                            key: const Key('Chats'),
+                            child: ListView.builder(
+                              controller: c.scrollController,
+                              itemCount: c.chats.length,
+                              itemBuilder: (_, i) {
+                                final RxChat chat = c.chats[i];
 
-                              return Obx(() {
-                                if (chat.id.isLocal && chat.messages.isEmpty) {
-                                  return const SizedBox();
-                                }
+                                return Obx(() {
+                                  if (chat.id.isLocal &&
+                                      chat.messages.isEmpty) {
+                                    return const SizedBox();
+                                  }
 
-                                return AnimationConfiguration.staggeredList(
-                                  position: i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
+                                  return AnimationConfiguration.staggeredList(
+                                    position: i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                          child: Obx(() {
+                                            return RecentChatTile(
+                                              chat,
+                                              key: Key('RecentChat_${chat.id}'),
+                                              me: c.me,
+                                              blocked: chat.blacklisted,
+                                              getUser: c.getUser,
+                                              onJoin: () => c.joinCall(chat.id),
+                                              onDrop: () => c.dropCall(chat.id),
+                                              onLeave: () =>
+                                                  c.leaveChat(chat.id),
+                                              onHide: () => c.hideChat(chat.id),
+                                              inCall: () => c.inCall(chat.id),
+                                              onMute: () => c.muteChat(chat.id),
+                                              onUnmute: () =>
+                                                  c.unmuteChat(chat.id),
+                                              onFavorite: () =>
+                                                  c.favoriteChat(chat.id),
+                                              onUnfavorite: () =>
+                                                  c.unfavoriteChat(chat.id),
+                                            );
+                                          }),
                                         ),
-                                        child: Obx(() {
-                                          return RecentChatTile(
-                                            chat,
-                                            key: Key('RecentChat_${chat.id}'),
-                                            me: c.me,
-                                            blocked: chat.blacklisted,
-                                            getUser: c.getUser,
-                                            onJoin: () => c.joinCall(chat.id),
-                                            onDrop: () => c.dropCall(chat.id),
-                                            onLeave: () => c.leaveChat(chat.id),
-                                            onHide: () => c.hideChat(chat.id),
-                                            inCall: () => c.inCall(chat.id),
-                                            onMute: () => c.muteChat(chat.id),
-                                            onUnmute: () =>
-                                                c.unmuteChat(chat.id),
-                                            onFavorite: () =>
-                                                c.favoriteChat(chat.id),
-                                            onUnfavorite: () =>
-                                                c.unfavoriteChat(chat.id),
-                                          );
-                                        }),
                                       ),
                                     ),
-                                  ),
-                                );
-                              });
-                            },
+                                  );
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
 
                     return ContextMenuInterceptor(

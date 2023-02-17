@@ -168,10 +168,8 @@ class ChatRepository implements AbstractChatRepository {
       _initFavoriteChatsSubscription();
 
       _isReady.value = true;
-    } catch (e) {
-      if (e is! OperationCanceledException) {
-        rethrow;
-      }
+    } on OperationCanceledException catch (e) {
+      // No-op.
     }
   }
 

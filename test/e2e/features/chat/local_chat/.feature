@@ -15,7 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat updated from local to remote
+Feature: Local chats
 
   Background: User is in local dialog with Bob
     Given I am Alice
@@ -25,12 +25,12 @@ Feature: Chat updated from local to remote
     And I tap user Bob in search results
     And I see chat as local
 
-  Scenario: Chat updated from local to remote by message
-    When I fill `MessageField` field with "LocalChatMessage"
+  Scenario: Message can be posted in local chat
+    When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button
-    Then I wait until status of "LocalChatMessage" message is sent
+    Then I wait until status of "Hello, my local friend" message is sent
     Then I see chat as remote
 
-  Scenario: Chat updated from local to remote by call
+  Scenario: Call can be made in local chat
     When I tap `AudioCall` button
     Then I see chat as remote
