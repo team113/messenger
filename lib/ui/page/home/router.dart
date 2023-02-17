@@ -61,14 +61,17 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(_CustomPage(
-          key: ValueKey('ChatPage$id'),
-          name: '${Routes.chat}/$id',
-          child: ChatView(
-            ChatId(id),
-            itemId: router.arguments?['itemId'] as ChatItemId?,
-          ),
-        ));
+        int i = pages.indexWhere((e) => e.name == '${Routes.chat}/$id');
+        if (i == -1) {
+          pages.add(_CustomPage(
+            key: ValueKey('ChatPage$id'),
+            name: '${Routes.chat}/$id',
+            child: ChatView(
+              ChatId(id),
+              itemId: router.arguments?['itemId'] as ChatItemId?,
+            ),
+          ));
+        }
 
         if (route.endsWith(Routes.chatInfo)) {
           pages.add(_CustomPage(

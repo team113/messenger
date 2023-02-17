@@ -104,7 +104,7 @@ class _ChatViewState extends State<ChatView>
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
-              router.chatInfo(widget.id);
+              router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members

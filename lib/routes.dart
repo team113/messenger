@@ -725,7 +725,16 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+  void chatInfo(
+    ChatId id, {
+    bool push = false,
+  }) {
+    if (push) {
+      this.push('${Routes.chat}/$id${Routes.chatInfo}');
+    } else {
+      go('${Routes.chat}/$id${Routes.chatInfo}');
+    }
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

@@ -122,7 +122,7 @@ class ChatInfoView extends StatelessWidget {
               leading: const [StyledBackButton()],
               actions: [
                 WidgetButton(
-                  onPressed: () => router.chat(id),
+                  onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
                     child: SvgLoader.asset(
