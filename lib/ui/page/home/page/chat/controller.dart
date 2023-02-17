@@ -269,6 +269,7 @@ class ChatController extends GetxController {
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
 
+  /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
