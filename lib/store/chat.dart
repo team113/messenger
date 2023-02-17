@@ -312,10 +312,12 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> clearChat(ChatId id, ChatItemId untilId) async {
-    HiveRxChat? chat = _chats[id];
+  Future<void> clearChat(RxList<RxChat> chats) async {
+    for (final chat in chats) {
+      await _graphQlProvider.clearChat(chat.id, chat.messages.last.value.id);
+    }
 
-    await _graphQlProvider.clearChat(id, untilId);
+    // await _graphQlProvider.clearChat(id, untilId);
   }
 
   @override

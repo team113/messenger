@@ -192,6 +192,7 @@ abstract class ChatGraphQlMixin {
 
     final QueryResult result = await client.mutate(
       MutationOptions(
+          variables: variables.toJson(),
           operationName: 'ClearChat',
           document: ClearChatMutation(variables: variables).document),
     );

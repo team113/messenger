@@ -23,13 +23,12 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -95,7 +94,7 @@ class ChatsTabController extends GetxController {
   /// FIXME:
   final RxBool selecting = RxBool(false);
 
-  final RxList<ChatId> selectedChats = RxList();
+  final RxList<RxChat> selectedChats = RxList();
 
   /// Status of the [createGroup] progression.
   ///
@@ -340,9 +339,9 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  Future<void> clearChat(ChatId id, ChatItemId untilId) async {
+  Future<void> clearChat(RxList<RxChat> chats) async {
     try {
-      await _chatService.clearChat(id, untilId);
+      await _chatService.clearChat(chats);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -386,10 +385,10 @@ class ChatsTabController extends GetxController {
   }
 
   void selectChat(RxChat e) {
-    if (selectedChats.contains(e.id)) {
-      selectedChats.remove(e.id);
+    if (selectedChats.contains(e)) {
+      selectedChats.remove(e);
     } else {
-      selectedChats.add(e.id);
+      selectedChats.add(e);
     }
   }
 

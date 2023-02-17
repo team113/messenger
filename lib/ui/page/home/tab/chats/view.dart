@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/widget/dot.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -523,8 +522,7 @@ class ChatsTabView extends StatelessWidget {
                                       ),
                                       child: Obx(() {
                                         final selectedForActions =
-                                            c.selectedChats.contains(chat.id);
-
+                                            c.selectedChats.contains(chat);
                                         return RecentChatTile(
                                           chat,
                                           key: Key('RecentChat_${chat.id}'),
@@ -542,8 +540,7 @@ class ChatsTabView extends StatelessWidget {
                                               c.favoriteChat(chat.id),
                                           onUnfavorite: () =>
                                               c.unfavoriteChat(chat.id),
-                                          onSelect: () => c.clearChat(
-                                              chat.id, const ChatItemId('ds')),
+                                          onSelect: () => c.startSelecting(),
                                           onTap: c.selecting.value
                                               ? () => c.selectChat(chat)
                                               : null,
@@ -574,7 +571,9 @@ class ChatsTabView extends StatelessWidget {
                 }),
                 bottomNavigationBar: c.groupCreating.value
                     ? _createGroup(context, c)
-                    : _selectButtons(context, c),
+                    : c.selecting.value
+                        ? _selectButtons(context, c)
+                        : null,
               );
             }),
             Obx(() {
@@ -762,7 +761,15 @@ class ChatsTabView extends StatelessWidget {
     );
 
     if (res == true) {
-      clear = true;
+      if (clear == true) {
+        await c.clearChat(c.selectedChats);
+      }
+
+      for (final chat in c.selectedChats) {
+        await c.hideChat(chat.id);
+      }
+
+      c.selecting.value = false;
     }
   }
 }

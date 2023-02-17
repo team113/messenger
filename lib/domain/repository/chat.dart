@@ -132,7 +132,7 @@ abstract class AbstractChatRepository {
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatId chatId, ChatItemId id);
 
-  Future<void> clearChat(ChatId chatId, ChatItemId id);
+  Future<void> clearChat(RxList<RxChat> chats);
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
