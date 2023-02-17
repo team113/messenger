@@ -91,9 +91,10 @@ class ChatsTabController extends GetxController {
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
-  /// FIXME:
+  /// Indicator whether selecting is active.
   final RxBool selecting = RxBool(false);
 
+  /// List of selected [Chat]s.
   final RxList<RxChat> selectedChats = RxList();
 
   /// Status of the [createGroup] progression.
@@ -339,6 +340,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Clears the [Chat]'s history.
   Future<void> clearChat(RxList<RxChat> chats) async {
     try {
       await _chatService.clearChat(chats);
@@ -372,23 +374,25 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// FIXME:
+  /// Enables and initializes the [selecting].
   Future<void> startSelecting() async {
     selecting.value = true;
     router.navigation.value = false;
   }
 
+  /// Disables and disposes the [selecting].
   void stopSelecting() async {
     selecting.value = false;
     selectedChats.clear();
     router.navigation.value = true;
   }
 
-  void selectChat(RxChat e) {
-    if (selectedChats.contains(e)) {
-      selectedChats.remove(e);
+  /// Add or remove selected [Chat] from [selectedChats].
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat)) {
+      selectedChats.remove(chat);
     } else {
-      selectedChats.add(e);
+      selectedChats.add(chat);
     }
   }
 

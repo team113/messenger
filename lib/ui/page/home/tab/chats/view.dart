@@ -521,7 +521,7 @@ class ChatsTabView extends StatelessWidget {
                                         horizontal: 10,
                                       ),
                                       child: Obx(() {
-                                        final selectedForActions =
+                                        final selectedForDelete =
                                             c.selectedChats.contains(chat);
                                         return RecentChatTile(
                                           chat,
@@ -545,8 +545,7 @@ class ChatsTabView extends StatelessWidget {
                                               ? () => c.selectChat(chat)
                                               : null,
                                           selecting: c.selecting.value,
-                                          selectedForActions:
-                                              selectedForActions,
+                                          selectedForDelete: selectedForDelete,
                                         );
                                       }),
                                     ),
@@ -672,6 +671,7 @@ class ChatsTabView extends StatelessWidget {
     });
   }
 
+  /// Returns an animated [OutlinedRoundedButton]s for selecting chats.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
     Widget button({
       Key? key,
@@ -746,7 +746,9 @@ class ChatsTabView extends StatelessWidget {
     final bool? res = await MessagePopup.alert(
       'label_delete_chats'.l10n,
       description: [
-        TextSpan(text: 'Do you want to delete ${c.selectedChats.length} chats?')
+        TextSpan(
+            text: 'label_delete_chats_confirmation'
+                .l10nfmt({'count': c.selectedChats.length})),
       ],
       additional: [
         const SizedBox(height: 21),

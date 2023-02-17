@@ -316,8 +316,6 @@ class ChatRepository implements AbstractChatRepository {
     for (final chat in chats) {
       await _graphQlProvider.clearChat(chat.id, chat.messages.last.value.id);
     }
-
-    // await _graphQlProvider.clearChat(id, untilId);
   }
 
   @override

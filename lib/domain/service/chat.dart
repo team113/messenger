@@ -17,6 +17,10 @@
 
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
+import '/provider/gql/exceptions.dart';
+import '/routes.dart';
+import '/util/obs/obs.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
@@ -25,10 +29,6 @@ import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
-import '/api/backend/schema.dart';
-import '/provider/gql/exceptions.dart';
-import '/routes.dart';
-import '/util/obs/obs.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -231,6 +231,7 @@ class ChatService extends DisposableService {
     await _chatRepository.hideChatItem(item.chatId, item.id);
   }
 
+  /// Clears the selected [Chat]s for the authenticated [MyUser].
   Future<void> clearChat(RxList<RxChat> chats) async {
     await _chatRepository.clearChat(chats);
   }

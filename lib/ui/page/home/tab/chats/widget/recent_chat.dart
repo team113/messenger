@@ -65,7 +65,7 @@ class RecentChatTile extends StatelessWidget {
     this.onSelect,
     this.selecting,
     this.onTap,
-    this.selectedForActions,
+    this.selectedForDelete,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -109,14 +109,17 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] add to favorites action is triggered.
   final void Function()? onFavorite;
 
-  ///FIXME:
+  /// Callback, called when this [rxChat] is selected for deletion.
   final void Function()? onSelect;
 
-  final bool? selecting;
-
+  /// Callback, called when this [rxChat] is pressed.
   final void Function()? onTap;
 
-  final bool? selectedForActions;
+  /// Indicator whether this [RecentChatTile] is currently selecting.
+  final bool? selecting;
+
+  /// Indicator whether this [RecentChatTile] currently selected for deletion.
+  final bool? selectedForDelete;
 
   /// Callback, called when this [rxChat] remove from favorites action is
   /// triggered.
@@ -171,7 +174,7 @@ class RecentChatTile extends StatelessWidget {
                 // FIXME:
                 if (selecting == true) ...[
                   const SizedBox(width: 5),
-                  Dot(selected: selectedForActions),
+                  Dot(selected: selectedForDelete),
                 ],
                 _counter(),
               ],

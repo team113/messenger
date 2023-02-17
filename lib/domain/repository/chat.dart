@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
+import '/util/obs/obs.dart';
 import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
@@ -30,7 +31,6 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
-import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
@@ -132,6 +132,7 @@ abstract class AbstractChatRepository {
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatId chatId, ChatItemId id);
 
+  /// Clears the selected [Chat]s for the authenticated [MyUser].
   Future<void> clearChat(RxList<RxChat> chats);
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
