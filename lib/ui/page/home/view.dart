@@ -36,6 +36,7 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
+import 'tab/funds/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
 import 'widget/animated_slider.dart';
@@ -163,7 +164,7 @@ class _HomeViewState extends State<HomeView> {
 
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
-                            // KeepAlivePage(child: FinanceTabView()),
+                            KeepAlivePage(child: FundsTabView()),
                             KeepAlivePage(child: ContactsTabView()),
                             // KeepAlivePage(child: PublicsTabView()),
                             KeepAlivePage(child: ChatsTabView()),
@@ -197,6 +198,19 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
+                              CustomNavigationBarItem(
+                                key: const Key('FundsButton'),
+                                badge: '\$5.25',
+                                badgeColor: Colors.green,
+                                child: tab(
+                                  tab: HomeTab.funds,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/balance.svg',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                ),
+                              ),
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
                                 child: tab(

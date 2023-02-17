@@ -18,14 +18,14 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 
-class FinanceTabView extends StatelessWidget {
-  const FinanceTabView({Key? key}) : super(key: key);
+class FundsTabView extends StatelessWidget {
+  const FundsTabView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      appBar: CustomAppBar(title: Text('Finance')),
-      body: Text('Finance'),
+      appBar: CustomAppBar(title: Text('Funds')),
+      body: Center(child: Text('Funds')),
     );
   }
 }

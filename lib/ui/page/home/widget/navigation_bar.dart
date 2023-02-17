@@ -17,7 +17,7 @@
 
 import 'dart:ui';
 
-import 'package:badges/badges.dart' as badges;
+// import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -99,21 +99,19 @@ class CustomNavigationBar extends StatelessWidget {
                                 width: 80,
                                 color: Colors.transparent,
                                 child: Center(
-                                  child: badges.Badge(
-                                    badgeStyle: badges.BadgeStyle(
-                                      badgeColor: b.badgeColor,
-                                    ),
-                                    badgeContent: b.badge == null
+                                  child: Badge(
+                                    label: b.badge == null
                                         ? null
                                         : Text(
                                             b.badge!,
                                             textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                            ),
                                           ),
-                                    showBadge: b.badge != null,
+                                    textStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                    ),
+                                    backgroundColor: b.badgeColor,
+                                    isLabelVisible: b.badge != null,
                                     child: b.child!,
                                   ),
                                 ),

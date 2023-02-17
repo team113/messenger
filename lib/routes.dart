@@ -80,7 +80,7 @@ class Routes {
   static const chatInfo = '/info';
   static const contact = '/contact';
   static const home = '/';
-  static const finance = '/finance';
+  static const funds = '/funds';
   static const public = '/public';
   static const me = '/me';
   static const menu = '/menu';
@@ -94,7 +94,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { contacts, chats, menu }
+enum HomeTab { funds, contacts, chats, menu }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -225,7 +225,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.chat ||
             routes.last == Routes.menu ||
             routes.last == Routes.public ||
-            routes.last == Routes.finance ||
+            routes.last == Routes.funds ||
             routes.last == Routes.user) {
           routes.last = Routes.home;
         }
@@ -315,6 +315,9 @@ class AppRouteInformationParser
     // If logged in and on [Routes.home] page, then modify the URL's route.
     if (configuration.loggedIn && configuration.route == Routes.home) {
       switch (configuration.tab!) {
+        case HomeTab.funds:
+          route = Routes.funds;
+          break;
         case HomeTab.contacts:
           route = Routes.contact;
           break;
@@ -703,9 +706,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         case HomeTab.menu:
           WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
-        // case HomeTab.finance:
-        //   WebUtils.title('$prefix${'label_tab_finance'.l10n}');
-        //   break;
+        case HomeTab.funds:
+          WebUtils.title('$prefix${'label_tab_funds'.l10n}');
+          break;
         // case HomeTab.public:
         //   WebUtils.title('$prefix${'label_tab_public'.l10n}');
         //   break;
