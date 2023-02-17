@@ -29,13 +29,16 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class InsufficientFundsView extends StatelessWidget {
-  const InsufficientFundsView({super.key});
+  const InsufficientFundsView({super.key, required this.description});
+
+  final String description;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(BuildContext context,
+      {required String description}) {
     return ModalPopup.show(
       context: context,
-      child: const InsufficientFundsView(),
+      child: InsufficientFundsView(description: description),
     );
   }
 
@@ -68,7 +71,7 @@ class InsufficientFundsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Text(
-                    'label_message_cant_send_message_funds'.l10n,
+                    description,
                     style: thin,
                   ),
                 ],

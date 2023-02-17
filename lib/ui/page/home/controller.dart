@@ -93,6 +93,12 @@ class HomeController extends GetxController {
   double get sideBarAllowedWidth =>
       _settings.applicationSettings.value?.sideBarWidth ?? 350;
 
+  bool get displayFunds =>
+      _settings.applicationSettings.value?.displayFunds ?? true;
+
+  bool get displayTransactions =>
+      _settings.applicationSettings.value?.displayTransactions ?? true;
+
   /// Returns the background's [Uint8List].
   Rx<Uint8List?> get background => _settings.background;
 

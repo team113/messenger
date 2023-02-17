@@ -74,4 +74,10 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.loadImages] value.
   Future<void> setLoadImages(bool enabled);
+
+  /// Sets the [ApplicationSettings.displayFunds] value.
+  Future<void> setDisplayFunds(bool enabled);
+
+  /// Sets the [ApplicationSettings.displayTransactions] value.
+  Future<void> setDisplayTransactions(bool enabled);
 }

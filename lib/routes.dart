@@ -34,6 +34,7 @@ import 'domain/service/auth.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
+import 'domain/service/funds.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
@@ -285,6 +286,9 @@ class AppRouteInformationParser
       RouteInformation routeInformation) {
     RouteConfiguration configuration;
     switch (routeInformation.location) {
+      case Routes.funds:
+        configuration = RouteConfiguration(Routes.home, HomeTab.funds);
+        break;
       case Routes.contact:
         configuration = RouteConfiguration(Routes.home, HomeTab.contacts);
         break;
@@ -518,6 +522,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 chatService,
                 callRepository,
               ));
+
+              deps.put(FundsService());
 
               return deps;
             },

@@ -90,4 +90,14 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
       );
+
+  Future<void> setDisplayFunds(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..displayFunds = enabled,
+      );
+
+  Future<void> setDisplayTransactions(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..displayTransactions = enabled,
+      );
 }

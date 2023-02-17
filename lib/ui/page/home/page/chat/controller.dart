@@ -301,7 +301,10 @@ class ChatController extends GetxController {
         }
 
         if (paid) {
-          await InsufficientFundsView.show(router.context!);
+          await InsufficientFundsView.show(
+            router.context!,
+            description: 'label_message_cant_send_message_funds'.l10n,
+          );
           return;
         }
 
@@ -400,6 +403,14 @@ class ChatController extends GetxController {
   Future<void> call(bool withVideo) async {
     if (paid && !paidDisclaimerDismissed) {
       paidDisclaimer.value = true;
+      return;
+    }
+
+    if (paid) {
+      await InsufficientFundsView.show(
+        router.context!,
+        description: 'label_message_cant_make_call_funds'.l10n,
+      );
       return;
     }
 

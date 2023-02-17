@@ -36,6 +36,7 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
+import 'tab/funds/more/view.dart';
 import 'tab/funds/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
@@ -200,14 +201,33 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('FundsButton'),
-                                badge: '\$5.25',
-                                badgeColor: Colors.green,
-                                child: tab(
-                                  tab: HomeTab.funds,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/balance.svg',
-                                    width: 30,
-                                    height: 30,
+                                badge: c.displayTransactions ? '999' : null,
+                                child: RmbDetector(
+                                  onPressed: () => FundsMoreView.show(context),
+                                  child: tab(
+                                    tab: HomeTab.funds,
+                                    child: Stack(
+                                      children: [
+                                        SvgLoader.asset(
+                                          'assets/icons/balance.svg',
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        Positioned.fill(
+                                          child: Center(
+                                            child: Text(
+                                              c.displayFunds ? '0.00' : '\$',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    c.displayFunds ? 11 : 15,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -224,9 +244,10 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('ChatsButton'),
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}',
+                                // badge: c.unreadChatsCount.value == 0
+                                //     ? null
+                                //     : '${c.unreadChatsCount.value}',
+                                badge: '1',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? const Color(0xFFC0C0C0)
                                     : Colors.red,

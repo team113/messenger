@@ -135,6 +135,14 @@ class SettingsRepository extends DisposableInterface
   Future<void> setLoadImages(bool enabled) =>
       _settingsLocal.setLoadImages(enabled);
 
+  @override
+  Future<void> setDisplayFunds(bool enabled) =>
+      _settingsLocal.setDisplayFunds(enabled);
+
+  @override
+  Future<void> setDisplayTransactions(bool enabled) =>
+      _settingsLocal.setDisplayTransactions(enabled);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

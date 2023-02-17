@@ -17,9 +17,9 @@
 
 import 'dart:ui';
 
-// import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -100,15 +100,33 @@ class CustomNavigationBar extends StatelessWidget {
                                 color: Colors.transparent,
                                 child: Center(
                                   child: Badge(
+                                    largeSize: 15,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 4.4,
+                                    ),
+                                    alignment:
+                                        const AlignmentDirectional(21, -4),
                                     label: b.badge == null
                                         ? null
-                                        : Text(
-                                            b.badge!,
-                                            textAlign: TextAlign.center,
+                                        : Transform.translate(
+                                            offset: PlatformUtils.isWeb
+                                                ? Offset(
+                                                    0.2,
+                                                    // context.isMobile ? 0 : -0.5,
+                                                    PlatformUtils.isIOS
+                                                        ? 0
+                                                        : 0.25,
+                                                  )
+                                                : const Offset(0, -0.3),
+                                            child: Text(
+                                              b.badge!,
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
                                     textStyle: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 9,
+                                      fontSize: 11,
                                     ),
                                     backgroundColor: b.badgeColor,
                                     isLabelVisible: b.badge != null,

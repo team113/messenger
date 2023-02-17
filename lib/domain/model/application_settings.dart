@@ -34,6 +34,8 @@ class ApplicationSettings extends HiveObject {
     this.showDragAndDropButtonsHint = false,
     this.callButtons = const [],
     this.loadImages = true,
+    this.displayFunds = true,
+    this.displayTransactions = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -74,4 +76,10 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(8)
   bool loadImages;
+
+  @HiveField(9)
+  bool displayFunds;
+
+  @HiveField(10)
+  bool displayTransactions;
 }

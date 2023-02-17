@@ -191,9 +191,15 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
   ) {
     return ClipRect(
       child: FadeTransition(
-        opacity: animation,
+        opacity: CurvedAnimation(
+          curve: const Interval(0, 1),
+          parent: animation,
+        ),
         child: FadeTransition(
-          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
+          opacity: CurvedAnimation(
+            curve: const Interval(0, 1),
+            parent: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
+          ),
           child: matchingBuilder.buildTransitions(
             this,
             context,
