@@ -354,12 +354,10 @@ class HiveRxChat extends RxChat {
     }
 
     status.value = RxStatus.loadingMore();
-
     await _fragment.loadInitialPage();
+    status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
-
-    status.value = RxStatus.success();
   }
 
   @override
@@ -471,7 +469,7 @@ class HiveRxChat extends RxChat {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    put(HiveChatItem item, {bool ignoreVersion = false}) {
+    void put(HiveChatItem item, {bool ignoreVersion = false}) {
       if (_fragment.hasPreviousPage.isFalse) {
         this.put(item, ignoreVersion: ignoreVersion);
       }

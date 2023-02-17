@@ -26,7 +26,7 @@ import '/util/obs/rxlist.dart';
 /// Helper to fetches items with pagination.
 class PaginatedFragment<T> {
   PaginatedFragment({
-    this.pageSize = 30,
+    this.pageSize = 10,
     this.initialCursor,
     required this.compare,
     required this.equal,

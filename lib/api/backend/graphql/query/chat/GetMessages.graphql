@@ -50,6 +50,7 @@ query GetMessages(
                 cursor
             }
             pageInfo {
+                __typename
                 ...PageInfo
             }
         }

@@ -78,7 +78,7 @@ class ContactRepository implements AbstractContactRepository {
   /// [PaginatedFragment] loading [contacts] with pagination.
   late final PaginatedFragment<HiveChatContact> _fragment;
 
-  /// [dio.CancelToken] for cancelling the [PaginatedFragment.loadInitialPage].
+  /// [CancelToken] cancelling the [PaginatedFragment.loadInitialPage].
   final CancelToken _cancelToken = CancelToken();
 
   /// [ContactHiveProvider.boxEvents] subscription.
@@ -138,9 +138,11 @@ class ContactRepository implements AbstractContactRepository {
               HiveRxChatContact(_userRepo, event.element)..init();
           _putEntry(event.element);
           break;
+
         case OperationKind.removed:
           contacts.remove(event.element.value.id)?.dispose();
           break;
+
         case OperationKind.updated:
           _putEntry(event.element);
           break;
@@ -401,9 +403,7 @@ class ContactRepository implements AbstractContactRepository {
               continue;
             }
 
-            HiveChatContact? contactEntity =
-                _contactLocal.get(node.contactId) ??
-                    await _fetchById(node.contactId);
+            HiveChatContact? contactEntity = _contactLocal.get(node.contactId);
             contactEntity?.ver = versioned.ver;
 
             if (contactEntity == null) {
@@ -482,19 +482,6 @@ class ContactRepository implements AbstractContactRepository {
     }
   }
 
-  // TODO: This currently fetches all the contacts. Should be reimplemented when
-  //       backend will allow to fetch single ChatContact by its ID.
-  /// Fetches and persists a [HiveChatContact] by the provided [id].
-  Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _fetchContacts(first: 120))
-        .items
-        .firstWhereOrNull((e) => e.value.id == id);
-    if (contact != null) {
-      _putEntry(contact);
-    }
-    return contact;
-  }
-
   /// Fetches [HiveChatContact]s from the remote with pagination.
   ///
   /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
@@ -506,16 +493,18 @@ class ContactRepository implements AbstractContactRepository {
     ChatContactsCursor? before,
   }) async {
     Contacts$Query$ChatContacts query = await _graphQlProvider.chatContacts(
-        noFavorite: false,
-        first: first,
-        after: after,
-        last: last,
-        before: before);
+      noFavorite: false,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
     _sessionLocal.setChatContactsListVersion(query.ver);
 
-    List<HiveChatContact> contacts = <HiveChatContact>[];
+    final List<HiveChatContact> contacts = [];
     for (var c in query.nodes) {
-      List<HiveUser> users = c.getHiveUsers();
+      final List<HiveUser> users = c.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }

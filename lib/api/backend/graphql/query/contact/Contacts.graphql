@@ -34,6 +34,7 @@ query Contacts(
             ...ChatContact
         }
         pageInfo {
+            __typename
             ...PageInfo
         }
         ver
