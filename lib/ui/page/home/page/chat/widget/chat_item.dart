@@ -1431,10 +1431,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        (constraints.maxWidth +
-                                    (_fromMe ? SwipeableStatus.width : 0)) *
-                                0.84 -
-                            20,
+                        constraints.maxWidth - SwipeableStatus.width,
                       ),
                     ),
                     child: Material(
