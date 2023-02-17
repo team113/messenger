@@ -27,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
@@ -149,7 +150,7 @@ class SearchView extends StatelessWidget {
                       );
                     }
 
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomProgressIndicator());
                   }
 
                   return Scrollbar(

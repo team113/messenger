@@ -399,6 +399,7 @@ label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
 label_blocked_users = Заблокированные пользователи
 label_blocked_count = Заблокировано: {$count}
+label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
 label_call_calling = Звоним
 label_call_connecting = Подготовка соединения
@@ -656,6 +657,7 @@ label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
 label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
+label_storage = Хранилище
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
@@ -668,6 +670,7 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
+label_upload_images = Загружать изображения
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_is_blocked = Пользователь заблокирован

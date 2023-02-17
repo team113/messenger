@@ -35,6 +35,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -60,7 +61,7 @@ class ChatInfoView extends StatelessWidget {
           if (c.status.value.isLoading) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
@@ -293,9 +294,7 @@ class ChatInfoView extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: Color(0x22000000),
                           ),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                          child: const Center(child: CustomProgressIndicator()),
                         )
                       : const SizedBox.shrink(),
                 );

@@ -24,6 +24,7 @@ import '/l10n/l10n.dart';
 import '/ui/page/call/widget/video_view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// View for selecting display for screen sharing.
@@ -56,7 +57,7 @@ class ScreenShareView extends StatelessWidget {
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
-      child: Center(child: CircularProgressIndicator()),
+      child: Center(child: CustomProgressIndicator()),
     );
 
     return GetBuilder(

@@ -36,6 +36,7 @@ import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -446,7 +447,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     },
                     child: const SizedBox(
                       height: 300,
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: CustomProgressIndicator()),
                     ),
                   );
                 },
@@ -501,7 +502,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             child: SizedBox(
               width: 20.0,
               height: 20.0,
-              child: CircularProgressIndicator(
+              child: CustomProgressIndicator(
                 value: event == null
                     ? 0
                     : event.cumulativeBytesLoaded / event.expectedTotalBytes!,

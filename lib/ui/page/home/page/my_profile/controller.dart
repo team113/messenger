@@ -532,6 +532,10 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsRepo.setLoadImages(enabled);
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].
   ///

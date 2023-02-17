@@ -29,6 +29,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -171,6 +172,9 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  /// Indicator whether the [_bottomLoader] should be displayed.
+  final RxBool bottomLoader = RxBool(false);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -250,11 +254,23 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// Currently displayed [LoaderElement] in the [elements] list.
+  LoaderElement? _bottomLoader;
+
+  /// [Timer] for the adding of the [_bottomLoader] in the [elements] list.
+  Timer? _bottomLoaderStartTimer;
+
+  /// [Timer] for the deleting of the [_bottomLoader] in the [elements] list.
+  Timer? _bottomLoaderEndTimer;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
+
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -352,6 +368,8 @@ class ChatController extends GetxController {
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
+    _bottomLoaderStartTimer?.cancel();
+    _bottomLoaderEndTimer?.cancel();
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
@@ -847,6 +865,31 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
+      _bottomLoaderStartTimer = Timer(const Duration(seconds: 2), () {
+        if (!status.value.isSuccess || status.value.isLoadingMore) {
+          bottomLoader.value = true;
+          _bottomLoader = LoaderElement(
+            (chat?.messages.lastOrNull?.value.at
+                    .add(const Duration(microseconds: 1)) ??
+                PreciseDateTime.now()),
+          );
+          elements[_bottomLoader!.id] = _bottomLoader!;
+
+          if (listController.position.pixels >=
+              listController.position.maxScrollExtent - 100) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              listController.sliverController.animateToIndex(
+                elements.length - 1,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                offsetBasedOnBottom: true,
+              );
+            });
+          }
+        }
+      });
+
+      await Future.delayed(const Duration(seconds: 2));
       await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -865,6 +908,17 @@ class ChatController extends GetxController {
       }
 
       status.value = RxStatus.success();
+
+      if (_bottomLoader != null) {
+        bottomLoader.value = false;
+
+        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 200), () {
+          if (_bottomLoader != null) {
+            elements.remove(_bottomLoader!.id);
+            _bottomLoader = null;
+          }
+        });
+      }
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
@@ -1348,6 +1402,12 @@ class DateTimeElement extends ListElement {
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('1')));
+}
+
+/// [ListElement] representing a [CustomProgressIndicator].
+class LoaderElement extends ListElement {
+  LoaderElement(PreciseDateTime at)
+      : super(ListElementId(at, const ChatItemId('2')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

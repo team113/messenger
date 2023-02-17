@@ -31,6 +31,7 @@ import 'package:video_player/video_player.dart';
 
 import 'progress_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/widget/progress_indicator.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -188,7 +189,7 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
             _latestValue.isBuffering
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CustomProgressIndicator())
                 : _buildHitArea(),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,

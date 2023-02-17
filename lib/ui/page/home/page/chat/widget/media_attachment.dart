@@ -35,6 +35,7 @@ class MediaAttachment extends StatefulWidget {
     this.width,
     this.height,
     this.fit,
+    this.load = true,
     this.onError,
   });
 
@@ -49,6 +50,9 @@ class MediaAttachment extends StatefulWidget {
 
   /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
+
+  /// Indicator whether should the content of this [MediaAttachment] be loaded.
+  final bool load;
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
@@ -123,10 +127,13 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         return RetryImage(
           image.url,
           checksum: image.checksum,
+          fallback: attachment.small.url,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
           onForbidden: widget.onError,
+          cancelable: true,
+          load: widget.load,
         );
       }
     } else {

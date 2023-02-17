@@ -384,6 +384,7 @@ label_biography_hint = Write about yourself
 label_block = Block
 label_blocked_users = Blocked users
 label_blocked_count = Blocked: {$count}
+label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling
 label_call_connecting = Connection preparing
@@ -636,6 +637,7 @@ label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
 label_sound_and_vibrations = Sound and vibration
 label_status = Status
+label_storage = Storage
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
@@ -648,6 +650,7 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
+label_upload_images = Upload images
 label_use_search = Use search to find an user
 label_user = User
 label_user_is_blocked = User is blocked
