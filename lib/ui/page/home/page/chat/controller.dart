@@ -889,7 +889,6 @@ class ChatController extends GetxController {
         }
       });
 
-      await Future.delayed(const Duration(seconds: 2));
       await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
