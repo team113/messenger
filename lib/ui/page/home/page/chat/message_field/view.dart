@@ -432,13 +432,16 @@ class MessageFieldView extends StatelessWidget {
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
                     ? c.pickFile
-                    : () => AttachmentSourceSelector.show(
+                    : () {
+                        c.field.focus.unfocus();
+                        AttachmentSourceSelector.show(
                           context,
                           onPickFile: c.pickFile,
                           onTakePhoto: c.pickImageFromCamera,
                           onPickMedia: c.pickMedia,
                           onTakeVideo: c.pickVideoFromCamera,
-                        )
+                        );
+                      }
                 : null,
             child: SizedBox(
               width: 56,

@@ -118,6 +118,12 @@ class ChatRepository implements AbstractChatRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
+  /// Stored [Chat.unreadCount] value.
+  int? _unread;
+
+  /// [Timer] executing [GraphQlProvider.readChat] mutation.
+  Timer? _readTimer;
+
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
 
@@ -355,7 +361,7 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     HiveRxChat? chat = _chats[chatId];
-    int? previous = chat?.chat.value.unreadCount;
+    _unread ??= chat?.chat.value.unreadCount;
 
     if (chat != null) {
       int lastReadIndex = chat.messages.reversed
@@ -363,16 +369,23 @@ class ChatRepository implements AbstractChatRepository {
           .indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
         Iterable<Rx<ChatItem>> unread =
-            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
-        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
+            chat.messages.skip(chat.messages.length - lastReadIndex);
+        chat.chat.update((c) => c?.unreadCount = unread.length);
       }
     }
-    try {
-      await _graphQlProvider.readChat(chatId, untilId);
-    } catch (_) {
-      chat?.chat.update((c) => c?.unreadCount = previous!);
-      rethrow;
-    }
+
+    _readTimer?.cancel();
+    _readTimer = Timer(1.seconds, () async {
+      int? unread = _unread;
+      _unread = null;
+      try {
+        await _graphQlProvider.readChat(chatId, untilId);
+      } catch (_) {
+        chat?.chat.update((c) => c?.unreadCount = unread!);
+        _unread = unread;
+        rethrow;
+      }
+    });
   }
 
   @override

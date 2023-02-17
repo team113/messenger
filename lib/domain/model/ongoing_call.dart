@@ -268,6 +268,9 @@ class OngoingCall {
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
+  /// Stored [_toggleHand] operations.
+  final List<bool> _handTogglings = [];
+
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
@@ -461,9 +464,14 @@ class OngoingCall {
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
 
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = false;
+                  if (node.user.id == _me.userId &&
+                      _handTogglings.firstOrNull == false) {
+                    _handTogglings.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = false;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -474,9 +482,14 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = true;
+                  if (node.user.id == _me.userId &&
+                      _handTogglings.firstOrNull == true) {
+                    _handTogglings.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = true;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -1065,6 +1078,7 @@ class OngoingCall {
 
       bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
+        _handTogglings.add(raised);
         await service.toggleHand(chatId.value, raised);
       });
 

@@ -895,7 +895,9 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.unreadItemsCountUpdated:
               event as EventChatUnreadItemsCountUpdated;
-              chatEntity.value.unreadCount = event.count;
+              if (event.count < chatEntity.value.unreadCount) {
+                chatEntity.value.unreadCount = event.count;
+              }
               break;
 
             case ChatEventKind.avatarUpdated:

@@ -813,7 +813,7 @@ class ChatController extends GetxController {
             ?.listenUpdates();
       }
 
-      _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
+      _readWorker ??= ever(_lastSeenItem, readChat);
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
