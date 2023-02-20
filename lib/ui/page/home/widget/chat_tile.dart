@@ -17,6 +17,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -62,7 +65,7 @@ class ChatTile extends StatelessWidget {
   final List<Widget> subtitle;
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
-  final List<ContextMenuButton> actions;
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
@@ -108,7 +111,10 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  WidgetButton(
+                    child: AvatarWidget.fromRxChat(chat, radius: 30),
+                    onPressed: () => router.chat(chat!.id),
+                  ),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

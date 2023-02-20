@@ -171,7 +171,6 @@ class RecentChatTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                 ],
-                // FIXME:
                 if (selecting == true) ...[
                   const SizedBox(width: 5),
                   Dot(selected: selectedForDelete),
@@ -223,6 +222,7 @@ class RecentChatTile extends StatelessWidget {
               onPressed: onUnmute,
               trailing: const Icon(Icons.notifications),
             ),
+          const ContextMenuDivider(),
           ContextMenuButton(
             label: 'btn_select'.l10n,
             trailing: const Icon(Icons.select_all),

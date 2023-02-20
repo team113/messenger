@@ -46,8 +46,8 @@ class FloatingContextMenu extends StatefulWidget {
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
 
-  /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s representing actions of this [FloatingContextMenu].
+  final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
@@ -172,8 +172,8 @@ class _AnimatedMenu extends StatefulWidget {
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
 
-  /// [ContextMenuButton]s to display in this [_AnimatedMenu].
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s to display in this [_AnimatedMenu].
+  final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
