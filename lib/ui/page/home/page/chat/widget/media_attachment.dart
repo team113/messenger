@@ -35,7 +35,7 @@ class MediaAttachment extends StatefulWidget {
     this.width,
     this.height,
     this.fit,
-    this.load = true,
+    this.autoLoad = true,
     this.onError,
   });
 
@@ -51,8 +51,9 @@ class MediaAttachment extends StatefulWidget {
   /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
 
-  /// Indicator whether should the content of this [MediaAttachment] be loaded.
-  final bool load;
+  /// Indicator whether the [attachment] provided should be fetched as soon as
+  /// this [MediaAttachment] is displayed.
+  final bool autoLoad;
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
@@ -133,7 +134,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           height: widget.height,
           onForbidden: widget.onError,
           cancelable: true,
-          load: widget.load,
+          autoLoad: widget.autoLoad,
         );
       }
     } else {

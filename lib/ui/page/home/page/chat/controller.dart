@@ -866,29 +866,32 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      _bottomLoaderStartTimer = Timer(const Duration(seconds: 2), () {
-        if (!status.value.isSuccess || status.value.isLoadingMore) {
-          bottomLoader.value = true;
-          _bottomLoader = LoaderElement(
-            (chat?.messages.lastOrNull?.value.at
-                    .add(const Duration(microseconds: 1)) ??
-                PreciseDateTime.now()),
-          );
-          elements[_bottomLoader!.id] = _bottomLoader!;
+      _bottomLoaderStartTimer = Timer(
+        const Duration(seconds: 2),
+        () {
+          if (!status.value.isSuccess || status.value.isLoadingMore) {
+            bottomLoader.value = true;
+            _bottomLoader = LoaderElement(
+              (chat?.messages.lastOrNull?.value.at
+                      .add(const Duration(microseconds: 1)) ??
+                  PreciseDateTime.now()),
+            );
+            elements[_bottomLoader!.id] = _bottomLoader!;
 
-          if (listController.position.pixels >=
-              listController.position.maxScrollExtent - 100) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              listController.sliverController.animateToIndex(
-                elements.length - 1,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                offsetBasedOnBottom: true,
-              );
-            });
+            if (listController.position.pixels >=
+                listController.position.maxScrollExtent - 100) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                listController.sliverController.animateToIndex(
+                  elements.length - 1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                  offsetBasedOnBottom: true,
+                );
+              });
+            }
           }
-        }
-      });
+        },
+      );
 
       await chat!.fetchMessages();
 

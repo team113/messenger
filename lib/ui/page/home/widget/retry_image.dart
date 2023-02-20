@@ -49,7 +49,7 @@ class RetryImage extends StatefulWidget {
     this.onForbidden,
     this.filter,
     this.cancelable = false,
-    this.load = true,
+    this.autoLoad = true,
     this.displayProgress = true,
   });
 
@@ -81,11 +81,12 @@ class RetryImage extends StatefulWidget {
   /// [BorderRadius] to apply to this [RetryImage].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether it is possible to cancel the image fetch.
+  /// Indicator whether an ongoing image fetching from the [url] is cancelable.
   final bool cancelable;
 
-  /// Indicator whether the image should be fetched.
-  final bool load;
+  /// Indicator whether the image fetching should start as soon as this
+  /// [RetryImage] is displayed.
+  final bool autoLoad;
 
   /// Indicator whether the image fetching progress should be displayed.
   final bool displayProgress;
@@ -121,14 +122,14 @@ class _RetryImageState extends State<RetryImage> {
   /// Current period of exponential backoff image fetching.
   Duration _fallbackPeriod = _minBackoffPeriod;
 
-  /// Indicator whether image loading has been canceled.
+  /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
 
   @override
   void initState() {
     _loadFallback();
 
-    if (widget.load) {
+    if (widget.autoLoad) {
       _loadImage();
     } else {
       _canceled = true;
@@ -143,7 +144,8 @@ class _RetryImageState extends State<RetryImage> {
       _loadFallback();
     }
 
-    if (oldWidget.url != widget.url || (!oldWidget.load && widget.load)) {
+    if (oldWidget.url != widget.url ||
+        (!oldWidget.autoLoad && widget.autoLoad)) {
       _loadImage();
     }
 
@@ -256,10 +258,7 @@ class _RetryImageState extends State<RetryImage> {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
             child: _fallback == null
-                ? SizedBox(
-                    width: 200,
-                    height: widget.height,
-                  )
+                ? SizedBox(width: 200, height: widget.height)
                 : ClipRect(
                     child: ImageFiltered(
                       imageFilter: ImageFilter.blur(

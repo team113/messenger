@@ -109,8 +109,8 @@ class ChatItemWidget extends StatefulWidget {
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
-  /// Indicator whether this [ChatItemWidget] should load the image stored in
-  /// it.
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -167,7 +167,7 @@ class ChatItemWidget extends StatefulWidget {
     List<Attachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
-    bool load = true,
+    bool autoLoad = true,
   }) {
     final bool isLocal = e is LocalAttachment;
 
@@ -188,7 +188,7 @@ class ChatItemWidget extends StatefulWidget {
             key: key,
             attachment: e,
             height: 300,
-            load: load,
+            autoLoad: autoLoad,
             onError: onError,
           ),
           Center(
@@ -212,7 +212,7 @@ class ChatItemWidget extends StatefulWidget {
         height: 300,
         width: filled ? double.infinity : null,
         fit: BoxFit.cover,
-        load: load,
+        autoLoad: autoLoad,
         onError: onError,
       );
 
@@ -884,7 +884,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               key: _galleryKeys[0],
                               onError: widget.onAttachmentError,
                               onGallery: widget.onGallery,
-                              load: widget.loadImages,
+                              autoLoad: widget.loadImages,
                             )
                           : SizedBox(
                               width: media.length * 120,
@@ -900,7 +900,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         key: _galleryKeys[i],
                                         onError: widget.onAttachmentError,
                                         onGallery: widget.onGallery,
-                                        load: widget.loadImages,
+                                        autoLoad: widget.loadImages,
                                       ),
                                     )
                                     .toList(),
@@ -1093,7 +1093,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
                         cancelable: true,
-                        load: widget.loadImages,
+                        autoLoad: widget.loadImages,
                       ),
               );
             })

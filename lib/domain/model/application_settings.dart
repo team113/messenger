@@ -72,7 +72,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(7)
   bool sortContactsByName;
 
-  /// Indicator whether images in chats should be loaded automatically.
+  /// Indicator whether [ImageAttachment]s should be loaded automatically.
   @HiveField(8)
   bool loadImages;
 }

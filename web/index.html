@@ -19,6 +19,7 @@
 -->
 
 <html>
+
 <head>
   <base href="/">
 
@@ -32,7 +33,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
@@ -71,19 +73,22 @@
       -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
+
     .shimmer {
       color: grey;
-      display:inline-block;
-      mask: linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
-      -webkit-mask:linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
+      display: inline-block;
+      mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
+      -webkit-mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
       background-repeat: no-repeat;
       animation: shimmer 2.5s infinite;
       font-size: 50px;
-      max-width:200px;
+      max-width: 200px;
     }
 
     @keyframes shimmer {
-      100% {-webkit-mask-position:left}
+      100% {
+        -webkit-mask-position: left
+      }
     }
 
     .dot-flashing {
@@ -96,12 +101,15 @@
       animation: dot-flashing 800ms infinite linear alternate;
       animation-delay: 0.3s;
     }
-    .dot-flashing::before, .dot-flashing::after {
+
+    .dot-flashing::before,
+    .dot-flashing::after {
       content: "";
       display: inline-block;
       position: absolute;
       top: 0;
     }
+
     .dot-flashing::before {
       left: -7px;
       width: 4px;
@@ -112,6 +120,7 @@
       animation: dot-flashing 800ms infinite alternate;
       animation-delay: 0s;
     }
+
     .dot-flashing::after {
       left: 7px;
       width: 4px;
@@ -131,7 +140,9 @@
       0% {
         background-color: #888888;
       }
-      50%, 100% {
+
+      50%,
+      100% {
         background-color: rgba(136, 136, 136, 0.2);
       }
     }
@@ -190,6 +201,7 @@
     }
   </script>
 </head>
+
 <body>
   <div id="loader" class="container content">
     <div class="col align-middle" style="vertical-align: middle;">
@@ -197,7 +209,8 @@
         <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt">Messenger</div>
       </div>
       <div class="row justify-content-center mb-5">
-        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
+        <div class="col-auto h4"
+          style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
       </div>
       <div class="row justify-content-center">
         <canvas class="gapopa" id="canvas"></canvas>
@@ -286,7 +299,7 @@
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;
-    document.onclick = function() {
+    document.onclick = function () {
       Notification.requestPermission();
       if (click) {
         click();
@@ -374,11 +387,11 @@
         lastNarrow = narrow;
         if (narrow) {
           document.getElementById('canvas').height = 90;
-          document.getElementById('canvas').setAttribute("style","height: 150px; width:" + window.innerWidth + "px;");
+          document.getElementById('canvas').setAttribute("style", "height: 150px; width:" + window.innerWidth + "px;");
           embed('head');
         } else {
           document.getElementById('canvas').height = 200;
-          document.getElementById('canvas').setAttribute("style","height: 300px; width:" + window.innerWidth + "px;");
+          document.getElementById('canvas').setAttribute("style", "height: 300px; width:" + window.innerWidth + "px;");
           embed('logo');
         }
       }
@@ -404,4 +417,5 @@
     }
   </script>
 </body>
+
 </html>
