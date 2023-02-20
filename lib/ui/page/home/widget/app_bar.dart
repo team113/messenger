@@ -72,10 +72,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Transform.translate(
-                offset: const Offset(0, 15),
+                offset: const Offset(0, 14),
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -107,15 +107,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       alignment: Alignment.bottomCenter,
       child: UnconstrainedBox(
         child: Transform.translate(
-          offset: const Offset(0, 15),
+          offset: const Offset(0, 14),
           child: WidgetButton(
             onPressed: onPressed,
             child: Container(
               // padding: const EdgeInsets.all(4),
-              width: 32, height: 32,
+              // width: 32, height: 30,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                // color: Colors.white,
                 // boxShadow: [
                 //   BoxShadow(
                 //     blurRadius: 8,
@@ -124,13 +124,32 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 //   )
                 // ],
               ),
-              child: Center(
-                child: SvgLoader.asset(
-                  'assets/icons/paid_chat.svg',
-                  width: 24,
-                  height: 24,
-                ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SvgLoader.asset(
+                    'assets/icons/balance.svg',
+                    width: 30,
+                    height: 30,
+                  ),
+                  const Positioned.fill(
+                    child: Center(
+                      child: Text(
+                        '\$',
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              // child: Center(
+              //   child: SvgLoader.asset(
+              //     'assets/icons/paid_chat.svg',
+              //     width: 24,
+              //     height: 24,
+              //   ),
+              // ),
               // child: const Icon(
               //   Icons.monetization_on_outlined,
               //   color: Color(0xFF72B060),

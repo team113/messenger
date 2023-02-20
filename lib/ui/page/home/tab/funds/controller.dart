@@ -15,3 +15,20 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+
+import '/ui/widget/text_field.dart';
+
+class FundsTabController extends GetxController {
+  FundsTabController();
+
+  final TextFieldState search = TextFieldState();
+  final RxBool adding = RxBool(false);
+  final RxBool searching = RxBool(false);
+
+  final RxnString query = RxnString(null);
+
+  void toggleAdding() {
+    adding.toggle();
+  }
+}

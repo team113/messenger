@@ -476,13 +476,10 @@ class ContactsTabView extends StatelessWidget {
                         : const Color(0x00EBEBEB),
                   );
                 }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
-                    ),
+                ContextMenuInterceptor(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               ],
