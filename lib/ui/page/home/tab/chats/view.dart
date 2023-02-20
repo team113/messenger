@@ -27,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -87,47 +88,7 @@ class ChatsTabView extends StatelessWidget {
 
                     if (c.searching.value) {
                       child = Theme(
-                        data: Theme.of(context).copyWith(
-                          shadowColor: const Color(0x55000000),
-                          iconTheme: const IconThemeData(color: Colors.blue),
-                          inputDecorationTheme: InputDecorationTheme(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusColor: Colors.white,
-                            fillColor: Colors.white,
-                            hoverColor: Colors.transparent,
-                            filled: true,
-                            isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(
-                              15,
-                              PlatformUtils.isDesktop ? 30 : 23,
-                              15,
-                              0,
-                            ),
-                          ),
-                        ),
+                        data: MessageFieldView.theme(context),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Transform.translate(
@@ -205,16 +166,21 @@ class ChatsTabView extends StatelessWidget {
                         child = c.groupCreating.value || c.selecting.value
                             ? SvgLoader.asset(
                                 'assets/icons/close_primary.svg',
+                                key: const Key('CloseGroupSearching'),
                                 height: 15,
                               )
                             : SvgLoader.asset(
                                 'assets/icons/group.svg',
+                                key: const Key('CreateGroup'),
                                 width: 21.77,
                                 height: 18.44,
                               );
                       }
 
                       return WidgetButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : null,
                         onPressed: () {
                           if (c.searching.value) {
                             c.closeSearch(!c.groupCreating.value);

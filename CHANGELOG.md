@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
@@ -27,7 +28,7 @@ All user visible changes to this project will be documented in this file. This p
         - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
-        - Screen share display choosing on desktop. ([#228], [#222])
+        - Screen share display choosing on desktop. ([#347], [#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -165,10 +166,13 @@ All user visible changes to this project will be documented in this file. This p
 [#319]: /../../pull/319
 [#323]: /../../pull/323
 [#328]: /../../issues/328
+[#330]: /../../issues/330
 [#332]: /../../pull/332
+[#335]: /../../pull/335
 [#336]: /../../pull/336
 [#337]: /../../pull/337
 [#340]: /../../pull/340
+[#347]: /../../pull/347
 
 
 
