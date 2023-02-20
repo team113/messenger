@@ -536,6 +536,12 @@ class ChatsTabController extends GetxController {
         return 1;
       }
 
+      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
+        return -1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
+        return 1;
+      }
+
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
   }
