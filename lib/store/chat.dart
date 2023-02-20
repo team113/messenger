@@ -136,7 +136,7 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  RxBool get hasNextPage => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNextPage;
 
   @override
   RxBool get isReady => _isReady;
@@ -289,9 +289,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> loadNextPage() async {
-    await _fragment.loadNextPage();
-  }
+  Future<void> fetchNext() => _fragment.loadNextPage();
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].

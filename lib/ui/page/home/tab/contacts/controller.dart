@@ -120,7 +120,7 @@ class ContactsTabController extends GetxController {
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
   /// Indicates whether a loading indicator should be showed.
-  RxBool get hasNextPage => _contactService.hasNextPage;
+  RxBool get hasNext => _contactService.hasNext;
 
   @override
   void onInit() {
@@ -373,11 +373,11 @@ class ContactsTabController extends GetxController {
   /// [ScrollController.position] value.
   void _scrollListener() {
     if (scrollController.hasClients &&
-        hasNextPage.isTrue &&
+        hasNext.isTrue &&
         scrollController.position.pixels >
             scrollController.position.maxScrollExtent -
                 (MediaQuery.of(router.context!).size.height + 200)) {
-      _contactService.loadNextPage();
+      _contactService.fetchNext();
     }
   }
 

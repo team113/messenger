@@ -142,7 +142,7 @@ class ChatsTabController extends GetxController {
   RxBool get chatsReady => _chatService.isReady;
 
   /// Indicates whether a loading indicator should be showed.
-  RxBool get hasNextPage => _chatService.hasNextPage;
+  RxBool get hasNext => _chatService.hasNext;
 
   @override
   void onInit() {
@@ -555,11 +555,11 @@ class ChatsTabController extends GetxController {
   /// value.
   void _scrollListener() {
     if (scrollController.hasClients &&
-        hasNextPage.isTrue &&
+        hasNext.isTrue &&
         scrollController.position.pixels >
             scrollController.position.maxScrollExtent -
                 (MediaQuery.of(router.context!).size.height + 200)) {
-      _chatService.loadNextPage();
+      _chatService.fetchNext();
     }
   }
 

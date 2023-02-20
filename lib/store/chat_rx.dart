@@ -152,10 +152,10 @@ class HiveRxChat extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNextPage => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNextPage;
 
   @override
-  RxBool get hasPreviousPage => _fragment.hasPreviousPage;
+  RxBool get hasPrevious => _fragment.hasPreviousPage;
 
   @override
   UserCallCover? get callCover {
@@ -348,7 +348,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> fetchMessages() async {
+  Future<void> fetchInitial() async {
     while (!status.value.isSuccess) {
       await Future.delayed(1.milliseconds);
     }
@@ -361,16 +361,14 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> loadNextPage() async {
+  Future<void> fetchNext() async {
     await _fragment.loadNextPage();
-
     Future.delayed(Duration.zero, updateReads);
   }
 
   @override
-  Future<void> loadPreviousPage() async {
+  Future<void> fetchPrevious() async {
     await _fragment.loadPreviousPage();
-
     Future.delayed(Duration.zero, updateReads);
   }
 
@@ -470,7 +468,7 @@ class HiveRxChat extends RxChat {
     List<ChatItem> repliesTo = const [],
   }) async {
     void put(HiveChatItem item, {bool ignoreVersion = false}) {
-      if (_fragment.hasPreviousPage.isFalse) {
+      if (!_fragment.hasPreviousPage.value) {
         this.put(item, ignoreVersion: ignoreVersion);
       }
     }

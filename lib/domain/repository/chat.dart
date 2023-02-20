@@ -41,8 +41,8 @@ abstract class AbstractChatRepository {
   /// used.
   RxBool get isReady;
 
-  /// Indicates whether the [chats] has next page.
-  RxBool get hasNextPage;
+  /// Indicates whether the [chats] have next page.
+  RxBool get hasNext;
 
   /// Initializes this repository.
   ///
@@ -93,9 +93,6 @@ abstract class AbstractChatRepository {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   });
-
-  /// Loads next page of a [Chat]s.
-  Future<void> loadNextPage();
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item);
@@ -189,6 +186,9 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  /// Fetches the next [chats] page.
+  Future<void> fetchNext();
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -237,11 +237,11 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
-  /// Indicates whether the [messages] has next page.
-  RxBool get hasNextPage;
+  /// Indicates whether the [messages] have next page.
+  RxBool get hasNext;
 
-  /// Indicates whether the [messages] has previous page.
-  RxBool get hasPreviousPage;
+  /// Indicates whether the [messages] have previous page.
+  RxBool get hasPrevious;
 
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
@@ -256,14 +256,14 @@ abstract class RxChat {
               .isBlacklisted ==
           true;
 
-  /// Loads initial page of the [messages] from the service.
-  Future<void> fetchMessages();
+  /// Fetches the initial [messages] page.
+  Future<void> fetchInitial();
 
-  /// Loads next page of the [messages] from the service.
-  Future<void> loadNextPage();
+  /// Fetches the next [messages] page.
+  Future<void> fetchNext();
 
-  /// Fetches previous page of the [messages] from the service.
-  Future<void> loadPreviousPage();
+  /// Fetches the previous [messages] page.
+  Future<void> fetchPrevious();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

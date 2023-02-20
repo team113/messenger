@@ -93,7 +93,7 @@ class ContactRepository implements AbstractContactRepository {
   StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
-  RxBool get hasNextPage => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNextPage;
 
   @override
   Future<void> init() async {
@@ -216,9 +216,7 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   @override
-  Future<void> loadNextPage() async {
-    await _fragment.loadNextPage();
-  }
+  Future<void> fetchNext() => _fragment.loadNextPage();
 
   @override
   Future<void> favoriteChatContact(

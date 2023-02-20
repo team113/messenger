@@ -195,7 +195,8 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          List<Widget> children;
+                          final List<Widget> children;
+
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               WidgetButton(
@@ -264,9 +265,7 @@ class _ChatViewState extends State<ChatView>
                             ];
                           }
 
-                          return Row(
-                            children: children,
-                          );
+                          return Row(children: children);
                         }),
                       ],
                     ),
@@ -439,7 +438,8 @@ class _ChatViewState extends State<ChatView>
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
-                          Rect? previous = c.bottomBarRect.value;
+                          final Rect? previous = c.bottomBarRect.value;
+
                           if (previous != null) {
                             SchedulerBinding.instance.addPostFrameCallback((_) {
                               c.bottomBarRect.value =
@@ -1046,9 +1046,7 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox(
       width: double.infinity,
       height: ChatController.loadingHeight,
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

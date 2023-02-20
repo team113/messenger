@@ -69,6 +69,12 @@ class PaginatedFragment<T> {
   /// List of the elements fetched from [cache] and remote.
   final RxObsList<T> elements = RxObsList<T>();
 
+  /// Indicator whether next page is exist.
+  final RxBool hasNextPage = RxBool(false);
+
+  /// Indicator whether previous page is exist.
+  final RxBool hasPreviousPage = RxBool(false);
+
   /// Elements uploaded from the remote.
   final List<T> _synced = [];
 
@@ -78,23 +84,11 @@ class PaginatedFragment<T> {
   /// Indicator whether previous page is loading.
   bool _isPrevPageLoading = false;
 
-  /// Indicator whether next page is exist.
-  final RxBool _hasNextPage = RxBool(false);
-
-  /// Indicator whether previous page is exist.
-  final RxBool _hasPreviousPage = RxBool(false);
-
   /// Cursor to fetch the previous page.
   String? _startCursor;
 
   /// Cursor to fetch the next page.
   String? _endCursor;
-
-  /// Indicates whether next page is exist.
-  RxBool get hasNextPage => _hasNextPage;
-
-  /// Indicates whether previous page is exist.
-  RxBool get hasPreviousPage => _hasPreviousPage;
 
   /// Gets initial page from the [cache].
   void init() {
@@ -112,9 +106,10 @@ class PaginatedFragment<T> {
       return;
     }
 
-    ItemsPage<T>? fetched;
-
+    // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
+
+    ItemsPage<T>? fetched;
     if (initialCursor != null) {
       fetched = await onFetchPage(
         first: pageSize ~/ 2 - 1,
@@ -126,25 +121,23 @@ class PaginatedFragment<T> {
       fetched = await onFetchPage(first: pageSize);
     }
 
-    if (fetched == null) {
-      return;
-    }
+    if (fetched != null) {
+      hasNextPage.value = fetched.pageInfo.hasNextPage;
+      hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
+      _startCursor = fetched.pageInfo.startCursor;
+      _endCursor = fetched.pageInfo.endCursor;
 
-    _hasNextPage.value = fetched.pageInfo.hasNextPage;
-    _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
-    _startCursor = fetched.pageInfo.startCursor;
-    _endCursor = fetched.pageInfo.endCursor;
+      _syncItems(fetched.items);
 
-    _syncItems(fetched.items);
-
-    for (T i in fetched.items) {
-      _add(i);
+      for (T i in fetched.items) {
+        _add(i);
+      }
     }
   }
 
   /// Fetches next page of the [elements].
   Future<void> loadNextPage() async {
-    if (_hasNextPage.isFalse) {
+    if (hasNextPage.isFalse) {
       return;
     }
 
@@ -167,6 +160,7 @@ class PaginatedFragment<T> {
     if (!_isNextPageLoading) {
       _isNextPageLoading = true;
 
+      // TODO: Temporary timeout, remove before merging.
       await Future.delayed(const Duration(seconds: 2));
 
       ItemsPage<T>? fetched = await onFetchPage(
@@ -175,7 +169,7 @@ class PaginatedFragment<T> {
       );
 
       if (fetched != null) {
-        _hasNextPage.value = fetched.pageInfo.hasNextPage;
+        hasNextPage.value = fetched.pageInfo.hasNextPage;
         _endCursor = fetched.pageInfo.endCursor;
 
         _syncItems(fetched.items);
@@ -198,18 +192,20 @@ class PaginatedFragment<T> {
 
   /// Fetches previous page of the [elements].
   FutureOr<void> loadPreviousPage() async {
-    if (_isPrevPageLoading || _hasPreviousPage.isFalse) {
+    if (_isPrevPageLoading || hasPreviousPage.isFalse) {
       return;
     }
 
     _isPrevPageLoading = true;
 
+    // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
+
     ItemsPage<T>? fetched =
         await onFetchPage(last: pageSize, before: _startCursor);
 
     if (fetched != null) {
-      _hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
+      hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
       _startCursor = fetched.pageInfo.startCursor;
 
       for (T i in fetched.items) {

@@ -503,7 +503,7 @@ class ChatsTabView extends StatelessWidget {
 
                               if (c.chats.length - 1 == i) {
                                 return Obx(() {
-                                  if (c.hasNextPage.isTrue) {
+                                  if (c.hasNext.isTrue) {
                                     return Column(
                                       children: [widget, _loadingIndicator()],
                                     );

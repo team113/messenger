@@ -273,10 +273,10 @@ class ChatController extends GetxController {
       _callService.calls[id] != null || WebUtils.containsCall(id);
 
   /// Indicates whether a previous page of the [elements] is exists.
-  RxBool get hasPreviousPage => chat!.hasPreviousPage;
+  RxBool get hasPrevious => chat!.hasPrevious;
 
   /// Indicates whether a next page of the [elements] is exists.
-  RxBool get hasNextPage => chat!.hasNextPage;
+  RxBool get hasNext => chat!.hasNext;
 
   @override
   void onInit() {
@@ -825,7 +825,7 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      await chat!.fetchMessages();
+      await chat!.fetchInitial();
 
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
@@ -1110,7 +1110,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _loadMessages() async {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (hasNextPage.isTrue &&
+      if (hasNext.isTrue &&
           listController.position.pixels >
               listController.position.maxScrollExtent -
                   (MediaQuery.of(router.context!).size.height * 2 + 200)) {
@@ -1119,15 +1119,15 @@ class ChatController extends GetxController {
           elements[_topLoadingElement!.id] = _topLoadingElement!;
         }
 
-        chat!.loadNextPage().whenComplete(() {
-          if (hasNextPage.isFalse) {
+        chat!.fetchNext().whenComplete(() {
+          if (hasNext.isFalse) {
             elements.remove(_topLoadingElement?.id);
             _topLoadingElement = null;
           }
         });
       }
 
-      if (hasPreviousPage.isTrue &&
+      if (hasPrevious.isTrue &&
           !_isPrevPageLoading &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height * 2 + 200) {
@@ -1138,7 +1138,7 @@ class ChatController extends GetxController {
             LoadingElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
         elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
 
-        await chat!.loadPreviousPage();
+        await chat!.fetchPrevious();
 
         final double offset = listController.position.pixels;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -1307,11 +1307,12 @@ class ListElementId implements Comparable<ListElementId> {
 
   @override
   int compareTo(ListElementId other) {
-    int result = at.compareTo(other.at);
+    final int result = at.compareTo(other.at);
+
+    // `-` as [elements] are reversed.
     if (result == 0) {
-      result = id.val.compareTo(other.id.val);
+      return -id.val.compareTo(other.id.val);
     }
-    // Return reversed [result] because messages list displays in reverse mod.
     return -result;
   }
 }

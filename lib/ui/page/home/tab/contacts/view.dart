@@ -366,7 +366,7 @@ class ContactsTabView extends StatelessWidget {
                                   );
                                 }),
                                 Obx(() {
-                                  if (c.hasNextPage.isTrue) {
+                                  if (c.hasNext.isTrue) {
                                     return _loadingIndicator();
                                   } else {
                                     return const SizedBox();
