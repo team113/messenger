@@ -244,7 +244,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -259,8 +258,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        ChatId id = user.dialog.value?.chat.value.id ?? user.user.value.dialog;
-        router.chat(id);
+        router.chat(user.user.value.dialog);
       }
     }
   }

@@ -20,7 +20,7 @@ Feature: Chat items are deleted correctly
   Background: User is in dialog with Bob
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And I have dialog with Bob
     And I am in chat with Bob
 
   Scenario: User deletes message

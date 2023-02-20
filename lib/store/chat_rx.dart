@@ -62,8 +62,7 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        _chatId = hiveChat.value.id;
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
   @override
   final Rx<Chat> chat;
@@ -136,12 +135,6 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
-
-  /// [ChatId] of the [chat] stored previously.
-  ///
-  /// Used to update the [chat]-related resources on its ID changes.
-  late ChatId _chatId;
-
   @override
   UserId? get me => _chatRepository.me;
 
@@ -617,6 +610,27 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Updates the [chat] and [chat]-related resources.
+  Future<void> updateChat(Chat newChat) async {
+    if (chat.value.id != newChat.id) {
+      chat.value = newChat;
+
+      subscribe();
+      _localSubscription?.cancel();
+
+      final List<HiveChatItem> saved = _local.messages.toList();
+      await _local.clear();
+      _local.close();
+
+      _local = ChatItemHiveProvider(id);
+      await _local.init(userId: me);
+
+      saved.forEach(_local.put);
+
+      _initLocalSubscription();
+    }
+  }
+
   /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
   Future<void> _initAttachments() async {
     final List<Future> futures = [];
@@ -641,25 +655,6 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
-    // Update the [chat]-related resources, if its ID is changed.
-    if (chat.value.id != _chatId) {
-      _chatId = chat.value.id;
-
-      subscribe();
-      _localSubscription?.cancel();
-
-      final List<HiveChatItem> saved = _local.messages.toList();
-      await _local.clear();
-      _local.close();
-
-      _local = ChatItemHiveProvider(id);
-      await _local.init(userId: me);
-
-      _initLocalSubscription();
-
-      saved.forEach(_local.put);
-    }
-
     if (chat.value.name != null) {
       _updateTitle();
     }

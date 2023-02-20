@@ -307,7 +307,8 @@ class UserView extends StatelessWidget {
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           );
         }),
-        if (c.user?.dialog.value?.id.isLocal == false) ...[
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
           Obx(() {
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;

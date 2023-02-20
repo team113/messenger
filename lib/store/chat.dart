@@ -168,7 +168,7 @@ class ChatRepository implements AbstractChatRepository {
       _initFavoriteChatsSubscription();
 
       _isReady.value = true;
-    } on OperationCanceledException catch (e) {
+    } on OperationCanceledException catch (_) {
       // No-op.
     }
   }
@@ -1219,8 +1219,7 @@ class ChatRepository implements AbstractChatRepository {
 
           if (localChat != null) {
             chats.move(localId, data.chat.value.id);
-            localChat.chat.value.id = data.chat.value.id;
-            await Future.delayed(Duration.zero);
+            await localChat.updateChat(data.chat.value);
             entry = localChat;
           }
 

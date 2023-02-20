@@ -20,17 +20,15 @@ Feature: Local chats
   Background: User is in local dialog with Bob
     Given I am Alice
     And user Bob
-    And I tap `SearchButton` button
-    And I fill `SearchField` field with user Bob
-    And I tap user Bob in search results
-    And I see chat as local
+    And I am in chat with Bob
+    And Bob has no dialog with me
 
   Scenario: Message can be posted in local chat
     When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button
     Then I wait until status of "Hello, my local friend" message is sent
-    Then I see chat as remote
+    And Bob has dialog with me
 
   Scenario: Call can be made in local chat
     When I tap `AudioCall` button
-    Then I see chat as remote
+    Then Bob has dialog with me

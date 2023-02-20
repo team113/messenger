@@ -306,7 +306,7 @@ class UserController extends GetxController {
 
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
-    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -322,7 +322,7 @@ class UserController extends GetxController {
 
   /// Unmutes a [Chat]-dialog with the [user].
   Future<void> unmuteChat() async {
-    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -338,7 +338,7 @@ class UserController extends GetxController {
 
   /// Hides a [Chat]-dialog with the [user].
   Future<void> hideChat() async {
-    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {

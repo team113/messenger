@@ -272,6 +272,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
+        // TODO: Add search for `Contact`s and `Chat`s.
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
@@ -337,6 +338,10 @@ class SearchController extends GetxController {
 
       chats.value = {
         for (var c in sorted.where((p) {
+          if (p.id.isLocal) {
+            return false;
+          }
+
           if (query.value.isNotEmpty) {
             return p.title.toLowerCase().contains(query.value.toLowerCase());
           }
@@ -351,7 +356,7 @@ class SearchController extends GetxController {
       recent.value = {
         for (var u in _chatService.chats.values
             .map((e) {
-              if (e.chat.value.isDialog) {
+              if (e.chat.value.isDialog && !e.chat.value.id.isLocal) {
                 RxUser? user = e.members.values
                     .firstWhereOrNull((u) => u.user.value.id != me);
 

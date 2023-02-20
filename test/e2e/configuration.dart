@@ -64,7 +64,6 @@ import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
-import 'steps/see_chat_as.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
@@ -116,6 +115,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldWithUser,
         goToUserPage,
         hasDialogWithMe,
+        hasNoDialogWithMe,
+        haveDialog,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -141,8 +142,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
-        seeLocalChat,
-        seeRemoteChat,
         seeUserInSearchResults,
         seesAs,
         sendsAttachmentToMe,
