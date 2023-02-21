@@ -23,12 +23,12 @@ Feature: Local chats
     And I am in chat with Bob
     And Bob has no dialog with me
 
-  Scenario: Message can be posted in local chat
+  Scenario: Message can be posted in local dialog
     When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button
     Then I wait until status of "Hello, my local friend" message is sent
     And Bob has dialog with me
 
-  Scenario: Call can be made in local chat
+  Scenario: Call can be made in local dialog
     When I tap `AudioCall` button
     Then Bob has dialog with me

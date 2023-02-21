@@ -135,6 +135,7 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -386,10 +387,6 @@ class HiveRxChat extends RxChat {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    while (!_local.isReady) {
-      await Future.delayed(1.milliseconds);
-    }
-
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,

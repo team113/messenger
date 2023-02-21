@@ -53,22 +53,24 @@ final StepDefinitionGeneric hasDialogWithMe = then1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     final provider = GraphQlProvider();
 
-    await context.world.appDriver.waitUntil(() async {
-      provider.token = context.world.sessions[user.name]?.session.token;
-      final dialog = (await provider.recentChats(first: 120))
-          .recentChats
-          .nodes
-          .firstWhereOrNull((e) =>
-              e.kind == ChatKind.dialog &&
-              e.members.nodes.any((m) => m.user.id == context.world.me));
-      if (dialog != null) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    provider.disconnect();
+    try {
+      await context.world.appDriver.waitUntil(() async {
+        provider.token = context.world.sessions[user.name]?.session.token;
+        final dialog = (await provider.recentChats(first: 120))
+            .recentChats
+            .nodes
+            .firstWhereOrNull((e) =>
+                e.kind == ChatKind.dialog &&
+                e.members.nodes.any((m) => m.user.id == context.world.me));
+        if (dialog != null) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    } finally {
+      provider.disconnect();
+    }
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
