@@ -27,16 +27,16 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
 
-class FundsTabView extends StatelessWidget {
-  const FundsTabView({Key? key}) : super(key: key);
+class BalanceTabView extends StatelessWidget {
+  const BalanceTabView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: FundsTabController(),
-      builder: (FundsTabController c) {
+      init: BalanceTabController(),
+      builder: (BalanceTabController c) {
         return Scaffold(
           appBar: CustomAppBar(
             title: const Text('Balance: \$10.00'),

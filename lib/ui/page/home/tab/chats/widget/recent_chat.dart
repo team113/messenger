@@ -70,6 +70,7 @@ class RecentChatTile extends StatelessWidget {
     this.onFavorite,
     this.onUnfavorite,
     this.onSelect,
+    this.onCreateGroup,
     this.trailing = const [],
     this.onTap,
     this.selected = false,
@@ -124,6 +125,8 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onUnfavorite;
 
   final void Function()? onSelect;
+  final void Function()? onCreateGroup;
+
   final List<Widget> trailing;
   final bool selected;
   final void Function()? onTap;
@@ -234,6 +237,12 @@ class RecentChatTile extends StatelessWidget {
               onPressed: () => _hideChat(context),
               trailing: const Icon(Icons.delete),
             ),
+          const ContextMenuDivider(),
+          ContextMenuButton(
+            label: 'btn_create_group'.l10n,
+            onPressed: onCreateGroup,
+            trailing: const Icon(Icons.group_outlined),
+          ),
           const ContextMenuDivider(),
           ContextMenuButton(
             label: 'btn_select'.l10n,

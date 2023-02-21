@@ -35,11 +35,14 @@ import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/chats/more/view.dart';
+import 'tab/chats_contacts/view.dart';
 import 'tab/contacts/controller.dart';
-import 'tab/funds/more/view.dart';
-import 'tab/funds/view.dart';
+import 'tab/partner/more/view.dart';
+import 'tab/partner/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
+import 'tab/balance/view.dart';
+import 'tab/publics/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -165,10 +168,10 @@ class _HomeViewState extends State<HomeView> {
 
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
-                            KeepAlivePage(child: FundsTabView()),
-                            KeepAlivePage(child: ContactsTabView()),
-                            // KeepAlivePage(child: PublicsTabView()),
-                            KeepAlivePage(child: ChatsTabView()),
+                            KeepAlivePage(child: BalanceTabView()),
+                            KeepAlivePage(child: PartnerTabView()),
+                            KeepAlivePage(child: PublicsTabView()),
+                            KeepAlivePage(child: ChatsContactsTabView()),
                             KeepAlivePage(child: MenuTabView()),
                           ],
                         );
@@ -200,8 +203,7 @@ class _HomeViewState extends State<HomeView> {
                           child: CustomNavigationBar(
                             items: [
                               CustomNavigationBarItem(
-                                key: const Key('FundsButton'),
-                                badge: c.displayTransactions ? '999' : null,
+                                key: const Key('BalanceButton'),
                                 child: RmbDetector(
                                   onPressed: () => FundsMoreView.show(context),
                                   child: tab(
@@ -223,6 +225,7 @@ class _HomeViewState extends State<HomeView> {
                                                     c.displayFunds ? 11 : 15,
                                               ),
                                               textAlign: TextAlign.center,
+                                              textScaleFactor: 1,
                                             ),
                                           ),
                                         ),
@@ -232,11 +235,37 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ),
                               CustomNavigationBarItem(
-                                key: const Key('ContactsButton'),
+                                key: const Key('PartnerButton'),
+                                badge: c.displayTransactions ? '999' : null,
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/contacts.svg',
+                                    'assets/icons/savings.svg',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  // child: CircleAvatar(
+                                  //   radius: 15,
+                                  //   child: Icon(
+                                  //     Icons.savings,
+                                  //     color: Theme.of(context)
+                                  //         .colorScheme
+                                  //         .secondary,
+                                  //   ),
+                                  // )
+                                  // child: SvgLoader.asset(
+                                  //   'assets/icons/contacts.svg',
+                                  //   width: 30,
+                                  //   height: 30,
+                                  // ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('PublicButton'),
+                                child: tab(
+                                  tab: HomeTab.public,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/publics.svg',
                                     width: 30,
                                     height: 30,
                                   ),
@@ -244,10 +273,9 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('ChatsButton'),
-                                // badge: c.unreadChatsCount.value == 0
-                                //     ? null
-                                //     : '${c.unreadChatsCount.value}',
-                                badge: '1',
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? const Color(0xFFC0C0C0)
                                     : Colors.red,

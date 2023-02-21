@@ -45,7 +45,9 @@ import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({Key? key}) : super(key: key);
+  const ChatsTabView({super.key, this.onSwitched});
+
+  final void Function()? onSwitched;
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +271,11 @@ class ChatsTabView extends StatelessWidget {
                             } else if (c.groupCreating.value) {
                               c.closeGroupCreating();
                             } else {
-                              c.startGroupCreating();
+                              if (onSwitched != null) {
+                                onSwitched?.call();
+                              } else {
+                                c.startGroupCreating();
+                              }
                             }
                           }
                         },
@@ -649,6 +655,7 @@ class ChatsTabView extends StatelessWidget {
                                           onUnfavorite: () =>
                                               c.unfavoriteChat(chat.id),
                                           onSelect: c.toggleSelecting,
+                                          onCreateGroup: c.startGroupCreating,
                                           trailing: c.selecting.value
                                               ? [dot(selected)]
                                               : [],

@@ -19,8 +19,8 @@ import 'package:get/get.dart';
 
 import '/ui/widget/text_field.dart';
 
-class FundsTabController extends GetxController {
-  FundsTabController();
+class PartnerTabController extends GetxController {
+  PartnerTabController();
 
   final TextFieldState search = TextFieldState();
   final RxBool adding = RxBool(false);

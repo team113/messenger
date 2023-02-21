@@ -750,3 +750,5 @@ label_transactions_enabled = Включено
 label_transactions_disabled = Отключено
 label_display_balance = Отображение баланса
 label_display_transactions = Отображение транзакций
+label_sort_by_name = Cортировать по имени
+label_sort_by_visit = Сортировать по дате входа

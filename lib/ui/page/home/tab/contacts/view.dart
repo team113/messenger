@@ -47,7 +47,9 @@ import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
-  const ContactsTabView({Key? key}) : super(key: key);
+  const ContactsTabView({super.key, this.onSwitched});
+
+  final void Function()? onSwitched;
 
   @override
   Widget build(BuildContext context) {
@@ -185,9 +187,12 @@ class ContactsTabView extends StatelessWidget {
                   );
                 } else {
                   child = SvgLoader.asset(
-                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                    key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    width: 29.69,
+                    // 'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                    // key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
+                    // width: 29.69,
+                    // height: 21,
+                    'assets/icons/chat.svg',
+                    // width: 21.77,
                     height: 21,
                   );
                 }
@@ -200,7 +205,11 @@ class ContactsTabView extends StatelessWidget {
                       if (c.search.value != null) {
                         c.toggleSearch(false);
                       } else {
-                        c.toggleSorting();
+                        if (onSwitched != null) {
+                          onSwitched?.call();
+                        } else {
+                          c.toggleSorting();
+                        }
                       }
                     }
                   },
@@ -543,6 +552,20 @@ class ContactsTabView extends StatelessWidget {
             label: 'btn_delete_contact'.l10n,
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
+          ),
+          const ContextMenuDivider(),
+          ContextMenuButton(
+            label: c.sortByName
+                ? 'label_sort_by_visit'.l10n
+                : 'label_sort_by_name'.l10n,
+            onPressed: c.toggleSorting,
+            // trailing: const Icon(Icons.group_outlined),
+            trailing: SvgLoader.asset(
+              'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+              key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
+              width: 29.69,
+              height: 21,
+            ),
           ),
           const ContextMenuDivider(),
           ContextMenuButton(

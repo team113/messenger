@@ -727,3 +727,5 @@ label_transactions_enabled = Enabled
 label_transactions_disabled = Disabled
 label_display_balance = Display balance
 label_display_transactions = Display transactions
+label_sort_by_name = Sort by name
+label_sort_by_visit = Sort by visit
