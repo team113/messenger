@@ -725,10 +725,7 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(
-    ChatId id, {
-    bool push = false,
-  }) {
+  void chatInfo(ChatId id, {bool push = false}) {
     if (push) {
       this.push('${Routes.chat}/$id${Routes.chatInfo}');
     } else {

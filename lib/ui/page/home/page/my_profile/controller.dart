@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -136,15 +137,17 @@ class MyProfileController extends GetxController {
 
   @override
   void onInit() {
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => enumerateDevices());
-      enumerateDevices();
-    } catch (_) {
-      // [Jason] might not be supported on the current platform.
-      _jason = null;
-      _mediaManager = null;
+    if (!PlatformUtils.isMobile) {
+      try {
+        _jason = Jason();
+        _mediaManager = _jason?.mediaManager();
+        _mediaManager?.onDeviceChange(() => enumerateDevices());
+        enumerateDevices();
+      } catch (_) {
+        // [Jason] might not be supported on the current platform.
+        _jason = null;
+        _mediaManager = null;
+      }
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;

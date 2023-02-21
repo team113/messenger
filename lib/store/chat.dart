@@ -119,7 +119,7 @@ class ChatRepository implements AbstractChatRepository {
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// Stored [Chat.unreadCount] value.
-  int? _unread;
+  int? _unreadCount;
 
   /// [Timer] executing [GraphQlProvider.readChat] mutation.
   Timer? _readTimer;
@@ -180,6 +180,7 @@ class ChatRepository implements AbstractChatRepository {
       c.value.dispose();
     }
 
+    _readTimer?.cancel();
     _cancelToken.cancel();
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
@@ -361,7 +362,7 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     HiveRxChat? chat = _chats[chatId];
-    _unread ??= chat?.chat.value.unreadCount;
+    _unreadCount ??= chat?.chat.value.unreadCount;
 
     if (chat != null) {
       int lastReadIndex = chat.messages.reversed
@@ -376,13 +377,17 @@ class ChatRepository implements AbstractChatRepository {
 
     _readTimer?.cancel();
     _readTimer = Timer(1.seconds, () async {
-      int? unread = _unread;
-      _unread = null;
+      int? previous = _unreadCount;
+      _unreadCount = null;
+
       try {
         await _graphQlProvider.readChat(chatId, untilId);
       } catch (_) {
-        chat?.chat.update((c) => c?.unreadCount = unread!);
-        _unread = unread;
+        if (chat != null && previous != null) {
+          chat.chat.update((c) => c?.unreadCount = previous);
+        }
+
+        _unreadCount = previous;
         rethrow;
       }
     });
