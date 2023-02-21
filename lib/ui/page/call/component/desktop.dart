@@ -2026,6 +2026,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         onPanUpdate: (d) {
                           c.updateSecondaryOffset(d.globalPosition);
                           c.applySecondaryConstraints();
+                          c.secondaryBottomShiftedFromResize = null;
                         },
                         onPanEnd: (d) {
                           c.secondaryDragged.value = false;

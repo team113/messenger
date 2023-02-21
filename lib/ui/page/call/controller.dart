@@ -263,6 +263,11 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
+  /// [secondaryBottom] value before the secondary view got relocated with the
+  /// [relocateSecondary] method due to resize of the call view or the secondary
+  /// view.
+  double? secondaryBottomShiftedFromResize;
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -1276,6 +1281,8 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
+        secondaryBottomShiftedFromResize = secondaryBottomShifted;
+
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
           secondaryBottomShifted != null) {
@@ -1304,6 +1311,15 @@ class CallController extends GetxController {
 
           applySecondaryConstraints();
         }
+      }
+
+      if (!WebUtils.isPopup &&
+          secondaryBottomShiftedFromResize != null &&
+          dockBounds != null &&
+          !(intersect.width > 0 &&
+              router.context!.mediaQuerySize.height - secondaryBottom.value! >
+                  dockBounds.top)) {
+        secondaryBottom.value = secondaryBottomShiftedFromResize;
       }
 
       SchedulerBinding.instance
