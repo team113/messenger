@@ -625,6 +625,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       }
                     },
                     onDragStarted: () {
+                      print('drag_started');
                       item.dragStartedRect = item.cellKey.globalPaintBounds;
                       widget.onDragStarted?.call(item.item);
                     },
@@ -771,6 +772,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         key: _fitKey,
         fit: StackFit.expand,
         children: [
+          //TODO: remove this flag (SECONDARY_PANEL) stack is the parent
           if (widget.useWrap)
             Positioned(
               left: widget.left,
@@ -798,6 +800,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 },
               ),
             ),
+
+
           Positioned(
             left: widget.left,
             top: widget.top,

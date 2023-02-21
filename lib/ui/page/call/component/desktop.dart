@@ -1498,6 +1498,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
       }
 
       double width, height;
+      // TODO: Remove this flag (SECONDARY_SIZE)
+
       if (axis == Axis.horizontal) {
         width = c.secondaryWidth.value;
         height = c.size.height;
@@ -1546,11 +1548,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
           widget = scaler(
             cursor: SystemMouseCursors.resizeLeftRight,
             height: height - Scaler.size,
-            onDrag: (dx, dy) => c.resizeSecondary(
+            onDrag: (dx, dy) {
+              print(dx);
+              c.resizeSecondary(
               context,
               x: ScaleModeX.left,
               dx: dx,
-            ),
+            );
+            },
           );
         } else if (alignment == Alignment.centerRight) {
           widget = scaler(

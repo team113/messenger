@@ -1474,6 +1474,9 @@ class CallController extends GetxController {
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+    double baseHeightValue = height.value;
+    double baseWidthValue = width.value;
+
     switch (x) {
       case ScaleModeX.left:
         double w = _applyWidth(context, width.value - dx!);
@@ -1528,7 +1531,59 @@ class CallController extends GetxController {
         break;
     }
 
+    // Check if paren was really resized
+    bool shouldScaleSecondary =
+        baseHeightValue != height.value || baseWidthValue != width.value;
+
+    // Avoid necessary logic
     applySecondaryConstraints();
+
+    double scaleFactor =
+        (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+
+    if (shouldScaleSecondary) {
+      _resizeSecondaryReaction(
+        context,
+        y: y,
+        x: x,
+        dx: (dx ?? 0) * scaleFactor,
+        dy: (dy ?? 0) * scaleFactor,
+      );
+    }
+  }
+
+  void _resizeSecondaryReaction(BuildContext context,
+      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+    double? dxReorg;
+    double? dyReorg;
+
+    // TODO: change dx, dy values to fit resizeSecondary Function
+
+    switch (x) {
+      case ScaleModeX.left:
+        break;
+      case ScaleModeX.right:
+        break;
+      default:
+        break;
+    }
+
+    switch (y) {
+      case ScaleModeY.top:
+        break;
+      case ScaleModeY.bottom:
+        break;
+      default:
+        break;
+    }
+
+    resizeSecondary(
+      context,
+      y: y,
+      x: x,
+      dx: dxReorg,
+      dy: dyReorg,
+    );
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
