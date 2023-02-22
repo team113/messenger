@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
@@ -35,6 +36,7 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
 class ChatWorker extends DisposableService {
@@ -66,6 +68,16 @@ class ChatWorker extends DisposableService {
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
 
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
+
+  /// Indicator whether the icon in the taskbar has a flash effect applied.
+  bool _flashed = false;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
@@ -87,12 +99,24 @@ class ChatWorker extends DisposableService {
       }
     });
 
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      PlatformUtils.isFocused.then((value) => _focused = value);
+
+      _onFocusChanged = PlatformUtils.onFocusChanged.listen((_) async {
+        _focused = await PlatformUtils.isFocused;
+        if (_focused) {
+          _flashed = false;
+        }
+      });
+    }
+
     super.onReady();
   }
 
   @override
   void onClose() {
     _subscription.cancel();
+    _onFocusChanged?.cancel();
     _chats.forEach((_, value) => value.dispose());
     super.onClose();
   }
@@ -129,6 +153,8 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: c.chat.value.id.val,
           );
+
+          _flashTaskbarIcon();
         }
       }
     }
@@ -144,11 +170,32 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: tag,
           );
+
+          await _flashTaskbarIcon();
         }
       },
       me: () => _chatService.me,
       getUser: _userService.get,
     );
+  }
+
+  /// Applies the flashing effect to the application's icon in the taskbar.
+  Future<void> _flashTaskbarIcon() async {
+    if (PlatformUtils.isWindows &&
+        !PlatformUtils.isWeb &&
+        !_focused &&
+        !_flashed) {
+      try {
+        await WindowsTaskbar.setFlashTaskbarAppIcon(
+          mode: TaskbarFlashMode.tray | TaskbarFlashMode.timer,
+          flashCount: 1,
+        );
+
+        _flashed = true;
+      } catch (_) {
+        // No-op.
+      }
+    }
   }
 }
 
