@@ -71,6 +71,7 @@ import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
+import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -105,8 +106,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
-        contactIsFavorite,
         contact,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
         dragContactDown,
@@ -141,6 +142,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeUserInSearchResults,
         seesAs,
+        seesDialogWithMe,
+        seesNoDialogWithMe,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,
@@ -207,7 +210,7 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<Session> createUser(
+Future<CustomUser> createUser(
   TestUser user,
   CustomWorld world, {
   UserPassword? password,
@@ -215,7 +218,7 @@ Future<Session> createUser(
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
-  world.sessions[user.name] = CustomUser(
+  final CustomUser customUser = CustomUser(
     Session(
       result.createUser.session.token,
       result.createUser.session.expireAt,
@@ -224,16 +227,16 @@ Future<Session> createUser(
     result.createUser.user.num,
   );
 
+  world.sessions[user.name] = customUser;
+
   provider.token = result.createUser.session.token;
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
   }
   provider.disconnect();
-  return Session(
-    result.createUser.session.token,
-    result.createUser.session.expireAt,
-  );
+
+  return customUser;
 }
 
 /// Extension adding an ability to find the [Widget]s without skipping the
