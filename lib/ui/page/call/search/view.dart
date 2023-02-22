@@ -35,7 +35,7 @@ import 'controller.dart';
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
   const SearchView({
-    Key? key,
+    super.key,
     required this.categories,
     required this.title,
     this.chat,
@@ -46,7 +46,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
-  }) : super(key: key);
+  });
 
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;

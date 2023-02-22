@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/stream_utils.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -29,6 +28,7 @@ import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
 class HiveRxUser extends RxUser {
@@ -62,10 +62,10 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    final Chat? chat = user.value.dialog;
+    final ChatId id = user.value.dialog;
 
-    if (_dialog.value == null && chat != null) {
-      _userRepository.getChat?.call(chat.id).then((v) => _dialog.value = v);
+    if (_dialog.value == null) {
+      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
     }
 
     return _dialog;

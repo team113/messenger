@@ -237,23 +237,15 @@ class UserController extends GetxController {
     }
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
-  ///
-  /// Creates a new one if it doesn't exist.
-  Future<void> openChat() async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
-    router.chat(dialog.id, push: true);
+  void openChat() {
+    router.chat(user!.user.value.dialog, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
-
     try {
-      await _callService.call(dialog.id, withVideo: withVideo);
+      await _callService.call(user!.user.value.dialog, withVideo: withVideo);
     } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
     }
@@ -317,8 +309,7 @@ class UserController extends GetxController {
 
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -334,8 +325,7 @@ class UserController extends GetxController {
 
   /// Unmutes a [Chat]-dialog with the [user].
   Future<void> unmuteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -351,8 +341,7 @@ class UserController extends GetxController {
 
   /// Hides a [Chat]-dialog with the [user].
   Future<void> hideChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {

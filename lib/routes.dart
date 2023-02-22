@@ -241,6 +241,17 @@ class RouterState extends ChangeNotifier {
     }
   }
 
+  /// Removes the [routes] satisfying the provided [predicate].
+  void removeWhere(bool Function(String element) predicate) {
+    for (String e in routes.toList(growable: false)) {
+      if (predicate(e)) {
+        routes.remove(route);
+      }
+    }
+
+    notifyListeners();
+  }
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.

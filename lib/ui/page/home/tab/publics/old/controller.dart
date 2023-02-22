@@ -254,9 +254,9 @@ class PublicsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.user.value.dialog;
-        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-        router.chat(dialog.id);
+        // Chat? dialog = user.user.value.dialog;
+        // dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
+        // router.chat(dialog.id);
       }
     }
   }

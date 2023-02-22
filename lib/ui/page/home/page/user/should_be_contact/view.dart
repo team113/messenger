@@ -807,12 +807,13 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           Obx(() {
-            final bool muted = c.user?.user.value.dialog?.muted != null;
+            final bool muted = false;
+            //c.user?.user.value.dialog?.muted != null;
 
             return WidgetButton(
-              onPressed: () => muted
-                  ? c.unmuteChat(c.user!.user.value.dialog!.id)
-                  : c.muteChat(c.user!.user.value.dialog!.id),
+              // onPressed: () => muted
+              //     ? c.unmuteChat(c.user!.user.value.dialog!.id)
+              //     : c.muteChat(c.user!.user.value.dialog!.id),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(

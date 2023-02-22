@@ -21,7 +21,6 @@ import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/stream_utils.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
@@ -38,6 +37,7 @@ import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
+import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
 import 'user.dart';

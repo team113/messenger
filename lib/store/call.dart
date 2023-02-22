@@ -31,6 +31,7 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
@@ -51,6 +52,8 @@ class CallRepository extends DisposableInterface
     required this.me,
   });
 
+  /// Callback, called when the provided [Chat] should be remotely accessible.
+  Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
 
@@ -191,6 +194,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    // TODO: Call should be displayed right away.
+    if (chatId.isLocal && ensureRemoteDialog != null) {
+      chatId = (await ensureRemoteDialog!.call(chatId))!.id;
+    }
+
     if (calls[chatId] != null) {
       throw CallAlreadyExistsException();
     }

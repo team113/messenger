@@ -306,21 +306,21 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
-    router.chat(dialog.id, push: true);
+    // Chat? dialog = user?.user.value.dialog;
+    // dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+    // router.chat(dialog.id, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+    // Chat? dialog = user?.user.value.dialog;
+    // dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
 
-    try {
-      await _callService.call(dialog.id, withVideo: withVideo);
-    } on CallDoesNotExistException catch (e) {
-      MessagePopup.error(e);
-    }
+    // try {
+    //   await _callService.call(dialog.id, withVideo: withVideo);
+    // } on CallDoesNotExistException catch (e) {
+    //   MessagePopup.error(e);
+    // }
   }
 
   Future<void> addToFavorites() async {

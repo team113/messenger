@@ -23,7 +23,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/stream_utils.dart';
 
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/file.dart';
@@ -48,6 +47,7 @@ import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';

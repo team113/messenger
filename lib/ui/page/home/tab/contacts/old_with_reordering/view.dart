@@ -465,7 +465,7 @@ class ContactsTabView extends StatelessWidget {
     bool favorite = c.allFavorites.values.contains(contact);
 
     return FutureBuilder<RxChat?>(
-      future: c.getChat(contact.user.value!.user.value.dialog?.id),
+      future: c.getChat(contact.user.value!.user.value.dialog),
       builder: (context, snapshot) {
         return Padding(
           key: Key(contact.id.val),
@@ -496,13 +496,13 @@ class ContactsTabView extends StatelessWidget {
                   ContextMenuButton(
                     label: 'Mute'.l10n,
                     onPressed: () =>
-                        c.muteChat(contact.user.value!.user.value.dialog!.id),
+                        c.muteChat(contact.user.value!.user.value.dialog),
                   )
                 else
                   ContextMenuButton(
                     label: 'Unmute'.l10n,
                     onPressed: () =>
-                        c.unmuteChat(contact.user.value!.user.value.dialog!.id),
+                        c.unmuteChat(contact.user.value!.user.value.dialog),
                   ),
               ],
               ContextMenuButton(

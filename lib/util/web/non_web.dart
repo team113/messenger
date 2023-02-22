@@ -200,4 +200,9 @@ class WebUtils {
       // No-op.
     }
   }
+
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
+    // No-op.
+  }
 }

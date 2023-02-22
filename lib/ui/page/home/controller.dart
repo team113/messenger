@@ -188,15 +188,14 @@ class HomeController extends GetxController {
 
       if (_chatService.isReady.value) {
         if (_chatService.chats.values.none((e) => e.chat.value.isMonolog)) {
-          await _chatService.createDialogChat(_auth.credentials.value!.userId);
+          await _chatService.createMonolog();
         }
       } else {
         worker = ever(_chatService.isReady, (bool b) async {
           if (b && worker != null) {
             worker = null;
             if (_chatService.chats.values.none((e) => e.chat.value.isMonolog)) {
-              await _chatService
-                  .createDialogChat(_auth.credentials.value!.userId);
+              await _chatService.createMonolog();
             }
           }
         });

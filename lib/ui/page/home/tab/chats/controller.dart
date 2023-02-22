@@ -293,7 +293,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -308,9 +307,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
-        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-        router.chat(dialog.id);
+        router.chat(user.user.value.dialog);
       }
     }
   }
@@ -348,9 +345,6 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
