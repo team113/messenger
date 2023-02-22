@@ -20,7 +20,7 @@ Feature: Blacklist
   Scenario: Blacklisted user cannot send me a message
     Given I am Alice
     And user Bob
-    And I have dialog with Bob
+    And Bob has dialog with me
     And I wait until `HomeView` is present
 
     When I go to Bob's page

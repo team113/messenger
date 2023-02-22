@@ -20,7 +20,7 @@ Feature: Drafts
   Scenario: Draft is persisted
     Given I am Alice
     And user Bob
-    And I have dialog with Bob
+    And Bob has dialog with me
     And I am in chat with Bob
 
     When I attach "test.txt" file

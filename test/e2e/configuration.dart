@@ -71,6 +71,7 @@ import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
+import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -114,8 +115,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
-        hasNoDialogWithMe,
-        haveDialog,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -143,6 +142,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeUserInSearchResults,
         seesAs,
+        seesDialogWithMe,
+        seesNoDialogWithMe,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,
@@ -217,7 +218,7 @@ Future<CustomUser> createUser(
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
-  final customUser = CustomUser(
+  final CustomUser customUser = CustomUser(
     Session(
       result.createUser.session.token,
       result.createUser.session.expireAt,
@@ -234,6 +235,7 @@ Future<CustomUser> createUser(
     await provider.updateUserPassword(null, password);
   }
   provider.disconnect();
+
   return customUser;
 }
 

@@ -3,7 +3,7 @@ Feature: Attachments downloading
   Background:
     Given I am Alice
     And user Bob
-    And I have dialog with Bob
+    And Bob has dialog with me
     And I am in chat with Bob
 
   Scenario: Attachments can be downloaded

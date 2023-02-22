@@ -20,8 +20,8 @@ Feature: Chat items are forwarded correctly
   Background: User is in dialog with Bob
     Given I am Alice
     And users Bob and Charlie
-    And I have dialog with Bob
-    And I have dialog with Charlie
+    And Bob has dialog with me
+    And Charlie has dialog with me
     And I am in chat with Bob
 
   Scenario: User forwards message
@@ -57,7 +57,7 @@ Feature: Chat items are forwarded correctly
 
   Scenario: User forwards message to multiple chats
     Given user Dave
-    And I have dialog with Dave
+    And Dave has dialog with me
 
     When I fill `MessageField` field with "Important info"
     And I tap `Send` button

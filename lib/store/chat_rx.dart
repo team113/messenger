@@ -607,7 +607,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Updates the [chat] and [chat]-related resources.
+  /// Updates the [chat] and [chat]-related resources with the provided
+  /// [newChat].
   Future<void> updateChat(Chat newChat) async {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;

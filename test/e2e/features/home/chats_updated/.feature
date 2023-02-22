@@ -24,13 +24,13 @@ Feature: Chats tab is correctly updated
     Then I wait until `HomeView` is present
     And I wait until `ChatsTab` is present
 
-    Given I have dialog with Bob
+    Given Bob has dialog with me
     And Bob sends "Hello, world" message to me
     Then I wait until text "Bob" is present
     # TODO: Uncomment when backend new version is released.
     # And I wait until text "Hello, world" is present
 
-    Given I have dialog with Charlie
+    Given Charlie has dialog with me
     And Charlie sends "I am Charlie" message to me
     Then I wait until text "Charlie" is present
     # TODO: Uncomment when backend new version is released.

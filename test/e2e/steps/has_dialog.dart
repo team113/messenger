@@ -17,7 +17,6 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart' show ChatKind;
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
@@ -28,9 +27,9 @@ import '../world/custom_world.dart';
 /// [MyUser].
 ///
 /// Examples:
-/// - Given I have dialog with Bob.
-final StepDefinitionGeneric haveDialog = given1<TestUser, CustomWorld>(
-  'I have dialog with {user}',
+/// - Given Bob has dialog with me.
+final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
+  '{user} has dialog with me',
   (TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
@@ -39,61 +38,6 @@ final StepDefinitionGeneric haveDialog = given1<TestUser, CustomWorld>(
         await provider.createDialogChat(authService.credentials.value!.userId);
     context.world.sessions[user.name]?.dialog = chat.id;
     provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Ensures that the provided [User] has dialog with the authenticated [MyUser].
-///
-/// Examples:
-/// - Then Bob has dialog with me.
-final StepDefinitionGeneric hasDialogWithMe = then1<TestUser, CustomWorld>(
-  '{user} has dialog with me',
-  (TestUser user, context) async {
-    final provider = GraphQlProvider();
-
-    try {
-      await context.world.appDriver.waitUntil(() async {
-        provider.token = context.world.sessions[user.name]?.session.token;
-        final dialog = (await provider.recentChats(first: 120))
-            .recentChats
-            .nodes
-            .firstWhereOrNull((e) =>
-                e.kind == ChatKind.dialog &&
-                e.members.nodes.any((m) => m.user.id == context.world.me));
-        if (dialog != null) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-    } finally {
-      provider.disconnect();
-    }
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Ensures that the provided [User] has no dialog with the authenticated
-/// [MyUser].
-///
-/// Examples:
-/// - Then Bob has no dialog with me.
-final StepDefinitionGeneric hasNoDialogWithMe = then1<TestUser, CustomWorld>(
-  '{user} has no dialog with me',
-  (TestUser user, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    final dialog = (await provider.recentChats(first: 120))
-        .recentChats
-        .nodes
-        .firstWhereOrNull((e) =>
-            e.kind == ChatKind.dialog &&
-            e.members.nodes.any((m) => m.user.id == context.world.me));
-    provider.disconnect();
-    assert(dialog == null, true);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

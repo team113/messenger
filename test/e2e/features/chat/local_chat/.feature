@@ -21,14 +21,14 @@ Feature: Local chats
     Given I am Alice
     And user Bob
     And I am in chat with Bob
-    And Bob has no dialog with me
+    And Bob sees no dialog with me in recent chats
 
   Scenario: Message can be posted in local dialog
     When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button
     Then I wait until status of "Hello, my local friend" message is sent
-    And Bob has dialog with me
+    And Bob sees dialog with me in recent chats
 
   Scenario: Call can be made in local dialog
     When I tap `AudioCall` button
-    Then Bob has dialog with me
+    Then Bob sees dialog with me in recent chats

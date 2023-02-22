@@ -246,6 +246,7 @@ class SearchController extends GetxController {
     _searchStatusWorker = null;
 
     if (query.isNotEmpty) {
+      // TODO: Add `Contact`s and `Chat`s searching.
       UserNum? num;
       UserName? name;
       UserLogin? login;
@@ -272,7 +273,6 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        // TODO: Add search for `Contact`s and `Chat`s.
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 

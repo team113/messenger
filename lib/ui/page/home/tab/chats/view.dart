@@ -473,6 +473,7 @@ class ChatsTabView extends StatelessWidget {
                                   .where((e) =>
                                       !e.id.isLocal || e.messages.isNotEmpty)
                                   .toList();
+
                               return ListView.builder(
                                 controller: c.scrollController,
                                 itemCount: chats.length,

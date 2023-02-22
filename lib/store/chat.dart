@@ -1211,10 +1211,8 @@ class ChatRepository implements AbstractChatRepository {
       if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
         final ChatMember? member =
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me);
-        final ChatId? localId =
-            member == null ? null : ChatId.local(member.user.id);
-
-        if (localId != null) {
+        if (member != null) {
+          final ChatId localId = ChatId.local(member.user.id);
           final HiveRxChat? localChat = chats[localId];
 
           if (localChat != null) {

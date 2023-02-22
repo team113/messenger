@@ -34,7 +34,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     var password = UserPassword('123');
 
-    final me = await createUser(
+    final CustomUser me = await createUser(
       user,
       context.world,
       password: password,
