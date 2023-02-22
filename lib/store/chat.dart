@@ -1210,9 +1210,11 @@ class ChatRepository implements AbstractChatRepository {
     if (entry == null) {
       // If [data] is a remote [Chat]-dialog, then try to replace the existing
       // local [Chat], if any is associated with this [data].
-      if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
-        final ChatMember? member =
-            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me);
+      if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
+        final ChatMember? member = data.chat.value.members.firstWhereOrNull(
+          (m) => data.chat.value.isMonolog || m.user.id != me,
+        );
+
         if (member != null) {
           final ChatId localId = ChatId.local(member.user.id);
           final HiveRxChat? localChat = chats[localId];
@@ -1365,16 +1367,18 @@ class ChatRepository implements AbstractChatRepository {
         Chat(
           chatId,
           members: [
-            ChatMember(
-              (await _userRepo.get(responderId))!.user.value,
-              PreciseDateTime.now(),
-            ),
+            if (responderId != me)
+              ChatMember(
+                (await _userRepo.get(responderId))!.user.value,
+                PreciseDateTime.now(),
+              ),
             ChatMember(
               (await _userRepo.get(me!))!.user.value,
               PreciseDateTime.now(),
             ),
           ],
-          kindIndex: ChatKind.values.indexOf(ChatKind.dialog),
+          kindIndex: ChatKind.values
+              .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
         ),
         ChatVersion('0'),
         null,

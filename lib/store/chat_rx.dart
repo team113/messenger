@@ -400,7 +400,7 @@ class HiveRxChat extends RxChat {
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      messages.firstWhere((e) => e.value.id == existingId).value =
+      messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
       put(message, ignoreVersion: true);
