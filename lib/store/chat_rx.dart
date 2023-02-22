@@ -62,7 +62,8 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
+        unreadCount = Rx(hiveChat.value.unreadCount);
 
   @override
   final Rx<Chat> chat;
@@ -90,6 +91,9 @@ class HiveRxChat extends RxChat {
 
   @override
   final RxList<LastChatRead> reads = RxList();
+
+  @override
+  Rx<int> unreadCount;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -135,6 +139,9 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  /// [Timer] executing [ChatRepository.readChat].
+  Timer? _readTimer;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -244,6 +251,7 @@ class HiveRxChat extends RxChat {
       messages.clear();
       reads.clear();
       _muteTimer?.cancel();
+      _readTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _messagesSubscription?.cancel();
@@ -383,6 +391,29 @@ class HiveRxChat extends RxChat {
 
       put(stored, ignoreVersion: true);
     }
+  }
+
+  @override
+  void read(ChatItemId untilId) {
+    int lastReadIndex =
+        messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
+    if (lastReadIndex != -1) {
+      Iterable<Rx<ChatItem>> unread =
+          messages.skip(messages.length - lastReadIndex);
+      unreadCount.value = unread.length;
+    }
+
+    _readTimer?.cancel();
+    _readTimer = Timer(1.seconds, () async {
+      try {
+        await _chatRepository.readChat(id, untilId);
+      } catch (_) {
+        unreadCount.value = chat.value.unreadCount;
+        rethrow;
+      } finally {
+        _readTimer = null;
+      }
+    });
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -895,9 +926,13 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.unreadItemsCountUpdated:
               event as EventChatUnreadItemsCountUpdated;
-              if (event.count < chatEntity.value.unreadCount) {
-                chatEntity.value.unreadCount = event.count;
+              if (event.count > chatEntity.value.unreadCount) {
+                unreadCount.value += event.count - chatEntity.value.unreadCount;
+              } else if (_readTimer == null) {
+                unreadCount.value = event.count;
               }
+
+              chatEntity.value.unreadCount = event.count;
               break;
 
             case ChatEventKind.avatarUpdated:

@@ -171,22 +171,6 @@ class ChatService extends DisposableService {
     }
   }
 
-  /// Marks the specified [Chat] as read for the authenticated [MyUser] until
-  /// the specified [ChatItem] inclusively.
-  ///
-  /// There is no notion of a single [ChatItem] being read or not separately in
-  /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
-  /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] with the
-  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
-  /// equal) then the [ChatItem] is read, otherwise it's unread.
-  ///
-  /// This method should be called whenever the authenticated [MyUser] reads
-  /// new [ChatItem]s appeared in the Chat's UI and directly influences the
-  /// [Chat.unreadCount] value.
-  Future<void> readChat(ChatId chatId, ChatItemId untilId) =>
-      _chatRepository.readChat(chatId, untilId);
-
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(ChatMessage item, ChatMessageText? text) =>
       _chatRepository.editChatMessageText(item, text);

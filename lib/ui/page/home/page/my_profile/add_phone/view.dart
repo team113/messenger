@@ -17,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -82,6 +83,9 @@ class AddPhoneView extends StatelessWidget {
                       key: const Key('ConfirmationCode'),
                       state: c.phoneCode,
                       label: 'label_confirmation_code'.l10n,
+                      formatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'\d')),
+                      ],
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
@@ -160,6 +164,9 @@ class AddPhoneView extends StatelessWidget {
                       label: 'label_phone_number'.l10n,
                       // TODO: Improve hint to account user's region.
                       hint: '+34 123 123 53 53',
+                      formatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[\d+ ]')),
+                      ],
                     ),
                     const SizedBox(height: 25),
                     Obx(() {

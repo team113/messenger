@@ -402,6 +402,11 @@ class OngoingCall {
 
             call.value = node.call;
             call.refresh();
+
+            members[_me]!.isHandRaised.value = call.value?.members
+                    .firstWhereOrNull((e) => e.user.id == _me.userId)
+                    ?.handRaised ??
+                false;
             break;
 
           case ChatCallEventsKind.event:
@@ -439,6 +444,11 @@ class OngoingCall {
                       CallMemberId(node.user.id, node.deviceId);
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id);
+                  }
+
+                  if (members.keys.none((e) => e.userId == node.user.id)) {
+                    call.value?.members
+                        .removeWhere((e) => e.user.id == node.user.id);
                   }
                   break;
 
@@ -1067,7 +1077,10 @@ class OngoingCall {
 
   /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service) {
-    members[_me]!.isHandRaised.toggle();
+    for (MapEntry<CallMemberId, CallMember> m
+        in members.entries.where((e) => e.key.userId == _me.userId)) {
+      m.value.isHandRaised.toggle();
+    }
     return _toggleHand(service);
   }
 

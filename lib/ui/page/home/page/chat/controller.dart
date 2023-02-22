@@ -53,7 +53,6 @@ import '/provider/gql/exceptions.dart'
         EditChatMessageException,
         HideChatItemException,
         PostChatMessageException,
-        ReadChatException,
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
@@ -883,16 +882,7 @@ class ChatController extends GetxController {
         status.value.isSuccess &&
         !status.value.isLoadingMore &&
         item.status.value == SendingStatus.sent) {
-      try {
-        await _chatService.readChat(chat!.chat.value.id, item.id);
-      } on ReadChatException catch (e) {
-        MessagePopup.error(e);
-      } on ConnectionException {
-        // No-op.
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
+      chat!.read(item.id);
     }
   }
 
