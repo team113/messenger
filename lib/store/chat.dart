@@ -139,9 +139,11 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
-        _chats[c.value.id] = entry;
-        entry.init();
+        if (!c.value.id.isLocal) {
+          final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
+          _chats[c.value.id] = entry;
+          entry.init();
+        }
       }
       _isReady.value = true;
     }
