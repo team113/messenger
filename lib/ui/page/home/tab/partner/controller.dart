@@ -22,13 +22,15 @@ import '/ui/widget/text_field.dart';
 class PartnerTabController extends GetxController {
   PartnerTabController();
 
+  final RxBool withdrawing = RxBool(false);
+  final RxBool hintDismissed = RxBool(false);
+
   final TextFieldState search = TextFieldState();
-  final RxBool adding = RxBool(false);
   final RxBool searching = RxBool(false);
 
   final RxnString query = RxnString(null);
 
   void toggleAdding() {
-    adding.toggle();
+    withdrawing.toggle();
   }
 }

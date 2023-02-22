@@ -114,6 +114,15 @@ enum ProfileTab {
   logout,
 }
 
+enum MoneyProvider {
+  creditCard,
+  swift,
+  sepa,
+  paypal,
+  applePay,
+  googlePay,
+}
+
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router

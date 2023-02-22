@@ -15,11 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/money_provider.dart';
+import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -39,16 +43,28 @@ class BalanceTabView extends StatelessWidget {
       builder: (BalanceTabController c) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: const Text('Balance: \$10.00'),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Balance: '),
+                SvgLoader.asset(
+                  'assets/icons/inter.svg',
+                  height: 13,
+                ),
+                const SizedBox(width: 1),
+                const Text('1000'),
+              ],
+            ),
             leading: [
               WidgetButton(
-                onPressed: () {},
+                onPressed: c.hintDismissed.toggle,
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 12),
                   height: double.infinity,
                   child: SvgLoader.asset(
-                    'assets/icons/search.svg',
-                    width: 17.77,
+                    'assets/icons/info.svg',
+                    width: 20,
+                    height: 20,
                   ),
                 ),
               ),
@@ -58,227 +74,138 @@ class BalanceTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.adding.value) {
+                  child = Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: SizedBox(
+                      child: SvgLoader.asset(
+                        'assets/icons/transactions.svg',
+                        width: 19,
+                        height: 19.42,
+                      ),
+                    ),
+                  );
+                } else {
                   child = SvgLoader.asset(
                     key: const Key('CloseSearch'),
-                    'assets/icons/close_primary.svg',
-                    height: 15,
-                    width: 15,
+                    'assets/icons/add_funds.svg',
+                    height: 19.94,
                   );
                 }
 
                 return WidgetButton(
-                  onPressed: () {},
+                  onPressed: c.adding.toggle,
                   child: Container(
                     padding: const EdgeInsets.only(left: 12, right: 20),
                     height: double.infinity,
-                    child: SvgLoader.asset(
-                      'assets/icons/add_funds.svg',
-                      width: 20.28,
-                      height: 19.94,
-                    ),
+                    child: SizedBox(width: 20.28, child: Center(child: child)),
                   ),
                 );
               }),
             ],
           ),
-          body: Column(
-            children: [
-              // SizedBox(
-              //   height: 50,
-              //   child: CustomAppBar(
-              //     border: c.search.isEmpty.value || !c.search.focus.hasFocus
-              //         ? null
-              //         : Border.all(
-              //             color: Theme.of(context).colorScheme.secondary,
-              //             width: 2,
-              //           ),
-              //     title: Theme(
-              //       data: Theme.of(context).copyWith(
-              //         shadowColor: const Color(0x55000000),
-              //         iconTheme: const IconThemeData(color: Colors.blue),
-              //         inputDecorationTheme: InputDecorationTheme(
-              //           border: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           errorBorder: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           enabledBorder: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           focusedBorder: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           disabledBorder: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           focusedErrorBorder: OutlineInputBorder(
-              //             borderRadius: BorderRadius.circular(25),
-              //             borderSide: BorderSide.none,
-              //           ),
-              //           focusColor: Colors.white,
-              //           fillColor: Colors.white,
-              //           hoverColor: Colors.transparent,
-              //           filled: true,
-              //           isDense: true,
-              //           contentPadding: EdgeInsets.fromLTRB(
-              //             15,
-              //             PlatformUtils.isDesktop ? 30 : 23,
-              //             15,
-              //             0,
-              //           ),
-              //         ),
-              //       ),
-              //       child: Padding(
-              //         padding: const EdgeInsets.symmetric(horizontal: 10),
-              //         child: Transform.translate(
-              //           offset: const Offset(0, 1),
-              //           child: ReactiveTextField(
-              //             key: const Key('SearchField'),
-              //             state: c.search,
-              //             hint: 'label_search'.l10n,
-              //             maxLines: 1,
-              //             filled: false,
-              //             dense: true,
-              //             padding: const EdgeInsets.symmetric(vertical: 8),
-              //             style: style.boldBody.copyWith(fontSize: 17),
-              //             onChanged: () => c.query.value = c.search.text,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     leading: [
-              //       Container(
-              //         padding: const EdgeInsets.only(left: 20, right: 12),
-              //         height: double.infinity,
-              //         child: SvgLoader.asset(
-              //           'assets/icons/search.svg',
-              //           width: 17.77,
-              //         ),
-              //       )
-              //     ],
-              //     actions: [
-              //       Obx(() {
-              //         final Widget? child;
-
-              //         if (!c.search.isEmpty.value) {
-              //           child = SvgLoader.asset(
-              //             'assets/icons/close_primary.svg',
-              //             height: 15,
-              //           );
-              //         } else {
-              //           child = null;
-              //         }
-
-              //         return WidgetButton(
-              //           onPressed: () {
-              //             c.search.clear();
-              //             c.search.unsubmit();
-              //             c.query.value = null;
-              //           },
-              //           child: Container(
-              //             padding: const EdgeInsets.only(left: 12, right: 18),
-              //             height: double.infinity,
-              //             child: SizedBox(
-              //               width: 21.77,
-              //               child: AnimatedSwitcher(
-              //                 duration: 250.milliseconds,
-              //                 child: child,
-              //               ),
-              //             ),
-              //           ),
-              //         );
-              //       }),
-              //     ],
-              //   ),
-              // ),
-              // const SizedBox(height: 4),
-              Expanded(
-                child: ListView(
+          body: Obx(() {
+            if (c.adding.value) {
+              return ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   children: [
-                    TransactionWidget(),
-                    TransactionWidget(),
-                    TransactionWidget(),
-                    TransactionWidget(),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                    const SizedBox(height: 5),
+                    Obx(() {
+                      return AnimatedSizeAndFade.showHide(
+                        show: !c.hintDismissed.value,
+                        child: Center(
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    '\$1 = ',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                  Transform.translate(
+                                    offset: const Offset(0, 1),
+                                    child: SvgLoader.asset(
+                                      'assets/icons/inter.svg',
+                                      height: 9.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 1),
+                                  const Text(
+                                    '100',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                    ...MoneyProvider.values.map((e) {
+                      Widget button({
+                        required String title,
+                        required IconData icon,
+                      }) {
+                        return MoneyProviderWidget(
+                          title: title,
+                          leading: [Icon(icon)],
+                          onTap: () {},
+                        );
+                      }
+
+                      switch (e) {
+                        case MoneyProvider.creditCard:
+                          return button(
+                            icon: Icons.credit_card,
+                            title: 'Credit card',
+                          );
+
+                        case MoneyProvider.swift:
+                          return button(
+                            icon: Icons.account_balance,
+                            title: 'SWIFT transfer',
+                          );
+
+                        case MoneyProvider.sepa:
+                          return button(
+                            icon: Icons.account_balance,
+                            title: 'SEPA transfer',
+                          );
+
+                        case MoneyProvider.paypal:
+                          return button(
+                            icon: Icons.paypal,
+                            title: 'PayPal',
+                          );
+
+                        default:
+                          return const SizedBox();
+                      }
+                    }),
+                    const SizedBox(height: 5),
+                  ]);
+            }
+
+            return ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              children: const [
+                SizedBox(height: 5),
+                TransactionWidget(),
+                TransactionWidget(),
+                TransactionWidget(),
+                TransactionWidget(),
+                SizedBox(height: 5),
+              ],
+            );
+          }),
         );
       },
-    );
-  }
-}
-
-class TransactionWidget extends StatelessWidget {
-  const TransactionWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      key: key,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      child: SizedBox(
-        height: 73,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: style.cardColor,
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: () {},
-              hoverColor: style.cardHoveredColor,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.add,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          DefaultTextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.headlineSmall!,
-                            child: Text('\$1023.00'),
-                          ),
-                          const SizedBox(height: 6),
-                          DefaultTextStyle.merge(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            child: Text('Зачисление'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

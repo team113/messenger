@@ -61,6 +61,7 @@
       background-attachment: fixed;
       background-size: cover;
       background-position: center;
+      overflow-x: hidden;
     }
 
     .content {
@@ -70,19 +71,22 @@
       -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
+
     .shimmer {
       color: grey;
-      display:inline-block;
-      mask: linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
-      -webkit-mask:linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
+      display: inline-block;
+      mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
+      -webkit-mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
       background-repeat: no-repeat;
       animation: shimmer 2.5s infinite;
       font-size: 50px;
-      max-width:200px;
+      max-width: 200px;
     }
 
     @keyframes shimmer {
-      100% {-webkit-mask-position:left}
+      100% {
+        -webkit-mask-position: left
+      }
     }
 
     .dot-flashing {
@@ -95,12 +99,15 @@
       animation: dot-flashing 800ms infinite linear alternate;
       animation-delay: 0.3s;
     }
-    .dot-flashing::before, .dot-flashing::after {
+
+    .dot-flashing::before,
+    .dot-flashing::after {
       content: "";
       display: inline-block;
       position: absolute;
       top: 0;
     }
+
     .dot-flashing::before {
       left: -7px;
       width: 4px;
@@ -111,6 +118,7 @@
       animation: dot-flashing 800ms infinite alternate;
       animation-delay: 0s;
     }
+
     .dot-flashing::after {
       left: 7px;
       width: 4px;
@@ -122,11 +130,17 @@
       animation-delay: 800ms;
     }
 
+    .gapopa {
+      max-width: none;
+    }
+
     @keyframes dot-flashing {
       0% {
         background-color: #888888;
       }
-      50%, 100% {
+
+      50%,
+      100% {
         background-color: rgba(136, 136, 136, 0.2);
       }
     }
@@ -185,6 +199,7 @@
     }
   </script>
 </head>
+
 <body>
   <div id="loader" class="container content">
     <div class="col align-middle" style="vertical-align: middle;">
@@ -192,21 +207,15 @@
         <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt">Messenger</div>
       </div>
       <div class="row justify-content-center mb-5">
-        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
+        <div class="col-auto h4"
+          style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
       </div>
       <div class="row justify-content-center">
-        <canvas class="col" id="canvas"></canvas>
+        <canvas class="gapopa" id="canvas"></canvas>
       </div>
       <div class="row justify-content-center mt-5">
         <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt">Downloading</div>
-        <!-- <div class="col-auto" style="margin-top:0.8rem!important; transform: translate(-14px, 0px);">
-          <div class="dot-flashing"></div>
-        </div> -->
       </div>
-      <!-- <p style="display: flex; flex-direction: row; justify-content: center; align-items: center">
-        <div class="splash">Downloading</div>
-        <div class="dot-pulse"></div>
-      </p> -->
     </div>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -288,7 +297,7 @@
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;
-    document.onclick = function() {
+    document.onclick = function () {
       Notification.requestPermission();
       if (click) {
         click();
@@ -343,17 +352,15 @@
   <!-- Animate the blinking loader -->
   <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
   <script>
-  </script>
-  <script>
+    var canvas = document.getElementById("canvas");
+
     function embed(name) {
       const r = new rive.Rive({
-        // src: "./assets/assets/images/logo/head.riv",
         src: `./assets/assets/images/logo/${name}.riv`,
-        canvas: document.getElementById("canvas"),
+        canvas: canvas,
         stateMachines: ["Machine"],
         autoplay: true,
         onLoad: () => {
-          // r.resizeToCanvas();
           r.resizeDrawingSurfaceToCanvas();
           const inputs = r.stateMachineInputs("Machine");
           const blink = inputs.find((input) => {
@@ -378,11 +385,11 @@
         lastNarrow = narrow;
         if (narrow) {
           document.getElementById('canvas').height = 90;
-          document.getElementById('canvas').setAttribute("style","height: 150px;");
+          document.getElementById('canvas').setAttribute("style", "height: 150px; width:" + window.innerWidth + "px;");
           embed('head');
         } else {
           document.getElementById('canvas').height = 200;
-          document.getElementById('canvas').setAttribute("style","height: 300px;");
+          document.getElementById('canvas').setAttribute("style", "height: 300px; width:" + window.innerWidth + "px;");
           embed('logo');
         }
       }
@@ -390,7 +397,6 @@
 
     window.addEventListener("resize", (_) => { recalculate(); });
     recalculate();
-    // embed('logo');
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
@@ -409,4 +415,5 @@
     }
   </script>
 </body>
+
 </html>

@@ -22,8 +22,10 @@ import '/ui/widget/text_field.dart';
 class BalanceTabController extends GetxController {
   BalanceTabController();
 
+  final RxBool adding = RxBool(true);
+  final RxBool hintDismissed = RxBool(false);
+
   final TextFieldState search = TextFieldState();
-  final RxBool adding = RxBool(false);
   final RxBool searching = RxBool(false);
 
   final RxnString query = RxnString(null);
