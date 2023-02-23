@@ -1004,12 +1004,26 @@ class CallController extends GetxController {
 
   /// Toggles fullscreen on and off.
   Future<void> toggleFullscreen() async {
+    var sizeBeforToggle = size;
+
     if (fullscreen.isTrue) {
       fullscreen.value = false;
       await PlatformUtils.exitFullscreen();
     } else {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
+    }
+
+    // Find size dif and scale secondary panel on dif*scaleFactor
+    if (secondary.isNotEmpty) {
+      var heightDif = size.height - sizeBeforToggle.height;
+      var widthDif = size.height - sizeBeforToggle.height;
+
+      double scaleFactor =
+          (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+
+      secondaryWidth.value = secondaryWidth.value + widthDif * scaleFactor;
+      secondaryHeight.value = secondaryHeight.value + heightDif * scaleFactor;
     }
 
     relocateSecondary();
@@ -1474,6 +1488,8 @@ class CallController extends GetxController {
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+    print('call resize');
+
     double baseHeightValue = height.value;
     double baseWidthValue = width.value;
 
@@ -1531,72 +1547,90 @@ class CallController extends GetxController {
         break;
     }
 
-    // Check if paren was really resized
+    // Confirm that panel resized
     bool shouldScaleSecondary =
         baseHeightValue != height.value || baseWidthValue != width.value;
 
-    // Avoid necessary logic
+    // Update secondary constraints
     applySecondaryConstraints();
 
     double scaleFactor =
         (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
 
-    if (shouldScaleSecondary) {
-      _resizeSecondaryReaction(
-        context,
-        y: y,
-        x: x,
-        dx: (dx ?? 0) * scaleFactor,
-        dy: (dy ?? 0) * scaleFactor,
-      );
+    if (shouldScaleSecondary && secondary.isNotEmpty) {
+      double? sDx = (dx ?? 0) * scaleFactor;
+      double? sDy = (dy ?? 0) * scaleFactor;
+
+      secondaryWidth.value = secondaryWidth.value + (-sDx);
+      secondaryHeight.value = secondaryHeight.value + (-sDy);
     }
   }
 
-  void _resizeSecondaryReaction(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    double? dxReorg;
-    double? dyReorg;
+  /// Required to update x(left/right)|y(top/bottom) possition used by [resizeSecondary]
+  void _updateSecondaryPossition({
+    required RxnDouble primaryPossitionLink,
+    required RxnDouble secondaryPossitionLink,
+    required Axis axis,
+  }) {
+    double parentEmptySpace = axis == Axis.horizontal
+        ? size.width - secondaryWidth.value
+        : size.height - secondaryHeight.value;
 
-    // TODO: change dx, dy values to fit resizeSecondary Function
+    primaryPossitionLink.value ??=
+       parentEmptySpace - (secondaryPossitionLink.value ?? 0);
 
-    switch (x) {
-      case ScaleModeX.left:
-        break;
-      case ScaleModeX.right:
-        break;
-      default:
-        break;
+    print('_updateSecondaryPossition: ${primaryPossitionLink.value} is the ref ${primaryPossitionLink == secondaryLeft}');
+
+    // Nullify opposit offset
+    secondaryPossitionLink.value = null;
+
+    print('_updateSecondaryPossition before end: ${primaryPossitionLink.value} is the ref ${primaryPossitionLink == secondaryLeft}');
+  }
+
+  void _updateSecondarySize({
+    required RxnDouble primaryPossitionLink,
+    required double Function(double) applySizeFn,
+    required double? Function(double?) applyPossitionFn,
+    required double da,
+    required Axis axis,
+  }) async {
+    RxDouble currentSizeLink =
+        axis == Axis.horizontal ? secondaryWidth : secondaryHeight;
+
+    double parentAxisSize = axis == Axis.horizontal ? size.width : size.height;
+
+    double newSize = applySizeFn(currentSizeLink.value - da);
+    if (currentSizeLink.value - da == newSize) {
+      double? possition = applyPossitionFn(
+        primaryPossitionLink.value! + (currentSizeLink.value - newSize),
+      );
+
+      if (primaryPossitionLink.value! + (currentSizeLink.value - newSize) ==
+          possition) {
+        primaryPossitionLink.value = possition;
+        currentSizeLink.value = newSize;
+      } else if (possition == parentAxisSize - currentSizeLink.value) {
+        primaryPossitionLink.value = parentAxisSize - newSize;
+        currentSizeLink.value = newSize;
+      }
+
+      /*if (secondaryAlignment.value != null) {
+        secondaryHeight.value = _applySHeight(newSize * secondary.length);
+      }*/
     }
-
-    switch (y) {
-      case ScaleModeY.top:
-        break;
-      case ScaleModeY.bottom:
-        break;
-      default:
-        break;
-    }
-
-    resizeSecondary(
-      context,
-      y: y,
-      x: x,
-      dx: dxReorg,
-      dy: dyReorg,
-    );
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    secondaryLeft.value ??=
+    /*secondaryLeft.value ??=
         size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
     secondaryBottom.value = null;
-    secondaryRight.value = null;
+    secondaryRight.value = null;*/
 
-    switch (x) {
+    /*switch (x) {
       case ScaleModeX.left:
         double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
@@ -1634,9 +1668,15 @@ class CallController extends GetxController {
 
       default:
         break;
-    }
-
-    switch (y) {
+    }*/
+    /*_updateSecondarySize(
+      primaryPossitionLink: ySidePrimaryValueLink,
+      applySizeFn: _applySHeight,
+      applyPossitionFn: x == ScaleModeY.top ? _applySTop : _applySBottom,
+      da: dy,
+      axis: Axis.vertical,
+    );*/
+    /*switch (y) {
       case ScaleModeY.top:
         double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
@@ -1674,6 +1714,51 @@ class CallController extends GetxController {
 
       default:
         break;
+    }*/
+
+    if (x != null && dx != null) {
+      // X offset link
+      RxnDouble xSidePrimaryValueLink =
+      x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+      RxnDouble xSideSecondaryValueLink =
+      x == ScaleModeX.left ? secondaryRight : secondaryLeft;
+
+      // Update possition
+      _updateSecondaryPossition(
+        primaryPossitionLink: xSidePrimaryValueLink,
+        secondaryPossitionLink: xSideSecondaryValueLink,
+        axis: Axis.horizontal,
+      );
+
+      _updateSecondarySize(
+        primaryPossitionLink: xSidePrimaryValueLink,
+        applySizeFn: _applySWidth,
+        applyPossitionFn: x == ScaleModeX.left ? _applySLeft : _applySRight,
+        da: dx,
+        axis: Axis.horizontal,
+      );
+    }
+
+    if (y != null && dy != null) {
+      // Y offset link
+      RxnDouble ySidePrimaryValueLink =
+      y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+      RxnDouble ySideSecondaryValueLink =
+      y == ScaleModeY.top ? secondaryBottom : secondaryTop;
+
+      _updateSecondaryPossition(
+        primaryPossitionLink: ySidePrimaryValueLink,
+        secondaryPossitionLink: ySideSecondaryValueLink,
+        axis: Axis.vertical,
+      );
+
+      _updateSecondarySize(
+        primaryPossitionLink: ySidePrimaryValueLink,
+        applySizeFn: _applySHeight,
+        applyPossitionFn: y == ScaleModeY.top ? _applySTop : _applySBottom ,
+        da: dy,
+        axis: Axis.vertical,
+      );
     }
 
     applySecondaryConstraints();
@@ -2042,6 +2127,16 @@ class CallController extends GetxController {
 
 /// X-axis scale mode.
 enum ScaleModeX { left, right }
+
+extension MirrorScaleModeX on ScaleModeX {
+  ScaleModeX get reversed =>
+      this == ScaleModeX.left ? ScaleModeX.right : ScaleModeX.left;
+}
+
+extension MirrorScaleModeY on ScaleModeY {
+  ScaleModeY get reversed =>
+      this == ScaleModeY.top ? ScaleModeY.bottom : ScaleModeY.top;
+}
 
 /// Y-axis scale mode.
 enum ScaleModeY { top, bottom }

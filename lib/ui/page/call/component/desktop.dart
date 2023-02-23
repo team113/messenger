@@ -645,6 +645,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Sliding from the top info header.
         if (WebUtils.isPopup)
+          // TODO: Remove this flag (WEB_VIEW_CALL)
           Obx(() {
             return Align(
               alignment: Alignment.topCenter,
@@ -942,11 +943,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: scaler(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   height: c.height.value - Scaler.size,
-                  onDrag: (dx, dy) => c.resize(
+                  onDrag: (dx, dy) {
+                    print('call resize left');
+
+                    c.resize(
                     context,
                     x: ScaleModeX.left,
                     dx: dx,
-                  ),
+                  );
+                  },
                 ),
               );
             }),
@@ -1660,6 +1665,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
           right: right == null ? null : (right - Scaler.size / 2),
           top: top == null ? null : (top - Scaler.size / 2),
           bottom: bottom == null ? null : (bottom - Scaler.size / 2),
+          // TODO: Remove flag (SECONDARY_SIZEDBOX)
+
           child: SizedBox(
             width: width + Scaler.size,
             height: height + Scaler.size,
