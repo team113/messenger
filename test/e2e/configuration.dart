@@ -28,7 +28,6 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../mock/overflow_error.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
@@ -203,7 +202,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);

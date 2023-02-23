@@ -81,14 +81,14 @@ class HiveRxUser extends RxUser {
   @override
   void stopUpdates() {
     if (--_listeners == 0) {
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );

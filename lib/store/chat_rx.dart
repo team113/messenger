@@ -228,7 +228,7 @@ class HiveRxChat extends RxChat {
       reads.clear();
       _muteTimer?.cancel();
       _localSubscription?.cancel();
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
@@ -801,7 +801,7 @@ class HiveRxChat extends RxChat {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscriptionInitialized = true;
 
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );

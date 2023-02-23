@@ -78,9 +78,16 @@ class _ChatViewState extends State<ChatView>
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType (${widget.id})',
     );
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    super.dispose();
   }
 
   @override
@@ -371,6 +378,7 @@ class _ChatViewState extends State<ChatView>
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
+                                    disableCacheItems: true,
                                   ),
                                 );
                               }),
