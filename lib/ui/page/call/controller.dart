@@ -314,8 +314,7 @@ class CallController extends GetxController {
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
-  /// Settings repository, used to get the [buttons] value, set and get [Chat]s
-  /// [Rect] call info.
+  /// Settings repository maintaining [OngoingCall] related preferences.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Current [OngoingCall].
@@ -528,8 +527,8 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
-    Rect? prefs =
-        _settingsRepository.getCallPrefs(_currentCall.value.chatId.value);
+    final Rect? prefs =
+        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
 
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
@@ -866,14 +865,9 @@ class CallController extends GetxController {
 
     secondaryEntry?.remove();
 
-    _settingsRepository.setCallPrefs(
+    _settingsRepository.setCallRect(
       chat.value!.id,
-      Rect.fromLTWH(
-        left.value,
-        top.value,
-        width.value,
-        height.value,
-      ),
+      Rect.fromLTWH(left.value, top.value, width.value, height.value),
     );
 
     if (fullscreen.value) {
@@ -1312,6 +1306,9 @@ class CallController extends GetxController {
           applySecondaryConstraints();
         }
       }
+
+      print(
+          '!WebUtils.isPopup (${!WebUtils.isPopup}) && secondaryBottomShiftedFromResize != null (${secondaryBottomShiftedFromResize != null}) && dockBounds != null (${dockBounds != null}) && !(intersect.width > 0 (${intersect.width > 0}) && router.context!.mediaQuerySize.height - secondaryBottom.value! (${router.context!.mediaQuerySize.height - secondaryBottom.value!}) > dockBounds.top (${dockBounds?.top})) { secondaryBottom.value (${secondaryBottom.value}) = secondaryBottomShiftedFromResize (${secondaryBottomShiftedFromResize}) }');
 
       if (!WebUtils.isPopup &&
           secondaryBottomShiftedFromResize != null &&

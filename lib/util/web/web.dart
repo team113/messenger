@@ -39,7 +39,6 @@ import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/rect.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
 import 'web_utils.dart';
@@ -365,7 +364,7 @@ class WebUtils {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    Rect? prefs = getCallRect(chatId);
+    final Rect? prefs = getCallRect(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
     final height = min(prefs?.height ?? 500, screenH.toDouble());
@@ -476,7 +475,7 @@ class WebUtils {
   static Rect? getCallRect(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return Rect.zero.fromJson(json.decode(data));
+      return _RectExtension.fromJson(json.decode(data));
     }
 
     return null;
@@ -536,4 +535,23 @@ class WebUtils {
       Uri.base.toString().replaceFirst(from, to),
     );
   }
+}
+
+/// Extension adding JSON manipulation methods to a [Rect].
+extension _RectExtension on Rect {
+  /// Returns a [Map] containing parameters of this [Rect].
+  Map<String, dynamic> toJson() => {
+        'width': width,
+        'height': height,
+        'left': left,
+        'top': top,
+      };
+
+  /// Constructs a [Rect] from the provided [data].
+  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
+        data['left'],
+        data['top'],
+        data['width'],
+        data['height'],
+      );
 }

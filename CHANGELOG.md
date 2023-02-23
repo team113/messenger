@@ -29,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#347], [#228], [#222])
+        - Position and size persistance. ([#270], [#264])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -54,7 +55,6 @@ All user visible changes to this project will be documented in this file. This p
         - Rounded secondary panel. ([#300], [#292])
         - Redesigned participants modal. ([#332], [#328])
         - Redesigned desktop interface. ([#319], [#309])
-        - Persist positions and sizes ([#270], [#264])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])

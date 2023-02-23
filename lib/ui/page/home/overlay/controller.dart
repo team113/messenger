@@ -53,7 +53,7 @@ class CallOverlayController extends GetxController {
   /// the browser's storage.
   final Map<ChatId, Worker> _workers = {};
 
-  /// Returns the stored [ApplicationSettings] and [Chat]s call [Rect] info.
+  /// Returns the stored [ApplicationSettings].
   Rx<ApplicationSettings?> get _settings => _settingsRepo.applicationSettings;
 
   @override

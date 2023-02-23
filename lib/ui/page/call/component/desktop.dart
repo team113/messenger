@@ -2000,6 +2000,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
+                          c.secondaryBottomShiftedFromResize = null;
                           c.secondaryBottomShifted = null;
                           c.secondaryDragged.value = true;
                           c.displayMore.value = false;
@@ -2026,7 +2027,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         onPanUpdate: (d) {
                           c.updateSecondaryOffset(d.globalPosition);
                           c.applySecondaryConstraints();
-                          c.secondaryBottomShiftedFromResize = null;
                         },
                         onPanEnd: (d) {
                           c.secondaryDragged.value = false;

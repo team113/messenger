@@ -74,9 +74,11 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
 
-  /// Sets call preferences.
-  Future<void> setCallPrefs(ChatId chatId, Rect prefs);
+  /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Future<void> setCallRect(ChatId chatId, Rect prefs);
 
-  /// Returns call preferences.
-  Rect? getCallPrefs(ChatId id);
+  /// Returns the [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Rect? getCallRect(ChatId id);
 }

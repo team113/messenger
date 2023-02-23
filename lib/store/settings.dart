@@ -38,7 +38,7 @@ class SettingsRepository extends DisposableInterface
     this._mediaLocal,
     this._settingsLocal,
     this._backgroundLocal,
-    this._callsSettingsProvider,
+    this._callPreferencesProvider,
   );
 
   @override
@@ -61,7 +61,7 @@ class SettingsRepository extends DisposableInterface
 
   /// [CallsPreferencesHiveProvider] persisting and returns chats call [Rect]
   /// info.
-  final CallsPreferencesHiveProvider _callsSettingsProvider;
+  final CallsPreferencesHiveProvider _callPreferencesProvider;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
@@ -140,11 +140,11 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
-  Future<void> setCallPrefs(ChatId chatId, Rect prefs) =>
-      _callsSettingsProvider.put(chatId, prefs);
+  Future<void> setCallRect(ChatId chatId, Rect prefs) =>
+      _callPreferencesProvider.put(chatId, prefs);
 
   @override
-  Rect? getCallPrefs(ChatId id) => _callsSettingsProvider.get(id);
+  Rect? getCallRect(ChatId id) => _callPreferencesProvider.get(id);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
