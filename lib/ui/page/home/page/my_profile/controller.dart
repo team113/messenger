@@ -67,7 +67,8 @@ class MyProfileController extends GetxController {
   final ItemPositionsListener positionsListener =
       ItemPositionsListener.create();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
+  /// Index of the initial profile page section to show in a
+  /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
   /// [MyUser.name]'s field state.
