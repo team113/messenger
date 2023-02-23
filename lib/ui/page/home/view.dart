@@ -217,16 +217,28 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                         Positioned.fill(
                                           child: Center(
-                                            child: Text(
-                                              c.displayFunds ? '0.00' : '\$',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    c.displayFunds ? 11 : 15,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                              textScaleFactor: 1,
-                                            ),
+                                            child: c.displayFunds
+                                                ? Text(
+                                                    c.displayFunds
+                                                        ? '999'
+                                                        : '\$',
+                                                    style: TextStyle(
+                                                      color: c.displayFunds
+                                                          ? Colors.white
+                                                          : const Color(
+                                                              0xFFF8B64C,
+                                                            ),
+                                                      fontSize: c.displayFunds
+                                                          ? 12
+                                                          : 15,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                    textScaleFactor: 1,
+                                                  )
+                                                : SvgLoader.asset(
+                                                    'assets/icons/inter_white.svg',
+                                                    height: 12,
+                                                  ),
                                           ),
                                         ),
                                       ],

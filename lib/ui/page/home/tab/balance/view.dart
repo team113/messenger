@@ -22,8 +22,9 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/page/home/widget/money_provider.dart';
+import 'package:messenger/ui/page/home/widget/balance_provider.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -110,75 +111,126 @@ class BalanceTabView extends StatelessWidget {
                   children: [
                     const SizedBox(height: 5),
                     Obx(() {
+                      final textStyle = Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: Colors.black);
+
                       return AnimatedSizeAndFade.showHide(
                         show: !c.hintDismissed.value,
                         child: Center(
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    '\$1 = ',
-                                    style: TextStyle(fontSize: 13),
-                                  ),
-                                  Transform.translate(
-                                    offset: const Offset(0, 1),
-                                    child: SvgLoader.asset(
-                                      'assets/icons/inter.svg',
-                                      height: 9.5,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ModalPopupHeader(
+                                  alwaysClose: true,
+                                  onClose: c.hintDismissed.toggle,
+                                  header: Center(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(text: 'What is '),
+                                          WidgetSpan(
+                                            child: Transform.translate(
+                                              offset: const Offset(0, -3.6),
+                                              child: SvgLoader.asset(
+                                                'assets/icons/inter.svg',
+                                                width: 6.25 * 0.99,
+                                                height: 13.25 * 0.99,
+                                              ),
+                                            ),
+                                          ),
+                                          TextSpan(text: ' (Inter)?'),
+                                        ],
+                                        style:
+                                            textStyle?.copyWith(fontSize: 18),
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(width: 1),
-                                  const Text(
-                                    '100',
-                                    style: TextStyle(fontSize: 13),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(32, 12, 32, 18),
+                                  child: Center(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          WidgetSpan(
+                                            child: Transform.translate(
+                                              offset: const Offset(0, 0),
+                                              child: SvgLoader.asset(
+                                                'assets/icons/inter.svg',
+                                                width: 6.25 * 0.88,
+                                                height: 13.25 * 0.88,
+                                              ),
+                                            ),
+                                          ),
+                                          const TextSpan(
+                                            text:
+                                                ' (Inter) is an internal currency for purchasing services offered by Gapopa.\n\n',
+                                          ),
+                                          WidgetSpan(
+                                            child: Transform.translate(
+                                              offset: const Offset(0, 0),
+                                              child: SvgLoader.asset(
+                                                'assets/icons/inter.svg',
+                                                width: 6.25 * 0.88,
+                                                height: 13.25 * 0.88,
+                                              ),
+                                            ),
+                                          ),
+                                          const TextSpan(text: '100 = €1.00'),
+                                        ],
+                                        style:
+                                            textStyle?.copyWith(fontSize: 15),
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       );
                     }),
-                    ...MoneyProvider.values.map((e) {
+                    ...BalanceProvider.values.map((e) {
                       Widget button({
                         required String title,
                         required IconData icon,
                       }) {
-                        return MoneyProviderWidget(
+                        return BalanceProviderWidget(
                           title: title,
                           leading: [Icon(icon)],
-                          onTap: () {},
+                          onTap: () => router.balance(e),
                         );
                       }
 
                       switch (e) {
-                        case MoneyProvider.creditCard:
+                        case BalanceProvider.creditCard:
                           return button(
                             icon: Icons.credit_card,
                             title: 'Credit card',
                           );
 
-                        case MoneyProvider.swift:
+                        case BalanceProvider.swift:
                           return button(
                             icon: Icons.account_balance,
                             title: 'SWIFT transfer',
                           );
 
-                        case MoneyProvider.sepa:
+                        case BalanceProvider.sepa:
                           return button(
                             icon: Icons.account_balance,
                             title: 'SEPA transfer',
                           );
 
-                        case MoneyProvider.paypal:
+                        case BalanceProvider.paypal:
                           return button(
                             icon: Icons.paypal,
                             title: 'PayPal',

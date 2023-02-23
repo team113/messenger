@@ -29,6 +29,7 @@ import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/public/view.dart';
 import 'page/user/view.dart';
+import 'page/balance/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
 ///
@@ -107,6 +108,15 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: ChatInfoView(ChatId(id)),
           ));
         }
+      } else if (route.startsWith('${Routes.balance}/')) {
+        final provider = route.replaceFirst('${Routes.balance}/', '');
+        pages.add(_CustomPage(
+          key: ValueKey('BalancePage$provider'),
+          name: '${Routes.balance}/$provider',
+          child: BalanceProviderView(
+            BalanceProvider.values.firstWhere((e) => e.name == provider),
+          ),
+        ));
       }
     }
 

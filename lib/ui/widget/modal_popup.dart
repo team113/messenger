@@ -135,6 +135,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.onBack,
     this.onClose,
     this.header,
+    this.alwaysClose = false,
   });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
@@ -145,6 +146,8 @@ class ModalPopupHeader extends StatelessWidget {
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
   final void Function()? onClose;
+
+  final bool alwaysClose;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +170,7 @@ class ModalPopupHeader extends StatelessWidget {
           else
             const SizedBox(width: 40),
           if (header != null) Expanded(child: header!) else const Spacer(),
-          if (!context.isMobile)
+          if (alwaysClose || !context.isMobile)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: onClose ?? Navigator.of(context).pop,

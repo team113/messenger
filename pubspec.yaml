@@ -95,6 +95,8 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   skeletons: ^0.0.3
   shimmer: ^2.0.0
+  webview_flutter_web: ^0.2.2+1
+  webview_flutter: ^4.0.5
 
 dev_dependencies:
   artemis: ^7.11.0-beta.1

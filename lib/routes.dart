@@ -86,6 +86,7 @@ class Routes {
   static const me = '/me';
   static const menu = '/menu';
   static const user = '/user';
+  static const balance = '/top_up';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -114,7 +115,7 @@ enum ProfileTab {
   logout,
 }
 
-enum MoneyProvider {
+enum BalanceProvider {
   creditCard,
   swift,
   sepa,
@@ -236,7 +237,8 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.menu ||
             routes.last == Routes.public ||
             routes.last == Routes.funds ||
-            routes.last == Routes.user) {
+            routes.last == Routes.user ||
+            routes.last == Routes.balance) {
           routes.last = Routes.home;
         }
       } else {
@@ -679,6 +681,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.public) ||
+        _state.route.startsWith(Routes.balance) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -793,6 +796,10 @@ extension RouteLinks on RouterState {
       go('${Routes.public}/$id');
     }
   }
+
+  void balance(BalanceProvider provider, {bool push = false}) => push
+      ? this.push('${Routes.balance}/${provider.name}')
+      : go('${Routes.balance}/${provider.name}');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

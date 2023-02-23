@@ -3,8 +3,8 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 
-class MoneyProviderWidget extends StatelessWidget {
-  const MoneyProviderWidget({
+class BalanceProviderWidget extends StatelessWidget {
+  const BalanceProviderWidget({
     super.key,
     required this.title,
     this.selected = false,
