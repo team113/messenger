@@ -82,6 +82,7 @@ class _AnimatedSliderState extends State<AnimatedSlider>
       value: widget.isOpen ? 1 : 0,
       duration: widget.duration,
       reverseDuration: widget.reverseDuration,
+      debugLabel: '$runtimeType',
     );
 
     if (widget.listener != null) {

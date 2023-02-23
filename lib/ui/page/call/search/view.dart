@@ -34,7 +34,7 @@ import 'controller.dart';
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
   const SearchView({
-    Key? key,
+    super.key,
     required this.categories,
     required this.title,
     this.chat,
@@ -45,7 +45,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
-  }) : super(key: key);
+  });
 
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;
@@ -192,6 +192,7 @@ class SearchView extends StatelessWidget {
                           } else if (e is RxChat) {
                             child = Obx(() {
                               return SelectedTile(
+                                key: Key('SearchChat_${e.id}'),
                                 chat: e,
                                 darken: 0.05,
                                 selected: c.selectedChats.contains(e),
@@ -212,6 +213,7 @@ class SearchView extends StatelessWidget {
                             c.contacts.length +
                             c.users.length +
                             c.recent.length,
+                        disableCacheItems: true,
                       ),
                     ),
                   );

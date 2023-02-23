@@ -251,6 +251,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+      debugLabel: '$runtimeType',
     )..addStatusListener(
         (status) {
           switch (status) {
@@ -282,6 +283,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     _sliding = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
+      debugLabel: '$runtimeType',
     );
 
     _rect = RelativeRect.fill;

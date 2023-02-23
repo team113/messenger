@@ -21,9 +21,9 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -57,10 +57,18 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [FlutterListViewController] of the profile's [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  /// Index of the initial profile page section to show in a
+  /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
   /// [MyUser.name]'s field state.
@@ -159,8 +167,8 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await listController.sliverController.animateToIndex(
-            tab?.index ?? 0,
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
@@ -169,17 +177,17 @@ class MyProfileController extends GetxController {
       },
     );
 
-    listController.sliverController.onPaintItemPositionsCallback =
-        (height, positions) {
-      if (positions.isNotEmpty && !ignorePositions) {
-        final ProfileTab tab = ProfileTab.values[positions.first.index];
+    positionsListener.itemPositions.addListener(() {
+      if (!ignorePositions) {
+        final ProfileTab tab = ProfileTab
+            .values[positionsListener.itemPositions.value.first.index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
-    };
+    });
 
     _myUserWorker = ever(
       _myUserService.myUser,

@@ -48,10 +48,10 @@ class User extends HiveObject {
     this.presenceIndex = 0,
     this.status,
     this.isDeleted = false,
-    this.dialog,
+    ChatId? dialog,
     this.isBlacklisted = false,
     this.lastSeenAt,
-  });
+  }) : _dialog = dialog;
 
   /// Unique ID of this [User].
   ///
@@ -129,7 +129,7 @@ class User extends HiveObject {
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
   @HiveField(13)
-  Chat? dialog;
+  ChatId? _dialog;
 
   /// Indicator whether this [User] is blacklisted by the authenticated
   /// [MyUser].
@@ -139,6 +139,12 @@ class User extends HiveObject {
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
+
+  /// Returns [ChatId] of the [Chat]-dialog with this [User].
+  ChatId get dialog => _dialog ?? ChatId.local(id);
+
+  /// Sets the provided [ChatId] as a [dialog] of this [User].
+  set dialog(ChatId dialog) => _dialog = dialog;
 }
 
 /// Unique ID of an [User].
