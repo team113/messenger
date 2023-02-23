@@ -80,7 +80,7 @@ class ChatController extends GetxController {
   });
 
   /// ID of this [Chat].
-  final ChatId id;
+  ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
@@ -203,9 +203,6 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
 
-  /// Subscription for the [RxChat.chat] updating the [_durationTimer].
-  StreamSubscription? _chatSubscription;
-
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -249,6 +246,9 @@ class ChatController extends GetxController {
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
+
+  /// Worker capturing any [RxChat.chat] changes.
+  Worker? _chatWorker;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -344,9 +344,9 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _messagesSubscription?.cancel();
-    _chatSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
+    _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
@@ -509,7 +509,7 @@ class ChatController extends GetxController {
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val;
+      send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
@@ -739,7 +739,15 @@ class ChatController extends GetxController {
       }
 
       updateTimer(chat!.chat.value);
-      _chatSubscription = chat!.chat.listen(updateTimer);
+
+      _chatWorker = ever(chat!.chat, (Chat e) {
+        if (e.id != id) {
+          WebUtils.replaceState(id.val, e.id.val);
+          id = e.id;
+        }
+
+        updateTimer(e);
+      });
 
       _messagesWorker ??= ever(
         chat!.messages,

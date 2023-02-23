@@ -49,9 +49,8 @@ class SearchUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final ChatId? chatId = user?.dialog.value?.id ??
-          user?.user.value.dialog?.id ??
-          contact?.user.value?.dialog.value?.id;
+      final ChatId? chatId =
+          user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
 
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
@@ -63,7 +62,6 @@ class SearchUserTile extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
-          key: key,
           contact: contact,
           user: user,
           darken: 0,
