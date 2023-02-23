@@ -23,6 +23,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '/domain/model/attachment.dart';
+import '/domain/model/file.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -41,7 +43,8 @@ class RetryImage extends StatefulWidget {
     this.url, {
     super.key,
     this.checksum,
-    this.fallback,
+    this.fallbackUrl,
+    this.fallbackChecksum,
     this.fit,
     this.height,
     this.width,
@@ -53,14 +56,56 @@ class RetryImage extends StatefulWidget {
     this.displayProgress = true,
   });
 
+  /// Constructs a [RetryImage] from the provided [attachment].
+  factory RetryImage.attachment(
+    ImageAttachment attachment, {
+    BoxFit? fit,
+    double? height,
+    double? width,
+    BorderRadius? borderRadius,
+    Future<void> Function()? onForbidden,
+    ImageFilter? filter,
+    bool cancelable = false,
+    bool autoLoad = true,
+    bool displayProgress = true,
+  }) {
+    final StorageFile image;
+
+    final StorageFile original = attachment.original;
+    if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
+      image = original;
+    } else {
+      image = attachment.big;
+    }
+
+    return RetryImage(
+      image.url,
+      checksum: image.checksum,
+      fallbackUrl: attachment.small.url,
+      fallbackChecksum: attachment.small.checksum,
+      fit: fit,
+      height: height,
+      width: width,
+      borderRadius: borderRadius,
+      onForbidden: onForbidden,
+      filter: filter,
+      cancelable: cancelable,
+      autoLoad: autoLoad,
+      displayProgress: displayProgress,
+    );
+  }
+
   /// URL of an image to display.
   final String url;
 
   /// SHA-256 checksum of the image to display.
   final String? checksum;
 
+  /// URL of an fallback image to display.
+  final String? fallbackUrl;
+
   /// SHA-256 checksum of the fallback image to display.
-  final String? fallback;
+  final String? fallbackChecksum;
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
@@ -110,18 +155,6 @@ class _RetryImageState extends State<RetryImage> {
   /// [CancelToken] canceling the [_loadImage] operation.
   CancelToken _cancelToken = CancelToken();
 
-  /// [Timer] for [_fallback] exponential backoff fetching.
-  Timer? _fallbackTimer;
-
-  /// Starting period of exponential backoff image fetching.
-  static const Duration _minBackoffPeriod = Duration(microseconds: 500);
-
-  /// Maximum possible period of exponential backoff image fetching.
-  static const Duration _maxBackoffPeriod = Duration(seconds: 32);
-
-  /// Current period of exponential backoff image fetching.
-  Duration _fallbackPeriod = _minBackoffPeriod;
-
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
 
@@ -155,7 +188,6 @@ class _RetryImageState extends State<RetryImage> {
   @override
   void dispose() {
     _cancelToken.cancel();
-    _fallbackTimer?.cancel();
     super.dispose();
   }
 
@@ -252,8 +284,9 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.fallback != null && _image == null) {
+    if (widget.fallbackUrl != null && _image == null) {
       return Stack(
+        alignment: Alignment.center,
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
@@ -303,54 +336,44 @@ class _RetryImageState extends State<RetryImage> {
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadFallback() async {
-    if (widget.fallback == null) return;
-
-    _fallbackTimer?.cancel();
+    if (widget.fallbackUrl == null) return;
 
     Uint8List? cached;
-    if (widget.fallback != null) {
-      cached = FIFOCache.get(widget.fallback!);
+    if (widget.fallbackChecksum != null) {
+      cached = FIFOCache.get(widget.fallbackChecksum!);
     }
 
     if (cached != null) {
       _fallback = cached;
-      _fallbackPeriod = _minBackoffPeriod;
       if (mounted) {
         setState(() {});
       }
     } else {
-      Response? data;
+      await Backoff.run(() async {
+        Response? data;
 
-      try {
-        data = await PlatformUtils.dio.get(
-          widget.fallback!,
-          options: Options(responseType: ResponseType.bytes),
-        );
-      } on DioError catch (e) {
-        if (e.response?.statusCode == 403) {
-          await widget.onForbidden?.call();
+        try {
+          data = await PlatformUtils.dio.get(
+            widget.fallbackUrl!,
+            options: Options(responseType: ResponseType.bytes),
+          );
+        } on DioError catch (e) {
+          if (e.response?.statusCode == 403) {
+            await widget.onForbidden?.call();
+          }
         }
-      }
 
-      if (data?.data != null && data!.statusCode == 200) {
-        FIFOCache.set(widget.fallback!, data.data);
-        _fallback = data.data;
-        _fallbackPeriod = _minBackoffPeriod;
-        if (mounted) {
-          setState(() {});
+        if (data?.data != null && data!.statusCode == 200) {
+          if (widget.fallbackChecksum != null) {
+            data.data.FIFOCache.set(widget.fallbackChecksum!, data.data);
+          }
+
+          _fallback = data.data;
+          if (mounted) {
+            setState(() {});
+          }
         }
-      } else {
-        _fallbackTimer = Timer(
-          _fallbackPeriod,
-          () {
-            if (_fallbackPeriod < _maxBackoffPeriod) {
-              _fallbackPeriod *= 2;
-            }
-
-            _loadImage();
-          },
-        );
-      }
+      });
     }
   }
 
@@ -375,10 +398,6 @@ class _RetryImageState extends State<RetryImage> {
             Response? data;
 
             try {
-              if (_cancelToken.isCancelled) {
-                return;
-              }
-
               data = await PlatformUtils.dio.get(
                 widget.url,
                 onReceiveProgress: (received, total) {

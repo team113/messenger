@@ -673,7 +673,7 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
-label_upload_images = Загружать изображения
+label_load_images = Загружать изображения
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_is_blocked = Пользователь заблокирован

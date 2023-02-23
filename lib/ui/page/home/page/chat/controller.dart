@@ -875,6 +875,7 @@ class ChatController extends GetxController {
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
                   PreciseDateTime.now()),
+              listController.position.pixels > 0,
             );
             elements[_bottomLoader!.id] = _bottomLoader!;
 
@@ -906,7 +907,7 @@ class ChatController extends GetxController {
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
-          chat!.chat.value.unreadCount == 0) {
+          chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
       }
 
@@ -915,7 +916,7 @@ class ChatController extends GetxController {
       if (_bottomLoader != null) {
         bottomLoader.value = false;
 
-        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 200), () {
+        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
           if (_bottomLoader != null) {
             elements.remove(_bottomLoader!.id);
             _bottomLoader = null;
@@ -1409,8 +1410,12 @@ class UnreadMessagesElement extends ListElement {
 
 /// [ListElement] representing a [CustomProgressIndicator].
 class LoaderElement extends ListElement {
-  LoaderElement(PreciseDateTime at)
+  LoaderElement(PreciseDateTime at, [this.animateSize = false])
       : super(ListElementId(at, const ChatItemId('2')));
+
+  /// Indicator whether the size of the [CustomProgressIndicator] needs to be
+  /// animated.
+  final bool animateSize;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

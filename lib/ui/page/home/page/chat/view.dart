@@ -606,6 +606,7 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            loadImages: c.settings.value?.loadImages != false,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads.where((m) =>
@@ -697,18 +698,27 @@ class _ChatViewState extends State<ChatView>
       return Obx(() {
         final Widget child;
 
-        if (c.bottomLoader.value || i == 0) {
+        if (c.bottomLoader.value) {
           child = Center(
+            key: const ValueKey(1),
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, i == 0 ? 36 : 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(child: CustomProgressIndicator()),
+                child: const Center(
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
+                ),
               ),
             ),
           );
         } else {
-          child = const SizedBox();
+          child = SizedBox(
+            key: const ValueKey(2),
+            height: element.animateSize ? null : 64,
+          );
         }
 
         return AnimatedSizeAndFade(

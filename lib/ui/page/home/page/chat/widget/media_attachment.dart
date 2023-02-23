@@ -116,19 +116,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        final StorageFile image;
-
-        final StorageFile original = (attachment as ImageAttachment).original;
-        if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
-          image = original;
-        } else {
-          image = attachment.big;
-        }
-
-        return RetryImage(
-          image.url,
-          checksum: image.checksum,
-          fallback: attachment.small.url,
+        return RetryImage.attachment(
+          attachment as ImageAttachment,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,

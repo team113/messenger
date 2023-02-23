@@ -1325,7 +1325,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: 'label_upload_images'.l10n,
+                text: 'label_load_images'.l10n,
                 editable: false,
               ),
             ),

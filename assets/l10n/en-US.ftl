@@ -653,7 +653,7 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
-label_upload_images = Upload images
+label_load_images = Load images
 label_use_search = Use search to find an user
 label_user = User
 label_user_is_blocked = User is blocked
