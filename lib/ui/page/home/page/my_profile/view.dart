@@ -19,8 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -83,77 +83,101 @@ class MyProfileView extends StatelessWidget {
               }
 
               return Scrollbar(
-                controller: c.listController,
-                child: FlutterListView(
-                  controller: c.listController,
-                  delegate: FlutterListViewDelegate(
-                    (context, i) {
-                      switch (ProfileTab.values[i]) {
-                        case ProfileTab.public:
-                          return Block(
-                            title: 'label_public_information'.l10n,
-                            children: [
-                              Stack(
-                                alignment: Alignment.center,
+                controller: c.scrollController,
+                child: ScrollablePositionedList.builder(
+                  initialScrollIndex: c.listInitIndex,
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  itemCount: ProfileTab.values.length,
+                  itemBuilder: (context, i) {
+                    switch (ProfileTab.values[i]) {
+                      case ProfileTab.public:
+                        return Block(
+                          title: 'label_public_information'.l10n,
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                WidgetButton(
+                                  onPressed: c.myUser.value?.avatar == null
+                                      ? c.uploadAvatar
+                                      : () async {
+                                          await GalleryPopup.show(
+                                            context: context,
+                                            gallery: GalleryPopup(
+                                              initialKey: c.avatarKey,
+                                              children: [
+                                                GalleryItem.image(
+                                                  c.myUser.value!.avatar!
+                                                      .original.url,
+                                                  c.myUser.value!.num.val,
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
+                                    key: c.avatarKey,
+                                    radius: 100,
+                                    badge: false,
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Obx(() {
+                                    return AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: c.avatarUpload.value.isLoading
+                                          ? Container(
+                                              width: 200,
+                                              height: 200,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0x22000000),
+                                              ),
+                                              child: const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Obx(() {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   WidgetButton(
-                                    onPressed: c.myUser.value?.avatar == null
-                                        ? c.uploadAvatar
-                                        : () async {
-                                            await GalleryPopup.show(
-                                              context: context,
-                                              gallery: GalleryPopup(
-                                                initialKey: c.avatarKey,
-                                                children: [
-                                                  GalleryItem.image(
-                                                    c.myUser.value!.avatar!
-                                                        .original.url,
-                                                    c.myUser.value!.num.val,
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      key: c.avatarKey,
-                                      radius: 100,
-                                      badge: false,
+                                    key: const Key('UploadAvatar'),
+                                    onPressed: c.uploadAvatar,
+                                    child: Text(
+                                      'btn_upload'.l10n,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontSize: 11,
+                                      ),
                                     ),
                                   ),
-                                  Positioned.fill(
-                                    child: Obx(() {
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: c.avatarUpload.value.isLoading
-                                            ? Container(
-                                                width: 200,
-                                                height: 200,
-                                                decoration: const BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Color(0x22000000),
-                                                ),
-                                                child: const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
-                                              )
-                                            : const SizedBox.shrink(),
-                                      );
-                                    }),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Obx(() {
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
+                                  if (c.myUser.value?.avatar != null) ...[
+                                    Text(
+                                      'space_or_space'.l10n,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 11,
+                                      ),
+                                    ),
                                     WidgetButton(
-                                      key: const Key('UploadAvatar'),
-                                      onPressed: c.uploadAvatar,
+                                      key: const Key('DeleteAvatar'),
+                                      onPressed: c.deleteAvatar,
                                       child: Text(
-                                        'btn_upload'.l10n,
+                                        'btn_delete'.l10n.toLowerCase(),
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -162,124 +186,100 @@ class MyProfileView extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (c.myUser.value?.avatar != null) ...[
-                                      Text(
-                                        'space_or_space'.l10n,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                      WidgetButton(
-                                        key: const Key('DeleteAvatar'),
-                                        onPressed: c.deleteAvatar,
-                                        child: Text(
-                                          'btn_delete'.l10n.toLowerCase(),
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   ],
-                                );
-                              }),
-                              const SizedBox(height: 10),
-                              _name(c),
-                              _presence(c, context),
-                              _status(c),
-                            ],
-                          );
+                                ],
+                              );
+                            }),
+                            const SizedBox(height: 10),
+                            _name(c),
+                            _presence(c, context),
+                            _status(c),
+                          ],
+                        );
 
-                        case ProfileTab.signing:
+                      case ProfileTab.signing:
+                        return Block(
+                          title: 'label_login_options'.l10n,
+                          children: [
+                            _num(c),
+                            _login(c, context),
+                            const SizedBox(height: 10),
+                            _emails(c, context),
+                            _phones(c, context),
+                            _password(context, c),
+                          ],
+                        );
+
+                      case ProfileTab.link:
+                        return Block(
+                          title: 'label_your_direct_link'.l10n,
+                          children: [_link(context, c)],
+                        );
+
+                      case ProfileTab.background:
+                        return Block(
+                          title: 'label_background'.l10n,
+                          children: [_background(context, c)],
+                        );
+
+                      case ProfileTab.calls:
+                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                           return Block(
-                            title: 'label_login_options'.l10n,
-                            children: [
-                              _num(c),
-                              _login(c, context),
-                              const SizedBox(height: 10),
-                              _emails(c, context),
-                              _phones(c, context),
-                              _password(context, c),
-                            ],
+                            title: 'label_calls'.l10n,
+                            children: [_call(context, c)],
                           );
+                        }
 
-                        case ProfileTab.link:
+                        return const SizedBox();
+
+                      case ProfileTab.media:
+                        if (!PlatformUtils.isMobile) {
                           return Block(
-                            title: 'label_your_direct_link'.l10n,
-                            children: [_link(context, c)],
+                            title: 'label_media'.l10n,
+                            children: [_media(context, c)],
                           );
+                        }
 
-                        case ProfileTab.background:
+                        return const SizedBox();
+
+                      case ProfileTab.notifications:
+                        return Block(
+                          title: 'label_audio_notifications'.l10n,
+                          children: [_notifications(context, c)],
+                        );
+
+                      case ProfileTab.language:
+                        return Block(
+                          title: 'label_language'.l10n,
+                          children: [_language(context, c)],
+                        );
+
+                      case ProfileTab.blacklist:
+                        return Block(
+                          title: 'label_blocked_users'.l10n,
+                          children: [_blockedUsers(context, c)],
+                        );
+
+                      case ProfileTab.download:
+                        if (PlatformUtils.isWeb) {
                           return Block(
-                            title: 'label_background'.l10n,
-                            children: [_background(context, c)],
+                            title: 'label_download_application'.l10n,
+                            children: [_downloads(context, c)],
                           );
+                        }
 
-                        case ProfileTab.calls:
-                          if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                            return Block(
-                              title: 'label_calls'.l10n,
-                              children: [_call(context, c)],
-                            );
-                          }
+                        return const SizedBox();
 
-                          return const SizedBox();
+                      case ProfileTab.danger:
+                        return Block(
+                          title: 'label_danger_zone'.l10n,
+                          children: [_danger(context, c)],
+                        );
 
-                        case ProfileTab.media:
-                          if (!PlatformUtils.isMobile) {
-                            return Block(
-                              title: 'label_media'.l10n,
-                              children: [_media(context, c)],
-                            );
-                          }
-
-                          return const SizedBox();
-
-                        case ProfileTab.notifications:
-                          return Block(
-                            title: 'label_audio_notifications'.l10n,
-                            children: [_notifications(context, c)],
-                          );
-
-                        case ProfileTab.language:
-                          return Block(
-                            title: 'label_language'.l10n,
-                            children: [_language(context, c)],
-                          );
-
-                        case ProfileTab.blacklist:
-                          return Block(
-                            title: 'label_blocked_users'.l10n,
-                            children: [_blockedUsers(context, c)],
-                          );
-
-                        case ProfileTab.download:
-                          if (PlatformUtils.isWeb) {
-                            return Block(
-                              title: 'label_download_application'.l10n,
-                              children: [_downloads(context, c)],
-                            );
-                          }
-
-                          return const SizedBox();
-
-                        case ProfileTab.danger:
-                          return Block(
-                            title: 'label_danger_zone'.l10n,
-                            children: [_danger(context, c)],
-                          );
-
-                        case ProfileTab.logout:
-                          return const SizedBox();
-                      }
-                    },
-                    initIndex: c.listInitIndex,
-                    childCount: ProfileTab.values.length,
-                  ),
+                      case ProfileTab.logout:
+                        return const SizedBox();
+                    }
+                  },
                 ),
               );
             }),
@@ -928,6 +928,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         FieldButton(
+          key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),

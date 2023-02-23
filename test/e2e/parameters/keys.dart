@@ -27,6 +27,7 @@ enum WidgetKey {
   AlertNoButton,
   AlertYesButton,
   Approve,
+  AudioCall,
   AuthView,
   BioField,
   Block,

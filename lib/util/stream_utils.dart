@@ -44,4 +44,18 @@ extension StreamQueueExtension on StreamQueue {
       }
     }
   }
+
+  /// Cancels the underlying event source.
+  ///
+  /// If [immediate] is `true`, the source is instead canceled immediately. Any
+  /// pending events are completed as though the underlying stream had closed.
+  void close({bool immediate = false}) {
+    try {
+      cancel(immediate: immediate);
+    } on StateError catch (e) {
+      if (e.message != 'Already cancelled') {
+        rethrow;
+      }
+    }
+  }
 }

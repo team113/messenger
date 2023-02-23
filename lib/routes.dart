@@ -229,6 +229,17 @@ class RouterState extends ChangeNotifier {
     }
   }
 
+  /// Removes the [routes] satisfying the provided [predicate].
+  void removeWhere(bool Function(String element) predicate) {
+    for (String e in routes.toList(growable: false)) {
+      if (predicate(e)) {
+        routes.remove(route);
+      }
+    }
+
+    notifyListeners();
+  }
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.
@@ -542,30 +553,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             );
             deps.put<AbstractUserRepository>(userRepository);
-            AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(
-              CallRepository(
-                graphQlProvider,
-                userRepository,
-                Get.find(),
-                settingsRepository,
-                me: me,
-              ),
+            CallRepository callRepository = CallRepository(
+              graphQlProvider,
+              userRepository,
+              Get.find(),
+              settingsRepository,
+              me: me,
             );
-            AbstractChatRepository chatRepository =
-                deps.put<AbstractChatRepository>(
-              ChatRepository(
-                graphQlProvider,
-                Get.find(),
-                callRepository,
-                Get.find(),
-                userRepository,
-                Get.find(),
-                me: me,
-              ),
+            deps.put<AbstractCallRepository>(callRepository);
+            ChatRepository chatRepository = ChatRepository(
+              graphQlProvider,
+              Get.find(),
+              callRepository,
+              Get.find(),
+              userRepository,
+              Get.find(),
+              me: me,
             );
+            deps.put<AbstractChatRepository>(chatRepository);
 
             userRepository.getChat = chatRepository.get;
+            callRepository.ensureRemoteDialog =
+                chatRepository.ensureRemoteDialog;
 
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(

@@ -264,4 +264,7 @@ class FIFOCache {
 
   /// Indicates whether an item with the provided [key] exists.
   static bool exists(String key) => _cache.containsKey(key);
+
+  /// Removes all entries from the [_cache].
+  static void clear() => _cache.clear();
 }

@@ -17,7 +17,6 @@
 
 import '../schema.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
@@ -41,7 +40,7 @@ extension UserConversion on UserMixin {
         lastSeenAt: online?.$$typename == 'UserOffline'
             ? (online as UserMixin$Online$UserOffline).lastSeenAt
             : null,
-        dialog: dialog == null ? null : Chat(dialog!.id),
+        dialog: dialog?.id,
         presenceIndex: presence.index,
         status: status,
         isDeleted: isDeleted,

@@ -26,6 +26,7 @@ import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
 import '../model/mute_duration.dart';
+import '../model/my_user.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -67,10 +68,6 @@ abstract class AbstractChatRepository {
   ///
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name);
-
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.

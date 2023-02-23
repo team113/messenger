@@ -737,8 +737,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
-      padding:
-          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,

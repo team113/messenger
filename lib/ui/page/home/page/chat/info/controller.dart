@@ -351,9 +351,6 @@ class ChatInfoController extends GetxController {
   Future<void> hideChat() async {
     try {
       await _chatService.hideChat(chatId);
-      if (router.route == '${Routes.chat}/$chatId') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
