@@ -23,6 +23,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'allow_overflow.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 
@@ -215,7 +216,7 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? UnconstrainedBox(
+                                        ? AllowOverflow(
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,

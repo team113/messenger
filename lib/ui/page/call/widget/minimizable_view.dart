@@ -112,6 +112,7 @@ class _MinimizableViewState extends State<MinimizableView>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType',
     );
     _controller.addListener(_animationListener);
     _controller.addStatusListener(_animationStatusListener);

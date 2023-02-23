@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -43,9 +42,10 @@ final StepDefinitionGeneric waitUntilMessageStatus =
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        final ChatMessage message = chat!.messages
+        final RxChat chat = Get.find<ChatService>().chats.values.firstWhere(
+              (e) => e.chat.value.isRoute(router.route, context.world.me),
+            );
+        final ChatMessage message = chat.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .firstWhere((e) => e.text?.val == text);

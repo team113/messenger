@@ -326,9 +326,11 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     return AnimatedSwitcher(
-      key: Key('Image_${widget.url}'),
       duration: const Duration(milliseconds: 150),
-      child: child,
+      child: KeyedSubtree(
+        key: Key('Image_${widget.url}'),
+        child: child,
+      ),
     );
   }
 
@@ -478,4 +480,7 @@ class FIFOCache {
 
   /// Indicates whether an item with the provided [key] exists.
   static bool exists(String key) => _cache.containsKey(key);
+
+  /// Removes all entries from the [_cache].
+  static void clear() => _cache.clear();
 }

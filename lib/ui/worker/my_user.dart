@@ -17,11 +17,13 @@
 
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 
 /// Worker responsible for updating the [RouterState.prefix] with the
 /// [MyUser.unreadChatsCount].
@@ -68,16 +70,33 @@ class MyUserWorker extends DisposableService {
     if (_lastUnreadChatsCount != count) {
       _lastUnreadChatsCount = count;
 
-      try {
-        if (await FlutterAppBadger.isAppBadgeSupported()) {
+      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+        try {
           if (count == 0) {
-            FlutterAppBadger.removeBadge();
+            await WindowsTaskbar.resetOverlayIcon();
           } else {
-            FlutterAppBadger.updateBadgeCount(count);
+            final String number = count > 9 ? '9+' : '$count';
+            await WindowsTaskbar.setOverlayIcon(
+              ThumbnailToolbarAssetIcon(
+                'assets/icons/notification/$number.ico',
+              ),
+            );
           }
+        } catch (_) {
+          // No-op.
         }
-      } catch (_) {
-        // No-op.
+      } else {
+        try {
+          if (await FlutterAppBadger.isAppBadgeSupported()) {
+            if (count == 0) {
+              await FlutterAppBadger.removeBadge();
+            } else {
+              await FlutterAppBadger.updateBadgeCount(count);
+            }
+          }
+        } catch (_) {
+          // No-op.
+        }
       }
     }
   }

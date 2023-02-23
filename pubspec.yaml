@@ -73,6 +73,10 @@ dependencies:
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
   rive: ^0.10.1
+  scrollable_positioned_list:
+    git:
+      url: https://github.com/SleepySquash/scrollable_positioned_list
+      path: packages/scrollable_positioned_list/
   sentry_flutter: ^6.19.0
   share_plus: ^6.3.0
   sliding_up_panel: ^2.0.0+1
@@ -84,6 +88,7 @@ dependencies:
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.3.0
+  windows_taskbar: ^1.1.1
 
 dev_dependencies:
   artemis: ^7.11.0-beta.1
@@ -121,6 +126,7 @@ flutter:
     - assets/conf.toml
     - assets/fonts/
     - assets/icons/
+    - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
