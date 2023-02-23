@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/file.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
