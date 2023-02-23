@@ -63,7 +63,7 @@ class HiveRxChat extends RxChat {
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        unreadCount = Rx(hiveChat.value.unreadCount);
+        unreadCount = RxInt(hiveChat.value.unreadCount);
 
   @override
   final Rx<Chat> chat;
@@ -93,7 +93,7 @@ class HiveRxChat extends RxChat {
   final RxList<LastChatRead> reads = RxList();
 
   @override
-  Rx<int> unreadCount;
+  final RxInt unreadCount;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -140,8 +140,8 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
-  /// [Timer] executing [ChatRepository.readChat].
-  Timer? _readTimer;
+  /// [AwaitableTimer] executing a [ChatRepository.readUntil].
+  AwaitableTimer? _readTimer;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -380,20 +380,19 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  @override
-  void read(ChatItemId untilId) {
-    int lastReadIndex =
+  /// Marks this [RxChat] as read until the provided [ChatItem] for the
+  /// authenticated [MyUser],
+  Future<void> read(ChatItemId untilId) async {
+    final int readUntil =
         messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
-    if (lastReadIndex != -1) {
-      Iterable<Rx<ChatItem>> unread =
-          messages.skip(messages.length - lastReadIndex);
-      unreadCount.value = unread.length;
+    if (readUntil != -1) {
+      unreadCount.value = messages.skip(messages.length - readUntil).length;
     }
 
     _readTimer?.cancel();
-    _readTimer = Timer(1.seconds, () async {
+    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
       try {
-        await _chatRepository.readChat(id, untilId);
+        await _chatRepository.readUntil(id, untilId);
       } catch (_) {
         unreadCount.value = chat.value.unreadCount;
         rethrow;
@@ -401,6 +400,8 @@ class HiveRxChat extends RxChat {
         _readTimer = null;
       }
     });
+
+    await _readTimer?.future;
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -1203,5 +1204,33 @@ extension ListInsertAfter<T> on List<T> {
     if (!done) {
       insert(0, element);
     }
+  }
+}
+
+/// [Timer] exposing its [future] to be awaited.
+class AwaitableTimer {
+  AwaitableTimer(Duration d, FutureOr Function() callback) {
+    _timer = Timer(d, () async {
+      try {
+        _completer.complete(await callback());
+      } catch (e, stackTrace) {
+        _completer.completeError(e, stackTrace);
+      }
+    });
+  }
+
+  /// [Timer] executing the callback.
+  late final Timer _timer;
+
+  /// [Completer] completing when [_timer] is done executing.
+  final _completer = Completer();
+
+  /// [Future] completing when this [AwaitableTimer] is finished.
+  Future get future => _completer.future;
+
+  /// Cancels this [AwaitableTimer].
+  void cancel() {
+    _timer.cancel();
+    _completer.complete();
   }
 }

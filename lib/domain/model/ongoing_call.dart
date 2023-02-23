@@ -268,8 +268,9 @@ class OngoingCall {
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
-  /// Stored [_toggleHand] operations.
-  final List<bool> _handTogglings = [];
+  /// [_toggleHand]s of the authenticated [MyUser] used to discard the
+  /// [connect]ed events following these invokes.
+  final List<bool> _handToggles = [];
 
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
@@ -398,15 +399,15 @@ class OngoingCall {
                 }
                 state.value = OngoingCallState.active;
               }
+
+              members[_me]?.isHandRaised.value = call.value?.members
+                      .firstWhereOrNull((e) => e.user.id == _me.userId)
+                      ?.handRaised ??
+                  false;
             }
 
             call.value = node.call;
             call.refresh();
-
-            members[_me]!.isHandRaised.value = call.value?.members
-                    .firstWhereOrNull((e) => e.user.id == _me.userId)
-                    ?.handRaised ??
-                false;
             break;
 
           case ChatCallEventsKind.event:
@@ -468,15 +469,15 @@ class OngoingCall {
                       isConnected: false,
                     );
                   }
-
                   break;
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
 
+                  // Ignore the event, if it's our hand and is already lowered.
                   if (node.user.id == _me.userId &&
-                      _handTogglings.firstOrNull == false) {
-                    _handTogglings.removeAt(0);
+                      _handToggles.firstOrNull == false) {
+                    _handToggles.removeAt(0);
                   } else {
                     for (MapEntry<CallMemberId, CallMember> m in members.entries
                         .where((e) => e.key.userId == node.user.id)) {
@@ -492,9 +493,11 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
+
+                  // Ignore the event, if it's our hand and is already raised.
                   if (node.user.id == _me.userId &&
-                      _handTogglings.firstOrNull == true) {
-                    _handTogglings.removeAt(0);
+                      _handToggles.firstOrNull == true) {
+                    _handToggles.removeAt(0);
                   } else {
                     for (MapEntry<CallMemberId, CallMember> m in members.entries
                         .where((e) => e.key.userId == node.user.id)) {
@@ -1077,6 +1080,7 @@ class OngoingCall {
 
   /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service) {
+    // Toggle the hands of all the devices of the authenticated [MyUser].
     for (MapEntry<CallMemberId, CallMember> m
         in members.entries.where((e) => e.key.userId == _me.userId)) {
       m.value.isHandRaised.toggle();
@@ -1091,7 +1095,7 @@ class OngoingCall {
 
       bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
-        _handTogglings.add(raised);
+        _handToggles.add(raised);
         await service.toggleHand(chatId.value, raised);
       });
 

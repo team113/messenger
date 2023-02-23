@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// [TextInputFormatter] converting all characters in a [TextField] to lower
+/// [TextInputFormatter] converting all characters in an [EditableText] to lower
 /// case.
 class LowerCaseTextFormatter extends TextInputFormatter {
   @override

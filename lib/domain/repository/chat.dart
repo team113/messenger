@@ -102,6 +102,21 @@ abstract class AbstractChatRepository {
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id);
 
+  /// Marks the specified [Chat] as read for the authenticated [MyUser] until
+  /// the specified [ChatItem] inclusively.
+  ///
+  /// There is no notion of a single [ChatItem] being read or not separately in
+  /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
+  /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
+  /// considered as read or not by comparing its [ChatItem.at with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
+  ///
+  /// This method should be called whenever the authenticated [MyUser] reads
+  /// new [ChatItem]s appeared in the [Chat]'s UI and directly influences the
+  /// [Chat.unreadCount] value.
+  Future<void> readChat(ChatId chatId, ChatItemId untilId);
+
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
 
@@ -218,7 +233,7 @@ abstract class RxChat {
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this
   /// [RxChat].
-  Rx<int> get unreadCount;
+  RxInt get unreadCount;
 
   /// Indicates whether this [RxChat] is blacklisted or not.
   bool get blacklisted =>
@@ -250,19 +265,4 @@ abstract class RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
-
-  /// Marks this [RxChat] as read for the authenticated [MyUser] until the
-  /// specified [ChatItem] inclusively.
-  ///
-  /// There is no notion of a single [ChatItem] being read or not separately in
-  /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
-  /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
-  ///
-  /// This method should be called whenever the authenticated [MyUser] reads
-  /// new [ChatItem]s appeared in the Chat's UI and directly influences the
-  /// [Chat.unreadCount] value.
-  void read(ChatItemId untilId);
 }

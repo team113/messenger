@@ -27,6 +27,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
@@ -214,11 +215,79 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    final RxChat chat = (await chatService
-        .get(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))!;
+    await chatService.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId(''),
+    );
 
-    chat.read(const ChatItemId(''));
-    await Future.delayed(2.seconds);
+    verify(graphQlProvider.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId(''),
+    ));
+  });
+
+  test('ChatService throws a ReadChatException', () async {
+    when(graphQlProvider.recentChats(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+    when(graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    )).thenAnswer(
+        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+
+    when(graphQlProvider.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId(''),
+    )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
+
+    Get.put(chatProvider);
+
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
+      ),
+    );
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+
+    Exception? exception;
+
+    try {
+      await chatService.readChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatItemId(''),
+      );
+    } on ReadChatException catch (e) {
+      exception = e;
+    }
+
+    assert(exception is ReadChatException);
 
     verify(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
