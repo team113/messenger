@@ -276,13 +276,18 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    expect(
-      () async => await chatService.readChat(
+    Exception? exception;
+
+    try {
+      await chatService.readChat(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatItemId(''),
-      ),
-      throwsA(isA<ReadChatException>()),
-    );
+      );
+    } on ReadChatException catch (e) {
+      exception = e;
+    }
+
+    assert(exception is ReadChatException);
 
     verify(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

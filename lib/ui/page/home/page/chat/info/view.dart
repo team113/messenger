@@ -74,7 +74,15 @@ class ChatInfoView extends StatelessWidget {
             appBar: CustomAppBar(
               title: Row(
                 children: [
-                  Center(child: AvatarWidget.fromRxChat(c.chat, radius: 17)),
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: Center(
+                      child: AvatarWidget.fromRxChat(c.chat, radius: 17),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Flexible(
                     child: DefaultTextStyle.merge(
@@ -115,7 +123,7 @@ class ChatInfoView extends StatelessWidget {
               leading: const [StyledBackButton()],
               actions: [
                 WidgetButton(
-                  onPressed: () => router.chat(id),
+                  onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
                     child: SvgLoader.asset(

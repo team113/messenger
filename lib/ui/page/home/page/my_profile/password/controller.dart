@@ -79,6 +79,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => newPassword.focus.requestFocus(),
     );
     newPassword = TextFieldState(
       onChanged: (s) {
@@ -91,6 +92,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
     );
     repeatPassword = TextFieldState(
       onChanged: (s) {
@@ -100,6 +102,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
+      onSubmitted: (s) => changePassword(),
     );
 
     super.onInit();
