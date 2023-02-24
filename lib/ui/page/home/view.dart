@@ -296,20 +296,27 @@ class _HomeViewState extends State<HomeView> {
                                   child: tab(
                                     tab: HomeTab.chats,
                                     child: Obx(() {
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: SvgLoader.asset(
-                                          c.myUser.value?.muted != null
-                                              ? 'assets/icons/chats_muted.svg'
-                                              : 'assets/icons/chats.svg',
-                                          key: Key(
-                                            c.myUser.value?.muted != null
-                                                ? 'Muted'
-                                                : 'Unmuted',
-                                          ),
+                                      final Widget child;
+
+                                      if (c.myUser.value?.muted != null) {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats_muted.svg',
+                                          key: const Key('Muted'),
                                           width: 36.06,
                                           height: 30,
-                                        ),
+                                        );
+                                      } else {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats.svg',
+                                          key: const Key('Unmuted'),
+                                          width: 36.06,
+                                          height: 30,
+                                        );
+                                      }
+
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: child,
                                       );
                                     }),
                                   ),

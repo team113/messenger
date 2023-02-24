@@ -19,8 +19,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/config.dart';
@@ -32,10 +30,12 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -74,7 +74,15 @@ class ChatInfoView extends StatelessWidget {
             appBar: CustomAppBar(
               title: Row(
                 children: [
-                  Center(child: AvatarWidget.fromRxChat(c.chat, radius: 17)),
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: Center(
+                      child: AvatarWidget.fromRxChat(c.chat, radius: 17),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Flexible(
                     child: DefaultTextStyle.merge(
@@ -115,7 +123,7 @@ class ChatInfoView extends StatelessWidget {
               leading: const [StyledBackButton()],
               actions: [
                 WidgetButton(
-                  onPressed: () => router.chat(id),
+                  onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
                     child: SvgLoader.asset(
@@ -304,32 +312,38 @@ class ChatInfoView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
-        SizedBox(
-          height: 20,
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'btn_upload'.l10n,
-                  recognizer: TapGestureRecognizer()..onTap = c.pickAvatar,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            WidgetButton(
+              key: const Key('UploadAvatar'),
+              onPressed: c.pickAvatar,
+              child: Text(
+                'btn_upload'.l10n,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 11,
                 ),
-                if (c.chat?.chat.value.avatar != null) ...[
-                  TextSpan(
-                    text: 'space_or_space'.l10n,
-                    style: const TextStyle(color: Colors.black, fontSize: 11),
-                  ),
-                  TextSpan(
-                    text: 'btn_delete'.l10n.toLowerCase(),
-                    recognizer: TapGestureRecognizer()..onTap = c.deleteAvatar,
-                  ),
-                ],
-              ],
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 11,
               ),
             ),
-          ),
+            if (c.chat?.chat.value.avatar != null) ...[
+              Text(
+                'space_or_space'.l10n,
+                style: const TextStyle(color: Colors.black, fontSize: 11),
+              ),
+              WidgetButton(
+                key: const Key('DeleteAvatar'),
+                onPressed: c.deleteAvatar,
+                child: Text(
+                  'btn_delete'.l10n.toLowerCase(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ],
     );

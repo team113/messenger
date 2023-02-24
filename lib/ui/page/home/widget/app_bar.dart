@@ -36,6 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.background,
     this.border,
     this.onBottom,
+    this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -50,6 +51,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
 
+  /// Margin to apply to the contents.
+  final EdgeInsets margin;
+
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
@@ -61,7 +65,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   static const double height = 60;
 
   @override
-  Size get preferredSize => const Size(double.infinity, CustomAppBar.height);
+  Size get preferredSize => const Size(double.infinity, height);
 
   @override
   Widget build(BuildContext context) {
@@ -189,11 +193,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.white,
+            color: Colors.transparent,
           ),
         Flexible(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            padding: margin,
             child: Container(
               // height: CustomAppBar.height,
               constraints: BoxConstraints(minHeight: height),
@@ -221,7 +225,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     border: border ?? style.cardBorder,
                     color: background ?? style.cardColor,
                   ),
-                  child: row,
+                  padding: padding,
+                  child: Row(
+                    children: [
+                      ...leading,
+                      Expanded(
+                        child: DefaultTextStyle.merge(
+                          style: Theme.of(context).appBarTheme.titleTextStyle,
+                          child:
+                              Center(child: title ?? const SizedBox.shrink()),
+                        ),
+                      ),
+                      ...actions,
+                    ],
+                  ),
                 ),
               ),
             ),

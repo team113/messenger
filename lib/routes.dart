@@ -590,30 +590,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             );
             deps.put<AbstractUserRepository>(userRepository);
-            AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(
-              CallRepository(
-                graphQlProvider,
-                userRepository,
-                Get.find(),
-                settingsRepository,
-                me: me,
-              ),
+            CallRepository callRepository = CallRepository(
+              graphQlProvider,
+              userRepository,
+              Get.find(),
+              settingsRepository,
+              me: me,
             );
-            AbstractChatRepository chatRepository =
-                deps.put<AbstractChatRepository>(
-              ChatRepository(
-                graphQlProvider,
-                Get.find(),
-                callRepository,
-                Get.find(),
-                userRepository,
-                Get.find(),
-                me: me,
-              ),
+            deps.put<AbstractCallRepository>(callRepository);
+            ChatRepository chatRepository = ChatRepository(
+              graphQlProvider,
+              Get.find(),
+              callRepository,
+              Get.find(),
+              userRepository,
+              Get.find(),
+              me: me,
             );
+            deps.put<AbstractChatRepository>(chatRepository);
 
             userRepository.getChat = chatRepository.get;
+            callRepository.ensureRemoteDialog =
+                chatRepository.ensureRemoteDialog;
 
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
@@ -783,8 +781,13 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id, [String route = Routes.chat]) =>
-      go('$route/$id${Routes.chatInfo}');
+  void chatInfo(ChatId id, {bool push = false}) {
+    if (push) {
+      this.push('${Routes.chat}/$id${Routes.chatInfo}');
+    } else {
+      go('${Routes.chat}/$id${Routes.chatInfo}');
+    }
+  }
 
   /// Changes router location to the [Routes.public] page.
   ///

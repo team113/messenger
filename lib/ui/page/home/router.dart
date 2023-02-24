@@ -59,6 +59,16 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.me,
           child: MyProfileView(),
         ));
+      } else if (route.startsWith('${Routes.chat}/') &&
+          route.endsWith(Routes.chatInfo)) {
+        String id = route
+            .replaceFirst('${Routes.chat}/', '')
+            .replaceAll(Routes.chatInfo, '');
+        pages.add(_CustomPage(
+          key: ValueKey('ChatInfoPage$id'),
+          name: '${Routes.chat}/$id${Routes.chatInfo}',
+          child: ChatInfoView(ChatId(id)),
+        ));
       } else if (route.startsWith('${Routes.chat}/')) {
         String id = route
             .replaceFirst('${Routes.chat}/', '')
@@ -71,14 +81,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             itemId: router.arguments?['itemId'] as ChatItemId?,
           ),
         ));
-
-        if (route.endsWith(Routes.chatInfo)) {
-          pages.add(_CustomPage(
-            key: ValueKey('ChatInfoPage$id'),
-            name: '${Routes.chat}/$id${Routes.chatInfo}',
-            child: ChatInfoView(ChatId(id)),
-          ));
-        }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
         pages.add(_CustomPage(

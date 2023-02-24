@@ -62,7 +62,8 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
+        unreadCount = RxInt(hiveChat.value.unreadCount);
 
   @override
   final Rx<Chat> chat;
@@ -90,6 +91,9 @@ class HiveRxChat extends RxChat {
 
   @override
   final RxList<LastChatRead> reads = RxList();
+
+  @override
+  final RxInt unreadCount;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -135,6 +139,9 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  /// [AwaitableTimer] executing a [ChatRepository.readUntil].
+  AwaitableTimer? _readTimer;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -227,8 +234,9 @@ class HiveRxChat extends RxChat {
       messages.clear();
       reads.clear();
       _muteTimer?.cancel();
+      _readTimer?.cancel();
       _localSubscription?.cancel();
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
@@ -370,6 +378,30 @@ class HiveRxChat extends RxChat {
 
       put(stored, ignoreVersion: true);
     }
+  }
+
+  /// Marks this [RxChat] as read until the provided [ChatItem] for the
+  /// authenticated [MyUser],
+  Future<void> read(ChatItemId untilId) async {
+    final int readUntil =
+        messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
+    if (readUntil != -1) {
+      unreadCount.value = messages.skip(messages.length - readUntil).length;
+    }
+
+    _readTimer?.cancel();
+    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
+      try {
+        await _chatRepository.readUntil(id, untilId);
+      } catch (_) {
+        unreadCount.value = chat.value.unreadCount;
+        rethrow;
+      } finally {
+        _readTimer = null;
+      }
+    });
+
+    await _readTimer?.future;
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -710,6 +742,10 @@ class HiveRxChat extends RxChat {
 
       _updateTitle();
     }
+
+    if (chat.value.unreadCount < unreadCount.value || _readTimer == null) {
+      unreadCount.value = chat.value.unreadCount;
+    }
   }
 
   /// Updates the [title].
@@ -801,7 +837,7 @@ class HiveRxChat extends RxChat {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscriptionInitialized = true;
 
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
@@ -929,6 +965,12 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.unreadItemsCountUpdated:
               event as EventChatUnreadItemsCountUpdated;
+              if (event.count < unreadCount.value || _readTimer == null) {
+                unreadCount.value = event.count;
+              } else if (event.count > chatEntity.value.unreadCount) {
+                unreadCount.value += event.count - chatEntity.value.unreadCount;
+              }
+
               chatEntity.value.unreadCount = event.count;
               break;
 
@@ -1166,5 +1208,33 @@ extension ListInsertAfter<T> on List<T> {
     if (!done) {
       insert(0, element);
     }
+  }
+}
+
+/// [Timer] exposing its [future] to be awaited.
+class AwaitableTimer {
+  AwaitableTimer(Duration d, FutureOr Function() callback) {
+    _timer = Timer(d, () async {
+      try {
+        _completer.complete(await callback());
+      } catch (e, stackTrace) {
+        _completer.completeError(e, stackTrace);
+      }
+    });
+  }
+
+  /// [Timer] executing the callback.
+  late final Timer _timer;
+
+  /// [Completer] completing when [_timer] is done executing.
+  final _completer = Completer();
+
+  /// [Future] completing when this [AwaitableTimer] is finished.
+  Future get future => _completer.future;
+
+  /// Cancels this [AwaitableTimer].
+  void cancel() {
+    _timer.cancel();
+    _completer.complete();
   }
 }

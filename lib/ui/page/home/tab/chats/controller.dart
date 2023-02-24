@@ -473,7 +473,8 @@ class ChatsTabController extends GetxController {
         name: null,
       );
 
-      router.chatInfo(chat.chat.value.id);
+      router.chat(chat.chat.value.id);
+      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -604,6 +605,12 @@ class ChatsTabController extends GetxController {
           return -1;
         } else if (c.chat.value.ongoingCall == null &&
             d.chat.value.ongoingCall != null) {
+          return 1;
+        }
+
+        if (a.chat.id.isLocal && !b.chat.id.isLocal) {
+          return -1;
+        } else if (!a.chat.id.isLocal && b.chat.id.isLocal) {
           return 1;
         }
 

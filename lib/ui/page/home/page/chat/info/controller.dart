@@ -89,7 +89,7 @@ class ChatInfoController extends GetxController {
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
+  /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
@@ -351,9 +351,6 @@ class ChatInfoController extends GetxController {
   Future<void> hideChat() async {
     try {
       await _chatService.hideChat(chatId);
-      if (router.route == '${Routes.chat}/$chatId') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

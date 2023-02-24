@@ -16,46 +16,51 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/user.dart';
 
+import '/domain/model/chat.dart';
+import '/domain/repository/user.dart';
+import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
 
-class ChatItemReadsController extends GetxController {
-  ChatItemReadsController({this.reads = const [], this.getUser});
+/// Controller of the [MessageInfo] popup.
+class MessageInfoController extends GetxController {
+  MessageInfoController(this._userService, {this.reads = const []});
 
-  /// [LastChatRead]s themselves.
+  /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
-  /// Callback, called when a [RxUser] identified by the provided [UserId] is
-  /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
+  /// [TextFieldState] of the search field.
   final TextFieldState search = TextFieldState();
 
-  final RxnString query = RxnString(null);
+  /// Reactive value of the [search] field.
+  final RxString query = RxString('');
+
+  /// [RxUser]s of the [reads].
   final RxList<RxUser> users = RxList();
+
+  /// [UserService] fetching the [users].
+  final UserService _userService;
 
   @override
   void onInit() {
-    init();
-
+    _fetchUsers();
     super.onInit();
   }
 
-  Future<void> init() async {
-    // for (var v in reads) {
-    //   RxUser? user = await getUser?.call(v.memberId);
-    //   print('user $user');
-    //   if (user != null) {
-    //     users.add(user);
-    //   }
-    // }
-
-    List<Future> futures = reads
-        .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))
+  /// Fetches the [users] from the [UserService].
+  Future<void> _fetchUsers() async {
+    final List<Future> futures = reads
+        .map((e) => _userService.get(e.memberId)
+          ..then((u) {
+            if (u != null) {
+              users.add(u);
+            }
+          }))
         .whereNotNull()
         .toList();
 

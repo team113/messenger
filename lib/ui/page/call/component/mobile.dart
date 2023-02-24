@@ -48,10 +48,13 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/animated_cliprrect.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -84,6 +87,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             return FloatingFit<Participant>(
               primary: c.primary.first,
               panel: c.secondary.first,
+              onSwapped: (p, _) => c.center(p),
               fit: !c.minimized.isFalse,
               intersection: c.dockRect,
               onManipulated: (bool m) => c.secondaryManipulated.value = m,
@@ -95,7 +99,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                       child: ParticipantWidget(
                         e,
                         offstageUntilDetermined: true,
-                        useCallCover: true,
                       ),
                     ),
                   ],
@@ -132,6 +135,49 @@ Widget mobileCall(CallController c, BuildContext context) {
                 final bool muted = e.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
+
+                // Builds the [Participant] with a [AnimatedClipRRect].
+                Widget builder(bool animated) {
+                  final Widget stack = Stack(
+                    children: [
+                      const ParticipantDecoratorWidget(),
+                      IgnorePointer(
+                        child: ParticipantWidget(
+                          e,
+                          offstageUntilDetermined: true,
+                        ),
+                      ),
+                      ParticipantOverlayWidget(
+                        e,
+                        muted: muted,
+                        hovered: animated,
+                        preferBackdrop: !c.minimized.value,
+                      ),
+                    ],
+                  );
+
+                  return AnimatedClipRRect(
+                    key: Key(e.member.id.toString()),
+                    borderRadius: animated
+                        ? BorderRadius.circular(10)
+                        : BorderRadius.zero,
+                    child: AnimatedContainer(
+                      duration: 200.milliseconds,
+                      decoration: BoxDecoration(
+                        color: animated
+                            ? const Color(0xFF132131)
+                            : const Color(0x00132131),
+                      ),
+                      width: animated
+                          ? MediaQuery.of(context).size.width - 20
+                          : null,
+                      height: animated
+                          ? MediaQuery.of(context).size.height / 2
+                          : null,
+                      child: stack,
+                    ),
+                  );
+                }
 
                 return ContextMenuRegion(
                   actions: [
@@ -195,57 +241,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       ),
                     ],
                   ],
-                  id: e.member.id.toString(),
                   unconstrained: true,
-                  child: Obx(() {
-                    final bool menu = ContextMenuRegion.displayed.value ==
-                        e.member.id.toString();
-
-                    final Widget stack = Stack(
-                      children: [
-                        const ParticipantDecoratorWidget(),
-                        IgnorePointer(
-                          child: ParticipantWidget(
-                            e,
-                            offstageUntilDetermined: true,
-                            useCallCover: true,
-                          ),
-                        ),
-                        ParticipantOverlayWidget(
-                          e,
-                          muted: muted,
-                          hovered: menu,
-                          preferBackdrop: !c.minimized.value,
-                        ),
-                      ],
-                    );
-
-                    if (!menu) {
-                      return stack;
-                    }
-
-                    return AnimatedClipRRect(
-                      key: Key(e.member.id.toString()),
-                      duration: 250.milliseconds,
-                      borderRadius:
-                          menu ? BorderRadius.circular(10) : BorderRadius.zero,
-                      child: AnimatedContainer(
-                        duration: 200.milliseconds,
-                        decoration: BoxDecoration(
-                          color: menu
-                              ? const Color.fromARGB(255, 19, 33, 49)
-                              : const Color.fromARGB(0, 19, 33, 49),
-                        ),
-                        width: menu
-                            ? MediaQuery.of(context).size.width - 20
-                            : null,
-                        height: menu
-                            ? MediaQuery.of(context).size.height / 2
-                            : null,
-                        child: stack,
-                      ),
-                    );
-                  }),
+                  builder: builder,
                 );
               });
             },

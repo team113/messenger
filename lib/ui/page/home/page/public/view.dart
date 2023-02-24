@@ -123,7 +123,7 @@ class _PublicViewState extends State<PublicView>
                     color: Colors.white,
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: () => router.chatInfo(widget.id, Routes.public),
+                      // onTap: () => router.chatInfo(widget.id, Routes.public),
                       child: Center(
                         child: AvatarWidget.fromRxChat(
                           c.chat,
@@ -138,7 +138,7 @@ class _PublicViewState extends State<PublicView>
                       splashFactory: NoSplash.splashFactory,
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
-                      onTap: () => router.chatInfo(widget.id, Routes.public),
+                      // onTap: () => router.chatInfo(widget.id, Routes.public),
                       child: DefaultTextStyle.merge(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

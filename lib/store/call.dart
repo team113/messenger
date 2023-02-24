@@ -54,6 +54,7 @@ class CallRepository extends DisposableInterface
 
   /// Callback, called when the provided [Chat] should be remotely accessible.
   Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
+
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
 

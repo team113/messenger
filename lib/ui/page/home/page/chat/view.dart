@@ -84,9 +84,16 @@ class _ChatViewState extends State<ChatView>
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType (${widget.id})',
     );
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    super.dispose();
   }
 
   @override
@@ -110,7 +117,7 @@ class _ChatViewState extends State<ChatView>
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
-              router.chatInfo(widget.id);
+              router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -245,6 +252,7 @@ class _ChatViewState extends State<ChatView>
                           ),
                           const SizedBox(width: 28),
                           WidgetButton(
+                            key: const Key('AudioCall'),
                             onPressed: c.paid && c.paidDisclaimer.value
                                 ? null
                                 : () => c.call(false),
@@ -1359,47 +1367,7 @@ class _ChatViewState extends State<ChatView>
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          filled: false,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
+      data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
           key: const Key('BlockedField'),

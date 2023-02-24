@@ -36,7 +36,8 @@ import 'mobile.dart';
 class ContextMenuRegion extends StatefulWidget {
   ContextMenuRegion({
     super.key,
-    required this.child,
+    this.child,
+    this.builder,
     this.enabled = true,
     this.moveDownwards = true,
     this.preventContextMenu = true,
@@ -52,7 +53,15 @@ class ContextMenuRegion extends StatefulWidget {
   }) : id = id ?? const Uuid().v4();
 
   /// Widget to wrap this region over.
-  final Widget child;
+  ///
+  /// Ignored, if [builder] is specified.
+  final Widget? child;
+
+  /// Builder building a [Widget] to wrap this region over depending on whether
+  /// the [ContextMenu] is displayed.
+  ///
+  /// [child] is ignored, if [builder] is specified.
+  final Widget Function(bool)? builder;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
@@ -96,6 +105,7 @@ class ContextMenuRegion extends StatefulWidget {
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
 
+  /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
 
   static RxnString displayed = RxnString();
@@ -110,22 +120,33 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// child.
   bool _darkened = false;
 
+  /// Indicator whether [ContextMenu] is displayed.
+  bool _displayed = false;
+
   @override
   Widget build(BuildContext context) {
+    Widget builder() {
+      if (widget.builder == null) {
+        return widget.child!;
+      }
+
+      return Builder(builder: (_) => widget.builder!(_displayed));
+    }
+
     final Widget child;
 
     if (_darkened) {
       final Style style = Theme.of(context).extension<Style>()!;
       child = Stack(
         children: [
-          widget.child,
+          builder(),
           Positioned.fill(
             child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
           ),
         ],
       );
     } else {
-      child = widget.child;
+      child = builder();
     }
 
     if (widget.enabled && widget.actions.isNotEmpty) {
@@ -159,7 +180,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       setState(() => _darkened = false);
                     }
                   },
-                  child: child,
+                  child: widget.builder == null
+                      ? child
+                      : Builder(builder: (_) => widget.builder!(_displayed)),
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
@@ -183,9 +206,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
     ContextMenuRegion.displayed.value = widget.id;
 
+    _displayed = true;
     if (widget.indicateOpenedMenu) {
-      setState(() => _darkened = true);
+      _darkened = true;
     }
+
+    setState(() {});
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -264,10 +290,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       );
     }
 
+    _displayed = false;
     if (widget.indicateOpenedMenu) {
-      setState(() => _darkened = false);
+      _darkened = false;
     }
 
     ContextMenuRegion.displayed.value = null;
+    setState(() {});
   }
 }

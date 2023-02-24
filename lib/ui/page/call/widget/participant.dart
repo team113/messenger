@@ -35,7 +35,7 @@ import 'video_view.dart';
 class ParticipantWidget extends StatelessWidget {
   const ParticipantWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.fit,
     this.muted = false,
     this.outline,
@@ -46,7 +46,7 @@ class ParticipantWidget extends StatelessWidget {
     this.borderRadius = BorderRadius.zero,
     this.useCallCover = false,
     this.expanded = false,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantWidget] represents.
   final Participant participant;

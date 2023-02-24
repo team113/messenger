@@ -35,6 +35,8 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
+- Windows:
+    - Unread chats count badge on app's icon. ([#342], [#327])    
 
 ### Changed
 
@@ -165,6 +167,7 @@ All user visible changes to this project will be documented in this file. This p
 [#317]: /../../pull/317
 [#319]: /../../pull/319
 [#323]: /../../pull/323
+[#327]: /../../issues/327
 [#328]: /../../issues/328
 [#330]: /../../issues/330
 [#332]: /../../pull/332
@@ -172,6 +175,7 @@ All user visible changes to this project will be documented in this file. This p
 [#336]: /../../pull/336
 [#337]: /../../pull/337
 [#340]: /../../pull/340
+[#342]: /../../pull/342
 [#347]: /../../pull/347
 
 

@@ -23,6 +23,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'allow_overflow.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 
@@ -235,7 +236,7 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? UnconstrainedBox(
+                                        ? AllowOverflow(
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
@@ -387,6 +388,9 @@ abstract class ReactiveFieldState {
   /// Indicator whether [controller]'s text should be approved.
   bool approvable = false;
 
+  /// Reactive [FocusNode.hasFocus] of this [ReactiveFieldState].
+  final RxBool isFocused = RxBool(false);
+
   /// Reactive error message.
   final RxnString error = RxnString();
 
@@ -426,19 +430,22 @@ class TextFieldState extends ReactiveFieldState {
       controller.addListener(() {
         changed.value = controller.text != _previousSubmit;
       });
-      this.focus.addListener(
-        () {
-          if (controller.text != _previousText &&
-              (_previousText != null || controller.text.isNotEmpty)) {
-            isEmpty.value = controller.text.isEmpty;
-            if (!this.focus.hasFocus) {
-              onChanged?.call(this);
-              _previousText = controller.text;
-            }
-          }
-        },
-      );
     }
+
+    this.focus.addListener(() {
+      isFocused.value = this.focus.hasFocus;
+
+      if (onChanged != null) {
+        if (controller.text != _previousText &&
+            (_previousText != null || controller.text.isNotEmpty)) {
+          isEmpty.value = controller.text.isEmpty;
+          if (!this.focus.hasFocus) {
+            onChanged?.call(this);
+            _previousText = controller.text;
+          }
+        }
+      }
+    });
   }
 
   /// Callback, called when the [text] has finished changing.

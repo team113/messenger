@@ -112,7 +112,7 @@ class ContactRepository implements AbstractContactRepository {
     contacts.forEach((k, v) => v.dispose());
     favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
   }
 
   @override

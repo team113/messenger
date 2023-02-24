@@ -92,6 +92,38 @@ class MessageFieldView extends StatelessWidget {
 
   final bool disabled;
 
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  static ThemeData theme(BuildContext context) {
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide.none,
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: const Color(0x55000000),
+      iconTheme: const IconThemeData(color: Colors.blue),
+      inputDecorationTheme: InputDecorationTheme(
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: Colors.white,
+        fillColor: Colors.white,
+        hoverColor: Colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(
+          15,
+          PlatformUtils.isDesktop ? 30 : 23,
+          15,
+          0,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -106,47 +138,7 @@ class MessageFieldView extends StatelessWidget {
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            shadowColor: const Color(0x55000000),
-            iconTheme: const IconThemeData(color: Colors.blue),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusColor: Colors.white,
-              fillColor: Colors.white,
-              hoverColor: Colors.transparent,
-              filled: true,
-              isDense: true,
-              contentPadding: EdgeInsets.fromLTRB(
-                15,
-                PlatformUtils.isDesktop ? 30 : 23,
-                15,
-                0,
-              ),
-            ),
-          ),
+          data: theme(context),
           child: SafeArea(
             child: Container(
               key: const Key('SendField'),
@@ -451,13 +443,16 @@ class MessageFieldView extends StatelessWidget {
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
                     ? c.pickFile
-                    : () => AttachmentSourceSelector.show(
+                    : () async {
+                        c.field.focus.unfocus();
+                        await AttachmentSourceSelector.show(
                           context,
                           onPickFile: c.pickFile,
                           onTakePhoto: c.pickImageFromCamera,
                           onPickMedia: c.pickMedia,
                           onTakeVideo: c.pickVideoFromCamera,
-                        )
+                        );
+                      }
                 : null,
             child: SizedBox(
               width: 56,
