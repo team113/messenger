@@ -52,7 +52,7 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Width of the line used to draw the circle.
   final double strokeWidth;
 
-  /// Padding to apply to the [CustomCircularProgressIndicator].
+  /// Padding to apply to the [_CustomCircularProgressIndicator].
   final EdgeInsets padding;
 
   /// Size of this [CustomProgressIndicator].
