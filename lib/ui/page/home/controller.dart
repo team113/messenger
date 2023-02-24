@@ -22,7 +22,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/balance.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -37,7 +39,13 @@ export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser, this._chatService, this._settings);
+  HomeController(
+    this._auth,
+    this._myUser,
+    this._chatService,
+    this._settings,
+    this._balanceService,
+  );
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -80,6 +88,8 @@ class HomeController extends GetxController {
   /// determine whether an [IntroductionView] was already shown.
   final AbstractSettingsRepository _settings;
 
+  final BalanceService _balanceService;
+
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
@@ -101,6 +111,9 @@ class HomeController extends GetxController {
 
   /// Returns the background's [Uint8List].
   Rx<Uint8List?> get background => _settings.background;
+
+  RxDouble get balance => _balanceService.balance;
+  RxList<Transaction> get transactions => _balanceService.transactions;
 
   @override
   void onInit() {

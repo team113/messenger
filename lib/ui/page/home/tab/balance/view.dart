@@ -23,6 +23,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/balance_provider.dart';
+import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -40,20 +41,18 @@ class BalanceTabView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: BalanceTabController(),
+      init: BalanceTabController(Get.find()),
       builder: (BalanceTabController c) {
         return Scaffold(
+          // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text('Balance: '),
-                SvgLoader.asset(
-                  'assets/icons/inter.svg',
-                  height: 13,
-                ),
+                SvgLoader.asset('assets/icons/inter.svg', height: 13),
                 const SizedBox(width: 1),
-                const Text('1000'),
+                Text('${c.balance.value.toInt()}'),
               ],
             ),
             leading: [
@@ -106,154 +105,159 @@ class BalanceTabView extends StatelessWidget {
           ),
           body: Obx(() {
             if (c.adding.value) {
-              return ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  children: [
-                    const SizedBox(height: 5),
-                    Obx(() {
-                      final textStyle = Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.black);
+              return SafeScrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    children: [
+                      const SizedBox(height: 5),
+                      Obx(() {
+                        final textStyle = Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: Colors.black);
 
-                      return AnimatedSizeAndFade.showHide(
-                        show: !c.hintDismissed.value,
-                        child: Center(
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ModalPopupHeader(
-                                  alwaysClose: true,
-                                  onClose: c.hintDismissed.toggle,
-                                  header: Center(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(text: 'What is '),
-                                          WidgetSpan(
-                                            child: Transform.translate(
-                                              offset: const Offset(0, -3.6),
-                                              child: SvgLoader.asset(
-                                                'assets/icons/inter.svg',
-                                                width: 6.25 * 0.99,
-                                                height: 13.25 * 0.99,
+                        return AnimatedSizeAndFade.showHide(
+                          show: !c.hintDismissed.value,
+                          child: Center(
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ModalPopupHeader(
+                                    alwaysClose: true,
+                                    onClose: c.hintDismissed.toggle,
+                                    header: Center(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(text: 'What is '),
+                                            WidgetSpan(
+                                              child: Transform.translate(
+                                                offset: const Offset(0, -3.6),
+                                                child: SvgLoader.asset(
+                                                  'assets/icons/inter.svg',
+                                                  width: 6.25 * 0.99,
+                                                  height: 13.25 * 0.99,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          TextSpan(text: ' (Inter)?'),
-                                        ],
-                                        style:
-                                            textStyle?.copyWith(fontSize: 18),
+                                            TextSpan(text: ' (Inter)?'),
+                                          ],
+                                          style:
+                                              textStyle?.copyWith(fontSize: 18),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(32, 12, 32, 18),
-                                  child: Center(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          WidgetSpan(
-                                            child: Transform.translate(
-                                              offset: const Offset(0, 0),
-                                              child: SvgLoader.asset(
-                                                'assets/icons/inter.svg',
-                                                width: 6.25 * 0.88,
-                                                height: 13.25 * 0.88,
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        32, 12, 32, 18),
+                                    child: Center(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            WidgetSpan(
+                                              child: Transform.translate(
+                                                offset: const Offset(0, 0),
+                                                child: SvgLoader.asset(
+                                                  'assets/icons/inter.svg',
+                                                  width: 6.25 * 0.88,
+                                                  height: 13.25 * 0.88,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          const TextSpan(
-                                            text:
-                                                ' (Inter) is an internal currency for purchasing services offered by Gapopa.\n\n',
-                                          ),
-                                          WidgetSpan(
-                                            child: Transform.translate(
-                                              offset: const Offset(0, 0),
-                                              child: SvgLoader.asset(
-                                                'assets/icons/inter.svg',
-                                                width: 6.25 * 0.88,
-                                                height: 13.25 * 0.88,
+                                            const TextSpan(
+                                              text:
+                                                  ' (Inter) is an internal currency for purchasing services offered by Gapopa.\n\n',
+                                            ),
+                                            WidgetSpan(
+                                              child: Transform.translate(
+                                                offset: const Offset(0, 0),
+                                                child: SvgLoader.asset(
+                                                  'assets/icons/inter.svg',
+                                                  width: 6.25 * 0.88,
+                                                  height: 13.25 * 0.88,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          const TextSpan(text: '100 = €1.00'),
-                                        ],
-                                        style:
-                                            textStyle?.copyWith(fontSize: 15),
+                                            const TextSpan(text: '100 = €1.00'),
+                                          ],
+                                          style:
+                                              textStyle?.copyWith(fontSize: 15),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
-                    ...BalanceProvider.values.map((e) {
-                      Widget button({
-                        required String title,
-                        required IconData icon,
-                      }) {
-                        return BalanceProviderWidget(
-                          title: title,
-                          leading: [Icon(icon)],
-                          onTap: () => router.balance(e),
                         );
-                      }
-
-                      switch (e) {
-                        case BalanceProvider.creditCard:
-                          return button(
-                            icon: Icons.credit_card,
-                            title: 'Credit card',
+                      }),
+                      ...BalanceProvider.values.map((e) {
+                        Widget button({
+                          required String title,
+                          required IconData icon,
+                        }) {
+                          return BalanceProviderWidget(
+                            title: title,
+                            leading: [Icon(icon)],
+                            onTap: () => router.balance(e),
                           );
+                        }
 
-                        case BalanceProvider.swift:
-                          return button(
-                            icon: Icons.account_balance,
-                            title: 'SWIFT transfer',
-                          );
+                        switch (e) {
+                          case BalanceProvider.creditCard:
+                            return button(
+                              icon: Icons.credit_card,
+                              title: 'Credit card',
+                            );
 
-                        case BalanceProvider.sepa:
-                          return button(
-                            icon: Icons.account_balance,
-                            title: 'SEPA transfer',
-                          );
+                          case BalanceProvider.swift:
+                            return button(
+                              icon: Icons.account_balance,
+                              title: 'SWIFT transfer',
+                            );
 
-                        case BalanceProvider.paypal:
-                          return button(
-                            icon: Icons.paypal,
-                            title: 'PayPal',
-                          );
+                          case BalanceProvider.sepa:
+                            return button(
+                              icon: Icons.account_balance,
+                              title: 'SEPA transfer',
+                            );
 
-                        default:
-                          return const SizedBox();
-                      }
-                    }),
-                    const SizedBox(height: 5),
-                  ]);
+                          case BalanceProvider.paypal:
+                            return button(
+                              icon: Icons.paypal,
+                              title: 'PayPal',
+                            );
+
+                          default:
+                            return const SizedBox();
+                        }
+                      }),
+                      const SizedBox(height: 5),
+                    ]),
+              );
             }
 
-            return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: const [
-                SizedBox(height: 5),
-                TransactionWidget(),
-                TransactionWidget(),
-                TransactionWidget(),
-                TransactionWidget(),
-                SizedBox(height: 5),
-              ],
+            return SafeScrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                children: [
+                  const SizedBox(height: 5),
+                  ...c.transactions.map((e) {
+                    return TransactionWidget(e);
+                  }),
+                  const SizedBox(height: 5),
+                ],
+              ),
             );
           }),
         );

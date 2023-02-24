@@ -15,12 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 
 import '/ui/widget/text_field.dart';
 
 class BalanceTabController extends GetxController {
-  BalanceTabController();
+  BalanceTabController(this._balanceService);
 
   final RxBool adding = RxBool(true);
   final RxBool hintDismissed = RxBool(false);
@@ -29,6 +32,13 @@ class BalanceTabController extends GetxController {
   final RxBool searching = RxBool(false);
 
   final RxnString query = RxnString(null);
+
+  final ScrollController scrollController = ScrollController();
+
+  final BalanceService _balanceService;
+
+  RxDouble get balance => _balanceService.balance;
+  RxList<Transaction> get transactions => _balanceService.transactions;
 
   void toggleAdding() {
     adding.toggle();

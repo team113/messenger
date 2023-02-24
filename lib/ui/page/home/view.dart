@@ -106,7 +106,13 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return GetBuilder(
-      init: HomeController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: HomeController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       builder: (HomeController c) {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
@@ -195,6 +201,14 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
+                        String _balance(double balance) {
+                          if (balance < 1000) {
+                            return balance.toInt().toString();
+                          } else {
+                            return '${balance ~/ 1000}k';
+                          }
+                        }
+
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -220,7 +234,9 @@ class _HomeViewState extends State<HomeView> {
                                             child: c.displayFunds
                                                 ? Text(
                                                     c.displayFunds
-                                                        ? '999'
+                                                        ? _balance(
+                                                            c.balance.value,
+                                                          )
                                                         : '\$',
                                                     style: TextStyle(
                                                       color: c.displayFunds
@@ -248,7 +264,9 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PartnerButton'),
-                                badge: c.displayTransactions ? '999' : null,
+                                badge: c.displayTransactions
+                                    ? '${c.transactions.length}'
+                                    : null,
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(

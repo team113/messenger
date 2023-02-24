@@ -34,7 +34,8 @@ import 'domain/service/auth.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
-import 'domain/service/funds.dart';
+import 'domain/service/balance.dart';
+import 'domain/service/partner.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
@@ -87,6 +88,7 @@ class Routes {
   static const menu = '/menu';
   static const user = '/user';
   static const balance = '/top_up';
+  static const transaction = '/transaction';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -539,7 +541,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 callRepository,
               ));
 
-              deps.put(FundsService());
+              deps.put<BalanceService>(BalanceService());
+              deps.put<PartnerService>(PartnerService());
 
               return deps;
             },
@@ -662,6 +665,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ));
 
             deps.put(MyUserWorker(myUserService));
+            deps.put<BalanceService>(BalanceService());
+            deps.put<PartnerService>(PartnerService());
 
             return deps;
           },
@@ -680,6 +685,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
+        _state.route.startsWith(Routes.transaction) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -803,6 +809,10 @@ extension RouteLinks on RouterState {
   void balance(BalanceProvider provider, {bool push = false}) => push
       ? this.push('${Routes.balance}/${provider.name}')
       : go('${Routes.balance}/${provider.name}');
+
+  void transaction(String id, {bool push = false}) => push
+      ? this.push('${Routes.transaction}/$id')
+      : go('${Routes.transaction}/$id');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

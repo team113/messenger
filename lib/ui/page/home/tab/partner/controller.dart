@@ -16,11 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/partner.dart';
 
 import '/ui/widget/text_field.dart';
 
 class PartnerTabController extends GetxController {
-  PartnerTabController();
+  PartnerTabController(this._partnerService);
+
+  final PartnerService _partnerService;
 
   final RxBool withdrawing = RxBool(false);
   final RxBool hintDismissed = RxBool(false);
@@ -29,6 +33,9 @@ class PartnerTabController extends GetxController {
   final RxBool searching = RxBool(false);
 
   final RxnString query = RxnString(null);
+
+  RxDouble get balance => _partnerService.balance;
+  RxList<Transaction> get transactions => _partnerService.transactions;
 
   void toggleAdding() {
     withdrawing.toggle();

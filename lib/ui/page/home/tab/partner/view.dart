@@ -21,6 +21,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/balance_provider.dart';
+import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -37,11 +38,12 @@ class PartnerTabView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: PartnerTabController(),
+      init: PartnerTabController(Get.find()),
       builder: (PartnerTabController c) {
         return Scaffold(
+          // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: const Text('Balance: \$10.00'),
+            title: Text('Balance: \$${c.balance.value / 100}'),
             leading: [
               WidgetButton(
                 onPressed: c.hintDismissed.toggle,
@@ -106,24 +108,25 @@ class PartnerTabView extends StatelessWidget {
                 );
               }
 
-              return ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                children: [
-                  button(title: 'SWIFT', icon: Icons.account_balance),
-                  button(title: 'SEPA', icon: Icons.account_balance),
-                  button(title: 'PayPal', icon: Icons.paypal),
-                ],
+              return SafeScrollbar(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  children: [
+                    button(title: 'SWIFT', icon: Icons.account_balance),
+                    button(title: 'SEPA', icon: Icons.account_balance),
+                    button(title: 'PayPal', icon: Icons.paypal),
+                  ],
+                ),
               );
             }
 
-            return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: const [
-                TransactionWidget(),
-                TransactionWidget(),
-                TransactionWidget(),
-                TransactionWidget(),
-              ],
+            return SafeScrollbar(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                children: c.transactions.map((e) {
+                  return TransactionWidget(e);
+                }).toList(),
+              ),
             );
           }),
         );

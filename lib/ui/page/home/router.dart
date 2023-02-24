@@ -28,6 +28,7 @@ import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/public/view.dart';
+import 'page/transaction/view.dart';
 import 'page/user/view.dart';
 import 'page/balance/view.dart';
 
@@ -118,6 +119,13 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: BalanceProviderView(
             BalanceProvider.values.firstWhere((e) => e.name == provider),
           ),
+        ));
+      } else if (route.startsWith('${Routes.transaction}/')) {
+        final id = route.replaceFirst('${Routes.transaction}/', '');
+        pages.add(_CustomPage(
+          key: ValueKey('TransactionPage$id'),
+          name: '${Routes.transaction}/$id',
+          child: TransactionView(id),
         ));
       }
     }
