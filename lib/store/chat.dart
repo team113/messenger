@@ -397,25 +397,19 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    HiveRxChat? chat = _chats[chatId];
-    int? previous = chat?.chat.value.unreadCount;
+    final HiveRxChat? chat = _chats[chatId];
 
     if (chat != null) {
-      int lastReadIndex = chat.messages.reversed
-          .toList()
-          .indexWhere((m) => m.value.id == untilId);
-      if (lastReadIndex != -1) {
-        Iterable<Rx<ChatItem>> unread =
-            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
-        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
-      }
+      await chat.read(untilId);
+    } else {
+      await readUntil(chatId, untilId);
     }
-    try {
-      await _graphQlProvider.readChat(chatId, untilId);
-    } catch (_) {
-      chat?.chat.update((c) => c?.unreadCount = previous!);
-      rethrow;
-    }
+  }
+
+  /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
+  /// authenticated [MyUser].
+  Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
+    await _graphQlProvider.readChat(chatId, untilId);
   }
 
   @override

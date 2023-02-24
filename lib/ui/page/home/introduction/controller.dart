@@ -91,6 +91,7 @@ class IntroductionController extends GetxController {
           }
         }
       },
+      onSubmitted: (_) => repeat.focus.requestFocus(),
     );
 
     repeat = TextFieldState(
@@ -114,6 +115,7 @@ class IntroductionController extends GetxController {
           }
         }
       },
+      onSubmitted: (_) => setPassword(),
     );
 
     super.onInit();

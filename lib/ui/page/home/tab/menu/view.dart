@@ -54,20 +54,13 @@ class MenuTabView extends StatelessWidget {
                     type: MaterialType.circle,
                     shadowColor: const Color(0x55000000),
                     color: Colors.white,
-                    child: InkWell(
-                      onTap: context.isNarrow &&
-                              ModalRoute.of(context)?.canPop == true
-                          ? Navigator.of(context).pop
-                          : null,
-                      customBorder: const CircleBorder(),
-                      child: Center(
-                        child: Obx(() {
-                          return AvatarWidget.fromMyUser(
-                            c.myUser.value,
-                            radius: 17,
-                          );
-                        }),
-                      ),
+                    child: Center(
+                      child: Obx(() {
+                        return AvatarWidget.fromMyUser(
+                          c.myUser.value,
+                          radius: 17,
+                        );
+                      }),
                     ),
                   ),
                   const SizedBox(width: 10),
