@@ -83,9 +83,7 @@ class AddPhoneView extends StatelessWidget {
                       key: const Key('ConfirmationCode'),
                       state: c.phoneCode,
                       label: 'label_confirmation_code'.l10n,
-                      formatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'\d')),
-                      ],
+                      formatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     const SizedBox(height: 25),
                     Obx(() {

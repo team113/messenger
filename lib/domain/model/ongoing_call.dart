@@ -382,6 +382,8 @@ class OngoingCall {
           case ChatCallEventsKind.chatCall:
             var node = e as ChatCallEventsChatCall;
 
+            _handToggles.clear();
+
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);

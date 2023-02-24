@@ -108,7 +108,7 @@ abstract class AbstractChatRepository {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at with the
+  /// considered as read or not by comparing its [ChatItem.at] with the
   /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
   /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
