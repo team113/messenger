@@ -25,7 +25,6 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/text_formatters.dart';
 import 'controller.dart';
 
 /// View for logging in or recovering access on.
@@ -232,7 +231,6 @@ class LoginView extends StatelessWidget {
                   key: const Key('UsernameField'),
                   state: c.login,
                   label: 'label_sign_in_input'.l10n,
-                  formatters: [LowerCaseTextFormatter()],
                 ),
                 const SizedBox(height: 16),
                 Column(

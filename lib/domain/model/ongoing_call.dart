@@ -400,7 +400,7 @@ class OngoingCall {
                 state.value = OngoingCallState.active;
               }
 
-              members[_me]?.isHandRaised.value = call.value?.members
+              members[_me]?.isHandRaised.value = node.call.members
                       .firstWhereOrNull((e) => e.user.id == _me.userId)
                       ?.handRaised ??
                   false;

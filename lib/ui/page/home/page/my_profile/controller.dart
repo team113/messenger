@@ -327,7 +327,7 @@ class MyProfileController extends GetxController {
         }
 
         try {
-          UserLogin(s.text);
+          UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_login_input'.l10n;
         }
@@ -338,7 +338,8 @@ class MyProfileController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.updateUserLogin(UserLogin(s.text));
+            await _myUserService
+                .updateUserLogin(UserLogin(s.text.toLowerCase()));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),

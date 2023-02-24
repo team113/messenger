@@ -44,7 +44,6 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/text_formatters.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
@@ -498,7 +497,6 @@ Widget _login(MyProfileController c, BuildContext context) {
           hint: c.myUser.value?.login == null
               ? 'label_login_hint'.l10n
               : c.myUser.value!.login!.val,
-          formatters: [LowerCaseTextFormatter()],
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),

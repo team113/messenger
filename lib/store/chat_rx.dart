@@ -742,6 +742,10 @@ class HiveRxChat extends RxChat {
 
       _updateTitle();
     }
+
+    if (chat.value.unreadCount < unreadCount.value || _readTimer == null) {
+      unreadCount.value = chat.value.unreadCount;
+    }
   }
 
   /// Updates the [title].
@@ -961,10 +965,10 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.unreadItemsCountUpdated:
               event as EventChatUnreadItemsCountUpdated;
-              if (event.count > chatEntity.value.unreadCount) {
-                unreadCount.value += event.count - chatEntity.value.unreadCount;
-              } else if (_readTimer == null) {
+              if (event.count < unreadCount.value || _readTimer == null) {
                 unreadCount.value = event.count;
+              } else if (event.count > chatEntity.value.unreadCount) {
+                unreadCount.value += event.count - chatEntity.value.unreadCount;
               }
 
               chatEntity.value.unreadCount = event.count;

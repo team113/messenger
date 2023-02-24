@@ -25,7 +25,6 @@ import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
-import '/util/text_formatters.dart';
 import 'controller.dart';
 
 /// View for adding and confirming an [UserEmail].
@@ -164,7 +163,6 @@ class AddEmailView extends StatelessWidget {
                       state: c.email,
                       label: 'label_email'.l10n,
                       hint: 'label_email_example'.l10n,
-                      formatters: [LowerCaseTextFormatter()],
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
