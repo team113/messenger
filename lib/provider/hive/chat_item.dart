@@ -15,24 +15,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
+import '/store/pagination.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
+class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
+    implements PageProvider<HiveChatItem> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -71,17 +74,53 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
-  /// Returns a list of [ChatItem]s from [Hive].
-  Iterable<HiveChatItem> get messages => valuesSafe;
-
   /// Puts the provided [ChatItem] to [Hive].
   Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
 
   /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  HiveChatItem? get(String timestamp) => getSafe(timestamp);
+  Future<HiveChatItem?> get(String timestamp) => getLazySafe(timestamp);
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
   Future<void> remove(String timestamp) => deleteSafe(timestamp);
+
+  @override
+  Future<List<HiveChatItem>> initial(int count) async {
+    final lazyBox = box as LazyBox<HiveChatItem>;
+    List<Future<HiveChatItem?>> futures = [];
+    for (int i = 0; i < count && lazyBox.length - (i + 1) > -1; i++) {
+      futures.add(lazyBox.getAt(lazyBox.length - (i + 1)));
+    }
+
+    return (await Future.wait(futures)).whereNotNull().toList();
+  }
+
+  @override
+  Future<List<HiveChatItem>> after(HiveChatItem after, int count) async {
+    final lazyBox = box as LazyBox<HiveChatItem>;
+    int index = lazyBox.keys.toList().indexOf(after.value.timestamp);
+    List<Future<HiveChatItem?>> futures = [];
+    if (index != -1) {
+      for (int i = 0; i < count && index - (i + 1) > -1; i++) {
+        futures.add(lazyBox.getAt(index - (i + 1)));
+      }
+    }
+
+    return (await Future.wait(futures)).whereNotNull().toList();
+  }
+
+  @override
+  Future<List<HiveChatItem>> before(HiveChatItem before, int count) async {
+    final lazyBox = box as LazyBox<HiveChatItem>;
+    int index = lazyBox.keys.toList().indexOf(before.value.timestamp);
+    List<Future<HiveChatItem?>> futures = [];
+    if (index != -1) {
+      for (int i = 0; i < count && index + i + 1 < lazyBox.length; i++) {
+        futures.add(lazyBox.getAt(index + i + 1));
+      }
+    }
+
+    return (await Future.wait(futures)).whereNotNull().toList();
+  }
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].

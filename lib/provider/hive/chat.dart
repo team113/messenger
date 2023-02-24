@@ -15,14 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
@@ -32,15 +32,18 @@ import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
+import '/store/pagination.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
 part 'chat.g.dart';
 
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
+class ChatHiveProvider extends HiveBaseProvider<HiveChat>
+    implements PageProvider<HiveChat> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -102,6 +105,27 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
 
   /// Removes a [Chat] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) => deleteSafe(id.val);
+
+  @override
+  Future<List<HiveChat>> after(HiveChat after, int count) async {
+    final sortedContacts = chats.sortedBy((e) => e.value.updatedAt);
+    int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
+    if (i != -1) {
+      return sortedContacts.skip(i + 1).take(count).toList();
+    }
+
+    return [];
+  }
+
+  @override
+  Future<List<HiveChat>> before(HiveChat before, int count) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<HiveChat>> initial(int count) async {
+    return chats.sortedBy((e) => e.value.updatedAt).take(count).toList();
+  }
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].

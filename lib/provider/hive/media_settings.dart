@@ -41,13 +41,13 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
 
   /// Stores a new video device [id] to [Hive].
   Future<void> setVideoDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
+      putSafe(0, (getSafe(0) ?? MediaSettings())..videoDevice = id);
 
   /// Stores a new audio device [id] to [Hive].
   Future<void> setAudioDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
+      putSafe(0, (getSafe(0) ?? MediaSettings())..audioDevice = id);
 
   /// Stores a new output device [id] to [Hive].
   Future<void> setOutputDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
+      putSafe(0, (getSafe(0) ?? MediaSettings())..outputDevice = id);
 }

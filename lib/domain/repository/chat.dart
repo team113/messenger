@@ -256,6 +256,9 @@ abstract class RxChat {
               .isBlacklisted ==
           true;
 
+  /// First [ChatItem] unread by the authenticated [MyUser].
+  Rx<ChatItem>? get firstUnreadItem;
+
   /// Fetches the initial [messages] page.
   Future<void> fetchInitial();
 

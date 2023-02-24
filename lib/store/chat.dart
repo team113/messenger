@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -151,9 +150,7 @@ class ChatRepository implements AbstractChatRepository {
     _initDraftSubscription();
 
     _fragment = PaginatedFragment<HiveChat>(
-      cache: _chatLocal.chats
-          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
-          .toList(),
+      cacheProvider: _chatLocal,
       compare: (a, b) => a.value.updatedAt.compareTo(b.value.updatedAt),
       equal: (a, b) => a.value.id == b.value.id,
       onDelete: (e) => _chatLocal.remove(e.value.id),
@@ -210,7 +207,7 @@ class ChatRepository implements AbstractChatRepository {
       _isReady.value = true;
     }
 
-    await Backoff.run(_fragment.loadInitialPage, _cancelToken);
+    await Backoff.run(_fragment.fetchInitialPage, _cancelToken);
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
@@ -289,7 +286,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> fetchNext() => _fragment.loadNextPage();
+  Future<void> fetchNext() => _fragment.fetchNextPage();
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
@@ -412,13 +409,21 @@ class ChatRepository implements AbstractChatRepository {
     int? previous = chat?.chat.value.unreadCount;
 
     if (chat != null) {
-      int lastReadIndex = chat.messages.reversed
-          .toList()
-          .indexWhere((m) => m.value.id == untilId);
-      if (lastReadIndex != -1) {
-        Iterable<Rx<ChatItem>> unread =
-            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
-        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
+      final messages = chat.messages.reversed.toList();
+      int firstUnreadIndex = 0;
+      if (chat.firstUnreadItem != null) {
+        firstUnreadIndex = messages.indexOf(chat.firstUnreadItem!);
+      }
+      int lastReadIndex =
+          messages.indexWhere((m) => m.value.id == untilId, firstUnreadIndex);
+
+      if (lastReadIndex != -1 && firstUnreadIndex != -1) {
+        int read = chat.messages
+            .skip(firstUnreadIndex + 1)
+            .take(lastReadIndex - firstUnreadIndex)
+            .where((e) => !e.value.id.isLocal)
+            .length;
+        chat.chat.update((c) => c!.unreadCount -= read);
       }
     }
     try {

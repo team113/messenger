@@ -15,19 +15,24 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/contact.dart';
+import '/store/pagination.dart';
 import 'base.dart';
 
 part 'contact.g.dart';
 
 /// [Hive] storage for [ChatContact]s.
-class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
+class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
+    implements PageProvider<HiveChatContact> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -61,6 +66,34 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 
   /// Removes an [ChatContact] from [Hive] by its [id].
   Future<void> remove(ChatContactId id) => deleteSafe(id.val);
+
+  @override
+  Future<List<HiveChatContact>> after(
+    HiveChatContact after,
+    int count,
+  ) async {
+    final sortedContacts =
+        contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
+    int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
+    if (i != -1) {
+      return sortedContacts.skip(i + 1).take(count).toList();
+    }
+
+    return [];
+  }
+
+  @override
+  Future<List<HiveChatContact>> before(HiveChatContact before, int count) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<HiveChatContact>> initial(int count) async {
+    return contacts
+        .sortedBy((e) => e.value.name.val + e.value.id.val)
+        .take(count)
+        .toList();
+  }
 }
 
 /// Persisted in [Hive] storage [ChatContact]'s [value].

@@ -1138,18 +1138,20 @@ class ChatController extends GetxController {
             LoadingElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
         elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
 
-        await chat!.fetchPrevious();
-
-        final double offset = listController.position.pixels;
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          keepPositionOffset.value = 50;
-          if (offset < loadingHeight) {
-            listController.jumpTo(
-              listController.position.pixels - (loadingHeight - offset + 10),
-            );
-          }
-          elements.remove(_bottomLoadingElement?.id);
-          _isPrevPageLoading = false;
+        chat!.fetchPrevious().whenComplete(() {
+          final double offset = listController.position.pixels;
+          print(listController.sliverController.getItemOffset(1));
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            keepPositionOffset.value = 50;
+            if (offset < loadingHeight) {
+              print('offset < loadingHeight: $offset < $loadingHeight');
+              listController.jumpTo(
+                listController.position.pixels - (loadingHeight + 40 - offset),
+              );
+            }
+            elements.remove(_bottomLoadingElement?.id);
+            _isPrevPageLoading = false;
+          });
         });
       }
     }
@@ -1168,28 +1170,17 @@ class ChatController extends GetxController {
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
   void _determineLastRead() {
-    PreciseDateTime? myRead = chat!.chat.value.lastReads
-        .firstWhereOrNull((e) => e.memberId == me)
-        ?.at;
-    if (chat!.chat.value.unreadCount != 0) {
-      if (myRead != null) {
-        _firstUnreadItem = chat!.messages.firstWhereOrNull(
-          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
-        );
-      } else {
-        _firstUnreadItem = chat!.messages.firstOrNull;
+    _firstUnreadItem = chat!.firstUnreadItem;
+
+    if (_firstUnreadItem != null) {
+      if (_unreadElement != null) {
+        elements.remove(_unreadElement!.id);
       }
 
-      if (_firstUnreadItem != null) {
-        if (_unreadElement != null) {
-          elements.remove(_unreadElement!.id);
-        }
-
-        PreciseDateTime at = _firstUnreadItem!.value.at;
-        at = at.subtract(const Duration(microseconds: 1));
-        _unreadElement = UnreadMessagesElement(at);
-        elements[_unreadElement!.id] = _unreadElement!;
-      }
+      PreciseDateTime at = _firstUnreadItem!.value.at;
+      at = at.subtract(const Duration(microseconds: 1));
+      _unreadElement = UnreadMessagesElement(at);
+      elements[_unreadElement!.id] = _unreadElement!;
     }
   }
 

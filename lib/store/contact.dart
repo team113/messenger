@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -100,8 +99,15 @@ class ContactRepository implements AbstractContactRepository {
     _initLocalSubscription();
 
     _fragment = PaginatedFragment<HiveChatContact>(
-      cache: _contactLocal.contacts.sortedBy((a) => a.value.name.val).toList(),
-      compare: (a, b) => a.value.name.val.compareTo(b.value.name.val),
+      cacheProvider: _contactLocal,
+      compare: (a, b) {
+        int result = a.value.name.val.compareTo(b.value.name.val);
+        if (result == 0) {
+          result = a.value.id.val.compareTo(b.value.id.val);
+        }
+
+        return result;
+      },
       equal: (a, b) => a.value.id == b.value.id,
       onDelete: (e) => _contactLocal.remove(e.value.id),
       onFetchPage: ({
@@ -155,7 +161,7 @@ class ContactRepository implements AbstractContactRepository {
       isReady.value = true;
     }
 
-    await Backoff.run(_fragment.loadInitialPage, _cancelToken);
+    await Backoff.run(_fragment.fetchInitialPage, _cancelToken);
 
     _initRemoteSubscription();
 
@@ -216,7 +222,7 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   @override
-  Future<void> fetchNext() => _fragment.loadNextPage();
+  Future<void> fetchNext() => _fragment.fetchNextPage();
 
   @override
   Future<void> favoriteChatContact(

@@ -74,10 +74,10 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
-  static const chat = '/chat';
+  static const chat = '/chats';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
-  static const contact = '/contact';
+  static const contact = '/contacts';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';

@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -25,17 +27,17 @@ import '/domain/model/user.dart';
 
 /// Base class for data providers backed by [Hive].
 abstract class HiveBaseProvider<T> extends DisposableInterface {
-  /// [Box] that contains all of the data.
-  late Box<T> _box;
+  /// [BoxBase] that contains all of the data.
+  late BoxBase<T> box;
+
+  /// Indicator whether this [BoxBase] is lazy.
+  bool _lazy = false;
 
   /// Indicates whether the underlying [Box] was opened and can be used.
   bool _isReady = false;
 
   /// [Mutex] that guards [_box] access.
   final Mutex _mutex = Mutex();
-
-  /// Returns the [Box] storing data of this [HiveBaseProvider].
-  Box<T> get box => _box;
 
   /// Indicates whether there are no entries in this [Box].
   bool get isEmpty => box.isEmpty;
@@ -53,8 +55,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [Box.values] returning all the values in the
   /// [box].
   Iterable<T> get valuesSafe {
-    if (_isReady && _box.isOpen) {
-      return box.values;
+    if (_isReady && box.isOpen && !_lazy) {
+      return (box as Box<T>).values;
     }
     return [];
   }
@@ -68,18 +70,27 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   ///
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
-  Future<void> init({UserId? userId}) async {
+  Future<void> init({UserId? userId, bool lazy = false}) async {
+    _lazy = lazy;
     registerAdapters();
     await _mutex.protect(() async {
       String name = userId == null ? boxName : '${userId}_$boxName';
       try {
-        _box = await Hive.openBox<T>(name);
+        if (lazy) {
+          box = await Hive.openLazyBox(name);
+        } else {
+          box = await Hive.openBox<T>(name);
+        }
       } catch (e) {
         await Future.delayed(Duration.zero);
         // TODO: This will throw if database scheme has changed.
         //       We should perform explicit migrations here.
         await Hive.deleteBoxFromDisk(name);
-        _box = await Hive.openBox<T>(name);
+        if (lazy) {
+          box = await Hive.openLazyBox(name);
+        } else {
+          box = await Hive.openBox<T>(name);
+        }
       }
       _isReady = true;
     });
@@ -96,11 +107,11 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Closes the [Box].
   @mustCallSuper
   Future<void> close() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
+        if (_isReady && box.isOpen) {
           _isReady = false;
 
           try {
-            await _box.close();
+            await box.close();
           } on FileSystemException {
             // No-op.
           }
@@ -115,7 +126,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) {
-    if (_isReady && _box.isOpen) {
+    if (_isReady && box.isOpen) {
       return box.put(key, value);
     }
     return Future.value();
@@ -124,8 +135,25 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
   T? getSafe(dynamic key, {T? defaultValue}) {
-    if (_isReady && _box.isOpen) {
-      return box.get(key, defaultValue: defaultValue);
+    if (_lazy) {
+      throw Exception('Use getLazySafe for lazy HiveBaseProvider');
+    }
+
+    if (_isReady && box.isOpen == true) {
+      return (box as Box<T>).get(key, defaultValue: defaultValue);
+    }
+    return null;
+  }
+
+  /// Exception-safe wrapper for [Box.get] returning the value associated with
+  /// the given [key], if any.
+  Future<T?> getLazySafe(dynamic key, {T? defaultValue}) async {
+    if (!_lazy) {
+      throw Exception('Use getSafe for not lazy HiveBaseProvider');
+    }
+
+    if (_isReady && box.isOpen) {
+      return (box as LazyBox<T>).get(key, defaultValue: defaultValue);
     }
     return null;
   }
@@ -133,7 +161,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
-    if (_isReady && _box.isOpen) {
+    if (_isReady && box.isOpen) {
       return box.delete(key);
     }
     return Future.value();

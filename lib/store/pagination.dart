@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show PageInfoMixin;
@@ -26,13 +25,13 @@ import '/util/obs/rxlist.dart';
 /// Helper to fetches items with pagination.
 class PaginatedFragment<T> {
   PaginatedFragment({
-    this.pageSize = 10,
+    this.pageSize = 30,
     this.initialCursor,
     required this.compare,
     required this.equal,
-    this.cache = const [],
     required this.onFetchPage,
     required this.onDelete,
+    this.cacheProvider,
     this.ignore,
   });
 
@@ -56,17 +55,17 @@ class PaginatedFragment<T> {
     String? before,
   }) onFetchPage;
 
-  /// Callback, called when an item deleted from the [cache].
+  /// Callback, called when an item deleted from the [cacheProvider].
   final void Function(T item) onDelete;
 
   /// [List] of the cached items.
-  List<T> cache;
+  PageProvider<T>? cacheProvider;
 
-  /// Indicates whether item should not be deleted from the [cache] if not
+  /// Indicates whether item should not be deleted from the [cacheProvider] if not
   /// exists on the remote.
   final bool Function(T)? ignore;
 
-  /// List of the elements fetched from [cache] and remote.
+  /// List of the elements fetched from [cacheProvider] and remote.
   final RxObsList<T> elements = RxObsList<T>();
 
   /// Indicator whether next page is exist.
@@ -75,11 +74,17 @@ class PaginatedFragment<T> {
   /// Indicator whether previous page is exist.
   final RxBool hasPreviousPage = RxBool(false);
 
+  /// Indicator whether this [PaginatedFragment] is initialized.
+  bool initialized = false;
+
   /// Elements uploaded from the remote.
   final List<T> _synced = [];
 
-  /// Indicator whether next page is loading.
+  /// Indicator whether next page is loading from the remote.
   bool _isNextPageLoading = false;
+
+  /// Indicator whether next page is loading from the cache.
+  bool _nextPageCacheLoading = false;
 
   /// Indicator whether previous page is loading.
   bool _isPrevPageLoading = false;
@@ -90,17 +95,21 @@ class PaginatedFragment<T> {
   /// Cursor to fetch the next page.
   String? _endCursor;
 
-  /// Gets initial page from the [cache].
-  void init() {
-    if (initialCursor != null) {
-      elements.addAll(cache.take(pageSize ~/ 2));
-    } else {
-      elements.addAll(cache.take(pageSize));
+  /// Gets initial page from the [cacheProvider].
+  Future<void> init() async {
+    if (cacheProvider != null) {
+      if (initialCursor != null) {
+        elements.addAll(await cacheProvider!.initial(pageSize ~/ 2));
+      } else {
+        elements.addAll(await cacheProvider!.initial(pageSize));
+      }
     }
+
+    initialized = true;
   }
 
   /// Fetches the initial page from the remote.
-  Future<void> loadInitialPage() async {
+  Future<void> fetchInitialPage() async {
     if (_synced.isNotEmpty) {
       // Return if initial page is already fetched.
       return;
@@ -136,25 +145,25 @@ class PaginatedFragment<T> {
   }
 
   /// Fetches next page of the [elements].
-  Future<void> loadNextPage() async {
-    if (hasNextPage.isFalse) {
+  Future<void> fetchNextPage() async {
+    if (hasNextPage.isFalse || _nextPageCacheLoading) {
       return;
     }
 
-    if (cache.length > elements.length) {
-      Future.sync(() async {
-        Iterable<T> cached = cache.skip(elements.length).take(pageSize);
-        for (T i in cached) {
-          elements.insertAfter(i, (e) => compare(i, e) == 1);
-        }
-      });
+    if (cacheProvider != null) {
+      _nextPageCacheLoading = true;
+      Iterable<T> cached = await cacheProvider!.after(elements.last, pageSize);
+      for (T i in cached) {
+        elements.insertAfter(i, (e) => compare(i, e) == 1);
+      }
+      _nextPageCacheLoading = false;
     }
 
-    await _loadNextPage();
+    await _fetchNextPage();
   }
 
   /// Fetches next page of the [elements].
-  Future<void> _loadNextPage({
+  Future<void> _fetchNextPage({
     Future<void> Function(List<T>)? onItemsLoaded,
   }) async {
     if (!_isNextPageLoading) {
@@ -182,7 +191,7 @@ class PaginatedFragment<T> {
 
         if (_synced.length < elements.length) {
           _isNextPageLoading = false;
-          await _loadNextPage(onItemsLoaded: onItemsLoaded);
+          await _fetchNextPage(onItemsLoaded: onItemsLoaded);
         }
       }
 
@@ -191,7 +200,7 @@ class PaginatedFragment<T> {
   }
 
   /// Fetches previous page of the [elements].
-  FutureOr<void> loadPreviousPage() async {
+  FutureOr<void> fetchPreviousPage() async {
     if (_isPrevPageLoading || hasPreviousPage.isFalse) {
       return;
     }
@@ -216,7 +225,7 @@ class PaginatedFragment<T> {
     _isPrevPageLoading = false;
   }
 
-  /// Inserts the provided [item] to the [_synced], [elements] and [cache].
+  /// Inserts the provided [item] to the [_synced], [elements].
   void _add(T item) {
     _synced.insertAfter(item, (e) => compare(item, e) == 1);
 
@@ -226,16 +235,12 @@ class PaginatedFragment<T> {
     } else {
       elements[i] = item;
     }
-
-    if (cache.none((e) => equal(e, item))) {
-      cache.insertAfter(item, (e) => compare(item, e) == 1);
-    }
   }
 
-  /// Synchronizes the provided [fetched] elements with the [cache].
+  /// Synchronizes the provided [fetched] elements with the [cacheProvider].
   void _syncItems(List<T> fetched) {
     List<T> secondary =
-        cache.skip(_synced.length).take(fetched.length).map((e) => e).toList();
+        elements.skip(_synced.length).take(fetched.length).toList();
 
     if (fetched.isEmpty || secondary.isEmpty) {
       return;
@@ -248,7 +253,6 @@ class PaginatedFragment<T> {
         if (fetched.indexWhere((e) => equal(i, e)) == -1) {
           if (compare(i, fetched.last) != -1) {
             onDelete(i);
-            cache.remove(i);
             elements.remove(i);
           } else {
             elements.remove(i);
@@ -266,4 +270,16 @@ abstract class ItemsPage<T> {
 
   /// Page info of this [ItemsPage].
   PageInfoMixin get pageInfo;
+}
+
+/// Base class for load items with pagination.
+abstract class PageProvider<T> {
+  /// Gets initial items.
+  Future<List<T>> initial(int count);
+
+  /// Gets items [after] the provided item.
+  Future<List<T>> after(T after, int count);
+
+  /// Gets items [before] the provided item.
+  Future<List<T>> before(T before, int count);
 }

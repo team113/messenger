@@ -61,13 +61,13 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   /// Stores new [Credentials] to [Hive].
   Future<void> setCredentials(Credentials credentials) =>
-      putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+      putSafe(0, (getSafe(0) ?? SessionData())..credentials = credentials);
 
   /// Stores a new [ChatContactsListVersion] to [Hive].
   Future<void> setChatContactsListVersion(ChatContactsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
+      putSafe(0, (getSafe(0) ?? SessionData())..chatContactsListVersion = ver);
 
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+      putSafe(0, (getSafe(0) ?? SessionData())..favoriteChatsListVersion = ver);
 }
