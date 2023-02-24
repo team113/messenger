@@ -296,6 +296,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
+    await Future.delayed(Duration(seconds: 5));
     List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
     return _guard.protect(() async {

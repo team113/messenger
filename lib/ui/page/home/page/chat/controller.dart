@@ -254,13 +254,13 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
-  /// Currently displayed [LoaderElement] in the [elements] list.
+  /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
 
-  /// [Timer] for the adding of the [_bottomLoader] in the [elements] list.
+  /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
 
-  /// [Timer] for the deleting of the [_bottomLoader] in the [elements] list.
+  /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
 
   /// Returns [MyUser]'s [UserId].
@@ -269,7 +269,7 @@ class ChatController extends GetxController {
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
 
-  /// Returns the current [ApplicationSettings] value.
+  /// Returns the [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
@@ -879,12 +879,13 @@ class ChatController extends GetxController {
         () {
           if (!status.value.isSuccess || status.value.isLoadingMore) {
             bottomLoader.value = true;
+
             _bottomLoader = LoaderElement(
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
                   PreciseDateTime.now()),
-              listController.position.pixels > 0,
             );
+
             elements[_bottomLoader!.id] = _bottomLoader!;
 
             if (listController.position.pixels >=
@@ -1418,12 +1419,8 @@ class UnreadMessagesElement extends ListElement {
 
 /// [ListElement] representing a [CustomProgressIndicator].
 class LoaderElement extends ListElement {
-  LoaderElement(PreciseDateTime at, [this.animateSize = false])
+  LoaderElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('2')));
-
-  /// Indicator whether the size of the [CustomProgressIndicator] needs to be
-  /// animated.
-  final bool animateSize;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

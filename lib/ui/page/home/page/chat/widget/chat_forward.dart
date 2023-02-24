@@ -103,8 +103,8 @@ class ChatForwardWidget extends StatefulWidget {
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
-  /// Indicator whether this [ChatItemWidget] should load the image stored in
-  /// it.
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is

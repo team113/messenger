@@ -711,7 +711,7 @@ class _ChatViewState extends State<ChatView>
           child = Center(
             key: const ValueKey(1),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(0, i == 0 ? 36 : 12, 0, 12),
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: const Center(
@@ -726,7 +726,7 @@ class _ChatViewState extends State<ChatView>
         } else {
           child = SizedBox(
             key: const ValueKey(2),
-            height: element.animateSize ? null : 64,
+            height: c.listController.position.pixels > 0 ? null : 64,
           );
         }
 

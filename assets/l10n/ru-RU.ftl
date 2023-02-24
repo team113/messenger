@@ -398,8 +398,8 @@ label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
-label_blocked_users = Заблокированные пользователи
 label_blocked_count = Заблокировано: {$count}
+label_blocked_users = Заблокированные пользователи
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
 label_call_calling = Звоним
@@ -536,6 +536,7 @@ label_language_entry = {$code}, {$name}
 label_last_seen = Был(а)
 label_leave_group = Покинуть группу
 label_link_to_chat = Ссылка на чат
+label_load_images = Загружать изображения
 label_login = Логин
 label_login_hint = Ваш уникальный логин
 label_login_options = Параметры входа
@@ -673,7 +674,6 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
-label_load_images = Загружать изображения
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_is_blocked = Пользователь заблокирован

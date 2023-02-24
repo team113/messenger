@@ -383,8 +383,8 @@ label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
 label_block = Block
-label_blocked_users = Blocked users
 label_blocked_count = Blocked: {$count}
+label_blocked_users = Blocked users
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling
@@ -520,6 +520,7 @@ label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
 label_leave_group = Leave group
 label_link_to_chat = Chat link
+label_load_images = Load images
 label_login = Login
 label_login_hint = Your unique login
 label_login_options = Login options
@@ -653,7 +654,6 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
-label_load_images = Load images
 label_use_search = Use search to find an user
 label_user = User
 label_user_is_blocked = User is blocked

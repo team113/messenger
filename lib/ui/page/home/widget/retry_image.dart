@@ -56,7 +56,8 @@ class RetryImage extends StatefulWidget {
     this.displayProgress = true,
   });
 
-  /// Constructs a [RetryImage] from the provided [attachment].
+  /// Constructs a [RetryImage] from the provided [attachment] loading the
+  /// [ImageAttachment.big] with a [ImageAttachment.small] fallback.
   factory RetryImage.attachment(
     ImageAttachment attachment, {
     BoxFit? fit,
@@ -101,7 +102,7 @@ class RetryImage extends StatefulWidget {
   /// SHA-256 checksum of the image to display.
   final String? checksum;
 
-  /// URL of an fallback image to display.
+  /// URL of a fallback image to display.
   final String? fallbackUrl;
 
   /// SHA-256 checksum of the fallback image to display.
@@ -155,6 +156,9 @@ class _RetryImageState extends State<RetryImage> {
   /// [CancelToken] canceling the [_loadImage] operation.
   CancelToken _cancelToken = CancelToken();
 
+  /// [CancelToken] canceling the [_loadFallback] operation.
+  final CancelToken _fallbackToken = CancelToken();
+
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
 
@@ -188,6 +192,7 @@ class _RetryImageState extends State<RetryImage> {
   @override
   void dispose() {
     _cancelToken.cancel();
+    _fallbackToken.cancel();
     super.dispose();
   }
 
@@ -315,9 +320,9 @@ class _RetryImageState extends State<RetryImage> {
           Positioned.fill(
             child: Center(
               child: AnimatedSwitcher(
-                key: Key('Image_${widget.url}'),
                 duration: const Duration(milliseconds: 150),
-                child: child,
+                child:
+                    KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
               ),
             ),
           ),
@@ -337,8 +342,10 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads the [_fallback] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  Future<void> _loadFallback() async {
-    if (widget.fallbackUrl == null) return;
+  FutureOr<void> _loadFallback() async {
+    if (widget.fallbackUrl == null) {
+      return;
+    }
 
     Uint8List? cached;
     if (widget.fallbackChecksum != null) {
@@ -351,31 +358,34 @@ class _RetryImageState extends State<RetryImage> {
         setState(() {});
       }
     } else {
-      await Backoff.run(() async {
-        Response? data;
+      await Backoff.run(
+        () async {
+          Response? data;
 
-        try {
-          data = await PlatformUtils.dio.get(
-            widget.fallbackUrl!,
-            options: Options(responseType: ResponseType.bytes),
-          );
-        } on DioError catch (e) {
-          if (e.response?.statusCode == 403) {
-            await widget.onForbidden?.call();
-          }
-        }
-
-        if (data?.data != null && data!.statusCode == 200) {
-          if (widget.fallbackChecksum != null) {
-            data.data.FIFOCache.set(widget.fallbackChecksum!, data.data);
+          try {
+            data = await PlatformUtils.dio.get(
+              widget.fallbackUrl!,
+              options: Options(responseType: ResponseType.bytes),
+            );
+          } on DioError catch (e) {
+            if (e.response?.statusCode == 403) {
+              await widget.onForbidden?.call();
+            }
           }
 
-          _fallback = data.data;
-          if (mounted) {
-            setState(() {});
+          if (data?.data != null && data!.statusCode == 200) {
+            if (widget.fallbackChecksum != null) {
+              FIFOCache.set(widget.fallbackChecksum!, data.data);
+            }
+
+            _fallback = data.data;
+            if (mounted) {
+              setState(() {});
+            }
           }
-        }
-      });
+        },
+        _fallbackToken,
+      );
     }
   }
 
