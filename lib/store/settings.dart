@@ -38,7 +38,7 @@ class SettingsRepository extends DisposableInterface
     this._mediaLocal,
     this._settingsLocal,
     this._backgroundLocal,
-    this._callPreferencesProvider,
+    this._callPreferencesLocal,
   );
 
   @override
@@ -59,9 +59,9 @@ class SettingsRepository extends DisposableInterface
   /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
 
-  /// [CallsPreferencesHiveProvider] persisting and returns chats call [Rect]
-  /// info.
-  final CallsPreferencesHiveProvider _callPreferencesProvider;
+  /// [CallsPreferencesHiveProvider] persisting the [Rect] preferences of the
+  /// [OngoingCall]s.
+  final CallsPreferencesHiveProvider _callPreferencesLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
@@ -141,10 +141,10 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) =>
-      _callPreferencesProvider.put(chatId, prefs);
+      _callPreferencesLocal.put(chatId, prefs);
 
   @override
-  Rect? getCallRect(ChatId id) => _callPreferencesProvider.get(id);
+  Rect? getCallRect(ChatId id) => _callPreferencesLocal.get(id);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {

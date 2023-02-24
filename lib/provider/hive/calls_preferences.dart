@@ -21,7 +21,7 @@ import '/domain/model_type_id.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
 
-/// [Hive] storage for [Rect]-preferences of the [OngoingCall]s.
+/// [Hive] storage for [Rect] preferences of the [OngoingCall]s.
 class CallsPreferencesHiveProvider extends HiveBaseProvider<Rect> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
@@ -34,10 +34,10 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<Rect> {
     Hive.maybeRegisterAdapter(_RectAdapter());
   }
 
-  /// Puts the provided [Rect]-preferences to [Hive].
+  /// Puts the provided [Rect] preferences to [Hive].
   Future<void> put(ChatId chatId, Rect prefs) => putSafe(chatId.val, prefs);
 
-  /// Returns a [Rect]-preferences from [Hive] by its [id].
+  /// Returns the [Rect] preferences from [Hive] by its [id].
   Rect? get(ChatId id) => getSafe(id.val);
 }
 
