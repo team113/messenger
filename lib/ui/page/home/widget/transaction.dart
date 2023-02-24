@@ -19,10 +19,10 @@ class TransactionWidget extends StatelessWidget {
 
     switch (transaction.status) {
       case TransactionStatus.failed:
-        status = const Icon(
-          Icons.error_outline,
-          size: 28,
-          color: Colors.red,
+        status = SvgLoader.asset(
+          'assets/icons/transaction_error.svg',
+          width: 20,
+          height: 20,
         );
         break;
 
@@ -36,16 +36,16 @@ class TransactionWidget extends StatelessWidget {
 
       case TransactionStatus.success:
         if (transaction is IncomingTransaction) {
-          status = const Icon(
-            Icons.arrow_circle_right_outlined,
-            size: 28,
-            color: Colors.green,
+          status = SvgLoader.asset(
+            'assets/icons/transaction_in.svg',
+            width: 20,
+            height: 20,
           );
         } else {
-          status = const Icon(
-            Icons.arrow_circle_left_outlined,
-            size: 28,
-            color: Color(0xFF888888),
+          status = SvgLoader.asset(
+            'assets/icons/transaction_out.svg',
+            width: 20,
+            height: 20,
           );
         }
         break;

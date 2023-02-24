@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/balance.dart';
+import 'package:messenger/domain/service/partner.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -45,6 +46,7 @@ class HomeController extends GetxController {
     this._chatService,
     this._settings,
     this._balanceService,
+    this._partnerService,
   );
 
   /// Maximal percentage of the screen's width which side bar can occupy.
@@ -89,6 +91,7 @@ class HomeController extends GetxController {
   final AbstractSettingsRepository _settings;
 
   final BalanceService _balanceService;
+  final PartnerService _partnerService;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
@@ -113,7 +116,7 @@ class HomeController extends GetxController {
   Rx<Uint8List?> get background => _settings.background;
 
   RxDouble get balance => _balanceService.balance;
-  RxList<Transaction> get transactions => _balanceService.transactions;
+  RxList<Transaction> get transactions => _partnerService.transactions;
 
   @override
   void onInit() {
