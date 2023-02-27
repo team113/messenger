@@ -1548,53 +1548,61 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Required to update x(left/right)|y(top/bottom) possition used by [resizeSecondary]
+  /// Update x(left/right)|y(top/bottom) possition
   void _updateSecondaryPossition({
-    required RxnDouble primaryPossitionLink,
-    required RxnDouble secondaryPossitionLink,
+    required RxnDouble primaryPossitionRef,
+    required RxnDouble secondaryPossitionRef,
     required Axis axis,
   }) {
     double parentEmptySpace = axis == Axis.horizontal
         ? size.width - secondaryWidth.value
         : size.height - secondaryHeight.value;
 
-    primaryPossitionLink.value ??=
-        parentEmptySpace - (secondaryPossitionLink.value ?? 0);
+    primaryPossitionRef.value ??=
+        parentEmptySpace - (secondaryPossitionRef.value ?? 0);
 
     // Nullify opposit offset
-    secondaryPossitionLink.value = null;
+    secondaryPossitionRef.value = null;
   }
 
   void _updateSecondarySize({
-    required RxnDouble primaryPossitionLink,
-    required double Function(double) applySizeFn,
-    required double? Function(double?) applyPossitionFn,
-    required double da,
+    required RxnDouble possitionRef,
+    required double? Function(double?) applyPossitionFnRef,
+    required double dAxis,
     required Axis axis,
-  }) async {
-    RxDouble currentSizeLink =
-        axis == Axis.horizontal ? secondaryWidth : secondaryHeight;
+  }) {
+    late RxDouble sizeAxisRef;
+    late double parentAxisSizeRef;
+    late double Function(double) applyAxisSizeFnRef;
 
-    double parentAxisSize = axis == Axis.horizontal ? size.width : size.height;
+    switch (axis) {
+      case Axis.horizontal:
+        sizeAxisRef = secondaryWidth;
+        parentAxisSizeRef = size.width;
+        applyAxisSizeFnRef = _applySWidth;
+        break;
+      case Axis.vertical:
+        sizeAxisRef = secondaryHeight;
+        parentAxisSizeRef = size.height;
+        applyAxisSizeFnRef = _applySHeight;
+        break;
+      default:
+        return;
+    }
 
-    double newSize = applySizeFn(currentSizeLink.value - da);
-    if (currentSizeLink.value - da == newSize) {
-      double? possition = applyPossitionFn(
-        primaryPossitionLink.value! + (currentSizeLink.value - newSize),
+    double newSize = applyAxisSizeFnRef(sizeAxisRef.value - dAxis);
+    if (sizeAxisRef.value - dAxis == newSize) {
+      double? possition = applyPossitionFnRef(
+        possitionRef.value! + (sizeAxisRef.value - newSize),
       );
 
-      if (primaryPossitionLink.value! + (currentSizeLink.value - newSize) ==
-          possition) {
-        primaryPossitionLink.value = possition;
-        currentSizeLink.value = newSize;
-      } else if (possition == parentAxisSize - currentSizeLink.value) {
-        primaryPossitionLink.value = parentAxisSize - newSize;
-        currentSizeLink.value = newSize;
+      if (possitionRef.value! + (sizeAxisRef.value - newSize) == possition) {
+        possitionRef.value = possition;
+        sizeAxisRef.value = newSize;
+      } else if (possition == parentAxisSizeRef - sizeAxisRef.value) {
+        possitionRef.value = parentAxisSizeRef - newSize;
+        sizeAxisRef.value = newSize;
       }
-
-      /*if (secondaryAlignment.value != null) {
-        secondaryHeight.value = _applySHeight(newSize * secondary.length);
-      }*/
     }
   }
 
@@ -1603,45 +1611,43 @@ class CallController extends GetxController {
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     if (x != null && dx != null) {
       // X offset link
-      RxnDouble xSidePrimaryValueLink =
+      RxnDouble xSidePrimaryValueRef =
           x == ScaleModeX.left ? secondaryLeft : secondaryRight;
-      RxnDouble xSideSecondaryValueLink =
+      RxnDouble xSideSecondaryValueRef =
           x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
       // Update possition
       _updateSecondaryPossition(
-        primaryPossitionLink: xSidePrimaryValueLink,
-        secondaryPossitionLink: xSideSecondaryValueLink,
+        primaryPossitionRef: xSidePrimaryValueRef,
+        secondaryPossitionRef: xSideSecondaryValueRef,
         axis: Axis.horizontal,
       );
 
       _updateSecondarySize(
-        primaryPossitionLink: xSidePrimaryValueLink,
-        applySizeFn: _applySWidth,
-        applyPossitionFn: x == ScaleModeX.left ? _applySLeft : _applySRight,
-        da: dx,
+        possitionRef: xSidePrimaryValueRef,
+        applyPossitionFnRef: x == ScaleModeX.left ? _applySLeft : _applySRight,
+        dAxis: dx,
         axis: Axis.horizontal,
       );
     }
 
     if (y != null && dy != null) {
       // Y offset link
-      RxnDouble ySidePrimaryValueLink =
+      RxnDouble ySidePrimaryValueRef =
           y == ScaleModeY.top ? secondaryTop : secondaryBottom;
-      RxnDouble ySideSecondaryValueLink =
+      RxnDouble ySideSecondaryValueRef =
           y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
       _updateSecondaryPossition(
-        primaryPossitionLink: ySidePrimaryValueLink,
-        secondaryPossitionLink: ySideSecondaryValueLink,
+        primaryPossitionRef: ySidePrimaryValueRef,
+        secondaryPossitionRef: ySideSecondaryValueRef,
         axis: Axis.vertical,
       );
 
       _updateSecondarySize(
-        primaryPossitionLink: ySidePrimaryValueLink,
-        applySizeFn: _applySHeight,
-        applyPossitionFn: y == ScaleModeY.top ? _applySTop : _applySBottom,
-        da: dy,
+        possitionRef: ySidePrimaryValueRef,
+        applyPossitionFnRef: y == ScaleModeY.top ? _applySTop : _applySBottom,
+        dAxis: dy,
         axis: Axis.vertical,
       );
     }
