@@ -381,7 +381,7 @@ class HiveRxChat extends RxChat {
     if (id.isLocal) {
       return;
     }
-    
+
     while (!_fragment.initialized) {
       await Future.delayed(1.milliseconds);
     }
@@ -487,14 +487,25 @@ class HiveRxChat extends RxChat {
       messages[i].refresh();
     }
   }
-  
+
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
   /// authenticated [MyUser],
   Future<void> read(ChatItemId untilId) async {
-    final int readUntil =
-        messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
-    if (readUntil != -1) {
-      unreadCount.value = messages.skip(messages.length - readUntil).length;
+    int firstUnreadIndex = 0;
+    if (firstUnreadItem != null) {
+      firstUnreadIndex = messages.indexOf(firstUnreadItem!);
+    }
+
+    int lastReadIndex =
+        messages.indexWhere((m) => m.value.id == untilId, firstUnreadIndex);
+
+    if (lastReadIndex != -1 && firstUnreadIndex != -1) {
+      int read = messages
+          .skip(firstUnreadIndex)
+          .take(lastReadIndex - firstUnreadIndex + 1)
+          .where((e) => !e.value.id.isLocal)
+          .length;
+      unreadCount.value = chat.value.unreadCount - read;
     }
 
     _readTimer?.cancel();
@@ -762,7 +773,7 @@ class HiveRxChat extends RxChat {
       subscribe();
       _localSubscription?.cancel();
 
-      final List<HiveChatItem> saved = _local.messages.toList();
+      final Iterable<HiveChatItem> saved = await _local.messages;
       await _local.clear();
       _local.close();
 
@@ -771,30 +782,10 @@ class HiveRxChat extends RxChat {
 
       saved.forEach(_local.put);
 
+      _fragment.cacheProvider = _local;
+
       _initLocalSubscription();
     }
-  }
-
-  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
-  Future<void> _initAttachments() async {
-    final List<Future> futures = [];
-
-    for (ChatItem item in messages.map((e) => e.value)) {
-      if (item is ChatMessage) {
-        futures.addAll(
-          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
-        );
-      } else if (item is ChatForward) {
-        ChatItem nested = item.item;
-        if (nested is ChatMessage) {
-          futures.addAll(
-            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
-          );
-        }
-      }
-    }
-
-    await Future.wait(futures);
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.

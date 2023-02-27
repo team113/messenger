@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -26,7 +27,7 @@ import 'package:universal_io/io.dart';
 import '/domain/model/user.dart';
 
 /// Base class for data providers backed by [Hive].
-abstract class HiveBaseProvider<T> extends DisposableInterface {
+abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   /// [BoxBase] that contains all of the data.
   late BoxBase<T> box;
 
@@ -57,6 +58,16 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   Iterable<T> get valuesSafe {
     if (_isReady && box.isOpen && !_lazy) {
       return (box as Box<T>).values;
+    }
+    return [];
+  }
+
+  /// Returns all the values in the lazy [box].
+  Future<Iterable<T>> get lazyValuesSafe async {
+    if (_isReady && box.isOpen && _lazy) {
+      return (await Future.wait(
+              (box as LazyBox<T>).keys.map((e) => lazyGetSafe(e))))
+          .whereNotNull();
     }
     return [];
   }
@@ -147,7 +158,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
-  Future<T?> getLazySafe(dynamic key, {T? defaultValue}) async {
+  Future<T?> lazyGetSafe(dynamic key, {T? defaultValue}) async {
     if (!_lazy) {
       throw Exception('Use getSafe for not lazy HiveBaseProvider');
     }

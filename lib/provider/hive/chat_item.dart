@@ -48,6 +48,13 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   String get boxName => 'messages_$id';
 
   @override
+  Future<void> init({UserId? userId, bool lazy = false}) {
+    assert(lazy, 'ChatItemHiveProvider can be only lazy');
+
+    return super.init(userId: userId, lazy: lazy);
+  }
+
+  @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
@@ -74,11 +81,14 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
+  /// Returns a list of [ChatItem]s from [Hive].
+  Future<Iterable<HiveChatItem>> get messages => lazyValuesSafe;
+
   /// Puts the provided [ChatItem] to [Hive].
   Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
 
   /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  Future<HiveChatItem?> get(String timestamp) => getLazySafe(timestamp);
+  Future<HiveChatItem?> get(String timestamp) => lazyGetSafe(timestamp);
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
   Future<void> remove(String timestamp) => deleteSafe(timestamp);

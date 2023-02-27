@@ -480,7 +480,8 @@ class ChatsTabView extends StatelessWidget {
                                 itemBuilder: (_, i) {
                                   final RxChat chat = chats[i];
 
-                                  Widget widget = AnimationConfiguration.staggeredList(
+                                  Widget widget =
+                                      AnimationConfiguration.staggeredList(
                                     position: i,
                                     duration: const Duration(milliseconds: 375),
                                     child: SlideAnimation(
@@ -518,18 +519,21 @@ class ChatsTabView extends StatelessWidget {
                                   );
 
                                   if (chats.length - 1 == i) {
-                                return Obx(() {
-                                  if (c.hasNext.isTrue) {
-                                    return Column(
-                                      children: [widget, _loadingIndicator()],
-                                    );
+                                    return Obx(() {
+                                      if (c.hasNext.isTrue) {
+                                        return Column(
+                                          children: [
+                                            widget,
+                                            _loadingIndicator()
+                                          ],
+                                        );
+                                      } else {
+                                        return widget;
+                                      }
+                                    });
                                   } else {
                                     return widget;
                                   }
-                                });
-                              } else {
-                                return widget;
-                              }
                                 },
                               );
                             }),

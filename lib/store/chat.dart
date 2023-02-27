@@ -208,17 +208,16 @@ class ChatRepository implements AbstractChatRepository {
       _isReady.value = true;
     }
 
-try {
-await Backoff.run(_fragment.fetchInitialPage, _cancelToken);
+    try {
+      await Backoff.run(_fragment.fetchInitialPage, _cancelToken);
 
-_initRemoteSubscription();
-    _initFavoriteChatsSubscription();
+      _initRemoteSubscription();
+      _initFavoriteChatsSubscription();
 
-    _isReady.value = true;
-} on OperationCanceledException catch (_) {
+      _isReady.value = true;
+    } on OperationCanceledException catch (_) {
       // No-op.
     }
-    
   }
 
   @override
@@ -277,7 +276,7 @@ _initRemoteSubscription();
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      final ChatData chat = _chat(
+      final HiveChat chat = _chat(
         await _graphQlProvider.createDialogChat(chatId.userId),
       );
 
@@ -1273,9 +1272,9 @@ _initRemoteSubscription();
     if (entry == null) {
       // If [data] is a remote [Chat]-dialog, then try to replace the existing
       // local [Chat], if any is associated with this [data].
-      if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
-        final ChatMember? member = data.chat.value.members.firstWhereOrNull(
-          (m) => data.chat.value.isMonolog || m.user.id != me,
+      if (data.value.isDialog && !data.value.id.isLocal) {
+        final ChatMember? member = data.value.members.firstWhereOrNull(
+          (m) => data.value.isMonolog || m.user.id != me,
         );
 
         if (member != null) {
@@ -1283,26 +1282,26 @@ _initRemoteSubscription();
           final HiveRxChat? localChat = chats[localId];
 
           if (localChat != null) {
-            chats.move(localId, data.chat.value.id);
-            await localChat.updateChat(data.chat.value);
+            chats.move(localId, data.value.id);
+            await localChat.updateChat(data.value);
             entry = localChat;
           }
 
-          _draftLocal.move(localId, data.chat.value.id);
+          _draftLocal.move(localId, data.value.id);
           remove(localId);
         }
       }
 
-      _putChat(data.chat);
+      _putChat(data);
 
       if (entry == null) {
-        entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
-        _chats[data.chat.value.id] = entry;
+        entry = HiveRxChat(this, _chatLocal, _draftLocal, data);
+        _chats[data.value.id] = entry;
         entry.init();
         entry.subscribe();
       }
     } else {
-      _putChat(data.chat);
+      _putChat(data);
     }
 
     return entry;
@@ -1418,28 +1417,24 @@ _initRemoteSubscription();
   /// [responderId] and the authenticated [MyUser].
   Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
-    final ChatData chatData = ChatData(
-      HiveChat(
-        Chat(
-          chatId,
-          members: [
-            if (responderId != me)
-              ChatMember(
-                (await _userRepo.get(responderId))!.user.value,
-                PreciseDateTime.now(),
-              ),
+    final HiveChat chatData = HiveChat(
+      Chat(
+        chatId,
+        members: [
+          if (responderId != me)
             ChatMember(
-              (await _userRepo.get(me!))!.user.value,
+              (await _userRepo.get(responderId))!.user.value,
               PreciseDateTime.now(),
             ),
-          ],
-          kindIndex: ChatKind.values
-              .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
-        ),
-        ChatVersion('0'),
-        null,
-        null,
+          ChatMember(
+            (await _userRepo.get(me!))!.user.value,
+            PreciseDateTime.now(),
+          ),
+        ],
+        kindIndex: ChatKind.values
+            .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
       ),
+      ChatVersion('0'),
       null,
       null,
     );
