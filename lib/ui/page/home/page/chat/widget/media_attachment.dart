@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/file.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -35,6 +34,7 @@ class MediaAttachment extends StatefulWidget {
     this.width,
     this.height,
     this.fit,
+    this.autoLoad = true,
     this.onError,
   });
 
@@ -49,6 +49,10 @@ class MediaAttachment extends StatefulWidget {
 
   /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
+
+  /// Indicator whether the [attachment] provided should be fetched as soon as
+  /// this [MediaAttachment] is displayed.
+  final bool autoLoad;
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
@@ -111,22 +115,14 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        final StorageFile image;
-
-        final StorageFile original = (attachment as ImageAttachment).original;
-        if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
-          image = original;
-        } else {
-          image = attachment.big;
-        }
-
-        return RetryImage(
-          image.url,
-          checksum: image.checksum,
+        return RetryImage.attachment(
+          attachment as ImageAttachment,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
           onForbidden: widget.onError,
+          cancelable: true,
+          autoLoad: widget.autoLoad,
         );
       }
     } else {

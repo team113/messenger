@@ -598,6 +598,7 @@ class RecentChatTile extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         onForbidden: onError,
+        displayProgress: false,
       );
     }
 
