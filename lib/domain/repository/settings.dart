@@ -71,4 +71,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled);
 }

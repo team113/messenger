@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
@@ -39,7 +40,7 @@ class ChatDirectLinkView extends StatelessWidget {
           child: Obx(
             () => c.slug.value == null
                 ? Text('label_unknown_page'.l10n)
-                : const CircularProgressIndicator(),
+                : const CustomProgressIndicator(),
           ),
         ),
       ),

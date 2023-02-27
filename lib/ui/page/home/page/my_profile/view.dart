@@ -39,6 +39,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -78,7 +79,7 @@ class MyProfileView extends StatelessWidget {
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
-                return const CircularProgressIndicator();
+                return const CustomProgressIndicator();
               }
 
               return Scrollbar(
@@ -137,7 +138,7 @@ class MyProfileView extends StatelessWidget {
                                               ),
                                               child: const Center(
                                                 child:
-                                                    CircularProgressIndicator(),
+                                                    CustomProgressIndicator(),
                                               ),
                                             )
                                           : const SizedBox.shrink(),
@@ -245,6 +246,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_audio_notifications'.l10n,
                           children: [_notifications(context, c)],
+                        );
+
+                      case ProfileTab.storage:
+                        return Block(
+                          title: 'label_storage'.l10n,
+                          children: [_storage(context, c)],
                         );
 
                       case ProfileTab.language:
@@ -1307,6 +1314,47 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
       ),
     ],
   );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: 'label_load_images'.l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(platform: TargetPlatform.macOS),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.settings.value?.loadImages == true,
+                    onChanged:
+                        c.settings.value == null ? null : c.setLoadImages,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

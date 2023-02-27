@@ -35,6 +35,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -65,7 +66,7 @@ class UserView extends StatelessWidget {
               body: Center(
                 child: c.status.value.isEmpty
                     ? Text('err_unknown_user'.l10n)
-                    : const CircularProgressIndicator(),
+                    : const CustomProgressIndicator(),
               ),
             );
           }
@@ -353,7 +354,7 @@ class UserView extends StatelessWidget {
                 if (c.blacklistStatus.value.isEmpty) {
                   child = const SizedBox();
                 } else {
-                  child = const CircularProgressIndicator();
+                  child = const CustomProgressIndicator();
                 }
 
                 return AnimatedSwitcher(

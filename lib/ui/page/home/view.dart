@@ -26,6 +26,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -95,7 +96,7 @@ class _HomeViewState extends State<HomeView> {
     if (_deps == null) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CustomProgressIndicator()),
       );
     }
 
@@ -336,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator()),
                   )
               ],
             );
