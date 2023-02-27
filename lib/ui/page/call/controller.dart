@@ -224,6 +224,8 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
+  double get secondaryScaleFactor => (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
@@ -1004,8 +1006,6 @@ class CallController extends GetxController {
 
   /// Toggles fullscreen on and off.
   Future<void> toggleFullscreen() async {
-    var sizeBeforToggle = size;
-
     if (fullscreen.isTrue) {
       fullscreen.value = false;
       await PlatformUtils.exitFullscreen();
@@ -1013,20 +1013,6 @@ class CallController extends GetxController {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
     }
-
-    // Find size dif and scale secondary panel on dif*scaleFactor
-    if (secondary.isNotEmpty) {
-      var heightDif = size.height - sizeBeforToggle.height;
-      var widthDif = size.height - sizeBeforToggle.height;
-
-      double scaleFactor =
-          (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
-
-      secondaryWidth.value = secondaryWidth.value + widthDif * scaleFactor;
-      secondaryHeight.value = secondaryHeight.value + heightDif * scaleFactor;
-    }
-
-    relocateSecondary();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1488,11 +1474,6 @@ class CallController extends GetxController {
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    print('call resize');
-
-    double baseHeightValue = height.value;
-    double baseWidthValue = width.value;
-
     switch (x) {
       case ScaleModeX.left:
         double w = _applyWidth(context, width.value - dx!);
@@ -1547,23 +1528,8 @@ class CallController extends GetxController {
         break;
     }
 
-    // Confirm that panel resized
-    bool shouldScaleSecondary =
-        baseHeightValue != height.value || baseWidthValue != width.value;
-
     // Update secondary constraints
     applySecondaryConstraints();
-
-    double scaleFactor =
-        (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
-
-    if (shouldScaleSecondary && secondary.isNotEmpty) {
-      double? sDx = (dx ?? 0) * scaleFactor;
-      double? sDy = (dy ?? 0) * scaleFactor;
-
-      secondaryWidth.value = secondaryWidth.value + (-sDx);
-      secondaryHeight.value = secondaryHeight.value + (-sDy);
-    }
   }
 
   /// Required to update x(left/right)|y(top/bottom) possition used by [resizeSecondary]
@@ -1579,12 +1545,8 @@ class CallController extends GetxController {
     primaryPossitionLink.value ??=
        parentEmptySpace - (secondaryPossitionLink.value ?? 0);
 
-    print('_updateSecondaryPossition: ${primaryPossitionLink.value} is the ref ${primaryPossitionLink == secondaryLeft}');
-
     // Nullify opposit offset
     secondaryPossitionLink.value = null;
-
-    print('_updateSecondaryPossition before end: ${primaryPossitionLink.value} is the ref ${primaryPossitionLink == secondaryLeft}');
   }
 
   void _updateSecondarySize({
@@ -1623,99 +1585,6 @@ class CallController extends GetxController {
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    /*secondaryLeft.value ??=
-        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
-    secondaryTop.value ??=
-        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
-    secondaryBottom.value = null;
-    secondaryRight.value = null;*/
-
-    /*switch (x) {
-      case ScaleModeX.left:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double? left = _applySLeft(
-            secondaryLeft.value! + (secondaryWidth.value - width),
-          );
-
-          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
-            secondaryLeft.value = left;
-            secondaryWidth.value = width;
-          } else if (left == size.width - secondaryWidth.value) {
-            secondaryLeft.value = size.width - width;
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeX.right:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double right = secondaryLeft.value! + width;
-          if (right < size.width) {
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
-    }*/
-    /*_updateSecondarySize(
-      primaryPossitionLink: ySidePrimaryValueLink,
-      applySizeFn: _applySHeight,
-      applyPossitionFn: x == ScaleModeY.top ? _applySTop : _applySBottom,
-      da: dy,
-      axis: Axis.vertical,
-    );*/
-    /*switch (y) {
-      case ScaleModeY.top:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double? top = _applySTop(
-            secondaryTop.value! + (secondaryHeight.value - height),
-          );
-
-          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
-            secondaryTop.value = top;
-            secondaryHeight.value = height;
-          } else if (top == size.height - secondaryHeight.value) {
-            secondaryTop.value = size.height - height;
-            secondaryHeight.value = height;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeY.bottom:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double bottom = secondaryTop.value! + height;
-          if (bottom < size.height) {
-            secondaryHeight.value = height;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
-    }*/
-
     if (x != null && dx != null) {
       // X offset link
       RxnDouble xSidePrimaryValueLink =
@@ -1762,6 +1631,30 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
+  }
+
+  /// Required for scale to find right width changes
+  BoxConstraints? _lastConstraints;
+  void scaleSecondary({
+    required BoxConstraints constraints,
+  }) {
+    if(_lastConstraints == constraints) {
+      return;
+    }
+
+    if(_lastConstraints != null) {
+      var heightDif = constraints.maxHeight -
+          (_lastConstraints?.maxHeight ?? 0);
+      var widthDif = constraints.maxWidth -
+          (_lastConstraints?.maxWidth ?? 0);
+
+      secondaryWidth.value = _applySWidth(secondaryWidth.value +
+          widthDif * secondaryScaleFactor);
+      secondaryHeight.value = _applySHeight(secondaryHeight.value +
+          heightDif * secondaryScaleFactor);
+    }
+
+    _lastConstraints = constraints;
   }
 
   /// Returns corrected according to secondary constraints [width] value.

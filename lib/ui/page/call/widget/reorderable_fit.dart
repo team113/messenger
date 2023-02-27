@@ -772,7 +772,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         key: _fitKey,
         fit: StackFit.expand,
         children: [
-          //TODO: remove this flag (SECONDARY_PANEL) stack is the parent
           if (widget.useWrap)
             Positioned(
               left: widget.left,
