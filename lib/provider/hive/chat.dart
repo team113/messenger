@@ -108,10 +108,11 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
 
   @override
   Future<List<HiveChat>> after(HiveChat after, int count) async {
-    final sortedContacts = chats.sortedBy((e) => e.value.updatedAt);
-    int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
+    final sortedChats =
+        chats.sortedBy((e) => e.value.updatedAt).reversed.toList();
+    int i = sortedChats.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
-      return sortedContacts.skip(i + 1).take(count).toList();
+      return sortedChats.skip(i + 1).take(count).toList();
     }
 
     return [];
@@ -124,7 +125,12 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
 
   @override
   Future<List<HiveChat>> initial(int count) async {
-    return chats.sortedBy((e) => e.value.updatedAt).take(count).toList();
+    return chats
+        .sortedBy((e) => e.value.updatedAt)
+        .reversed
+        .toList()
+        .take(count)
+        .toList();
   }
 }
 
