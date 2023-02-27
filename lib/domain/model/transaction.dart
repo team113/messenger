@@ -1,9 +1,11 @@
 import 'package:uuid/uuid.dart';
 
 enum TransactionStatus {
+  completed,
   failed,
+  sent,
   pending,
-  success,
+  declined,
 }
 
 abstract class Transaction {
@@ -11,7 +13,7 @@ abstract class Transaction {
     String? id,
     required this.amount,
     required this.at,
-    this.status = TransactionStatus.success,
+    this.status = TransactionStatus.completed,
   }) : id = id ?? const Uuid().v4();
 
   final String id;
@@ -25,7 +27,7 @@ class OutgoingTransaction extends Transaction {
     super.id,
     required super.amount,
     required super.at,
-    super.status = TransactionStatus.success,
+    super.status = TransactionStatus.completed,
   });
 }
 
@@ -34,6 +36,6 @@ class IncomingTransaction extends Transaction {
     super.id,
     required super.amount,
     required super.at,
-    super.status = TransactionStatus.success,
+    super.status = TransactionStatus.completed,
   });
 }

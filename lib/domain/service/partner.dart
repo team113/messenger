@@ -48,7 +48,7 @@ class PartnerService extends DisposableService {
 
     balance = RxDouble(
       transactions.map((e) {
-        if (e.status == TransactionStatus.success) {
+        if (e.status == TransactionStatus.completed) {
           return e.amount;
         }
 

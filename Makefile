@@ -436,8 +436,6 @@ endif
 		--label org.opencontainers.image.source=$(github_url)/$(github_repo) \
 		--label org.opencontainers.image.revision=$(strip \
 			$(shell git show --pretty=format:%H --no-patch)) \
-		--label org.opencontainers.image.version=$(subst v,,$(strip \
-			$(shell git describe --tags --dirty --match='v*'))) \
 		-t $(OWNER)/$(NAME)$(docker-image-path):$(or $(tag),dev) .
 
 

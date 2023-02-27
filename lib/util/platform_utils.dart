@@ -72,6 +72,7 @@ class PlatformUtilsImpl {
 
   /// Indicates whether device is running on a mobile OS.
   bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
+  // bool get isMobile => true;
 
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
@@ -394,12 +395,14 @@ extension MobileExtensionOnContext on BuildContext {
   bool get isMobile => PlatformUtils.isMobile
       ? MediaQuery.of(this).size.shortestSide < 600
       : false;
+  // bool get isMobile => true;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
   bool get isNarrow => PlatformUtils.isDesktop
       ? MediaQuery.of(this).size.width < 600
       : MediaQuery.of(this).size.shortestSide < 600;
+  // bool get isNarrow => true;
 }
 
 /// Listener interface for receiving window events.

@@ -110,7 +110,6 @@ class BalanceTabView extends StatelessWidget {
                 child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     children: [
-                      const SizedBox(height: 5),
                       Obx(() {
                         final textStyle = Theme.of(context)
                             .textTheme
@@ -121,6 +120,7 @@ class BalanceTabView extends StatelessWidget {
                           show: !c.hintDismissed.value,
                           child: Center(
                             child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -136,7 +136,7 @@ class BalanceTabView extends StatelessWidget {
                                       child: RichText(
                                         text: TextSpan(
                                           children: [
-                                            TextSpan(text: 'What is '),
+                                            const TextSpan(text: 'What is '),
                                             WidgetSpan(
                                               child: Transform.translate(
                                                 offset: const Offset(0, -3.6),
@@ -147,7 +147,7 @@ class BalanceTabView extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            TextSpan(text: ' (Inter)?'),
+                                            const TextSpan(text: ' (Inter)?'),
                                           ],
                                           style:
                                               textStyle?.copyWith(fontSize: 18),
@@ -157,7 +157,11 @@ class BalanceTabView extends StatelessWidget {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(
-                                        32, 12, 32, 18),
+                                      32,
+                                      12,
+                                      32,
+                                      18,
+                                    ),
                                     child: Center(
                                       child: RichText(
                                         text: TextSpan(
@@ -241,7 +245,6 @@ class BalanceTabView extends StatelessWidget {
                             return const SizedBox();
                         }
                       }),
-                      const SizedBox(height: 5),
                     ]),
               );
             }
@@ -251,11 +254,12 @@ class BalanceTabView extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 children: [
-                  const SizedBox(height: 5),
                   ...c.transactions.map((e) {
-                    return TransactionWidget(e);
+                    return TransactionWidget(
+                      e,
+                      currency: TransactionCurrency.inter,
+                    );
                   }),
-                  const SizedBox(height: 5),
                 ],
               ),
             );

@@ -34,8 +34,10 @@ class InsufficientFundsView extends StatelessWidget {
   final String description;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context,
-      {required String description}) {
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required String description,
+  }) {
     return ModalPopup.show(
       context: context,
       child: InsufficientFundsView(description: description),

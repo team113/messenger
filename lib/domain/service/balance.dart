@@ -30,30 +30,34 @@ class BalanceService extends DisposableService {
     transactions = RxList([
       OutgoingTransaction(
         amount: -50,
-        status: TransactionStatus.failed,
         at: DateTime.now().subtract(const Duration(hours: 2)),
+        status: TransactionStatus.failed,
       ),
       IncomingTransaction(
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 5)),
+        status: TransactionStatus.declined,
       ),
       IncomingTransaction(
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 12)),
+        status: TransactionStatus.pending,
       ),
       OutgoingTransaction(
         amount: -50,
         at: DateTime.now().subtract(const Duration(days: 20)),
+        status: TransactionStatus.sent,
       ),
       IncomingTransaction(
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 50)),
+        status: TransactionStatus.completed,
       ),
     ]);
 
     balance = RxDouble(
       transactions.map((e) {
-        if (e.status == TransactionStatus.success) {
+        if (e.status == TransactionStatus.completed) {
           return e.amount;
         }
 

@@ -123,9 +123,11 @@ class PartnerTabView extends StatelessWidget {
             return SafeScrollbar(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                children: c.transactions.map((e) {
-                  return TransactionWidget(e);
-                }).toList(),
+                children: [
+                  ...c.transactions.map((e) {
+                    return TransactionWidget(e);
+                  }).toList(),
+                ],
               ),
             );
           }),

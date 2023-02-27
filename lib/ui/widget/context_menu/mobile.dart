@@ -387,17 +387,19 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     List<Widget> widgets = [];
 
     for (int i = 0; i < widget.actions.length; ++i) {
-      widgets.add(widget.actions[i]);
+      if (widget.actions[i] is! ContextMenuDivider) {
+        widgets.add(widget.actions[i]);
 
-      // Add a divider, if required.
-      if (i < widget.actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
+        // Add a divider, if required.
+        if (i < widget.actions.length - 1) {
+          widgets.add(
+            Container(
+              color: const Color(0x11000000),
+              height: 1,
+              width: double.infinity,
+            ),
+          );
+        }
       }
     }
 

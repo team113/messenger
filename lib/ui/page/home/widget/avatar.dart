@@ -395,10 +395,7 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      double badgeSize = max(5, maxWidth / 10);
-      if (maxWidth < 40) {
-        badgeSize = maxWidth / 8;
-      }
+      final double badgeSize = maxWidth / 10;
 
       StorageFile? file;
 
