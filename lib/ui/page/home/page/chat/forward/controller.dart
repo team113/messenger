@@ -142,26 +142,22 @@ class ChatForwardController extends GetxController {
               );
             }),
             ...searchResults.value!.users.map((e) async {
-              Chat? dialog = e.user.value.dialog;
-              dialog ??= (await _chatService.createDialogChat(e.id)).chat.value;
+              ChatId dialog = e.user.value.dialog;
 
               return _chatService.forwardChatItems(
                 from,
-                dialog.id,
+                dialog,
                 send.quotes,
                 text: text,
                 attachments: attachments,
               );
             }),
             ...searchResults.value!.contacts.map((e) async {
-              Chat? dialog = e.user.value?.user.value.dialog;
-              dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
-                  .chat
-                  .value;
+              ChatId dialog = e.user.value!.user.value.dialog;
 
               return _chatService.forwardChatItems(
                 from,
-                dialog.id,
+                dialog,
                 send.quotes,
                 text: text,
                 attachments: attachments,

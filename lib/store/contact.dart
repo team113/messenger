@@ -173,7 +173,7 @@ class ContactRepository implements AbstractContactRepository {
     contacts.forEach((k, v) => v.dispose());
     favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _fragmentSubscription?.cancel();
   }
 
@@ -350,7 +350,7 @@ class ContactRepository implements AbstractContactRepository {
 
   /// Initializes [_chatContactsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
     );

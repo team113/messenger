@@ -141,7 +141,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   void dispose() {
     _localSubscription?.cancel();
     _blacklistSubscription?.cancel();
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
   }
 
@@ -519,7 +519,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
         myUser.value = null;
-        _remoteSubscription?.cancel();
+        _remoteSubscription?.close(immediate: true);
       } else {
         myUser.value = event.value?.value;
 
@@ -552,7 +552,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [_myUserRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription =
         StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
     await _remoteSubscription!.execute(_myUserRemoteEvent);

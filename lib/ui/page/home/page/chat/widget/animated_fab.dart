@@ -93,6 +93,7 @@ class _AnimatedFabState extends State<AnimatedFab>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+      debugLabel: '$runtimeType',
     )..addStatusListener(
         (status) {
           switch (status) {

@@ -249,7 +249,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -264,9 +263,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
-        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-        router.chat(dialog.id);
+        router.chat(user.user.value.dialog);
       }
     }
   }
@@ -304,9 +301,6 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -435,7 +429,8 @@ class ChatsTabController extends GetxController {
         name: null,
       );
 
-      router.chatInfo(chat.chat.value.id);
+      router.chat(chat.chat.value.id);
+      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -544,6 +539,12 @@ class ChatsTabController extends GetxController {
         return -1;
       } else if (a.chat.value.ongoingCall == null &&
           b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
+        return -1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
         return 1;
       }
 

@@ -69,11 +69,6 @@ class ChatService extends DisposableService {
     super.onClose();
   }
 
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId) =>
-      _chatRepository.createDialogChat(responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) =>
@@ -141,8 +136,9 @@ class ChatService extends DisposableService {
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {
-    if (router.route.startsWith('${Routes.chat}/$id')) {
-      router.home();
+    final Chat? chat = chats[id]?.chat.value;
+    if (chat != null) {
+      router.removeWhere((e) => chat.isRoute(e, me));
     }
 
     return _chatRepository.hideChat(id);
@@ -327,4 +323,20 @@ class ChatService extends DisposableService {
 
   /// Fetches the next [chats] page.
   FutureOr<void> fetchNext() => _chatRepository.fetchNext();
+}
+
+/// Extension adding a route from the [router] comparison with a [Chat].
+extension ChatIsRoute on Chat {
+  /// Indicates whether the provided [route] represents this [Chat].
+  bool isRoute(String route, UserId? me) {
+    final UserId? member =
+        members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
+
+    final bool byId = route.startsWith('${Routes.chat}/$id');
+    final bool byUser = isDialog &&
+        member != null &&
+        route.startsWith('${Routes.chat}/${ChatId.local(member)}');
+
+    return byId || byUser;
+  }
 }

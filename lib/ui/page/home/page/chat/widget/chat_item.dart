@@ -218,106 +218,111 @@ class ChatItemWidget extends StatefulWidget {
 
     return Padding(
       padding: EdgeInsets.zero,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: isLocal
-            ? null
-            : () {
-                final List<Attachment> attachments = onGallery?.call() ?? media;
+      child: MouseRegion(
+        cursor: isLocal ? MouseCursor.defer : SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: isLocal
+              ? null
+              : () {
+                  final List<Attachment> attachments =
+                      onGallery?.call() ?? media;
 
-                int initial = attachments.indexOf(e);
-                if (initial == -1) {
-                  initial = 0;
-                }
-
-                List<GalleryItem> gallery = [];
-                for (var o in attachments) {
-                  StorageFile file = o.original;
-                  GalleryItem? item;
-
-                  if (o is FileAttachment) {
-                    item = GalleryItem.video(
-                      file.url,
-                      o.filename,
-                      size: file.size,
-                      checksum: file.checksum,
-                      onError: () async {
-                        await onError?.call();
-                        item?.link = o.original.url;
-                      },
-                    );
-                  } else if (o is ImageAttachment) {
-                    item = GalleryItem.image(
-                      file.url,
-                      o.filename,
-                      size: file.size,
-                      checksum: file.checksum,
-                      onError: () async {
-                        await onError?.call();
-                        item?.link = o.original.url;
-                      },
-                    );
+                  int initial = attachments.indexOf(e);
+                  if (initial == -1) {
+                    initial = 0;
                   }
 
-                  gallery.add(item!);
-                }
+                  List<GalleryItem> gallery = [];
+                  for (var o in attachments) {
+                    StorageFile file = o.original;
+                    GalleryItem? item;
 
-                GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    children: gallery,
-                    initial: initial,
-                    initialKey: key,
-                  ),
-                );
-              },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            filled
-                ? Positioned.fill(child: attachment)
-                : Container(
-                    constraints: const BoxConstraints(minWidth: 300),
-                    width: double.infinity,
-                    child: attachment,
-                  ),
-            ElasticAnimatedSwitcher(
-              key: Key('AttachmentStatus_${e.id}'),
-              child: !isLocal
-                  ? Container(key: const Key('Sent'))
-                  : Container(
-                      constraints: filled
-                          ? const BoxConstraints(minWidth: 300, minHeight: 300)
-                          : null,
-                      child: e.status.value == SendingStatus.sent
-                          ? const Icon(
-                              Icons.check_circle,
-                              key: Key('Sent'),
-                              size: 48,
-                              color: Colors.green,
-                            )
-                          : e.status.value == SendingStatus.sending
-                              ? SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      key: const Key('Sending'),
-                                      value: e.progress.value,
-                                      backgroundColor: Colors.white,
-                                      strokeWidth: 10,
-                                    ),
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.error,
-                                  key: Key('Error'),
-                                  size: 48,
-                                  color: Colors.red,
-                                ),
+                    if (o is FileAttachment) {
+                      item = GalleryItem.video(
+                        file.url,
+                        o.filename,
+                        size: file.size,
+                        checksum: file.checksum,
+                        onError: () async {
+                          await onError?.call();
+                          item?.link = o.original.url;
+                        },
+                      );
+                    } else if (o is ImageAttachment) {
+                      item = GalleryItem.image(
+                        file.url,
+                        o.filename,
+                        size: file.size,
+                        checksum: file.checksum,
+                        onError: () async {
+                          await onError?.call();
+                          item?.link = o.original.url;
+                        },
+                      );
+                    }
+
+                    gallery.add(item!);
+                  }
+
+                  GalleryPopup.show(
+                    context: context,
+                    gallery: GalleryPopup(
+                      children: gallery,
+                      initial: initial,
+                      initialKey: key,
                     ),
-            )
-          ],
+                  );
+                },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              filled
+                  ? Positioned.fill(child: attachment)
+                  : Container(
+                      constraints: const BoxConstraints(minWidth: 300),
+                      width: double.infinity,
+                      child: attachment,
+                    ),
+              ElasticAnimatedSwitcher(
+                key: Key('AttachmentStatus_${e.id}'),
+                child: !isLocal
+                    ? Container(key: const Key('Sent'))
+                    : Container(
+                        constraints: filled
+                            ? const BoxConstraints(
+                                minWidth: 300, minHeight: 300)
+                            : null,
+                        child: e.status.value == SendingStatus.sent
+                            ? const Icon(
+                                Icons.check_circle,
+                                key: Key('Sent'),
+                                size: 48,
+                                color: Colors.green,
+                              )
+                            : e.status.value == SendingStatus.sending
+                                ? SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        key: const Key('Sending'),
+                                        value: e.progress.value,
+                                        backgroundColor: Colors.white,
+                                        strokeWidth: 10,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.error,
+                                    key: Key('Error'),
+                                    size: 48,
+                                    color: Colors.red,
+                                  ),
+                      ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -1089,7 +1094,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .toList();
 
         if (item.attachments.length > 3) {
-          final int count = max(item.attachments.length - 3, 99);
+          final int count = (item.attachments.length - 3).clamp(1, 99);
 
           additional.add(
             Container(
@@ -1316,8 +1321,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding:
-          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1385,40 +1389,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
-                  child: AnimatedDelayedSwitcher(
-                    delay: item.status.value == SendingStatus.sending
-                        ? const Duration(seconds: 2)
-                        : Duration.zero,
-                    child: item.status.value == SendingStatus.sending
-                        ? const Padding(
-                            key: Key('Sending'),
-                            padding: EdgeInsets.only(bottom: 8),
-                            child: Icon(Icons.access_alarm, size: 15),
-                          )
-                        : item.status.value == SendingStatus.error
-                            ? const Padding(
-                                key: Key('Error'),
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Icon(
-                                  Icons.error_outline,
-                                  size: 15,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : Container(key: const Key('Sent')),
-                  ),
+                  child: Obx(() {
+                    return AnimatedDelayedSwitcher(
+                      delay: item.status.value == SendingStatus.sending
+                          ? const Duration(seconds: 2)
+                          : Duration.zero,
+                      child: item.status.value == SendingStatus.sending
+                          ? const Padding(
+                              key: Key('Sending'),
+                              padding: EdgeInsets.only(bottom: 8),
+                              child: Icon(Icons.access_alarm, size: 15),
+                            )
+                          : item.status.value == SendingStatus.error
+                              ? const Padding(
+                                  key: Key('Error'),
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Icon(
+                                    Icons.error_outline,
+                                    size: 15,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              : Container(key: const Key('Sent')),
+                    );
+                  }),
                 ),
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
                   padding: EdgeInsets.only(top: 8 + avatarOffset),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => router.user(item.authorId, push: true),
-                    child: Opacity(
-                      opacity: widget.avatar ? 1 : 0,
-                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
-                    ),
-                  ),
+                  child: widget.avatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => router.user(item.authorId, push: true),
+                          child:
+                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                        )
+                      : const SizedBox.square(dimension: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {

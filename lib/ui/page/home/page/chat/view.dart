@@ -78,9 +78,16 @@ class _ChatViewState extends State<ChatView>
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType (${widget.id})',
     );
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    super.dispose();
   }
 
   @override
@@ -104,7 +111,7 @@ class _ChatViewState extends State<ChatView>
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
-              router.chatInfo(widget.id);
+              router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -208,6 +215,7 @@ class _ChatViewState extends State<ChatView>
                               ),
                               const SizedBox(width: 28),
                               WidgetButton(
+                                key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
                                 child: SvgLoader.asset(
                                   'assets/icons/chat_audio_call.svg',
@@ -386,6 +394,7 @@ class _ChatViewState extends State<ChatView>
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
+                                    disableCacheItems: true,
                                   ),
                                 );
                               }),
