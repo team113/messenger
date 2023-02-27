@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -609,35 +610,187 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Style style = Theme.of(context).extension<Style>()!;
     final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
 
-    final Widget content;
+    final Widget content = FutureBuilder(
+      future: widget.getUser?.call(message.authorId),
+      builder: (context, snapshot) {
+        final Widget child;
 
-    switch (message.action) {
-      case ChatMemberInfoAction.created:
-        if (widget.chat.value?.isGroup == true) {
-          content = Text('label_group_created'.l10n);
-        } else {
-          content = Text('label_dialog_created'.l10n);
+        switch (message.action) {
+          case ChatMemberInfoAction.created:
+            if (widget.chat.value?.isGroup == true) {
+              if (snapshot.data != null) {
+                return Obx(() {
+                  final User user = snapshot.data!.user.value;
+                  final Map<String, dynamic> args = {
+                    'author': user.name?.val ?? user.num.val,
+                  };
+
+                  return RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'label_group_created_by1'.l10nfmt(args),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => router.user(user.id, push: true),
+                        ),
+                        TextSpan(
+                          text: 'label_group_created_by2'.l10nfmt(args),
+                          style: style.systemMessageStyle.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                      style: style.systemMessageStyle.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  );
+                });
+              }
+
+              child = Text('label_group_created'.l10n);
+            } else {
+              child = Text('label_dialog_created'.l10n);
+            }
+            break;
+
+          case ChatMemberInfoAction.added:
+            if (snapshot.data != null && message.authorId != message.user.id) {
+              return Obx(() {
+                final User user = snapshot.data!.user.value;
+                final Map<String, dynamic> args = {
+                  'author': user.name?.val ?? user.num.val,
+                  'user': message.user.name?.val ?? message.user.num.val,
+                };
+
+                return RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_user_added_user1'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => router.user(user.id, push: true),
+                      ),
+                      TextSpan(
+                        text: 'label_user_added_user2'.l10nfmt(args),
+                        style: style.systemMessageStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_user_added_user3'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                    ],
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                );
+              });
+            }
+
+            final Map<String, dynamic> args = {
+              'author': message.user.name?.val ?? message.user.num.val,
+            };
+
+            child = RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'label_was_added1'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(message.user.id, push: true),
+                  ),
+                  TextSpan(
+                    text: 'label_was_added2'.l10nfmt(args),
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            );
+            break;
+
+          case ChatMemberInfoAction.removed:
+            if (snapshot.data != null && message.authorId != message.user.id) {
+              return Obx(() {
+                final User user = snapshot.data!.user.value;
+                final Map<String, dynamic> args = {
+                  'author': user.name?.val ?? user.num.val,
+                  'user': message.user.name?.val ?? message.user.num.val,
+                };
+
+                return RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_user_removed_user1'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                      TextSpan(
+                        text: 'label_user_removed_user2'.l10nfmt(args),
+                        style: style.systemMessageStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_user_removed_user3'.l10nfmt(args),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(message.user.id, push: true),
+                      ),
+                    ],
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                );
+              });
+            }
+
+            final Map<String, dynamic> args = {
+              'author': message.user.name?.val ?? message.user.num.val,
+            };
+
+            child = RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'label_was_removed1'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(message.user.id, push: true),
+                  ),
+                  TextSpan(
+                    text: 'label_was_removed2'.l10nfmt(args),
+                    style: style.systemMessageStyle.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            );
+            break;
+
+          case ChatMemberInfoAction.artemisUnknown:
+            child = Text('${message.action}');
+            break;
         }
-        break;
 
-      case ChatMemberInfoAction.added:
-        content = Text(
-          'label_was_added'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
-        );
-        break;
-
-      case ChatMemberInfoAction.removed:
-        content = Text(
-          'label_was_removed'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
-        );
-        break;
-
-      case ChatMemberInfoAction.artemisUnknown:
-        content = Text('${message.action}');
-        break;
-    }
+        return child;
+      },
+    );
 
     final bool isSent = widget.item.value.status.value == SendingStatus.sent;
 
@@ -938,7 +1091,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    List<Widget>? subtitle;
     bool isMissed = false;
 
     String title = 'label_chat_call_ended'.l10n;
@@ -967,58 +1119,143 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Style style = Theme.of(context).extension<Style>()!;
 
-    subtitle = [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-        child: message.withVideo
-            ? SvgLoader.asset(
-                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                height: 13,
-              )
-            : SvgLoader.asset(
-                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                height: 15,
-              ),
-      ),
-      Flexible(
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 400),
+    final Color color = _fromMe
+        ? Theme.of(context).colorScheme.secondary
+        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
+
+    final bool avatar =
+        !(_fromMe && widget.chat.value?.isGroup == true && widget.avatar);
+
+    final Widget child;
+
+    if (avatar) {
+      child = AnimatedOpacity(
+        duration: const Duration(milliseconds: 500),
+        opacity: _isRead || !_fromMe ? 1 : 0.55,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: style.boldBody,
-                    ),
+              if (!_fromMe &&
+                  widget.chat.value?.isGroup == true &&
+                  widget.avatar)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                  child: Text(
+                    widget.user?.user.value.name?.val ??
+                        widget.user?.user.value.num.val ??
+                        'dot'.l10n * 3,
+                    style: style.boldBody.copyWith(color: color),
                   ),
-                  if (time != null) ...[
-                    const SizedBox(width: 9),
+                ),
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black.withOpacity(0.03),
+                ),
+                padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+                child: Row(
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 1),
-                      child: Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall,
+                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                      child: message.withVideo
+                          ? SvgLoader.asset(
+                              'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                              height: 13 * 1.4,
+                            )
+                          : SvgLoader.asset(
+                              'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                              height: 15 * 1.4,
+                            ),
+                    ),
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: style.boldBody,
+                            ),
+                          ),
+                          if (time != null) ...[
+                            const SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 1),
+                              child: Text(
+                                time,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                   ],
-                ],
+                ),
               ),
             ],
           ),
         ),
-      ),
-      const SizedBox(width: 8),
-    ];
+      );
+    } else {
+      child = AnimatedOpacity(
+        duration: const Duration(milliseconds: 500),
+        opacity: _isRead || !_fromMe ? 1 : 0.55,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                child: message.withVideo
+                    ? SvgLoader.asset(
+                        'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 13 * 1.4,
+                      )
+                    : SvgLoader.asset(
+                        'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 15 * 1.4,
+                      ),
+              ),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.boldBody,
+                ),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 9),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1),
+                  child: Text(
+                    time,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
 
     return _rounded(
       context,
@@ -1041,14 +1278,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
-                child: Row(mainAxisSize: MainAxisSize.min, children: subtitle),
-              ),
-            ),
+            child: child,
           ),
         ),
       ),

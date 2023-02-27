@@ -508,23 +508,77 @@ class RecentChatTile extends StatelessWidget {
         switch (item.action) {
           case ChatMemberInfoAction.created:
             if (chat.isGroup) {
-              content = Text('label_group_created'.l10n);
+              content = FutureBuilder(
+                future: getUser?.call(item.authorId),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return Obx(() {
+                      final User user = snapshot.data!.user.value;
+                      final Map<String, dynamic> args = {
+                        'author': user.name?.val ?? user.num.val,
+                      };
+
+                      return Text('label_group_created_by'.l10nfmt(args));
+                    });
+                  }
+
+                  return Text('label_group_created'.l10n);
+                },
+              );
             } else {
               content = Text('label_dialog_created'.l10n);
             }
             break;
 
           case ChatMemberInfoAction.added:
-            content = Text(
-              'label_was_added'
-                  .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+            content = FutureBuilder(
+              future: getUser?.call(item.authorId),
+              builder: (context, snapshot) {
+                final User who = (item as ChatMemberInfo).user;
+                if (snapshot.data != null && item.authorId != who.id) {
+                  return Obx(() {
+                    final User user = snapshot.data!.user.value;
+                    final Map<String, dynamic> args = {
+                      'author': user.name?.val ?? user.num.val,
+                      'user': who.name?.val ?? who.num.val,
+                    };
+
+                    return Text('label_user_added_user'.l10nfmt(args));
+                  });
+                }
+
+                return Text(
+                  'label_was_added'.l10nfmt(
+                    {'author': '${item.user.name ?? item.user.num}'},
+                  ),
+                );
+              },
             );
             break;
 
           case ChatMemberInfoAction.removed:
-            content = Text(
-              'label_was_removed'
-                  .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+            content = FutureBuilder(
+              future: getUser?.call(item.authorId),
+              builder: (context, snapshot) {
+                final User who = (item as ChatMemberInfo).user;
+                if (snapshot.data != null && item.authorId != who.id) {
+                  return Obx(() {
+                    final User user = snapshot.data!.user.value;
+                    final Map<String, dynamic> args = {
+                      'author': user.name?.val ?? user.num.val,
+                      'user': who.name?.val ?? who.num.val,
+                    };
+
+                    return Text('label_user_removed_user'.l10nfmt(args));
+                  });
+                }
+
+                return Text(
+                  'label_was_removed'.l10nfmt(
+                    {'author': '${item.user.name ?? item.user.num}'},
+                  ),
+                );
+              },
             );
             break;
 
