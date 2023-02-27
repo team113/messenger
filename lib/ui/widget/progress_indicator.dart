@@ -110,7 +110,8 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
             ? clampDouble(value, 0.0, 1.0) * _sweep
             : math.max(
                 headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi,
-                _epsilon);
+                _epsilon,
+              );
 
   /// Background circle's color.
   final Color? backgroundColor;
@@ -226,11 +227,11 @@ class _CircularProgressIndicatorState
     curve: const Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
   ).chain(CurveTween(curve: const SawTooth(_pathCount)));
 
-  /// [Animatable] producing of the progress arc offset value.
+  /// [Animatable] producing the progress arc offset value.
   static final Animatable<double> _offsetTween =
       CurveTween(curve: const SawTooth(_pathCount));
 
-  /// [Animatable] producing of the progress arc rotation value.
+  /// [Animatable] producing the progress arc rotation value.
   static final Animatable<double> _rotationTween =
       CurveTween(curve: const SawTooth(_rotationCount));
 
@@ -275,7 +276,7 @@ class _CircularProgressIndicatorState
     return _buildAnimation();
   }
 
-  /// Returns the color of the progress indicator.
+  /// Returns the [Color] of the progress indicator.
   Color _getValueColor(BuildContext context, {Color? defaultColor}) {
     return widget.valueColor?.value ??
         widget.color ??
@@ -285,8 +286,13 @@ class _CircularProgressIndicatorState
   }
 
   /// Draws a determinate progress indicator.
-  Widget _buildMaterialIndicator(BuildContext context, double headValue,
-      double tailValue, double offsetValue, double rotationValue) {
+  Widget _buildMaterialIndicator(
+    BuildContext context,
+    double headValue,
+    double tailValue,
+    double offsetValue,
+    double rotationValue,
+  ) {
     final ProgressIndicatorThemeData defaults = Theme.of(context).useMaterial3
         ? _CircularProgressIndicatorDefaultsM3(context)
         : _CircularProgressIndicatorDefaultsM2(context);
