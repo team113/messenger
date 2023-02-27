@@ -1148,11 +1148,9 @@ class ChatController extends GetxController {
 
         chat!.fetchPrevious().whenComplete(() {
           final double offset = listController.position.pixels;
-          print(listController.sliverController.getItemOffset(1));
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             keepPositionOffset.value = 50;
             if (offset < loadingHeight) {
-              print('offset < loadingHeight: $offset < $loadingHeight');
               listController.jumpTo(
                 listController.position.pixels - (loadingHeight + 40 - offset),
               );
