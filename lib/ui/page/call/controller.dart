@@ -224,7 +224,8 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
-  double get secondaryScaleFactor => (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+  double get secondaryScaleFactor =>
+      (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
 
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
@@ -1558,7 +1559,7 @@ class CallController extends GetxController {
         : size.height - secondaryHeight.value;
 
     primaryPossitionLink.value ??=
-       parentEmptySpace - (secondaryPossitionLink.value ?? 0);
+        parentEmptySpace - (secondaryPossitionLink.value ?? 0);
 
     // Nullify opposit offset
     secondaryPossitionLink.value = null;
@@ -1603,9 +1604,9 @@ class CallController extends GetxController {
     if (x != null && dx != null) {
       // X offset link
       RxnDouble xSidePrimaryValueLink =
-      x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+          x == ScaleModeX.left ? secondaryLeft : secondaryRight;
       RxnDouble xSideSecondaryValueLink =
-      x == ScaleModeX.left ? secondaryRight : secondaryLeft;
+          x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
       // Update possition
       _updateSecondaryPossition(
@@ -1626,9 +1627,9 @@ class CallController extends GetxController {
     if (y != null && dy != null) {
       // Y offset link
       RxnDouble ySidePrimaryValueLink =
-      y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+          y == ScaleModeY.top ? secondaryTop : secondaryBottom;
       RxnDouble ySideSecondaryValueLink =
-      y == ScaleModeY.top ? secondaryBottom : secondaryTop;
+          y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
       _updateSecondaryPossition(
         primaryPossitionLink: ySidePrimaryValueLink,
@@ -1639,7 +1640,7 @@ class CallController extends GetxController {
       _updateSecondarySize(
         primaryPossitionLink: ySidePrimaryValueLink,
         applySizeFn: _applySHeight,
-        applyPossitionFn: y == ScaleModeY.top ? _applySTop : _applySBottom ,
+        applyPossitionFn: y == ScaleModeY.top ? _applySTop : _applySBottom,
         da: dy,
         axis: Axis.vertical,
       );
@@ -1653,20 +1654,19 @@ class CallController extends GetxController {
   void scaleSecondary({
     required BoxConstraints constraints,
   }) {
-    if(_lastConstraints == constraints) {
+    if (_lastConstraints == constraints) {
       return;
     }
 
-    if(_lastConstraints != null) {
-      var heightDif = constraints.maxHeight -
-          (_lastConstraints?.maxHeight ?? 0);
-      var widthDif = constraints.maxWidth -
-          (_lastConstraints?.maxWidth ?? 0);
+    if (_lastConstraints != null) {
+      var heightDif =
+          constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
+      var widthDif = constraints.maxWidth - (_lastConstraints?.maxWidth ?? 0);
 
-      secondaryWidth.value = _applySWidth(secondaryWidth.value +
-          widthDif * secondaryScaleFactor);
-      secondaryHeight.value = _applySHeight(secondaryHeight.value +
-          heightDif * secondaryScaleFactor);
+      secondaryWidth.value =
+          _applySWidth(secondaryWidth.value + widthDif * secondaryScaleFactor);
+      secondaryHeight.value = _applySHeight(
+          secondaryHeight.value + heightDif * secondaryScaleFactor);
     }
 
     _lastConstraints = constraints;
@@ -2035,16 +2035,6 @@ class CallController extends GetxController {
 
 /// X-axis scale mode.
 enum ScaleModeX { left, right }
-
-extension MirrorScaleModeX on ScaleModeX {
-  ScaleModeX get reversed =>
-      this == ScaleModeX.left ? ScaleModeX.right : ScaleModeX.left;
-}
-
-extension MirrorScaleModeY on ScaleModeY {
-  ScaleModeY get reversed =>
-      this == ScaleModeY.top ? ScaleModeY.bottom : ScaleModeY.top;
-}
 
 /// Y-axis scale mode.
 enum ScaleModeY { top, bottom }

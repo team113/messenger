@@ -625,7 +625,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       }
                     },
                     onDragStarted: () {
-                      print('drag_started');
                       item.dragStartedRect = item.cellKey.globalPaintBounds;
                       widget.onDragStarted?.call(item.item);
                     },
@@ -799,7 +798,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 },
               ),
             ),
-
 
           Positioned(
             left: widget.left,
