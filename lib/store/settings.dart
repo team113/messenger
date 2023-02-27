@@ -131,6 +131,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setSortContactsByName(bool enabled) =>
       _settingsLocal.setSortContactsByName(enabled);
 
+  @override
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsLocal.setLoadImages(enabled);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

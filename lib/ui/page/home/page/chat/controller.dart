@@ -29,6 +29,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -80,7 +81,7 @@ class ChatController extends GetxController {
   });
 
   /// ID of this [Chat].
-  final ChatId id;
+  ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
@@ -171,6 +172,9 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  /// Indicator whether the [_bottomLoader] should be displayed.
+  final RxBool bottomLoader = RxBool(false);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -202,9 +206,6 @@ class ChatController extends GetxController {
 
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
-
-  /// Subscription for the [RxChat.chat] updating the [_durationTimer].
-  StreamSubscription? _chatSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -250,11 +251,27 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// Worker capturing any [RxChat.chat] changes.
+  Worker? _chatWorker;
+
+  /// Currently displayed bottom [LoaderElement] in the [elements] list.
+  LoaderElement? _bottomLoader;
+
+  /// [Timer] adding the [_bottomLoader] to the [elements] list.
+  Timer? _bottomLoaderStartTimer;
+
+  /// [Timer] deleting the [_bottomLoader] from the [elements] list.
+  Timer? _bottomLoaderEndTimer;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
+
+  /// Returns the [ApplicationSettings].
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -344,14 +361,16 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _messagesSubscription?.cancel();
-    _chatSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
+    _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
+    _bottomLoaderStartTimer?.cancel();
+    _bottomLoaderEndTimer?.cancel();
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
@@ -509,7 +528,7 @@ class ChatController extends GetxController {
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val;
+      send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
@@ -739,7 +758,15 @@ class ChatController extends GetxController {
       }
 
       updateTimer(chat!.chat.value);
-      _chatSubscription = chat!.chat.listen(updateTimer);
+
+      _chatWorker = ever(chat!.chat, (Chat e) {
+        if (e.id != id) {
+          WebUtils.replaceState(id.val, e.id.val);
+          id = e.id;
+        }
+
+        updateTimer(e);
+      });
 
       _messagesWorker ??= ever(
         chat!.messages,
@@ -813,7 +840,7 @@ class ChatController extends GetxController {
             ?.listenUpdates();
       }
 
-      _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
+      _readWorker ??= ever(_lastSeenItem, readChat);
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
@@ -847,6 +874,35 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
+      _bottomLoaderStartTimer = Timer(
+        const Duration(seconds: 2),
+        () {
+          if (!status.value.isSuccess || status.value.isLoadingMore) {
+            bottomLoader.value = true;
+
+            _bottomLoader = LoaderElement(
+              (chat?.messages.lastOrNull?.value.at
+                      .add(const Duration(microseconds: 1)) ??
+                  PreciseDateTime.now()),
+            );
+
+            elements[_bottomLoader!.id] = _bottomLoader!;
+
+            if (listController.position.pixels >=
+                listController.position.maxScrollExtent - 100) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                listController.sliverController.animateToIndex(
+                  elements.length - 1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                  offsetBasedOnBottom: true,
+                );
+              });
+            }
+          }
+        },
+      );
+
       await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -860,11 +916,22 @@ class ChatController extends GetxController {
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
-          chat!.chat.value.unreadCount == 0) {
+          chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
       }
 
       status.value = RxStatus.success();
+
+      if (_bottomLoader != null) {
+        bottomLoader.value = false;
+
+        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
+          if (_bottomLoader != null) {
+            elements.remove(_bottomLoader!.id);
+            _bottomLoader = null;
+          }
+        });
+      }
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
@@ -989,7 +1056,7 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    MessagePopup.success('label_copied'.l10n);
+    MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -1348,6 +1415,12 @@ class DateTimeElement extends ListElement {
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('1')));
+}
+
+/// [ListElement] representing a [CustomProgressIndicator].
+class LoaderElement extends ListElement {
+  LoaderElement(PreciseDateTime at)
+      : super(ListElementId(at, const ChatItemId('2')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

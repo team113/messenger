@@ -1397,7 +1397,6 @@ Widget _primaryView(CallController c) {
                 participant,
                 key: ObjectKey(participant),
                 offstageUntilDetermined: true,
-                useCallCover: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
                 onSizeDetermined: participant.video.value?.renderer.refresh,
@@ -1495,7 +1494,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
       }
 
       double width, height;
-
       if (axis == Axis.horizontal) {
         width = c.secondaryWidth.value;
         height = c.size.height;
@@ -1653,8 +1651,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
           right: right == null ? null : (right - Scaler.size / 2),
           top: top == null ? null : (top - Scaler.size / 2),
           bottom: bottom == null ? null : (bottom - Scaler.size / 2),
-          // TODO: Remove flag (SECONDARY_SIZEDBOX)
-
           child: SizedBox(
             width: width + Scaler.size,
             height: height + Scaler.size,
@@ -1962,7 +1958,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       key: ObjectKey(participant),
                       offstageUntilDetermined: true,
                       respectAspectRatio: true,
-                      useCallCover: true,
                       borderRadius: BorderRadius.zero,
                       expanded: c.doughDraggedRenderer.value == participant,
                     ),

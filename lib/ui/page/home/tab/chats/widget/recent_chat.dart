@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,6 +27,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -112,11 +112,7 @@ class RecentChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
+      final bool selected = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -134,7 +130,7 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context)),
+                Expanded(child: _subtitle(context, selected)),
                 if (blocked) ...[
                   const SizedBox(width: 5),
                   const Icon(
@@ -207,14 +203,18 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         selected: selected,
-        onTap: () => router.chat(chat.id),
+        onTap: () {
+          if (!selected) {
+            router.chat(chat.id);
+          }
+        },
       );
     });
   }
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context) {
+  Widget _subtitle(BuildContext context, bool selected) {
     final Chat chat = rxChat.chat.value;
 
     if (chat.ongoingCall != null) {
@@ -300,7 +300,7 @@ class RecentChatTile extends StatelessWidget {
 
     ChatMessage? draft = rxChat.draft.value;
 
-    if (draft != null && router.routes.last != '${Routes.chat}/${chat.id}') {
+    if (draft != null && !selected) {
       final StringBuffer desc = StringBuffer();
 
       if (draft.text != null) {
@@ -595,6 +595,7 @@ class RecentChatTile extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         onForbidden: onError,
+        displayProgress: false,
       );
     }
 
@@ -695,7 +696,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (chat.unreadCount > 0) {
+      if (rxChat.unreadCount.value > 0) {
         return Container(
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 4),
@@ -708,7 +709,9 @@ class RecentChatTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             // TODO: Implement and test notations like `4k`, `54m`, etc.
-            chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
+            rxChat.unreadCount.value > 99
+                ? '99${'plus'.l10n}'
+                : '${rxChat.unreadCount.value}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,

@@ -25,14 +25,18 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -62,7 +66,7 @@ class UserView extends StatelessWidget {
               body: Center(
                 child: c.status.value.isEmpty
                     ? Text('err_unknown_user'.l10n)
-                    : const CircularProgressIndicator(),
+                    : const CustomProgressIndicator(),
               ),
             );
           }
@@ -180,10 +184,30 @@ class UserView extends StatelessWidget {
                       Block(
                         title: 'label_public_information'.l10n,
                         children: [
-                          AvatarWidget.fromRxUser(
-                            c.user,
-                            radius: 100,
-                            showBadge: false,
+                          WidgetButton(
+                            onPressed: c.user?.user.value.avatar == null
+                                ? null
+                                : () async {
+                                    await GalleryPopup.show(
+                                      context: context,
+                                      gallery: GalleryPopup(
+                                        initialKey: c.avatarKey,
+                                        children: [
+                                          GalleryItem.image(
+                                            c.user!.user.value.avatar!.original
+                                                .url,
+                                            c.user!.id.val,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                            child: AvatarWidget.fromRxUser(
+                              c.user,
+                              key: c.avatarKey,
+                              radius: 100,
+                              badge: false,
+                            ),
                           ),
                           const SizedBox(height: 15),
                           _name(c, context),
@@ -204,12 +228,16 @@ class UserView extends StatelessWidget {
                   );
                 }),
               ),
-              bottomNavigationBar: c.isBlacklisted == true
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                      child: _blockedField(context, c),
-                    )
-                  : null,
+              bottomNavigationBar: Obx(() {
+                if (c.isBlacklisted != true) {
+                  return const SizedBox();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  child: _blockedField(context, c),
+                );
+              }),
             );
           });
         });
@@ -237,22 +265,17 @@ class UserView extends StatelessWidget {
       return Container(
         margin: const EdgeInsets.only(bottom: 8),
         child: _dense(
-          WidgetButton(
+          FieldButton(
             key: key,
             onPressed: onPressed,
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(text: text ?? '', editable: false),
-                trailing: trailing != null
-                    ? Transform.translate(
-                        offset: const Offset(0, -1),
-                        child: Transform.scale(scale: 1.15, child: trailing),
-                      )
-                    : null,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              ),
-            ),
+            text: text ?? '',
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            trailing: trailing != null
+                ? Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(scale: 1.15, child: trailing),
+                  )
+                : null,
           ),
         ),
       );
@@ -285,58 +308,62 @@ class UserView extends StatelessWidget {
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           );
         }),
-        Obx(() {
-          final chat =
-              c.user?.dialog.value?.chat.value ?? c.user?.user.value.dialog;
-          final bool isMuted = chat?.muted != null;
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
+          Obx(() {
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
 
-          return action(
-            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: isMuted
-                ? SvgLoader.asset(
-                    'assets/icons/btn_mute.svg',
-                    width: 18.68,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  ),
-            onPressed: isMuted ? c.unmuteChat : c.muteChat,
-          );
-        }),
-        action(
-          text: 'btn_hide_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _hideChat(c, context),
-        ),
-        action(
-          text: 'btn_clear_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _clearChat(c, context),
-        ),
-        Obx(() {
-          return action(
-            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true
-                ? c.unblacklist
-                : () => _blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SizedBox();
-              } else {
-                child = const CircularProgressIndicator();
-              }
+            return action(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgLoader.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
+          ),
+          action(
+            text: 'btn_clear_history'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
+          ),
+          Obx(() {
+            return action(
+              key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+              text: c.isBlacklisted == true
+                  ? 'btn_unblock'.l10n
+                  : 'btn_block'.l10n,
+              onPressed: c.isBlacklisted == true
+                  ? c.unblacklist
+                  : () => _blacklistUser(c, context),
+              trailing: Obx(() {
+                final Widget child;
+                if (c.blacklistStatus.value.isEmpty) {
+                  child = const SizedBox();
+                } else {
+                  child = const CustomProgressIndicator();
+                }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
-            }),
-          );
-        }),
-        action(text: 'btn_report'.l10n, onPressed: () {}),
+                return AnimatedSwitcher(
+                    duration: 200.milliseconds, child: child);
+              }),
+            );
+          }),
+          action(text: 'btn_report'.l10n, onPressed: () {}),
+        ],
       ],
     );
   }
@@ -446,47 +473,7 @@ class UserView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          filled: false,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
+      data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
           key: const Key('BlockedField'),
@@ -559,7 +546,7 @@ class UserView extends StatelessWidget {
     BuildContext context,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'label_remove_from_contacts'.l10n,
+      'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
@@ -597,7 +584,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_clear_chat'.l10n,
+      'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(

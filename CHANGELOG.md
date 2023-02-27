@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
@@ -27,13 +28,15 @@ All user visible changes to this project will be documented in this file. This p
         - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
-        - Screen share display choosing on desktop. ([#228], [#222])
+        - Screen share display choosing on desktop. ([#347], [#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
     - User page:
         - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
+- Windows:
+    - Unread chats count badge on app's icon. ([#342], [#327])    
 
 ### Changed
 
@@ -73,6 +76,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned chat info page. ([#265], [#256])
     - Redesigned scrollbar. ([#276], [#262])
     - Redesigned snackbar. ([#336])
+    - Redesigned loaders. ([#350], [#345])
 
 ### Fixed
 
@@ -164,11 +168,18 @@ All user visible changes to this project will be documented in this file. This p
 [#317]: /../../pull/317
 [#319]: /../../pull/319
 [#323]: /../../pull/323
+[#327]: /../../issues/327
 [#328]: /../../issues/328
+[#330]: /../../issues/330
 [#332]: /../../pull/332
+[#335]: /../../pull/335
 [#336]: /../../pull/336
 [#337]: /../../pull/337
 [#340]: /../../pull/340
+[#342]: /../../pull/342
+[#345]: /../../issues/345
+[#347]: /../../pull/347
+[#350]: /../../pull/350
 
 
 

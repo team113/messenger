@@ -62,7 +62,8 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
+        unreadCount = RxInt(hiveChat.value.unreadCount);
 
   @override
   final Rx<Chat> chat;
@@ -91,6 +92,9 @@ class HiveRxChat extends RxChat {
   @override
   final RxList<LastChatRead> reads = RxList();
 
+  @override
+  final RxInt unreadCount;
+
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
@@ -101,7 +105,7 @@ class HiveRxChat extends RxChat {
   final DraftHiveProvider _draftLocal;
 
   /// [ChatItem]s local [Hive] storage.
-  final ChatItemHiveProvider _local;
+  ChatItemHiveProvider _local;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -135,6 +139,9 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  /// [AwaitableTimer] executing a [ChatRepository.readUntil].
+  AwaitableTimer? _readTimer;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -213,24 +220,7 @@ class HiveRxChat extends RxChat {
       _initLocalSubscription();
 
       if (!PlatformUtils.isWeb) {
-        final List<Future> futures = [];
-
-        for (ChatItem item in messages.map((e) => e.value)) {
-          if (item is ChatMessage) {
-            futures.addAll(item.attachments
-                .whereType<FileAttachment>()
-                .map((e) => e.init()));
-          } else if (item is ChatForward) {
-            ChatItem nested = item.item;
-            if (nested is ChatMessage) {
-              futures.addAll(nested.attachments
-                  .whereType<FileAttachment>()
-                  .map((e) => e.init()));
-            }
-          }
-        }
-
-        await Future.wait(futures);
+        _initAttachments();
       }
 
       status.value = RxStatus.success();
@@ -244,8 +234,9 @@ class HiveRxChat extends RxChat {
       messages.clear();
       reads.clear();
       _muteTimer?.cancel();
+      _readTimer?.cancel();
       _localSubscription?.cancel();
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
@@ -260,7 +251,7 @@ class HiveRxChat extends RxChat {
 
   /// Subscribes to the remote updates of the [chat] if not subscribed already.
   void subscribe() {
-    if (!_remoteSubscriptionInitialized) {
+    if (!_remoteSubscriptionInitialized && !id.isLocal) {
       _initRemoteSubscription();
     }
   }
@@ -305,6 +296,10 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> fetchMessages() async {
+    if (id.isLocal) {
+      return;
+    }
+
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
@@ -385,6 +380,30 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Marks this [RxChat] as read until the provided [ChatItem] for the
+  /// authenticated [MyUser],
+  Future<void> read(ChatItemId untilId) async {
+    final int readUntil =
+        messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
+    if (readUntil != -1) {
+      unreadCount.value = messages.skip(messages.length - readUntil).length;
+    }
+
+    _readTimer?.cancel();
+    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
+      try {
+        await _chatRepository.readUntil(id, untilId);
+      } catch (_) {
+        unreadCount.value = chat.value.unreadCount;
+        rethrow;
+      } finally {
+        _readTimer = null;
+      }
+    });
+
+    await _readTimer?.future;
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -393,23 +412,19 @@ class HiveRxChat extends RxChat {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> postChatMessage({
+  Future<ChatItem> postChatMessage({
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
     ChatMessageText? text,
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    // Copy the [attachments] list since we're going to manipulate it here.
-    List<Attachment> uploaded = List.from(attachments ?? []);
-    List<ChatItem> replies = List.from(repliesTo, growable: false);
-
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
       text: text,
-      repliesTo: replies,
-      attachments: uploaded,
+      repliesTo: repliesTo,
+      attachments: attachments ?? [],
       existingId: existingId,
       existingDateTime: existingDateTime,
     );
@@ -417,10 +432,16 @@ class HiveRxChat extends RxChat {
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      messages.firstWhere((e) => e.value.id == existingId).value =
+      messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
       put(message, ignoreVersion: true);
+    }
+
+    // If the [ChatMessage] being posted is local, then no remote queries should
+    // be performed, so return the constructed item right away.
+    if (id.isLocal) {
+      return message.value;
     }
 
     _pending.add(message.value);
@@ -432,7 +453,7 @@ class HiveRxChat extends RxChat {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
-                    uploaded[i] = a;
+                    attachments[i] = a;
 
                     // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
@@ -463,7 +484,7 @@ class HiveRxChat extends RxChat {
         await Future.wait(uploads);
       }
 
-      if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
+      if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
         throw const ConnectionException(PostChatMessageException(
           PostChatMessageErrorCode.unknownAttachment,
         ));
@@ -472,9 +493,8 @@ class HiveRxChat extends RxChat {
       var response = await _chatRepository.postChatMessage(
         id,
         text: text,
-        attachments:
-            uploaded.isNotEmpty ? uploaded.map((e) => e.id).toList() : null,
-        repliesTo: replies.map((e) => e.id).toList(),
+        attachments: attachments?.map((e) => e.id).toList(),
+        repliesTo: repliesTo.map((e) => e.id).toList(),
       );
 
       var event = response?.events
@@ -494,6 +514,8 @@ class HiveRxChat extends RxChat {
     } finally {
       put(message, ignoreVersion: true);
     }
+
+    return message.value;
   }
 
   /// Puts the provided [item] to [Hive].
@@ -617,6 +639,50 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Updates the [chat] and [chat]-related resources with the provided
+  /// [newChat].
+  Future<void> updateChat(Chat newChat) async {
+    if (chat.value.id != newChat.id) {
+      chat.value = newChat;
+
+      subscribe();
+      _localSubscription?.cancel();
+
+      final List<HiveChatItem> saved = _local.messages.toList();
+      await _local.clear();
+      _local.close();
+
+      _local = ChatItemHiveProvider(id);
+      await _local.init(userId: me);
+
+      saved.forEach(_local.put);
+
+      _initLocalSubscription();
+    }
+  }
+
+  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
+  Future<void> _initAttachments() async {
+    final List<Future> futures = [];
+
+    for (ChatItem item in messages.map((e) => e.value)) {
+      if (item is ChatMessage) {
+        futures.addAll(
+          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+        );
+      } else if (item is ChatForward) {
+        ChatItem nested = item.item;
+        if (nested is ChatMessage) {
+          futures.addAll(
+            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
+          );
+        }
+      }
+    }
+
+    await Future.wait(futures);
+  }
+
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
@@ -653,7 +719,7 @@ class HiveRxChat extends RxChat {
     }
 
     members
-        .removeWhere((k, _) => !chat.value.members.any((m) => m.user.id == k));
+        .removeWhere((k, _) => chat.value.members.none((m) => m.user.id == k));
 
     if (chat.value.name == null) {
       var users = members.values.take(3);
@@ -675,6 +741,10 @@ class HiveRxChat extends RxChat {
       }
 
       _updateTitle();
+    }
+
+    if (chat.value.unreadCount < unreadCount.value || _readTimer == null) {
+      unreadCount.value = chat.value.unreadCount;
     }
   }
 
@@ -767,7 +837,7 @@ class HiveRxChat extends RxChat {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscriptionInitialized = true;
 
-    _remoteSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
@@ -895,6 +965,12 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.unreadItemsCountUpdated:
               event as EventChatUnreadItemsCountUpdated;
+              if (event.count < unreadCount.value || _readTimer == null) {
+                unreadCount.value = event.count;
+              } else if (event.count > chatEntity.value.unreadCount) {
+                unreadCount.value += event.count - chatEntity.value.unreadCount;
+              }
+
               chatEntity.value.unreadCount = event.count;
               break;
 
@@ -1132,5 +1208,33 @@ extension ListInsertAfter<T> on List<T> {
     if (!done) {
       insert(0, element);
     }
+  }
+}
+
+/// [Timer] exposing its [future] to be awaited.
+class AwaitableTimer {
+  AwaitableTimer(Duration d, FutureOr Function() callback) {
+    _timer = Timer(d, () async {
+      try {
+        _completer.complete(await callback());
+      } catch (e, stackTrace) {
+        _completer.completeError(e, stackTrace);
+      }
+    });
+  }
+
+  /// [Timer] executing the callback.
+  late final Timer _timer;
+
+  /// [Completer] completing when [_timer] is done executing.
+  final _completer = Completer();
+
+  /// [Future] completing when this [AwaitableTimer] is finished.
+  Future get future => _completer.future;
+
+  /// Cancels this [AwaitableTimer].
+  void cancel() {
+    _timer.cancel();
+    _completer.complete();
   }
 }

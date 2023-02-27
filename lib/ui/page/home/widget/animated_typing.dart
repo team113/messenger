@@ -42,8 +42,10 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this)
-      ..repeat(period: widget.period);
+    _controller = AnimationController(
+      vsync: this,
+      debugLabel: '$runtimeType',
+    )..repeat(period: widget.period);
   }
 
   @override

@@ -120,6 +120,7 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [MyUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
@@ -127,6 +128,7 @@ class AvatarWidget extends StatelessWidget {
     bool badge = true,
   }) =>
       AvatarWidget(
+        key: key,
         isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
@@ -166,7 +168,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -182,7 +184,7 @@ class AvatarWidget extends StatelessWidget {
     return Obx(
       () => AvatarWidget(
         key: key,
-        isOnline: showBadge && user.user.value.online == true,
+        isOnline: badge && user.user.value.online == true,
         isAway: user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.user.value.name?.val ?? user.user.value.num.val,
@@ -421,6 +423,7 @@ class AvatarWidget extends StatelessWidget {
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
+                    displayProgress: false,
                   ),
                 ),
         ),

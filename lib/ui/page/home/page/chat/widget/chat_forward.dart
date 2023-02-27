@@ -50,7 +50,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
-import 'chat_item_reads.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -63,6 +63,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.authorId,
     required this.me,
     this.reads = const [],
+    this.loadImages = true,
     this.user,
     this.getUser,
     this.animation,
@@ -101,6 +102,10 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
+
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
+  final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -340,6 +345,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         onGallery: widget.onGallery,
                         onError: widget.onAttachmentError,
                         filled: false,
+                        autoLoad: widget.loadImages,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -355,6 +361,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   key: _galleryKeys[item.id]?[i],
                                   onGallery: widget.onGallery,
                                   onError: widget.onAttachmentError,
+                                  autoLoad: widget.loadImages,
                                 ),
                               )
                               .toList(),
@@ -635,6 +642,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
+                      autoLoad: widget.loadImages,
                     )
                   : SizedBox(
                       width: attachments.length * 120,
@@ -650,6 +658,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
+                                autoLoad: widget.loadImages,
                               ),
                             )
                             .toList(),
@@ -674,6 +683,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     if (item is ChatMessage) {
       copyable = item.text?.val;
     }
+
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
+          e.memberId != widget.authorId,
+    );
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -731,8 +746,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
-      padding:
-          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -814,10 +828,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        (constraints.maxWidth +
-                                    (_fromMe ? SwipeableStatus.width : 0)) *
-                                0.84 -
-                            20,
+                        constraints.maxWidth - SwipeableStatus.width,
                       ),
                     ),
                     child: Padding(
@@ -830,6 +841,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
                           actions: [
+                            ContextMenuButton(
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_info'.l10n
+                                  : 'btn_message_info'.l10n,
+                              trailing: const Icon(Icons.info_outline),
+                              onPressed: () => MessageInfo.show(
+                                context,
+                                id: widget.forwards.first.value.id,
+                                reads: reads ?? [],
+                              ),
+                            ),
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
@@ -951,10 +973,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 Transform.translate(
                                   offset: const Offset(-12, -4),
                                   child: WidgetButton(
-                                    onPressed: () => ChatItemReads.show(
+                                    onPressed: () => MessageInfo.show(
                                       context,
-                                      reads: widget.reads,
-                                      getUser: widget.getUser,
+                                      id: widget.forwards.first.value.id,
+                                      reads: reads ?? [],
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,

@@ -26,6 +26,7 @@ import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
@@ -35,6 +36,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -73,47 +75,7 @@ class ContactsTabView extends StatelessWidget {
 
               if (c.search.value != null) {
                 child = Theme(
-                  data: Theme.of(context).copyWith(
-                    shadowColor: const Color(0x55000000),
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                    inputDecorationTheme: InputDecorationTheme(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusColor: Colors.white,
-                      fillColor: Colors.white,
-                      hoverColor: Colors.transparent,
-                      filled: true,
-                      isDense: true,
-                      contentPadding: EdgeInsets.fromLTRB(
-                        15,
-                        PlatformUtils.isDesktop ? 30 : 23,
-                        15,
-                        0,
-                      ),
-                    ),
-                  ),
+                  data: MessageFieldView.theme(context),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(
@@ -201,7 +163,7 @@ class ContactsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           body: Obx(() {
             if (!c.contactsReady.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CustomProgressIndicator());
             }
 
             final Widget? child;
@@ -211,7 +173,10 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = const Center(
                   key: Key('Loading'),
-                  child: CircularProgressIndicator(),
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
@@ -548,7 +513,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'label_remove_from_contacts'.l10n,
+      'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(

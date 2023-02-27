@@ -29,6 +29,7 @@ class FloatingSnackBar extends StatefulWidget {
     required this.child,
     this.duration = const Duration(seconds: 2),
     this.onEnd,
+    this.bottom = 16,
   });
 
   /// Content to display in this [FloatingSnackBar].
@@ -40,8 +41,11 @@ class FloatingSnackBar extends StatefulWidget {
   /// Callback, called when this [FloatingSnackBar] disappears.
   final VoidCallback? onEnd;
 
+  /// Bottom margin to apply to this [FloatingSnackBar].
+  final double bottom;
+
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
-  static void show(String title) {
+  static void show(String title, {double bottom = 16}) {
     OverlayEntry? entry;
 
     entry = OverlayEntry(
@@ -52,6 +56,7 @@ class FloatingSnackBar extends StatefulWidget {
           }
           entry = null;
         },
+        bottom: bottom,
         child: Text(
           title,
           style: const TextStyle(color: Colors.black, fontSize: 15),
@@ -95,7 +100,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
     return Stack(
       children: [
         Positioned(
-          bottom: 72,
+          bottom: widget.bottom,
           width: MediaQuery.of(context).size.width,
           child: Center(
             child: GestureDetector(
