@@ -106,7 +106,7 @@ class ChatTile extends StatelessWidget {
             borderRadius: style.cardRadius,
             onTap: onTap,
             unselectedHoverColor: style.cardHoveredColor.darken(darken),
-            selectedHoverColor: style.cardSelectedColor,
+            selectedHoverColor: style.cardSelectedColor.withOpacity(1),
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null

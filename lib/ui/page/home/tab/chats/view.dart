@@ -819,10 +819,10 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
   void addAllowedPointer(PointerDownEvent event) {
     startTrackingPointer(event.pointer);
 
-    if (event.buttons == kSecondaryButton) {
-      resolve(GestureDisposition.accepted);
-    } else {
+    if (event.buttons == kPrimaryButton) {
       resolve(GestureDisposition.rejected);
+    } else {
+      resolve(GestureDisposition.accepted);
     }
   }
 }
