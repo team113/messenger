@@ -603,6 +603,7 @@ class RecentChatTile extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         onForbidden: onError,
+        displayProgress: false,
       );
     }
 
@@ -703,7 +704,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (chat.unreadCount > 0) {
+      if (rxChat.unreadCount.value > 0) {
         return Container(
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 4),
@@ -716,7 +717,9 @@ class RecentChatTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             // TODO: Implement and test notations like `4k`, `54m`, etc.
-            chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
+            rxChat.unreadCount.value > 99
+                ? '99${'plus'.l10n}'
+                : '${rxChat.unreadCount.value}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,

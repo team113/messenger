@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -111,7 +113,7 @@ class _ChatViewState extends State<ChatView>
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
-              router.chatInfo(widget.id);
+              router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -134,7 +136,7 @@ class _ChatViewState extends State<ChatView>
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
 
@@ -393,7 +395,7 @@ class _ChatViewState extends State<ChatView>
                               }
                               if (c.chat!.status.value.isLoading) {
                                 return const Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CustomProgressIndicator(),
                                 );
                               }
 
@@ -409,20 +411,17 @@ class _ChatViewState extends State<ChatView>
                         height: 50,
                         child: AnimatedSwitcher(
                           duration: 200.milliseconds,
-                          child: c.chat!.status.value.isLoadingMore
-                              ? const CircularProgressIndicator()
-                              : c.canGoBack.isTrue
-                                  ? FloatingActionButton(
-                                      onPressed: c.animateToBack,
-                                      child: const Icon(Icons.arrow_upward),
+                          child: c.canGoBack.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBack,
+                                  child: const Icon(Icons.arrow_upward),
+                                )
+                              : c.canGoDown.isTrue
+                                  ? FloatingActionButton.small(
+                                      onPressed: c.animateToBottom,
+                                      child: const Icon(Icons.arrow_downward),
                                     )
-                                  : c.canGoDown.isTrue
-                                      ? FloatingActionButton(
-                                          onPressed: c.animateToBottom,
-                                          child:
-                                              const Icon(Icons.arrow_downward),
-                                        )
-                                      : const SizedBox(),
+                                  : const SizedBox(),
                         ),
                       );
                     }),
@@ -571,6 +570,7 @@ class _ChatViewState extends State<ChatView>
               top: previousSame ? 1.5 : 6,
               bottom: nextSame ? 1.5 : 6,
             ),
+            loadImages: c.settings.value?.loadImages != false,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads.where((m) =>
@@ -615,6 +615,7 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            loadImages: c.settings.value?.loadImages != false,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads.where((m) =>
@@ -702,6 +703,39 @@ class _ChatViewState extends State<ChatView>
       return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
+    } else if (element is LoaderElement) {
+      return Obx(() {
+        final Widget child;
+
+        if (c.bottomLoader.value) {
+          child = Center(
+            key: const ValueKey(1),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tight(const Size.square(40)),
+                child: const Center(
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          child = SizedBox(
+            key: const ValueKey(2),
+            height: c.listController.position.pixels > 0 ? null : 64,
+          );
+        }
+
+        return AnimatedSizeAndFade(
+          fadeDuration: const Duration(milliseconds: 200),
+          sizeDuration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      });
     }
 
     return const SizedBox();

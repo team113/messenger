@@ -82,7 +82,7 @@ class AddEmailController extends GetxController {
       onSubmitted: (s) async {
         UserEmail? email;
         try {
-          email = UserEmail(s.text);
+          email = UserEmail(s.text.toLowerCase());
 
           if (myUser.value!.emails.confirmed.contains(email) ||
               myUser.value?.emails.unconfirmed == email) {

@@ -23,6 +23,7 @@ import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
@@ -376,7 +377,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     color: Colors.black.withOpacity(0.2),
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: const Center(
+                      child: CustomProgressIndicator(size: 64),
+                    ),
                   );
                 }
 

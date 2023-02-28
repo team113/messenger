@@ -34,6 +34,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -221,8 +222,12 @@ class ChatsTabView extends StatelessWidget {
                           center =
                               Center(child: Text('label_nothing_found'.l10n));
                         } else {
-                          center =
-                              const Center(child: CircularProgressIndicator());
+                          center = const Center(
+                            child: ColoredBox(
+                              color: Colors.transparent,
+                              child: CustomProgressIndicator(),
+                            ),
+                          );
                         }
                       }
 
@@ -360,7 +365,10 @@ class ChatsTabView extends StatelessWidget {
                           c.elements.isEmpty) {
                         child = const Center(
                           key: Key('Loading'),
-                          child: CircularProgressIndicator(),
+                          child: ColoredBox(
+                            color: Colors.transparent,
+                            child: CustomProgressIndicator(),
+                          ),
                         );
                       } else if (c.elements.isNotEmpty) {
                         child = SafeScrollbar(
@@ -689,7 +697,7 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }
 
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CustomProgressIndicator());
                 }),
                 bottomNavigationBar:
                     c.groupCreating.value ? _createGroup(context, c) : null,
@@ -703,7 +711,7 @@ class ChatsTabView extends StatelessWidget {
                   width: double.infinity,
                   height: double.infinity,
                   color: const Color(0x33000000),
-                  child: const Center(child: CircularProgressIndicator()),
+                  child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
                 child = const SizedBox();

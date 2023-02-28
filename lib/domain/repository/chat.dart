@@ -108,12 +108,12 @@ abstract class AbstractChatRepository {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This method should be called whenever the authenticated [MyUser] reads
-  /// new [ChatItem]s appeared in the Chat's UI and directly influences the
+  /// new [ChatItem]s appeared in the [Chat]'s UI and directly influences the
   /// [Chat.unreadCount] value.
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
@@ -230,6 +230,10 @@ abstract class RxChat {
 
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
+
+  /// Count of [ChatItem]s unread by the authenticated [MyUser] in this
+  /// [RxChat].
+  RxInt get unreadCount;
 
   /// Indicates whether this [RxChat] is blacklisted or not.
   bool get blacklisted =>

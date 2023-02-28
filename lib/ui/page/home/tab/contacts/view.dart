@@ -36,6 +36,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -162,7 +163,7 @@ class ContactsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           body: Obx(() {
             if (!c.contactsReady.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CustomProgressIndicator());
             }
 
             final Widget? child;
@@ -172,7 +173,10 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = const Center(
                   key: Key('Loading'),
-                  child: CircularProgressIndicator(),
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(

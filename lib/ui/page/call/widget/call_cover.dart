@@ -101,6 +101,7 @@ class CallCoverWidget extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,
+            displayProgress: false,
           ),
       ],
     );

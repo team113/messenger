@@ -890,7 +890,9 @@ class CallController extends GetxController {
 
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare(BuildContext context) async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
     final LocalTrackState state = _currentCall.value.screenShareState.value;
 
@@ -915,13 +917,19 @@ class CallController extends GetxController {
 
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     await _currentCall.value.toggleAudio();
   }
 
   /// Toggles local video stream on and off.
   Future<void> toggleVideo() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     await _currentCall.value.toggleVideo();
     await _ensureSpeakerphone();
   }
@@ -929,7 +937,9 @@ class CallController extends GetxController {
   /// Changes the local video device to the next one from the
   /// [OngoingCall.devices] list.
   Future<void> switchCamera() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
     List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
@@ -947,7 +957,9 @@ class CallController extends GetxController {
 
   /// Toggles speaker on and off.
   Future<void> toggleSpeaker() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       final List<MediaDeviceInfo> outputs =
@@ -995,7 +1007,10 @@ class CallController extends GetxController {
 
   /// Raises/lowers a hand.
   Future<void> toggleHand() {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     return _currentCall.value.toggleHand(_calls);
   }
 

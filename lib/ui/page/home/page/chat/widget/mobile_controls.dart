@@ -26,6 +26,7 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Mobile video controls for a [Chewie] player.
@@ -115,7 +116,7 @@ class _MobileControlsState extends State<MobileControls>
         child: Stack(
           children: [
             _latestValue.isBuffering
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CustomProgressIndicator())
                 : _buildHitArea(),
 
             // Bottom controls bar.
