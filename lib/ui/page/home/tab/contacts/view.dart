@@ -311,11 +311,24 @@ class ContactsTabView extends StatelessWidget {
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: <Type,
+                                            GestureRecognizerFactory>{
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (DisableSecondaryButtonRecognizer
+                                                instance) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                              'ReorderHandle_${contact.id.val}'),
+                                          index: i,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );

@@ -48,7 +48,7 @@ import '/util/platform_utils.dart';
 class RecentChatTile extends StatelessWidget {
   const RecentChatTile(
     this.rxChat, {
-    Key? key,
+    super.key,
     this.me,
     this.blocked = false,
     this.getUser,
@@ -61,7 +61,8 @@ class RecentChatTile extends StatelessWidget {
     this.onUnmute,
     this.onFavorite,
     this.onUnfavorite,
-  }) : super(key: key);
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
@@ -107,6 +108,12 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] remove from favorites action is
   /// triggered.
   final void Function()? onUnfavorite;
+
+  /// Builder for building an [AvatarWidget] the [ChatTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -203,6 +210,7 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         selected: selected,
+        avatarBuilder: avatarBuilder,
         onTap: () {
           if (!selected) {
             router.chat(chat.id);
@@ -743,6 +751,9 @@ class RecentChatTile extends StatelessWidget {
       onHide?.call();
     }
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }
 
 /// Extension adding conversion from [DateTime] to its short text relative to

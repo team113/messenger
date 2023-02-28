@@ -15,7 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -27,6 +30,7 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -474,29 +478,106 @@ class ChatsTabView extends StatelessWidget {
                                       !e.id.isLocal || e.messages.isNotEmpty)
                                   .toList();
 
-                              return ListView.builder(
-                                controller: c.scrollController,
-                                itemCount: chats.length,
-                                itemBuilder: (_, i) {
-                                  final RxChat chat = chats[i];
+                              final List<RxChat> favorites = chats
+                                  .where((e) =>
+                                      e.chat.value.favoritePosition != null)
+                                  .toList();
 
-                                  return AnimationConfiguration.staggeredList(
-                                    position: i,
-                                    duration: const Duration(milliseconds: 375),
-                                    child: SlideAnimation(
-                                      horizontalOffset: 50,
-                                      child: FadeInAnimation(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
+                              final List<RxChat> unfavorites = chats
+                                  .where((e) =>
+                                      e.chat.value.favoritePosition == null)
+                                  .toList();
+
+                              return CustomScrollView(
+                                controller: c.scrollController,
+                                slivers: [
+                                  SliverPadding(
+                                    padding: const EdgeInsets.only(
+                                      top: CustomAppBar.height,
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    sliver: SliverReorderableList(
+                                      onReorderStart: (_) =>
+                                          c.reordering.value = true,
+                                      proxyDecorator: (child, _, animation) {
+                                        return AnimatedBuilder(
+                                          animation: animation,
+                                          builder: (_, Widget? child) {
+                                            final double t = Curves.easeInOut
+                                                .transform(animation.value);
+                                            final double elevation =
+                                                lerpDouble(0, 6, t)!;
+                                            final Color color = Color.lerp(
+                                              const Color(0x00000000),
+                                              const Color(0x33000000),
+                                              t,
+                                            )!;
+
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  CustomBoxShadow(
+                                                    color: color,
+                                                    blurRadius: elevation,
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    style.cardRadius.copyWith(
+                                                  topLeft: Radius.circular(
+                                                    style.cardRadius.topLeft.x *
+                                                        1.75,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: child,
+                                            );
+                                          },
+                                          child: child,
+                                        );
+                                      },
+                                      itemBuilder: (_, i) {
+                                        final RxChat chat = favorites[i];
+                                        return KeyedSubtree(
+                                          key: Key(chat.id.val),
                                           child: Obx(() {
-                                            return RecentChatTile(
+                                            final Widget child = RecentChatTile(
                                               chat,
                                               key: Key('RecentChat_${chat.id}'),
                                               me: c.me,
                                               blocked: chat.blacklisted,
                                               getUser: c.getUser,
+                                              avatarBuilder: (child) {
+                                                if (PlatformUtils.isMobile) {
+                                                  return ReorderableDelayedDragStartListener(
+                                                    key: Key(
+                                                        'ReorderHandle_${chat.id.val}'),
+                                                    index: i,
+                                                    child: child,
+                                                  );
+                                                }
+
+                                                return RawGestureDetector(
+                                                  gestures: <Type,
+                                                      GestureRecognizerFactory>{
+                                                    DisableSecondaryButtonRecognizer:
+                                                        GestureRecognizerFactoryWithHandlers<
+                                                            DisableSecondaryButtonRecognizer>(
+                                                      () =>
+                                                          DisableSecondaryButtonRecognizer(),
+                                                      (DisableSecondaryButtonRecognizer
+                                                          instance) {},
+                                                    ),
+                                                  },
+                                                  child:
+                                                      ReorderableDragStartListener(
+                                                    key: Key(
+                                                        'ReorderHandle_${chat.id.val}'),
+                                                    index: i,
+                                                    child: child,
+                                                  ),
+                                                );
+                                              },
                                               onJoin: () => c.joinCall(chat.id),
                                               onDrop: () => c.dropCall(chat.id),
                                               onLeave: () =>
@@ -511,12 +592,88 @@ class ChatsTabView extends StatelessWidget {
                                               onUnfavorite: () =>
                                                   c.unfavoriteChat(chat.id),
                                             );
+
+                                            // Ignore the animation, if there's
+                                            // an ongoing reordering happening.
+                                            if (c.reordering.value) {
+                                              return child;
+                                            }
+
+                                            return AnimationConfiguration
+                                                .staggeredList(
+                                              position: i,
+                                              duration: const Duration(
+                                                milliseconds: 375,
+                                              ),
+                                              child: SlideAnimation(
+                                                horizontalOffset: 50,
+                                                child: FadeInAnimation(
+                                                  child: child,
+                                                ),
+                                              ),
+                                            );
                                           }),
-                                        ),
+                                        );
+                                      },
+                                      itemCount: favorites.length,
+                                      onReorder: (a, b) {
+                                        c.reorderChat(a, b);
+                                        c.reordering.value = false;
+                                      },
+                                    ),
+                                  ),
+                                  SliverPadding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: CustomNavigationBar.height + 5,
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    sliver: SliverList(
+                                      delegate: SliverChildListDelegate.fixed(
+                                        unfavorites.mapIndexed((i, chat) {
+                                          return AnimationConfiguration
+                                              .staggeredList(
+                                            position: i,
+                                            duration: const Duration(
+                                              milliseconds: 375,
+                                            ),
+                                            child: SlideAnimation(
+                                              horizontalOffset: 50,
+                                              child: FadeInAnimation(
+                                                child: RecentChatTile(
+                                                  chat,
+                                                  key: Key(
+                                                      'RecentChat_${chat.id}'),
+                                                  me: c.me,
+                                                  blocked: chat.blacklisted,
+                                                  getUser: c.getUser,
+                                                  onJoin: () =>
+                                                      c.joinCall(chat.id),
+                                                  onDrop: () =>
+                                                      c.dropCall(chat.id),
+                                                  onLeave: () =>
+                                                      c.leaveChat(chat.id),
+                                                  onHide: () =>
+                                                      c.hideChat(chat.id),
+                                                  inCall: () =>
+                                                      c.inCall(chat.id),
+                                                  onMute: () =>
+                                                      c.muteChat(chat.id),
+                                                  onUnmute: () =>
+                                                      c.unmuteChat(chat.id),
+                                                  onFavorite: () =>
+                                                      c.favoriteChat(chat.id),
+                                                  onUnfavorite: () =>
+                                                      c.unfavoriteChat(chat.id),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
                                       ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                ],
                               );
                             }),
                           ),
@@ -632,5 +789,32 @@ class ChatsTabView extends StatelessWidget {
 
       return AnimatedSwitcher(duration: 250.milliseconds, child: child);
     });
+  }
+}
+
+/// [OneSequenceGestureRecognizer] rejects secondary mouse button events.
+class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
+  @override
+  String get debugDescription => 'DisableSecondaryButtonRecognizer';
+
+  @override
+  void didStopTrackingLastPointer(int pointer) {
+    // No-op.
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    // No-op.
+  }
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    startTrackingPointer(event.pointer);
+
+    if (event.buttons == kSecondaryButton) {
+      resolve(GestureDisposition.accepted);
+    } else {
+      resolve(GestureDisposition.rejected);
+    }
   }
 }
