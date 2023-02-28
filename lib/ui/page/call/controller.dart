@@ -263,15 +263,15 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
-  /// Indicator whether the [relocateSecondary] is already invoked during the
-  /// current frame.
-  bool _secondaryRelocated = false;
-
   /// Height of the title bar.
   static const double titleHeight = 30;
 
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
+
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -1600,7 +1600,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [scaleFactor] according to [constraints] and [_lastConstraints] difference.
+  /// Scales secondary by [secondaryScaleFactor] according to [constraints] and [_lastConstraints] difference.
   void scaleSecondary({
     required BoxConstraints constraints,
   }) {
