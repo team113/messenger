@@ -55,4 +55,4 @@ Feature: Favorite chats
     Then I see "Alice and Bob" chat last in chats list
 
     When I drag "Alice and Charlie" chat 200 pixels down
-    Then I see "Alice and Charlie" chact last in chats list
+    Then I see "Alice and Charlie" chat last in chats list
