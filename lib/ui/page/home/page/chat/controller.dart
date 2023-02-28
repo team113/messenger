@@ -177,8 +177,8 @@ class ChatController extends GetxController {
   /// Indicator whether a previous page of [RxChat.messages] is loading.
   bool _isPrevPageLoading = false;
 
-  /// Indicator whether the [_bottomLoader] should be displayed.
-  final RxBool bottomLoader = RxBool(false);
+  /// Indicator whether the [LoaderElement] should be displayed.
+  final RxBool showLoader = RxBool(false);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -220,10 +220,10 @@ class ChatController extends GetxController {
   UnreadMessagesElement? _unreadElement;
 
   /// Currently displayed [LoadingElement] in the top of the [elements] list.
-  LoadingElement? _topLoadingElement;
+  LoaderElement? _topLoader;
 
   /// Currently displayed [LoadingElement] in the bottom of the [elements] list.
-  LoadingElement? _bottomLoadingElement;
+  LoaderElement? _bottomLoader;
 
   /// Height of a [LoadingElement] displayed in the message list.
   static const double loadingHeight = 70;
@@ -264,9 +264,6 @@ class ChatController extends GetxController {
 
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
-
-  /// Currently displayed bottom [LoaderElement] in the [elements] list.
-  LoaderElement? _bottomLoader;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
@@ -856,27 +853,15 @@ class ChatController extends GetxController {
         const Duration(seconds: 2),
         () {
           if (!status.value.isSuccess || status.value.isLoadingMore) {
-            bottomLoader.value = true;
+            showLoader.value = true;
 
-            _bottomLoader = LoaderElement(
+            _bottomLoader = LoaderElement.bottom(
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
                   PreciseDateTime.now()),
             );
 
             elements[_bottomLoader!.id] = _bottomLoader!;
-
-            if (listController.position.pixels >=
-                listController.position.maxScrollExtent - 100) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                listController.sliverController.animateToIndex(
-                  elements.length - 1,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                  offsetBasedOnBottom: true,
-                );
-              });
-            }
           }
         },
       );
@@ -898,17 +883,20 @@ class ChatController extends GetxController {
         _scrollToLastRead();
       }
 
-      status.value = RxStatus.success();
-
       if (_bottomLoader != null) {
-        bottomLoader.value = false;
+        showLoader.value = false;
 
         _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
           if (_bottomLoader != null) {
             elements.remove(_bottomLoader!.id);
             _bottomLoader = null;
           }
+          showLoader.value = true;
+          status.value = RxStatus.success();
         });
+      } else {
+        status.value = RxStatus.success();
+        showLoader.value = true;
       }
 
       if (_lastSeenItem.value != null) {
@@ -1176,20 +1164,23 @@ class ChatController extends GetxController {
   /// Loads next or previous page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
   void _loadMessages() async {
-    if (listController.hasClients && !_ignorePositionChanges) {
+    if (listController.hasClients &&
+        !_ignorePositionChanges &&
+        status.value.isSuccess &&
+        !status.value.isLoadingMore) {
       if (hasNext.isTrue &&
           listController.position.pixels >
               listController.position.maxScrollExtent -
                   (MediaQuery.of(router.context!).size.height * 2 + 200)) {
-        if (_topLoadingElement == null) {
-          _topLoadingElement = LoadingElement.top();
-          elements[_topLoadingElement!.id] = _topLoadingElement!;
+        if (_topLoader == null) {
+          _topLoader = LoaderElement.top();
+          elements[_topLoader!.id] = _topLoader!;
         }
 
         chat!.fetchNext().whenComplete(() {
           if (hasNext.isFalse) {
-            elements.remove(_topLoadingElement?.id);
-            _topLoadingElement = null;
+            elements.remove(_topLoader?.id);
+            _topLoader = null;
           }
         });
       }
@@ -1201,9 +1192,9 @@ class ChatController extends GetxController {
         keepPositionOffset.value = 0;
         _isPrevPageLoading = true;
 
-        _bottomLoadingElement =
-            LoadingElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
-        elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
+        _bottomLoader =
+            LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
+        elements[_bottomLoader!.id] = _bottomLoader!;
 
         chat!.fetchPrevious().whenComplete(() {
           final double offset = listController.position.pixels;
@@ -1214,7 +1205,7 @@ class ChatController extends GetxController {
                 listController.position.pixels - (loadingHeight + 40 - offset),
               );
             }
-            elements.remove(_bottomLoadingElement?.id);
+            elements.remove(_bottomLoader?.id);
             _isPrevPageLoading = false;
           });
         });
@@ -1441,9 +1432,9 @@ class UnreadMessagesElement extends ListElement {
       : super(ListElementId(at, const ChatItemId('1')));
 }
 
-/// [ListElement] representing a loading indicator.
-class LoadingElement extends ListElement {
-  LoadingElement.bottom([PreciseDateTime? at])
+/// [ListElement] representing a [CustomProgressIndicator].
+class LoaderElement extends ListElement {
+  LoaderElement.bottom([PreciseDateTime? at])
       : super(
           ListElementId(
             at ?? PreciseDateTime.now().add(1.days),
@@ -1451,19 +1442,13 @@ class LoadingElement extends ListElement {
           ),
         );
 
-  LoadingElement.top()
+  LoaderElement.top()
       : super(
           ListElementId(
             PreciseDateTime.fromMillisecondsSinceEpoch(0),
             const ChatItemId('0'),
           ),
         );
-}
-
-/// [ListElement] representing a [CustomProgressIndicator].
-class LoaderElement extends ListElement {
-  LoaderElement(PreciseDateTime at)
-      : super(ListElementId(at, const ChatItemId('2')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

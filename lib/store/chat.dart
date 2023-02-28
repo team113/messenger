@@ -152,10 +152,11 @@ class ChatRepository implements AbstractChatRepository {
 
     _fragment = PaginatedFragment<HiveChat>(
       cacheProvider: _chatLocal,
-      compare: (a, b) => a.value.updatedAt.compareTo(b.value.updatedAt),
+      compare: (a, b) => -a.value.updatedAt.compareTo(b.value.updatedAt),
       equal: (a, b) => a.value.id == b.value.id,
       onDelete: (e) => _chatLocal.remove(e.value.id),
-      onFetchPage: ({
+      ignore: (e) => e.value.id.isLocal,
+      remoteProvider: RemotePageProvider(({
         int? first,
         String? after,
         int? last,
@@ -171,7 +172,7 @@ class ChatRepository implements AbstractChatRepository {
           beforeCursor = RecentChatsCursor(before);
         }
 
-        ChatsQuery query = await _fetchChats(
+        ItemsPage<HiveChat> query = await _fetchChats(
           after: afterCursor,
           first: first,
           before: beforeCursor,
@@ -179,7 +180,7 @@ class ChatRepository implements AbstractChatRepository {
         );
 
         return query;
-      },
+      }),
     );
 
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
@@ -202,7 +203,7 @@ class ChatRepository implements AbstractChatRepository {
       }
     });
 
-    _fragment.init();
+    await _fragment.init();
 
     if (!_chatLocal.isEmpty) {
       _isReady.value = true;
@@ -789,7 +790,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
   /// posting time with pagination.
-  Future<ChatItemsQuery?> messages(
+  Future<ItemsPage<HiveChatItem>> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -805,10 +806,10 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     if (query.chat == null) {
-      return null;
+      throw Exception('Chat not found');
     }
 
-    return ChatItemsQuery(
+    return ItemsPage<HiveChatItem>(
       query.chat!.items.edges.map((e) => e.toHive()).expand((e) => e).toList(),
       query.chat!.items.pageInfo,
     );
@@ -1245,7 +1246,7 @@ class ChatRepository implements AbstractChatRepository {
       });
 
   /// Fetches [HiveChat]s from the remote with pagination.
-  Future<ChatsQuery> _fetchChats({
+  Future<ItemsPage<HiveChat>> _fetchChats({
     int? first,
     RecentChatsCursor? after,
     int? last,
@@ -1259,7 +1260,7 @@ class ChatRepository implements AbstractChatRepository {
     ))
         .recentChats;
 
-    return ChatsQuery(
+    return ItemsPage<HiveChat>(
       query.nodes.map((e) => _chat(e)).toList(),
       query.pageInfo,
     );
@@ -1441,30 +1442,4 @@ class ChatRepository implements AbstractChatRepository {
 
     return _putEntry(chatData);
   }
-}
-
-/// Result of a [ChatItem]s fetching.
-class ChatItemsQuery implements ItemsPage<HiveChatItem> {
-  const ChatItemsQuery(this.items, this.pageInfo);
-
-  /// [HiveChat] returned from the [Chat] fetching.
-  @override
-  final List<HiveChatItem> items;
-
-  /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
-  @override
-  final GetMessages$Query$Chat$Items$PageInfo pageInfo;
-}
-
-/// Result of a [Chat]s fetching.
-class ChatsQuery implements ItemsPage<HiveChat> {
-  const ChatsQuery(this.items, this.pageInfo);
-
-  /// Fetched [HiveChat]s.
-  @override
-  final List<HiveChat> items;
-
-  /// Page info of this [ChatsQuery].
-  @override
-  final RecentChats$Query$RecentChats$PageInfo pageInfo;
 }

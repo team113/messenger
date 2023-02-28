@@ -46,7 +46,7 @@ class Backoff {
 
           try {
             return await callback();
-          } catch (e) {
+          } catch (_) {
             if (backoff.inMilliseconds == 0) {
               backoff = _minBackoff;
             } else if (backoff < _maxBackoff) {

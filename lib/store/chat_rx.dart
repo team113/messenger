@@ -250,30 +250,27 @@ class HiveRxChat extends RxChat {
       ignore: (e) => e.value.status.value != SendingStatus.sent,
       onDelete: (e) =>
           _guard.protect(() async => _local.remove(e.value.timestamp)),
-      onFetchPage: ({
-        int? first,
-        String? after,
-        int? last,
-        String? before,
-      }) async {
-        ChatItemsCursor? afterCursor;
-        if (after != null) {
-          afterCursor = ChatItemsCursor(after);
-        }
+      remoteProvider: RemotePageProvider(
+        ({after, before, first, last}) async {
+          ChatItemsCursor? afterCursor;
+          if (after != null) {
+            afterCursor = ChatItemsCursor(after);
+          }
 
-        ChatItemsCursor? beforeCursor;
-        if (before != null) {
-          beforeCursor = ChatItemsCursor(before);
-        }
+          ChatItemsCursor? beforeCursor;
+          if (before != null) {
+            beforeCursor = ChatItemsCursor(before);
+          }
 
-        return await _chatRepository.messages(
-          chat.value.id,
-          after: afterCursor,
-          first: first,
-          before: beforeCursor,
-          last: last,
-        );
-      },
+          return await _chatRepository.messages(
+            chat.value.id,
+            after: afterCursor,
+            first: first,
+            before: beforeCursor,
+            last: last,
+          );
+        },
+      ),
     );
 
     return _guard.protect(() async {

@@ -580,45 +580,45 @@ class _ChatViewState extends State<ChatView>
           future: c.getUser(e.value.authorId),
           builder: (_, u) => Obx(() {
             return ChatItemWidget(
-            chat: c.chat!.chat,
-            item: e,
-            me: c.me!,
-            avatar: !previousSame,
-            margin: EdgeInsets.only(
-              top: previousSame ? 1.5 : 6,
-              bottom: nextSame ? 1.5 : 6,
-            ),
-            loadImages: c.settings.value?.loadImages != false,
-            reads: c.chat!.members.length > 10
-                ? []
-                : c.chat!.reads.where((m) =>
-                    m.at == e.value.at &&
-                    m.memberId != c.me &&
-                    m.memberId != e.value.authorId),
-            user: u.data,
-            getUser: c.getUser,
-            animation: _animation,
-            onHide: () => c.hideChatItem(e.value),
-            onDelete: () => c.deleteMessage(e.value),
-            onReply: () {
-              if (c.send.replied.any((i) => i.id == e.value.id)) {
-                c.send.replied.removeWhere((i) => i.id == e.value.id);
-              } else {
-                c.send.replied.insert(0, e.value);
-              }
-            },
-            onCopy: c.copyText,
-            onRepliedTap: c.animateTo,
-            onGallery: c.calculateGallery,
-            onResend: () => c.resendItem(e.value),
-            onEdit: () => c.editMessage(e.value),
-            onDrag: (d) => c.isItemDragged.value = d,
-            onFileTap: (a) => c.download(e.value, a),
-            onAttachmentError: () async {
-              await c.chat?.updateAttachments(e.value);
-              await Future.delayed(Duration.zero);
-            },
-          );
+              chat: c.chat!.chat,
+              item: e,
+              me: c.me!,
+              avatar: !previousSame,
+              margin: EdgeInsets.only(
+                top: previousSame ? 1.5 : 6,
+                bottom: nextSame ? 1.5 : 6,
+              ),
+              loadImages: c.settings.value?.loadImages != false,
+              reads: c.chat!.members.length > 10
+                  ? []
+                  : c.chat!.reads.where((m) =>
+                      m.at == e.value.at &&
+                      m.memberId != c.me &&
+                      m.memberId != e.value.authorId),
+              user: u.data,
+              getUser: c.getUser,
+              animation: _animation,
+              onHide: () => c.hideChatItem(e.value),
+              onDelete: () => c.deleteMessage(e.value),
+              onReply: () {
+                if (c.send.replied.any((i) => i.id == e.value.id)) {
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
+                } else {
+                  c.send.replied.insert(0, e.value);
+                }
+              },
+              onCopy: c.copyText,
+              onRepliedTap: c.animateTo,
+              onGallery: c.calculateGallery,
+              onResend: () => c.resendItem(e.value),
+              onEdit: () => c.editMessage(e.value),
+              onDrag: (d) => c.isItemDragged.value = d,
+              onFileTap: (a) => c.download(e.value, a),
+              onAttachmentError: () async {
+                await c.chat?.updateAttachments(e.value);
+                await Future.delayed(Duration.zero);
+              },
+            );
           }),
         ),
       );
@@ -724,23 +724,24 @@ class _ChatViewState extends State<ChatView>
       return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
-    } else if (element is LoadingElement) {
-      return _loadingIndicator();
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
 
-        if (c.bottomLoader.value) {
-          child = Center(
-            key: const ValueKey(1),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-              child: ConstrainedBox(
-                constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(
-                  child: ColoredBox(
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+        if (c.showLoader.value) {
+          child = SizedBox.square(
+            dimension: ChatController.loadingHeight,
+            child: Center(
+              key: const ValueKey(1),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints.tight(const Size.square(40)),
+                  child: const Center(
+                    child: ColoredBox(
+                      color: Colors.transparent,
+                      child: CustomProgressIndicator(),
+                    ),
                   ),
                 ),
               ),
@@ -749,7 +750,7 @@ class _ChatViewState extends State<ChatView>
         } else {
           child = SizedBox(
             key: const ValueKey(2),
-            height: c.listController.position.pixels > 0 ? null : 64,
+            height: c.listController.position.pixels == 0 ? null : 64,
           );
         }
 
@@ -1081,15 +1082,6 @@ class _ChatViewState extends State<ChatView>
           ),
         ),
       ),
-    );
-  }
-
-  /// Builds a visual representation of a [LoadingElement].
-  Widget _loadingIndicator() {
-    return const SizedBox(
-      width: double.infinity,
-      height: ChatController.loadingHeight,
-      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

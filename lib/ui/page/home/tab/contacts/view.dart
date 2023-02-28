@@ -371,7 +371,9 @@ class ContactsTabView extends StatelessWidget {
                                 }),
                                 Obx(() {
                                   if (c.hasNext.isTrue) {
-                                    return _loadingIndicator();
+                                    return const Center(
+                                      child: CustomProgressIndicator(),
+                                    );
                                   } else {
                                     return const SizedBox();
                                   }
@@ -511,18 +513,6 @@ class ContactsTabView extends StatelessWidget {
           );
         }),
       ],
-    );
-  }
-
-  /// Builds a visual representation of a loading indicator.
-  Widget _loadingIndicator() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 

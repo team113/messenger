@@ -532,7 +532,7 @@ class ChatsTabView extends StatelessWidget {
                                         return Column(
                                           children: [
                                             widget,
-                                            _loadingIndicator()
+                                            const CustomProgressIndicator(),
                                           ],
                                         );
                                       } else {
@@ -583,18 +583,6 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  /// Builds a visual representation of a loading indicator.
-  Widget _loadingIndicator() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 

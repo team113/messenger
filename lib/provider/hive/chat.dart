@@ -107,30 +107,39 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
   Future<void> remove(ChatId id) => deleteSafe(id.val);
 
   @override
-  Future<List<HiveChat>> after(HiveChat after, int count) async {
+  Future<ItemsPage<HiveChat>> after(
+    HiveChat after,
+    String? cursor,
+    int count,
+  ) async {
     final sortedChats =
         chats.sortedBy((e) => e.value.updatedAt).reversed.toList();
     int i = sortedChats.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
-      return sortedChats.skip(i + 1).take(count).toList();
+      return ItemsPage<HiveChat>(sortedChats.skip(i + 1).take(count).toList());
     }
 
-    return [];
+    return ItemsPage<HiveChat>([]);
   }
 
   @override
-  Future<List<HiveChat>> before(HiveChat before, int count) {
-    throw UnimplementedError();
+  Future<ItemsPage<HiveChat>> before(
+      HiveChat before, String? cursor, int count) {
+    throw Exception('Unreachable');
   }
 
   @override
-  Future<List<HiveChat>> initial(int count) async {
-    return chats
-        .sortedBy((e) => e.value.updatedAt)
-        .reversed
-        .toList()
-        .take(count)
-        .toList();
+  Future<ItemsPage<HiveChat>> initial(int count, String? cursor) async {
+    final List<HiveChat> sortedChats =
+        chats.sortedBy((e) => e.value.updatedAt).reversed.toList();
+    int notLocal = 0;
+    final int i = sortedChats
+        .indexWhere((e) => !e.value.id.isLocal && ++notLocal == count);
+    if (i != -1) {
+      return ItemsPage<HiveChat>(sortedChats.take(i + 1).toList());
+    } else {
+      return ItemsPage<HiveChat>(sortedChats);
+    }
   }
 }
 

@@ -29,7 +29,7 @@ class PaginatedFragment<T> {
     this.initialCursor,
     required this.compare,
     required this.equal,
-    required this.onFetchPage,
+    required this.remoteProvider,
     required this.onDelete,
     this.cacheProvider,
     this.ignore,
@@ -47,19 +47,14 @@ class PaginatedFragment<T> {
   /// Indicated whether items are equal.
   final bool Function(T a, T b) equal;
 
-  /// Callback, called to fetch items page.
-  final Future<ItemsPage<T>?> Function({
-    int? first,
-    String? after,
-    int? last,
-    String? before,
-  }) onFetchPage;
-
   /// Callback, called when an item deleted from the [cacheProvider].
   final void Function(T item) onDelete;
 
-  /// [List] of the cached items.
+  /// [PageProvider] loading items from cache.
   PageProvider<T>? cacheProvider;
+
+  /// [PageProvider] loading items from the remote.
+  PageProvider<T> remoteProvider;
 
   /// Indicates whether item should not be deleted from the [cacheProvider] if not
   /// exists on the remote.
@@ -98,11 +93,9 @@ class PaginatedFragment<T> {
   /// Gets initial page from the [cacheProvider].
   Future<void> init() async {
     if (cacheProvider != null) {
-      if (initialCursor != null) {
-        elements.addAll(await cacheProvider!.initial(pageSize ~/ 2));
-      } else {
-        elements.addAll(await cacheProvider!.initial(pageSize));
-      }
+      elements.addAll(
+        (await cacheProvider!.initial(pageSize, initialCursor)).items,
+      );
     }
 
     initialized = true;
@@ -118,29 +111,19 @@ class PaginatedFragment<T> {
     // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
 
-    ItemsPage<T>? fetched;
-    if (initialCursor != null) {
-      fetched = await onFetchPage(
-        first: pageSize ~/ 2 - 1,
-        after: initialCursor,
-        last: pageSize ~/ 2 - 1,
-        before: initialCursor,
-      );
-    } else {
-      fetched = await onFetchPage(first: pageSize);
-    }
+    ItemsPage<T>? fetched =
+        await remoteProvider.initial(pageSize, initialCursor);
 
-    if (fetched != null) {
-      hasNextPage.value = fetched.pageInfo.hasNextPage;
-      hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
-      _startCursor = fetched.pageInfo.startCursor;
-      _endCursor = fetched.pageInfo.endCursor;
+    hasNextPage.value = fetched.pageInfo?.hasNextPage ?? hasNextPage.value;
+    hasPreviousPage.value =
+        fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+    _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
+    _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
-      _syncItems(fetched.items);
+    _syncItems(fetched.items);
 
-      for (T i in fetched.items) {
-        _add(i);
-      }
+    for (T i in fetched.items) {
+      _add(i);
     }
   }
 
@@ -152,7 +135,9 @@ class PaginatedFragment<T> {
 
     if (cacheProvider != null) {
       _nextPageCacheLoading = true;
-      Iterable<T> cached = await cacheProvider!.after(elements.last, pageSize);
+      Iterable<T> cached =
+          (await cacheProvider!.after(elements.last, _endCursor, pageSize))
+              .items;
       for (T i in cached) {
         elements.insertAfter(i, (e) => compare(i, e) == 1);
       }
@@ -172,27 +157,26 @@ class PaginatedFragment<T> {
       // TODO: Temporary timeout, remove before merging.
       await Future.delayed(const Duration(seconds: 2));
 
-      ItemsPage<T>? fetched = await onFetchPage(
-        first: pageSize,
-        after: _endCursor,
+      ItemsPage<T>? fetched = await remoteProvider.after(
+        elements.last,
+        _endCursor,
+        pageSize,
       );
 
-      if (fetched != null) {
-        hasNextPage.value = fetched.pageInfo.hasNextPage;
-        _endCursor = fetched.pageInfo.endCursor;
+      hasNextPage.value = fetched.pageInfo?.hasNextPage ?? hasNextPage.value;
+      _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
-        _syncItems(fetched.items);
+      _syncItems(fetched.items);
 
-        await onItemsLoaded?.call(fetched.items);
+      await onItemsLoaded?.call(fetched.items);
 
-        for (T i in fetched.items) {
-          _add(i);
-        }
+      for (T i in fetched.items) {
+        _add(i);
+      }
 
-        if (_synced.length < elements.length) {
-          _isNextPageLoading = false;
-          await _fetchNextPage(onItemsLoaded: onItemsLoaded);
-        }
+      if (_synced.length < elements.length) {
+        _isNextPageLoading = false;
+        await _fetchNextPage(onItemsLoaded: onItemsLoaded);
       }
 
       _isNextPageLoading = false;
@@ -211,15 +195,14 @@ class PaginatedFragment<T> {
     await Future.delayed(const Duration(seconds: 2));
 
     ItemsPage<T>? fetched =
-        await onFetchPage(last: pageSize, before: _startCursor);
+        await remoteProvider.before(elements.first, _startCursor, pageSize);
 
-    if (fetched != null) {
-      hasPreviousPage.value = fetched.pageInfo.hasPreviousPage;
-      _startCursor = fetched.pageInfo.startCursor;
+    hasPreviousPage.value =
+        fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+    _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
 
-      for (T i in fetched.items) {
-        _add(i);
-      }
+    for (T i in fetched.items) {
+      _add(i);
     }
 
     _isPrevPageLoading = false;
@@ -264,22 +247,69 @@ class PaginatedFragment<T> {
 }
 
 /// Page fetching result.
-abstract class ItemsPage<T> {
+class ItemsPage<T> {
+  ItemsPage(this._items, [this._pageInfo]);
+
   /// Fetched items.
-  List<T> get items;
+  final List<T> _items;
 
   /// Page info of this [ItemsPage].
-  PageInfoMixin get pageInfo;
+  final PageInfoMixin? _pageInfo;
+
+  /// Fetched items.
+  List<T> get items => _items;
+
+  /// Page info of this [ItemsPage].
+  PageInfoMixin? get pageInfo => _pageInfo;
 }
 
 /// Base class for load items with pagination.
 abstract class PageProvider<T> {
   /// Gets initial items.
-  Future<List<T>> initial(int count);
+  Future<ItemsPage<T>> initial(int count, String? cursor);
 
   /// Gets items [after] the provided item.
-  Future<List<T>> after(T after, int count);
+  Future<ItemsPage<T>> after(T after, String? cursor, int count);
 
   /// Gets items [before] the provided item.
-  Future<List<T>> before(T before, int count);
+  Future<ItemsPage<T>> before(T before, String? cursor, int count);
+}
+
+/// [PageProvider] loading items with pagination from the remote.
+class RemotePageProvider<T> implements PageProvider<T> {
+  RemotePageProvider(this.onFetchPage);
+
+  /// Callback, called to fetch items page.
+  final Future<ItemsPage<T>> Function({
+    int? first,
+    String? after,
+    int? last,
+    String? before,
+  }) onFetchPage;
+
+  @override
+  Future<ItemsPage<T>> after(T after, String? cursor, int count) {
+    return onFetchPage(first: count, after: cursor);
+  }
+
+  @override
+  Future<ItemsPage<T>> before(T before, String? cursor, int count) {
+    return onFetchPage(last: count, before: cursor);
+  }
+
+  @override
+  Future<ItemsPage<T>> initial(int count, String? cursor) {
+    if (cursor != null) {
+      return onFetchPage(
+        first: count ~/ 2 - 1,
+        after: cursor,
+        last: count ~/ 2 - 1,
+        before: cursor,
+      );
+    } else {
+      return onFetchPage(
+        first: count,
+      );
+    }
+  }
 }

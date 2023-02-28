@@ -94,18 +94,25 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   Future<void> remove(String timestamp) => deleteSafe(timestamp);
 
   @override
-  Future<List<HiveChatItem>> initial(int count) async {
+  Future<ItemsPage<HiveChatItem>> initial(int count, String? cursor) async {
     final lazyBox = box as LazyBox<HiveChatItem>;
     List<Future<HiveChatItem?>> futures = [];
+    count = cursor == null ? count : count ~/ 2;
     for (int i = 0; i < count && lazyBox.length - (i + 1) > -1; i++) {
       futures.add(lazyBox.getAt(lazyBox.length - (i + 1)));
     }
 
-    return (await Future.wait(futures)).whereNotNull().toList();
+    return ItemsPage<HiveChatItem>(
+      (await Future.wait(futures)).whereNotNull().toList(),
+    );
   }
 
   @override
-  Future<List<HiveChatItem>> after(HiveChatItem after, int count) async {
+  Future<ItemsPage<HiveChatItem>> after(
+    HiveChatItem after,
+    String? cursor,
+    int count,
+  ) async {
     final lazyBox = box as LazyBox<HiveChatItem>;
     int index = lazyBox.keys.toList().indexOf(after.value.timestamp);
     List<Future<HiveChatItem?>> futures = [];
@@ -115,11 +122,17 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
       }
     }
 
-    return (await Future.wait(futures)).whereNotNull().toList();
+    return ItemsPage<HiveChatItem>(
+      (await Future.wait(futures)).whereNotNull().toList(),
+    );
   }
 
   @override
-  Future<List<HiveChatItem>> before(HiveChatItem before, int count) async {
+  Future<ItemsPage<HiveChatItem>> before(
+    HiveChatItem before,
+    String? cursor,
+    int count,
+  ) async {
     final lazyBox = box as LazyBox<HiveChatItem>;
     int index = lazyBox.keys.toList().indexOf(before.value.timestamp);
     List<Future<HiveChatItem?>> futures = [];
@@ -129,7 +142,9 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
       }
     }
 
-    return (await Future.wait(futures)).whereNotNull().toList();
+    return ItemsPage<HiveChatItem>(
+      (await Future.wait(futures)).whereNotNull().toList(),
+    );
   }
 }
 

@@ -68,31 +68,40 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
   Future<void> remove(ChatContactId id) => deleteSafe(id.val);
 
   @override
-  Future<List<HiveChatContact>> after(
+  Future<ItemsPage<HiveChatContact>> after(
     HiveChatContact after,
+    String? cursor,
     int count,
   ) async {
     final sortedContacts =
         contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
     int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
-      return sortedContacts.skip(i + 1).take(count).toList();
+      return ItemsPage<HiveChatContact>(
+        sortedContacts.skip(i + 1).take(count).toList(),
+      );
     }
 
-    return [];
+    return ItemsPage<HiveChatContact>([]);
   }
 
   @override
-  Future<List<HiveChatContact>> before(HiveChatContact before, int count) {
-    throw UnimplementedError();
+  Future<ItemsPage<HiveChatContact>> before(
+    HiveChatContact before,
+    String? cursor,
+    int count,
+  ) {
+    throw Exception('Unreachable');
   }
 
   @override
-  Future<List<HiveChatContact>> initial(int count) async {
-    return contacts
-        .sortedBy((e) => e.value.name.val + e.value.id.val)
-        .take(count)
-        .toList();
+  Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
+    return ItemsPage<HiveChatContact>(
+      contacts
+          .sortedBy((e) => e.value.name.val + e.value.id.val)
+          .take(cursor == null ? count : count ~/ 2)
+          .toList(),
+    );
   }
 }
 

@@ -90,6 +90,6 @@ class ApplicationSettingsHiveProvider
   /// to [Hive].
   Future<void> setLoadImages(bool enabled) => putSafe(
         0,
-        (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
+        (getSafe(0) ?? ApplicationSettings())..loadImages = enabled,
       );
 }

@@ -110,31 +110,28 @@ class ContactRepository implements AbstractContactRepository {
       },
       equal: (a, b) => a.value.id == b.value.id,
       onDelete: (e) => _contactLocal.remove(e.value.id),
-      onFetchPage: ({
-        int? first,
-        String? after,
-        int? last,
-        String? before,
-      }) async {
-        ChatContactsCursor? afterCursor;
-        if (after != null) {
-          afterCursor = ChatContactsCursor(after);
-        }
+      remoteProvider: RemotePageProvider(
+        ({after, before, first, last}) async {
+          ChatContactsCursor? afterCursor;
+          if (after != null) {
+            afterCursor = ChatContactsCursor(after);
+          }
 
-        ChatContactsCursor? beforeCursor;
-        if (before != null) {
-          beforeCursor = ChatContactsCursor(before);
-        }
+          ChatContactsCursor? beforeCursor;
+          if (before != null) {
+            beforeCursor = ChatContactsCursor(before);
+          }
 
-        ContactsQuery query = await _fetchContacts(
-          after: afterCursor,
-          first: first,
-          before: beforeCursor,
-          last: last,
-        );
+          ContactsQuery query = await _fetchContacts(
+            after: afterCursor,
+            first: first,
+            before: beforeCursor,
+            last: last,
+          );
 
-        return query;
-      },
+          return query;
+        },
+      ),
     );
 
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
