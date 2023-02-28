@@ -240,7 +240,8 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.public ||
             routes.last == Routes.funds ||
             routes.last == Routes.user ||
-            routes.last == Routes.balance) {
+            routes.last == Routes.balance ||
+            routes.last == Routes.transaction) {
           routes.last = Routes.home;
         }
       } else {

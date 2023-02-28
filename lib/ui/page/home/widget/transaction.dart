@@ -102,24 +102,25 @@ class TransactionWidget extends StatelessWidget {
                                         const TextSpan(text: '\$')
                                       else if (currency ==
                                           TransactionCurrency.inter)
-                                        WidgetSpan(
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(right: 2),
-                                            child: SvgLoader.asset(
-                                              'assets/icons/inter_bold.svg',
-                                              width: 6.08,
-                                              height: 12.5,
-                                            ),
-                                          ),
+                                        TextSpan(
+                                          text: '¤',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.copyWith(
+                                                fontFamily: 'InterRoboto',
+                                              ),
                                         ),
                                       TextSpan(
                                         text: '${transaction.amount.abs()}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall,
                                       ),
                                     ],
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headlineSmall!,
+                                        .headlineSmall,
                                   ),
                                 ),
                               ),

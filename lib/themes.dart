@@ -131,22 +131,22 @@ class Themes {
             fontWeight: FontWeight.w300,
             fontSize: 15.4,
           ),
-          displaySmall: const TextStyle(
+          displaySmall: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headlineMedium: const TextStyle(
+          headlineMedium: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headlineSmall: const TextStyle(
+          headlineSmall: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          titleLarge: const TextStyle(
+          titleLarge: TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -156,17 +156,17 @@ class Themes {
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          labelLarge: const TextStyle(
+          labelLarge: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 24 * 0.7,
           ),
-          labelSmall: const TextStyle(
+          labelSmall: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 17,
           ),
-          titleMedium: const TextStyle(
+          titleMedium: TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
@@ -176,12 +176,12 @@ class Themes {
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyLarge: const TextStyle(
+          bodyLarge: TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyMedium: const TextStyle(
+          bodyMedium: TextStyle(
             color: Colors.black,
             fontSize: 13,
             fontWeight: FontWeight.w300,

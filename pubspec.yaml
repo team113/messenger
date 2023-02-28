@@ -143,6 +143,12 @@ flutter:
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
+  fonts:
+    - family: InterRoboto
+      fonts:
+        - asset: assets/fonts/InterRoboto-Regular.ttf
+        - asset: assets/fonts/InterRoboto-Light.ttf
+          weight: 300
 
 sentry:
   upload_native_symbols: true

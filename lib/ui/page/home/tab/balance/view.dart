@@ -46,14 +46,23 @@ class BalanceTabView extends StatelessWidget {
         return Scaffold(
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Balance: '),
-                SvgLoader.asset('assets/icons/inter.svg', height: 13),
-                const SizedBox(width: 1),
-                Text('${c.balance.value.toInt()}'),
-              ],
+            title: RichText(
+              text: TextSpan(
+                children: [
+                  const TextSpan(text: 'Balance: '),
+                  TextSpan(
+                    text: '¤',
+                    style:
+                        Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+                              fontFamily: 'InterRoboto',
+                              fontWeight: FontWeight.w300,
+                              fontSize: 18,
+                            ),
+                  ),
+                  TextSpan(text: '${c.balance.value.toInt()}'),
+                ],
+                style: Theme.of(context).appBarTheme.titleTextStyle,
+              ),
             ),
             leading: [
               WidgetButton(
@@ -137,14 +146,12 @@ class BalanceTabView extends StatelessWidget {
                                         text: TextSpan(
                                           children: [
                                             const TextSpan(text: 'What is '),
-                                            WidgetSpan(
-                                              child: Transform.translate(
-                                                offset: const Offset(0, -3.6),
-                                                child: SvgLoader.asset(
-                                                  'assets/icons/inter.svg',
-                                                  width: 6.25 * 0.99,
-                                                  height: 13.25 * 0.99,
-                                                ),
+                                            TextSpan(
+                                              text: '¤',
+                                              style: textStyle?.copyWith(
+                                                fontFamily: 'InterRoboto',
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: 18,
                                               ),
                                             ),
                                             const TextSpan(text: ' (Inter)?'),
@@ -166,28 +173,24 @@ class BalanceTabView extends StatelessWidget {
                                       child: RichText(
                                         text: TextSpan(
                                           children: [
-                                            WidgetSpan(
-                                              child: Transform.translate(
-                                                offset: const Offset(0, 0),
-                                                child: SvgLoader.asset(
-                                                  'assets/icons/inter.svg',
-                                                  width: 6.25 * 0.88,
-                                                  height: 13.25 * 0.88,
-                                                ),
+                                            TextSpan(
+                                              text: '¤',
+                                              style: textStyle?.copyWith(
+                                                fontFamily: 'InterRoboto',
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: 15,
                                               ),
                                             ),
                                             const TextSpan(
                                               text:
                                                   ' (Inter) is an internal currency for purchasing services offered by Gapopa.\n\n',
                                             ),
-                                            WidgetSpan(
-                                              child: Transform.translate(
-                                                offset: const Offset(0, 0),
-                                                child: SvgLoader.asset(
-                                                  'assets/icons/inter.svg',
-                                                  width: 6.25 * 0.88,
-                                                  height: 13.25 * 0.88,
-                                                ),
+                                            TextSpan(
+                                              text: '¤',
+                                              style: textStyle?.copyWith(
+                                                fontFamily: 'InterRoboto',
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: 15,
                                               ),
                                             ),
                                             const TextSpan(text: '100 = €1.00'),
