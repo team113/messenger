@@ -224,9 +224,6 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
-  double get secondaryScaleFactor =>
-      (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
-
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
@@ -305,6 +302,9 @@ class CallController extends GetxController {
 
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
+
+  /// Save previous constraints to define width changes for scale.
+  BoxConstraints? _lastConstraints;
 
   /// Service managing the [_currentCall].
   final CallService _calls;
@@ -505,6 +505,10 @@ class CallController extends GetxController {
 
     return args;
   }
+
+  /// Returns scale factor of the secondary view according to the [size].
+  double get secondaryScaleFactor =>
+      (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
 
   @override
   void onInit() {
@@ -1544,88 +1548,29 @@ class CallController extends GetxController {
         break;
     }
 
-    // Update secondary constraints
+    // Update secondary constraints.
     applySecondaryConstraints();
-  }
-
-  /// Update x(left/right)|y(top/bottom) possition
-  void _updateSecondaryPossition({
-    required RxnDouble primaryPossitionRef,
-    required RxnDouble secondaryPossitionRef,
-    required Axis axis,
-  }) {
-    double parentEmptySpace = axis == Axis.horizontal
-        ? size.width - secondaryWidth.value
-        : size.height - secondaryHeight.value;
-
-    primaryPossitionRef.value ??=
-        parentEmptySpace - (secondaryPossitionRef.value ?? 0);
-
-    // Nullify opposit offset
-    secondaryPossitionRef.value = null;
-  }
-
-  void _updateSecondarySize({
-    required RxnDouble possitionRef,
-    required double? Function(double?) applyPossitionFnRef,
-    required double dAxis,
-    required Axis axis,
-  }) {
-    late RxDouble sizeAxisRef;
-    late double parentAxisSizeRef;
-    late double Function(double) applyAxisSizeFnRef;
-
-    switch (axis) {
-      case Axis.horizontal:
-        sizeAxisRef = secondaryWidth;
-        parentAxisSizeRef = size.width;
-        applyAxisSizeFnRef = _applySWidth;
-        break;
-      case Axis.vertical:
-        sizeAxisRef = secondaryHeight;
-        parentAxisSizeRef = size.height;
-        applyAxisSizeFnRef = _applySHeight;
-        break;
-      default:
-        return;
-    }
-
-    double newSize = applyAxisSizeFnRef(sizeAxisRef.value - dAxis);
-    if (sizeAxisRef.value - dAxis == newSize) {
-      double? possition = applyPossitionFnRef(
-        possitionRef.value! + (sizeAxisRef.value - newSize),
-      );
-
-      if (possitionRef.value! + (sizeAxisRef.value - newSize) == possition) {
-        possitionRef.value = possition;
-        sizeAxisRef.value = newSize;
-      } else if (possition == parentAxisSizeRef - sizeAxisRef.value) {
-        possitionRef.value = parentAxisSizeRef - newSize;
-        sizeAxisRef.value = newSize;
-      }
-    }
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     if (x != null && dx != null) {
-      // X offset link
-      RxnDouble xSidePrimaryValueRef =
+      // X offset link.
+      RxnDouble xPrimaryOffset =
           x == ScaleModeX.left ? secondaryLeft : secondaryRight;
-      RxnDouble xSideSecondaryValueRef =
+      RxnDouble xSecondaryOffset =
           x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
-      // Update possition
-      _updateSecondaryPossition(
-        primaryPossitionRef: xSidePrimaryValueRef,
-        secondaryPossitionRef: xSideSecondaryValueRef,
+      _updateSecondaryAxisOffset(
+        primaryOffset: xPrimaryOffset,
+        secondaryOffset: xSecondaryOffset,
         axis: Axis.horizontal,
       );
 
       _updateSecondarySize(
-        possitionRef: xSidePrimaryValueRef,
-        applyPossitionFnRef: x == ScaleModeX.left ? _applySLeft : _applySRight,
+        sideOffset: xPrimaryOffset,
+        applyOffset: x == ScaleModeX.left ? _applySLeft : _applySRight,
         dAxis: dx,
         axis: Axis.horizontal,
       );
@@ -1638,15 +1583,15 @@ class CallController extends GetxController {
       RxnDouble ySideSecondaryValueRef =
           y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
-      _updateSecondaryPossition(
-        primaryPossitionRef: ySidePrimaryValueRef,
-        secondaryPossitionRef: ySideSecondaryValueRef,
+      _updateSecondaryAxisOffset(
+        primaryOffset: ySidePrimaryValueRef,
+        secondaryOffset: ySideSecondaryValueRef,
         axis: Axis.vertical,
       );
 
       _updateSecondarySize(
-        possitionRef: ySidePrimaryValueRef,
-        applyPossitionFnRef: y == ScaleModeY.top ? _applySTop : _applySBottom,
+        sideOffset: ySidePrimaryValueRef,
+        applyOffset: y == ScaleModeY.top ? _applySTop : _applySBottom,
         dAxis: dy,
         axis: Axis.vertical,
       );
@@ -1655,8 +1600,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Required for scale to find right width changes
-  BoxConstraints? _lastConstraints;
+  /// Scales secondary by [scaleFactor] according to [constraints] and [_lastConstraints] difference.
   void scaleSecondary({
     required BoxConstraints constraints,
   }) {
@@ -1796,6 +1740,63 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Updates x(left/right)|y(top/bottom) offset.
+  void _updateSecondaryAxisOffset({
+    required RxnDouble primaryOffset,
+    required RxnDouble secondaryOffset,
+    required Axis axis,
+  }) {
+    double parentEmptySpace = axis == Axis.horizontal
+        ? size.width - secondaryWidth.value
+        : size.height - secondaryHeight.value;
+
+    primaryOffset.value ??= parentEmptySpace - (secondaryOffset.value ?? 0);
+
+    // Nullify opposit offset
+    secondaryOffset.value = null;
+  }
+
+  void _updateSecondarySize({
+    required RxnDouble sideOffset,
+    required double? Function(double?) applyOffset,
+    required double dAxis,
+    required Axis axis,
+  }) {
+    late RxDouble sizeAxis;
+    late double parentAxisSize;
+    late double Function(double) applyAxisSize;
+
+    switch (axis) {
+      case Axis.horizontal:
+        sizeAxis = secondaryWidth;
+        parentAxisSize = size.width;
+        applyAxisSize = _applySWidth;
+        break;
+      case Axis.vertical:
+        sizeAxis = secondaryHeight;
+        parentAxisSize = size.height;
+        applyAxisSize = _applySHeight;
+        break;
+      default:
+        return;
+    }
+
+    double newSize = applyAxisSize(sizeAxis.value - dAxis);
+    if (sizeAxis.value - dAxis == newSize) {
+      double? offset = applyOffset(
+        sideOffset.value! + (sizeAxis.value - newSize),
+      );
+
+      if (sideOffset.value! + (sizeAxis.value - newSize) == offset) {
+        sideOffset.value = offset;
+        sizeAxis.value = newSize;
+      } else if (offset == parentAxisSize - sizeAxis.value) {
+        sideOffset.value = parentAxisSize - newSize;
+        sizeAxis.value = newSize;
+      }
+    }
   }
 
   /// Invokes [minimize], if not [minimized] already.
