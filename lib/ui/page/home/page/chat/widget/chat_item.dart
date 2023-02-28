@@ -72,6 +72,7 @@ class ChatItemWidget extends StatefulWidget {
     this.avatar = true,
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
+    this.loadImages = true,
     this.getUser,
     this.animation,
     this.onHide,
@@ -107,6 +108,10 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
+
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
+  final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -162,6 +167,7 @@ class ChatItemWidget extends StatefulWidget {
     List<Attachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
+    bool autoLoad = true,
   }) {
     final bool isLocal = e is LocalAttachment;
 
@@ -182,6 +188,7 @@ class ChatItemWidget extends StatefulWidget {
             key: key,
             attachment: e,
             height: 300,
+            autoLoad: autoLoad,
             onError: onError,
           ),
           Center(
@@ -205,6 +212,7 @@ class ChatItemWidget extends StatefulWidget {
         height: 300,
         width: filled ? double.infinity : null,
         fit: BoxFit.cover,
+        autoLoad: autoLoad,
         onError: onError,
       );
 
@@ -218,106 +226,111 @@ class ChatItemWidget extends StatefulWidget {
 
     return Padding(
       padding: EdgeInsets.zero,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: isLocal
-            ? null
-            : () {
-                final List<Attachment> attachments = onGallery?.call() ?? media;
+      child: MouseRegion(
+        cursor: isLocal ? MouseCursor.defer : SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: isLocal
+              ? null
+              : () {
+                  final List<Attachment> attachments =
+                      onGallery?.call() ?? media;
 
-                int initial = attachments.indexOf(e);
-                if (initial == -1) {
-                  initial = 0;
-                }
-
-                List<GalleryItem> gallery = [];
-                for (var o in attachments) {
-                  StorageFile file = o.original;
-                  GalleryItem? item;
-
-                  if (o is FileAttachment) {
-                    item = GalleryItem.video(
-                      file.url,
-                      o.filename,
-                      size: file.size,
-                      checksum: file.checksum,
-                      onError: () async {
-                        await onError?.call();
-                        item?.link = o.original.url;
-                      },
-                    );
-                  } else if (o is ImageAttachment) {
-                    item = GalleryItem.image(
-                      file.url,
-                      o.filename,
-                      size: file.size,
-                      checksum: file.checksum,
-                      onError: () async {
-                        await onError?.call();
-                        item?.link = o.original.url;
-                      },
-                    );
+                  int initial = attachments.indexOf(e);
+                  if (initial == -1) {
+                    initial = 0;
                   }
 
-                  gallery.add(item!);
-                }
+                  List<GalleryItem> gallery = [];
+                  for (var o in attachments) {
+                    StorageFile file = o.original;
+                    GalleryItem? item;
 
-                GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    children: gallery,
-                    initial: initial,
-                    initialKey: key,
-                  ),
-                );
-              },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            filled
-                ? Positioned.fill(child: attachment)
-                : Container(
-                    constraints: const BoxConstraints(minWidth: 300),
-                    width: double.infinity,
-                    child: attachment,
-                  ),
-            ElasticAnimatedSwitcher(
-              key: Key('AttachmentStatus_${e.id}'),
-              child: !isLocal
-                  ? Container(key: const Key('Sent'))
-                  : Container(
-                      constraints: filled
-                          ? const BoxConstraints(minWidth: 300, minHeight: 300)
-                          : null,
-                      child: e.status.value == SendingStatus.sent
-                          ? const Icon(
-                              Icons.check_circle,
-                              key: Key('Sent'),
-                              size: 48,
-                              color: Colors.green,
-                            )
-                          : e.status.value == SendingStatus.sending
-                              ? SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      key: const Key('Sending'),
-                                      value: e.progress.value,
-                                      backgroundColor: Colors.white,
-                                      strokeWidth: 10,
-                                    ),
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.error,
-                                  key: Key('Error'),
-                                  size: 48,
-                                  color: Colors.red,
-                                ),
+                    if (o is FileAttachment) {
+                      item = GalleryItem.video(
+                        file.url,
+                        o.filename,
+                        size: file.size,
+                        checksum: file.checksum,
+                        onError: () async {
+                          await onError?.call();
+                          item?.link = o.original.url;
+                        },
+                      );
+                    } else if (o is ImageAttachment) {
+                      item = GalleryItem.image(
+                        file.url,
+                        o.filename,
+                        size: file.size,
+                        checksum: file.checksum,
+                        onError: () async {
+                          await onError?.call();
+                          item?.link = o.original.url;
+                        },
+                      );
+                    }
+
+                    gallery.add(item!);
+                  }
+
+                  GalleryPopup.show(
+                    context: context,
+                    gallery: GalleryPopup(
+                      children: gallery,
+                      initial: initial,
+                      initialKey: key,
                     ),
-            )
-          ],
+                  );
+                },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              filled
+                  ? Positioned.fill(child: attachment)
+                  : Container(
+                      constraints: const BoxConstraints(minWidth: 300),
+                      width: double.infinity,
+                      child: attachment,
+                    ),
+              ElasticAnimatedSwitcher(
+                key: Key('AttachmentStatus_${e.id}'),
+                child: !isLocal
+                    ? Container(key: const Key('Sent'))
+                    : Container(
+                        constraints: filled
+                            ? const BoxConstraints(
+                                minWidth: 300, minHeight: 300)
+                            : null,
+                        child: e.status.value == SendingStatus.sent
+                            ? const Icon(
+                                Icons.check_circle,
+                                key: Key('Sent'),
+                                size: 48,
+                                color: Colors.green,
+                              )
+                            : e.status.value == SendingStatus.sending
+                                ? SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        key: const Key('Sending'),
+                                        value: e.progress.value,
+                                        backgroundColor: Colors.white,
+                                        strokeWidth: 10,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.error,
+                                    key: Key('Error'),
+                                    size: 48,
+                                    color: Colors.red,
+                                  ),
+                      ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -876,6 +889,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               key: _galleryKeys[0],
                               onError: widget.onAttachmentError,
                               onGallery: widget.onGallery,
+                              autoLoad: widget.loadImages,
                             )
                           : SizedBox(
                               width: media.length * 120,
@@ -891,6 +905,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         key: _galleryKeys[i],
                                         onError: widget.onAttachmentError,
                                         onGallery: widget.onGallery,
+                                        autoLoad: widget.loadImages,
                                       ),
                                     )
                                     .toList(),
@@ -1082,6 +1097,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         width: double.infinity,
                         height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
+                        cancelable: true,
+                        autoLoad: widget.loadImages,
                       ),
               );
             })
@@ -1412,14 +1429,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
                   padding: EdgeInsets.only(top: 8 + avatarOffset),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => router.user(item.authorId, push: true),
-                    child: Opacity(
-                      opacity: widget.avatar ? 1 : 0,
-                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
-                    ),
-                  ),
+                  child: widget.avatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => router.user(item.authorId, push: true),
+                          child:
+                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                        )
+                      : const SizedBox.square(dimension: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
@@ -1427,10 +1444,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        (constraints.maxWidth +
-                                    (_fromMe ? SwipeableStatus.width : 0)) *
-                                0.84 -
-                            20,
+                        constraints.maxWidth - SwipeableStatus.width,
                       ),
                     ),
                     child: Material(

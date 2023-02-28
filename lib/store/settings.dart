@@ -140,6 +140,10 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsLocal.setLoadImages(enabled);
+
+  @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) =>
       _callPreferencesLocal.put(chatId, prefs);
 

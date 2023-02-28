@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -144,15 +145,17 @@ class MyProfileController extends GetxController {
 
   @override
   void onInit() {
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => enumerateDevices());
-      enumerateDevices();
-    } catch (_) {
-      // [Jason] might not be supported on the current platform.
-      _jason = null;
-      _mediaManager = null;
+    if (!PlatformUtils.isMobile) {
+      try {
+        _jason = Jason();
+        _mediaManager = _jason?.mediaManager();
+        _mediaManager?.onDeviceChange(() => enumerateDevices());
+        enumerateDevices();
+      } catch (_) {
+        // [Jason] might not be supported on the current platform.
+        _jason = null;
+        _mediaManager = null;
+      }
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -324,7 +327,7 @@ class MyProfileController extends GetxController {
         }
 
         try {
-          UserLogin(s.text);
+          UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_login_input'.l10n;
         }
@@ -335,7 +338,8 @@ class MyProfileController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.updateUserLogin(UserLogin(s.text));
+            await _myUserService
+                .updateUserLogin(UserLogin(s.text.toLowerCase()));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),
@@ -539,6 +543,10 @@ class MyProfileController extends GetxController {
       rethrow;
     }
   }
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsRepo.setLoadImages(enabled);
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].

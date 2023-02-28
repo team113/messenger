@@ -22,6 +22,7 @@ import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// [Chat.members] addition view.
@@ -53,7 +54,7 @@ class AddChatMemberView extends StatelessWidget {
       builder: (AddChatMemberController c) {
         return Obx(() {
           if (c.chat.value == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomProgressIndicator());
           }
 
           return SearchView(

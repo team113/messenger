@@ -25,6 +25,7 @@ import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.
@@ -143,7 +144,7 @@ class _VideoState extends State<Video> {
                       ),
                       child: _loading != null
                           ? const SizedBox()
-                          : const Center(child: CircularProgressIndicator()),
+                          : const Center(child: CustomProgressIndicator()),
                     ),
                   ),
                 ),
