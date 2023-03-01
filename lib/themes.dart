@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 
 /// Application themes constants.
 class Themes {
@@ -50,7 +50,8 @@ class Themes {
         extensions: [
           Style(
             barrierColor: const Color(0xBB000000),
-            boldBody: GoogleFonts.roboto(
+            boldBody: const TextStyle(
+              fontFamily: '.SF UI Text',
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
@@ -78,8 +79,9 @@ class Themes {
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
-            systemMessageStyle: GoogleFonts.roboto(
-              color: const Color(0xFF888888),
+            systemMessageStyle: const TextStyle(
+              fontFamily: '.SF UI Text',
+              color: Color(0xFF888888),
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
@@ -106,7 +108,8 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: GoogleFonts.roboto(
+              titleTextStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
                 color: Colors.black,
                 fontWeight: FontWeight.w300,
                 fontSize: 18,
@@ -116,90 +119,139 @@ class Themes {
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: GoogleFonts.robotoTextTheme(),
+        primaryTextTheme: Typography.blackCupertino,
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
-        textTheme: GoogleFonts.robotoTextTheme().copyWith(
+        textTheme: Typography.blackCupertino.copyWith(
           displayLarge: TextStyle(
+            fontFamily: '.SF UI Display',
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 24,
           ),
           displayMedium: TextStyle(
+            fontFamily: '.SF UI Display',
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 15.4,
           ),
-          displaySmall: TextStyle(
+          displaySmall: const TextStyle(
+            fontFamily: '.SF UI Display',
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headlineMedium: TextStyle(
+          headlineLarge: const TextStyle(
+            fontFamily: '.SF UI Display',
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 24,
+          ),
+          headlineMedium: const TextStyle(
+            fontFamily: '.SF UI Display',
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headlineSmall: TextStyle(
+          headlineSmall: const TextStyle(
+            fontFamily: '.SF UI Display',
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          titleLarge: TextStyle(
+          titleLarge: const TextStyle(
+            fontFamily: '.SF UI Display',
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-          bodySmall: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w300,
-            fontSize: 13,
-          ),
-          labelLarge: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 24 * 0.7,
-          ),
-          labelSmall: TextStyle(
+          labelLarge: const TextStyle(
+            fontFamily: '.SF UI Text',
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 17,
           ),
-          titleMedium: TextStyle(
+          labelMedium: const TextStyle(
+            fontFamily: '.SF UI Text',
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 17,
+          ),
+          labelSmall: const TextStyle(
+            fontFamily: '.SF UI Text',
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 17,
+          ),
+          titleMedium: const TextStyle(
+            fontFamily: '.SF UI Text',
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
           titleSmall: TextStyle(
+            fontFamily: '.SF UI Text',
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyLarge: TextStyle(
+          bodyLarge: const TextStyle(
+            fontFamily: '.SF UI Text',
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyMedium: TextStyle(
+          bodyMedium: const TextStyle(
+            fontFamily: '.SF UI Text',
             color: Colors.black,
             fontSize: 13,
             fontWeight: FontWeight.w300,
+          ),
+          bodySmall: TextStyle(
+            fontFamily: '.SF UI Text',
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 13,
           ),
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
               hoverColor: Colors.transparent,
               fillColor: colors.secondary,
-              hintStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              labelStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
-              helperStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              floatingLabelStyle:
-                  GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              hintStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              labelStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              errorStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                fontSize: 13,
+                color: Colors.red,
+              ),
+              helperStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              prefixStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              suffixStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              counterStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
+              floatingLabelStyle: const TextStyle(
+                fontFamily: '.SF UI Text',
+                color: Color(0xFFC4C4C4),
+              ),
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -240,7 +292,8 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.primary,
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
+              fontFamily: '.SF UI Text',
               color: colors.primary,
               fontSize: 17,
             ),
@@ -255,7 +308,8 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             side: BorderSide(width: 1, color: colors.primary),
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
+              fontFamily: '.SF UI Text',
               color: colors.primary,
               fontSize: 17,
             ),
@@ -267,7 +321,8 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
+              fontFamily: '.SF UI Text',
               color: colors.primary,
               fontSize: 15,
             ),
