@@ -96,9 +96,6 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
-  /// Indicator whether the secondary view is being scaled.
-  final RxBool secondaryScaled = RxBool(false);
-
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
@@ -263,11 +260,6 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
-  /// [secondaryBottom] value before the secondary view got relocated with the
-  /// [relocateSecondary] method due to resize of the call view or the secondary
-  /// view.
-  double? secondaryBottomShiftedFromResize;
-
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -373,6 +365,10 @@ class CallController extends GetxController {
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [secondaryBottom] value before the secondary view got relocated with the
+  /// [relocateSecondary] method due to the intersection with the [Dock].
+  double? _secondaryBottomShiftedWhenDockIntersect;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -1259,7 +1255,6 @@ class CallController extends GetxController {
   void relocateSecondary() {
     if (secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&
-        secondaryScaled.isFalse &&
         !_secondaryRelocated) {
       _secondaryRelocated = true;
 
@@ -1290,7 +1285,7 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
-        secondaryBottomShiftedFromResize = secondaryBottomShifted;
+        _secondaryBottomShiftedWhenDockIntersect ??= secondaryBottomShifted;
 
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
@@ -1299,6 +1294,12 @@ class CallController extends GetxController {
         // it was before, so move it to its original position.
         double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
+
+        if (_secondaryBottomShiftedWhenDockIntersect != null) {
+          secondaryBottomShifted = _secondaryBottomShiftedWhenDockIntersect;
+        }
+        _secondaryBottomShiftedWhenDockIntersect = null;
+
         if (bottom > secondaryBottomShifted!) {
           double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
@@ -1320,18 +1321,6 @@ class CallController extends GetxController {
 
           applySecondaryConstraints();
         }
-      }
-
-      print(
-          '!WebUtils.isPopup (${!WebUtils.isPopup}) && secondaryBottomShiftedFromResize != null (${secondaryBottomShiftedFromResize != null}) && dockBounds != null (${dockBounds != null}) && !(intersect.width > 0 (${intersect.width > 0}) && router.context!.mediaQuerySize.height - secondaryBottom.value! (${router.context!.mediaQuerySize.height - secondaryBottom.value!}) > dockBounds.top (${dockBounds?.top})) { secondaryBottom.value (${secondaryBottom.value}) = secondaryBottomShiftedFromResize (${secondaryBottomShiftedFromResize}) }');
-
-      if (!WebUtils.isPopup &&
-          secondaryBottomShiftedFromResize != null &&
-          dockBounds != null &&
-          !(intersect.width > 0 &&
-              router.context!.mediaQuerySize.height - secondaryBottom.value! >
-                  dockBounds.top)) {
-        secondaryBottom.value = secondaryBottomShiftedFromResize;
       }
 
       SchedulerBinding.instance
