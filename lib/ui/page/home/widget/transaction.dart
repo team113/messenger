@@ -107,7 +107,7 @@ class TransactionWidget extends StatelessWidget {
                                               fontWeight: FontWeight.w300,
                                             ),
                                       ),
-                                    const WidgetSpan(child: SizedBox(width: 2)),
+                                    const WidgetSpan(child: SizedBox(width: 1)),
                                     TextSpan(
                                       text: '${transaction.amount.abs()}',
                                     ),

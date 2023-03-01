@@ -60,7 +60,7 @@ class BalanceTabView extends StatelessWidget {
                               fontSize: 18,
                             ),
                   ),
-                  const WidgetSpan(child: SizedBox(width: 2)),
+                  const WidgetSpan(child: SizedBox(width: 1)),
                   TextSpan(text: '${c.balance.value.toInt()}'),
                 ],
                 style: Theme.of(context).appBarTheme.titleTextStyle,
