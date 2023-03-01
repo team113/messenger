@@ -89,39 +89,35 @@ class TransactionWidget extends StatelessWidget {
                             //   height: 13,
                             // ),
                             Expanded(
-                              child: DefaultTextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall!,
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      if (currency ==
-                                          TransactionCurrency.dollar)
-                                        const TextSpan(text: '\$')
-                                      else if (currency ==
-                                          TransactionCurrency.inter)
-                                        TextSpan(
-                                          text: '¤',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall
-                                              ?.copyWith(
-                                                fontFamily: 'InterRoboto',
-                                              ),
-                                        ),
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    if (currency == TransactionCurrency.dollar)
+                                      const TextSpan(text: '\$')
+                                    else if (currency ==
+                                        TransactionCurrency.inter)
                                       TextSpan(
-                                        text: '${transaction.amount.abs()}',
+                                        text: '¤',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headlineSmall,
+                                            .headlineSmall
+                                            ?.copyWith(
+                                              height: 0.8,
+                                              fontFamily: 'InterRoboto',
+                                              fontWeight: FontWeight.w300,
+                                            ),
                                       ),
-                                    ],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall,
-                                  ),
+                                    const WidgetSpan(child: SizedBox(width: 2)),
+                                    TextSpan(
+                                      text: '${transaction.amount.abs()}',
+                                    ),
+                                  ],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w300,
+                                      ),
                                 ),
                               ),
                             ),

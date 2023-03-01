@@ -54,11 +54,13 @@ class BalanceTabView extends StatelessWidget {
                     text: '¤',
                     style:
                         Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+                              height: 0.8,
                               fontFamily: 'InterRoboto',
                               fontWeight: FontWeight.w300,
                               fontSize: 18,
                             ),
                   ),
+                  const WidgetSpan(child: SizedBox(width: 2)),
                   TextSpan(text: '${c.balance.value.toInt()}'),
                 ],
                 style: Theme.of(context).appBarTheme.titleTextStyle,
@@ -149,6 +151,7 @@ class BalanceTabView extends StatelessWidget {
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
+                                                height: 0.8,
                                                 fontFamily: 'InterRoboto',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 18,
@@ -176,6 +179,7 @@ class BalanceTabView extends StatelessWidget {
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
+                                                height: 0.8,
                                                 fontFamily: 'InterRoboto',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 15,
@@ -188,6 +192,7 @@ class BalanceTabView extends StatelessWidget {
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
+                                                height: 0.8,
                                                 fontFamily: 'InterRoboto',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 15,

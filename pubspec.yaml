@@ -42,7 +42,6 @@ dependencies:
   pasteboard: ^0.2.0
   flutter_web_plugins:
     sdk: flutter
-  font_awesome_flutter: ^10.3.0
   get: ^4.6.5
   google_fonts: ^4.0.3
   graphql_flutter: ^5.1.2
@@ -147,7 +146,14 @@ flutter:
     - family: InterRoboto
       fonts:
         - asset: assets/fonts/InterRoboto-Regular.ttf
+          weight: 400
         - asset: assets/fonts/InterRoboto-Light.ttf
+          weight: 300
+    - family: SFUI
+      fonts:
+        - asset: assets/fonts/SFUIDisplay-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/SFUIDisplay-Light.ttf
           weight: 300
 
 sentry:
