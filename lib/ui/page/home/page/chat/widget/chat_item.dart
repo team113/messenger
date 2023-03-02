@@ -27,13 +27,14 @@ import 'package:path/path.dart' as p;
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
-import '/api/backend/schema.dart'
-    show ChatCallFinishReason, ChatMemberInfoAction;
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -596,23 +597,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
         } else if (widget.item.value is ChatCall) {
           return _renderAsChatCall(context);
-        } else if (widget.item.value is ChatMemberInfo) {
-          return _renderAsChatMemberInfo();
+        } else if (widget.item.value is ChatInfo) {
+          return _renderAsChatInfo();
         }
         throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
       }),
     );
   }
 
-  /// Renders [widget.item] as [ChatMemberInfo].
-  Widget _renderAsChatMemberInfo() {
+  /// Renders [widget.item] as [ChatInfo].
+  Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
+    final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
 
-    switch (message.action) {
-      case ChatMemberInfoAction.created:
+    switch (message.action.kind) {
+      case ChatInfoActionKind.created:
         if (widget.chat.value?.isGroup == true) {
           content = Text('label_group_created'.l10n);
         } else {
@@ -620,22 +621,39 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
         break;
 
-      case ChatMemberInfoAction.added:
+      case ChatInfoActionKind.memberAdded:
+        final action = message.action as ChatInfoActionMemberAdded;
         content = Text(
           'label_was_added'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+              .l10nfmt({'who': '${action.user.name ?? action.user.num}'}),
         );
         break;
 
-      case ChatMemberInfoAction.removed:
+      case ChatInfoActionKind.memberRemoved:
+        final action = message.action as ChatInfoActionMemberRemoved;
         content = Text(
           'label_was_removed'
-              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+              .l10nfmt({'who': '${action.user.name ?? action.user.num}'}),
         );
         break;
 
-      case ChatMemberInfoAction.artemisUnknown:
-        content = Text('${message.action}');
+      case ChatInfoActionKind.avatarUpdated:
+        final action = message.action as ChatInfoActionAvatarUpdated;
+        if (action.avatar == null) {
+          content = Text('label_avatar_removed'.l10n);
+        } else {
+          content = Text('label_avatar_updated'.l10n);
+        }
+        break;
+
+      case ChatInfoActionKind.nameUpdated:
+        final action = message.action as ChatInfoActionNameUpdated;
+        if (action.name == null) {
+          content = Text('label_name_removed'.l10n);
+        } else {
+          content =
+              Text('label_name_updated'.l10nfmt({'name': action.name?.val}));
+        }
         break;
     }
 
@@ -704,8 +722,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
         msg.repliesTo.isNotEmpty) {
-      for (ChatItem reply in msg.repliesTo) {
-        if (reply is ChatMessage) {
+      for (ChatItemQuote reply in msg.repliesTo) {
+        if (reply is ChatMessageQuote) {
           if (reply.text != null && reply.attachments.isNotEmpty) {
             avatarOffset += 54 + 54 + 4;
           } else if (reply.text == null && reply.attachments.isNotEmpty) {
@@ -719,7 +737,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           }
         }
 
-        if (reply is ChatCall) {
+        if (reply is ChatCallQuote) {
           if (msg.attachments.isEmpty && text == null) {
             avatarOffset += 59 - 4;
           } else {
@@ -727,7 +745,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           }
         }
 
-        if (reply is ChatForward) {
+        if (reply is ChatInfoQuote) {
           if (msg.attachments.isEmpty && text == null) {
             avatarOffset += 59 - 5;
           } else {
@@ -768,7 +786,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 500),
                       decoration: BoxDecoration(
-                        color: e.authorId == widget.me
+                        color: e.author == widget.me
                             ? _isRead || !_fromMe
                                 ? const Color(0xFFDBEAFD)
                                 : const Color(0xFFE6F1FE)
@@ -786,7 +804,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         duration: const Duration(milliseconds: 500),
                         opacity: _isRead || !_fromMe ? 1 : 0.55,
                         child: WidgetButton(
-                          onPressed: () => widget.onRepliedTap?.call(e.id),
+                          onPressed: () =>
+                              widget.onRepliedTap?.call(e.original!.id),
                           child: _repliedMessage(e),
                         ),
                       ),
@@ -1056,14 +1075,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItem item) {
+  Widget _repliedMessage(ChatItemQuote item) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == widget.me;
+    bool fromMe = item.author == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
 
-    if (item is ChatMessage) {
+    if (item is ChatMessageQuote) {
       if (item.attachments.isNotEmpty) {
         additional = item.attachments
             .map((a) {
@@ -1144,26 +1163,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           style: style.boldBody,
         );
       }
-    } else if (item is ChatCall) {
+    } else if (item is ChatCallQuote) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
+      bool fromMe = widget.me == item.author;
       bool isMissed = false;
 
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
+      final ChatCall? call = item.original as ChatCall?;
 
-        if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time = item.finishedAt!.val
-              .difference(item.conversationStartedAt!.val)
+      if (call?.finishReason == null && call?.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (call?.finishReason != null) {
+        title = call!.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+            call.finishReason == ChatCallFinishReason.unanswered;
+
+        if (call.finishedAt != null && call.conversationStartedAt != null) {
+          time = call.finishedAt!.val
+              .difference(call.conversationStartedAt!.val)
               .localizedString();
         }
       } else {
-        title = item.authorId == widget.me
+        title = item.author == widget.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1173,7 +1194,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
+            child: call?.withVideo == true
                 ? SvgLoader.asset(
                     'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
@@ -1198,18 +1219,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
         ],
       );
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
+    } else if (item is ChatInfoQuote) {
+      // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else {
       content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
     return FutureBuilder<RxUser?>(
-      future: widget.getUser?.call(item.authorId),
+      future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
         Color color = snapshot.data?.user.value.id == widget.me
             ? Theme.of(context).colorScheme.secondary
@@ -1505,7 +1523,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   await ChatForwardView.show(
                                     context,
                                     widget.chat.value!.id,
-                                    [ChatItemQuote(item: item)],
+                                    [ChatItemQuoteInput(item: item)],
                                   );
                                 },
                               ),

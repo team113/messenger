@@ -96,7 +96,7 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',
@@ -144,7 +144,7 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',

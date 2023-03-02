@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
@@ -47,8 +47,8 @@ class ChatForwardView extends StatelessWidget {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
-  /// [ChatItemQuote]s to be forwarded.
-  final List<ChatItemQuote> quotes;
+  /// [ChatItemQuoteInput]s to be forwarded.
+  final List<ChatItemQuoteInput> quotes;
 
   /// Initial [String] to put in the send field.
   final String? text;
@@ -60,7 +60,7 @@ class ChatForwardView extends StatelessWidget {
   static Future<T?> show<T>(
     BuildContext context,
     ChatId from,
-    List<ChatItemQuote> quotes, {
+    List<ChatItemQuoteInput> quotes, {
     String? text,
     List<Attachment> attachments = const [],
   }) {

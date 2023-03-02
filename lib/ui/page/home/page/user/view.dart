@@ -176,7 +176,7 @@ class UserView extends StatelessWidget {
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
-                      if (c.isBlacklisted == true)
+                      if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
                           children: [_blocked(c, context)],
@@ -229,7 +229,7 @@ class UserView extends StatelessWidget {
                 }),
               ),
               bottomNavigationBar: Obx(() {
-                if (c.isBlacklisted != true) {
+                if (c.isBlacklisted == null) {
                   return const SizedBox();
                 }
 
@@ -342,11 +342,11 @@ class UserView extends StatelessWidget {
           ),
           Obx(() {
             return action(
-              key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
-              text: c.isBlacklisted == true
+              key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
+              text: c.isBlacklisted != null
                   ? 'btn_unblock'.l10n
                   : 'btn_block'.l10n,
-              onPressed: c.isBlacklisted == true
+              onPressed: c.isBlacklisted != null
                   ? c.unblacklist
                   : () => _blacklistUser(c, context),
               trailing: Obx(() {
@@ -358,7 +358,9 @@ class UserView extends StatelessWidget {
                 }
 
                 return AnimatedSwitcher(
-                    duration: 200.milliseconds, child: child);
+                  duration: 200.milliseconds,
+                  child: child,
+                );
               }),
             );
           }),
@@ -423,8 +425,7 @@ class UserView extends StatelessWidget {
   Widget _presence(UserController c, BuildContext context) {
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
-
-      if (presence == null || presence == Presence.hidden) {
+      if (presence == null) {
         return Container();
       }
 

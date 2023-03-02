@@ -27,7 +27,7 @@ import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
@@ -60,8 +60,8 @@ class ChatForwardController extends GetxController {
   /// Initial [String] to put in the [MessageFieldController.field].
   final String? text;
 
-  /// [ChatItemQuote]s to be forwarded.
-  final List<ChatItemQuote> quotes;
+  /// [ChatItemQuoteInput]s to be forwarded.
+  final List<ChatItemQuoteInput> quotes;
 
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].

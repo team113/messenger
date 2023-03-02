@@ -26,6 +26,7 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
@@ -139,21 +140,23 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id) async {
+  Future<void> blacklistUser(UserId id, BlacklistReason? reason) async {
     final RxUser? user = _users[id];
-    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+    final BlacklistRecord? record = user?.user.value.isBlacklisted;
 
-    if (user?.user.value.isBlacklisted == false) {
-      user?.user.value.isBlacklisted = true;
+    if (user?.user.value.isBlacklisted == null) {
+      user?.user.value.isBlacklisted = BlacklistRecord(
+        reason: reason,
+        at: PreciseDateTime.now(),
+      );
       user?.user.refresh();
     }
 
     try {
       await _graphQlProvider.blacklistUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted =
-            isBlacklisted ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlacklisted != record) {
+        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
@@ -163,19 +166,18 @@ class UserRepository implements AbstractUserRepository {
   @override
   Future<void> unblacklistUser(UserId id) async {
     final RxUser? user = _users[id];
-    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+    final BlacklistRecord? record = user?.user.value.isBlacklisted;
 
-    if (user?.user.value.isBlacklisted == true) {
-      user?.user.value.isBlacklisted = false;
+    if (user?.user.value.isBlacklisted != null) {
+      user?.user.value.isBlacklisted = null;
       user?.user.refresh();
     }
 
     try {
       await _graphQlProvider.unblacklistUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted =
-            isBlacklisted ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlacklisted != record) {
+        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
@@ -224,7 +226,15 @@ class UserRepository implements AbstractUserRepository {
         ));
       } else if (events.$$typename == 'IsBlacklisted') {
         var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+        yield UserEventsIsBlacklisted(
+          node.record == null
+              ? null
+              : BlacklistRecord(
+                  reason: node.record!.reason,
+                  at: node.record!.at,
+                ),
+          node.myVer,
+        );
       }
     });
   }

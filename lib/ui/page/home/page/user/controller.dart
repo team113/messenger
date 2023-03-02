@@ -120,7 +120,7 @@ class UserController extends GetxController {
   StreamSubscription? _favoritesSubscription;
 
   /// Indicates whether this [user] is blacklisted.
-  bool? get isBlacklisted => user?.user.value.isBlacklisted;
+  BlacklistRecord? get isBlacklisted => user?.user.value.isBlacklisted;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -252,7 +252,10 @@ class UserController extends GetxController {
   Future<void> blacklist() async {
     blacklistStatus.value = RxStatus.loading();
     try {
-      await _userService.blacklistUser(id);
+      await _userService.blacklistUser(
+        id,
+        reason.text.isEmpty ? null : BlacklistReason(reason.text),
+      );
       reason.clear();
     } finally {
       blacklistStatus.value = RxStatus.empty();
@@ -390,7 +393,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.hidden:
+      case null:
         return 'label_hidden'.l10n;
 
       case Presence.artemisUnknown:
