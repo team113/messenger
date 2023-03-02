@@ -1202,7 +1202,7 @@ class ChatController extends GetxController {
             keepPositionOffset.value = 50;
             if (offset < loadingHeight) {
               listController.jumpTo(
-                listController.position.pixels - (loadingHeight + 40 - offset),
+                listController.position.pixels - (loadingHeight + 42 - offset),
               );
             }
             elements.remove(_bottomLoader?.id);

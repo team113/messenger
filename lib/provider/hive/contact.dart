@@ -61,11 +61,39 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
   Future<void> put(HiveChatContact contact) =>
       putSafe(contact.value.id.val, contact);
 
+  /// Adds the provided [ChatItem] to [Hive].
+  Future<void> add(HiveChatContact contact) async {
+    if (contacts.isEmpty ||
+        contacts.last.cursor == null ||
+        (contacts.last.value.name.val).compareTo(contact.value.name.val) ==
+            -1) {
+      await put(contact);
+    }
+  }
+
   /// Returns a [ChatContact] from [Hive] by its [id].
   HiveChatContact? get(ChatContactId id) => getSafe(id.val);
 
   /// Removes an [ChatContact] from [Hive] by its [id].
   Future<void> remove(ChatContactId id) => deleteSafe(id.val);
+
+  @override
+  Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
+    final List<HiveChatContact> items = contacts
+        .sortedBy((e) => e.value.name.val + e.value.id.val)
+        .take(count)
+        .toList();
+    return ItemsPage<HiveChatContact>(
+      items,
+      PageInfo(
+        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasNextPage: box.length > count,
+        startCursor:
+            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasPreviousPage: false,
+      ),
+    );
+  }
 
   @override
   Future<ItemsPage<HiveChatContact>> after(
@@ -77,8 +105,18 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
         contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
     int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
+      final List<HiveChatContact> items =
+          sortedContacts.skip(i + 1).take(count).toList();
       return ItemsPage<HiveChatContact>(
-        sortedContacts.skip(i + 1).take(count).toList(),
+        items,
+        PageInfo(
+          endCursor:
+              items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+          hasNextPage: box.length > count + i + 1,
+          startCursor:
+              items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+          hasPreviousPage: true,
+        ),
       );
     }
 
@@ -93,22 +131,12 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
   ) {
     throw Exception('Unreachable');
   }
-
-  @override
-  Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
-    return ItemsPage<HiveChatContact>(
-      contacts
-          .sortedBy((e) => e.value.name.val + e.value.id.val)
-          .take(cursor == null ? count : count ~/ 2)
-          .toList(),
-    );
-  }
 }
 
 /// Persisted in [Hive] storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatContact)
 class HiveChatContact extends HiveObject {
-  HiveChatContact(this.value, this.ver);
+  HiveChatContact(this.value, this.ver, this.cursor);
 
   /// Persisted [ChatContact].
   @HiveField(0)
@@ -120,4 +148,8 @@ class HiveChatContact extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   ChatContactVersion ver;
+
+  /// Cursor of the [value].
+  @HiveField(2)
+  ChatContactsCursor? cursor;
 }

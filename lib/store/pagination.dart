@@ -25,13 +25,14 @@ import '/util/obs/rxlist.dart';
 /// Helper to fetches items with pagination.
 class PaginatedFragment<T> {
   PaginatedFragment({
-    this.pageSize = 30,
+    this.pageSize = 10,
     this.initialCursor,
+    this.shouldSynced = false,
     required this.compare,
     required this.equal,
-    required this.remoteProvider,
     required this.onDelete,
-    this.cacheProvider,
+    required this.cacheProvider,
+    required this.remoteProvider,
     this.ignore,
   });
 
@@ -40,6 +41,10 @@ class PaginatedFragment<T> {
 
   /// Cursor to fetch initial items around.
   final String? initialCursor;
+
+  /// Indicator whether the [cacheProvider] should be synced with the
+  /// [remoteProvider].
+  final bool shouldSynced;
 
   /// Callback, called to compare items.
   final int Function(T a, T b) compare;
@@ -51,7 +56,7 @@ class PaginatedFragment<T> {
   final void Function(T item) onDelete;
 
   /// [PageProvider] loading items from cache.
-  PageProvider<T>? cacheProvider;
+  PageProvider<T> cacheProvider;
 
   /// [PageProvider] loading items from the remote.
   PageProvider<T> remoteProvider;
@@ -64,22 +69,24 @@ class PaginatedFragment<T> {
   final RxObsList<T> elements = RxObsList<T>();
 
   /// Indicator whether next page is exist.
-  final RxBool hasNextPage = RxBool(false);
+  final RxBool hasNextPage = RxBool(true);
 
   /// Indicator whether previous page is exist.
-  final RxBool hasPreviousPage = RxBool(false);
+  final RxBool hasPreviousPage = RxBool(true);
 
   /// Indicator whether this [PaginatedFragment] is initialized.
   bool initialized = false;
 
-  /// Elements uploaded from the remote.
+  /// Elements synced with the [remoteProvider].
+  ///
+  /// Empty if the [shouldSynced] is `false`.
   final List<T> _synced = [];
 
   /// Indicator whether next page is loading from the remote.
   bool _isNextPageLoading = false;
 
   /// Indicator whether next page is loading from the cache.
-  bool _nextPageCacheLoading = false;
+  bool _isNextPageCacheLoading = false;
 
   /// Indicator whether previous page is loading.
   bool _isPrevPageLoading = false;
@@ -92,18 +99,40 @@ class PaginatedFragment<T> {
 
   /// Gets initial page from the [cacheProvider].
   Future<void> init() async {
-    if (cacheProvider != null) {
-      elements.addAll(
-        (await cacheProvider!.initial(pageSize, initialCursor)).items,
-      );
+    final ItemsPage<T> cached =
+        await cacheProvider.initial(pageSize, initialCursor);
+    elements.addAll(cached.items);
+
+    if (!shouldSynced) {
+      _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
+      _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
     }
 
     initialized = true;
   }
 
+  /// Adds the provided [item] to the [elements].
+  void add(T item) {
+    if (elements.isNotEmpty) {
+      if ((compare(item, elements.first) == 1 || hasPreviousPage.isFalse) &&
+          (compare(item, elements.last) == -1 || hasNextPage.isFalse)) {
+        _add(item);
+      }
+    }
+  }
+
+  /// Clear the [elements] and related resources.
+  void clear() {
+    elements.clear();
+    hasNextPage.value = true;
+    hasPreviousPage.value = true;
+    _startCursor = null;
+    _endCursor = null;
+  }
+
   /// Fetches the initial page from the remote.
   Future<void> fetchInitialPage() async {
-    if (_synced.isNotEmpty) {
+    if (_synced.isNotEmpty || elements.length >= pageSize && !shouldSynced) {
       // Return if initial page is already fetched.
       return;
     }
@@ -120,7 +149,9 @@ class PaginatedFragment<T> {
     _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
     _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
-    _syncItems(fetched.items);
+    if (shouldSynced) {
+      _syncItems(fetched.items);
+    }
 
     for (T i in fetched.items) {
       _add(i);
@@ -129,29 +160,35 @@ class PaginatedFragment<T> {
 
   /// Fetches next page of the [elements].
   Future<void> fetchNextPage() async {
-    if (hasNextPage.isFalse || _nextPageCacheLoading) {
+    if (hasNextPage.isFalse || _isNextPageCacheLoading) {
       return;
     }
 
-    if (cacheProvider != null) {
-      _nextPageCacheLoading = true;
-      Iterable<T> cached =
-          (await cacheProvider!.after(elements.last, _endCursor, pageSize))
-              .items;
-      for (T i in cached) {
-        elements.insertAfter(i, (e) => compare(i, e) == 1);
-      }
-      _nextPageCacheLoading = false;
+    _isNextPageCacheLoading = true;
+    final ItemsPage<T> cached =
+        await cacheProvider.after(elements.last, _endCursor, pageSize);
+    for (T i in cached.items) {
+      elements.insertAfter(i, (e) => compare(i, e) == 1);
+    }
+    _isNextPageCacheLoading = false;
+
+    if (!shouldSynced) {
+      _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
     }
 
-    await _fetchNextPage();
+    if (cached.items.length < pageSize || shouldSynced) {
+      await _fetchNextPage();
+    }
   }
 
   /// Fetches next page of the [elements].
-  Future<void> _fetchNextPage({
-    Future<void> Function(List<T>)? onItemsLoaded,
-  }) async {
-    if (!_isNextPageLoading) {
+  Future<void> _fetchNextPage() async {
+    if (_endCursor == null) {
+      hasNextPage.value = false;
+      return;
+    }
+
+    if (!_isNextPageLoading && hasNextPage.isTrue) {
       _isNextPageLoading = true;
 
       // TODO: Temporary timeout, remove before merging.
@@ -166,17 +203,16 @@ class PaginatedFragment<T> {
       hasNextPage.value = fetched.pageInfo?.hasNextPage ?? hasNextPage.value;
       _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
-      _syncItems(fetched.items);
-
-      await onItemsLoaded?.call(fetched.items);
+      if (shouldSynced) {
+        _syncItems(fetched.items);
+      }
 
       for (T i in fetched.items) {
         _add(i);
       }
 
-      if (_synced.length < elements.length) {
         _isNextPageLoading = false;
-        await _fetchNextPage(onItemsLoaded: onItemsLoaded);
+        await _fetchNextPage();
       }
 
       _isNextPageLoading = false;
@@ -194,15 +230,27 @@ class PaginatedFragment<T> {
     // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
 
-    ItemsPage<T>? fetched =
-        await remoteProvider.before(elements.first, _startCursor, pageSize);
+    ItemsPage<T> cached =
+        (await cacheProvider.before(elements.first, _startCursor, pageSize));
+    for (T i in cached.items) {
+      elements.insertAfter(i, (e) => compare(i, e) == 1);
+    }
 
-    hasPreviousPage.value =
-        fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
-    _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
+    if (!shouldSynced) {
+      _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
+    }
 
-    for (T i in fetched.items) {
-      _add(i);
+    if (cached.items.length < pageSize) {
+      ItemsPage<T>? fetched =
+          await remoteProvider.before(elements.first, _startCursor, pageSize);
+
+      hasPreviousPage.value =
+          fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+      _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
+
+      for (T i in fetched.items) {
+        _add(i);
+      }
     }
 
     _isPrevPageLoading = false;
@@ -210,9 +258,16 @@ class PaginatedFragment<T> {
 
   /// Inserts the provided [item] to the [_synced], [elements].
   void _add(T item) {
-    _synced.insertAfter(item, (e) => compare(item, e) == 1);
+    if (shouldSynced) {
+      int i = _synced.indexWhere((e) => equal(e, item));
+      if (i == -1) {
+        _synced.insertAfter(item, (e) => compare(item, e) == 1);
+      } else {
+        _synced[i] = item;
+      }
+    }
 
-    final int i = elements.indexWhere((e) => equal(e, item));
+    int i = elements.indexWhere((e) => equal(e, item));
     if (i == -1) {
       elements.insertAfter(item, (e) => compare(item, e) == 1);
     } else {
@@ -261,6 +316,27 @@ class ItemsPage<T> {
 
   /// Page info of this [ItemsPage].
   PageInfoMixin? get pageInfo => _pageInfo;
+}
+
+class PageInfo implements PageInfoMixin {
+  PageInfo({
+    this.endCursor,
+    required this.hasNextPage,
+    this.startCursor,
+    required this.hasPreviousPage,
+  });
+
+  @override
+  String? endCursor;
+
+  @override
+  bool hasNextPage;
+
+  @override
+  bool hasPreviousPage;
+
+  @override
+  String? startCursor;
 }
 
 /// Base class for load items with pagination.

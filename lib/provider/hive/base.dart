@@ -156,8 +156,8 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
     return null;
   }
 
-  /// Exception-safe wrapper for [Box.get] returning the value associated with
-  /// the given [key], if any.
+  /// Exception-safe wrapper for [LazyBox.get] returning the value associated
+  /// with the given [key], if any.
   Future<T?> lazyGetSafe(dynamic key, {T? defaultValue}) async {
     if (!_lazy) {
       throw Exception('Use getSafe for not lazy HiveBaseProvider');

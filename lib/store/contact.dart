@@ -137,9 +137,7 @@ class ContactRepository implements AbstractContactRepository {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          contacts[event.element.value.id] ??=
-              HiveRxChatContact(_userRepo, event.element)..init();
-          _putEntry(event.element);
+          _putEntry(event.element, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -299,13 +297,25 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   /// Puts the provided [contact] to [Hive].
-  Future<void> _putEntry(HiveChatContact contact) async {
+  Future<void> _putEntry(
+    HiveChatContact contact, {
+    bool ignoreVersion = false,
+    bool add = false,
+  }) async {
     var saved = _contactLocal.get(contact.value.id);
     // TODO: Version should not be zero at all.
     if (saved == null ||
         saved.ver <= contact.ver ||
+        ignoreVersion ||
         contact.ver.internal == BigInt.zero) {
-      await _contactLocal.put(contact);
+      if (saved != null && contact.cursor == null) {
+        contact.cursor = saved.cursor;
+      }
+      if (add) {
+        await _contactLocal.add(contact);
+      } else {
+        await _contactLocal.put(contact);
+      }
     }
   }
 
@@ -351,7 +361,13 @@ class ContactRepository implements AbstractContactRepository {
     _remoteSubscription = StreamQueue(
       _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
     );
-    await _remoteSubscription!.execute(_contactRemoteEvent);
+    await _remoteSubscription!.execute(_contactRemoteEvent,
+        onStaleVersion: () async {
+      await _contactLocal.clear();
+      _contactLocal;
+      _fragment.clear();
+      _fragment.fetchInitialPage();
+    });
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
@@ -395,7 +411,9 @@ class ContactRepository implements AbstractContactRepository {
                     name: node.name,
                   ),
                   versioned.ver,
+                  null,
                 ),
+                add: true,
               );
 
               continue;
@@ -504,13 +522,13 @@ class ContactRepository implements AbstractContactRepository {
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     final List<HiveChatContact> contacts = [];
-    for (var c in query.nodes) {
-      final List<HiveUser> users = c.getHiveUsers();
+    for (var c in query.edges) {
+      final List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
 
-      contacts.add(c.toHive());
+      contacts.add(c.node.toHive(cursor: c.cursor));
     }
 
     return ContactsQuery(contacts, query.pageInfo);
@@ -537,13 +555,20 @@ class ContactRepository implements AbstractContactRepository {
         } else if (events.$$typename == 'ChatContactsList') {
           var list = events
               as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-          for (var u in list.chatContacts.nodes
+          for (var u in list.chatContacts.edges
+              .map((e) => e.node.getHiveUsers())
+              .expand((e) => e)) {
+            _userRepo.put(u);
+          }
+          for (var u in list.favoriteChatContacts.nodes
               .map((e) => e.getHiveUsers())
               .expand((e) => e)) {
             _userRepo.put(u);
           }
           yield ChatContactsEventsChatContactsList(
-            list.chatContacts.nodes.map((e) => e.toHive()).toList(),
+            list.chatContacts.edges
+                .map((e) => e.node.toHive(cursor: e.cursor))
+                .toList(),
             list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
             list.chatContacts.ver,
           );

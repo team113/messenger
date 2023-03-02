@@ -176,4 +176,10 @@ class RxObsList<E> extends ListMixin<E>
     _value.sort(compare);
     refresh();
   }
+
+  @override
+  void clear() {
+    _value.clear();
+    refresh();
+  }
 }

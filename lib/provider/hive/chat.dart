@@ -107,16 +107,50 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
   Future<void> remove(ChatId id) => deleteSafe(id.val);
 
   @override
+  Future<ItemsPage<HiveChat>> initial(int count, String? cursor) async {
+    final List<HiveChat> sortedChats = chats
+        .where((e) => !e.value.id.isLocal)
+        .sortedBy((e) => e.value.updatedAt)
+        .reversed
+        .toList();
+    final List<HiveChat> items = sortedChats.take(count).toList();
+    return ItemsPage<HiveChat>(
+      items,
+      PageInfo(
+        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasNextPage: sortedChats.length > count,
+        startCursor:
+            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasPreviousPage: false,
+      ),
+    );
+  }
+
+  @override
   Future<ItemsPage<HiveChat>> after(
     HiveChat after,
     String? cursor,
     int count,
   ) async {
-    final sortedChats =
-        chats.sortedBy((e) => e.value.updatedAt).reversed.toList();
+    final sortedChats = chats
+        .where((e) => !e.value.id.isLocal)
+        .sortedBy((e) => e.value.updatedAt)
+        .reversed
+        .toList();
     int i = sortedChats.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
-      return ItemsPage<HiveChat>(sortedChats.skip(i + 1).take(count).toList());
+      final List<HiveChat> items = sortedChats.skip(i + 1).take(count).toList();
+      return ItemsPage<HiveChat>(
+        items,
+        PageInfo(
+          endCursor:
+              items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+          hasNextPage: sortedChats.length > count + i + 1,
+          startCursor:
+              items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+          hasPreviousPage: true,
+        ),
+      );
     }
 
     return ItemsPage<HiveChat>([]);
@@ -127,20 +161,6 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
       HiveChat before, String? cursor, int count) {
     throw Exception('Unreachable');
   }
-
-  @override
-  Future<ItemsPage<HiveChat>> initial(int count, String? cursor) async {
-    final List<HiveChat> sortedChats =
-        chats.sortedBy((e) => e.value.updatedAt).reversed.toList();
-    int notLocal = 0;
-    final int i = sortedChats
-        .indexWhere((e) => !e.value.id.isLocal && ++notLocal == count);
-    if (i != -1) {
-      return ItemsPage<HiveChat>(sortedChats.take(i + 1).toList());
-    } else {
-      return ItemsPage<HiveChat>(sortedChats);
-    }
-  }
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].
@@ -150,8 +170,9 @@ class HiveChat extends HiveObject {
     this.value,
     this.ver,
     this.lastItemCursor,
-    this.lastReadItemCursor,
-  );
+    this.lastReadItemCursor, {
+    this.cursor,
+  });
 
   /// Persisted [Chat] model.
   @HiveField(0)
@@ -171,4 +192,8 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value].
+  @HiveField(4)
+  RecentChatsCursor? cursor;
 }

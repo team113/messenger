@@ -152,6 +152,7 @@ class ChatRepository implements AbstractChatRepository {
 
     _fragment = PaginatedFragment<HiveChat>(
       cacheProvider: _chatLocal,
+      shouldSynced: true,
       compare: (a, b) => -a.value.updatedAt.compareTo(b.value.updatedAt),
       equal: (a, b) => a.value.id == b.value.id,
       onDelete: (e) => _chatLocal.remove(e.value.id),
@@ -186,11 +187,7 @@ class ChatRepository implements AbstractChatRepository {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          _chats[event.element.value.id] ??=
-              HiveRxChat(this, _chatLocal, _draftLocal, event.element)
-                ..init()
-                ..subscribe();
-          _putEntry(event.element);
+          _putEntry(event.element, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -1130,9 +1127,12 @@ class ChatRepository implements AbstractChatRepository {
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Hive].
-  Future<void> _putChat(HiveChat chat) async {
+  Future<void> _putChat(HiveChat chat, {bool ignoreVersion = false}) async {
     var saved = _chatLocal.get(chat.value.id);
-    if (saved == null || saved.ver < chat.ver) {
+    if (saved == null || saved.ver < chat.ver || ignoreVersion) {
+      if (saved != null && chat.cursor == null) {
+        chat.cursor = saved.cursor;
+      }
       await _chatLocal.put(chat);
     }
   }
@@ -1152,7 +1152,7 @@ class ChatRepository implements AbstractChatRepository {
           HiveRxChat entry =
               HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[chatId] = entry;
-          entry.init();
+          await entry.init();
           entry.subscribe();
         } else {
           chat.chat.value = event.value.value;
@@ -1261,13 +1261,16 @@ class ChatRepository implements AbstractChatRepository {
         .recentChats;
 
     return ItemsPage<HiveChat>(
-      query.nodes.map((e) => _chat(e)).toList(),
+      query.edges.map((e) => _chat(e.node, cursor: e.cursor)).toList(),
       query.pageInfo,
     );
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(HiveChat data) async {
+  Future<HiveRxChat> _putEntry(
+    HiveChat data, {
+    bool ignoreVersion = false,
+  }) async {
     HiveRxChat? entry = chats[data.value.id];
 
     if (entry == null) {
@@ -1293,28 +1296,28 @@ class ChatRepository implements AbstractChatRepository {
         }
       }
 
-      _putChat(data);
+      _putChat(data, ignoreVersion: ignoreVersion);
 
       if (entry == null) {
         entry = HiveRxChat(this, _chatLocal, _draftLocal, data);
         _chats[data.value.id] = entry;
-        entry.init();
+        await entry.init();
         entry.subscribe();
       }
     } else {
-      _putChat(data);
+      _putChat(data, ignoreVersion: ignoreVersion);
     }
 
     return entry;
   }
 
   /// Constructs a new [HiveChat] from the given [ChatMixin] fragment.
-  HiveChat _chat(ChatMixin q) {
+  HiveChat _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toHive();
+    return q.toHive(cursor: cursor);
   }
 
   /// Initializes [_favoriteChatsEvents] subscription.
