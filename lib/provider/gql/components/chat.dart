@@ -161,7 +161,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRenamed].
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -1055,8 +1055,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
-  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///

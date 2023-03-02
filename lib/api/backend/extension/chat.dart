@@ -110,7 +110,7 @@ extension ChatInfoConversion on ChatInfoMixin {
 
 /// Extension adding models construction from [ChatInfoMixin$Action].
 extension ChatInfoActionConversion on ChatInfoMixin$Action {
-  /// Constructs a new [ChatInfo] from this [ChatInfoMixin$Action].
+  /// Constructs a new [ChatInfoAction] from this [ChatInfoMixin$Action].
   ChatInfoAction toModel() {
     if ($$typename == 'ChatInfoActionAvatarUpdated') {
       final model = this as ChatInfoMixin$Action$ChatInfoActionAvatarUpdated;
@@ -229,9 +229,9 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
   }
 }
 
-/// Extension adding models construction from [NestedChatForwardMixin$Item].
+/// Extension adding models construction from [NestedChatForwardMixin$Quote].
 extension NestedChatForwardItemConversion on NestedChatForwardMixin$Quote {
-  /// Constructs a new [HiveChatItem]s from this [NestedChatForwardMixin$Item].
+  /// Constructs a new [HiveChatItem]s from this [NestedChatForwardMixin$Quote].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -257,7 +257,7 @@ extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
 
 /// Extension adding models construction from [ChatForwardMixin$Quote].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
-  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin$Item].
+  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin$Quote].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -330,7 +330,7 @@ extension ChatCallQuoteConversion on ChatCallQuoteMixin {
 
 /// Extension adding models construction from [ChatInfoQuoteMixin].
 extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
-  /// Constructs a new [ChatMessageQuote] from this [ChatInfoQuoteMixin].
+  /// Constructs a new [ChatInfoQuote] from this [ChatInfoQuoteMixin].
   ChatInfoQuote toModel() => ChatInfoQuote(
         original: original == null
             ? null
