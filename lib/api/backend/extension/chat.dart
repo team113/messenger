@@ -121,7 +121,9 @@ extension ChatInfoActionConversion on ChatInfoMixin$Action {
     } else if ($$typename == 'ChatInfoActionMemberAdded') {
       final model = this as ChatInfoMixin$Action$ChatInfoActionMemberAdded;
       return ChatInfoActionMemberAdded(
-          model.user.toModel(), model.directLinkSlug);
+        model.user.toModel(),
+        model.directLinkSlug,
+      );
     } else if ($$typename == 'ChatInfoActionMemberRemoved') {
       final model = this as ChatInfoMixin$Action$ChatInfoActionMemberRemoved;
       return ChatInfoActionMemberRemoved(model.user.toModel());
@@ -184,7 +186,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
         toModel(),
         cursor,
         ver,
-        repliesTo.map((e) => _chatItemQuote(e).cursor).toList(),
+        repliesTo.map((e) => e.original?.cursor).toList(),
       );
 }
 
@@ -192,7 +194,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
 extension ChatForwardConversion on ChatForwardMixin {
   /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin].
   HiveChatItem toHive(ChatItemsCursor cursor) {
-    HiveChatItemQuote item = quote.toHive();
+    final HiveChatItemQuote item = quote.toHive();
     return HiveChatForward(
       ChatForward(
         id,
@@ -232,7 +234,82 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
 /// Extension adding models construction from [NestedChatForwardMixin$Quote].
 extension NestedChatForwardItemConversion on NestedChatForwardMixin$Quote {
   /// Constructs a new [HiveChatItem]s from this [NestedChatForwardMixin$Quote].
-  HiveChatItemQuote toHive() => _chatItemQuote(this);
+  HiveChatItemQuote toHive() {
+    if ($$typename == 'ChatMessageQuote') {
+      final q = this as NestedChatForwardMixin$Quote$ChatMessageQuote;
+      return HiveChatItemQuote(
+        ChatMessageQuote(
+          text: q.text,
+          attachments: q.attachments.map((e) => e.toModel()).toList(),
+          author: author.id,
+          at: at,
+        ),
+        original?.cursor,
+      );
+    } else if ($$typename == 'ChatCallQuote') {
+      return HiveChatItemQuote(
+        ChatCallQuote(
+          author: author.id,
+          at: at,
+        ),
+        original?.cursor,
+      );
+    } else if ($$typename == 'ChatInfoQuote') {
+      final q = this as NestedChatForwardMixin$Quote$ChatInfoQuote;
+      return HiveChatItemQuote(
+        ChatInfoQuote(
+          action: q.action.toModel(),
+          author: author.id,
+          at: at,
+        ),
+        original?.cursor,
+      );
+    }
+
+    throw Exception('$this is not implemented');
+  }
+}
+
+/// Extension adding models construction from
+/// [NestedChatForwardMixin$Quote$ChatMessageQuote$Attachments].
+extension NestedChatForwardQuoteAttachmentsConversion
+    on NestedChatForwardMixin$Quote$ChatMessageQuote$Attachments {
+  /// Constructs a new [Attachment] from this
+  /// [NestedChatForwardMixin$Quote$ChatMessageQuote$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [NestedChatForwardMixin$Quote$ChatInfoQuote$Action].
+extension NestedChatForwardChatInfoQuoteActionConversion
+    on NestedChatForwardMixin$Quote$ChatInfoQuote$Action {
+  /// Constructs a new [ChatInfo] from this
+  /// [NestedChatForwardMixin$Quote$ChatInfoQuote$Action].
+  ChatInfoAction toModel() {
+    if ($$typename == 'ChatInfoActionAvatarUpdated') {
+      final model =
+          this as ChatInfoQuoteMixin$Action$ChatInfoActionAvatarUpdated;
+      return ChatInfoActionAvatarUpdated(model.avatar?.toModel());
+    } else if ($$typename == 'ChatInfoActionCreated') {
+      final model = this as ChatInfoQuoteMixin$Action$ChatInfoActionCreated;
+      return ChatInfoActionCreated(model.directLinkSlug);
+    } else if ($$typename == 'ChatInfoActionMemberAdded') {
+      final model = this as ChatInfoQuoteMixin$Action$ChatInfoActionMemberAdded;
+      return ChatInfoActionMemberAdded(
+        model.user.toModel(),
+        model.directLinkSlug,
+      );
+    } else if ($$typename == 'ChatInfoActionMemberRemoved') {
+      final model =
+          this as ChatInfoQuoteMixin$Action$ChatInfoActionMemberRemoved;
+      return ChatInfoActionMemberRemoved(model.user.toModel());
+    } else if ($$typename == 'ChatInfoActionNameUpdated') {
+      final model = this as ChatInfoQuoteMixin$Action$ChatInfoActionNameUpdated;
+      return ChatInfoActionNameUpdated(model.name);
+    }
+
+    throw Exception('Unexpected ChatInfoAction: ${$$typename}');
+  }
 }
 
 /// Extension adding models construction from
@@ -363,7 +440,9 @@ extension ChatInfoQuoteActionConversion on ChatInfoQuoteMixin$Action {
     } else if ($$typename == 'ChatInfoActionMemberAdded') {
       final model = this as ChatInfoQuoteMixin$Action$ChatInfoActionMemberAdded;
       return ChatInfoActionMemberAdded(
-          model.user.toModel(), model.directLinkSlug);
+        model.user.toModel(),
+        model.directLinkSlug,
+      );
     } else if ($$typename == 'ChatInfoActionMemberRemoved') {
       final model =
           this as ChatInfoQuoteMixin$Action$ChatInfoActionMemberRemoved;

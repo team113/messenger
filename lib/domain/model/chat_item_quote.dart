@@ -52,6 +52,8 @@ abstract class ChatItemQuote {
         at: item.at,
         action: item.action,
       );
+    } else if (item is ChatForward) {
+      return item.quote;
     }
 
     throw Exception('$item is not supported to be quoted');

@@ -137,7 +137,7 @@ class ChatForwardWidget extends StatefulWidget {
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [ChatForward] is tapped.
-  final void Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemQuote)? onForwardedTap;
 
   /// Callback, called when a [FileAttachment] of some [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
@@ -326,8 +326,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           (e) => ChatItemWidget.fileAttachment(
                             e,
                             fromMe: widget.authorId == widget.me,
-                            onFileTap: (a) =>
-                                widget.onFileTap?.call(quote.original!, a),
+                            onFileTap: (a) => widget.onFileTap?.call(msg, a),
                           ),
                         )
                         .toList(),
@@ -343,7 +342,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         context,
                         media.first,
                         media,
-                        key: _galleryKeys[quote.original?.id]?.firstOrNull,
+                        key: _galleryKeys[msg.id]?.firstOrNull,
                         onGallery: widget.onGallery,
                         onError: widget.onAttachmentError,
                         filled: false,
@@ -360,7 +359,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   context,
                                   e,
                                   media,
-                                  key: _galleryKeys[quote.original?.id]?[i],
+                                  key: _galleryKeys[msg.id]?[i],
                                   onGallery: widget.onGallery,
                                   onError: widget.onAttachmentError,
                                   autoLoad: widget.loadImages,
@@ -453,8 +452,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: () => widget.onForwardedTap
-                ?.call(quote.original!.id, quote.original!.chatId),
+            onPressed: () => widget.onForwardedTap?.call(quote),
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
@@ -1011,7 +1009,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     for (Rx<ChatItem> forward in widget.forwards) {
       final ChatItemQuote item = (forward.value as ChatForward).quote;
       if (item is ChatMessageQuote) {
-        _galleryKeys[item.original!.id] = item.attachments
+        _galleryKeys[forward.value.id] = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||

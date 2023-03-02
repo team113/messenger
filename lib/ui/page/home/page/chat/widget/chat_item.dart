@@ -142,7 +142,7 @@ class ChatItemWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
-  final void Function(ChatItemId)? onRepliedTap;
+  final void Function(ChatItemQuote)? onRepliedTap;
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
@@ -804,8 +804,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         duration: const Duration(milliseconds: 500),
                         opacity: _isRead || !_fromMe ? 1 : 0.55,
                         child: WidgetButton(
-                          onPressed: () =>
-                              widget.onRepliedTap?.call(e.original!.id),
+                          onPressed: () => widget.onRepliedTap?.call(e),
                           child: _repliedMessage(e),
                         ),
                       ),
