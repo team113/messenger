@@ -153,7 +153,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.blacklistUser(id);
+      await _graphQlProvider.blacklistUser(id, reason);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != record) {
         user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;

@@ -242,8 +242,8 @@ abstract class RxChat {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted ==
-          true;
+              .isBlacklisted !=
+          null;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();

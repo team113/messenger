@@ -340,32 +340,31 @@ class UserView extends StatelessWidget {
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
-          Obx(() {
-            return action(
-              key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
-              text: c.isBlacklisted != null
-                  ? 'btn_unblock'.l10n
-                  : 'btn_block'.l10n,
-              onPressed: c.isBlacklisted != null
-                  ? c.unblacklist
-                  : () => _blacklistUser(c, context),
-              trailing: Obx(() {
-                final Widget child;
-                if (c.blacklistStatus.value.isEmpty) {
-                  child = const SizedBox();
-                } else {
-                  child = const CustomProgressIndicator();
-                }
-
-                return AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: child,
-                );
-              }),
-            );
-          }),
-          action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
+        Obx(() {
+          return action(
+            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
+            text:
+                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted != null
+                ? c.unblacklist
+                : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CustomProgressIndicator();
+              }
+
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+          );
+        }),
+        action(text: 'btn_report'.l10n, onPressed: () {}),
       ],
     );
   }
@@ -451,20 +450,22 @@ class UserView extends StatelessWidget {
   Widget _blocked(UserController c, BuildContext context) {
     return Column(
       children: [
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_date'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.at != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
+              label: 'label_date'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_reason'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.reason != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
+              label: 'label_reason'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
       ],
     );
   }

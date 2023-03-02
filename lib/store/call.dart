@@ -516,7 +516,7 @@ class CallRepository extends DisposableInterface
         node.chatId,
         node.at,
         node.call.toModel(),
-        node.nullableUser?.toModel(),
+        node.nUser?.toModel(),
         node.userId,
       );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
