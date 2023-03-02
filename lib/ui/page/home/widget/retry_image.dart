@@ -372,34 +372,38 @@ class _RetryImageState extends State<RetryImage> {
         setState(() {});
       }
     } else {
-      await Backoff.run(
-        () async {
-          Response? data;
+      try {
+        await Backoff.run(
+          () async {
+            Response? data;
 
-          try {
-            data = await PlatformUtils.dio.get(
-              widget.fallbackUrl!,
-              options: Options(responseType: ResponseType.bytes),
-            );
-          } on DioError catch (e) {
-            if (e.response?.statusCode == 403) {
-              await widget.onForbidden?.call();
-            }
-          }
-
-          if (data?.data != null && data!.statusCode == 200) {
-            if (widget.fallbackChecksum != null) {
-              FIFOCache.set(widget.fallbackChecksum!, data.data);
+            try {
+              data = await PlatformUtils.dio.get(
+                widget.fallbackUrl!,
+                options: Options(responseType: ResponseType.bytes),
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 403) {
+                await widget.onForbidden?.call();
+              }
             }
 
-            _fallback = data.data;
-            if (mounted) {
-              setState(() {});
+            if (data?.data != null && data!.statusCode == 200) {
+              if (widget.fallbackChecksum != null) {
+                FIFOCache.set(widget.fallbackChecksum!, data.data);
+              }
+
+              _fallback = data.data;
+              if (mounted) {
+                setState(() {});
+              }
             }
-          }
-        },
-        _fallbackToken,
-      );
+          },
+          _fallbackToken,
+        );
+      } on OperationCanceledException {
+        // No-op.
+      }
     }
   }
 
