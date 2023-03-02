@@ -29,18 +29,22 @@ class PartnerService extends DisposableService {
   void onInit() {
     transactions = RxList([
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a0',
         amount: 100,
         at: DateTime.now().subtract(const Duration(hours: 2)),
       ),
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a1',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 12)),
       ),
       OutgoingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a2',
         amount: -50,
         at: DateTime.now().subtract(const Duration(days: 20)),
       ),
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a3',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 50)),
       ),

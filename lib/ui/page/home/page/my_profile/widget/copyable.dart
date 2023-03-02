@@ -37,6 +37,7 @@ class CopyableTextField extends StatelessWidget {
     this.label,
     this.style,
     this.leading,
+    this.maxLines = 1,
   }) : super(key: key);
 
   /// Reactive state of this [CopyableTextField].
@@ -56,6 +57,8 @@ class CopyableTextField extends StatelessWidget {
 
   /// [TextStyle] of this [CopyableTextField].
   final TextStyle? style;
+
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +89,8 @@ class CopyableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
+                  // textAlign: TextAlign.center,
+                  maxLines: maxLines,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(

@@ -45,18 +45,32 @@ class PartnerTabView extends StatelessWidget {
           appBar: CustomAppBar(
             title: Text('Balance: \$${c.balance.value / 100}'),
             leading: [
-              WidgetButton(
-                onPressed: c.hintDismissed.toggle,
-                child: Container(
-                  padding: const EdgeInsets.only(left: 20, right: 12),
-                  height: double.infinity,
-                  child: SvgLoader.asset(
+              Obx(() {
+                final Widget child;
+
+                if (c.withdrawing.value) {
+                  child = SvgLoader.asset(
                     'assets/icons/info.svg',
                     width: 20,
                     height: 20,
+                  );
+                } else {
+                  child = SvgLoader.asset(
+                    key: const Key('Search'),
+                    'assets/icons/search.svg',
+                    width: 17.77,
+                  );
+                }
+
+                return WidgetButton(
+                  onPressed: c.hintDismissed.toggle,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 20, right: 12),
+                    height: double.infinity,
+                    child: child,
                   ),
-                ),
-              ),
+                );
+              }),
             ],
             actions: [
               Obx(() {

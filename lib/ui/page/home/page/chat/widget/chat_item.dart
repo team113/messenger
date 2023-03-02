@@ -359,11 +359,11 @@ class ChatItemWidget extends StatefulWidget {
                 SvgLoader.asset(
                   'assets/icons/download_cancel.svg',
                   key: const Key('CancelDownloading'),
-                  width: 28,
-                  height: 28,
+                  width: 40,
+                  height: 40,
                 ),
                 SizedBox.square(
-                  dimension: 26.3,
+                  dimension: 37,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.3,
                     key: const Key('Downloading'),

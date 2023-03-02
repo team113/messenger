@@ -141,7 +141,7 @@ class FileAttachment extends Attachment {
   }
 
   /// Downloads this [FileAttachment].
-  Future<void> download() async {
+  Future<void> download([String? url]) async {
     try {
       downloadStatus.value = DownloadStatus.inProgress;
       progress.value = 0;
@@ -149,7 +149,7 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        original.url,
+        url ?? original.url,
         filename,
         original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,

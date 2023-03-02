@@ -29,26 +29,31 @@ class BalanceService extends DisposableService {
   void onInit() {
     transactions = RxList([
       OutgoingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a0',
         amount: -50,
         at: DateTime.now().subtract(const Duration(hours: 2)),
         status: TransactionStatus.failed,
       ),
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a1',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 5)),
         status: TransactionStatus.declined,
       ),
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a2',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 12)),
         status: TransactionStatus.pending,
       ),
       OutgoingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a3',
         amount: -50,
         at: DateTime.now().subtract(const Duration(days: 20)),
         status: TransactionStatus.sent,
       ),
       IncomingTransaction(
+        id: '428ac09a-6a85-4121-9c24-974d922156a4',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 50)),
         status: TransactionStatus.completed,
