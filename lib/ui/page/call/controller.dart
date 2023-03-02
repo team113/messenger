@@ -303,7 +303,7 @@ class CallController extends GetxController {
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
 
-  /// Save previous constraints to define width changes for scale.
+  /// Saved last constraints to define size changes for scale.
   BoxConstraints? _lastConstraints;
 
   /// Service managing the [_currentCall].
@@ -1556,7 +1556,7 @@ class CallController extends GetxController {
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     if (x != null && dx != null) {
-      // X offset link.
+      // X offset reference.
       RxnDouble xPrimaryOffset =
           x == ScaleModeX.left ? secondaryLeft : secondaryRight;
       RxnDouble xSecondaryOffset =
@@ -1577,20 +1577,20 @@ class CallController extends GetxController {
     }
 
     if (y != null && dy != null) {
-      // Y offset link
-      RxnDouble ySidePrimaryValueRef =
+      // Y offset reference.
+      RxnDouble yPrimaryOffset =
           y == ScaleModeY.top ? secondaryTop : secondaryBottom;
-      RxnDouble ySideSecondaryValueRef =
+      RxnDouble ySecondaryOffset =
           y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
       _updateSecondaryAxisOffset(
-        primaryOffset: ySidePrimaryValueRef,
-        secondaryOffset: ySideSecondaryValueRef,
+        primaryOffset: yPrimaryOffset,
+        secondaryOffset: ySecondaryOffset,
         axis: Axis.vertical,
       );
 
       _updateSecondarySize(
-        sideOffset: ySidePrimaryValueRef,
+        sideOffset: yPrimaryOffset,
         applyOffset: y == ScaleModeY.top ? _applySTop : _applySBottom,
         dAxis: dy,
         axis: Axis.vertical,
@@ -1600,7 +1600,8 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [secondaryScaleFactor] according to [constraints] and [_lastConstraints] difference.
+  /// Scales secondary by [secondaryScaleFactor] according to [constraints] and
+  /// [_lastConstraints] difference.
   void scaleSecondary({
     required BoxConstraints constraints,
   }) {
@@ -1754,7 +1755,7 @@ class CallController extends GetxController {
 
     primaryOffset.value ??= parentEmptySpace - (secondaryOffset.value ?? 0);
 
-    // Nullify opposit offset
+    // Nullify opposit offset.
     secondaryOffset.value = null;
   }
 

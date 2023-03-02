@@ -1669,7 +1669,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
       }
 
       return LayoutBuilder(builder: (context, constraints) {
-        // Scale secondary panel after constraints changed
+        // Scale secondary panel after constraints changed.
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           if (c.secondary.isNotEmpty) {
             c.scaleSecondary(constraints: constraints);
