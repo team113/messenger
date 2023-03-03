@@ -316,17 +316,30 @@ class ContactsTabView extends StatelessWidget {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
                                           key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
                                           index: i,
                                           child: child,
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: {
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (_) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
+                                          index: i,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );
