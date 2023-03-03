@@ -481,20 +481,43 @@ class ChatsTabView extends StatelessWidget {
                           child: AnimationLimiter(
                             key: const Key('Chats'),
                             child: Obx(() {
-                              final List<RxChat> chats = c.chats
-                                  .where((e) =>
-                                      !e.id.isLocal || e.messages.isNotEmpty)
-                                  .toList();
+                              final List<RxChat> favorites = [];
+                              final List<RxChat> chats = [];
 
-                              final List<RxChat> favorites = chats
-                                  .where((e) =>
-                                      e.chat.value.favoritePosition != null)
-                                  .toList();
+                              for (RxChat e in c.chats) {
+                                if (!e.id.isLocal || e.messages.isNotEmpty) {
+                                  if (e.chat.value.favoritePosition != null) {
+                                    favorites.add(e);
+                                  } else {
+                                    chats.add(e);
+                                  }
+                                }
+                              }
 
-                              final List<RxChat> unfavorites = chats
-                                  .where((e) =>
-                                      e.chat.value.favoritePosition == null)
-                                  .toList();
+                              // Builds a [RecentChatTile] from the provided
+                              // [RxChat].
+                              Widget tile(
+                                RxChat e, {
+                                Widget Function(Widget)? avatarBuilder,
+                              }) {
+                                return RecentChatTile(
+                                  e,
+                                  key: Key('RecentChat_${e.id}'),
+                                  me: c.me,
+                                  blocked: e.blacklisted,
+                                  getUser: c.getUser,
+                                  avatarBuilder: avatarBuilder,
+                                  onJoin: () => c.joinCall(e.id),
+                                  onDrop: () => c.dropCall(e.id),
+                                  onLeave: () => c.leaveChat(e.id),
+                                  onHide: () => c.hideChat(e.id),
+                                  inCall: () => c.inCall(e.id),
+                                  onMute: () => c.muteChat(e.id),
+                                  onUnmute: () => c.unmuteChat(e.id),
+                                  onFavorite: () => c.favoriteChat(e.id),
+                                  onUnfavorite: () => c.unfavoriteChat(e.id),
+                                );
+                              }
 
                               return CustomScrollView(
                                 controller: c.scrollController,
@@ -546,59 +569,43 @@ class ChatsTabView extends StatelessWidget {
                                       },
                                       itemBuilder: (_, i) {
                                         final RxChat chat = favorites[i];
+
                                         return KeyedSubtree(
                                           key: Key(chat.id.val),
                                           child: Obx(() {
-                                            final Widget child = RecentChatTile(
+                                            final Widget child = tile(
                                               chat,
-                                              key: Key('RecentChat_${chat.id}'),
-                                              me: c.me,
-                                              blocked: chat.blacklisted,
-                                              getUser: c.getUser,
                                               avatarBuilder: (child) {
                                                 if (PlatformUtils.isMobile) {
                                                   return ReorderableDelayedDragStartListener(
                                                     key: Key(
-                                                        'ReorderHandle_${chat.id.val}'),
+                                                      'ReorderHandle_${chat.id.val}',
+                                                    ),
                                                     index: i,
                                                     child: child,
                                                   );
                                                 }
 
                                                 return RawGestureDetector(
-                                                  gestures: <Type,
-                                                      GestureRecognizerFactory>{
+                                                  gestures: {
                                                     DisableSecondaryButtonRecognizer:
                                                         GestureRecognizerFactoryWithHandlers<
                                                             DisableSecondaryButtonRecognizer>(
                                                       () =>
                                                           DisableSecondaryButtonRecognizer(),
-                                                      (DisableSecondaryButtonRecognizer
-                                                          instance) {},
+                                                      (_) {},
                                                     ),
                                                   },
                                                   child:
                                                       ReorderableDragStartListener(
                                                     key: Key(
-                                                        'ReorderHandle_${chat.id.val}'),
+                                                      'ReorderHandle_${chat.id.val}',
+                                                    ),
                                                     index: i,
                                                     child: child,
                                                   ),
                                                 );
                                               },
-                                              onJoin: () => c.joinCall(chat.id),
-                                              onDrop: () => c.dropCall(chat.id),
-                                              onLeave: () =>
-                                                  c.leaveChat(chat.id),
-                                              onHide: () => c.hideChat(chat.id),
-                                              inCall: () => c.inCall(chat.id),
-                                              onMute: () => c.muteChat(chat.id),
-                                              onUnmute: () =>
-                                                  c.unmuteChat(chat.id),
-                                              onFavorite: () =>
-                                                  c.favoriteChat(chat.id),
-                                              onUnfavorite: () =>
-                                                  c.unfavoriteChat(chat.id),
                                             );
 
                                             // Ignore the animation, if there's
@@ -638,7 +645,7 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                     sliver: SliverList(
                                       delegate: SliverChildListDelegate.fixed(
-                                        unfavorites.mapIndexed((i, chat) {
+                                        chats.mapIndexed((i, e) {
                                           return AnimationConfiguration
                                               .staggeredList(
                                             position: i,
@@ -648,32 +655,7 @@ class ChatsTabView extends StatelessWidget {
                                             child: SlideAnimation(
                                               horizontalOffset: 50,
                                               child: FadeInAnimation(
-                                                child: RecentChatTile(
-                                                  chat,
-                                                  key: Key(
-                                                      'RecentChat_${chat.id}'),
-                                                  me: c.me,
-                                                  blocked: chat.blacklisted,
-                                                  getUser: c.getUser,
-                                                  onJoin: () =>
-                                                      c.joinCall(chat.id),
-                                                  onDrop: () =>
-                                                      c.dropCall(chat.id),
-                                                  onLeave: () =>
-                                                      c.leaveChat(chat.id),
-                                                  onHide: () =>
-                                                      c.hideChat(chat.id),
-                                                  inCall: () =>
-                                                      c.inCall(chat.id),
-                                                  onMute: () =>
-                                                      c.muteChat(chat.id),
-                                                  onUnmute: () =>
-                                                      c.unmuteChat(chat.id),
-                                                  onFavorite: () =>
-                                                      c.favoriteChat(chat.id),
-                                                  onUnfavorite: () =>
-                                                      c.unfavoriteChat(chat.id),
-                                                ),
+                                                child: tile(e),
                                               ),
                                             ),
                                           );
@@ -800,7 +782,7 @@ class ChatsTabView extends StatelessWidget {
   }
 }
 
-/// [OneSequenceGestureRecognizer] rejects secondary mouse button events.
+/// [OneSequenceGestureRecognizer] rejecting the secondary mouse button events.
 class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
   @override
   String get debugDescription => 'DisableSecondaryButtonRecognizer';

@@ -132,7 +132,7 @@ class ContactTile extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor.darken(darken),
-          selectedHoverColor: style.cardSelectedColor.withOpacity(1),
+          selectedHoverColor: style.cardSelectedColor,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null

@@ -450,16 +450,16 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    final int favoritesLength =
+    // [chats] are guaranteed to have favorite [Chat]s on the top.
+    final int length =
         chats.where((e) => e.chat.value.favoritePosition != null).length;
 
     double position;
 
     if (to <= 0) {
       position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (to >= favoritesLength) {
-      position =
-          chats[favoritesLength - 1].chat.value.favoritePosition!.val * 2;
+    } else if (to >= length) {
+      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
     } else {
       position = (chats[to].chat.value.favoritePosition!.val +
               chats[to - 1].chat.value.favoritePosition!.val) /
