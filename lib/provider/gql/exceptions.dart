@@ -233,8 +233,6 @@ class CreateSessionException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateSessionErrorCode.unknownUser:
-        return 'err_account_not_found'.l10n;
       case CreateSessionErrorCode.wrongPassword:
         return 'err_incorrect_password'.l10n;
       case CreateSessionErrorCode.artemisUnknown:
@@ -273,6 +271,8 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
         return 'err_unknown'.l10n;
       case CreateDialogChatErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
+      case CreateDialogChatErrorCode.useMonolog:
+        return 'err_use_monolog'.l10n;
     }
   }
 }
@@ -346,8 +346,6 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
         return 'err_blacklisted'.l10n;
       case StartChatCallErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
-      case StartChatCallErrorCode.monolog:
-        return 'err_call_monolog'.l10n;
       case StartChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -546,10 +544,6 @@ class RecoverUserPasswordException
         return 'err_unknown'.l10n;
       case RecoverUserPasswordErrorCode.codeLimitExceeded:
         return 'err_code_limit_exceed'.l10n;
-      case RecoverUserPasswordErrorCode.nowhereToSend:
-        return 'err_nowhere_to_send'.l10n;
-      case RecoverUserPasswordErrorCode.unknownUser:
-        return 'err_account_not_found'.l10n;
     }
   }
 }
@@ -647,10 +641,10 @@ class RenameChatException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case RenameChatErrorCode.unknownChat:
         return 'err_contact_unknown_chat'.l10n;
-      case RenameChatErrorCode.notGroup:
-        return 'err_contact_not_group'.l10n;
       case RenameChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case RenameChatErrorCode.dialog:
+        return 'err_dialog'.l10n;
     }
   }
 }
@@ -749,8 +743,6 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
         return 'err_unknown'.l10n;
       case AddUserEmailErrorCode.busy:
         return 'err_you_already_has_unconfirmed_email'.l10n;
-      case AddUserEmailErrorCode.occupied:
-        return 'err_email_occupied'.l10n;
       case AddUserEmailErrorCode.tooMany:
         return 'err_too_many_emails'.l10n;
     }
@@ -872,8 +864,6 @@ class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case AddUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case AddUserPhoneErrorCode.occupied:
-        return 'err_phone_occupied'.l10n;
       case AddUserPhoneErrorCode.busy:
         return 'err_you_already_has_unconfirmed_phone'.l10n;
       case AddUserPhoneErrorCode.tooMany:
@@ -1356,6 +1346,8 @@ class UpdateChatAvatarException
         return 'err_dimensions_too_big'.l10n;
       case UpdateChatAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case UpdateChatAvatarErrorCode.dialog:
+        return 'err_dialog'.l10n;
     }
   }
 }
@@ -1381,6 +1373,8 @@ class ToggleChatMuteException
         return 'err_unknown_chat'.l10n;
       case ToggleChatMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case ToggleChatMuteErrorCode.monolog:
+        return 'err_monolog'.l10n;
     }
   }
 }
