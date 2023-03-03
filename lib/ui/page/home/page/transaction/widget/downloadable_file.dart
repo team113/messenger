@@ -110,11 +110,8 @@ class _DownloadableFileState extends State<DownloadableFile> {
             child: Row(
               children: [
                 const SizedBox(width: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: leading,
-                ),
-                const SizedBox(width: 11),
+
+                // const SizedBox(width: 11),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,6 +154,11 @@ class _DownloadableFileState extends State<DownloadableFile> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 11),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: leading,
                 ),
                 const SizedBox(width: 8),
               ],

@@ -64,6 +64,7 @@ class ReactiveTextField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     this.fillColor = Colors.white,
     this.maxLength,
+    this.readOnly = false,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -163,6 +164,8 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
+
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +295,7 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
-              readOnly: !enabled || !state.editable.value,
+              readOnly: readOnly || (!enabled || !state.editable.value),
               enabled: enabled && state.editable.value,
               decoration: InputDecoration(
                 isDense: dense ?? PlatformUtils.isMobile,
