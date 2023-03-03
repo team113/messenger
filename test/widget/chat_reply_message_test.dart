@@ -207,20 +207,40 @@ void main() async {
               'ver': '1',
               'repliesTo': [
                 {
-                  'node': {
-                    '__typename': 'ChatMessage',
-                    'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
-                    'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                    'authorId': 'me',
-                    'at': '2022-01-05T15:40:57.010950+00:00',
-                    'ver': '1',
-                    'repliesTo': [],
-                    'text': 'text message',
-                    'editedAt': null,
-                    'attachments': []
+                  '__typename': 'ChatMessageQuote',
+                  'original': {
+                    'node': {
+                      '__typename': 'ChatMessage',
+                      'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
+                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                      'authorId': 'me',
+                      'at': '2022-01-05T15:40:57.010950+00:00',
+                      'ver': '1',
+                      'repliesTo': [],
+                      'text': 'text message',
+                      'editedAt': null,
+                      'attachments': []
+                    },
+                    'cursor':
+                        'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
                   },
-                  'cursor':
-                      'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
+                  'at': '2022-01-27T10:53:21.405546+00:00',
+                  'author': {
+                    'id': 'me',
+                    'num': '1234123412341234',
+                    'isDeleted': false,
+                    'gallery': {
+                      'nodes': [],
+                      'edges': [],
+                    },
+                    'mutualContactsCount': 0,
+                    'isBlacklisted': {
+                      'ver': '0',
+                    },
+                    'ver': '0',
+                  },
+                  'text': '123',
+                  'attachments': [],
                 },
               ],
               'text': 'reply message',

@@ -219,11 +219,14 @@ class ChatsTabView extends StatelessWidget {
                           c.search.value?.users.isEmpty == true) {
                         if (c.search.value?.searchStatus.value.isSuccess ==
                             true) {
-                          center =
-                              Center(child: Text('label_nothing_found'.l10n));
+                          center = Center(
+                            key: UniqueKey(),
+                            child: Text('label_nothing_found'.l10n),
+                          );
                         } else {
-                          center = const Center(
-                            child: ColoredBox(
+                          center = Center(
+                            key: UniqueKey(),
+                            child: const ColoredBox(
                               color: Colors.transparent,
                               child: CustomProgressIndicator(),
                             ),
@@ -233,6 +236,7 @@ class ChatsTabView extends StatelessWidget {
 
                       if (center != null) {
                         child = Padding(
+                          key: UniqueKey(),
                           padding: const EdgeInsets.only(top: 67),
                           child: center,
                         );
@@ -363,9 +367,10 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.search.isEmpty.value == false) {
                       if (c.search.value!.searchStatus.value.isLoading &&
                           c.elements.isEmpty) {
-                        child = const Center(
-                          key: Key('Loading'),
-                          child: ColoredBox(
+                        child = Center(
+                          key: UniqueKey(),
+                          child: const ColoredBox(
+                            key: Key('Loading'),
                             color: Colors.transparent,
                             child: CustomProgressIndicator(),
                           ),
@@ -464,17 +469,34 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         );
                       } else {
-                        child = Center(
-                          key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
+                        child = KeyedSubtree(
+                          key: UniqueKey(),
+                          child: Center(
+                            key: const Key('NothingFound'),
+                            child: Text('label_nothing_found'.l10n),
+                          ),
                         );
                       }
                     } else {
                       if (c.chats.none((e) => !e.id.isLocal)) {
-                        child = Center(
-                          key: const Key('NoChats'),
-                          child: Text('label_no_chats'.l10n),
-                        );
+                        if (!c.chatsReady.value) {
+                          child = Center(
+                            key: UniqueKey(),
+                            child: const ColoredBox(
+                              key: Key('Loading'),
+                              color: Colors.transparent,
+                              child: CustomProgressIndicator(),
+                            ),
+                          );
+                        } else {
+                          child = KeyedSubtree(
+                            key: UniqueKey(),
+                            child: Center(
+                              key: const Key('NoChats'),
+                              child: Text('label_no_chats'.l10n),
+                            ),
+                          );
+                        }
                       } else {
                         child = SafeScrollbar(
                           controller: c.scrollController,

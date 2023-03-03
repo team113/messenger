@@ -53,8 +53,8 @@ fragment Chat on Chat {
     lastItem {
         node {
             __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
+            ... on ChatInfo {
+                ...ChatInfo
             }
             ... on ChatCall {
                 ...ChatCall
@@ -71,8 +71,8 @@ fragment Chat on Chat {
     lastReadItem {
         node {
             __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
+            ... on ChatInfo {
+                ...ChatInfo
             }
             ... on ChatCall {
                 ...ChatCall
