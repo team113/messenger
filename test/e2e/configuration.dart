@@ -50,6 +50,7 @@ import 'steps/chat_is_muted.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
+import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
@@ -110,6 +111,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contactIsFavorite,
         copyFromField,
         downloadFile,
+        dragChatDown,
         dragContactDown,
         fillField,
         fillFieldN,
