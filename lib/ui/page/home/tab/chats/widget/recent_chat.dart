@@ -550,7 +550,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               if (item.authorId != action.user.id) {
-                return userBuilder(
+                content = userBuilder(
                   action.user.id,
                   (context, user) {
                     final User author = (item as ChatInfo).author;
@@ -564,20 +564,20 @@ class RecentChatTile extends StatelessWidget {
                     return Text('label_user_added_user'.l10nfmt(args));
                   },
                 );
+              } else {
+                content = Text(
+                  'label_was_added'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
               }
-
-              content = Text(
-                'label_was_added'.l10nfmt(
-                  {'author': '${action.user.name ?? action.user.num}'},
-                ),
-              );
               break;
 
             case ChatInfoActionKind.memberRemoved:
               final action = item.action as ChatInfoActionMemberRemoved;
 
               if (item.authorId != action.user.id) {
-                return userBuilder(
+                content = userBuilder(
                   action.user.id,
                   (context, user) {
                     final User author = (item as ChatInfo).author;
@@ -591,31 +591,41 @@ class RecentChatTile extends StatelessWidget {
                     return Text('label_user_removed_user'.l10nfmt(args));
                   },
                 );
+              } else {
+                content = Text(
+                  'label_was_removed'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
               }
-
-              content = Text(
-                'label_was_removed'.l10nfmt(
-                  {'author': '${action.user.name ?? action.user.num}'},
-                ),
-              );
               break;
 
             case ChatInfoActionKind.avatarUpdated:
               final action = item.action as ChatInfoActionAvatarUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+              };
+
               if (action.avatar == null) {
-                content = Text('label_avatar_removed'.l10n);
+                content = Text('label_avatar_removed'.l10nfmt(args));
               } else {
-                content = Text('label_avatar_updated'.l10n);
+                content = Text('label_avatar_updated'.l10nfmt(args));
               }
               break;
 
             case ChatInfoActionKind.nameUpdated:
               final action = item.action as ChatInfoActionNameUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+                if (action.name != null) 'name': action.name?.val
+              };
+
               if (action.name == null) {
-                content = Text('label_name_removed'.l10n);
+                content = Text('label_name_removed'.l10nfmt(args));
               } else {
-                content = Text(
-                    'label_name_updated'.l10nfmt({'name': action.name?.val}));
+                content = Text('label_name_updated'.l10nfmt(args));
               }
               break;
           }

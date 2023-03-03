@@ -810,84 +810,80 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       case ChatInfoActionKind.avatarUpdated:
         final action = message.action as ChatInfoActionAvatarUpdated;
 
-        content = Obx(() {
-          final User? user = widget.user?.user.value;
-          final Map<String, dynamic> args = {
-            'author': user?.name?.val ?? user?.num.val,
-          };
+        final User user = widget.user?.user.value ?? message.author;
+        final Map<String, dynamic> args = {
+          'author': user.name?.val ?? user.num.val,
+        };
 
-          final String phrase1, phrase2;
-          if (action.avatar == null) {
-            phrase1 = 'label_avatar_removed1';
-            phrase2 = 'label_avatar_removed2';
-          } else {
-            phrase1 = 'label_avatar_updated1';
-            phrase2 = 'label_avatar_updated2';
-          }
+        final String phrase1, phrase2;
+        if (action.avatar == null) {
+          phrase1 = 'label_avatar_removed1';
+          phrase2 = 'label_avatar_removed2';
+        } else {
+          phrase1 = 'label_avatar_updated1';
+          phrase2 = 'label_avatar_updated2';
+        }
 
-          return RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: phrase1.l10nfmt(args),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.user(user!.id, push: true),
-                ),
-                TextSpan(
-                  text: phrase2.l10nfmt(args),
-                  style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-              style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+        content = RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: phrase1.l10nfmt(args),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => router.user(user.id, push: true),
               ),
+              TextSpan(
+                text: phrase2.l10nfmt(args),
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+            style: style.systemMessageStyle.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
             ),
-          );
-        });
+          ),
+        );
         break;
 
       case ChatInfoActionKind.nameUpdated:
         final action = message.action as ChatInfoActionNameUpdated;
 
-        content = Obx(() {
-          final User? user = widget.user?.user.value;
-          final Map<String, dynamic> args = {
-            'author': user?.name?.val ?? user?.num.val,
-            if (action.name != null) 'name': action.name?.val,
-          };
+        final User user = widget.user?.user.value ?? message.author;
+        final Map<String, dynamic> args = {
+          'author': user.name?.val ?? user.num.val,
+          if (action.name != null) 'name': action.name?.val,
+        };
 
-          final String phrase1, phrase2;
-          if (action.name == null) {
-            phrase1 = 'label_name_removed1';
-            phrase2 = 'label_name_removed2';
-          } else {
-            phrase1 = 'label_name_updated1';
-            phrase2 = 'label_name_updated2';
-          }
+        final String phrase1, phrase2;
+        if (action.name == null) {
+          phrase1 = 'label_name_removed1';
+          phrase2 = 'label_name_removed2';
+        } else {
+          phrase1 = 'label_name_updated1';
+          phrase2 = 'label_name_updated2';
+        }
 
-          return RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: phrase1.l10nfmt(args),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.user(user!.id, push: true),
-                ),
-                TextSpan(
-                  text: phrase2.l10nfmt(args),
-                  style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-              style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+        content = RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: phrase1.l10nfmt(args),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => router.user(user.id, push: true),
               ),
+              TextSpan(
+                text: phrase2.l10nfmt(args),
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+            style: style.systemMessageStyle.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
             ),
-          );
-        });
+          ),
+        );
         break;
     }
 
