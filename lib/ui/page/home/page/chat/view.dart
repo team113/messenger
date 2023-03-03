@@ -527,14 +527,14 @@ class _ChatViewState extends State<ChatView>
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
-        element is ChatMemberInfoElement) {
+        element is ChatInfoElement) {
       Rx<ChatItem> e;
 
       if (element is ChatMessageElement) {
         e = element.item;
       } else if (element is ChatCallElement) {
         e = element.item;
-      } else if (element is ChatMemberInfoElement) {
+      } else if (element is ChatInfoElement) {
         e = element.item;
       } else {
         throw Exception('Unreachable');
@@ -608,7 +608,11 @@ class _ChatViewState extends State<ChatView>
                 }
               },
               onCopy: c.copyText,
-              onRepliedTap: c.animateTo,
+              onRepliedTap: (q) async {
+              if (q.original != null) {
+                await c.animateTo(q.original!.id);
+              }
+            },
               onGallery: c.calculateGallery,
               onResend: () => c.resendItem(e.value),
               onEdit: () => c.editMessage(e.value),
@@ -699,11 +703,17 @@ class _ChatViewState extends State<ChatView>
               onEdit: () => c.editMessage(element.note.value!.value),
               onDrag: (d) => c.isItemDragged.value = d,
               onForwardedTap: (id, chatId) {
-                if (chatId == c.id) {
-                  c.animateTo(id);
+                if (quote.original != null) {
+                if (quote.original!.chatId == c.id) {
+                  c.animateTo(quote.original!.id);
                 } else {
-                  router.chat(chatId, itemId: id, push: true);
+                  router.chat(
+                    quote.original!.chatId,
+                    itemId: quote.original!.id,
+                    push: true,
+                  );
                 }
+              }
               },
               onFileTap: c.download,
               onAttachmentError: () async {

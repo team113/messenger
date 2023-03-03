@@ -20,10 +20,10 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
+import 'chat_item_quote.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'sending_status.dart';
 import 'user.dart';
@@ -65,47 +65,24 @@ abstract class ChatItem {
   String get timestamp => at.microsecondsSinceEpoch.toString();
 }
 
-/// Information about an action taken upon a [ChatMember].
-@HiveType(typeId: ModelTypeId.chatMemberInfo)
-class ChatMemberInfo extends ChatItem {
-  ChatMemberInfo(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
-    required this.user,
-    required this.actionIndex,
-  }) : super(id, chatId, authorId, at);
-
-  /// [User] this [ChatMemberInfo] is about.
-  @HiveField(5)
-  final User user;
-
-  /// Action taken upon the [ChatMember].
-  @HiveField(6)
-  final int actionIndex;
-
-  ChatMemberInfoAction get action => ChatMemberInfoAction.values[actionIndex];
-}
-
 /// Message in a [Chat].
 @HiveType(typeId: ModelTypeId.chatMessage)
 class ChatMessage extends ChatItem {
   ChatMessage(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
+    super.id,
+    super.chatId,
+    super.authorId,
+    super.at, {
+    super.status,
     this.repliesTo = const [],
     this.text,
     this.editedAt,
     this.attachments = const [],
-    SendingStatus? status,
-  }) : super(id, chatId, authorId, at, status: status);
+  });
 
-  /// [ChatItem]s this [ChatMessage] replies to.
+  /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
-  final List<ChatItem> repliesTo;
+  final List<ChatItemQuote> repliesTo;
 
   /// Text of this [ChatMessage].
   @HiveField(6)
@@ -123,12 +100,24 @@ class ChatMessage extends ChatItem {
   /// [authorId], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
-        repliesTo.every((e) => other.repliesTo.any((m) => m.id == e.id)) &&
+        repliesTo.every(
+          (e) => other.repliesTo.any(
+            (m) =>
+                m.runtimeType == e.runtimeType &&
+                m.at == e.at &&
+                m.author == e.author &&
+                m.original?.id == e.original?.id,
+          ),
+        ) &&
         authorId == other.authorId &&
         chatId == other.chatId &&
-        attachments.every((e) => other.attachments.any((m) =>
-            m.original.relativeRef == e.original.relativeRef &&
-            m.filename == e.filename));
+        attachments.every(
+          (e) => other.attachments.any(
+            (m) =>
+                m.original.relativeRef == e.original.relativeRef &&
+                m.filename == e.filename,
+          ),
+        );
   }
 }
 
@@ -136,16 +125,19 @@ class ChatMessage extends ChatItem {
 @HiveType(typeId: ModelTypeId.chatForward)
 class ChatForward extends ChatItem {
   ChatForward(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
-    required this.item,
-  }) : super(id, chatId, authorId, at);
+    super.id,
+    super.chatId,
+    super.authorId,
+    super.at, {
+    required this.quote,
+  });
 
-  /// Forwarded [ChatItem].
+  /// [ChatItemQuote] of the forwarded [ChatItem].
+  ///
+  /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
+  /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
   @HiveField(5)
-  ChatItem item;
+  final ChatItemQuote quote;
 }
 
 /// Unique ID of a [ChatItem].

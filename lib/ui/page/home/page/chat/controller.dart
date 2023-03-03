@@ -28,13 +28,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -304,7 +306,7 @@ class ChatController extends GetxController {
             bool? result = await ChatForwardView.show(
               router.context!,
               id,
-              send.replied.map((e) => ChatItemQuote(item: e)).toList(),
+              send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
             );
@@ -580,8 +582,8 @@ class ChatController extends GetxController {
         } else if (item is ChatCall) {
           ChatCallElement element = ChatCallElement(e);
           elements[element.id] = element;
-        } else if (item is ChatMemberInfo) {
-          ChatMemberInfoElement element = ChatMemberInfoElement(e);
+        } else if (item is ChatInfo) {
+          ChatInfoElement element = ChatInfoElement(e);
           elements[element.id] = element;
         } else if (item is ChatForward) {
           ChatForwardElement element =
@@ -690,8 +692,7 @@ class ChatController extends GetxController {
               if (item.id == element.item.value.id) {
                 elements.remove(key);
               }
-            } else if (item is ChatMemberInfo &&
-                element is ChatMemberInfoElement) {
+            } else if (item is ChatInfo && element is ChatInfoElement) {
               if (item.id == element.item.value.id) {
                 elements.remove(key);
               }
@@ -779,7 +780,7 @@ class ChatController extends GetxController {
           _lastVisibleItem = positions.firstWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
             return element is ChatMessageElement ||
-                element is ChatMemberInfoElement ||
+                element is ChatInfoElement ||
                 element is ChatCallElement ||
                 element is ChatForwardElement;
           });
@@ -797,7 +798,7 @@ class ChatController extends GetxController {
                     element.id.at.isAfter(_lastSeenItem.value!.at))) {
               if (element is ChatMessageElement) {
                 _lastSeenItem.value = element.item.value;
-              } else if (element is ChatMemberInfoElement) {
+              } else if (element is ChatInfoElement) {
                 _lastSeenItem.value = element.item.value;
               } else if (element is ChatCallElement) {
                 _lastSeenItem.value = element.item.value;
@@ -1037,9 +1038,9 @@ class ChatController extends GetxController {
         ));
       } else if (m.value is ChatForward) {
         final ChatForward msg = m.value as ChatForward;
-        final ChatItem item = msg.item;
+        final ChatItemQuote item = msg.quote;
 
-        if (item is ChatMessage) {
+        if (item is ChatMessageQuote) {
           attachments.addAll(item.attachments.where(
             (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
           ));
@@ -1390,12 +1391,12 @@ class ChatCallElement extends ListElement {
   final Rx<ChatItem> item;
 }
 
-/// [ListElement] representing a [ChatMemberInfo].
-class ChatMemberInfoElement extends ListElement {
-  ChatMemberInfoElement(this.item)
+/// [ListElement] representing a [ChatInfo].
+class ChatInfoElement extends ListElement {
+  ChatInfoElement(this.item)
       : super(ListElementId(item.value.at, item.value.id));
 
-  /// [ChatItem] of this [ChatMemberInfoElement].
+  /// [ChatItem] of this [ChatInfoElement].
   final Rx<ChatItem> item;
 }
 

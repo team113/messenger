@@ -162,6 +162,9 @@ class _RetryImageState extends State<RetryImage> {
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
 
+  /// Indicator whether the [_image] is considered to be a SVG.
+  bool _isSvg = false;
+
   @override
   void initState() {
     _loadFallback();
@@ -203,13 +206,24 @@ class _RetryImageState extends State<RetryImage> {
     final Widget child;
 
     if (_image != null) {
-      Widget image = Image.memory(
-        _image!,
-        key: const Key('Loaded'),
-        height: widget.height,
-        width: widget.width,
-        fit: widget.fit,
-      );
+      Widget image;
+
+      if (_isSvg) {
+        return SvgLoader.bytes(
+          _image!,
+          width: widget.width,
+          height: widget.height,
+          fit: widget.fit ?? BoxFit.contain,
+        );
+      } else {
+        image = Image.memory(
+          _image!,
+          key: const Key('Loaded'),
+          height: widget.height,
+          width: widget.width,
+          fit: widget.fit,
+        );
+      }
 
       if (widget.filter != null) {
         image = ImageFiltered(imageFilter: widget.filter!, child: image);
@@ -360,34 +374,38 @@ class _RetryImageState extends State<RetryImage> {
         setState(() {});
       }
     } else {
-      await Backoff.run(
-        () async {
-          Response? data;
+      try {
+        await Backoff.run(
+          () async {
+            Response? data;
 
-          try {
-            data = await PlatformUtils.dio.get(
-              widget.fallbackUrl!,
-              options: Options(responseType: ResponseType.bytes),
-            );
-          } on DioError catch (e) {
-            if (e.response?.statusCode == 403) {
-              await widget.onForbidden?.call();
-            }
-          }
-
-          if (data?.data != null && data!.statusCode == 200) {
-            if (widget.fallbackChecksum != null) {
-              FIFOCache.set(widget.fallbackChecksum!, data.data);
+            try {
+              data = await PlatformUtils.dio.get(
+                widget.fallbackUrl!,
+                options: Options(responseType: ResponseType.bytes),
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 403) {
+                await widget.onForbidden?.call();
+              }
             }
 
-            _fallback = data.data;
-            if (mounted) {
-              setState(() {});
+            if (data?.data != null && data!.statusCode == 200) {
+              if (widget.fallbackChecksum != null) {
+                FIFOCache.set(widget.fallbackChecksum!, data.data);
+              }
+
+              _fallback = data.data;
+              if (mounted) {
+                setState(() {});
+              }
             }
-          }
-        },
-        _fallbackToken,
-      );
+          },
+          _fallbackToken,
+        );
+      } on OperationCanceledException {
+        // No-op.
+      }
     }
   }
 
@@ -402,6 +420,12 @@ class _RetryImageState extends State<RetryImage> {
 
     if (cached != null) {
       _image = cached;
+      _isSvg = _image!.length >= 4 &&
+          _image![0] == 60 &&
+          _image![1] == 115 &&
+          _image![2] == 118 &&
+          _image![3] == 103;
+
       if (mounted) {
         setState(() {});
       }
@@ -438,6 +462,16 @@ class _RetryImageState extends State<RetryImage> {
               }
 
               _image = data.data;
+              _isSvg = false;
+
+              if (_image != null) {
+                _isSvg = _image!.length >= 4 &&
+                    _image![0] == 60 &&
+                    _image![1] == 115 &&
+                    _image![2] == 118 &&
+                    _image![3] == 103;
+              }
+
               if (mounted) {
                 setState(() {});
               }

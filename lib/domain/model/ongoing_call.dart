@@ -536,6 +536,10 @@ class OngoingCall {
                 case ChatCallEventKind.redialed:
                   // TODO: Implement EventChatCallMemberRedialed.
                   break;
+
+                case ChatCallEventKind.answerTimeoutPassed:
+                  // TODO: Implement EventChatCallAnswerTimeoutPassed.
+                  break;
               }
             }
             break;
@@ -1271,7 +1275,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link/$_me?token=$creds');
+    await _room?.join('$link?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;

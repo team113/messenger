@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -32,7 +33,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -372,7 +373,8 @@ class ChatRepository implements AbstractChatRepository {
         existingDateTime: item.at,
         text: item.text,
         attachments: item.attachments,
-        repliesTo: item.repliesTo,
+        repliesTo:
+            item.repliesTo.map((e) => e.original).whereNotNull().toList(),
       );
     }
   }
@@ -683,7 +685,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<model.ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) async {
@@ -807,7 +809,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     return ItemsPage<HiveChatItem>(
-      query.chat!.items.edges.map((e) => e.toHive()).expand((e) => e).toList(),
+      query.chat!.items.edges.map((e) => e.toHive()).toList(),
       query.chat!.items.pageInfo,
     );
   }
@@ -923,16 +925,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
-    if (e.$$typename == 'EventChatRenamed') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatRenamed;
-      _userRepo.put(node.byUser.toHive());
-      return EventChatRenamed(
-        e.chatId,
-        node.name,
-        node.byUser.toModel(),
-        node.at,
-      );
-    } else if (e.$$typename == 'EventChatCleared') {
+    if (e.$$typename == 'EventChatCleared') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
       return EventChatCleared(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatUnreadItemsCountUpdated') {
@@ -965,14 +958,6 @@ class ChatRepository implements AbstractChatRepository {
       return EventChatMuted(
         e.chatId,
         node.duration.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatAvatarDeleted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarDeleted;
-      _userRepo.put(node.byUser.toHive());
-      return EventChatAvatarDeleted(
-        e.chatId,
-        node.byUser.toModel(),
-        node.at,
       );
     } else if (e.$$typename == 'EventChatTypingStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
@@ -1008,15 +993,6 @@ class ChatRepository implements AbstractChatRepository {
       return EventChatCallStarted(
         e.chatId,
         node.call.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatAvatarUpdated') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarUpdated;
-      _userRepo.put(node.byUser.toHive());
-      return EventChatAvatarUpdated(
-        e.chatId,
-        node.avatar.toModel(),
-        node.byUser.toModel(),
-        node.at,
       );
     } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
       var node = e
@@ -1305,7 +1281,7 @@ class ChatRepository implements AbstractChatRepository {
         entry.subscribe();
       }
     } else {
-      _putChat(data, ignoreVersion: ignoreVersion);
+      _putChat(data.chat, ignoreVersion: ignoreVersion);
     }
 
     return entry;
@@ -1445,4 +1421,18 @@ class ChatRepository implements AbstractChatRepository {
 
     return _putEntry(chatData);
   }
+}
+
+/// Result of fetching a [Chat].
+class ChatData {
+  const ChatData(this.chat, this.lastItem, this.lastReadItem);
+
+  /// [HiveChat] returned from the [Chat] fetching.
+  final HiveChat chat;
+
+  /// [HiveChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
+  final HiveChatItem? lastItem;
+
+  /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
+  final HiveChatItem? lastReadItem;
 }

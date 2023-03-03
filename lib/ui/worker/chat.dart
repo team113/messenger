@@ -20,8 +20,8 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -123,14 +123,17 @@ class ChatWorker extends DisposableService {
     if (viaSubscription && c.chat.value.isGroup) {
       bool newChat = false;
 
-      if (c.chat.value.lastItem is ChatMemberInfo) {
-        var msg = c.chat.value.lastItem as ChatMemberInfo;
-        newChat = msg.action == ChatMemberInfoAction.added &&
-            msg.user.id == _chatService.me &&
-            DateTime.now()
-                    .difference(msg.at.val)
-                    .compareTo(newMessageThreshold) <=
-                -1;
+      if (c.chat.value.lastItem is ChatInfo) {
+        final msg = c.chat.value.lastItem as ChatInfo;
+        if (msg.action.kind == ChatInfoActionKind.memberAdded) {
+          final action = msg.action as ChatInfoActionMemberAdded;
+          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
+              action.user.id == _chatService.me &&
+              DateTime.now()
+                      .difference(msg.at.val)
+                      .compareTo(newMessageThreshold) <=
+                  -1;
+        }
       } else if (c.chat.value.lastItem == null) {
         // The chat was created just now.
         newChat = DateTime.now()
@@ -229,30 +232,50 @@ class _ChatWatchData {
                       .l10nfmt({'count': msg.attachments.length}),
                 );
               }
-            } else if (chat.lastItem is ChatMemberInfo) {
-              final ChatMemberInfo msg = chat.lastItem as ChatMemberInfo;
+            } else if (chat.lastItem is ChatInfo) {
+              final ChatInfo msg = chat.lastItem as ChatInfo;
 
-              switch (msg.action) {
-                case ChatMemberInfoAction.created:
+              switch (msg.action.kind) {
+                case ChatInfoActionKind.created:
                   // No-op, as it shouldn't be in a notification.
                   break;
 
-                case ChatMemberInfoAction.added:
+                case ChatInfoActionKind.memberAdded:
+                  final action = msg.action as ChatInfoActionMemberAdded;
                   body.write(
-                    'label_was_added'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                    'label_was_added'.l10nfmt(
+                      {'who': '${action.user.name ?? action.user.num}'},
+                    ),
                   );
                   break;
 
-                case ChatMemberInfoAction.removed:
+                case ChatInfoActionKind.memberRemoved:
+                  final action = msg.action as ChatInfoActionMemberRemoved;
                   body.write(
-                    'label_was_removed'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                    'label_was_removed'.l10nfmt(
+                      {'who': '${action.user.name ?? action.user.num}'},
+                    ),
                   );
                   break;
 
-                case ChatMemberInfoAction.artemisUnknown:
-                  body.write(msg.action.toString());
+                case ChatInfoActionKind.avatarUpdated:
+                  final action = msg.action as ChatInfoActionAvatarUpdated;
+                  if (action.avatar == null) {
+                    body.write('label_avatar_removed'.l10n);
+                  } else {
+                    body.write('label_avatar_updated'.l10n);
+                  }
+                  break;
+
+                case ChatInfoActionKind.nameUpdated:
+                  final action = msg.action as ChatInfoActionNameUpdated;
+                  if (action.name == null) {
+                    body.write('label_name_removed'.l10n);
+                  } else {
+                    body.write(
+                      'label_name_updated'.l10nfmt({'name': action.name?.val}),
+                    );
+                  }
                   break;
               }
             } else if (chat.lastItem is ChatForward) {

@@ -31,10 +31,10 @@ part 'chat_call.g.dart';
 @HiveType(typeId: ModelTypeId.chatCall)
 class ChatCall extends ChatItem {
   ChatCall(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
+    super.id,
+    super.chatId,
+    super.authorId,
+    super.at, {
     required this.caller,
     required this.members,
     required this.withVideo,
@@ -42,8 +42,8 @@ class ChatCall extends ChatItem {
     this.finishReasonIndex,
     this.finishedAt,
     this.joinLink,
-    this.answered = false,
-  }) : super(id, chatId, authorId, at);
+    this.dialed,
+  });
 
   /// [User] who started this [ChatCall].
   @HiveField(5)
@@ -81,10 +81,15 @@ class ChatCall extends ChatItem {
     finishReasonIndex = reason?.index;
   }
 
-  /// Indicator whether this [ChatCall] is answered by the authenticated
-  /// [MyUser].
+  /// [ChatMember]s being dialed by this [ChatCall] at the moment.
+  ///
+  /// To understand whether the authenticated [MyUser] is dialed by this
+  /// [ChatCall] at the moment, check whether the
+  /// [ChatMembersDialedConcrete.members] contain him or the
+  /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
+  /// `null`.
   @HiveField(12)
-  final bool answered;
+  final ChatMembersDialed? dialed;
 }
 
 /// Member of a [ChatCall].
@@ -141,4 +146,34 @@ class ChatCallRoomJoinLink extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
   const ChatCallDeviceId(String val) : super(val);
+}
+
+/// [ChatMember]s being dialed by a [ChatCall].
+abstract class ChatMembersDialed {
+  const ChatMembersDialed();
+}
+
+/// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
+/// by a [ChatCall].
+@HiveType(typeId: ModelTypeId.chatMembersDialedAll)
+class ChatMembersDialedAll implements ChatMembersDialed {
+  const ChatMembersDialedAll(this.answeredMembers);
+
+  /// [ChatMember]s who answered (joined or declined) the [ChatCall] already, so
+  /// are not dialed anymore.
+  @HiveField(0)
+  final List<ChatMember> answeredMembers;
+}
+
+/// Information about concrete [ChatMember]s of a [Chat] being dialed (or
+/// redialed) by a [ChatCall].
+@HiveType(typeId: ModelTypeId.chatMembersDialedConcrete)
+class ChatMembersDialedConcrete implements ChatMembersDialed {
+  const ChatMembersDialedConcrete(this.members);
+
+  /// Concrete [ChatMember]s who are dialed (or redialed) by the [ChatCall].
+  ///
+  /// Guaranteed to be non-empty.
+  @HiveField(0)
+  final List<ChatMember> members;
 }

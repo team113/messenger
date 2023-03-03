@@ -222,15 +222,15 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   ) async {
     final bool fromContacts = contacts[id] != null;
     final HiveRxChatContact? contact =
         fromContacts ? contacts[id] : favorites[id];
 
-    final ChatContactPosition? oldPosition =
+    final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
-    final ChatContactPosition newPosition;
+    final ChatContactFavoritePosition newPosition;
 
     if (position == null) {
       final List<HiveRxChatContact> sorted = favorites.values.toList()
@@ -243,7 +243,7 @@ class ContactRepository implements AbstractContactRepository {
           ? null
           : sorted.first.contact.value.favoritePosition!.val;
 
-      newPosition = ChatContactPosition(
+      newPosition = ChatContactFavoritePosition(
         lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
       );
     } else {
@@ -279,7 +279,7 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> unfavoriteChatContact(ChatContactId id) async {
     final HiveRxChatContact? contact = favorites[id];
-    final ChatContactPosition? oldPosition =
+    final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
 
     contact?.contact.update((c) => c?.favoritePosition = null);

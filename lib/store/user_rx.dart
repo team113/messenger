@@ -225,7 +225,7 @@ class HiveRxUser extends RxUser {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.blacklisted;
+          userEntity.value.isBlacklisted = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
           _userLocal.put(userEntity);
         }

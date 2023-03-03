@@ -45,11 +45,11 @@ class User extends HiveObject {
     this.gallery,
     this.mutualContactsCount = 0,
     this.online = false,
-    this.presenceIndex = 0,
+    this.presenceIndex,
     this.status,
     this.isDeleted = false,
     ChatId? dialog,
-    this.isBlacklisted = false,
+    this.isBlacklisted,
     this.lastSeenAt,
   }) : _dialog = dialog;
 
@@ -112,11 +112,12 @@ class User extends HiveObject {
 
   /// Presence of this [User].
   @HiveField(10)
-  int presenceIndex;
+  int? presenceIndex;
 
-  Presence get presence => Presence.values[presenceIndex];
-  set presence(Presence pres) {
-    presenceIndex = pres.index;
+  Presence? get presence =>
+      presenceIndex == null ? null : Presence.values[presenceIndex!];
+  set presence(Presence? pres) {
+    presenceIndex = pres?.index;
   }
 
   /// Custom text status of this [User].
@@ -134,7 +135,7 @@ class User extends HiveObject {
   /// Indicator whether this [User] is blacklisted by the authenticated
   /// [MyUser].
   @HiveField(14)
-  bool isBlacklisted;
+  BlacklistRecord? isBlacklisted;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(17)
@@ -365,4 +366,34 @@ class UserTextStatus extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
+}
+
+/// [User]'s record in the blacklist of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blacklistRecord)
+class BlacklistRecord {
+  BlacklistRecord({
+    this.reason,
+    required this.at,
+  });
+
+  /// Reason of why the [User] was blacklisted.
+  @HiveField(0)
+  final BlacklistReason? reason;
+
+  /// [PreciseDateTime] when the [User] was blacklisted.
+  @HiveField(1)
+  final PreciseDateTime at;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlacklistRecord && at == other.at && reason == other.reason;
+
+  @override
+  int get hashCode => Object.hash(at, reason);
+}
+
+/// Reason of blacklisting a [User] by the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blacklistReason)
+class BlacklistReason extends NewType<String> {
+  const BlacklistReason(super.val);
 }

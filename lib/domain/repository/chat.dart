@@ -24,7 +24,7 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
 import '../model/my_user.dart';
 import '../model/native_file.dart';
@@ -159,7 +159,7 @@ abstract class AbstractChatRepository {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
@@ -254,8 +254,8 @@ abstract class RxChat {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted ==
-          true;
+              .isBlacklisted !=
+          null;
 
   /// First [ChatItem] unread by the authenticated [MyUser].
   Rx<ChatItem>? get firstUnreadItem;

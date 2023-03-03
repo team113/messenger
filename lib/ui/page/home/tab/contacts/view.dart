@@ -171,9 +171,10 @@ class ContactsTabView extends StatelessWidget {
             if (c.search.value?.search.isEmpty.value == false) {
               if (c.search.value!.searchStatus.value.isLoading &&
                   c.elements.isEmpty) {
-                child = const Center(
-                  key: Key('Loading'),
-                  child: ColoredBox(
+                child = Center(
+                  key: UniqueKey(),
+                  child: const ColoredBox(
+                    key: Key('Loading'),
                     color: Colors.transparent,
                     child: CustomProgressIndicator(),
                   ),
@@ -237,16 +238,22 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Center(
-                  key: const Key('NothingFound'),
-                  child: Text('label_nothing_found'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  ),
                 );
               }
             } else {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
-                child = Center(
-                  key: const Key('NoContacts'),
-                  child: Text('label_no_contacts'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NoContacts'),
+                    child: Text('label_no_contacts'.l10n),
+                  ),
                 );
               } else {
                 child = AnimationLimiter(
@@ -309,17 +316,30 @@ class ContactsTabView extends StatelessWidget {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
                                           key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
                                           index: i,
                                           child: child,
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: {
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (_) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
+                                          index: i,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );
@@ -499,7 +519,7 @@ class ContactsTabView extends StatelessWidget {
           );
         }),
         Obx(() {
-          if (contact.user.value?.user.value.isBlacklisted == false) {
+          if (contact.user.value?.user.value.isBlacklisted == null) {
             return const SizedBox();
           }
 
