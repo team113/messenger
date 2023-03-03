@@ -96,13 +96,13 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',
               'at': DateTime.now().toString(),
               'ver': '0',
-              'user': {
+              'author': {
                 '__typename': 'User',
                 'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                 'num': '1234567890123456',
@@ -125,7 +125,32 @@ void main() async {
                   'ver': '0',
                 },
               },
-              'action': 'ADDED'
+              'action': {
+                '__typename': 'ChatInfoActionMemberAdded',
+                'user': {
+                  '__typename': 'User',
+                  'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'num': '1234567890123456',
+                  'login': null,
+                  'name': null,
+                  'bio': null,
+                  'emails': {'confirmed': []},
+                  'phones': {'confirmed': []},
+                  'gallery': {'nodes': []},
+                  'chatDirectLink': null,
+                  'hasPassword': false,
+                  'unreadChatsCount': 0,
+                  'ver': '0',
+                  'presence': 'AWAY',
+                  'online': {'__typename': 'UserOnline'},
+                  'mutualContactsCount': 0,
+                  'isDeleted': false,
+                  'isBlacklisted': {
+                    'blacklisted': false,
+                    'ver': '0',
+                  },
+                },
+              },
             },
             'cursor': '123'
           },
@@ -144,13 +169,13 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',
               'at': DateTime.now().toString(),
               'ver': '0',
-              'user': {
+              'author': {
                 '__typename': 'User',
                 'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                 'num': '1234567890123456',
@@ -173,7 +198,32 @@ void main() async {
                   'ver': '0',
                 },
               },
-              'action': 'REMOVED'
+              'action': {
+                '__typename': 'ChatInfoActionMemberRemoved',
+                'user': {
+                  '__typename': 'User',
+                  'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'num': '1234567890123456',
+                  'login': null,
+                  'name': null,
+                  'bio': null,
+                  'emails': {'confirmed': []},
+                  'phones': {'confirmed': []},
+                  'gallery': {'nodes': []},
+                  'chatDirectLink': null,
+                  'hasPassword': false,
+                  'unreadChatsCount': 0,
+                  'ver': '0',
+                  'presence': 'AWAY',
+                  'online': {'__typename': 'UserOnline'},
+                  'mutualContactsCount': 0,
+                  'isDeleted': false,
+                  'isBlacklisted': {
+                    'blacklisted': false,
+                    'ver': '0',
+                  },
+                },
+              },
             },
             'cursor': '123'
           },

@@ -189,7 +189,7 @@ class EventChatContactFavorited extends ChatContactEvent {
   ) : super(contactId, at);
 
   /// Position of the [ChatContact] in the favorites list.
-  final ChatContactPosition position;
+  final ChatContactFavoritePosition position;
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.favorited;

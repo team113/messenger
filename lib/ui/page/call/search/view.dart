@@ -27,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
@@ -34,7 +35,7 @@ import 'controller.dart';
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
   const SearchView({
-    Key? key,
+    super.key,
     required this.categories,
     required this.title,
     this.chat,
@@ -45,7 +46,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
-  }) : super(key: key);
+  });
 
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;
@@ -149,7 +150,7 @@ class SearchView extends StatelessWidget {
                       );
                     }
 
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomProgressIndicator());
                   }
 
                   return Scrollbar(
@@ -192,6 +193,7 @@ class SearchView extends StatelessWidget {
                           } else if (e is RxChat) {
                             child = Obx(() {
                               return SelectedTile(
+                                key: Key('SearchChat_${e.id}'),
                                 chat: e,
                                 darken: 0.05,
                                 selected: c.selectedChats.contains(e),
@@ -212,6 +214,7 @@ class SearchView extends StatelessWidget {
                             c.contacts.length +
                             c.users.length +
                             c.recent.length,
+                        disableCacheItems: true,
                       ),
                     ),
                   );

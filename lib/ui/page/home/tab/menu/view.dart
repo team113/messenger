@@ -54,20 +54,13 @@ class MenuTabView extends StatelessWidget {
                     type: MaterialType.circle,
                     shadowColor: const Color(0x55000000),
                     color: Colors.white,
-                    child: InkWell(
-                      onTap: context.isNarrow &&
-                              ModalRoute.of(context)?.canPop == true
-                          ? Navigator.of(context).pop
-                          : null,
-                      customBorder: const CircleBorder(),
-                      child: Center(
-                        child: Obx(() {
-                          return AvatarWidget.fromMyUser(
-                            c.myUser.value,
-                            radius: 17,
-                          );
-                        }),
-                      ),
+                    child: Center(
+                      child: Obx(() {
+                        return AvatarWidget.fromMyUser(
+                          c.myUser.value,
+                          radius: 17,
+                        );
+                      }),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -271,6 +264,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.notifications,
                       title: 'label_notifications'.l10n,
                       subtitle: 'label_sound_and_vibrations'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.storage:
+                    child = card(
+                      icon: Icons.storage,
+                      title: 'label_storage'.l10n,
+                      subtitle: 'label_cache_and_downloads'.l10n,
                     );
                     break;
 

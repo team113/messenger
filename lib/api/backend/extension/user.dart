@@ -17,7 +17,6 @@
 
 import '../schema.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
@@ -41,15 +40,23 @@ extension UserConversion on UserMixin {
         lastSeenAt: online?.$$typename == 'UserOffline'
             ? (online as UserMixin$Online$UserOffline).lastSeenAt
             : null,
-        dialog: dialog == null ? null : Chat(dialog!.id),
-        presenceIndex: presence.index,
+        dialog: dialog?.id,
+        presenceIndex: presence?.index,
         status: status,
         isDeleted: isDeleted,
-        isBlacklisted: isBlacklisted.blacklisted,
+        isBlacklisted: isBlacklisted.record?.toModel(),
       );
 
   /// Constructs a new [HiveUser] from this [UserMixin].
   HiveUser toHive() => HiveUser(toModel(), ver, isBlacklisted.ver);
+}
+
+/// Extension adding models construction from a
+/// [UserMixin$IsBlacklisted$Record].
+extension BlacklistRecordConversion on UserMixin$IsBlacklisted$Record {
+  /// Constructs a new [BlacklistRecord] from this
+  /// [UserMixin$IsBlacklisted$Record].
+  BlacklistRecord toModel() => BlacklistRecord(reason: reason, at: at);
 }
 
 /// Extension adding models construction from an [ImageGalleryItem].

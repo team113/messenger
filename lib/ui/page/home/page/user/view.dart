@@ -35,6 +35,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -65,7 +66,7 @@ class UserView extends StatelessWidget {
               body: Center(
                 child: c.status.value.isEmpty
                     ? Text('err_unknown_user'.l10n)
-                    : const CircularProgressIndicator(),
+                    : const CustomProgressIndicator(),
               ),
             );
           }
@@ -175,7 +176,7 @@ class UserView extends StatelessWidget {
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
-                      if (c.isBlacklisted == true)
+                      if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
                           children: [_blocked(c, context)],
@@ -228,7 +229,7 @@ class UserView extends StatelessWidget {
                 }),
               ),
               bottomNavigationBar: Obx(() {
-                if (c.isBlacklisted != true) {
+                if (c.isBlacklisted == null) {
                   return const SizedBox();
                 }
 
@@ -307,43 +308,45 @@ class UserView extends StatelessWidget {
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           );
         }),
-        Obx(() {
-          final chat =
-              c.user?.dialog.value?.chat.value ?? c.user?.user.value.dialog;
-          final bool isMuted = chat?.muted != null;
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
+          Obx(() {
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
 
-          return action(
-            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: isMuted
-                ? SvgLoader.asset(
-                    'assets/icons/btn_mute.svg',
-                    width: 18.68,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  ),
-            onPressed: isMuted ? c.unmuteChat : c.muteChat,
-          );
-        }),
-        action(
-          text: 'btn_hide_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _hideChat(c, context),
-        ),
-        action(
-          text: 'btn_clear_history'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _clearChat(c, context),
-        ),
+            return action(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgLoader.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
+          ),
+          action(
+            text: 'btn_clear_history'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
+          ),
+        ],
         Obx(() {
           return action(
-            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
             text:
-                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true
+                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted != null
                 ? c.unblacklist
                 : () => _blacklistUser(c, context),
             trailing: Obx(() {
@@ -351,10 +354,13 @@ class UserView extends StatelessWidget {
               if (c.blacklistStatus.value.isEmpty) {
                 child = const SizedBox();
               } else {
-                child = const CircularProgressIndicator();
+                child = const CustomProgressIndicator();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           );
         }),
@@ -418,8 +424,7 @@ class UserView extends StatelessWidget {
   Widget _presence(UserController c, BuildContext context) {
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
-
-      if (presence == null || presence == Presence.hidden) {
+      if (presence == null) {
         return Container();
       }
 
@@ -445,20 +450,22 @@ class UserView extends StatelessWidget {
   Widget _blocked(UserController c, BuildContext context) {
     return Column(
       children: [
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_date'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.at != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
+              label: 'label_date'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_reason'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.reason != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
+              label: 'label_reason'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
       ],
     );
   }

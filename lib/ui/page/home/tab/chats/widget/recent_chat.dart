@@ -15,19 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -112,11 +112,7 @@ class RecentChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
+      final bool selected = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -134,7 +130,7 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context)),
+                Expanded(child: _subtitle(context, selected)),
                 if (blocked) ...[
                   const SizedBox(width: 5),
                   const Icon(
@@ -207,238 +203,126 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         selected: selected,
-        onTap: () => router.chat(chat.id),
+        onTap: () {
+          if (!selected) {
+            router.chat(chat.id);
+          }
+        },
       );
     });
   }
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context) {
-    final Chat chat = rxChat.chat.value;
+  Widget _subtitle(BuildContext context, bool selected) {
+    return Obx(() {
+      final Chat chat = rxChat.chat.value;
 
-    if (chat.ongoingCall != null) {
-      final Widget trailing = WidgetButton(
-        key: inCall?.call() == true
-            ? const Key('DropCallButton')
-            : const Key('JoinCallButton'),
-        onPressed: inCall?.call() == true ? onDrop : onJoin,
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: inCall?.call() == true
-                ? Colors.red
-                : Theme.of(context).colorScheme.secondary,
-          ),
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 8),
-                Icon(
-                  inCall?.call() == true ? Icons.call_end : Icons.call,
-                  size: 16,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 8),
-                if (constraints.maxWidth > 110)
-                  Expanded(
-                    child: Text(
-                      inCall?.call() == true
-                          ? 'btn_call_end'.l10n
-                          : 'btn_join_call'.l10n,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: Colors.white),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                const SizedBox(width: 8),
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return Text(
-                      DateTime.now()
-                          .difference(chat.ongoingCall!.at.val)
-                          .hhMmSs(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: Colors.white),
-                    );
-                  },
-                ),
-                const SizedBox(width: 8),
-              ],
-            );
-          }),
-        ),
-      );
-
-      return DefaultTextStyle(
-        style: Theme.of(context).textTheme.titleSmall!,
-        overflow: TextOverflow.ellipsis,
-        child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
-      );
-    }
-
-    final ChatItem? item;
-    if (rxChat.messages.isNotEmpty) {
-      item = rxChat.messages.last.value;
-    } else {
-      item = chat.lastItem;
-    }
-
-    List<Widget> subtitle = [];
-
-    final Iterable<String> typings = rxChat.typingUsers
-        .where((User user) => user.id != me)
-        .map((User user) => user.name?.val ?? user.num.val);
-
-    ChatMessage? draft = rxChat.draft.value;
-
-    if (draft != null && router.routes.last != '${Routes.chat}/${chat.id}') {
-      final StringBuffer desc = StringBuffer();
-
-      if (draft.text != null) {
-        desc.write(draft.text!.val);
-      }
-
-      if (draft.repliesTo.isNotEmpty) {
-        if (desc.isNotEmpty) desc.write('space'.l10n);
-        desc.write('label_replies'.l10nfmt({'count': draft.repliesTo.length}));
-      }
-
-      final List<Widget> images = [];
-
-      if (draft.attachments.isNotEmpty) {
-        if (draft.text == null) {
-          images.addAll(
-            draft.attachments.map((e) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 2),
-                child: _attachment(e),
-              );
-            }),
-          );
-        } else {
-          images.add(
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: _attachment(draft.attachments.first),
+      if (chat.ongoingCall != null) {
+        final Widget trailing = WidgetButton(
+          key: inCall?.call() == true
+              ? const Key('DropCallButton')
+              : const Key('JoinCallButton'),
+          onPressed: inCall?.call() == true ? onDrop : onJoin,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: inCall?.call() == true
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.secondary,
             ),
-          );
-        }
-      }
-
-      subtitle = [
-        Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
-        if (desc.isEmpty)
-          Flexible(
-            child: LayoutBuilder(builder: (_, constraints) {
+            child: LayoutBuilder(builder: (context, constraints) {
               return Row(
-                children: images
-                    .take((constraints.maxWidth / (30 + 4)).floor())
-                    .toList(),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 8),
+                  Icon(
+                    inCall?.call() == true ? Icons.call_end : Icons.call,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  if (constraints.maxWidth > 110)
+                    Expanded(
+                      child: Text(
+                        inCall?.call() == true
+                            ? 'btn_call_end'.l10n
+                            : 'btn_join_call'.l10n,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  PeriodicBuilder(
+                    period: const Duration(seconds: 1),
+                    builder: (_) {
+                      return Text(
+                        DateTime.now()
+                            .difference(chat.ongoingCall!.at.val)
+                            .hhMmSs(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(color: Colors.white),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
               );
             }),
-          )
-        else
-          ...images,
-        if (desc.isNotEmpty)
-          Flexible(
-            child: Text(
-              desc.toString(),
-              key: const Key('Draft'),
-            ),
           ),
-      ];
-    } else if (typings.isNotEmpty) {
-      if (!rxChat.chat.value.isGroup) {
-        subtitle = [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: AnimatedTyping(),
-              ),
-            ],
-          ),
-        ];
-      } else {
-        subtitle = [
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Flexible(
-                  child: Text(
-                    typings.join('comma_space'.l10n),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 3),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: AnimatedTyping(),
-                ),
-              ],
-            ),
-          )
-        ];
-      }
-    } else if (item != null) {
-      if (item is ChatCall) {
-        const Widget widget = Padding(
-          padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-          child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
         );
 
-        if (item.finishedAt == null && item.finishReason == null) {
-          subtitle = [
-            widget,
-            Flexible(child: Text('label_call_active'.l10n)),
-          ];
-        } else {
-          final String description =
-              item.finishReason?.localizedString(item.authorId == me) ??
-                  'label_chat_call_ended'.l10n;
-          subtitle = [widget, Flexible(child: Text(description))];
-        }
-      } else if (item is ChatMessage) {
-        final desc = StringBuffer();
+        return DefaultTextStyle(
+          style: Theme.of(context).textTheme.titleSmall!,
+          overflow: TextOverflow.ellipsis,
+          child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+        );
+      }
 
-        if (item.text != null) {
-          desc.write(item.text!.val);
+      final ChatItem? item;
+      if (rxChat.messages.isNotEmpty) {
+        item = rxChat.messages.last.value;
+      } else {
+        item = chat.lastItem;
+      }
+
+      List<Widget> subtitle = [];
+
+      final Iterable<String> typings = rxChat.typingUsers
+          .where((User user) => user.id != me)
+          .map((User user) => user.name?.val ?? user.num.val);
+
+      ChatMessage? draft = rxChat.draft.value;
+
+      if (draft != null && !selected) {
+        final StringBuffer desc = StringBuffer();
+
+        if (draft.text != null) {
+          desc.write(draft.text!.val);
+        }
+
+        if (draft.repliesTo.isNotEmpty) {
+          if (desc.isNotEmpty) desc.write('space'.l10n);
+          desc.write(
+              'label_replies'.l10nfmt({'count': draft.repliesTo.length}));
         }
 
         final List<Widget> images = [];
 
-        if (item.attachments.isNotEmpty) {
-          if (item.text == null) {
+        if (draft.attachments.isNotEmpty) {
+          if (draft.text == null) {
             images.addAll(
-              item.attachments.map((e) {
+              draft.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _attachment(
-                    e,
-                    onError: () => rxChat.updateAttachments(item!),
-                  ),
+                  child: _attachment(e),
                 );
               }),
             );
@@ -446,31 +330,14 @@ class RecentChatTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _attachment(
-                  item.attachments.first,
-                  onError: () => rxChat.updateAttachments(item!),
-                ),
+                child: _attachment(draft.attachments.first),
               ),
             );
           }
         }
 
         subtitle = [
-          if (item.authorId == me)
-            Text('${'label_you'.l10n}${'colon_space'.l10n}')
-          else if (chat.isGroup)
-            Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: FutureBuilder<RxUser?>(
-                future: getUser?.call(item.authorId),
-                builder: (_, snapshot) => snapshot.data != null
-                    ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
-                    : AvatarWidget.fromUser(
-                        chat.getUser(item!.authorId),
-                        radius: 10,
-                      ),
-              ),
-            ),
+          Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
           if (desc.isEmpty)
             Flexible(
               child: LayoutBuilder(builder: (_, constraints) {
@@ -483,67 +350,220 @@ class RecentChatTile extends StatelessWidget {
             )
           else
             ...images,
-          if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
-        ];
-      } else if (item is ChatForward) {
-        subtitle = [
-          if (chat.isGroup)
-            Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: FutureBuilder<RxUser?>(
-                future: getUser?.call(item.authorId),
-                builder: (_, snapshot) => snapshot.data != null
-                    ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
-                    : AvatarWidget.fromUser(
-                        chat.getUser(item!.authorId),
-                        radius: 10,
-                      ),
+          if (desc.isNotEmpty)
+            Flexible(
+              child: Text(
+                desc.toString(),
+                key: const Key('Draft'),
               ),
             ),
-          Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
         ];
-      } else if (item is ChatMemberInfo) {
-        Widget content = Text('${item.action}');
-
-        switch (item.action) {
-          case ChatMemberInfoAction.created:
-            if (chat.isGroup) {
-              content = Text('label_group_created'.l10n);
-            } else {
-              content = Text('label_dialog_created'.l10n);
-            }
-            break;
-
-          case ChatMemberInfoAction.added:
-            content = Text(
-              'label_was_added'
-                  .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
-            );
-            break;
-
-          case ChatMemberInfoAction.removed:
-            content = Text(
-              'label_was_removed'
-                  .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
-            );
-            break;
-
-          case ChatMemberInfoAction.artemisUnknown:
-            content = Text(item.action.toString());
-            break;
+      } else if (typings.isNotEmpty) {
+        if (!rxChat.chat.value.isGroup) {
+          subtitle = [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'label_typing'.l10n,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(),
+                ),
+              ],
+            ),
+          ];
+        } else {
+          subtitle = [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      typings.join('comma_space'.l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: AnimatedTyping(),
+                  ),
+                ],
+              ),
+            )
+          ];
         }
+      } else if (item != null) {
+        if (item is ChatCall) {
+          const Widget widget = Padding(
+            padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
+          );
 
-        subtitle = [Flexible(child: content)];
-      } else {
-        subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
+          if (item.finishedAt == null && item.finishReason == null) {
+            subtitle = [
+              widget,
+              Flexible(child: Text('label_call_active'.l10n)),
+            ];
+          } else {
+            final String description =
+                item.finishReason?.localizedString(item.authorId == me) ??
+                    'label_chat_call_ended'.l10n;
+            subtitle = [widget, Flexible(child: Text(description))];
+          }
+        } else if (item is ChatMessage) {
+          final desc = StringBuffer();
+
+          if (item.text != null) {
+            desc.write(item.text!.val);
+          }
+
+          final List<Widget> images = [];
+
+          if (item.attachments.isNotEmpty) {
+            if (item.text == null) {
+              images.addAll(
+                item.attachments.map((e) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: _attachment(
+                      e,
+                      onError: () => rxChat.updateAttachments(item!),
+                    ),
+                  );
+                }),
+              );
+            } else {
+              images.add(
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: _attachment(
+                    item.attachments.first,
+                    onError: () => rxChat.updateAttachments(item!),
+                  ),
+                ),
+              );
+            }
+          }
+
+          subtitle = [
+            if (item.authorId == me)
+              Text('${'label_you'.l10n}${'colon_space'.l10n}')
+            else if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: getUser?.call(item.authorId),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
+                ),
+              ),
+            if (desc.isEmpty)
+              Flexible(
+                child: LayoutBuilder(builder: (_, constraints) {
+                  return Row(
+                    children: images
+                        .take((constraints.maxWidth / (30 + 4)).floor())
+                        .toList(),
+                  );
+                }),
+              )
+            else
+              ...images,
+            if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
+          ];
+        } else if (item is ChatForward) {
+          subtitle = [
+            if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: getUser?.call(item.authorId),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
+                ),
+              ),
+            Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
+          ];
+        } else if (item is ChatInfo) {
+          Widget content = Text('${item.action}');
+
+          switch (item.action.kind) {
+            case ChatInfoActionKind.created:
+              if (chat.isGroup) {
+                content = Text('label_group_created'.l10n);
+              } else {
+                content = Text('label_dialog_created'.l10n);
+              }
+              break;
+
+            case ChatInfoActionKind.memberAdded:
+              final action = item.action as ChatInfoActionMemberAdded;
+              content = Text(
+                'label_was_added'
+                    .l10nfmt({'who': '${action.user.name ?? action.user.num}'}),
+              );
+              break;
+
+            case ChatInfoActionKind.memberRemoved:
+              final action = item.action as ChatInfoActionMemberRemoved;
+              content = Text(
+                'label_was_removed'
+                    .l10nfmt({'who': '${action.user.name ?? action.user.num}'}),
+              );
+              break;
+
+            case ChatInfoActionKind.avatarUpdated:
+              final action = item.action as ChatInfoActionAvatarUpdated;
+              if (action.avatar == null) {
+                content = Text('label_avatar_removed'.l10n);
+              } else {
+                content = Text('label_avatar_updated'.l10n);
+              }
+              break;
+
+            case ChatInfoActionKind.nameUpdated:
+              final action = item.action as ChatInfoActionNameUpdated;
+              if (action.name == null) {
+                content = Text('label_name_removed'.l10n);
+              } else {
+                content = Text(
+                    'label_name_updated'.l10nfmt({'name': action.name?.val}));
+              }
+              break;
+          }
+
+          subtitle = [Flexible(child: content)];
+        } else {
+          subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
+        }
       }
-    }
 
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.titleSmall!,
-      overflow: TextOverflow.ellipsis,
-      child: Row(children: subtitle),
-    );
+      return DefaultTextStyle(
+        style: Theme.of(context).textTheme.titleSmall!,
+        overflow: TextOverflow.ellipsis,
+        child: Row(children: subtitle),
+      );
+    });
   }
 
   /// Builds an [Attachment] visual representation.
@@ -595,6 +615,7 @@ class RecentChatTile extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         onForbidden: onError,
+        displayProgress: false,
       );
     }
 
@@ -695,7 +716,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (chat.unreadCount > 0) {
+      if (rxChat.unreadCount.value > 0) {
         return Container(
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 4),
@@ -708,7 +729,9 @@ class RecentChatTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             // TODO: Implement and test notations like `4k`, `54m`, etc.
-            chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
+            rxChat.unreadCount.value > 99
+                ? '99${'plus'.l10n}'
+                : '${rxChat.unreadCount.value}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,

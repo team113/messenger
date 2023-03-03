@@ -34,8 +34,8 @@ query GetMessages(
             edges {
                 node {
                     __typename
-                    ... on ChatMemberInfo {
-                        ...ChatMemberInfo
+                    ... on ChatInfo {
+                        ...ChatInfo
                     }
                     ... on ChatCall {
                         ...ChatCall

@@ -24,6 +24,7 @@ Feature: Logout confirmation
     When I copy from `NumCopyable` field
     And I tap `CloseButton` button
     And I tap `MenuButton` button
+    And I scroll `MenuListView` until `LogoutButton` is present
     And I tap `LogoutButton` button
     Then I wait until `ConfirmLogoutView` is present
 

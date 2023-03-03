@@ -209,6 +209,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
+      debugLabel: '$runtimeType',
     )
       ..addStatusListener(
         (status) {

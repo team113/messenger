@@ -17,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -82,6 +83,7 @@ class AddEmailView extends StatelessWidget {
                       key: const Key('ConfirmationCode'),
                       state: c.emailCode,
                       label: 'label_confirmation_code'.l10n,
+                      formatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     const SizedBox(height: 25),
                     Obx(() {

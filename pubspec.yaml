@@ -56,7 +56,7 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
+  medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
   medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
   mime: ^1.0.4
   mutex: ^3.0.1
@@ -73,6 +73,10 @@ dependencies:
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
   rive: ^0.10.1
+  scrollable_positioned_list:
+    git:
+      url: https://github.com/SleepySquash/scrollable_positioned_list
+      path: packages/scrollable_positioned_list/
   sentry_flutter: ^6.19.0
   share_plus: ^6.3.0
   sliding_up_panel: ^2.0.0+1
@@ -84,6 +88,7 @@ dependencies:
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.3.0
+  windows_taskbar: ^1.1.1
 
 dev_dependencies:
   artemis: ^7.11.0-beta.1
@@ -112,7 +117,7 @@ dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^5.4.0
   # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
+  medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
 
 flutter:
   uses-material-design: true
@@ -121,6 +126,7 @@ flutter:
     - assets/conf.toml
     - assets/fonts/
     - assets/icons/
+    - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
     - assets/l10n/

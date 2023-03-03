@@ -329,7 +329,7 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FCM_API_KEY: ${{ secrets.E2E_FCM_API_KEY }}
+          envkey_COMPOSE_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}

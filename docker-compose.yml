@@ -25,7 +25,7 @@ services:
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
-      CONF.FCM.API_KEY: ${COMPOSE_FCM_API_KEY}
+      CONF.FCM.SA_KEY: ${COMPOSE_FCM_SA_KEY}
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
       CONF.STORAGE.FILE.S3.HOST: baza-storage
@@ -39,6 +39,7 @@ services:
       - 9372   # backend metrics
       - 10025  # backend healthz
     volumes:
+      - ./.cache/backend/l10n/:/l10n/:Z
       - ./dev/backend.toml:/config.toml:ro,Z
   cockroachdb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb
@@ -49,8 +50,8 @@ services:
       - 8071:8081    # cockroachdb pgweb ui http
       - 26257:26257  # cockroachdb sql
     volumes:
-      - ./dev/cockroachdb/logs.yaml:/logs.yaml:ro,Z
       - ./.cache/cockroachdb/data/:/cockroach/cockroach-data/:Z
+      - ./dev/cockroachdb/logs.yaml:/logs.yaml:ro,Z
   cockroachdb-pgweb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb-pgweb
     image: sosedoff/pgweb:latest
@@ -75,8 +76,8 @@ services:
     environment:
       NGINX_JWT_SECRET: baza
     volumes:
-      - ./.cache/baza/data/:/var/lib/baza/:ro,z
       - ./.cache/baza/cache/:/var/run/:Z
+      - ./.cache/baza/data/:/var/lib/baza/:ro,z
     network_mode: service:baza-storage
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
