@@ -106,6 +106,10 @@ class PaginatedFragment<T> {
     if (!shouldSynced) {
       _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
+      hasPreviousPage.value =
+          cached.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+      hasNextPage.value =
+          cached.pageInfo?.hasNextPage ?? hasNextPage.value;
     }
 
     initialized = true;
@@ -213,6 +217,7 @@ class PaginatedFragment<T> {
         _add(i);
       }
 
+      if (shouldSynced && _synced.length < elements.length) {
         _isNextPageLoading = false;
         await _fetchNextPage();
       }

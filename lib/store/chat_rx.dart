@@ -300,7 +300,6 @@ class HiveRxChat extends RxChat {
       await _fragment.init();
 
       Future.delayed(Duration.zero, updateReads);
-
     });
   }
 
@@ -965,6 +964,15 @@ class HiveRxChat extends RxChat {
       case ChatEventsKind.chat:
         var node = event as ChatEventsChat;
         HiveChat? chatEntity = _chatLocal.get(id);
+        if (node.chat.value.lastItem is ChatInfo) {
+          final item = HiveChatInfo(
+            node.chat.value.lastItem!,
+            node.chat.lastItemCursor,
+            node.chat.lastItemVersion!,
+          );
+          put(item, add: true);
+          _fragment.add(item);
+        }
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
           _chatLocal.put(chatEntity);
@@ -1214,8 +1222,8 @@ class HiveRxChat extends RxChat {
                 }
               }
 
-                put(item, add: true);
-                _fragment.add(item);
+              put(item, add: true);
+              _fragment.add(item);
 
               if (item.value is ChatInfo) {
                 var msg = item.value as ChatInfo;

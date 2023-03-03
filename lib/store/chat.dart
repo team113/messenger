@@ -1417,22 +1417,9 @@ class ChatRepository implements AbstractChatRepository {
       ChatVersion('0'),
       null,
       null,
+      null,
     );
 
     return _putEntry(chatData);
   }
-}
-
-/// Result of fetching a [Chat].
-class ChatData {
-  const ChatData(this.chat, this.lastItem, this.lastReadItem);
-
-  /// [HiveChat] returned from the [Chat] fetching.
-  final HiveChat chat;
-
-  /// [HiveChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastItem;
-
-  /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastReadItem;
 }

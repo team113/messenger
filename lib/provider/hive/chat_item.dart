@@ -126,12 +126,9 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
 
       int initialIndex = keys.toList().indexOf(initialKey);
       if (initialIndex != -1) {
-        print(initialIndex);
         if (initialIndex < (count ~/ 2)) {
-          print('initialIndex < (count ~/ 2)');
           keys = keys.take(count - ((count ~/ 2) - initialIndex));
         } else {
-          print('initialIndex > (count ~/ 2)');
           keys = keys.skip(initialIndex - (count ~/ 2)).take(count);
         }
 

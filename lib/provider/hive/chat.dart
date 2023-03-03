@@ -163,6 +163,7 @@ class HiveChat extends HiveObject {
     this.value,
     this.ver,
     this.lastItemCursor,
+    this.lastItemVersion,
     this.lastReadItemCursor, {
     this.cursor,
   });
@@ -182,11 +183,15 @@ class HiveChat extends HiveObject {
   @HiveField(2)
   ChatItemsCursor? lastItemCursor;
 
-  /// Cursor of a [Chat.lastReadItem].
+  /// Cursor of a [Chat.lastItem].
   @HiveField(3)
+  ChatItemVersion? lastItemVersion;
+
+  /// Cursor of a [Chat.lastReadItem].
+  @HiveField(4)
   ChatItemsCursor? lastReadItemCursor;
 
   /// Cursor of the [value].
-  @HiveField(4)
+  @HiveField(5)
   RecentChatsCursor? cursor;
 }
