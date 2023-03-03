@@ -27,7 +27,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
-import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
 import 'file.dart';

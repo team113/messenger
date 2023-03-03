@@ -1281,7 +1281,7 @@ class ChatRepository implements AbstractChatRepository {
         entry.subscribe();
       }
     } else {
-      _putChat(data.chat, ignoreVersion: ignoreVersion);
+      _putChat(data, ignoreVersion: ignoreVersion);
     }
 
     return entry;

@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:collection/collection.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatKind;
 import 'package:messenger/provider/gql/graphql.dart';
@@ -38,10 +38,10 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
         provider.token = context.world.sessions[user.name]?.session.token;
         final dialog = (await provider.recentChats(first: 120))
             .recentChats
-            .nodes
+            .edges
             .firstWhereOrNull((e) =>
-                e.kind == ChatKind.dialog &&
-                e.members.nodes.any((m) => m.user.id == context.world.me));
+                e.node.kind == ChatKind.dialog &&
+                e.node.members.nodes.any((m) => m.user.id == context.world.me));
         return dialog != null;
       });
     } finally {
@@ -64,10 +64,10 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
     provider.token = context.world.sessions[user.name]?.session.token;
     final dialog = (await provider.recentChats(first: 120))
         .recentChats
-        .nodes
+        .edges
         .firstWhereOrNull((e) =>
-            e.kind == ChatKind.dialog &&
-            e.members.nodes.any((m) => m.user.id == context.world.me));
+            e.node.kind == ChatKind.dialog &&
+            e.node.members.nodes.any((m) => m.user.id == context.world.me));
     provider.disconnect();
     assert(dialog == null, true);
   },

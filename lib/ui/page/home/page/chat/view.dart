@@ -702,7 +702,7 @@ class _ChatViewState extends State<ChatView>
               onGallery: c.calculateGallery,
               onEdit: () => c.editMessage(element.note.value!.value),
               onDrag: (d) => c.isItemDragged.value = d,
-              onForwardedTap: (id, chatId) {
+              onForwardedTap: (quote) {
                 if (quote.original != null) {
                 if (quote.original!.chatId == c.id) {
                   c.animateTo(quote.original!.id);
