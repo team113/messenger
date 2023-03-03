@@ -63,7 +63,7 @@ abstract class AbstractContactRepository {
   /// [MyUser] and sets its position in the favorites list.
   Future<void> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   );
 
   /// Removes the specified [ChatContact] from the favorites list of the
