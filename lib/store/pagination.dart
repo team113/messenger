@@ -174,6 +174,8 @@ class PaginatedFragment<T> {
 
     if (!shouldSynced) {
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
+      hasNextPage.value =
+          cached.pageInfo?.hasNextPage ?? hasNextPage.value;
     }
 
     if (cached.items.length < pageSize || shouldSynced) {
@@ -230,17 +232,18 @@ class PaginatedFragment<T> {
     // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
 
-    ItemsPage<T> cached =
-        (await cacheProvider.before(elements.first, _startCursor, pageSize));
-    for (T i in cached.items) {
-      elements.insertAfter(i, (e) => compare(i, e) == 1);
-    }
-
+    ItemsPage<T>? cached;
     if (!shouldSynced) {
+      cached =
+          (await cacheProvider.before(elements.first, _startCursor, pageSize));
+      for (T i in cached.items) {
+        elements.insertAfter(i, (e) => compare(i, e) == 1);
+      }
+
       _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
     }
 
-    if (cached.items.length < pageSize) {
+    if (shouldSynced || cached!.items.length < pageSize) {
       ItemsPage<T>? fetched =
           await remoteProvider.before(elements.first, _startCursor, pageSize);
 

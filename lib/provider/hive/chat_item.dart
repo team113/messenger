@@ -134,10 +134,10 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
           PageInfo(
             endCursor:
                 items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-            hasNextPage: keys.length > count,
+            hasNextPage: true,
             startCursor:
                 items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-            hasPreviousPage: initialIndex - (count ~/ 2) > 0,
+            hasPreviousPage: true,
           ),
         );
       }
@@ -154,10 +154,10 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: lazyBox.length > count,
+        hasNextPage: true,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: false,
+        hasPreviousPage: true,
       ),
     );
   }

@@ -79,17 +79,17 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
 
   @override
   Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
-    final List<HiveChatContact> items = contacts
+    final List<HiveChatContact> sorted = contacts
         .sortedBy((e) => e.value.name.val + e.value.id.val)
         .take(count)
         .toList();
     return ItemsPage<HiveChatContact>(
-      items,
+      sorted,
       PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: box.length > count,
+        endCursor: sorted.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasNextPage: box.length > count && sorted.last.cursor == null,
         startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+            sorted.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
         hasPreviousPage: false,
       ),
     );
@@ -101,18 +101,18 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
     String? cursor,
     int count,
   ) async {
-    final sortedContacts =
+    final sorted =
         contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
-    int i = sortedContacts.indexWhere((e) => e.value.id == after.value.id);
+    int i = sorted.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
       final List<HiveChatContact> items =
-          sortedContacts.skip(i + 1).take(count).toList();
+          sorted.skip(i + 1).take(count).toList();
       return ItemsPage<HiveChatContact>(
         items,
         PageInfo(
           endCursor:
               items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasNextPage: box.length > count + i + 1,
+          hasNextPage: box.length > count + i + 1 && sorted.last.cursor == null,
           startCursor:
               items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
           hasPreviousPage: true,

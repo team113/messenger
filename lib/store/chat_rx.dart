@@ -378,6 +378,8 @@ class HiveRxChat extends RxChat {
   Future<void> fetchInitial() async {
     if (id.isLocal) {
       status.value = RxStatus.success();
+      _fragment.hasNextPage.value = false;
+      _fragment.hasPreviousPage.value = false;
       return;
     }
 
@@ -502,7 +504,7 @@ class HiveRxChat extends RxChat {
       int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
-          .where((e) => !e.value.id.isLocal)
+          .where((e) => !e.value.id.isLocal && e.value.authorId != me)
           .length;
       unreadCount.value = chat.value.unreadCount - read;
     }
@@ -553,7 +555,8 @@ class HiveRxChat extends RxChat {
       messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
-      put(message, ignoreVersion: true, add: true);
+      put(message, ignoreVersion: true, add: !id.isLocal);
+      _fragment.add(message);
     }
 
     // If the [ChatMessage] being posted is local, then no remote queries should
@@ -575,7 +578,8 @@ class HiveRxChat extends RxChat {
 
                     // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
-                      put(message, ignoreVersion: true);
+                      put(message, ignoreVersion: true, add: true);
+                      _fragment.add(message);
                     }
                   },
                   onError: (_) {
@@ -596,6 +600,7 @@ class HiveRxChat extends RxChat {
           if (reads.isNotEmpty) {
             await Future.wait(reads);
             put(message, ignoreVersion: true, add: true);
+            _fragment.add(message);
           }
         }
 
@@ -631,6 +636,7 @@ class HiveRxChat extends RxChat {
       rethrow;
     } finally {
       put(message, ignoreVersion: true, add: true);
+      _fragment.add(message);
     }
 
     return message.value;
@@ -783,9 +789,22 @@ class HiveRxChat extends RxChat {
       _local.close();
 
       _local = ChatItemHiveProvider(id);
-      await _local.init(userId: me);
+      await _local.init(userId: me, lazy: true);
 
-      saved.forEach(_local.put);
+      for (var e in saved) {
+        if (e is HiveChatMessage) {
+          await _local.put(
+            HiveChatMessage(
+              e.value as ChatMessage,
+              e.cursor,
+              e.ver,
+              e.repliesToCursor,
+            ),
+          );
+        } else {
+          await _local.put(e);
+        }
+      }
 
       _fragment.cacheProvider = _local;
 
@@ -1163,6 +1182,7 @@ class HiveRxChat extends RxChat {
                       await _local.get(at.microsecondsSinceEpoch.toString());
                   if (item != null) {
                     chatEntity.lastReadItemCursor = item.cursor!;
+                    chatEntity.value.lastReadItem = item.value;
                   }
                 }
               }

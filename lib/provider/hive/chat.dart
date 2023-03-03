@@ -108,22 +108,13 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
 
   @override
   Future<ItemsPage<HiveChat>> initial(int count, String? cursor) async {
-    final List<HiveChat> sortedChats = chats
+    final List<HiveChat> sorted = chats
         .where((e) => !e.value.id.isLocal)
         .sortedBy((e) => e.value.updatedAt)
         .reversed
         .toList();
-    final List<HiveChat> items = sortedChats.take(count).toList();
-    return ItemsPage<HiveChat>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: sortedChats.length > count,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: false,
-      ),
-    );
+    final List<HiveChat> items = sorted.take(count).toList();
+    return ItemsPage<HiveChat>(items);
   }
 
   @override
@@ -132,25 +123,15 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
     String? cursor,
     int count,
   ) async {
-    final sortedChats = chats
+    final sorted = chats
         .where((e) => !e.value.id.isLocal)
         .sortedBy((e) => e.value.updatedAt)
         .reversed
         .toList();
-    int i = sortedChats.indexWhere((e) => e.value.id == after.value.id);
+    int i = sorted.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
-      final List<HiveChat> items = sortedChats.skip(i + 1).take(count).toList();
-      return ItemsPage<HiveChat>(
-        items,
-        PageInfo(
-          endCursor:
-              items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasNextPage: sortedChats.length > count + i + 1,
-          startCursor:
-              items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasPreviousPage: true,
-        ),
-      );
+      final List<HiveChat> items = sorted.skip(i + 1).take(count).toList();
+      return ItemsPage<HiveChat>(items);
     }
 
     return ItemsPage<HiveChat>([]);
