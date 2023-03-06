@@ -536,17 +536,14 @@ class RecentChatTile extends StatelessWidget {
           switch (item.action.kind) {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
-                content = userBuilder(
-                  item.authorId,
-                  (context, user) {
-                    user ??= (item as ChatInfo).author;
-                    final Map<String, dynamic> args = {
-                      'author': user.name?.val ?? user.num.val,
-                    };
+                content = userBuilder(item.authorId, (context, user) {
+                  user ??= (item as ChatInfo).author;
+                  final Map<String, dynamic> args = {
+                    'author': user.name?.val ?? user.num.val,
+                  };
 
-                    return Text('label_group_created_by'.l10nfmt(args));
-                  },
-                );
+                  return Text('label_group_created_by'.l10nfmt(args));
+                });
               } else {
                 content = Text('label_dialog_created'.l10n);
               }
@@ -556,20 +553,17 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               if (item.authorId != action.user.id) {
-                content = userBuilder(
-                  action.user.id,
-                  (context, user) {
-                    final User author = (item as ChatInfo).author;
-                    user ??= action.user;
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
 
-                    final Map<String, dynamic> args = {
-                      'author': author.name?.val ?? author.num.val,
-                      'user': user.name?.val ?? user.num.val,
-                    };
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
 
-                    return Text('label_user_added_user'.l10nfmt(args));
-                  },
-                );
+                  return Text('label_user_added_user'.l10nfmt(args));
+                });
               } else {
                 content = Text(
                   'label_was_added'.l10nfmt(
@@ -583,20 +577,17 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberRemoved;
 
               if (item.authorId != action.user.id) {
-                content = userBuilder(
-                  action.user.id,
-                  (context, user) {
-                    final User author = (item as ChatInfo).author;
-                    user ??= action.user;
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
 
-                    final Map<String, dynamic> args = {
-                      'author': author.name?.val ?? author.num.val,
-                      'user': user.name?.val ?? user.num.val,
-                    };
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
 
-                    return Text('label_user_removed_user'.l10nfmt(args));
-                  },
-                );
+                  return Text('label_user_removed_user'.l10nfmt(args));
+                });
               } else {
                 content = Text(
                   'label_was_removed'.l10nfmt(
