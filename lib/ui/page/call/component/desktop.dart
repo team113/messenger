@@ -1672,7 +1672,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         // Scale secondary panel after constraints changed.
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           if (c.secondary.isNotEmpty) {
-            c.scaleSecondary(constraints: constraints);
+            c.scaleSecondary(constraints);
           }
         });
 
@@ -1977,7 +1977,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 opaque: false,
                 cursor: SystemMouseCursors.basic,
                 child: IgnorePointer(
-                    child: SizedBox(width: width, height: height)),
+                  child: SizedBox(width: width, height: height),
+                ),
               ),
             ),
 
