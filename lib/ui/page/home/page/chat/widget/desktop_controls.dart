@@ -27,11 +27,11 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import 'progress_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/widget/progress_indicator.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {

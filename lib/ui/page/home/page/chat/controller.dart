@@ -27,10 +27,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/application_settings.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -174,6 +173,7 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
 
   bool paid = false;
@@ -182,7 +182,6 @@ class ChatController extends GetxController {
   bool paidDisclaimerDismissed = false;
 
   LoaderElement? _topLoader;
-  LoaderElement? _bottomLoader;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -263,11 +262,24 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
+  /// Currently displayed bottom [LoaderElement] in the [elements] list.
+  LoaderElement? _bottomLoader;
+
+  /// [Timer] adding the [_bottomLoader] to the [elements] list.
+  Timer? _bottomLoaderStartTimer;
+
+  /// [Timer] deleting the [_bottomLoader] from the [elements] list.
+  Timer? _bottomLoaderEndTimer;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
+
+  /// Returns the [ApplicationSettings].
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -284,9 +296,6 @@ class ChatController extends GetxController {
   /// takes part in the [Chat.ongoingCall], if any.
   bool get inCall =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
-
-  Rx<ApplicationSettings?> get settings =>
-      _settingsRepository.applicationSettings;
 
   @override
   void onInit() {
@@ -381,6 +390,8 @@ class ChatController extends GetxController {
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
+    _bottomLoaderStartTimer?.cancel();
+    _bottomLoaderEndTimer?.cancel();
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
@@ -554,7 +565,7 @@ class ChatController extends GetxController {
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val;
+      send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
@@ -917,32 +928,35 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      Timer? _timer = Timer(const Duration(seconds: 2), () {
-        if (!status.value.isSuccess || status.value.isLoadingMore) {
-          bottomLoader.value = true;
-          _bottomLoader = LoaderElement(
-            (chat?.messages.lastOrNull?.value.at
-                    .add(const Duration(microseconds: 1)) ??
-                PreciseDateTime.now()),
-          );
-          elements[_bottomLoader!.id] = _bottomLoader!;
+      _bottomLoaderStartTimer = Timer(
+        const Duration(seconds: 2),
+        () {
+          if (!status.value.isSuccess || status.value.isLoadingMore) {
+            bottomLoader.value = true;
 
-          if (listController.position.pixels >=
-              listController.position.maxScrollExtent - 100) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              listController.sliverController.animateToIndex(
-                elements.length - 1,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                offsetBasedOnBottom: true,
-              );
-            });
+            _bottomLoader = LoaderElement(
+              (chat?.messages.lastOrNull?.value.at
+                      .add(const Duration(microseconds: 1)) ??
+                  PreciseDateTime.now()),
+            );
+
+            elements[_bottomLoader!.id] = _bottomLoader!;
+
+            if (listController.position.pixels >=
+                listController.position.maxScrollExtent - 100) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                listController.sliverController.animateToIndex(
+                  elements.length - 1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                  offsetBasedOnBottom: true,
+                );
+              });
+            }
           }
-          print('${_bottomLoader!.id}');
-        }
-      });
+        },
+      );
 
-      await Future.delayed(const Duration(seconds: 2));
       await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -956,7 +970,7 @@ class ChatController extends GetxController {
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
-          chat!.chat.value.unreadCount == 0) {
+          chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
       }
 
@@ -965,7 +979,7 @@ class ChatController extends GetxController {
       if (_bottomLoader != null) {
         bottomLoader.value = false;
 
-        Timer(const Duration(milliseconds: 200), () {
+        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
           if (_bottomLoader != null) {
             elements.remove(_bottomLoader!.id);
             _bottomLoader = null;

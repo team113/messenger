@@ -19,7 +19,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -36,6 +35,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -288,7 +288,6 @@ class ChatInfoView extends StatelessWidget {
                 c.chat,
                 key: c.avatarKey,
                 radius: 100,
-                quality: AvatarQuality.original,
               ),
             ),
             Positioned.fill(

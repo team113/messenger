@@ -21,11 +21,11 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.

@@ -35,8 +35,8 @@ class MediaAttachment extends StatefulWidget {
     this.width,
     this.height,
     this.fit,
+    this.autoLoad = true,
     this.onError,
-    this.load = true,
   });
 
   /// [Attachment] to display.
@@ -51,10 +51,12 @@ class MediaAttachment extends StatefulWidget {
   /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
 
+  /// Indicator whether the [attachment] provided should be fetched as soon as
+  /// this [MediaAttachment] is displayed.
+  final bool autoLoad;
+
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
-
-  final bool load;
 
   @override
   State<MediaAttachment> createState() => _MediaAttachmentState();
@@ -114,25 +116,14 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        final StorageFile image;
-
-        final StorageFile original = (attachment as ImageAttachment).original;
-        if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
-          image = original;
-        } else {
-          image = attachment.big;
-        }
-
-        return RetryImage(
-          image.url,
-          checksum: image.checksum,
-          fallback: attachment.small.url,
+        return RetryImage.attachment(
+          attachment as ImageAttachment,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
           onForbidden: widget.onError,
           cancelable: true,
-          load: widget.load,
+          autoLoad: widget.autoLoad,
         );
       }
     } else {

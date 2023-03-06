@@ -19,13 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
@@ -44,7 +43,6 @@ class ParticipantWidget extends StatelessWidget {
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.useCallCover = false,
     this.expanded = false,
   });
 
@@ -78,10 +76,6 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
-
-  /// Indicator whether an [UserCallCover] should be used when no video is
-  /// available.
-  final bool useCallCover;
 
   /// Indicator whether this [ParticipantWidget] should have its background
   /// expanded.

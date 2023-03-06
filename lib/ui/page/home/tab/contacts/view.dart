@@ -23,7 +23,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -39,6 +38,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -216,9 +216,13 @@ class ContactsTabView extends StatelessWidget {
             if (c.search.value?.search.isEmpty.value == false) {
               if (c.search.value!.searchStatus.value.isLoading &&
                   c.elements.isEmpty) {
-                child = const Center(
-                  key: Key('Loading'),
-                  child: CustomProgressIndicator(),
+                child = Center(
+                  key: UniqueKey(),
+                  child: const ColoredBox(
+                    key: Key('Loading'),
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
@@ -279,16 +283,22 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Center(
-                  key: const Key('NothingFound'),
-                  child: Text('label_nothing_found'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  ),
                 );
               }
             } else {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
-                child = Center(
-                  key: const Key('NoContacts'),
-                  child: Text('label_no_contacts'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NoContacts'),
+                    child: Text('label_no_contacts'.l10n),
+                  ),
                 );
               } else {
                 child = AnimationLimiter(
@@ -351,17 +361,30 @@ class ContactsTabView extends StatelessWidget {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
                                           key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
                                           index: i,
                                           child: child,
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: {
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (_) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
+                                          index: i,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );

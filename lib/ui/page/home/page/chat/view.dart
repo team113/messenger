@@ -31,7 +31,6 @@ import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -47,6 +46,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -829,6 +829,7 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            loadImages: c.settings.value?.loadImages != false,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads.where((m) =>
@@ -920,18 +921,27 @@ class _ChatViewState extends State<ChatView>
       return Obx(() {
         final Widget child;
 
-        if (c.bottomLoader.value || i == 0) {
+        if (c.bottomLoader.value) {
           child = Center(
+            key: const ValueKey(1),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(0, i == 0 ? 36 : 12, 0, 12),
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(child: CustomProgressIndicator()),
+                child: const Center(
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
+                ),
               ),
             ),
           );
         } else {
-          child = const SizedBox();
+          child = SizedBox(
+            key: const ValueKey(2),
+            height: c.listController.position.pixels > 0 ? null : 64,
+          );
         }
 
         return AnimatedSizeAndFade(

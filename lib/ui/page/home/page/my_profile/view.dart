@@ -1195,47 +1195,6 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.storage] section.
-Widget _storage(BuildContext context, MyProfileController c) {
-  return Obx(() {
-    return _dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: 'Загружать изображения'.l10n,
-                editable: false,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(platform: TargetPlatform.macOS),
-                  child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.settings.value?.loadImages == true,
-                    onChanged:
-                        c.settings.value == null ? null : c.setLoadImages,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  });
-}
-
 /// Returns the contents of a [ProfileTab.notifications] section.
 Widget _notifications(BuildContext context, MyProfileController c) {
   return Obx(() {
@@ -1365,6 +1324,47 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
       ),
     ],
   );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: 'label_load_images'.l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(platform: TargetPlatform.macOS),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.settings.value?.loadImages == true,
+                    onChanged:
+                        c.settings.value == null ? null : c.setLoadImages,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

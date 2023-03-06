@@ -20,9 +20,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
@@ -184,7 +184,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       mirror: widget.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
-      // autoRotate: !widget.mirror,
+      autoRotate: !widget.mirror,
     );
 
     // Wait for the size to be determined if necessary.
@@ -250,7 +250,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
     Widget outlined(BoxFit? fit) => AnimatedContainer(
-          // key: _animatedKey,
           duration: 200.milliseconds,
           decoration: BoxDecoration(
             border: widget.border,

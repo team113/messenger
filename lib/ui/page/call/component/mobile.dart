@@ -22,13 +22,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/avatar.dart';
-import 'package:messenger/domain/model/user_call_cover.dart';
-import 'package:messenger/ui/page/call/widget/animated_cliprrect.dart';
-import 'package:messenger/ui/page/call/widget/fit_view.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
-import 'package:messenger/ui/page/home/page/chat/view.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';

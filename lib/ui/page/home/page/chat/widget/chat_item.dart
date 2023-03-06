@@ -74,8 +74,8 @@ class ChatItemWidget extends StatefulWidget {
     this.user,
     this.avatar = true,
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
-    this.loadImages = true,
     this.reads = const [],
+    this.loadImages = true,
     this.getUser,
     this.animation,
     this.onHide,
@@ -110,10 +110,12 @@ class ChatItemWidget extends StatefulWidget {
   /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
   final EdgeInsets margin;
 
-  final bool loadImages;
-
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
+
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
+  final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -171,7 +173,7 @@ class ChatItemWidget extends StatefulWidget {
     List<Attachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
-    bool load = true,
+    bool autoLoad = true,
   }) {
     final bool isLocal = e is LocalAttachment;
 
@@ -192,7 +194,7 @@ class ChatItemWidget extends StatefulWidget {
             key: key,
             attachment: e,
             height: 300,
-            load: load,
+            autoLoad: autoLoad,
             onError: onError,
           ),
           Center(
@@ -216,7 +218,7 @@ class ChatItemWidget extends StatefulWidget {
         height: 300,
         width: filled ? double.infinity : null,
         fit: BoxFit.cover,
-        load: load,
+        autoLoad: autoLoad,
         onError: onError,
       );
 
@@ -632,6 +634,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
 
     final Widget content;
+
+    // Builds a [FutureBuilder] returning a [User] fetched by the provided [id].
+    Widget userBuilder(
+      UserId id,
+      Widget Function(BuildContext context, User? user) builder,
+    ) {
+      return FutureBuilder(
+        future: widget.getUser?.call(id),
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            return Obx(() => builder(context, snapshot.data!.user.value));
+          }
+
+          return builder(context, null);
+        },
+      );
+    }
 
     switch (message.action) {
       case ChatMemberInfoAction.created:
@@ -1112,7 +1131,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               key: _galleryKeys[0],
                               onError: widget.onAttachmentError,
                               onGallery: widget.onGallery,
-                              load: widget.loadImages,
+                              autoLoad: widget.loadImages,
                             )
                           : SizedBox(
                               width: media.length * 120,
@@ -1128,7 +1147,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         key: _galleryKeys[i],
                                         onError: widget.onAttachmentError,
                                         onGallery: widget.onGallery,
-                                        load: widget.loadImages,
+                                        autoLoad: widget.loadImages,
                                       ),
                                     )
                                     .toList(),
@@ -1398,7 +1417,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
                         cancelable: true,
-                        load: widget.loadImages,
+                        autoLoad: widget.loadImages,
                       ),
               );
             })

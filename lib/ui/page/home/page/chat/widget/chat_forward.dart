@@ -63,6 +63,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.authorId,
     required this.me,
     this.reads = const [],
+    this.loadImages = true,
     this.user,
     this.getUser,
     this.animation,
@@ -101,6 +102,10 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
+
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
+  final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -638,6 +643,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
+                      autoLoad: widget.loadImages,
                     )
                   : SizedBox(
                       width: attachments.length * 120,
@@ -653,6 +659,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
+                                autoLoad: widget.loadImages,
                               ),
                             )
                             .toList(),

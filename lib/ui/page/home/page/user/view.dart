@@ -25,7 +25,6 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -44,6 +43,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -354,30 +354,28 @@ class UserView extends StatelessWidget {
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
-          Obx(() {
-            return action(
-              key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
-              text: c.isBlacklisted == true
-                  ? 'btn_unblock'.l10n
-                  : 'btn_block'.l10n,
-              onPressed: c.isBlacklisted == true
-                  ? c.unblacklist
-                  : () => _blacklistUser(c, context),
-              trailing: Obx(() {
-                final Widget child;
-                if (c.blacklistStatus.value.isEmpty) {
-                  child = const SizedBox();
-                } else {
-                  child = const CircularProgressIndicator();
-                }
-
-                return AnimatedSwitcher(
-                    duration: 200.milliseconds, child: child);
-              }),
-            );
-          }),
-          action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
+        Obx(() {
+          return action(
+            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+            text:
+                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted == true
+                ? c.unblacklist
+                : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CircularProgressIndicator();
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
+          );
+        }),
+        action(text: 'btn_report'.l10n, onPressed: () {}),
       ],
     );
   }

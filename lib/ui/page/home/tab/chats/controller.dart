@@ -74,7 +74,7 @@ class ChatsTabController extends GetxController {
   );
 
   /// Reactive list of sorted [Chat]s.
-  late final RxList<ListElement> chats;
+  late final RxList<RxChat> chats;
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -103,6 +103,11 @@ class ChatsTabController extends GetxController {
   /// - `status.isEmpty`, meaning the query has not yet started.
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -150,9 +155,10 @@ class ChatsTabController extends GetxController {
 
   @override
   void onInit() {
-    chats = RxList<ListElement>(
-      _chatService.chats.values.map((e) => ChatElement(e)).toList(),
-    );
+    // chats = RxList<ListElement>(
+    //   _chatService.chats.values.map((e) => ChatElement(e)).toList(),
+    // );
+    chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -193,11 +199,15 @@ class ChatsTabController extends GetxController {
 
     _sortChats();
 
-    for (ListElement chat in chats) {
-      if (chat is ChatElement) {
-        _sortingData[chat.chat.chat.value.id] =
-            _ChatSortingData(chat.chat.chat, _sortChats);
-      }
+    // for (ListElement chat in chats) {
+    //   if (chat is ChatElement) {
+    //     _sortingData[chat.chat.chat.value.id] =
+    //         _ChatSortingData(chat.chat.chat, _sortChats);
+    //   }
+    // }
+    for (RxChat chat in chats) {
+      _sortingData[chat.chat.value.id] =
+          _ChatSortingData(chat.chat, _sortChats);
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -218,15 +228,17 @@ class ChatsTabController extends GetxController {
       }
     }
 
-    chats
-        .whereType<ChatElement>()
-        .where((c) => c.chat.chat.value.isDialog)
-        .map((e) => e.chat)
-        .forEach(listenUpdates);
+    // chats
+    //     .whereType<ChatElement>()
+    //     .where((c) => c.chat.chat.value.isDialog)
+    //     .map((e) => e.chat)
+    //     .forEach(listenUpdates);
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(ChatElement(event.value!));
+          // chats.add(ChatElement(event.value!));
+          chats.add(event.value!);
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
@@ -238,9 +250,10 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          chats.removeWhere(
-            (e) => e is ChatElement && e.chat.chat.value.id == event.key,
-          );
+          // chats.removeWhere(
+          //   (e) => e is ChatElement && e.chat.chat.value.id == event.key,
+          // );
+          chats.removeWhere((e) => e.chat.value.id == event.key);
 
           if (event.value!.chat.value.isDialog) {
             final UserId? userId = event.value!.chat.value.members
@@ -378,9 +391,12 @@ class ChatsTabController extends GetxController {
   }
 
   /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(ChatId id) async {
+  Future<void> favoriteChat(
+    ChatId id, [
+    ChatFavoritePosition? position,
+  ]) async {
     try {
-      await _chatService.favoriteChat(id);
+      await _chatService.favoriteChat(id, position);
     } on FavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -489,6 +505,34 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Reorders a [Chat] from the [from] position to the [to] position.
+  Future<void> reorderChat(int from, int to) async {
+    // [chats] are guaranteed to have favorite [Chat]s on the top.
+    final int length =
+        chats.where((e) => e.chat.value.favoritePosition != null).length;
+
+    double position;
+
+    if (to <= 0) {
+      position = chats.first.chat.value.favoritePosition!.val / 2;
+    } else if (to >= length) {
+      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
+    } else {
+      position = (chats[to].chat.value.favoritePosition!.val +
+              chats[to - 1].chat.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatId chatId = chats[from].id;
+    chats.insert(to, chats.removeAt(from));
+
+    await favoriteChat(chatId, ChatFavoritePosition(position));
+  }
+
   void toggleSelecting() {
     selecting.toggle();
     selectedChats.clear();
@@ -580,44 +624,72 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a is LoaderElement) {
-        return 1;
-      } else if (b is LoaderElement) {
+      if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition == null) {
         return -1;
-      } else if (a is ChatElement && b is ChatElement) {
-        final RxChat c = a.chat;
-        final RxChat d = b.chat;
-
-        if (c.chat.value.favoritePosition != null &&
-            d.chat.value.favoritePosition == null) {
-          return -1;
-        } else if (c.chat.value.favoritePosition == null &&
-            d.chat.value.favoritePosition != null) {
-          return 1;
-        } else if (c.chat.value.favoritePosition != null &&
-            d.chat.value.favoritePosition != null) {
-          return c.chat.value.favoritePosition!
-              .compareTo(d.chat.value.favoritePosition!);
-        }
-
-        if (c.chat.value.ongoingCall != null &&
-            d.chat.value.ongoingCall == null) {
-          return -1;
-        } else if (c.chat.value.ongoingCall == null &&
-            d.chat.value.ongoingCall != null) {
-          return 1;
-        }
-
-        if (a.chat.id.isLocal && !b.chat.id.isLocal) {
-          return -1;
-        } else if (!a.chat.id.isLocal && b.chat.id.isLocal) {
-          return 1;
-        }
-
-        return d.chat.value.updatedAt.compareTo(c.chat.value.updatedAt);
+      } else if (a.chat.value.favoritePosition == null &&
+          b.chat.value.favoritePosition != null) {
+        return 1;
+      } else if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition != null) {
+        return a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!);
       }
 
-      return 0;
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
+        return -1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
+        return 1;
+      }
+
+      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+
+      // if (a is LoaderElement) {
+      //   return 1;
+      // } else if (b is LoaderElement) {
+      //   return -1;
+      // } else if (a is ChatElement && b is ChatElement) {
+      //   final RxChat c = a.chat;
+      //   final RxChat d = b.chat;
+
+      //   if (c.chat.value.favoritePosition != null &&
+      //       d.chat.value.favoritePosition == null) {
+      //     return -1;
+      //   } else if (c.chat.value.favoritePosition == null &&
+      //       d.chat.value.favoritePosition != null) {
+      //     return 1;
+      //   } else if (c.chat.value.favoritePosition != null &&
+      //       d.chat.value.favoritePosition != null) {
+      //     return c.chat.value.favoritePosition!
+      //         .compareTo(d.chat.value.favoritePosition!);
+      //   }
+
+      //   if (c.chat.value.ongoingCall != null &&
+      //       d.chat.value.ongoingCall == null) {
+      //     return -1;
+      //   } else if (c.chat.value.ongoingCall == null &&
+      //       d.chat.value.ongoingCall != null) {
+      //     return 1;
+      //   }
+
+      //   if (a.chat.id.isLocal && !b.chat.id.isLocal) {
+      //     return -1;
+      //   } else if (!a.chat.id.isLocal && b.chat.id.isLocal) {
+      //     return 1;
+      //   }
+
+      //   return d.chat.value.updatedAt.compareTo(c.chat.value.updatedAt);
+      // }
+
+      // return 0;
     });
   }
 
