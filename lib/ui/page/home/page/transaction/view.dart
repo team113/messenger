@@ -11,8 +11,11 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
+import 'support/view.dart';
 import 'widget/downloadable_button.dart';
 import 'widget/downloadable_file.dart';
 
@@ -54,28 +57,35 @@ class TransactionView extends StatelessWidget {
           appBar: CustomAppBar(
             title: const Text('Transaction'),
             leading: const [StyledBackButton()],
-            // onBottom: () {},
+            // onBottom: context.isNarrow ? () {} : null,
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SvgLoader.asset(
-                      'assets/icons/balance.svg',
-                      width: 30,
-                      height: 30,
-                    ),
-                    const Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          '100',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
+              WidgetButton(
+                onPressed: () => ContactSupportView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Icon(
+                    Icons.support_agent,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  // child: Stack(
+                  //   alignment: Alignment.center,
+                  //   children: [
+                  //     SvgLoader.asset(
+                  //       'assets/icons/balance.svg',
+                  //       width: 30,
+                  //       height: 30,
+                  //     ),
+                  //     const Positioned.fill(
+                  //       child: Center(
+                  //         child: Text(
+                  //           '100',
+                  //           style: TextStyle(color: Colors.white, fontSize: 12),
+                  //           textAlign: TextAlign.center,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                 ),
               ),
               // Container(
@@ -89,7 +99,9 @@ class TransactionView extends StatelessWidget {
           ),
           body: Center(
             child: ListView(
+              shrinkWrap: !context.isNarrow,
               children: [
+                const SizedBox(height: 4),
                 Block(
                   title: 'Details',
                   children: [
@@ -410,7 +422,7 @@ class TransactionView extends StatelessWidget {
                   title: 'Actions',
                   children: [
                     _padding(
-                      DownloadableButton(
+                      DownloadableFile(
                         FileAttachment(
                           id: const AttachmentId('id'),
                           original: StorageFile(
@@ -420,6 +432,16 @@ class TransactionView extends StatelessWidget {
                           filename: 'resume.pdf',
                         ),
                       ),
+                      // DownloadableButton(
+                      //   FileAttachment(
+                      //     id: const AttachmentId('id'),
+                      //     original: StorageFile(
+                      //       relativeRef: 'resume.pdf',
+                      //       size: 200000,
+                      //     ),
+                      //     filename: 'resume.pdf',
+                      //   ),
+                      // ),
                       // FieldButton(
                       //   onPressed: () {},
                       //   text: 'Invoice №12353519',
@@ -471,6 +493,7 @@ class TransactionView extends StatelessWidget {
                     // ),
                   ],
                 ),
+                const SizedBox(height: 4),
               ],
             ),
           ),

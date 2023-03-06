@@ -786,3 +786,8 @@ label_display_balance = Отображение баланса
 label_display_transactions = Отображение транзакций
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
+label_support = Note: Financial support service is provided only in English.
+
+    The use of slang or rude and offensive language is prohibited.
+
+    Please indicate the payer's name.

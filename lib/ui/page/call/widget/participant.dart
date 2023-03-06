@@ -269,147 +269,135 @@ class ParticipantOverlayWidget extends StatelessWidget {
       return Center(
         child: Stack(
           alignment: Alignment.center,
+          fit: StackFit.expand,
           children: [
-            const IgnorePointer(
-              child: SizedBox(width: double.infinity, height: double.infinity),
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8, left: 8),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 150),
-                    child: hovered || additionally.isNotEmpty
-                        ? Container(
-                            key: const Key('AnimatedSwitcherLabel'),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: const [
-                                CustomBoxShadow(
-                                  color: Color(0x22000000),
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
-                                )
-                              ],
-                            ),
-                            child: ConditionalBackdropFilter(
-                              condition: preferBackdrop,
-                              borderRadius: BorderRadius.circular(30),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: preferBackdrop
-                                      ? const Color(0x4D165084)
-                                      : const Color(0xBB1F3C5D),
-                                ),
-                                padding: EdgeInsets.only(
-                                  left: 6,
-                                  right: additionally.length >= 2 ? 6 : 6,
-                                  top: 4,
-                                  bottom: 4,
-                                ),
-                                height: 32,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ...additionally,
-                                    if (additionally.isNotEmpty && hovered)
-                                      const SizedBox(width: 3),
-                                    Flexible(
-                                      child: AnimatedSize(
-                                        duration: 150.milliseconds,
-                                        child: hovered
-                                            ? Container(
-                                                padding: const EdgeInsets.only(
-                                                  left: 3,
-                                                  right: 3,
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8, left: 8),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: hovered || additionally.isNotEmpty
+                      ? Container(
+                          key: const Key('AnimatedSwitcherLabel'),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: const [
+                              CustomBoxShadow(
+                                color: Color(0x22000000),
+                                blurRadius: 8,
+                                blurStyle: BlurStyle.outer,
+                              )
+                            ],
+                          ),
+                          child: ConditionalBackdropFilter(
+                            condition: preferBackdrop,
+                            borderRadius: BorderRadius.circular(30),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: preferBackdrop
+                                    ? const Color(0x4D165084)
+                                    : const Color(0xBB1F3C5D),
+                              ),
+                              padding: EdgeInsets.only(
+                                left: 6,
+                                right: additionally.length >= 2 ? 6 : 6,
+                                top: 4,
+                                bottom: 4,
+                              ),
+                              height: 32,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...additionally,
+                                  if (additionally.isNotEmpty && hovered)
+                                    const SizedBox(width: 3),
+                                  Flexible(
+                                    child: AnimatedSize(
+                                      duration: 150.milliseconds,
+                                      child: hovered
+                                          ? Container(
+                                              padding: const EdgeInsets.only(
+                                                left: 3,
+                                                right: 3,
+                                              ),
+                                              child: Text(
+                                                participant.user.value?.user
+                                                        .value.name?.val ??
+                                                    participant.user.value?.user
+                                                        .value.num.val ??
+                                                    'dot'.l10n * 3,
+                                                style: context
+                                                    .theme
+                                                    .outlinedButtonTheme
+                                                    .style!
+                                                    .textStyle!
+                                                    .resolve({
+                                                  MaterialState.disabled
+                                                })!.copyWith(
+                                                  fontSize: 15,
+                                                  color:
+                                                      const Color(0xFFFFFFFF),
                                                 ),
-                                                child: Text(
-                                                  participant.user.value
-                                                          ?.user.value.name?.val ??
-                                                      participant
-                                                          .user
-                                                          .value
-                                                          ?.user
-                                                          .value
-                                                          .num
-                                                          .val ??
-                                                      'dot'.l10n * 3,
-                                                  style: context
-                                                      .theme
-                                                      .outlinedButtonTheme
-                                                      .style!
-                                                      .textStyle!
-                                                      .resolve({
-                                                    MaterialState.disabled
-                                                  })!.copyWith(
-                                                    fontSize: 15,
-                                                    color:
-                                                        const Color(0xFFFFFFFF),
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            )
+                                          : const SizedBox(),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          )
-                        : null,
-                  ),
+                          ),
+                        )
+                      : null,
                 ),
               ),
             ),
-            Positioned.fill(
-              child: Obx(() {
-                final Widget child;
+            Obx(() {
+              final Widget child;
 
-                if (participant.member.isConnected.value) {
-                  child = Container();
-                } else if (participant.member.isRedialing.value) {
-                  child = Container(
-                    key: Key(
-                      'ParticipantRedialing_${participant.member.id}',
-                    ),
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.black.withOpacity(0.4),
-                    child: Padding(
-                      padding: const EdgeInsets.all(21.0),
-                      child: Center(
-                        child: SpinKitDoubleBounce(
-                          key: participant.redialingKey,
-                          color: const Color(0xFFEEEEEE),
-                          size: 100 / 1.5,
-                          duration: const Duration(milliseconds: 4500),
-                        ),
+              if (participant.member.isConnected.value) {
+                child = Container();
+              } else if (participant.member.isRedialing.value) {
+                child = Container(
+                  key: Key(
+                    'ParticipantRedialing_${participant.member.id}',
+                  ),
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withOpacity(0.4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(21.0),
+                    child: Center(
+                      child: SpinKitDoubleBounce(
+                        key: participant.redialingKey,
+                        color: const Color(0xFFEEEEEE),
+                        size: 100 / 1.5,
+                        duration: const Duration(milliseconds: 4500),
                       ),
                     ),
-                  );
-                } else {
-                  child = Container(
-                    key: Key('ParticipantConnecting_${participant.member.id}'),
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.black.withOpacity(0.2),
-                    child: const Center(
-                      child: CustomProgressIndicator(size: 64),
-                    ),
-                  );
-                }
-
-                return AnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  child: child,
+                  ),
                 );
-              }),
-            ),
+              } else {
+                child = Container(
+                  key: Key('ParticipantConnecting_${participant.member.id}'),
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withOpacity(0.2),
+                  child: const Center(
+                    child: CustomProgressIndicator(size: 64),
+                  ),
+                );
+              }
+
+              return AnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: child,
+              );
+            }),
           ],
         ),
       );
