@@ -1,0 +1,35 @@
+fragment ChatMessageQuote on ChatMessageQuote {
+    original {
+        node {
+            __typename
+            ... on ChatInfo {
+                ...ChatInfo
+            }
+            ... on ChatCall {
+                ...ChatCall
+            }
+            ... on ChatMessage {
+                ...NestedChatMessage
+            }
+            ... on ChatForward {
+                ...NestedChatForward
+            }
+        }
+        cursor
+    }
+    author {
+        __typename
+        ...User
+    }
+    at
+    text
+    attachments {
+        __typename
+        ... on ImageAttachment {
+            ...ImageAttachment
+        }
+        ... on FileAttachment {
+            ...FileAttachment
+        }
+    }
+}
