@@ -359,6 +359,17 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  Future<void> clearChat() async {
+    try {
+      await _chatService.clearChat(chatId);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Joins an [OngoingCall] happening in the [chat].
   Future<void> joinCall() => _callService.join(chatId, withVideo: false);
 

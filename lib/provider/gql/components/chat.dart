@@ -1257,4 +1257,27 @@ abstract class ChatGraphQlMixin {
       ver: ver,
     );
   }
+
+  Future<ChatEventsVersionedMixin?> clearChat(
+    ChatId id,
+    ChatItemId untilId,
+  ) async {
+    final ClearChatArguments variables = ClearChatArguments(
+      id: id,
+      untilId: untilId,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ClearChat',
+        document: ClearChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ClearChatException(
+          (ClearChat$Mutation.fromJson(data).clearChat
+                  as ClearChat$Mutation$ClearChat$ClearChatError)
+              .code),
+    );
+    return (ClearChat$Mutation.fromJson(result.data!).clearChat
+        as ChatEventsVersionedMixin?);
+  }
 }

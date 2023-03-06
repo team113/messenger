@@ -48,9 +48,12 @@ import '/util/platform_utils.dart';
 class RecentChatTile extends StatelessWidget {
   const RecentChatTile(
     this.rxChat, {
-    Key? key,
+    super.key,
     this.me,
     this.blocked = false,
+    this.selected = false,
+    this.enabledContextMenu = true,
+    this.trailing = const [],
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -61,7 +64,10 @@ class RecentChatTile extends StatelessWidget {
     this.onUnmute,
     this.onFavorite,
     this.onUnfavorite,
-  }) : super(key: key);
+    this.onSelect,
+    this.onTap,
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
@@ -72,6 +78,12 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] should display a blocked icon in
   /// its trailing.
   final bool blocked;
+
+  final bool selected;
+
+  final bool enabledContextMenu;
+
+  final List<Widget> trailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -108,11 +120,21 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onUnfavorite;
 
+  final void Function()? onSelect;
+
+  final void Function()? onTap;
+
+  /// Builder for building an [AvatarWidget] the [ChatTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-      final bool selected = chat.isRoute(router.route, me);
+      final bool opened = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -130,27 +152,30 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected)),
-                if (blocked) ...[
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.block,
-                    color: Color(0xFFC0C0C0),
-                    size: 20,
-                  ),
-                  if (chat.muted == null) const SizedBox(width: 5),
-                ],
-                if (chat.muted != null) ...[
-                  const SizedBox(width: 5),
-                  SvgLoader.asset(
-                    'assets/icons/muted.svg',
-                    key: Key('MuteIndicator_${chat.id}'),
-                    width: 19.99,
-                    height: 15,
-                  ),
-                  const SizedBox(width: 5),
-                ],
-                _counter(),
+                Expanded(child: _subtitle(context)),
+                if (trailing.isEmpty) ...[
+                  if (blocked) ...[
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.block,
+                      color: Color(0xFFC0C0C0),
+                      size: 20,
+                    ),
+                    if (chat.muted == null) const SizedBox(width: 5),
+                  ],
+                  if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                    SvgLoader.asset(
+                      'assets/icons/muted.svg',
+                      key: Key('MuteIndicator_${chat.id}'),
+                      width: 19.99,
+                      height: 15,
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  _counter(),
+                ] else
+                  ...trailing,
               ],
             ),
           ),
@@ -198,13 +223,19 @@ class RecentChatTile extends StatelessWidget {
               trailing: const Icon(Icons.notifications),
             ),
           ContextMenuButton(
+            key: const Key('SelectChatButton'),
             label: 'btn_select'.l10n,
+            onPressed: onSelect,
             trailing: const Icon(Icons.select_all),
           ),
         ],
-        selected: selected,
+        selected: opened || selected,
+        enabledContextMenu: enabledContextMenu,
+        avatarBuilder: avatarBuilder,
         onTap: () {
-          if (!selected) {
+          if (onTap != null) {
+            onTap!.call();
+          } else if (!opened) {
             router.chat(chat.id);
           }
         },
@@ -214,7 +245,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context, bool selected) {
+  Widget _subtitle(BuildContext context) {
     final Chat chat = rxChat.chat.value;
 
     if (chat.ongoingCall != null) {
@@ -746,6 +777,9 @@ class RecentChatTile extends StatelessWidget {
       onHide?.call();
     }
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }
 
 /// Extension adding conversion from [DateTime] to its short text relative to

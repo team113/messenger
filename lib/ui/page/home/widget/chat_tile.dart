@@ -41,7 +41,9 @@ class ChatTile extends StatelessWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
-  });
+    this.enabledContextMenu = true,
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -76,6 +78,14 @@ class ChatTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ChatTile].
   final double darken;
 
+  final bool enabledContextMenu;
+
+  /// Builder for building an [AvatarWidget] this [ChatTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -85,6 +95,7 @@ class ChatTile extends StatelessWidget {
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,
+      enabled: enabledContextMenu,
       child: SizedBox(
         height: height,
         child: Padding(
@@ -108,7 +119,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(
@@ -153,4 +164,7 @@ class ChatTile extends StatelessWidget {
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

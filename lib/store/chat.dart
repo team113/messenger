@@ -386,6 +386,8 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChat(id);
+      // await Future.delayed(const Duration(seconds: 3));
+      // throw Exception();
     } catch (_) {
       if (chat != null) {
         _chats[id] = chat;
@@ -856,6 +858,39 @@ class ChatRepository implements AbstractChatRepository {
     } catch (e) {
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatItem? oldLastItem = chat?.chat.value.lastItem;
+    final ChatItemId? untilChatItemId = untilId ?? oldLastItem?.id;
+
+    if (untilChatItemId == null) {
+      return;
+    }
+
+    Iterable<Rx<ChatItem>>? oldMessages;
+
+    final int? index =
+        chat?.messages.indexWhere((c) => c.value.id == untilChatItemId);
+
+    if (index != null) {
+      oldMessages = chat?.messages.toList().getRange(0, index + 1);
+      chat?.messages.removeRange(0, index + 1);
+
+      final ChatItem? newLastItem =
+          chat?.messages.isNotEmpty == true ? chat?.messages.last.value : null;
+      chat?.chat.update((c) => c?.lastItem = newLastItem);
+    }
+
+    try {
+      await _graphQlProvider.clearChat(id, untilChatItemId);
+    } catch (_) {
+      chat?.messages.insertAll(0, oldMessages ?? []);
+      chat?.chat.update((c) => c?.lastItem = oldLastItem);
       rethrow;
     }
   }

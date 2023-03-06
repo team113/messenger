@@ -122,12 +122,17 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> deleteContact(ChatContactId id) async {
-    final HiveRxChatContact? oldChatContact = contacts.remove(id);
+    final bool isFavorite = favorites.containsKey(id);
+
+    final HiveRxChatContact? oldChatContact =
+        isFavorite ? favorites.remove(id) : contacts.remove(id);
 
     try {
       await _graphQlProvider.deleteChatContact(id);
     } catch (_) {
-      contacts.addIf(oldChatContact != null, id, oldChatContact!);
+      isFavorite
+          ? favorites.addIf(oldChatContact != null, id, oldChatContact!)
+          : contacts.addIf(oldChatContact != null, id, oldChatContact!);
       rethrow;
     }
   }

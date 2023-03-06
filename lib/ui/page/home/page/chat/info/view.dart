@@ -849,7 +849,7 @@ class ChatInfoView extends StatelessWidget {
     );
 
     if (result == true) {
-      // TODO: Hide this [Chat].
+      await c.clearChat();
     }
   }
 

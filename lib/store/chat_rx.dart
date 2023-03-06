@@ -892,6 +892,7 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.cleared:
               await _guard.protect(_local.clear);
+              chatEntity.value.lastItem = null;
               break;
 
             case ChatEventKind.itemHidden:

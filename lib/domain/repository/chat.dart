@@ -180,6 +180,8 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

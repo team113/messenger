@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/selected_dot.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -36,6 +37,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -64,12 +66,12 @@ class ContactsTabView extends StatelessWidget {
       builder: (ContactsTabController c) => Obx(() {
         return Scaffold(
           appBar: CustomAppBar(
-            border: c.search.value == null
-                ? null
-                : Border.all(
+            border: c.search.value != null || c.selecting.value
+                ? Border.all(
                     color: Theme.of(context).colorScheme.secondary,
                     width: 2,
-                  ),
+                  )
+                : null,
             title: Obx(() {
               final Widget child;
 
@@ -95,6 +97,8 @@ class ContactsTabView extends StatelessWidget {
                     ),
                   ),
                 );
+              } else if (c.selecting.value) {
+                child = Text('label_select_contacts'.l10n);
               } else {
                 child = Text('label_contacts'.l10n);
               }
@@ -105,7 +109,7 @@ class ContactsTabView extends StatelessWidget {
               Obx(() {
                 final Widget child;
 
-                if (c.search.value != null) {
+                if (c.search.value != null || c.selecting.value) {
                   child = SvgLoader.asset(
                     key: const Key('CloseSearch'),
                     'assets/icons/close_primary.svg',
@@ -123,7 +127,9 @@ class ContactsTabView extends StatelessWidget {
 
                 return WidgetButton(
                   onPressed: () {
-                    if (c.search.value != null) {
+                    if (c.selecting.value) {
+                      c.toggleSelecting();
+                    } else if (c.search.value != null) {
                       c.toggleSearch(false);
                     } else {
                       c.toggleSorting();
@@ -144,20 +150,23 @@ class ContactsTabView extends StatelessWidget {
               }),
             ],
             leading: [
-              Obx(() {
-                return WidgetButton(
-                  key: const Key('SearchButton'),
-                  onPressed: c.search.value != null ? null : c.toggleSearch,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    height: double.infinity,
-                    child: SvgLoader.asset(
-                      'assets/icons/search.svg',
-                      width: 17.77,
+              if (c.selecting.value)
+                const SizedBox(width: 49.77)
+              else
+                Obx(() {
+                  return WidgetButton(
+                    key: const Key('SearchButton'),
+                    onPressed: c.search.value != null ? null : c.toggleSearch,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 20, right: 12),
+                      height: double.infinity,
+                      child: SvgLoader.asset(
+                        'assets/icons/search.svg',
+                        width: 17.77,
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
             ],
           ),
           extendBodyBehindAppBar: true,
@@ -311,6 +320,7 @@ class ContactsTabView extends StatelessWidget {
                                           key: Key(
                                               'ReorderHandle_${contact.id.val}'),
                                           index: i,
+                                          enabled: !c.selecting.value,
                                           child: child,
                                         );
                                       }
@@ -319,6 +329,7 @@ class ContactsTabView extends StatelessWidget {
                                         key: Key(
                                             'ReorderHandle_${contact.id.val}'),
                                         index: i,
+                                        enabled: !c.selecting.value,
                                         child: child,
                                       );
                                     },
@@ -400,6 +411,8 @@ class ContactsTabView extends StatelessWidget {
               ],
             );
           }),
+          bottomNavigationBar:
+              c.selecting.value ? _selectButtons(context, c) : null,
         );
       }),
     );
@@ -412,97 +425,123 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
-    bool favorite = c.favorites.contains(contact);
+    return Obx(() {
+      bool favorite = c.favorites.contains(contact);
 
-    final bool selected = router.routes
-            .lastWhereOrNull((e) => e.startsWith(Routes.user))
-            ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
-        true;
+      final bool selected = router.routes
+              .lastWhereOrNull((e) => e.startsWith(Routes.user))
+              ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
+          true;
 
-    return ContactTile(
-      key: Key('Contact_${contact.id}'),
-      contact: contact,
-      folded: favorite,
-      selected: selected,
-      avatarBuilder: avatarBuilder,
-      onTap: contact.contact.value.users.isNotEmpty
-          // TODO: Open [Routes.contact] page when it's implemented.
-          ? () => router.user(contact.user.value!.id)
-          : null,
-      actions: [
-        favorite
-            ? ContextMenuButton(
-                key: const Key('UnfavoriteContactButton'),
-                label: 'btn_delete_from_favorites'.l10n,
-                onPressed: () => c.unfavoriteContact(contact.contact.value.id),
-                trailing: const Icon(Icons.star_border),
-              )
-            : ContextMenuButton(
-                key: const Key('FavoriteContactButton'),
-                label: 'btn_add_to_favorites'.l10n,
-                onPressed: () => c.favoriteContact(contact.contact.value.id),
-                trailing: const Icon(Icons.star),
-              ),
-        ContextMenuButton(
-          label: 'btn_delete'.l10n,
-          onPressed: () => _removeFromContacts(c, context, contact),
-          trailing: const Icon(Icons.delete),
-        ),
-        ContextMenuButton(
-          label: 'btn_select'.l10n,
-          trailing: const Icon(Icons.select_all),
-        ),
-      ],
-      subtitle: [
-        Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: Obx(() {
-            final subtitle = contact.user.value?.user.value.getStatus();
-            if (subtitle != null) {
-              return Text(
-                subtitle,
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              );
+      return ContactTile(
+        key: Key('Contact_${contact.id}'),
+        contact: contact,
+        folded: favorite,
+        selected: selected || c.selectedContacts.contains(contact.id),
+        enabledContextMenu: !c.selecting.value,
+        avatarBuilder: c.selecting.value
+            ? (child) => WidgetButton(
+                  onPressed: () => router.user(contact.user.value!.id),
+                  child: avatarBuilder?.call(child) ?? child,
+                )
+            : avatarBuilder,
+        onTap: c.selecting.value
+            ? () => c.selectContact(contact)
+            : contact.contact.value.users.isNotEmpty
+                // TODO: Open [Routes.contact] page when it's implemented.
+                ? () => router.user(contact.user.value!.id)
+                : null,
+        actions: [
+          favorite
+              ? ContextMenuButton(
+                  key: const Key('UnfavoriteContactButton'),
+                  label: 'btn_delete_from_favorites'.l10n,
+                  onPressed: () =>
+                      c.unfavoriteContact(contact.contact.value.id),
+                  trailing: const Icon(Icons.star_border),
+                )
+              : ContextMenuButton(
+                  key: const Key('FavoriteContactButton'),
+                  label: 'btn_add_to_favorites'.l10n,
+                  onPressed: () => c.favoriteContact(contact.contact.value.id),
+                  trailing: const Icon(Icons.star),
+                ),
+          ContextMenuButton(
+            label: 'btn_delete'.l10n,
+            onPressed: () => _removeFromContacts(c, context, contact),
+            trailing: const Icon(Icons.delete),
+          ),
+          ContextMenuButton(
+            label: 'btn_select'.l10n,
+            onPressed: c.toggleSelecting,
+            trailing: const Icon(Icons.select_all),
+          ),
+        ],
+        subtitle: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Obx(() {
+              final subtitle = contact.user.value?.user.value.getStatus();
+              if (subtitle != null) {
+                return Text(
+                  subtitle,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                );
+              }
+
+              return Container();
+            }),
+          ),
+        ],
+        trailing: [
+          Obx(() {
+            final dialog = contact.user.value?.dialog.value;
+
+            if (dialog?.chat.value.muted == null) {
+              return const SizedBox();
             }
 
-            return Container();
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: SvgLoader.asset(
+                'assets/icons/muted.svg',
+                key: Key('MuteIndicator_${contact.id}'),
+                width: 19.99,
+                height: 15,
+              ),
+            );
           }),
-        ),
-      ],
-      trailing: [
-        Obx(() {
-          final dialog = contact.user.value?.dialog.value;
+          Obx(() {
+            if (contact.user.value?.user.value.isBlacklisted == false) {
+              return const SizedBox();
+            }
 
-          if (dialog?.chat.value.muted == null) {
-            return const SizedBox();
-          }
+            return const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(
+                Icons.block,
+                color: Color(0xFFC0C0C0),
+                size: 20,
+              ),
+            );
+          }),
+          Obx(() {
+            if (!c.selecting.value) {
+              return const SizedBox();
+            }
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: SvgLoader.asset(
-              'assets/icons/muted.svg',
-              key: Key('MuteIndicator_${contact.id}'),
-              width: 19.99,
-              height: 15,
-            ),
-          );
-        }),
-        Obx(() {
-          if (contact.user.value?.user.value.isBlacklisted == false) {
-            return const SizedBox();
-          }
-
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(
-              Icons.block,
-              color: Color(0xFFC0C0C0),
-              size: 20,
-            ),
-          );
-        }),
-      ],
-    );
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: SelectedDot(
+                selected: c.selectedContacts.contains(contact.id),
+                size: 22,
+              ),
+            );
+          }),
+        ],
+      );
+    });
   }
 
   /// Opens a confirmation popup deleting the provided [contact] from address
@@ -526,6 +565,95 @@ class ContactsTabView extends StatelessWidget {
 
     if (result == true) {
       await c.deleteFromContacts(contact.contact.value);
+    }
+  }
+
+  Widget _selectButtons(BuildContext context, ContactsTabController c) {
+    Widget button({
+      Key? key,
+      Widget? leading,
+      required Widget child,
+      void Function()? onPressed,
+      Color? color,
+    }) {
+      return Expanded(
+        child: OutlinedRoundedButton(
+          key: key,
+          leading: leading,
+          title: child,
+          onPressed: onPressed,
+          color: color,
+          shadows: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+              blurStyle: BlurStyle.outer,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        8,
+        7,
+        8,
+        PlatformUtils.isMobile && !PlatformUtils.isWeb
+            ? router.context!.mediaQuery.padding.bottom + 7
+            : 12,
+      ),
+      child: Row(
+        children: [
+          button(
+            child: Text(
+              'btn_close'.l10n,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: const TextStyle(color: Colors.black),
+            ),
+            onPressed: c.toggleSelecting,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Obx(() {
+            return button(
+              child: Text(
+                '${'btn_delete'.l10n} (${c.selectedContacts.length})',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                    color: c.selectedContacts.isEmpty
+                        ? Colors.black
+                        : Colors.white),
+              ),
+              onPressed: c.selectedContacts.isEmpty
+                  ? null
+                  : () => _removeContacts(context, c),
+              color: Theme.of(context).colorScheme.secondary,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _removeContacts(
+    BuildContext context,
+    ContactsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contacts'.l10n,
+      description: [
+        TextSpan(
+          text: 'alert_contacts_will_be_deleted'
+              .l10nfmt({'count': c.selectedContacts.length}),
+        ),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteContacts();
     }
   }
 }

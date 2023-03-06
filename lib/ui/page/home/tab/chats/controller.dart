@@ -52,7 +52,8 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException;
+        UnfavoriteChatException,
+        ClearChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
@@ -97,6 +98,9 @@ class ChatsTabController extends GetxController {
   /// - `status.isEmpty`, meaning the query has not yet started.
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
+  final RxBool selecting = RxBool(false);
+  final RxList<ChatId> selectedChats = RxList();
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -304,6 +308,26 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  Future<void> hideChats(bool clear) async {
+    toggleSelecting(false);
+
+    try {
+      final Iterable<Future> futures = [
+        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
+        ...selectedChats.map((e) => _chatService.hideChat(e)),
+      ];
+
+      await Future.wait(futures);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Unmutes a [Chat] identified by the provided [id].
   Future<void> unmuteChat(ChatId id) async {
     try {
@@ -351,6 +375,17 @@ class ChatsTabController extends GetxController {
       rethrow;
     }
   }
+
+  // Future<void> clearChat(ChatId id, ChatItemId untilId) async {
+  //   try {
+  //     await _chatService.clearChat(id, untilId);
+  //   } on ClearChatException catch (e) {
+  //     MessagePopup.error(e);
+  //   } catch (e) {
+  //     MessagePopup.error(e);
+  //     rethrow;
+  //   }
+  // }
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
@@ -437,6 +472,22 @@ class ChatsTabController extends GetxController {
       rethrow;
     } finally {
       creatingStatus.value = RxStatus.empty();
+    }
+  }
+
+  void toggleSelecting([bool clearSelected = true]) {
+    if (clearSelected) {
+      selectedChats.clear();
+    }
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+  }
+
+  void selectChat(RxChat e) {
+    if (selectedChats.contains(e.id)) {
+      selectedChats.remove(e.id);
+    } else {
+      selectedChats.add(e.id);
     }
   }
 

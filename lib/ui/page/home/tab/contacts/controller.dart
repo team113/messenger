@@ -41,6 +41,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
+import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
@@ -78,6 +79,10 @@ class ContactsTabController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  final RxBool selecting = RxBool(false);
+
+  final RxList<ChatContactId> selectedContacts = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -168,6 +173,14 @@ class ContactsTabController extends GetxController {
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
     await _contactService.deleteContact(contact.id);
+  }
+
+  Future<void> deleteContacts() async {
+    toggleSelecting(false);
+
+    final Iterable<Future> futures =
+        selectedContacts.map((e) => _contactService.deleteContact(e));
+    await Future.wait(futures);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
@@ -271,6 +284,22 @@ class ContactsTabController extends GetxController {
     } else {
       search.value = null;
       elements.clear();
+    }
+  }
+
+  void toggleSelecting([bool clearSelected = true]) {
+    if (clearSelected) {
+      selectedContacts.clear();
+    }
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+  }
+
+  void selectContact(RxChatContact e) {
+    if (selectedContacts.contains(e.id)) {
+      selectedContacts.remove(e.id);
+    } else {
+      selectedContacts.add(e.id);
     }
   }
 
