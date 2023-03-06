@@ -75,7 +75,6 @@ extension ChatConversion on ChatMixin {
         toModel(),
         ver,
         lastItem?.cursor,
-        lastItem?.toHive().ver,
         lastReadItem?.cursor,
         cursor: cursor,
       );

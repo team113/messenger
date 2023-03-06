@@ -295,14 +295,14 @@ class RecentChatTile extends StatelessWidget {
       }
 
       ChatItem? item;
-    if (rxChat.messages.isNotEmpty) {
-      final ChatItem last = rxChat.messages.last.value;
-      if (chat.lastItem?.at.isBefore(last.at) == true) {
-        item = last;
+      if (rxChat.messages.isNotEmpty) {
+        final ChatItem last = rxChat.messages.last.value;
+        if (chat.lastItem?.at.isBefore(last.at) == true) {
+          item = last;
+        }
       }
-    }
 
-    item ??= chat.lastItem;
+      item ??= chat.lastItem;
 
       List<Widget> subtitle = [];
 

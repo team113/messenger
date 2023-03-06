@@ -151,7 +151,10 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
 
   @override
   Future<ItemsPage<HiveChat>> before(
-      HiveChat before, String? cursor, int count) {
+    HiveChat before,
+    String? cursor,
+    int count,
+  ) {
     throw Exception('Unreachable');
   }
 }
@@ -163,7 +166,6 @@ class HiveChat extends HiveObject {
     this.value,
     this.ver,
     this.lastItemCursor,
-    this.lastItemVersion,
     this.lastReadItemCursor, {
     this.cursor,
   });
@@ -182,10 +184,6 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastItem].
   @HiveField(2)
   ChatItemsCursor? lastItemCursor;
-
-  /// Cursor of a [Chat.lastItem].
-  @HiveField(3)
-  ChatItemVersion? lastItemVersion;
 
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(4)

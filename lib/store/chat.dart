@@ -203,7 +203,10 @@ class ChatRepository implements AbstractChatRepository {
 
     await _fragment.init();
 
-    if (!_chatLocal.isEmpty) {
+    await Future.delayed(Duration.zero);
+
+    print('_chats.isNotEmpty1');
+    if (_chats.isNotEmpty) {
       _isReady.value = true;
     }
 
@@ -1187,7 +1190,10 @@ class ChatRepository implements AbstractChatRepository {
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.value.id] == null) {
-          _putEntry(event.chat);
+          await _putEntry(event.chat);
+        }
+        if (event.lastItem != null) {
+          chats[event.chat.value.id]?.add(event.lastItem!);
         }
         break;
 
@@ -1213,7 +1219,10 @@ class ChatRepository implements AbstractChatRepository {
         } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-          yield EventRecentChatsUpdated(_chat(mixin.chat));
+          yield EventRecentChatsUpdated(
+            _chat(mixin.chat),
+            mixin.chat.lastItem?.toHive(),
+          );
         } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
@@ -1252,7 +1261,7 @@ class ChatRepository implements AbstractChatRepository {
     if (entry == null) {
       // If [data] is a remote [Chat]-dialog, then try to replace the existing
       // local [Chat], if any is associated with this [data].
-      if (data.value.isDialog && !data.value.id.isLocal) {
+      if (!data.value.isGroup && !data.value.id.isLocal) {
         final ChatMember? member = data.value.members.firstWhereOrNull(
           (m) => data.value.isMonolog || m.user.id != me,
         );
@@ -1415,7 +1424,6 @@ class ChatRepository implements AbstractChatRepository {
             .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
       ),
       ChatVersion('0'),
-      null,
       null,
       null,
     );

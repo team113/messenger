@@ -122,7 +122,7 @@ class ContactRepository implements AbstractContactRepository {
             beforeCursor = ChatContactsCursor(before);
           }
 
-          ContactsQuery query = await _fetchContacts(
+          ItemsPage<HiveChatContact> query = await _fetchContacts(
             after: afterCursor,
             first: first,
             before: beforeCursor,
@@ -390,7 +390,8 @@ class ContactRepository implements AbstractContactRepository {
         }
 
         for (HiveChatContact c in chatContacts) {
-          _putEntry(c);
+          _putEntry(c, add: true);
+          _fragment.add(c);
         }
 
         isReady.value = true;
@@ -404,17 +405,16 @@ class ContactRepository implements AbstractContactRepository {
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
-              _putEntry(
-                HiveChatContact(
-                  ChatContact(
-                    node.contactId,
-                    name: node.name,
-                  ),
-                  versioned.ver,
-                  null,
+              final HiveChatContact contact = HiveChatContact(
+                ChatContact(
+                  node.contactId,
+                  name: node.name,
                 ),
-                add: true,
+                versioned.ver,
+                null,
               );
+              _putEntry(contact, add: true);
+              _fragment.add(contact);
 
               continue;
             } else if (node.kind == ChatContactEventKind.deleted) {
@@ -505,7 +505,7 @@ class ContactRepository implements AbstractContactRepository {
   ///
   /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
   /// [User.gallery] to the [GalleryItemHiveProvider].
-  Future<ContactsQuery> _fetchContacts({
+  Future<ItemsPage<HiveChatContact>> _fetchContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,
@@ -531,7 +531,7 @@ class ContactRepository implements AbstractContactRepository {
       contacts.add(c.node.toHive(cursor: c.cursor));
     }
 
-    return ContactsQuery(contacts, query.pageInfo);
+    return ItemsPage<HiveChatContact>(contacts, query.pageInfo);
   }
 
   /// Notifies about updates in all [ChatContact]s of the authenticated
@@ -652,17 +652,4 @@ class ContactRepository implements AbstractContactRepository {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
     }
   }
-}
-
-/// Result of a [ChatContact]s fetching.
-class ContactsQuery implements ItemsPage<HiveChatContact> {
-  const ContactsQuery(this.items, this.pageInfo);
-
-  /// Fetched [HiveChatContact]s.
-  @override
-  final List<HiveChatContact> items;
-
-  /// Page info of this [ContactsQuery].
-  @override
-  final Contacts$Query$ChatContacts$PageInfo pageInfo;
 }

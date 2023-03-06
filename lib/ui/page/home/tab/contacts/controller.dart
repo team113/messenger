@@ -119,7 +119,7 @@ class ContactsTabController extends GetxController {
   bool get sortByName =>
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
-  /// Indicates whether a loading indicator should be showed.
+  /// Indicates whether the [contacts] has a next page.
   RxBool get hasNext => _contactService.hasNext;
 
   @override

@@ -17,6 +17,7 @@
 
 import '/domain/model/chat.dart';
 import '/provider/hive/chat.dart';
+import '/provider/hive/chat_item.dart';
 
 /// Possible kinds of a [RecentChatsEvent].
 enum RecentChatsEventKind {
@@ -56,10 +57,13 @@ class RecentChatsTop extends RecentChatsEvent {
 
 /// Event of a [Chat] position being updated in a recent [Chat]s list.
 class EventRecentChatsUpdated extends RecentChatsEvent {
-  const EventRecentChatsUpdated(this.chat);
+  const EventRecentChatsUpdated(this.chat, this.lastItem);
 
   /// [Chat] which position was updated.
   final HiveChat chat;
+
+  /// [HiveChatItem] of a [Chat.lastItem].
+  final HiveChatItem? lastItem;
 
   @override
   RecentChatsEventKind get kind => RecentChatsEventKind.updated;

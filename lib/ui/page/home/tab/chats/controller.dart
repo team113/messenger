@@ -146,7 +146,7 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ChatService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
-  /// Indicates whether a loading indicator should be showed.
+  /// Indicates whether the [chats] has a next page.
   RxBool get hasNext => _chatService.hasNext;
 
   @override

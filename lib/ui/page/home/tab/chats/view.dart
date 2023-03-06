@@ -683,21 +683,21 @@ class ChatsTabView extends StatelessWidget {
                                           );
 
                                           if (chats.length - 1 == i) {
-                                    return Obx(() {
-                                      if (c.hasNext.isTrue) {
-                                        return Column(
-                                          children: [
-                                            widget,
-                                            const CustomProgressIndicator(),
-                                          ],
-                                        );
-                                      } else {
-                                        return widget;
-                                      }
-                                    });
-                                  } else {
-                                    return widget;
-                                  }
+                                            return Obx(() {
+                                              if (c.hasNext.isTrue) {
+                                                return Column(
+                                                  children: [
+                                                    widget,
+                                                    const CustomProgressIndicator(),
+                                                  ],
+                                                );
+                                              } else {
+                                                return widget;
+                                              }
+                                            });
+                                          } else {
+                                            return widget;
+                                          }
                                         }).toList(),
                                       ),
                                     ),

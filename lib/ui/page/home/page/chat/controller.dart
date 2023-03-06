@@ -179,8 +179,8 @@ class ChatController extends GetxController {
   /// Indicator whether a previous page of [RxChat.messages] is loading.
   bool _isPrevPageLoading = false;
 
-  /// Indicator whether the [LoaderElement] should be displayed.
-  final RxBool showLoader = RxBool(false);
+  /// Indicator whether the [LoaderElement]s should be displayed.
+  final RxBool showLoader = RxBool(true);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -854,8 +854,6 @@ class ChatController extends GetxController {
         const Duration(seconds: 2),
         () {
           if (!status.value.isSuccess || status.value.isLoadingMore) {
-            showLoader.value = true;
-
             _bottomLoader = LoaderElement.bottom(
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
@@ -897,7 +895,6 @@ class ChatController extends GetxController {
         });
       } else {
         status.value = RxStatus.success();
-        showLoader.value = true;
       }
 
       if (_lastSeenItem.value != null) {

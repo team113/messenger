@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -61,11 +62,12 @@ class PaginatedFragment<T> {
   /// [PageProvider] loading items from the remote.
   PageProvider<T> remoteProvider;
 
-  /// Indicates whether item should not be deleted from the [cacheProvider] if not
-  /// exists on the remote.
+  /// Indicates whether item should not be deleted from the [cacheProvider] if
+  /// not exists on the remote.
   final bool Function(T)? ignore;
 
-  /// List of the elements fetched from [cacheProvider] and remote.
+  /// List of the elements fetched from the [cacheProvider] and the
+  /// [remoteProvider].
   final RxObsList<T> elements = RxObsList<T>();
 
   /// Indicator whether next page is exist.
@@ -82,19 +84,19 @@ class PaginatedFragment<T> {
   /// Empty if the [shouldSynced] is `false`.
   final List<T> _synced = [];
 
-  /// Indicator whether next page is loading from the remote.
-  bool _isNextPageLoading = false;
+  /// Indicator whether next page is loading from the [remoteProvider].
+  bool _isNextPageFetching = false;
 
-  /// Indicator whether next page is loading from the cache.
-  bool _isNextPageCacheLoading = false;
+  /// Indicator whether next page is loading from the [cacheProvider].
+  bool _isNextPageCacheFetching = false;
 
   /// Indicator whether previous page is loading.
-  bool _isPrevPageLoading = false;
+  bool _isPrevPageFetching = false;
 
-  /// Cursor to fetch the previous page.
+  /// Cursor of the first item in the [elements], used to fetch previous page.
   String? _startCursor;
 
-  /// Cursor to fetch the next page.
+  /// Cursor of the last item in the [elements], used to fetch next page.
   String? _endCursor;
 
   /// Gets initial page from the [cacheProvider].
@@ -108,8 +110,7 @@ class PaginatedFragment<T> {
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
       hasPreviousPage.value =
           cached.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
-      hasNextPage.value =
-          cached.pageInfo?.hasNextPage ?? hasNextPage.value;
+      hasNextPage.value = cached.pageInfo?.hasNextPage ?? hasNextPage.value;
     }
 
     initialized = true;
@@ -122,10 +123,12 @@ class PaginatedFragment<T> {
           (compare(item, elements.last) == -1 || hasNextPage.isFalse)) {
         _add(item);
       }
+    } else if (hasNextPage.isFalse && hasPreviousPage.isFalse) {
+      _add(item);
     }
   }
 
-  /// Clear the [elements] and related resources.
+  /// Clears the [elements] and related resources.
   void clear() {
     elements.clear();
     hasNextPage.value = true;
@@ -136,7 +139,9 @@ class PaginatedFragment<T> {
 
   /// Fetches the initial page from the remote.
   Future<void> fetchInitialPage() async {
-    if (_synced.isNotEmpty || elements.length >= pageSize && !shouldSynced) {
+    if (_synced.isNotEmpty ||
+        (elements.length >= pageSize && !shouldSynced) ||
+        (hasNextPage.isFalse && hasPreviousPage.isFalse)) {
       // Return if initial page is already fetched.
       return;
     }
@@ -164,22 +169,21 @@ class PaginatedFragment<T> {
 
   /// Fetches next page of the [elements].
   Future<void> fetchNextPage() async {
-    if (hasNextPage.isFalse || _isNextPageCacheLoading) {
+    if (hasNextPage.isFalse || _isNextPageCacheFetching) {
       return;
     }
 
-    _isNextPageCacheLoading = true;
+    _isNextPageCacheFetching = true;
     final ItemsPage<T> cached =
         await cacheProvider.after(elements.last, _endCursor, pageSize);
     for (T i in cached.items) {
       elements.insertAfter(i, (e) => compare(i, e) == 1);
     }
-    _isNextPageCacheLoading = false;
+    _isNextPageCacheFetching = false;
 
     if (!shouldSynced) {
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
-      hasNextPage.value =
-          cached.pageInfo?.hasNextPage ?? hasNextPage.value;
+      hasNextPage.value = cached.pageInfo?.hasNextPage ?? hasNextPage.value;
     }
 
     if (cached.items.length < pageSize || shouldSynced) {
@@ -189,13 +193,8 @@ class PaginatedFragment<T> {
 
   /// Fetches next page of the [elements].
   Future<void> _fetchNextPage() async {
-    if (_endCursor == null) {
-      hasNextPage.value = false;
-      return;
-    }
-
-    if (!_isNextPageLoading && hasNextPage.isTrue) {
-      _isNextPageLoading = true;
+    if (!_isNextPageFetching && hasNextPage.isTrue) {
+      _isNextPageFetching = true;
 
       // TODO: Temporary timeout, remove before merging.
       await Future.delayed(const Duration(seconds: 2));
@@ -217,22 +216,20 @@ class PaginatedFragment<T> {
         _add(i);
       }
 
+      _isNextPageFetching = false;
       if (shouldSynced && _synced.length < elements.length) {
-        _isNextPageLoading = false;
         await _fetchNextPage();
       }
-
-      _isNextPageLoading = false;
     }
   }
 
   /// Fetches previous page of the [elements].
   FutureOr<void> fetchPreviousPage() async {
-    if (_isPrevPageLoading || hasPreviousPage.isFalse) {
+    if (_isPrevPageFetching || hasPreviousPage.isFalse) {
       return;
     }
 
-    _isPrevPageLoading = true;
+    _isPrevPageFetching = true;
 
     // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
@@ -245,6 +242,8 @@ class PaginatedFragment<T> {
         elements.insertAfter(i, (e) => compare(i, e) == 1);
       }
 
+      hasPreviousPage.value =
+          cached.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
       _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
     }
 
@@ -261,10 +260,10 @@ class PaginatedFragment<T> {
       }
     }
 
-    _isPrevPageLoading = false;
+    _isPrevPageFetching = false;
   }
 
-  /// Inserts the provided [item] to the [_synced], [elements].
+  /// Adds the provided [item] to the [_synced], [elements].
   void _add(T item) {
     if (shouldSynced) {
       int i = _synced.indexWhere((e) => equal(e, item));
@@ -283,7 +282,7 @@ class PaginatedFragment<T> {
     }
   }
 
-  /// Synchronizes the provided [fetched] elements with the [cacheProvider].
+  /// Synchronizes the provided [fetched] items with the [elements].
   void _syncItems(List<T> fetched) {
     List<T> secondary =
         elements.skip(_synced.length).take(fetched.length).toList();
@@ -361,7 +360,7 @@ abstract class PageProvider<T> {
 
 /// [PageProvider] loading items with pagination from the remote.
 class RemotePageProvider<T> implements PageProvider<T> {
-  RemotePageProvider(this.onFetchPage);
+  RemotePageProvider(this.onFetchPage, {this.startFromLastPage = false});
 
   /// Callback, called to fetch items page.
   final Future<ItemsPage<T>> Function({
@@ -370,6 +369,9 @@ class RemotePageProvider<T> implements PageProvider<T> {
     int? last,
     String? before,
   }) onFetchPage;
+
+  /// Indicator whether [initial] items should be loading from the last page.
+  bool startFromLastPage;
 
   @override
   Future<ItemsPage<T>> after(T after, String? cursor, int count) {
@@ -389,6 +391,10 @@ class RemotePageProvider<T> implements PageProvider<T> {
         after: cursor,
         last: count ~/ 2 - 1,
         before: cursor,
+      );
+    } else if (startFromLastPage) {
+      return onFetchPage(
+        last: count,
       );
     } else {
       return onFetchPage(

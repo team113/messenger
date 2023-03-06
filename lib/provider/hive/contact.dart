@@ -79,17 +79,18 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
 
   @override
   Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
-    final List<HiveChatContact> sorted = contacts
+    final List<HiveChatContact> items = contacts
         .sortedBy((e) => e.value.name.val + e.value.id.val)
         .take(count)
         .toList();
     return ItemsPage<HiveChatContact>(
-      sorted,
+      items,
       PageInfo(
-        endCursor: sorted.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: box.length > count && sorted.last.cursor == null,
+        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasNextPage:
+            box.length > count || items.isEmpty || items.last.cursor != null,
         startCursor:
-            sorted.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
         hasPreviousPage: false,
       ),
     );
@@ -101,8 +102,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
     String? cursor,
     int count,
   ) async {
-    final sorted =
-        contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
+    final sorted = contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
     int i = sorted.indexWhere((e) => e.value.id == after.value.id);
     if (i != -1) {
       final List<HiveChatContact> items =
@@ -112,7 +112,9 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
         PageInfo(
           endCursor:
               items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasNextPage: box.length > count + i + 1 && sorted.last.cursor == null,
+          hasNextPage: box.length > count + i + 1 ||
+              sorted.isEmpty ||
+              sorted.last.cursor != null,
           startCursor:
               items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
           hasPreviousPage: true,

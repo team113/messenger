@@ -609,10 +609,10 @@ class _ChatViewState extends State<ChatView>
               },
               onCopy: c.copyText,
               onRepliedTap: (q) async {
-              if (q.original != null) {
-                await c.animateTo(q.original!.id);
-              }
-            },
+                if (q.original != null) {
+                  await c.animateTo(q.original!.id);
+                }
+              },
               onGallery: c.calculateGallery,
               onResend: () => c.resendItem(e.value),
               onEdit: () => c.editMessage(e.value),
@@ -704,16 +704,16 @@ class _ChatViewState extends State<ChatView>
               onDrag: (d) => c.isItemDragged.value = d,
               onForwardedTap: (quote) {
                 if (quote.original != null) {
-                if (quote.original!.chatId == c.id) {
-                  c.animateTo(quote.original!.id);
-                } else {
-                  router.chat(
-                    quote.original!.chatId,
-                    itemId: quote.original!.id,
-                    push: true,
-                  );
+                  if (quote.original!.chatId == c.id) {
+                    c.animateTo(quote.original!.id);
+                  } else {
+                    router.chat(
+                      quote.original!.chatId,
+                      itemId: quote.original!.id,
+                      push: true,
+                    );
+                  }
                 }
-              }
               },
               onFileTap: c.download,
               onAttachmentError: () async {

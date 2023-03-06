@@ -31,7 +31,7 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   /// [BoxBase] that contains all of the data.
   late BoxBase<T> box;
 
-  /// Indicator whether this [BoxBase] is lazy.
+  /// Indicator whether this [box] is lazy.
   bool _lazy = false;
 
   /// Indicates whether the underlying [Box] was opened and can be used.
@@ -66,7 +66,8 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   Future<Iterable<T>> get lazyValuesSafe async {
     if (_isReady && box.isOpen && _lazy) {
       return (await Future.wait(
-              (box as LazyBox<T>).keys.map((e) => lazyGetSafe(e))))
+        (box as LazyBox<T>).keys.map((e) => lazyGetSafe(e)),
+      ))
           .whereNotNull();
     }
     return [];

@@ -121,9 +121,8 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   Future<ItemsPage<HiveChatItem>> initial(int count, String? cursor) async {
     final lazyBox = box as LazyBox<HiveChatItem>;
 
+    Iterable<dynamic> keys = lazyBox.keys.toList().reversed;
     if (initialKey != null) {
-      Iterable<dynamic> keys = lazyBox.keys.toList().reversed;
-
       int initialIndex = keys.toList().indexOf(initialKey);
       if (initialIndex != -1) {
         if (initialIndex < (count ~/ 2)) {
@@ -131,30 +130,39 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
         } else {
           keys = keys.skip(initialIndex - (count ~/ 2)).take(count);
         }
-
-        keys = keys.take(count);
-
-        final List<HiveChatItem> items =
-            (await Future.wait(keys.map((e) => lazyBox.get(e))))
-                .whereNotNull()
-                .toList();
-        return ItemsPage<HiveChatItem>(
-          items,
-          PageInfo(
-            endCursor:
-                items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-            hasNextPage: true,
-            startCursor:
-                items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-            hasPreviousPage: true,
-          ),
-        );
       }
     }
 
+    keys = keys.take(count);
+
+    final List<HiveChatItem> items =
+        (await Future.wait(keys.map((e) => lazyBox.get(e))))
+            .whereNotNull()
+            .toList();
+    return ItemsPage<HiveChatItem>(
+      items,
+      PageInfo(
+        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasNextPage: id.isLocal ? false : true,
+        startCursor:
+            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
+        hasPreviousPage: id.isLocal ? false : true,
+      ),
+    );
+  }
+
+  @override
+  Future<ItemsPage<HiveChatItem>> after(
+    HiveChatItem after,
+    String? cursor,
+    int count,
+  ) async {
+    final lazyBox = box as LazyBox<HiveChatItem>;
+    List<dynamic> keys = lazyBox.keys.toList().reversed.toList();
+    int index = keys.indexOf(after.value.timestamp);
     List<Future<HiveChatItem?>> futures = [];
-    for (int i = 1; i <= count && lazyBox.length - i > -1; i++) {
-      futures.add(lazyBox.getAt(lazyBox.length - i));
+    if (index != -1) {
+      futures = keys.skip(index + 1).map((e) => lazyGetSafe(e)).toList();
     }
 
     final List<HiveChatItem> items =
@@ -172,35 +180,6 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   }
 
   @override
-  Future<ItemsPage<HiveChatItem>> after(
-    HiveChatItem after,
-    String? cursor,
-    int count,
-  ) async {
-    final lazyBox = box as LazyBox<HiveChatItem>;
-    int index = lazyBox.keys.toList().indexOf(after.value.timestamp);
-    List<Future<HiveChatItem?>> futures = [];
-    if (index != -1) {
-      for (int i = 1; i <= count && index - i > -1; i++) {
-        futures.add(lazyBox.getAt(index - i));
-      }
-    }
-
-    final List<HiveChatItem> items =
-        (await Future.wait(futures)).whereNotNull().toList();
-    return ItemsPage<HiveChatItem>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: index > count,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: index < lazyBox.length - 1,
-      ),
-    );
-  }
-
-  @override
   Future<ItemsPage<HiveChatItem>> before(
     HiveChatItem before,
     String? cursor,
@@ -210,9 +189,8 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     int index = lazyBox.keys.toList().indexOf(before.value.timestamp);
     List<Future<HiveChatItem?>> futures = [];
     if (index != -1) {
-      for (int i = 1; i <= count && index + i < lazyBox.length; i++) {
-        futures.add(lazyBox.getAt(index + i));
-      }
+      futures =
+          lazyBox.keys.skip(index + 1).map((e) => lazyGetSafe(e)).toList();
     }
 
     final List<HiveChatItem> items =
@@ -221,10 +199,10 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: index > 0,
+        hasNextPage: true,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: lazyBox.length > count + index + 1,
+        hasPreviousPage: true,
       ),
     );
   }
