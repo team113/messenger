@@ -525,9 +525,7 @@ class RecentChatTile extends StatelessWidget {
               future: getUser?.call(id),
               builder: (context, snapshot) {
                 if (snapshot.data != null) {
-                  return Obx(() {
-                    return builder(context, snapshot.data!.user.value);
-                  });
+                  return Obx(() => builder(context, snapshot.data!.user.value));
                 }
 
                 return builder(context, null);

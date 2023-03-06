@@ -622,9 +622,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         future: widget.getUser?.call(id),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            return Obx(() {
-              return builder(context, snapshot.data!.user.value);
-            });
+            return Obx(() => builder(context, snapshot.data!.user.value));
           }
 
           return builder(context, null);
@@ -635,39 +633,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     switch (message.action.kind) {
       case ChatInfoActionKind.created:
         if (widget.chat.value?.isGroup == true) {
-          content = userBuilder(
-            message.authorId,
-            (context, user) {
-              if (user != null) {
-                final Map<String, dynamic> args = {
-                  'author': user.name?.val ?? user.num.val,
-                };
+          content = userBuilder(message.authorId, (context, user) {
+            if (user != null) {
+              final Map<String, dynamic> args = {
+                'author': user.name?.val ?? user.num.val,
+              };
 
-                return RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_group_created_by1'.l10nfmt(args),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () => router.user(user.id, push: true),
-                      ),
-                      TextSpan(
-                        text: 'label_group_created_by2'.l10nfmt(args),
-                        style: style.systemMessageStyle.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                    style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+              return RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'label_group_created_by1'.l10nfmt(args),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => router.user(user.id, push: true),
                     ),
+                    TextSpan(
+                      text: 'label_group_created_by2'.l10nfmt(args),
+                      style: style.systemMessageStyle.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                  style: style.systemMessageStyle.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
-                );
-              }
+                ),
+              );
+            }
 
-              return Text('label_group_created'.l10n);
-            },
-          );
+            return Text('label_group_created'.l10n);
+          });
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -1219,138 +1214,82 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
-    final bool avatar =
-        !(_fromMe && widget.chat.value?.isGroup == true && widget.avatar);
-
-    final Widget child;
-
-    if (avatar) {
-      child = AnimatedOpacity(
-        duration: const Duration(milliseconds: 500),
-        opacity: _isRead || !_fromMe ? 1 : 0.55,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!_fromMe &&
-                  widget.chat.value?.isGroup == true &&
-                  widget.avatar)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                  child: Text(
-                    widget.user?.user.value.name?.val ??
-                        widget.user?.user.value.num.val ??
-                        'dot'.l10n * 3,
-                    style: style.boldBody.copyWith(color: color),
+    final Widget child = AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: _isRead || !_fromMe ? 1 : 0.55,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                child: Text(
+                  widget.user?.user.value.name?.val ??
+                      widget.user?.user.value.num.val ??
+                      'dot'.l10n * 3,
+                  style: style.boldBody.copyWith(color: color),
+                ),
+              ),
+            const SizedBox(height: 4),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black.withOpacity(0.03),
+              ),
+              padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                    child: message.withVideo
+                        ? SvgLoader.asset(
+                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                            height: 13 * 1.4,
+                          )
+                        : SvgLoader.asset(
+                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                            height: 15 * 1.4,
+                          ),
                   ),
-                ),
-              const SizedBox(height: 4),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.black.withOpacity(0.03),
-                ),
-                padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-                child: Row(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                      child: message.withVideo
-                          ? SvgLoader.asset(
-                              'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 13 * 1.4,
-                            )
-                          : SvgLoader.asset(
-                              'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 15 * 1.4,
-                            ),
-                    ),
-                    Flexible(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.boldBody,
+                          ),
+                        ),
+                        if (time != null) ...[
+                          const SizedBox(width: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 1),
                             child: Text(
-                              title,
+                              time,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: style.boldBody,
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
                           ),
-                          if (time != null) ...[
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 1),
-                              child: Text(
-                                time,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
-                          ],
                         ],
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      child = AnimatedOpacity(
-        duration: const Duration(milliseconds: 500),
-        opacity: _isRead || !_fromMe ? 1 : 0.55,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                child: message.withVideo
-                    ? SvgLoader.asset(
-                        'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                        height: 13 * 1.4,
-                      )
-                    : SvgLoader.asset(
-                        'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                        height: 15 * 1.4,
-                      ),
-              ),
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody,
-                ),
-              ),
-              if (time != null) ...[
-                const SizedBox(width: 9),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 1),
-                  child: Text(
-                    time,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                ),
-              ],
-            ],
-          ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
 
     return _rounded(
       context,
