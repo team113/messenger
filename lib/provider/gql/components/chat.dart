@@ -161,7 +161,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRenamed].
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -288,7 +288,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -323,7 +323,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -390,9 +390,9 @@ abstract class ChatGraphQlMixin {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This mutation should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -525,7 +525,7 @@ abstract class ChatGraphQlMixin {
   /// of subscribing (emits nothing, completes immediately after being
   /// established).
   /// - The authenticated [MyUser] is no longer a member of the [Chat] (emits
-  /// [EventChatItemPosted] with [ChatMemberInfo] of [MyUser] being removed and
+  /// [EventChatItemPosted] with [ChatInfo] of [MyUser] being removed and
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
@@ -1055,8 +1055,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
-  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///

@@ -415,9 +415,8 @@ abstract class CallGraphQlMixin {
   /// For using this mutation the authenticated [MyUser] must be a member of the
   /// ongoing [ChatCall].
   ///
-  /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
-  /// and the ongoing [ChatCall] appearing in his [incomingCallsTopEvents]
-  /// again.
+  /// Redialed [User] should see the ongoing [ChatCall] appearing in his
+  /// [incomingCallsTopEvents] again.
   ///
   /// ### Authentication
   ///

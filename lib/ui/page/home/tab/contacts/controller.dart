@@ -186,7 +186,7 @@ class ContactsTabController extends GetxController {
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
   Future<void> favoriteContact(
     ChatContactId id, [
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   ]) async {
     try {
       await _contactService.favoriteChatContact(id, position);
@@ -232,7 +232,7 @@ class ContactsTabController extends GetxController {
     final ChatContactId contactId = favorites[from].id;
     favorites.insert(to, favorites.removeAt(from));
 
-    await favoriteContact(contactId, ChatContactPosition(position));
+    await favoriteContact(contactId, ChatContactFavoritePosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].

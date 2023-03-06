@@ -180,9 +180,10 @@ class ContactsTabView extends StatelessWidget {
             if (c.search.value?.search.isEmpty.value == false) {
               if (c.search.value!.searchStatus.value.isLoading &&
                   c.elements.isEmpty) {
-                child = const Center(
-                  key: Key('Loading'),
-                  child: ColoredBox(
+                child = Center(
+                  key: UniqueKey(),
+                  child: const ColoredBox(
+                    key: Key('Loading'),
                     color: Colors.transparent,
                     child: CustomProgressIndicator(),
                   ),
@@ -246,16 +247,22 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Center(
-                  key: const Key('NothingFound'),
-                  child: Text('label_nothing_found'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  ),
                 );
               }
             } else {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
-                child = Center(
-                  key: const Key('NoContacts'),
-                  child: Text('label_no_contacts'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NoContacts'),
+                    child: Text('label_no_contacts'.l10n),
+                  ),
                 );
               } else {
                 child = AnimationLimiter(
@@ -318,19 +325,32 @@ class ContactsTabView extends StatelessWidget {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
                                           key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
                                           index: i,
                                           enabled: !c.selecting.value,
                                           child: child,
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        enabled: !c.selecting.value,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: {
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (_) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
+                                          index: i,
+                                          enabled: !c.selecting.value,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );
@@ -544,30 +564,6 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Opens a confirmation popup deleting the provided [contact] from address
-  /// book.
-  Future<void> _removeFromContacts(
-    ContactsTabController c,
-    BuildContext context,
-    RxChatContact contact,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_delete_contact'.l10n,
-      description: [
-        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(
-          text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.deleteFromContacts(contact.contact.value);
-    }
-  }
-
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     Widget button({
       Key? key,
@@ -636,6 +632,30 @@ class ContactsTabView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Opens a confirmation popup deleting the provided [contact] from address
+  /// book.
+  Future<void> _removeFromContacts(
+    ContactsTabController c,
+    BuildContext context,
+    RxChatContact contact,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text: contact.contact.value.name.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteFromContacts(contact.contact.value);
+    }
   }
 
   Future<void> _removeContacts(

@@ -24,16 +24,14 @@ import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
-    show
-        ChatCallFinishReason,
-        ChatKind,
-        ChatMemberInfoAction,
-        PostChatMessageErrorCode;
+    show ChatCallFinishReason, ChatKind, PostChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -270,7 +268,7 @@ class HiveRxChat extends RxChat {
       }
     } else {
       final bool repliesEqual = const IterableEquality().equals(
-        (draft?.repliesTo ?? []).map((e) => e.id),
+        (draft?.repliesTo ?? []).map((e) => e.original?.id),
         repliesTo.map((e) => e.id),
       );
 
@@ -286,7 +284,7 @@ class HiveRxChat extends RxChat {
           me ?? const UserId('dummy'),
           PreciseDateTime.now(),
           text: text,
-          repliesTo: repliesTo,
+          repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
           attachments: attachments,
         );
         _draftLocal.put(id, draft);
@@ -355,18 +353,22 @@ class HiveRxChat extends RxChat {
 
       if (item is ChatMessage) {
         all.addAll(item.attachments);
-        for (ChatItem replied in item.repliesTo) {
-          if (replied is ChatMessage) {
+        for (ChatItemQuote replied in item.repliesTo) {
+          if (replied is ChatMessageQuote) {
             all.addAll(replied.attachments);
           }
         }
       } else if (item is ChatForward) {
-        ChatItem nested = item.item;
-        if (nested is ChatMessage) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
           all.addAll(nested.attachments);
-          for (ChatItem replied in nested.repliesTo) {
-            if (replied is ChatMessage) {
-              all.addAll(replied.attachments);
+
+          if (nested.original != null) {
+            for (ChatItemQuote replied
+                in (nested.original as ChatMessage).repliesTo) {
+              if (replied is ChatMessageQuote) {
+                all.addAll(replied.attachments);
+              }
             }
           }
         }
@@ -423,7 +425,7 @@ class HiveRxChat extends RxChat {
       chatId: chat.value.id,
       me: me!,
       text: text,
-      repliesTo: repliesTo,
+      repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
       attachments: attachments ?? [],
       existingId: existingId,
       existingDateTime: existingDateTime,
@@ -502,10 +504,10 @@ class HiveRxChat extends RxChat {
               .firstWhereOrNull((e) => e is EventChatItemPosted)
           as EventChatItemPosted?;
 
-      if (event != null && event.item.firstOrNull is HiveChatMessage) {
+      if (event != null && event.item is HiveChatMessage) {
         remove(message.value.id, message.value.timestamp);
         _pending.remove(message.value);
-        message = event.item.first as HiveChatMessage;
+        message = event.item as HiveChatMessage;
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;
@@ -671,8 +673,8 @@ class HiveRxChat extends RxChat {
           item.attachments.whereType<FileAttachment>().map((e) => e.init()),
         );
       } else if (item is ChatForward) {
-        ChatItem nested = item.item;
-        if (nested is ChatMessage) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
           futures.addAll(
             nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
           );
@@ -787,7 +789,7 @@ class HiveRxChat extends RxChat {
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
     return messages
-        .lastWhereOrNull((e) => e.value is! ChatMemberInfo && e.value.at <= at)
+        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at)
         ?.value
         .at;
   }
@@ -810,8 +812,8 @@ class HiveRxChat extends RxChat {
               a.init();
             }
           } else if (item is ChatForward) {
-            ChatItem nested = item.item;
-            if (nested is ChatMessage) {
+            ChatItemQuote nested = item.quote;
+            if (nested is ChatMessageQuote) {
               for (var a in nested.attachments.whereType<FileAttachment>()) {
                 a.init();
               }
@@ -881,11 +883,6 @@ class HiveRxChat extends RxChat {
           }
 
           switch (event.kind) {
-            case ChatEventKind.renamed:
-              event as EventChatRenamed;
-              chatEntity.value.name = event.chatName;
-              break;
-
             case ChatEventKind.redialed:
               // TODO: Implement EventChatCallMemberRedialed.
               break;
@@ -903,10 +900,6 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.muted:
               event as EventChatMuted;
               chatEntity.value.muted = event.duration;
-              break;
-
-            case ChatEventKind.avatarDeleted:
-              chatEntity.value.avatar = null;
               break;
 
             case ChatEventKind.typingStarted:
@@ -975,11 +968,6 @@ class HiveRxChat extends RxChat {
               chatEntity.value.unreadCount = event.count;
               break;
 
-            case ChatEventKind.avatarUpdated:
-              event as EventChatAvatarUpdated;
-              chatEntity.value.avatar = event.avatar;
-              break;
-
             case ChatEventKind.callFinished:
               event as EventChatCallFinished;
               chatEntity.value.ongoingCall = null;
@@ -1038,14 +1026,11 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.lastItemUpdated:
               event as EventChatLastItemUpdated;
-              chatEntity.value.lastItem = event.lastItem?.firstOrNull?.value;
+              chatEntity.value.lastItem = event.lastItem?.value;
               chatEntity.value.updatedAt =
-                  event.lastItem?.firstOrNull?.value.at ??
-                      chatEntity.value.updatedAt;
-              for (var item in [
-                if (event.lastItem != null) ...event.lastItem!,
-              ]) {
-                await put(item);
+                  event.lastItem?.value.at ?? chatEntity.value.updatedAt;
+              if (event.lastItem != null) {
+                await put(event.lastItem!);
               }
               break;
 
@@ -1085,54 +1070,62 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.itemPosted:
               event as EventChatItemPosted;
-              for (var item in event.item) {
-                if (item.value is ChatMessage && item.value.authorId == me) {
-                  ChatMessage? pending =
-                      _pending.whereType<ChatMessage>().firstWhereOrNull(
-                            (e) =>
-                                e.status.value == SendingStatus.sending &&
-                                (item.value as ChatMessage).isEquals(e),
-                          );
+              final HiveChatItem item = event.item;
 
-                  // If any [ChatMessage] sharing the same fields as the posted
-                  // one is found in the [_pending] messages, and this message
-                  // is not yet added to the store, then remove the [pending].
-                  if (pending != null &&
-                      await get(
-                            item.value.id,
-                            timestamp: item.value.timestamp,
-                          ) ==
-                          null) {
-                    remove(pending.id, pending.timestamp);
-                    _pending.remove(pending);
-                  }
+              if (item.value is ChatMessage && item.value.authorId == me) {
+                ChatMessage? pending =
+                    _pending.whereType<ChatMessage>().firstWhereOrNull(
+                          (e) =>
+                              e.status.value == SendingStatus.sending &&
+                              (item.value as ChatMessage).isEquals(e),
+                        );
+
+                // If any [ChatMessage] sharing the same fields as the posted
+                // one is found in the [_pending] messages, and this message
+                // is not yet added to the store, then remove the [pending].
+                if (pending != null &&
+                    await get(
+                          item.value.id,
+                          timestamp: item.value.timestamp,
+                        ) ==
+                        null) {
+                  remove(pending.id, pending.timestamp);
+                  _pending.remove(pending);
                 }
+              }
 
-                put(item);
+              put(item);
 
-                if (item.value is ChatMemberInfo) {
-                  var msg = item.value as ChatMemberInfo;
-                  switch (msg.action) {
-                    case ChatMemberInfoAction.added:
-                      // TODO: Put the [ChatMemberInfo.user] to the [UserRepository].
-                      chatEntity.value.members
-                          .add(ChatMember(msg.user, msg.at));
-                      break;
+              if (item.value is ChatInfo) {
+                var msg = item.value as ChatInfo;
 
-                    case ChatMemberInfoAction.removed:
-                      chatEntity.value.members
-                          .removeWhere((e) => e.user.id == msg.user.id);
-                      await _chatRepository.onMemberRemoved(id, msg.user.id);
-                      break;
+                switch (msg.action.kind) {
+                  case ChatInfoActionKind.avatarUpdated:
+                    final action = msg.action as ChatInfoActionAvatarUpdated;
+                    chatEntity.value.avatar = action.avatar;
+                    break;
 
-                    case ChatMemberInfoAction.created:
-                      // No-op.
-                      break;
+                  case ChatInfoActionKind.created:
+                    // No-op.
+                    break;
 
-                    case ChatMemberInfoAction.artemisUnknown:
-                      // No-op.
-                      break;
-                  }
+                  case ChatInfoActionKind.memberAdded:
+                    final action = msg.action as ChatInfoActionMemberAdded;
+                    chatEntity.value.members
+                        .add(ChatMember(action.user, msg.at));
+                    break;
+
+                  case ChatInfoActionKind.memberRemoved:
+                    final action = msg.action as ChatInfoActionMemberRemoved;
+                    chatEntity.value.members
+                        .removeWhere((e) => e.user.id == action.user.id);
+                    await _chatRepository.onMemberRemoved(id, action.user.id);
+                    break;
+
+                  case ChatInfoActionKind.nameUpdated:
+                    final action = msg.action as ChatInfoActionNameUpdated;
+                    chatEntity.value.name = action.name;
+                    break;
                 }
               }
               break;

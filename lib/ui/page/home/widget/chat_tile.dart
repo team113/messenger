@@ -120,6 +120,7 @@ class ChatTile extends StatelessWidget {
               child: Row(
                 children: [
                   avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

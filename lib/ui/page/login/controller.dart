@@ -209,10 +209,6 @@ class LoginController extends GetxController {
       password.error.value = 'err_incorrect_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
-        case CreateSessionErrorCode.unknownUser:
-          login.error.value = e.toMessage();
-          break;
-
         case CreateSessionErrorCode.wrongPassword:
           password.error.value = e.toMessage();
           break;
