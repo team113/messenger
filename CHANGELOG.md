@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
-        - Favorite chats. ([#218], [#209])
+        - Favorite chats. ([#359], [#218], [#209])
         - Searching. ([#323], [#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
@@ -183,6 +183,7 @@ All user visible changes to this project will be documented in this file. This p
 [#345]: /../../issues/345
 [#347]: /../../pull/347
 [#350]: /../../pull/350
+[#359]: /../../pull/359
 
 
 

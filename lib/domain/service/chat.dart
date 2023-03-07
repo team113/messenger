@@ -20,12 +20,13 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart'
+    show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -259,7 +260,7 @@ class ChatService extends DisposableService {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {

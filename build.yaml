@@ -33,6 +33,12 @@ targets:
                 name: BlacklistCursor
                 imports:
                   - "package:messenger/store/model/my_user.dart"
+            - graphql_type: BlacklistReason
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: BlacklistReason
+                imports:
+                  - "package:messenger/domain/model/user.dart"
             - graphql_type: ChatCallCredentials
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
@@ -57,18 +63,18 @@ targets:
                 name: ChatContactId
                 imports:
                   - "package:messenger/domain/model/contact.dart"
-            - graphql_type: ChatContactPosition
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/contact.dart"
-              dart_type:
-                name: ChatContactPosition
-                imports:
-                  - "package:messenger/domain/model/contact.dart"
             - graphql_type: ChatContactsCursor
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/contact.dart"
               dart_type:
                 name: ChatContactsCursor
                 imports:
                   - "package:messenger/store/model/contact.dart"
+            - graphql_type: ChatContactFavoritePosition
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/contact.dart"
+              dart_type:
+                name: ChatContactFavoritePosition
+                imports:
+                  - "package:messenger/domain/model/contact.dart"
             - graphql_type: ChatContactsListVersion
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/contact.dart"
               dart_type:

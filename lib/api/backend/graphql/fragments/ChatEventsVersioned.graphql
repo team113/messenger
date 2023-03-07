@@ -22,14 +22,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         ... on EventChatTotalItemsCountUpdated {
             count
         }
-        ... on EventChatRenamed {
-            name
-            byUser {
-                __typename
-                ...User
-            }
-            at
-        }
         ... on EventChatCallMemberRedialed {
             callId
             call {
@@ -59,13 +51,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                     until
                 }
             }
-        }
-        ... on EventChatAvatarDeleted {
-            byUser {
-               __typename
-               ...User
-            }
-            at
         }
         ... on EventChatDirectLinkUsageCountUpdated {
             usageCount
@@ -108,17 +93,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         ... on EventChatUnreadItemsCountUpdated {
             count
         }
-        ... on EventChatAvatarUpdated {
-            avatar {
-                __typename
-                ...ChatAvatar
-            }
-            byUser {
-                __typename
-                ...User
-            }
-            at
-        }
         ... on EventChatCallFinished {
             callId
             call {
@@ -156,8 +130,8 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             lastItem {
                 node {
                     __typename
-                    ... on ChatMemberInfo {
-                        ...ChatMemberInfo
+                    ... on ChatInfo {
+                        ...ChatInfo
                     }
                     ... on ChatCall {
                         ...ChatCall
@@ -208,8 +182,8 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             item {
                 node {
                     __typename
-                    ... on ChatMemberInfo {
-                        ...ChatMemberInfo
+                    ... on ChatInfo {
+                        ...ChatInfo
                     }
                     ... on ChatCall {
                         ...ChatCall

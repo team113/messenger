@@ -528,6 +528,10 @@ endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
 endif
+ifeq ($(wildcard .cache/backend/l10n),)
+	@mkdir -p .cache/backend/l10n/
+	@chmod 0777 .cache/backend/l10n/
+endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/
 	@mkdir -p .cache/baza/cache/

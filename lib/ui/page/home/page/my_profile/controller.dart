@@ -577,8 +577,6 @@ extension PresenceL10n on Presence {
         return 'label_presence_present'.l10n;
       case Presence.away:
         return 'label_presence_away'.l10n;
-      case Presence.hidden:
-        return 'label_presence_hidden'.l10n;
       case Presence.artemisUnknown:
         return null;
     }
@@ -591,8 +589,6 @@ extension PresenceL10n on Presence {
         return Colors.green;
       case Presence.away:
         return Colors.orange;
-      case Presence.hidden:
-        return Colors.grey;
       case Presence.artemisUnknown:
         return null;
     }

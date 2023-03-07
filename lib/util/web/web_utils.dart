@@ -101,7 +101,31 @@ class WebStoredCall {
                       ))
                   .toList(),
               withVideo: data['call']['withVideo'],
-              answered: data['call']['answered'],
+              dialed: data['call']['dialed'] == null
+                  ? null
+                  : data['call']['dialed']['type'] == 'ChatMembersDialedAll'
+                      ? ChatMembersDialedAll(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        )
+                      : ChatMembersDialedConcrete(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        ),
             ),
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
       deviceId:
@@ -140,7 +164,26 @@ class WebStoredCall {
                       })
                   .toList(),
               'withVideo': call!.withVideo,
-              'answered': call!.answered,
+              'dialed': call!.dialed == null
+                  ? null
+                  : {
+                      'type': '${call!.dialed.runtimeType}',
+                      'members': (call!.dialed is ChatMembersDialedAll
+                              ? (call!.dialed as ChatMembersDialedAll)
+                                  .answeredMembers
+                              : (call!.dialed as ChatMembersDialedConcrete)
+                                  .members)
+                          .map(
+                            (e) => {
+                              'user': {
+                                'id': e.user.id.val,
+                                'num': e.user.num.val
+                              },
+                              'joinedAt': e.joinedAt.toString(),
+                            },
+                          )
+                          .toList(),
+                    },
             },
       'creds': creds?.val,
       'deviceId': deviceId?.val,
