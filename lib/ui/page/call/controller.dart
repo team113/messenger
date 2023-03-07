@@ -366,9 +366,9 @@ class CallController extends GetxController {
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
-  /// [secondaryBottom] value before the secondary view got relocated with the
-  /// [relocateSecondary] method due to the intersection with the [Dock].
-  double? _secondaryBottomShiftedWhenDockIntersect;
+  /// [secondaryBottom] value before the secondary view got relocated due to the
+  /// intersection with the [Dock].
+  double? secondaryBottomShiftedByDock;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -1285,7 +1285,8 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
-        _secondaryBottomShiftedWhenDockIntersect ??= secondaryBottomShifted;
+        print('$secondaryBottomShiftedByDock ??= $secondaryBottomShifted');
+        secondaryBottomShiftedByDock ??= secondaryBottomShifted;
 
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
@@ -1295,10 +1296,11 @@ class CallController extends GetxController {
         double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
 
-        if (_secondaryBottomShiftedWhenDockIntersect != null) {
-          secondaryBottomShifted = _secondaryBottomShiftedWhenDockIntersect;
+        if (secondaryBottomShiftedByDock != null) {
+          print('$secondaryBottomShiftedByDock = $secondaryBottomShifted');
+          secondaryBottomShifted = secondaryBottomShiftedByDock;
         }
-        _secondaryBottomShiftedWhenDockIntersect = null;
+        secondaryBottomShiftedByDock = null;
 
         if (bottom > secondaryBottomShifted!) {
           double difference = bottom - secondaryBottomShifted!;

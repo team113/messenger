@@ -39,7 +39,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/calls_preferences.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -161,7 +161,7 @@ void main() async {
   await chatItemHiveProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  var callsPreferencesProvider = CallRectHiveProvider();
   await callsPreferencesProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {

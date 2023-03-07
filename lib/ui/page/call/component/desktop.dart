@@ -869,11 +869,9 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: WebUtils.isPopup
                   ? Stack(children: [...content, ...ui])
                   : LayoutBuilder(
-                      builder: (context, constrains) {
+                      builder: (_, __) {
                         c.relocateSecondary();
-                        return Stack(
-                          children: [...content, ...ui],
-                        );
+                        return Stack(children: [...content, ...ui]);
                       },
                     ),
             ),
@@ -2002,6 +2000,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryBottomShifted = null;
+                          c.secondaryBottomShiftedByDock = null;
                           c.secondaryDragged.value = true;
                           c.displayMore.value = false;
                           c.keepUi(false);

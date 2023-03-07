@@ -22,12 +22,12 @@ import '/domain/model/chat.dart';
 import 'base.dart';
 
 /// [Hive] storage for [Rect] preferences of the [OngoingCall]s.
-class CallsPreferencesHiveProvider extends HiveBaseProvider<Rect> {
+class CallRectHiveProvider extends HiveBaseProvider<Rect> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'calls_preferences';
+  String get boxName => 'call_rect';
 
   @override
   void registerAdapters() {

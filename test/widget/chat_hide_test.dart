@@ -39,7 +39,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blacklist.dart';
-import 'package:messenger/provider/hive/calls_preferences.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
@@ -161,7 +161,7 @@ void main() async {
   await myUserProvider.clear();
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
-  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  var callsPreferencesProvider = CallRectHiveProvider();
   await callsPreferencesProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
