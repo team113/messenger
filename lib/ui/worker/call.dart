@@ -30,7 +30,9 @@ import 'package:wakelock/wakelock.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
@@ -40,21 +42,17 @@ import '/util/android_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'background/background.dart';
 
 /// Worker responsible for showing an incoming call notification and playing an
 /// incoming or outgoing call audio.
 class CallWorker extends DisposableService {
   CallWorker(
-    this._background,
     this._callService,
     this._chatService,
     this._myUserService,
     this._notificationService,
   );
 
-  /// [BackgroundWorker] used to get data from its service.
-  final BackgroundWorker _background;
 
   /// [AudioPlayer] currently playing an audio.
   AudioPlayer? _audioPlayer;
@@ -331,33 +329,6 @@ class CallWorker extends DisposableService {
 
   /// Initializes a connection to the [_background] worker.
   void _initBackgroundService() {
-    _onDataReceived = _background.on('answer').listen((event) {
-      var callId = ChatId(event!['callId']!);
-
-      var call = _callService.calls[callId];
-      if (call == null) {
-        _answeredCalls.add(callId);
-      } else {
-        if (call.value.state.value != OngoingCallState.joining &&
-            call.value.state.value != OngoingCallState.active) {
-          if (!router.lifecycle.value.inForeground) {
-            Future(() async {
-              await AndroidUtils.foregroundFromLockscreen();
-
-              Worker? worker;
-              worker = ever(router.lifecycle, (AppLifecycleState state) {
-                if (state.inForeground) {
-                  _callService.join(callId, withVideo: false);
-                  worker?.dispose();
-                }
-              });
-            });
-          } else {
-            _callService.join(callId, withVideo: false);
-          }
-        }
-      }
-    });
   }
 
   /// Initializes [WebUtils] related functionality.

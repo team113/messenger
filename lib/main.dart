@@ -46,7 +46,6 @@ import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
-import 'ui/worker/background/background.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
@@ -91,8 +90,6 @@ Future<void> main() async {
 
     await authService.init();
     await L10n.init();
-
-    Get.put(BackgroundWorker(Get.find()));
 
     runApp(
       DefaultAssetBundle(

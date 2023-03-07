@@ -599,8 +599,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            Get.put(NotificationService()).init(
-              graphQlProvider,
+            Get.put(NotificationService(graphQlProvider)).init(
               onNotificationResponse: onNotificationResponse,
             );
             MyUserService myUserService =
@@ -616,7 +615,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ));
 
             deps.put(CallWorker(
-              Get.find(),
               callService,
               chatService,
               myUserService,

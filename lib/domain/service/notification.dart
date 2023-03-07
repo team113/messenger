@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -35,6 +34,11 @@ import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
 class NotificationService extends DisposableService {
+  NotificationService(this._graphQlProvider);
+
+  /// GraphQL API provider.
+  final GraphQlProvider _graphQlProvider;
+
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
@@ -63,7 +67,7 @@ class NotificationService extends DisposableService {
   /// when a notification is triggered while the app is in the foreground and is
   /// only applicable to iOS versions older than 10.
   Future<void> init(
-    GraphQlProvider graphQlProvider, {
+    {
     void Function(NotificationResponse)? onNotificationResponse,
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
@@ -72,7 +76,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
-    _initPushNotifications(graphQlProvider);
+    _initPushNotifications();
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
@@ -175,38 +179,36 @@ class NotificationService extends DisposableService {
   }
 
   /// Initializes the [FirebaseMessaging] to receive push notifications.
-  Future<void> _initPushNotifications(GraphQlProvider graphQlProvider) async {
+  Future<void> _initPushNotifications() async {
     if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
       await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
       if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
         await FirebaseMessaging.instance.requestPermission();
       }
 
-      String? oldToken;
-
-      FirebaseMessaging.instance
-          .getToken(
-              vapidKey: PlatformUtils.isWeb
-                  ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-                  : null)
-          .then((value) {
-        if (value != null) {
-          oldToken = value;
-          graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
-        }
-      });
-
-      _onTokenRefresh = FirebaseMessaging.instance.onTokenRefresh.listen(
-        (fcmToken) {
-          if (oldToken != null) {
-            graphQlProvider
-                .unregisterFcmDevice(FcmRegistrationToken(oldToken!));
-          }
-          graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
-        },
+      String? token = await FirebaseMessaging.instance.getToken(
+        vapidKey: PlatformUtils.isWeb
+            ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
+            : null,
       );
+
+      if (token != null) {
+        _graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
+      }
+
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+        if (token != null) {
+          await _graphQlProvider
+              .unregisterFcmDevice(FcmRegistrationToken(token!));
+        }
+
+        token = fcmToken;
+        _graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+      });
     }
   }
 }
