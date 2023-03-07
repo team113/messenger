@@ -1,9 +1,27 @@
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/data_attachment.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
@@ -39,17 +57,6 @@ class TransactionView extends StatelessWidget {
 
         final Transaction e = c.transaction.value!;
 
-        final ThemeData theme = Theme.of(context).copyWith(
-          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-                // floatingLabelAlignment: FloatingLabelAlignment.center,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
-                  // borderSide: const BorderSide(color: Colors.transparent),
-                ),
-              ),
-        );
-
         const spacer =
             TableRow(children: [SizedBox(height: 16), SizedBox(height: 16)]);
 
@@ -60,12 +67,12 @@ class TransactionView extends StatelessWidget {
             // onBottom: context.isNarrow ? () {} : null,
             actions: [
               WidgetButton(
-                onPressed: () => ContactSupportView.show(context),
+                onPressed: () => ContactSupportView.show(context, e),
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Icon(
-                    Icons.support_agent,
-                    color: Theme.of(context).colorScheme.secondary,
+                  padding: const EdgeInsets.only(right: 18),
+                  child: SvgLoader.asset(
+                    'assets/icons/help.svg',
+                    height: 23,
                   ),
                   // child: Stack(
                   //   alignment: Alignment.center,
@@ -422,7 +429,7 @@ class TransactionView extends StatelessWidget {
                   title: 'Actions',
                   children: [
                     _padding(
-                      DownloadableFile(
+                      DataAttachment(
                         FileAttachment(
                           id: const AttachmentId('id'),
                           original: StorageFile(
@@ -431,7 +438,19 @@ class TransactionView extends StatelessWidget {
                           ),
                           filename: 'resume.pdf',
                         ),
+                        onPressed: (e) async {
+                          if (e is FileAttachment) {
+                            if (e.isDownloading) {
+                              e.cancelDownload();
+                            } else {
+                              if (await e.open() == false) {
+                                await e.download();
+                              }
+                            }
+                          }
+                        },
                       ),
+
                       // DownloadableButton(
                       //   FileAttachment(
                       //     id: const AttachmentId('id'),

@@ -130,31 +130,6 @@ class StatusView extends StatelessWidget {
                             onPressed: () => c.presence.value = e,
                             trailingColor: e.getColor(),
                           ),
-                          // child: FieldButton(
-                          //   onPressed: () => c.presence.value = e,
-                          //   text: e.localizedString(),
-                          //   trailing: SizedBox(
-                          //     width: 20,
-                          //     height: 20,
-                          //     child: CircleAvatar(
-                          //       backgroundColor: e.getColor(),
-                          //       radius: 12,
-                          //       child: AnimatedSwitcher(
-                          //         duration: 200.milliseconds,
-                          //         child: c.presence.value == e
-                          //             ? const Icon(
-                          //                 Icons.check,
-                          //                 color: Colors.white,
-                          //                 size: 12,
-                          //               )
-                          //             : const SizedBox(key: Key('None')),
-                          //       ),
-                          //     ),
-                          //   ),
-                          //   fillColor: c.presence.value == e
-                          //       ? style.cardSelectedColor
-                          //       : Colors.white,
-                          // ),
                         );
                       });
                     }),

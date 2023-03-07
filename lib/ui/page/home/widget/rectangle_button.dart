@@ -16,21 +16,31 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
+
+/// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
   const RectangleButton({
     super.key,
     this.selected = false,
     this.onPressed,
-    this.label = '',
+    required this.label,
     this.trailingColor,
   });
 
+  /// Label of this [RectangleButton].
   final String label;
+
+  /// Indicator whether this [RectangleButton] is selected, meaning an
+  /// [Icons.check] should be displayed in a trailing.
   final bool selected;
+
+  /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
+
+  /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
 
   @override

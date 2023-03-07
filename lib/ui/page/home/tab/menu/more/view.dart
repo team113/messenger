@@ -40,7 +40,7 @@ class MoreView extends StatelessWidget {
       required Widget title,
       void Function()? onTap,
     }) {
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
       return Padding(
         key: key,
         padding: const EdgeInsets.symmetric(horizontal: 10),

@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -29,11 +30,16 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ContactSupportView extends StatelessWidget {
-  const ContactSupportView({super.key});
+  const ContactSupportView(this.transaction, {super.key});
+
+  final Transaction transaction;
 
   /// Displays a [ContactSupportView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const ContactSupportView());
+  static Future<T?> show<T>(BuildContext context, Transaction transaction) {
+    return ModalPopup.show(
+      context: context,
+      child: ContactSupportView(transaction),
+    );
   }
 
   @override
@@ -42,7 +48,7 @@ class ContactSupportView extends StatelessWidget {
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: ContactSupportController(),
+      init: ContactSupportController(transaction, Get.find(), Get.find()),
       builder: (ContactSupportController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -54,7 +60,7 @@ class ContactSupportView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Financial support'.l10n,
+                    'Support'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -98,7 +104,12 @@ class ContactSupportView extends StatelessWidget {
                             c.name.isEmpty.value ? Colors.black : Colors.white,
                       ),
                     ),
-                    onPressed: c.name.isEmpty.value ? null : () {},
+                    onPressed: c.name.isEmpty.value
+                        ? null
+                        : () {
+                            Navigator.of(context).pop();
+                            c.support();
+                          },
                     color: Theme.of(context).colorScheme.secondary,
                   );
                 }),

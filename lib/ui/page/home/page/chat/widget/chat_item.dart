@@ -60,6 +60,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
 import 'swipeable_status.dart';
@@ -350,213 +351,14 @@ class ChatItemWidget extends StatefulWidget {
     required bool fromMe,
     void Function(FileAttachment)? onFileTap,
   }) {
-    return DownloadableFile(
-      e as FileAttachment,
-      fromMe: fromMe,
-      onFileTap: () => onFileTap?.call(e),
+    return DataAttachment(
+      e,
+      onPressed: (e) {
+        if (e is FileAttachment) {
+          onFileTap?.call(e);
+        }
+      },
     );
-
-    // Widget leading = Container();
-    // if (e is FileAttachment) {
-    //   switch (e.downloadStatus.value) {
-    //     case DownloadStatus.inProgress:
-    //       leading = InkWell(
-    //         onTap: () => onFileTap?.call(e),
-    //         child: Stack(
-    //           alignment: Alignment.center,
-    //           children: [
-    //             Container(
-    //               width: 40,
-    //               height: 40,
-    //               decoration: BoxDecoration(
-    //                 shape: BoxShape.circle,
-    //                 gradient: LinearGradient(
-    //                   begin: Alignment.bottomCenter,
-    //                   end: Alignment.topCenter,
-    //                   colors: [
-    //                     Theme.of(context).colorScheme.secondary,
-    //                     Theme.of(context).colorScheme.secondary,
-    //                     const Color(0xFFD1E1F0),
-    //                   ],
-    //                   stops: [
-    //                     0,
-    //                     e.progress.value,
-    //                     e.progress.value,
-    //                   ],
-    //                 ),
-    //               ),
-    //             ),
-    //             SvgLoader.asset(
-    //               'assets/icons/close.svg',
-    //               width: 14,
-    //               height: 14,
-    //             ),
-    //             // SvgLoader.asset(
-    //             //   'assets/icons/download_cancel.svg',
-    //             //   key: const Key('CancelDownloading'),
-    //             //   width: 40,
-    //             //   height: 40,
-    //             // ),
-    //             // SizedBox.square(
-    //             //   dimension: 37,
-    //             //   child: CircularProgressIndicator(
-    //             //     strokeWidth: 2.3,
-    //             //     key: const Key('Downloading'),
-    //             //     value: e.progress.value == 0 ? null : e.progress.value,
-    //             //     color: Colors.white.withOpacity(0.7),
-    //             //   ),
-    //             // ),
-    //           ],
-    //         ),
-    //       );
-    //       break;
-
-    //     case DownloadStatus.isFinished:
-    //       leading = Container(
-    //         key: const Key('Downloaded'),
-    //         height: 40,
-    //         width: 40,
-    //         decoration: BoxDecoration(
-    //           shape: BoxShape.circle,
-    //           color: Theme.of(context).colorScheme.secondary,
-    //         ),
-    //         child: const Center(
-    //           child: Icon(
-    //             Icons.insert_drive_file,
-    //             color: Colors.white,
-    //             size: 21,
-    //           ),
-    //         ),
-    //       );
-    //       break;
-
-    //     case DownloadStatus.notStarted:
-    //       leading = SvgLoader.asset(
-    //         'assets/icons/download.svg',
-    //         key: const Key('Download'),
-    //         width: 40,
-    //         height: 40,
-    //       );
-    //       break;
-    //   }
-
-    //   leading = KeyedSubtree(key: const Key('Sent'), child: leading);
-    // } else if (e is LocalAttachment) {
-    //   switch (e.status.value) {
-    //     case SendingStatus.sending:
-    //       leading = SizedBox.square(
-    //         key: const Key('Sending'),
-    //         dimension: 18,
-    //         child: CustomProgressIndicator(
-    //           value: e.progress.value,
-    //           backgroundColor: Colors.white,
-    //           strokeWidth: 5,
-    //         ),
-    //       );
-    //       break;
-
-    //     case SendingStatus.sent:
-    //       leading = const Icon(
-    //         Icons.check_circle,
-    //         key: Key('Sent'),
-    //         size: 18,
-    //         color: Colors.green,
-    //       );
-    //       break;
-
-    //     case SendingStatus.error:
-    //       leading = const Icon(
-    //         Icons.error_outline,
-    //         key: Key('Error'),
-    //         size: 18,
-    //         color: Colors.red,
-    //       );
-    //       break;
-    //   }
-    // }
-
-    // leading = AnimatedSwitcher(
-    //   key: Key('AttachmentStatus_${e.id}'),
-    //   duration: 250.milliseconds,
-    //   child: leading,
-    // );
-
-    // final Style style = Theme.of(context).extension<Style>()!;
-
-    // return Padding(
-    //   key: Key('File_${e.id}'),
-    //   // padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-    //   padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-    //   child: WidgetButton(
-    //     onPressed: e is FileAttachment ? () => onFileTap?.call(e) : null,
-    //     child: Container(
-    //       // height: 80,
-    //       decoration: BoxDecoration(
-    //         borderRadius: BorderRadius.circular(10),
-    //         color: fromMe
-    //             ? Colors.white.withOpacity(0.2)
-    //             : Colors.black.withOpacity(0.03),
-    //       ),
-    //       padding: const EdgeInsets.all(4),
-    //       child: Row(
-    //         children: [
-    //           const SizedBox(width: 8),
-
-    //           // const SizedBox(width: 11),
-    //           Expanded(
-    //             child: Column(
-    //               crossAxisAlignment: CrossAxisAlignment.start,
-    //               mainAxisSize: MainAxisSize.min,
-    //               children: [
-    //                 Row(
-    //                   children: [
-    //                     Flexible(
-    //                       child: Text(
-    //                         p.basenameWithoutExtension(e.filename),
-    //                         // style: const TextStyle(fontSize: 15),
-    //                         style: style.boldBody, //.copyWith(fontSize: 15),
-    //                         maxLines: 1,
-    //                         overflow: TextOverflow.ellipsis,
-    //                       ),
-    //                     ),
-    //                     Text(
-    //                       p.extension(e.filename),
-    //                       // style: const TextStyle(fontSize: 15),
-    //                       style: style.boldBody, //.copyWith(fontSize: 15),
-    //                       maxLines: 1,
-    //                       overflow: TextOverflow.ellipsis,
-    //                     ),
-    //                   ],
-    //                 ),
-    //                 const SizedBox(height: 5),
-    //                 Text(
-    //                   'label_kb'.l10nfmt({
-    //                     'amount': e.original.size == null
-    //                         ? 'dot'.l10n * 3
-    //                         : e.original.size! ~/ 1024
-    //                   }),
-    //                   maxLines: 1,
-    //                   overflow: TextOverflow.ellipsis,
-    //                   style: style.boldBody.copyWith(
-    //                     // style: TextStyle(
-    //                     fontSize: 13,
-    //                     color: const Color(0xFF888888),
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //           const SizedBox(width: 11),
-    //           Padding(
-    //             padding: const EdgeInsets.symmetric(vertical: 8),
-    //             child: leading,
-    //           ),
-    //           const SizedBox(width: 8),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }
 
