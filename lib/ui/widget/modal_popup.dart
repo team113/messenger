@@ -60,10 +60,12 @@ abstract class ModalPopup {
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
+            topLeft: Radius.circular(14),
+            topRight: Radius.circular(14),
           ),
         ),
+        constraints:
+            BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
         builder: (context) {
           return SafeArea(
             child: Column(
@@ -112,7 +114,7 @@ abstract class ModalPopup {
               padding: desktopPadding,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
                 constraints: desktopConstraints,
@@ -129,10 +131,10 @@ abstract class ModalPopup {
 /// [Row] with an optional [header] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
-    Key? key,
+    super.key,
     this.onBack,
     this.header,
-  }) : super(key: key);
+  });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
   final Widget? header;
