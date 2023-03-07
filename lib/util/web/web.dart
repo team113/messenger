@@ -367,7 +367,7 @@ class WebUtils {
     final Rect? prefs = getCallRect(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
-    final height = min(prefs?.height ?? 500, screenH.toDouble());
+    final height = min(prefs?.height ?? 500, screenH);
 
     var left = prefs?.left ?? screenW - 50 - width;
     if (left < 0) {
@@ -380,7 +380,7 @@ class WebUtils {
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {
-      top = screenH - height;
+      top = screenH.toDouble() - height;
     }
 
     List parameters = [
