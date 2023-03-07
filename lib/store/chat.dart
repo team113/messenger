@@ -805,13 +805,9 @@ class ChatRepository implements AbstractChatRepository {
       before: before,
     );
 
-    if (query.chat == null) {
-      throw Exception('Chat not found');
-    }
-
     return ItemsPage<HiveChatItem>(
-      query.chat!.items.edges.map((e) => e.toHive()).toList(),
-      query.chat!.items.pageInfo,
+      query.chat?.items.edges.map((e) => e.toHive()).toList() ?? [],
+      query.chat?.items.pageInfo,
     );
   }
 

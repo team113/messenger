@@ -221,13 +221,13 @@ class ChatController extends GetxController {
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
-  /// Currently displayed [LoadingElement] in the top of the [elements] list.
+  /// Currently displayed [LoaderElement] in the top of the [elements] list.
   LoaderElement? _topLoader;
 
-  /// Currently displayed [LoadingElement] in the bottom of the [elements] list.
+  /// Currently displayed [LoaderElement] in the bottom of the [elements] list.
   LoaderElement? _bottomLoader;
 
-  /// Height of a [LoadingElement] displayed in the message list.
+  /// Height of a [LoaderElement] displayed in the message list.
   static const double loadingHeight = 70;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].

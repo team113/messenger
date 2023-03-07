@@ -56,6 +56,10 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   /// Exception-safe wrapper for [Box.values] returning all the values in the
   /// [box].
   Iterable<T> get valuesSafe {
+    if (_lazy) {
+      throw Exception('Use valuesSafe only for not lazy HiveBaseProvider');
+    }
+
     if (_isReady && box.isOpen && !_lazy) {
       return (box as Box<T>).values;
     }
@@ -64,6 +68,10 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
 
   /// Returns all the values in the lazy [box].
   Future<Iterable<T>> get lazyValuesSafe async {
+    if (!_lazy) {
+      throw Exception('Use lazyValuesSafe only for lazy HiveBaseProvider');
+    }
+
     if (_isReady && box.isOpen && _lazy) {
       return (await Future.wait(
         (box as LazyBox<T>).keys.map((e) => lazyGetSafe(e)),
@@ -148,7 +156,7 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   /// the given [key], if any.
   T? getSafe(dynamic key, {T? defaultValue}) {
     if (_lazy) {
-      throw Exception('Use getLazySafe for lazy HiveBaseProvider');
+      throw Exception('Use getSafe only for not lazy HiveBaseProvider');
     }
 
     if (_isReady && box.isOpen == true) {
@@ -161,7 +169,7 @@ abstract class HiveBaseProvider<T extends Object> extends DisposableInterface {
   /// with the given [key], if any.
   Future<T?> lazyGetSafe(dynamic key, {T? defaultValue}) async {
     if (!_lazy) {
-      throw Exception('Use getSafe for not lazy HiveBaseProvider');
+      throw Exception('Use lazyGetSafe only for lazy HiveBaseProvider');
     }
 
     if (_isReady && box.isOpen) {

@@ -609,7 +609,7 @@ class HiveRxChat extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      add(message);
+      add(message, ignoreVersion: true);
     }
 
     return message.value;
