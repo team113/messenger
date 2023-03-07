@@ -1285,7 +1285,6 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
-        print('$secondaryBottomShiftedByDock ??= $secondaryBottomShifted');
         secondaryBottomShiftedByDock ??= secondaryBottomShifted;
 
         applySecondaryConstraints();
@@ -1297,7 +1296,6 @@ class CallController extends GetxController {
             size.height - secondaryTop.value! - secondaryHeight.value;
 
         if (secondaryBottomShiftedByDock != null) {
-          print('$secondaryBottomShiftedByDock = $secondaryBottomShifted');
           secondaryBottomShifted = secondaryBottomShiftedByDock;
         }
         secondaryBottomShiftedByDock = null;
