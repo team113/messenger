@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +30,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading = const [],
     this.actions = const [],
     this.padding,
+    this.border,
+    this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
   }) : super(key: key);
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -43,8 +46,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
 
+  /// Margin to apply to the contents.
+  final EdgeInsets margin;
+
+  /// [Border] to apply to this [CustomAppBar].
+  final Border? border;
+
+  /// Height of the [CustomAppBar].
+  static const double height = 60;
+
   @override
-  Size get preferredSize => const Size(double.infinity, 60);
+  Size get preferredSize => const Size(double.infinity, height);
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +70,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.white,
+            color: Colors.transparent,
           ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            padding: margin,
             child: Container(
-              height: 60,
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                border: style.cardBorder,
                 boxShadow: const [
                   CustomBoxShadow(
                     blurRadius: 8,
@@ -83,9 +94,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   sigmaY: style.cardBlur,
                 ),
                 borderRadius: style.cardRadius,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
+                    border: border ?? style.cardBorder,
                     color: style.cardColor,
                   ),
                   padding: padding,

@@ -186,7 +186,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.fmt check=$(check) dockerized=no
 else
-	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	dart format $(if $(call eq,$(check),yes),-o none --set-exit-if-changed,) .
 endif
 
 
@@ -527,6 +527,10 @@ ifeq ($(pull),yes)
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
+endif
+ifeq ($(wildcard .cache/backend/l10n),)
+	@mkdir -p .cache/backend/l10n/
+	@chmod 0777 .cache/backend/l10n/
 endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/

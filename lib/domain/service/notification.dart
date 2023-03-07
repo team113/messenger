@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -102,9 +103,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/notification.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/notification.mp3');
   }
 
   // TODO: Implement icons and attachments on non-web platforms.

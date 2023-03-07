@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -83,79 +84,86 @@ List<String?>?
                 fromDartChatContactIdNullableToGraphQLChatContactIdNullable(e))
             .toList();
 
-// ChatContactPosition
+// ChatContactFavoritePosition
 
-ChatContactPosition fromGraphQLChatContactPositionToDartChatContactPosition(
-        double v) =>
-    ChatContactPosition(v);
-String fromDartChatContactPositionToGraphQLChatContactPosition(
-        ChatContactPosition v) =>
-    v.val.toString();
-List<ChatContactPosition>
-    fromGraphQLListChatContactPositionToDartListChatContactPosition(
+ChatContactFavoritePosition
+    fromGraphQLChatContactFavoritePositionToDartChatContactFavoritePosition(
+            double v) =>
+        ChatContactFavoritePosition(v);
+double fromDartChatContactFavoritePositionToGraphQLChatContactFavoritePosition(
+        ChatContactFavoritePosition v) =>
+    v.val;
+List<ChatContactFavoritePosition>
+    fromGraphQLListChatContactFavoritePositionToDartListChatContactFavoritePosition(
             List<Object?> v) =>
         v
-            .map((e) => fromGraphQLChatContactPositionToDartChatContactPosition(
-                e as double))
-            .toList();
-List<String> fromDartListChatContactPositionToGraphQLListChatContactPosition(
-        List<ChatContactPosition> v) =>
-    v
-        .map((e) => fromDartChatContactPositionToGraphQLChatContactPosition(e))
-        .toList();
-List<ChatContactPosition>?
-    fromGraphQLListNullableChatContactPositionToDartListNullableChatContactPosition(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLChatContactPositionToDartChatContactPosition(
+            .map((e) =>
+                fromGraphQLChatContactFavoritePositionToDartChatContactFavoritePosition(
                     e as double))
             .toList();
-List<String>?
-    fromDartListNullableChatContactPositionToGraphQLListNullableChatContactPosition(
-            List<ChatContactPosition>? v) =>
-        v
-            ?.map((e) =>
-                fromDartChatContactPositionToGraphQLChatContactPosition(e))
-            .toList();
-
-ChatContactPosition?
-    fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
-            double? v) =>
-        v == null ? null : ChatContactPosition(v);
-String? fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable(
-        ChatContactPosition? v) =>
-    v?.val.toString();
-List<ChatContactPosition?>
-    fromGraphQLListChatContactPositionNullableToDartListChatContactPositionNullable(
-            List<Object?> v) =>
+List<double>
+    fromDartListChatContactFavoritePositionToGraphQLListChatContactFavoritePosition(
+            List<ChatContactFavoritePosition> v) =>
         v
             .map((e) =>
-                fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
-                    e as double?))
-            .toList();
-List<String?>
-    fromDartListChatContactPositionNullableToGraphQLListChatContactPositionNullable(
-            List<ChatContactPosition?> v) =>
-        v
-            .map((e) =>
-                fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable(
+                fromDartChatContactFavoritePositionToGraphQLChatContactFavoritePosition(
                     e))
             .toList();
-List<ChatContactPosition?>?
-    fromGraphQLListNullableChatContactPositionNullableToDartListNullableChatContactPositionNullable(
+List<ChatContactFavoritePosition>?
+    fromGraphQLListNullableChatContactFavoritePositionToDartListNullableChatContactFavoritePosition(
             List<Object?>? v) =>
         v
             ?.map((e) =>
-                fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
-                    e as double?))
+                fromGraphQLChatContactFavoritePositionToDartChatContactFavoritePosition(
+                    e as double))
             .toList();
-List<String?>?
-    fromDartListNullableChatContactPositionNullableToGraphQLListNullableChatContactPositionNullable(
-            List<ChatContactPosition?>? v) =>
+List<double>?
+    fromDartListNullableChatContactFavoritePositionToGraphQLListNullableChatContactFavoritePosition(
+            List<ChatContactFavoritePosition>? v) =>
         v
             ?.map((e) =>
-                fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable(
+                fromDartChatContactFavoritePositionToGraphQLChatContactFavoritePosition(
+                    e))
+            .toList();
+
+ChatContactFavoritePosition?
+    fromGraphQLChatContactFavoritePositionNullableToDartChatContactFavoritePositionNullable(
+            double? v) =>
+        v == null ? null : ChatContactFavoritePosition(v);
+double?
+    fromDartChatContactFavoritePositionNullableToGraphQLChatContactFavoritePositionNullable(
+            ChatContactFavoritePosition? v) =>
+        v?.val;
+List<ChatContactFavoritePosition?>
+    fromGraphQLListChatContactFavoritePositionNullableToDartListChatContactFavoritePositionNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLChatContactFavoritePositionNullableToDartChatContactFavoritePositionNullable(
+                    e as double?))
+            .toList();
+List<double?>
+    fromDartListChatContactFavoritePositionNullableToGraphQLListChatContactFavoritePositionNullable(
+            List<ChatContactFavoritePosition?> v) =>
+        v
+            .map((e) =>
+                fromDartChatContactFavoritePositionNullableToGraphQLChatContactFavoritePositionNullable(
+                    e))
+            .toList();
+List<ChatContactFavoritePosition?>?
+    fromGraphQLListNullableChatContactFavoritePositionNullableToDartListNullableChatContactFavoritePositionNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLChatContactFavoritePositionNullableToDartChatContactFavoritePositionNullable(
+                    e as double?))
+            .toList();
+List<double?>?
+    fromDartListNullableChatContactFavoritePositionNullableToGraphQLListNullableChatContactFavoritePositionNullable(
+            List<ChatContactFavoritePosition?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartChatContactFavoritePositionNullableToGraphQLChatContactFavoritePositionNullable(
                     e))
             .toList();
 

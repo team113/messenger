@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -544,5 +545,167 @@ List<String?>?
         v
             ?.map((e) =>
                 fromDartRecentChatsCursorNullableToGraphQLRecentChatsCursorNullable(
+                    e))
+            .toList();
+
+// ChatFavoritePosition
+
+ChatFavoritePosition fromGraphQLChatFavoritePositionToDartChatFavoritePosition(
+        double v) =>
+    ChatFavoritePosition(v);
+double fromDartChatFavoritePositionToGraphQLChatFavoritePosition(
+        ChatFavoritePosition v) =>
+    v.val;
+List<ChatFavoritePosition>
+    fromGraphQLListChatFavoritePositionToDartListChatFavoritePosition(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLChatFavoritePositionToDartChatFavoritePosition(
+                    e as double))
+            .toList();
+List<double> fromDartListChatFavoritePositionToGraphQLListChatFavoritePosition(
+        List<ChatFavoritePosition> v) =>
+    v
+        .map(
+            (e) => fromDartChatFavoritePositionToGraphQLChatFavoritePosition(e))
+        .toList();
+List<ChatFavoritePosition>?
+    fromGraphQLListNullableChatFavoritePositionToDartListNullableChatFavoritePosition(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLChatFavoritePositionToDartChatFavoritePosition(
+                    e as double))
+            .toList();
+List<double>?
+    fromDartListNullableChatFavoritePositionToGraphQLListNullableChatFavoritePosition(
+            List<ChatFavoritePosition>? v) =>
+        v
+            ?.map((e) =>
+                fromDartChatFavoritePositionToGraphQLChatFavoritePosition(e))
+            .toList();
+
+ChatFavoritePosition?
+    fromGraphQLChatFavoritePositionNullableToDartChatFavoritePositionNullable(
+            double? v) =>
+        v == null ? null : ChatFavoritePosition(v);
+double?
+    fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable(
+            ChatFavoritePosition? v) =>
+        v?.val;
+List<ChatFavoritePosition?>
+    fromGraphQLListChatFavoritePositionNullableToDartListChatFavoritePositionNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLChatFavoritePositionNullableToDartChatFavoritePositionNullable(
+                    e as double?))
+            .toList();
+List<double?>
+    fromDartListChatFavoritePositionNullableToGraphQLListChatFavoritePositionNullable(
+            List<ChatFavoritePosition?> v) =>
+        v
+            .map((e) =>
+                fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable(
+                    e))
+            .toList();
+List<ChatFavoritePosition?>?
+    fromGraphQLListNullableChatFavoritePositionNullableToDartListNullableChatFavoritePositionNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLChatFavoritePositionNullableToDartChatFavoritePositionNullable(
+                    e as double?))
+            .toList();
+List<double?>?
+    fromDartListNullableChatFavoritePositionNullableToGraphQLListNullableChatFavoritePositionNullable(
+            List<ChatFavoritePosition?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable(
+                    e))
+            .toList();
+
+// FavoriteChatsListVersion
+
+FavoriteChatsListVersion
+    fromGraphQLFavoriteChatsListVersionToDartFavoriteChatsListVersion(
+            String v) =>
+        FavoriteChatsListVersion(v);
+String fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion(
+        FavoriteChatsListVersion v) =>
+    v.toString();
+List<FavoriteChatsListVersion>
+    fromGraphQLListFavoriteChatsListVersionToDartListFavoriteChatsListVersion(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLFavoriteChatsListVersionToDartFavoriteChatsListVersion(
+                    e as String))
+            .toList();
+List<String>
+    fromDartListFavoriteChatsListVersionToGraphQLListFavoriteChatsListVersion(
+            List<FavoriteChatsListVersion> v) =>
+        v
+            .map((e) =>
+                fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion(
+                    e))
+            .toList();
+List<FavoriteChatsListVersion>?
+    fromGraphQLListNullableFavoriteChatsListVersionToDartListNullableFavoriteChatsListVersion(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLFavoriteChatsListVersionToDartFavoriteChatsListVersion(
+                    e as String))
+            .toList();
+List<String>?
+    fromDartListNullableFavoriteChatsListVersionToGraphQLListNullableFavoriteChatsListVersion(
+            List<FavoriteChatsListVersion>? v) =>
+        v
+            ?.map((e) =>
+                fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion(
+                    e))
+            .toList();
+
+FavoriteChatsListVersion?
+    fromGraphQLFavoriteChatsListVersionNullableToDartFavoriteChatsListVersionNullable(
+            String? v) =>
+        v == null ? null : FavoriteChatsListVersion(v);
+String?
+    fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable(
+            FavoriteChatsListVersion? v) =>
+        v?.toString();
+List<FavoriteChatsListVersion?>
+    fromGraphQLListFavoriteChatsListVersionNullableToDartListFavoriteChatsListVersionNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLFavoriteChatsListVersionNullableToDartFavoriteChatsListVersionNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListFavoriteChatsListVersionNullableToGraphQLListFavoriteChatsListVersionNullable(
+            List<FavoriteChatsListVersion?> v) =>
+        v
+            .map((e) =>
+                fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable(
+                    e))
+            .toList();
+List<FavoriteChatsListVersion?>?
+    fromGraphQLListNullableFavoriteChatsListVersionNullableToDartListNullableFavoriteChatsListVersionNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLFavoriteChatsListVersionNullableToDartFavoriteChatsListVersionNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableFavoriteChatsListVersionNullableToGraphQLListNullableFavoriteChatsListVersionNullable(
+            List<FavoriteChatsListVersion?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable(
                     e))
             .toList();

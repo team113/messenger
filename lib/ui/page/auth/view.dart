@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,9 +25,12 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/widget/selector.dart';
+import '/ui/page/home/page/my_profile/language/controller.dart';
+import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -46,7 +50,7 @@ class AuthView extends StatelessWidget {
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
         final TextStyle? thin =
-            context.textTheme.caption?.copyWith(color: Colors.black);
+            context.textTheme.bodySmall?.copyWith(color: Colors.black);
         final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
@@ -90,7 +94,7 @@ class AuthView extends StatelessWidget {
                 : constraints.maxHeight <= 140
                     ? 140
                     : height,
-            child: const Center(child: CircularProgressIndicator()),
+            child: const Center(child: CustomProgressIndicator()),
           );
 
           return ConstrainedBox(
@@ -137,31 +141,13 @@ class AuthView extends StatelessWidget {
         Widget language = CupertinoButton(
           key: c.languageKey,
           child: Text(
-            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => Selector.show<Language>(
-            context: context,
-            buttonKey: c.languageKey,
-            initial: L10n.chosen.value!,
-            items: L10n.languages,
-            onSelected: (l) => L10n.set(l),
-            debounce:
-                context.isMobile ? const Duration(milliseconds: 500) : null,
-            itemBuilder: (Language e) => Row(
-              children: [
-                Text(
-                  e.name,
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-                const Spacer(),
-                Text(
-                  e.locale.languageCode.toUpperCase(),
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-              ],
-            ),
-          ),
+          onPressed: () => LanguageSelectionView.show(context, null),
         );
 
         // Footer part of the page.
@@ -180,7 +166,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: const Color(0xFF63B4FF),
+            color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -203,7 +189,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
@@ -215,7 +201,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
@@ -236,7 +222,7 @@ class AuthView extends StatelessWidget {
                               width: 22 * 0.7,
                             )
                           : null,
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
           language,
@@ -245,6 +231,13 @@ class AuthView extends StatelessWidget {
         return Stack(
           key: const Key('AuthView'),
           children: [
+            IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color(0xFFF6F8F9),
+              ),
+            ),
             IgnorePointer(
               child: SvgLoader.asset(
                 'assets/images/background_light.svg',
@@ -285,6 +278,78 @@ class AuthView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'btn_download'.l10n,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: Colors.black, fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: 'windows',
+                  width: 21.93,
+                  height: 22,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'linux',
+                  width: 18.85,
+                  height: 22,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'iOS',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
     );
   }
 }

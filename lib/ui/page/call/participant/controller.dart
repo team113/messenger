@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -28,10 +31,12 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
+        RedialChatCallMemberException,
         RemoveChatMemberException,
         TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -53,6 +58,9 @@ class ParticipantController extends GetxController {
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Callback, called when a [ParticipantView] this controller is bound to
   /// should be popped from the [Navigator].
@@ -96,6 +104,10 @@ class ParticipantController extends GetxController {
 
   @override
   void onInit() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     _chatsSubscription = _chatService.chats.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
@@ -135,6 +147,11 @@ class ParticipantController extends GetxController {
     _chatsSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
+
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -142,9 +159,6 @@ class ParticipantController extends GetxController {
   Future<void> removeChatMember(UserId userId) async {
     try {
       await _chatService.removeChatMember(chatId.value, userId);
-      if (userId == me) {
-        pop?.call();
-      }
     } on RemoveChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -172,7 +186,6 @@ class ParticipantController extends GetxController {
       }
 
       stage.value = ParticipantsFlowStage.participants;
-      MessagePopup.success('label_participants_added_successfully'.l10n);
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {
@@ -185,6 +198,18 @@ class ParticipantController extends GetxController {
     }
   }
 
+  /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
+  Future<void> redialChatCallMember(UserId memberId) async {
+    try {
+      await _callService.redialChatCallMember(chatId.value, memberId);
+    } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Fetches the [chat].
   void _fetchChat() async {
     chat.value = null;
@@ -193,5 +218,14 @@ class ParticipantController extends GetxController {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
     }
+  }
+
+  /// Invokes [pop].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true` to intercept back button.
+  bool _onBack(bool _, RouteInfo __) {
+    pop?.call();
+    return true;
   }
 }

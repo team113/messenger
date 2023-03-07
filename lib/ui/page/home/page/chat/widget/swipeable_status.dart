@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,11 +23,11 @@ import '/themes.dart';
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
   const SwipeableStatus({
-    Key? key,
+    super.key,
     required this.child,
     required this.swipeable,
     this.animation,
-    this.asStack = false,
+    this.translate = false,
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
@@ -34,7 +35,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
-  }) : super(key: key);
+  });
 
   /// Expanded width of the [swipeable].
   static const double width = 65;
@@ -48,9 +49,8 @@ class SwipeableStatus extends StatelessWidget {
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
 
-  /// Indicator whether [swipeable] should be put in a [Stack] instead of a
-  /// [Row].
-  final bool asStack;
+  /// Indicator whether [child] should translate along with the [swipeable].
+  final bool translate;
 
   /// Indicator whether status is sent.
   final bool isSent;
@@ -79,36 +79,19 @@ class SwipeableStatus extends StatelessWidget {
       return child;
     }
 
-    if (asStack) {
-      return Stack(
-        alignment: crossAxisAlignment == CrossAxisAlignment.end
-            ? Alignment.bottomRight
-            : Alignment.centerRight,
-        children: [
-          child,
-          _animatedBuilder(
-            Padding(
-              padding: padding,
-              child:
-                  SizedBox(width: width, child: _swipeableWithStatus(context)),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return _animatedBuilder(
-      Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          Expanded(child: child),
+    return Stack(
+      alignment: crossAxisAlignment == CrossAxisAlignment.end
+          ? Alignment.bottomRight
+          : Alignment.centerRight,
+      children: [
+        translate ? _animatedBuilder(child, translated: false) : child,
+        _animatedBuilder(
           Padding(
             padding: padding,
             child: SizedBox(width: width, child: _swipeableWithStatus(context)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -158,13 +141,14 @@ class SwipeableStatus extends StatelessWidget {
   }
 
   /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child) => AnimatedBuilder(
+  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
+      AnimatedBuilder(
         animation: animation!,
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: const Offset(width, 0),
-              end: Offset.zero,
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

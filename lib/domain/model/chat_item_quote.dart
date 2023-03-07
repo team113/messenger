@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,28 +15,110 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'attachment.dart';
-import 'chat_item.dart';
+import 'package:hive/hive.dart';
 
-/// Quote of a [ChatItem] to be forwarded.
-class ChatItemQuote {
-  ChatItemQuote({
-    required this.item,
-    this.withText = true,
-    this.attachments,
+import '../model_type_id.dart';
+import 'attachment.dart';
+import 'chat_call.dart';
+import 'chat_info.dart';
+import 'chat_item.dart';
+import 'precise_date_time/precise_date_time.dart';
+import 'user.dart';
+
+part 'chat_item_quote.g.dart';
+
+/// Quote of a [ChatItem].
+abstract class ChatItemQuote {
+  const ChatItemQuote({
+    this.original,
+    required this.author,
+    required this.at,
   });
 
-  /// [ChatItem] to be forwarded.
-  final ChatItem item;
+  /// Constructs a [ChatItemQuote] from the provided [ChatItem].
+  factory ChatItemQuote.from(ChatItem item) {
+    if (item is ChatMessage) {
+      return ChatMessageQuote(
+        author: item.authorId,
+        at: item.at,
+        attachments: item.attachments,
+        text: item.text,
+      );
+    } else if (item is ChatCall) {
+      return ChatCallQuote(author: item.authorId, at: item.at);
+    } else if (item is ChatInfo) {
+      return ChatInfoQuote(
+        author: item.authorId,
+        at: item.at,
+        action: item.action,
+      );
+    } else if (item is ChatForward) {
+      return item.quote;
+    }
 
-  /// Indicator whether a forward should contain the full [ChatMessageText] of
-  /// the original [ChatItem] (if it contains any).
-  final bool withText;
+    throw Exception('$item is not supported to be quoted');
+  }
 
-  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
+  /// Quoted [ChatItem].
   ///
-  /// - `null` means all the [ChatItem]'s [Attachment]s will be forwarded, if
-  ///   any.
-  /// - [] (empty list) means no [Attachment]s, only the text will be forwarded.
-  final List<AttachmentId>? attachments;
+  /// `null` if the original [ChatItem] was deleted or is unavailable for the
+  /// authenticated [MyUser].
+  @HiveField(0)
+  final ChatItem? original;
+
+  /// [User] who created the quoted [ChatItem].
+  @HiveField(1)
+  final UserId author;
+
+  /// [PreciseDateTime] when the quoted [ChatItem] was created.
+  @HiveField(2)
+  final PreciseDateTime at;
+}
+
+/// [ChatItemQuote] of a [ChatMessage].
+@HiveType(typeId: ModelTypeId.chatMessageQuote)
+class ChatMessageQuote extends ChatItemQuote {
+  ChatMessageQuote({
+    super.original,
+    required super.author,
+    required super.at,
+    this.text,
+    this.attachments = const [],
+  });
+
+  /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
+  /// was made.
+  @HiveField(3)
+  final ChatMessageText? text;
+
+  /// [Attachment]s the quoted [ChatMessage] had when this [ChatItemQuote] was
+  /// made.
+  @HiveField(4)
+  final List<Attachment> attachments;
+}
+
+/// [ChatItemQuote] of a [ChatCall].
+@HiveType(typeId: ModelTypeId.chatCallQuote)
+class ChatCallQuote extends ChatItemQuote {
+  ChatCallQuote({
+    super.original,
+    required super.author,
+    required super.at,
+  });
+}
+
+/// [ChatItemQuote] of a [ChatInfo].
+@HiveType(typeId: ModelTypeId.chatInfoQuote)
+class ChatInfoQuote extends ChatItemQuote {
+  ChatInfoQuote({
+    super.original,
+    required super.author,
+    required super.at,
+    required this.action,
+  });
+
+  /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
+  /// was made.
+  @HiveField(3)
+  final ChatInfoAction? action;
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,7 +40,7 @@ class Caption extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 60, 0, 10),
         child: SelectableText(
           caption,
-          style: context.theme.textTheme.bodyText1?.copyWith(
+          style: context.theme.textTheme.bodyLarge?.copyWith(
             color: color,
             decoration: TextDecoration.underline,
           ),

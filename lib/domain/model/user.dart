@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,7 +20,6 @@ import 'dart:math';
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
@@ -45,13 +45,13 @@ class User extends HiveObject {
     this.gallery,
     this.mutualContactsCount = 0,
     this.online = false,
-    this.presenceIndex = 0,
+    this.presenceIndex,
     this.status,
     this.isDeleted = false,
-    this.dialog,
-    this.isBlacklisted = false,
+    ChatId? dialog,
+    this.isBlacklisted,
     this.lastSeenAt,
-  });
+  }) : _dialog = dialog;
 
   /// Unique ID of this [User].
   ///
@@ -112,11 +112,12 @@ class User extends HiveObject {
 
   /// Presence of this [User].
   @HiveField(10)
-  int presenceIndex;
+  int? presenceIndex;
 
-  Presence get presence => Presence.values[presenceIndex];
-  set presence(Presence pres) {
-    presenceIndex = pres.index;
+  Presence? get presence =>
+      presenceIndex == null ? null : Presence.values[presenceIndex!];
+  set presence(Presence? pres) {
+    presenceIndex = pres?.index;
   }
 
   /// Custom text status of this [User].
@@ -129,16 +130,22 @@ class User extends HiveObject {
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
   @HiveField(13)
-  Chat? dialog;
+  ChatId? _dialog;
 
   /// Indicator whether this [User] is blacklisted by the authenticated
   /// [MyUser].
   @HiveField(14)
-  bool isBlacklisted;
+  BlacklistRecord? isBlacklisted;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
+
+  /// Returns [ChatId] of the [Chat]-dialog with this [User].
+  ChatId get dialog => _dialog ?? ChatId.local(id);
+
+  /// Sets the provided [ChatId] as a [dialog] of this [User].
+  set dialog(ChatId dialog) => _dialog = dialog;
 }
 
 /// Unique ID of an [User].
@@ -274,20 +281,25 @@ class UserPhone extends NewType<String> {
 
   UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
-      throw const FormatException('Does not match validation RegExp');
+      throw const FormatException('Must start with plus');
     }
-    try {
-      PhoneNumber number = PhoneNumber.parse(val);
-      if (!number.isValid()) {
-        throw const FormatException('Does not match validation RegExp');
-      }
-    } on PhoneNumberException {
+
+    if (val.length < 8) {
+      throw const FormatException('Must contain no less than 8 symbols');
+    }
+
+    if (!_regExp.hasMatch(val)) {
       throw const FormatException('Does not match validation RegExp');
     }
   }
 
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
+
+  /// Regular expression for basic [UserPhone] validation.
+  static final RegExp _regExp = RegExp(
+    r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
+  );
 }
 
 /// Direct link to a `Chat`.
@@ -354,4 +366,34 @@ class UserTextStatus extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
+}
+
+/// [User]'s record in the blacklist of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blacklistRecord)
+class BlacklistRecord {
+  BlacklistRecord({
+    this.reason,
+    required this.at,
+  });
+
+  /// Reason of why the [User] was blacklisted.
+  @HiveField(0)
+  final BlacklistReason? reason;
+
+  /// [PreciseDateTime] when the [User] was blacklisted.
+  @HiveField(1)
+  final PreciseDateTime at;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlacklistRecord && at == other.at && reason == other.reason;
+
+  @override
+  int get hashCode => Object.hash(at, reason);
+}
+
+/// Reason of blacklisting a [User] by the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blacklistReason)
+class BlacklistReason extends NewType<String> {
+  const BlacklistReason(super.val);
 }

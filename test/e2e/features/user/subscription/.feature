@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,14 +17,14 @@
 
 Feature: User subscription
 
-  Scenario: User sees Bob changing his bio
+  Scenario: User sees Bob changing his name
     Given I am Alice
     And user Bob
     And I wait until `HomeView` is present
     And I go to Bob's page
 
-    When Bob updates his bio with "Hello world!"
+    When Bob updates his name with "Hello world!"
     Then I wait until text "Hello world!" is present
 
-    When Bob updates his bio with "Me Bob, me funny, haha"
+    When Bob updates his name with "Me Bob, me funny, haha"
     Then I wait until text "Me Bob, me funny, haha" is present

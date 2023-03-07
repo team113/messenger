@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +18,7 @@
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 
@@ -28,8 +30,14 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of group [Chat]s identified by their names.
   final Map<String, ChatId> groups = {};
 
+  /// [Map] of [ChatContact]s identified by their names.
+  final Map<String, ChatContactId> contacts = {};
+
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;
+
+  /// [UserId] of the currently authenticated [MyUser].
+  UserId? me;
 }
 
 /// [Session] with some additional info about the [User] it represents.

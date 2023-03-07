@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,8 +22,10 @@ import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/provider/hive/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -30,6 +33,8 @@ enum MyUserEventKind {
   avatarUpdated,
   bioDeleted,
   bioUpdated,
+  blacklistRecordAdded,
+  blacklistRecordRemoved,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -368,4 +373,31 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
+}
+
+/// Event of a [User] being added or removed to/from blacklist of the [MyUser].
+abstract class BlacklistEvent extends MyUserEvent {
+  const BlacklistEvent(super.userId, this.user, this.at);
+
+  /// [User] this [BlacklistEvent] is about.
+  final HiveUser user;
+
+  /// [PreciseDateTime] when this [BlacklistEvent] happened.
+  final PreciseDateTime at;
+}
+
+/// Event of an [User] was added to the [MyUser]'s blacklist.
+class EventBlacklistRecordAdded extends BlacklistEvent {
+  const EventBlacklistRecordAdded(super.userId, super.user, super.at);
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.blacklistRecordAdded;
+}
+
+/// Event of an [User] was removed from the [MyUser]'s blacklist.
+class EventBlacklistRecordRemoved extends BlacklistEvent {
+  const EventBlacklistRecordRemoved(super.userId, super.user, super.at);
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.blacklistRecordRemoved;
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,20 +23,24 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -65,6 +70,12 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var recentChats = {
     'recentChats': {'nodes': []}
@@ -85,13 +96,13 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',
               'at': DateTime.now().toString(),
               'ver': '0',
-              'user': {
+              'author': {
                 '__typename': 'User',
                 'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                 'num': '1234567890123456',
@@ -114,7 +125,32 @@ void main() async {
                   'ver': '0',
                 },
               },
-              'action': 'ADDED'
+              'action': {
+                '__typename': 'ChatInfoActionMemberAdded',
+                'user': {
+                  '__typename': 'User',
+                  'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'num': '1234567890123456',
+                  'login': null,
+                  'name': null,
+                  'bio': null,
+                  'emails': {'confirmed': []},
+                  'phones': {'confirmed': []},
+                  'gallery': {'nodes': []},
+                  'chatDirectLink': null,
+                  'hasPassword': false,
+                  'unreadChatsCount': 0,
+                  'ver': '0',
+                  'presence': 'AWAY',
+                  'online': {'__typename': 'UserOnline'},
+                  'mutualContactsCount': 0,
+                  'isDeleted': false,
+                  'isBlacklisted': {
+                    'blacklisted': false,
+                    'ver': '0',
+                  },
+                },
+              },
             },
             'cursor': '123'
           },
@@ -133,13 +169,13 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
-              '__typename': 'ChatMemberInfo',
+              '__typename': 'ChatInfo',
               'id': 'id',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
               'authorId': 'me',
               'at': DateTime.now().toString(),
               'ver': '0',
-              'user': {
+              'author': {
                 '__typename': 'User',
                 'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                 'num': '1234567890123456',
@@ -162,7 +198,32 @@ void main() async {
                   'ver': '0',
                 },
               },
-              'action': 'REMOVED'
+              'action': {
+                '__typename': 'ChatInfoActionMemberRemoved',
+                'user': {
+                  '__typename': 'User',
+                  'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'num': '1234567890123456',
+                  'login': null,
+                  'name': null,
+                  'bio': null,
+                  'emails': {'confirmed': []},
+                  'phones': {'confirmed': []},
+                  'gallery': {'nodes': []},
+                  'chatDirectLink': null,
+                  'hasPassword': false,
+                  'unreadChatsCount': 0,
+                  'ver': '0',
+                  'presence': 'AWAY',
+                  'online': {'__typename': 'UserOnline'},
+                  'mutualContactsCount': 0,
+                  'isDeleted': false,
+                  'isBlacklisted': {
+                    'blacklisted': false,
+                    'ver': '0',
+                  },
+                },
+              },
             },
             'cursor': '123'
           },
@@ -172,10 +233,20 @@ void main() async {
     }
   };
 
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     Get.put(graphQlProvider);
     AuthService authService = Get.put(
       AuthService(
@@ -192,6 +263,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -201,6 +274,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     return Get.put(ChatService(chatRepository, authService));
@@ -215,20 +289,23 @@ void main() async {
 
   when(graphQlProvider.getChat(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+  )).thenAnswer(
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('fc95f181-ae23-41b7-b246-5d6bdbe577a1'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('c36343e2-e8af-4d55-9982-38ba68d2b785'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
   ChatService chatService = await init(graphQlProvider);
 

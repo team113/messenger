@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,8 +26,6 @@ Feature: Chat muting and unmuting
   Scenario: User mutes chat
     When I long press "Alice and Bob" chat
     And I tap `MuteChatButton` button
-    And I tap `MuteForever` button
-    And I tap `Proceed` button
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmutes chat

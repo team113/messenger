@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,40 +33,65 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/exception.dart';
+import 'parameters/favorite_status.dart';
+import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
+import 'parameters/position_status.dart';
+import 'parameters/search_category.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/contact.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
+import 'steps/drag_chat.dart';
+import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
+import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/scroll_until.dart';
+import 'steps/see_chat_position.dart';
+import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
-import 'steps/sees_as.dart';
+import 'steps/see_favorite_chat.dart';
+import 'steps/see_favorite_contact.dart';
+import 'steps/see_search_results.dart';
+import 'steps/sees_as_online.dart';
+import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
-import 'steps/updates_bio.dart';
+import 'steps/update_avatar.dart';
+import 'steps/updates_name.dart';
 import 'steps/users.dart';
+import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
+import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_chat.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
@@ -79,9 +105,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsFavorite,
         chatIsMuted,
+        contact,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
+        dragChatDown,
+        dragContactDown,
         fillField,
         fillFieldN,
         goToUserPage,
@@ -92,7 +123,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        iTapChatWith,
         longPressChat,
+        longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
@@ -102,21 +135,38 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
+        scrollUntilPresent,
+        seeChatAsFavorite,
         seeChatAsMuted,
-        seesAs,
+        seeChatInSearchResults,
+        seeChatPosition,
+        seeContactAsFavorite,
+        seeContactPosition,
         seeDraftInDialog,
+        seeUserInSearchResults,
+        seesAs,
+        seesDialogWithMe,
+        seesNoDialogWithMe,
         sendsAttachmentToMe,
         sendsMessageToMe,
+        sendsMessageWithException,
         signInAs,
         tapDropdownItem,
         tapText,
+        tapUserInSearchResults,
         tapWidget,
+        twoContacts,
         twoUsers,
         untilAttachmentExists,
+        untilAttachmentFetched,
+        untilChatExists,
+        untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
-        updateBio,
+        updateAvatar,
+        updateName,
         user,
+        waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
         waitUntilKeyExists,
@@ -141,8 +191,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        ExceptionParameter(),
+        FavoriteStatusParameter(),
+        ImageFetchStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
+        PositionStatusParameter(),
+        SearchCategoryParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
@@ -157,7 +212,7 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<Session> createUser(
+Future<CustomUser> createUser(
   TestUser user,
   CustomWorld world, {
   UserPassword? password,
@@ -165,7 +220,7 @@ Future<Session> createUser(
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
-  world.sessions[user.name] = CustomUser(
+  final CustomUser customUser = CustomUser(
     Session(
       result.createUser.session.token,
       result.createUser.session.expireAt,
@@ -174,16 +229,16 @@ Future<Session> createUser(
     result.createUser.user.num,
   );
 
+  world.sessions[user.name] = customUser;
+
   provider.token = result.createUser.session.token;
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
   }
   provider.disconnect();
-  return Session(
-    result.createUser.session.token,
-    result.createUser.session.expireAt,
-  );
+
+  return customUser;
 }
 
 /// Extension adding an ability to find the [Widget]s without skipping the

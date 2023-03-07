@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,6 +24,9 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -48,13 +52,14 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/overflow_error.dart';
 import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -91,8 +96,33 @@ void main() async {
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
-  var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
+  await sessionProvider.init();
+  await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
+  var graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(graphQlProvider.recentChatsTopEvents(3))
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), SessionDataHiveProvider());
   await authService.init();
@@ -133,23 +163,29 @@ void main() async {
   ));
   await messagesProvider.init();
 
-  Widget createWidgetForTesting({required Widget child}) =>
-      MaterialApp(home: Scaffold(body: child));
+  Widget createWidgetForTesting({required Widget child}) {
+    FlutterError.onError = ignoreOverflowErrors;
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
+  }
 
   testWidgets('ChatView successfully changes chat name',
       (WidgetTester tester) async {
     when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatVersion('0'),
-    )).thenAnswer((_) => Future.value(chatEvents.stream));
+      any,
+    )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+        .thenAnswer(
+            (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.chatItems(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -167,13 +203,12 @@ void main() async {
       before: null,
     )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.renameChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -246,6 +281,8 @@ void main() async {
       graphQlProvider,
       userRepository,
       credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
@@ -254,14 +291,13 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
-    );
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

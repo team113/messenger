@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,11 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -27,15 +27,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 
-import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -47,21 +41,19 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'component/attachment_selector.dart';
 import 'controller.dart';
-import 'forward/view.dart';
+import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
+import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -88,9 +80,16 @@ class _ChatViewState extends State<ChatView>
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType (${widget.id})',
     );
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    super.dispose();
   }
 
   @override
@@ -114,7 +113,7 @@ class _ChatViewState extends State<ChatView>
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
-              router.chatInfo(widget.id);
+              router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -137,11 +136,12 @@ class _ChatViewState extends State<ChatView>
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
 
-          return DropTarget(
+          return CustomDropTarget(
+            key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -184,27 +184,10 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            c.chat!.title.value,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        if (c.chat?.chat.value.muted !=
-                                            null) ...[
-                                          const SizedBox(width: 5),
-                                          Icon(
-                                            Icons.volume_off,
-                                            color: Theme.of(context)
-                                                .primaryIconTheme
-                                                .color,
-                                            size: 17,
-                                          ),
-                                        ]
-                                      ],
+                                    Text(
+                                      c.chat!.title.value,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -228,6 +211,7 @@ class _ChatViewState extends State<ChatView>
                           ),
                           const SizedBox(width: 28),
                           WidgetButton(
+                            key: const Key('AudioCall'),
                             onPressed: () => c.call(false),
                             child: SvgLoader.asset(
                               'assets/icons/chat_audio_call.svg',
@@ -371,30 +355,36 @@ class _ChatViewState extends State<ChatView>
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
-                            Obx(() {
-                              return FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isFalse
-                                    ? const BouncingScrollPhysics()
-                                    : const NeverScrollableScrollPhysics(),
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  keepPosition: true,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                ),
-                              );
-                            }),
+                            Scrollbar(
+                              controller: c.listController,
+                              child: Obx(() {
+                                return FlutterListView(
+                                  key: const Key('MessagesList'),
+                                  controller: c.listController,
+                                  physics: c.isHorizontalScroll.isTrue ||
+                                          (PlatformUtils.isDesktop &&
+                                              c.isItemDragged.isTrue)
+                                      ? const NeverScrollableScrollPhysics()
+                                      : const BouncingScrollPhysics(),
+                                  delegate: FlutterListViewDelegate(
+                                    (context, i) => _listElement(context, c, i),
+                                    // ignore: invalid_use_of_protected_member
+                                    childCount: c.elements.value.length,
+                                    keepPosition: true,
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
+                                    onItemSticky: (i) => c.elements.values
+                                        .elementAt(i) is DateTimeElement,
+                                    initIndex: c.initIndex,
+                                    initOffset: c.initOffset,
+                                    initOffsetBasedOnBottom: false,
+                                    disableCacheItems: true,
+                                  ),
+                                );
+                              }),
+                            ),
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
@@ -405,7 +395,7 @@ class _ChatViewState extends State<ChatView>
                               }
                               if (c.chat!.status.value.isLoading) {
                                 return const Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CustomProgressIndicator(),
                                 );
                               }
 
@@ -421,20 +411,17 @@ class _ChatViewState extends State<ChatView>
                         height: 50,
                         child: AnimatedSwitcher(
                           duration: 200.milliseconds,
-                          child: c.chat!.status.value.isLoadingMore
-                              ? const CircularProgressIndicator()
-                              : c.canGoBack.isTrue
-                                  ? FloatingActionButton(
-                                      onPressed: c.animateToBack,
-                                      child: const Icon(Icons.arrow_upward),
+                          child: c.canGoBack.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBack,
+                                  child: const Icon(Icons.arrow_upward),
+                                )
+                              : c.canGoDown.isTrue
+                                  ? FloatingActionButton.small(
+                                      onPressed: c.animateToBottom,
+                                      child: const Icon(Icons.arrow_downward),
                                     )
-                                  : c.canGoDown.isTrue
-                                      ? FloatingActionButton(
-                                          onPressed: c.animateToBottom,
-                                          child:
-                                              const Icon(Icons.arrow_downward),
-                                        )
-                                      : const SizedBox(),
+                                  : const SizedBox(),
                         ),
                       );
                     }),
@@ -464,7 +451,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _bottomBar(c, context),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -523,17 +510,51 @@ class _ChatViewState extends State<ChatView>
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
-        element is ChatMemberInfoElement) {
+        element is ChatInfoElement) {
       Rx<ChatItem> e;
 
       if (element is ChatMessageElement) {
         e = element.item;
       } else if (element is ChatCallElement) {
         e = element.item;
-      } else if (element is ChatMemberInfoElement) {
+      } else if (element is ChatInfoElement) {
         e = element.item;
       } else {
         throw Exception('Unreachable');
+      }
+
+      ListElement? previous;
+      if (i > 0) {
+        previous = c.elements.values.elementAt(i - 1);
+      }
+
+      ListElement? next;
+      if (i < c.elements.length - 1) {
+        next = c.elements.values.elementAt(i + 1);
+      }
+
+      bool previousSame = false;
+      if (previous != null) {
+        previousSame = (previous is ChatMessageElement &&
+                previous.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(previous.item.value.at.val) <=
+                    const Duration(minutes: 30)) ||
+            (previous is ChatCallElement &&
+                previous.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(previous.item.value.at.val) <=
+                    const Duration(minutes: 30));
+      }
+
+      bool nextSame = false;
+      if (next != null) {
+        nextSame = (next is ChatMessageElement &&
+                next.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(next.item.value.at.val) <=
+                    const Duration(minutes: 30)) ||
+            (next is ChatCallElement &&
+                next.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(next.item.value.at.val) <=
+                    const Duration(minutes: 30));
       }
 
       return Padding(
@@ -544,20 +565,36 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
+            avatar: !previousSame,
+            margin: EdgeInsets.only(
+              top: previousSame ? 1.5 : 6,
+              bottom: nextSame ? 1.5 : 6,
+            ),
+            loadImages: c.settings.value?.loadImages != false,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads.where((m) =>
+                    m.at == e.value.at &&
+                    m.memberId != c.me &&
+                    m.memberId != e.value.authorId),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.repliedMessages.contains(e.value)) {
-                c.repliedMessages.remove(e.value);
+              if (c.send.replied.any((i) => i.id == e.value.id)) {
+                c.send.replied.removeWhere((i) => i.id == e.value.id);
               } else {
-                c.repliedMessages.insert(0, e.value);
+                c.send.replied.insert(0, e.value);
               }
             },
             onCopy: c.copyText,
-            onRepliedTap: c.animateTo,
+            onRepliedTap: (q) async {
+              if (q.original != null) {
+                await c.animateTo(q.original!.id);
+              }
+            },
             onGallery: c.calculateGallery,
             onResend: () => c.resendItem(e.value),
             onEdit: () => c.editMessage(e.value),
@@ -582,6 +619,13 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            loadImages: c.settings.value?.loadImages != false,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads.where((m) =>
+                    m.at == element.forwards.last.value.at &&
+                    m.memberId != c.me &&
+                    m.memberId != element.authorId),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
@@ -612,23 +656,25 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards
-                      .any((e) => c.repliedMessages.contains(e.value)) ||
-                  c.repliedMessages.contains(element.note.value?.value)) {
+              if (element.forwards.any(
+                      (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
+                  c.send.replied
+                      .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.repliedMessages.remove(e.value);
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.remove(element.note.value!.value);
+                  c.send.replied
+                      .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.repliedMessages.insert(0, e.value);
+                  c.send.replied.insert(0, e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.insert(0, element.note.value!.value);
+                  c.send.replied.insert(0, element.note.value!.value);
                 }
               }
             },
@@ -636,11 +682,17 @@ class _ChatViewState extends State<ChatView>
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
-            onForwardedTap: (id, chatId) {
-              if (chatId == c.id) {
-                c.animateTo(id);
-              } else {
-                router.chat(chatId, itemId: id, push: true);
+            onForwardedTap: (quote) {
+              if (quote.original != null) {
+                if (quote.original!.chatId == c.id) {
+                  c.animateTo(quote.original!.id);
+                } else {
+                  router.chat(
+                    quote.original!.chatId,
+                    itemId: quote.original!.id,
+                    push: true,
+                  );
+                }
               }
             },
             onFileTap: c.download,
@@ -658,9 +710,42 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val);
+      return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
+    } else if (element is LoaderElement) {
+      return Obx(() {
+        final Widget child;
+
+        if (c.bottomLoader.value) {
+          child = Center(
+            key: const ValueKey(1),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tight(const Size.square(40)),
+                child: const Center(
+                  child: ColoredBox(
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          child = SizedBox(
+            key: const ValueKey(2),
+            height: c.listController.position.pixels > 0 ? null : 64,
+          );
+        }
+
+        return AnimatedSizeAndFade(
+          fadeDuration: const Duration(milliseconds: 200),
+          sizeDuration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      });
     }
 
     return const SizedBox();
@@ -668,7 +753,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.caption;
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -755,1270 +840,133 @@ class _ChatViewState extends State<ChatView>
         final ChatMember? partner =
             chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
         if (partner != null) {
-          return FutureBuilder<RxUser?>(
-            future: c.getUser(partner.user.id),
-            builder: (_, snapshot) {
-              if (snapshot.data != null) {
-                return Obx(() {
-                  var subtitle = c.chat!.chat.value
-                      .getSubtitle(partner: snapshot.data!.user.value);
+          return Row(
+            children: [
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgLoader.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(partner.user.id),
+                  builder: (_, snapshot) {
+                    if (snapshot.data != null) {
+                      return Obx(() {
+                        final String? subtitle = c.chat!.chat.value
+                            .getSubtitle(partner: snapshot.data!.user.value);
 
-                  return Text(subtitle ?? '', style: style);
-                });
-              }
+                        final UserTextStatus? status =
+                            snapshot.data!.user.value.status;
 
-              return Container();
-            },
+                        if (status != null || subtitle != null) {
+                          final StringBuffer buffer =
+                              StringBuffer(status ?? '');
+
+                          if (status != null && subtitle != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(subtitle ?? '');
+
+                          return Text(buffer.toString(), style: style);
+                        }
+
+                        return const SizedBox();
+                      });
+                    }
+
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
           );
         }
       }
 
-      return Container();
+      return const SizedBox();
     });
   }
 
   /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time) {
+  Widget _timeLabel(DateTime time, ChatController c, int i) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
-        asStack: true,
         padding: const EdgeInsets.only(right: 8),
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: style.systemMessageBorder,
-              color: style.systemMessageColor,
+        child: Obx(() {
+          return AnimatedOpacity(
+            key: Key('$i$time'),
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
+                    ? 1
+                    : 0
+                : 1,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(
+                  time.toRelative(),
+                  style: style.systemMessageStyle,
+                ),
+              ),
             ),
-            child: Text(time.toRelative(), style: style.systemMessageStyle),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c, BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          hoverColor: Colors.transparent,
-          filled: true,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
-      child: c.editedMessage.value == null ? _sendField(c) : _editField(c),
-    );
-  }
+  Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return _blockedField(c);
+    }
 
-  /// Returns a [ReactiveTextField] for sending a message in this [Chat].
-  Widget _sendField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
+    return Obx(() {
+      if (c.edit.value != null) {
+        return MessageFieldView(
+          key: const Key('EditField'),
+          controller: c.edit.value,
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          canAttach: false,
+        );
+      }
 
-    return SafeArea(
-      child: Container(
+      return MessageFieldView(
         key: const Key('SendField'),
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-            ),
-          ],
-        ),
-        child: ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(
-            sigmaX: style.cardBlur,
-            sigmaY: style.cardBlur,
-          ),
-          borderRadius: style.cardRadius,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LayoutBuilder(builder: (context, constraints) {
-                bool grab = (125 + 2) * c.attachments.length >
-                    constraints.maxWidth - 16;
-
-                return ConditionalBackdropFilter(
-                  condition: style.cardBlur > 0,
-                  filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                  borderRadius: BorderRadius.only(
-                    topLeft: style.cardRadius.topLeft,
-                    topRight: style.cardRadius.topRight,
-                  ),
-                  child: Container(
-                    color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                    child: AnimatedSize(
-                      duration: 400.milliseconds,
-                      curve: Curves.ease,
-                      child: Obx(() {
-                        return Container(
-                          width: double.infinity,
-                          padding: c.repliedMessages.isNotEmpty ||
-                                  c.attachments.isNotEmpty
-                              ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                              : EdgeInsets.zero,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (c.repliedMessages.isNotEmpty)
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height / 3,
-                                  ),
-                                  child: ReorderableListView(
-                                    shrinkWrap: true,
-                                    buildDefaultDragHandles:
-                                        PlatformUtils.isMobile,
-                                    onReorder: (int old, int to) {
-                                      if (old < to) {
-                                        --to;
-                                      }
-
-                                      final ChatItem item =
-                                          c.repliedMessages.removeAt(old);
-                                      c.repliedMessages.insert(to, item);
-
-                                      HapticFeedback.lightImpact();
-                                    },
-                                    proxyDecorator: (child, i, animation) {
-                                      return AnimatedBuilder(
-                                        animation: animation,
-                                        builder: (
-                                          BuildContext context,
-                                          Widget? child,
-                                        ) {
-                                          final double t = Curves.easeInOut
-                                              .transform(animation.value);
-                                          final double elevation =
-                                              lerpDouble(0, 6, t)!;
-                                          final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
-                                            t,
-                                          )!;
-
-                                          return InitCallback(
-                                            callback:
-                                                HapticFeedback.selectionClick,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  CustomBoxShadow(
-                                                    color: color,
-                                                    blurRadius: elevation,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-                                        child: child,
-                                      );
-                                    },
-                                    reverse: true,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      1,
-                                      0,
-                                      1,
-                                      0,
-                                    ),
-                                    children: c.repliedMessages.map((e) {
-                                      return ReorderableDragStartListener(
-                                        key: Key('Handle_${e.id}'),
-                                        enabled: !PlatformUtils.isMobile,
-                                        index: c.repliedMessages.indexOf(e),
-                                        child: Dismissible(
-                                          key: Key('${e.id}'),
-                                          direction:
-                                              DismissDirection.horizontal,
-                                          onDismissed: (_) {
-                                            c.repliedMessages.remove(e);
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2,
-                                            ),
-                                            child: _repliedMessage(c, e),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              if (c.attachments.isNotEmpty &&
-                                  c.repliedMessages.isNotEmpty)
-                                const SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: grab
-                                      ? SystemMouseCursors.grab
-                                      : MouseCursor.defer,
-                                  opaque: false,
-                                  child: ScrollConfiguration(
-                                    behavior: CustomScrollBehavior(),
-                                    child: SingleChildScrollView(
-                                      clipBehavior: Clip.none,
-                                      physics: grab
-                                          ? null
-                                          : const NeverScrollableScrollPhysics(),
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: c.attachments
-                                            .map(
-                                              (e) => _buildAttachment(
-                                                c,
-                                                e.value,
-                                                e.key,
-                                              ),
-                                            )
-                                            .toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                );
-              }),
-              Container(
-                constraints: const BoxConstraints(minHeight: 56),
-                decoration: BoxDecoration(color: style.cardColor),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
-                      WidgetButton(
-                        onPressed: c.pickFile,
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
-                                height: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      WidgetButton(
-                        onPressed: () =>
-                            AttachmentSourceSelector.show(context, c),
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
-                                height: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                          bottom: 13,
-                        ),
-                        child: Transform.translate(
-                          offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                          child: ReactiveTextField(
-                            onChanged: c.keepTyping,
-                            key: const Key('MessageField'),
-                            state: c.send,
-                            hint: 'label_send_message_hint'.l10n,
-                            minLines: 1,
-                            maxLines: 7,
-                            filled: false,
-                            dense: true,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            style: style.boldBody.copyWith(fontSize: 17),
-                            type: TextInputType.multiline,
-                            textInputAction: TextInputAction.newline,
-                          ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onLongPress: c.forwarding.toggle,
-                      child: AnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: c.forwarding.value
-                            ? WidgetButton(
-                                onPressed: () async {
-                                  if (c.repliedMessages.isNotEmpty) {
-                                    bool? result = await ChatForwardView.show(
-                                      context,
-                                      c.id,
-                                      c.repliedMessages
-                                          .map((e) => ChatItemQuote(item: e))
-                                          .toList(),
-                                      text: c.send.text,
-                                      attachments: c.attachments
-                                          .map((e) => e.value)
-                                          .toList(),
-                                    );
-
-                                    if (result == true) {
-                                      c.repliedMessages.clear();
-                                      c.forwarding.value = false;
-                                      c.attachments.clear();
-                                      c.send.clear();
-                                    }
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        width: 26,
-                                        height: 22,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/forward.svg',
-                                          width: 26,
-                                          height: 22,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : WidgetButton(
-                                onPressed: c.send.isEmpty.value &&
-                                        c.attachments.isEmpty &&
-                                        c.repliedMessages.isEmpty
-                                    ? () {}
-                                    : c.send.submit,
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        key: const Key('Send'),
-                                        width: 25.18,
-                                        height: 22.85,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/send.svg',
-                                          height: 22.85,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns a [ReactiveTextField] for editing a [ChatMessage].
-  Widget _editField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
-    const double iconSize = 22;
-
-    return Container(
-      key: const Key('EditField'),
-      decoration: BoxDecoration(
-        borderRadius: style.cardRadius,
-        color: const Color(0xFFFFFFFF).withOpacity(0.4),
-        boxShadow: const [
-          CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-        ],
-      ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-        borderRadius: style.cardRadius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LayoutBuilder(builder: (context, constraints) {
-              return Stack(
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height / 3,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                      child: Dismissible(
-                        key: Key('${c.editedMessage.value?.id}'),
-                        direction: DismissDirection.horizontal,
-                        onDismissed: (_) => c.editedMessage.value = null,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                          ),
-                          child: _editedMessage(c),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            }),
-            Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  IgnorePointer(
-                    child: WidgetButton(
-                      child: SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: Center(
-                          child: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
-                            child: SvgLoader.asset(
-                              'assets/icons/attach.svg',
-                              height: iconSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: ReactiveTextField(
-                          onChanged: c.keepTyping,
-                          key: const Key('MessageEditField'),
-                          state: c.edit!,
-                          hint: 'label_send_message_hint'.l10n,
-                          minLines: 1,
-                          maxLines: 7,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
-                          type: PlatformUtils.isDesktop
-                              ? TextInputType.text
-                              : TextInputType.multiline,
-                          textInputAction: PlatformUtils.isDesktop
-                              ? TextInputAction.send
-                              : TextInputAction.newline,
-                        ),
-                      ),
-                    ),
-                  ),
-                  WidgetButton(
-                    onPressed: c.edit!.submit,
-                    child: SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: SizedBox(
-                            key: const Key('Edit'),
-                            width: 25.18,
-                            height: 22.85,
-                            child: SvgLoader.asset(
-                              'assets/icons/send.svg',
-                              height: 22.85,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns a visual representation of the provided [Attachment].
-  Widget _buildAttachment(ChatController c, Attachment e, GlobalKey key) {
-    bool isImage =
-        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    bool isVideo = (e is FileAttachment && e.isVideo) ||
-        (e is LocalAttachment && e.file.isVideo);
-
-    const double size = 125;
-
-    // Builds the visual representation of the provided [Attachment] itself.
-    Widget content() {
-      if (isImage || isVideo) {
-        Widget child;
-
-        if (isImage) {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              if (e.file.path == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.file(
-                    File(e.file.path!),
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.file(
-                    File(e.file.path!),
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              if (e.file.isSvg) {
-                child = SvgLoader.bytes(
-                  e.file.bytes!,
-                  width: size,
-                  height: size,
-                );
-              } else {
-                child = Image.memory(
-                  e.file.bytes!,
-                  fit: BoxFit.cover,
-                  width: size,
-                  height: size,
-                );
-              }
-            }
-          } else {
-            child = Image.network(
-              e.original.url,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            );
-          }
-        } else {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              child = const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-            }
-          } else {
-            child = VideoThumbnail.url(url: e.original.url);
-          }
-        }
-
-        List<Attachment> attachments = c.attachments
-            .where((e) {
-              Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
-
-        return WidgetButton(
-          key: key,
-          onPressed: () {
-            int index = attachments.indexOf(e);
-            if (index != -1) {
-              GalleryPopup.show(
-                context: context,
-                gallery: GalleryPopup(
-                  initial: attachments.indexOf(e),
-                  initialKey: key,
-                  onTrashPressed: (int i) {
-                    Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o.value == a);
-                  },
-                  children: attachments.map((o) {
-                    if (o is ImageAttachment ||
-                        (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(
-                        o.original.url,
-                        o.filename,
-                        size: o.original.size,
-                      );
-                    }
-                    return GalleryItem.video(
-                      o.original.url,
-                      o.filename,
-                      size: o.original.size,
-                    );
-                  }).toList(),
-                ),
-              );
-            }
-          },
-          child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0x80000000),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : child,
-        );
-      }
-
-      return Container(
-        width: size,
-        height: size,
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      p.basenameWithoutExtension(e.filename),
-                      style: const TextStyle(fontSize: 13),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    p.extension(e.filename),
-                    style: const TextStyle(fontSize: 13),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+        controller: c.send,
+        onChanged: c.keepTyping,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canForward: true,
       );
-    }
-
-    // Builds the [content] along with manipulation buttons and statuses.
-    Widget attachment() {
-      Style style = Theme.of(context).extension<Style>()!;
-      return MouseRegion(
-        key: Key('Attachment_${e.id}'),
-        opaque: false,
-        onEnter: (_) => c.hoveredAttachment.value = e,
-        onExit: (_) => c.hoveredAttachment.value = null,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: content(),
-              ),
-              Center(
-                child: SizedBox.square(
-                  dimension: 30,
-                  child: ElasticAnimatedSwitcher(
-                    child: e is LocalAttachment
-                        ? e.status.value == SendingStatus.error
-                            ? Container(
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
-                                ),
-                              )
-                            : const SizedBox()
-                        : const SizedBox(),
-                  ),
-                ),
-              ),
-              if (!c.send.status.value.isLoading)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4, top: 4),
-                    child: Obx(() {
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: (c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile)
-                            ? InkWell(
-                                key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments
-                                    .removeWhere((a) => a.value == e),
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  margin:
-                                      const EdgeInsets.only(left: 8, bottom: 8),
-                                  child: Container(
-                                    key: const Key('Close'),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: style.cardColor,
-                                    ),
-                                    child: Center(
-                                      child: SvgLoader.asset(
-                                        'assets/icons/close_primary.svg',
-                                        width: 7,
-                                        height: 7,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
-                      );
-                    }),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
-    );
+    });
   }
 
-  /// Builds a visual representation of the provided [item] being replied.
-  Widget _repliedMessage(ChatController c, ChatItem item) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == c.me;
-
-    Widget? content;
-    List<Widget> additional = [];
-
-    if (item is ChatMessage) {
-      if (item.attachments.isNotEmpty) {
-        additional = item.attachments.map((a) {
-          ImageAttachment? image;
-
-          if (a is ImageAttachment) {
-            image = a;
-          }
-
-          return Container(
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: fromMe
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.small.url)),
-            ),
-            width: 30,
-            height: 30,
-            child: image == null
-                ? Icon(
-                    Icons.file_copy,
-                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                    size: 16,
-                  )
-                : null,
-          );
-        }).toList();
-      }
-
-      if (item.text != null && item.text!.val.isNotEmpty) {
-        content = Text(
-          item.text!.val.toString(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
-        );
-      }
-    } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = c.me == item.authorId;
-      bool isMissed = false;
-
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
-
-        if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time = item.conversationStartedAt!.val
-              .difference(item.finishedAt!.val)
-              .localizedString();
-        }
-      } else {
-        title = item.authorId == c.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ],
-      );
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
-    } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
-    }
-
-    return MouseRegion(
-      opaque: false,
-      onEnter: (d) => c.hoveredReply.value = item,
-      onExit: (d) => c.hoveredReply.value = null,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == c.me
-                        ? Theme.of(context).colorScheme.secondary
-                        : AvatarWidget.colors[
-                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                AvatarWidget.colors.length];
-
-                    return Container(
-                      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(width: 2, color: color),
-                        ),
-                      ),
-                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Builder(
-                            builder: (context) {
-                              String? name;
-
-                              if (snapshot.hasData) {
-                                name = snapshot.data?.user.value.name?.val;
-                                if (snapshot.data?.user.value != null) {
-                                  return Obx(() {
-                                    return Text(
-                                      snapshot.data!.user.value.name?.val ??
-                                          snapshot.data!.user.value.num.val,
-                                      style:
-                                          style.boldBody.copyWith(color: color),
-                                    );
-                                  });
-                                }
-                              }
-
-                              return Text(
-                                name ?? ('dot'.l10n * 3),
-                                style: style.boldBody.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              );
-                            },
-                          ),
-                          if (content != null) ...[
-                            const SizedBox(height: 2),
-                            DefaultTextStyle.merge(maxLines: 1, child: content),
-                          ],
-                          if (additional.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Row(children: additional),
-                          ],
-                        ],
-                      ),
-                    );
-                  }),
-            ),
-            AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.hoveredReply.value == item || PlatformUtils.isMobile
-                  ? WidgetButton(
-                      key: const Key('CancelReplyButton'),
-                      onPressed: () {
-                        c.repliedMessages.remove(item);
-                      },
-                      child: Container(
-                        width: 15,
-                        height: 15,
-                        margin: const EdgeInsets.only(right: 4, top: 4),
-                        child: Container(
-                          key: const Key('Close'),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.cardColor,
-                          ),
-                          child: Center(
-                            child: SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
-                              width: 7,
-                              height: 7,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds a visual representation of a [ChatController.editedMessage].
-  Widget _editedMessage(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = c.editedMessage.value?.authorId == c.me;
-
-    if (c.editedMessage.value != null && c.edit != null) {
-      if (c.editedMessage.value is ChatMessage) {
-        Widget? content;
-        List<Widget> additional = [];
-
-        final ChatMessage item = c.editedMessage.value as ChatMessage;
-
-        var desc = StringBuffer();
-        if (item.text != null) {
-          desc.write(item.text!.val);
-        }
-
-        if (item.attachments.isNotEmpty) {
-          additional = item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
-              ),
-              width: 30,
-              height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                      size: 16,
-                    )
-                  : null,
-            );
-          }).toList();
-        }
-
-        if (item.text != null) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
-
-        return WidgetButton(
-          onPressed: () => c.animateTo(item.id, offsetBasedOnBottom: true),
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => c.hoveredReply.value = item,
-            onExit: (d) => c.hoveredReply.value = null,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 12),
-                        SvgLoader.asset(
-                          'assets/icons/edit.svg',
-                          width: 17,
-                          height: 17,
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  width: 2,
-                                  color: Color(0xFF63B4FF),
-                                ),
-                              ),
-                            ),
-                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'label_edit'.l10n,
-                                  style: style.boldBody.copyWith(
-                                    color: const Color(0xFF63B4FF),
-                                  ),
-                                ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  DefaultTextStyle.merge(
-                                    maxLines: 1,
-                                    child: content,
-                                  ),
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Row(children: additional),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Obx(() {
-                    return AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: c.hoveredReply.value == item ||
-                              PlatformUtils.isMobile
-                          ? WidgetButton(
-                              key: const Key('CancelEditButton'),
-                              onPressed: () => c.editedMessage.value = null,
-                              child: Container(
-                                width: 15,
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 4, top: 4),
-                                child: Container(
-                                  key: const Key('Close'),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: style.cardColor,
-                                  ),
-                                  child: Center(
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      width: 7,
-                                      height: 7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
-  /// [duration].
+  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
+  /// the provided [duration].
   ///
   /// Defaults to 50 milliseconds if no [duration] is provided.
   void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
@@ -2052,6 +1000,72 @@ class _ChatViewState extends State<ChatView>
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Theme(
+      data: MessageFieldView.theme(context),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(color: style.cardColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                        bottom: 13,
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

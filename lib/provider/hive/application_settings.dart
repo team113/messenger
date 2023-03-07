@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -62,4 +63,33 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setCallButtons(List<String> buttons) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
+
+  /// Stores a new [show] value of
+  /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
+  Future<void> setShowDragAndDropVideosHint(bool show) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..showDragAndDropVideosHint = show,
+      );
+
+  /// Stores a new [show] value of
+  /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
+  Future<void> setShowDragAndDropButtonsHint(bool show) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())
+          ..showDragAndDropButtonsHint = show,
+      );
+
+  /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
+  /// to [Hive].
+  Future<void> setSortContactsByName(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
+      );
+
+  /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
+  /// to [Hive].
+  Future<void> setLoadImages(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
+      );
 }

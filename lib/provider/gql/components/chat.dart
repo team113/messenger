@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -160,7 +161,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRenamed].
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -287,7 +288,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -322,7 +323,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -389,9 +390,9 @@ abstract class ChatGraphQlMixin {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This mutation should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -466,7 +467,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
+  Stream<QueryResult> recentChatsTopEvents(int count) {
     final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -524,22 +525,23 @@ abstract class ChatGraphQlMixin {
   /// of subscribing (emits nothing, completes immediately after being
   /// established).
   /// - The authenticated [MyUser] is no longer a member of the [Chat] (emits
-  /// [EventChatItemPosted] with [ChatMemberInfo] of [MyUser] being removed and
+  /// [EventChatItemPosted] with [ChatInfo] of [MyUser] being removed and
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
-  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
+    final variables = ChatEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -865,7 +867,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  Future<Stream<QueryResult>> keepTyping(ChatId id) {
+  Stream<QueryResult> keepTyping(ChatId id) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -1053,8 +1055,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
-  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -1118,5 +1119,141 @@ abstract class ChatGraphQlMixin {
 
       rethrow;
     }
+  }
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its [position] in the favorites list.
+  ///
+  /// To move the [Chat] to a concrete position in a favorites list, provide the
+  /// average value of two other [Chat]s positions surrounding it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatFavorited]
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already favorited at the same position.
+  Future<ChatEventsVersionedMixin?> favoriteChat(
+    ChatId id,
+    ChatFavoritePosition position,
+  ) async {
+    final variables = FavoriteChatArguments(id: id, pos: position);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'FavoriteChat',
+        document: FavoriteChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => FavoriteChatException(
+          (FavoriteChat$Mutation.fromJson(data).favoriteChat
+                  as FavoriteChat$Mutation$FavoriteChat$FavoriteChatError)
+              .code),
+    );
+    return FavoriteChat$Mutation.fromJson(result.data!).favoriteChat
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatUnfavorited]
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// not in the favorites list already.
+  Future<ChatEventsVersionedMixin?> unfavoriteChat(ChatId id) async {
+    final variables = UnfavoriteChatArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnfavoriteChat',
+        document: UnfavoriteChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UnfavoriteChatException(
+          (UnfavoriteChat$Mutation.fromJson(data).unfavoriteChat
+                  as UnfavoriteChat$Mutation$UnfavoriteChat$UnfavoriteChatError)
+              .code),
+    );
+    return UnfavoriteChat$Mutation.fromJson(result.data!).unfavoriteChat
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Subscribes to [FavoriteChatsEvent]s of all [Chat]s of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// favorite [Chat]s list will be emitted after `SubscriptionInitialized` and
+  /// before any other [FavoriteChatsEvents] (and won't be emitted ever again
+  /// until this subscription completes). This allows to skip doing
+  /// `Query.favoriteChats` before establishing this subscription.
+  ///
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via `Query.favoriteChats`;
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// favorite [Chat]s list).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - An error occurs on the server (error is emitted).
+  /// - The server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event
+  /// which have already been applied to the state of some [Chat], so a client
+  /// side is expected to handle all the events idempotently considering the
+  /// `Chat.ver`.
+  Stream<QueryResult> favoriteChatsEvents(
+    FavoriteChatsListVersion? Function() ver,
+  ) {
+    final variables = FavoriteChatsEventsArguments(ver: ver());
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'FavoriteChatsEvents',
+        document:
+            FavoriteChatsEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
   }
 }

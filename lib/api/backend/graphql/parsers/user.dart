@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -920,5 +921,143 @@ List<String?>?
         v
             ?.map((e) =>
                 fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(
+                    e))
+            .toList();
+            
+// BlacklistCursor
+
+BlacklistCursor fromGraphQLBlacklistCursorToDartBlacklistCursor(String v) =>
+    BlacklistCursor(v);
+String fromDartBlacklistCursorToGraphQLBlacklistCursor(BlacklistCursor v) =>
+    v.toString();
+List<BlacklistCursor> fromGraphQLListBlacklistCursorToDartListBlacklistCursor(
+        List<Object?> v) =>
+    v
+        .map(
+            (e) => fromGraphQLBlacklistCursorToDartBlacklistCursor(e as String))
+        .toList();
+List<String> fromDartListBlacklistCursorToGraphQLListBlacklistCursor(
+        List<BlacklistCursor> v) =>
+    v.map((e) => fromDartBlacklistCursorToGraphQLBlacklistCursor(e)).toList();
+List<BlacklistCursor>?
+    fromGraphQLListNullableBlacklistCursorToDartListNullableBlacklistCursor(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLBlacklistCursorToDartBlacklistCursor(e as String))
+            .toList();
+List<String>?
+    fromDartListNullableBlacklistCursorToGraphQLListNullableBlacklistCursor(
+            List<BlacklistCursor>? v) =>
+        v
+            ?.map((e) => fromDartBlacklistCursorToGraphQLBlacklistCursor(e))
+            .toList();
+
+BlacklistCursor?
+    fromGraphQLBlacklistCursorNullableToDartBlacklistCursorNullable(
+            String? v) =>
+        v == null ? null : BlacklistCursor(v);
+String? fromDartBlacklistCursorNullableToGraphQLBlacklistCursorNullable(
+        BlacklistCursor? v) =>
+    v?.toString();
+List<BlacklistCursor?>
+    fromGraphQLListBlacklistCursorNullableToDartListBlacklistCursorNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLBlacklistCursorNullableToDartBlacklistCursorNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListBlacklistCursorNullableToGraphQLListBlacklistCursorNullable(
+            List<BlacklistCursor?> v) =>
+        v
+            .map((e) =>
+                fromDartBlacklistCursorNullableToGraphQLBlacklistCursorNullable(
+                    e))
+            .toList();
+List<BlacklistCursor?>?
+    fromGraphQLListNullableBlacklistCursorNullableToDartListNullableBlacklistCursorNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLBlacklistCursorNullableToDartBlacklistCursorNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableBlacklistCursorNullableToGraphQLListNullableBlacklistCursorNullable(
+            List<BlacklistCursor?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartBlacklistCursorNullableToGraphQLBlacklistCursorNullable(
+                    e))
+            .toList();
+
+// BlacklistReason
+
+BlacklistReason fromGraphQLBlacklistReasonToDartBlacklistReason(String v) =>
+    BlacklistReason(v);
+String fromDartBlacklistReasonToGraphQLBlacklistReason(BlacklistReason v) =>
+    v.val;
+List<BlacklistReason> fromGraphQLListBlacklistReasonToDartListBlacklistReason(
+        List<Object?> v) =>
+    v
+        .map(
+            (e) => fromGraphQLBlacklistReasonToDartBlacklistReason(e as String))
+        .toList();
+List<String> fromDartListBlacklistReasonToGraphQLListBlacklistReason(
+        List<BlacklistReason> v) =>
+    v.map((e) => fromDartBlacklistReasonToGraphQLBlacklistReason(e)).toList();
+List<BlacklistReason>?
+    fromGraphQLListNullableBlacklistReasonToDartListNullableBlacklistReason(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLBlacklistReasonToDartBlacklistReason(e as String))
+            .toList();
+List<String>?
+    fromDartListNullableBlacklistReasonToGraphQLListNullableBlacklistReason(
+            List<BlacklistReason>? v) =>
+        v
+            ?.map((e) => fromDartBlacklistReasonToGraphQLBlacklistReason(e))
+            .toList();
+
+BlacklistReason?
+    fromGraphQLBlacklistReasonNullableToDartBlacklistReasonNullable(
+            String? v) =>
+        v == null ? null : BlacklistReason(v);
+String? fromDartBlacklistReasonNullableToGraphQLBlacklistReasonNullable(
+        BlacklistReason? v) =>
+    v?.val;
+List<BlacklistReason?>
+    fromGraphQLListBlacklistReasonNullableToDartListBlacklistReasonNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLBlacklistReasonNullableToDartBlacklistReasonNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListBlacklistReasonNullableToGraphQLListBlacklistReasonNullable(
+            List<BlacklistReason?> v) =>
+        v
+            .map((e) =>
+                fromDartBlacklistReasonNullableToGraphQLBlacklistReasonNullable(
+                    e))
+            .toList();
+List<BlacklistReason?>?
+    fromGraphQLListNullableBlacklistReasonNullableToDartListNullableBlacklistReasonNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLBlacklistReasonNullableToDartBlacklistReasonNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableBlacklistReasonNullableToGraphQLListNullableBlacklistReasonNullable(
+            List<BlacklistReason?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartBlacklistReasonNullableToGraphQLBlacklistReasonNullable(
                     e))
             .toList();

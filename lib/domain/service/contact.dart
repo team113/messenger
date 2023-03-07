@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,7 +39,7 @@ class ContactService extends DisposableService {
       _contactRepository.contacts;
 
   /// Returns the current reactive map of favorite [ChatContact]s.
-  RxMap<ChatContactId, RxChatContact> get favorites =>
+  RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
   @override
@@ -66,4 +67,17 @@ class ContactService extends DisposableService {
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _contactRepository.changeContactName(id, name);
+
+  /// Marks the specified [ChatContact] as favorited for the authenticated
+  /// [MyUser] and sets its position in the favorites list.
+  Future<void> favoriteChatContact(
+    ChatContactId id, [
+    ChatContactFavoritePosition? position,
+  ]) =>
+      _contactRepository.favoriteChatContact(id, position);
+
+  /// Removes the specified [ChatContact] from the favorites list of the
+  /// authenticated [MyUser].
+  Future<void> unfavoriteChatContact(ChatContactId id) =>
+      _contactRepository.unfavoriteChatContact(id);
 }

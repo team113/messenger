@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/domain/model/avatar.dart';
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -27,8 +28,6 @@ import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {
-  avatarDeleted,
-  avatarUpdated,
   callDeclined,
   callFinished,
   callMemberJoined,
@@ -40,6 +39,7 @@ enum ChatEventKind {
   directLinkDeleted,
   directLinkUpdated,
   directLinkUsageCountUpdated,
+  favorited,
   hidden,
   itemDeleted,
   itemHidden,
@@ -49,10 +49,10 @@ enum ChatEventKind {
   muted,
   read,
   redialed,
-  renamed,
   totalItemsCountUpdated,
   typingStarted,
   typingStopped,
+  unfavorited,
   unmuted,
   unreadItemsCountUpdated,
 }
@@ -129,7 +129,7 @@ abstract class ChatEvent {
 /// [Chat]-group.
 class EventChatCallMoved extends ChatEvent {
   const EventChatCallMoved(
-    ChatId chatId,
+    super.chatId,
     this.callId,
     this.call,
     this.newChatId,
@@ -138,7 +138,7 @@ class EventChatCallMoved extends ChatEvent {
     this.newCall,
     this.user,
     this.at,
-  ) : super(chatId);
+  );
 
   /// ID of the moved [ChatCall] in the [Chat]-dialog.
   final ChatItemId callId;
@@ -168,34 +168,16 @@ class EventChatCallMoved extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.callMoved;
 }
 
-/// Event of a [Chat] being renamed by some [User].
-class EventChatRenamed extends ChatEvent {
-  const EventChatRenamed(ChatId chatId, this.chatName, this.byUser, this.at)
-      : super(chatId);
-
-  /// New [ChatName].
-  final ChatName? chatName;
-
-  /// [User] who renamed the [Chat].
-  final User byUser;
-
-  /// [PreciseDateTime] when the [Chat] was renamed.
-  final PreciseDateTime at;
-
-  @override
-  ChatEventKind get kind => ChatEventKind.renamed;
-}
-
 /// Event of a [User] being redialed in a [ChatCall].
 class EventChatCallMemberRedialed extends ChatEvent {
   const EventChatCallMemberRedialed(
-    ChatId chatId,
+    super.chatId,
     this.at,
     this.callId,
     this.call,
     this.user,
     this.byUser,
-  ) : super(chatId);
+  );
 
   /// ID of the [ChatCall] the [User] is redialed in.
   final ChatItemId callId;
@@ -219,7 +201,7 @@ class EventChatCallMemberRedialed extends ChatEvent {
 
 /// Event of a [Chat] being cleared by the authenticated [MyUser].
 class EventChatCleared extends ChatEvent {
-  const EventChatCleared(ChatId chatId, this.at) : super(chatId);
+  const EventChatCleared(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was cleared.
   final PreciseDateTime at;
@@ -230,7 +212,7 @@ class EventChatCleared extends ChatEvent {
 
 /// Event of a [ChatItem] being hidden by the authenticated [MyUser].
 class EventChatItemHidden extends ChatEvent {
-  const EventChatItemHidden(ChatId chatId, this.itemId) : super(chatId);
+  const EventChatItemHidden(super.chatId, this.itemId);
 
   /// ID of the hidden [ChatItem].
   final ChatItemId itemId;
@@ -241,7 +223,7 @@ class EventChatItemHidden extends ChatEvent {
 
 /// Event of a [Chat] being muted by the authenticated [MyUser].
 class EventChatMuted extends ChatEvent {
-  const EventChatMuted(ChatId chatId, this.duration) : super(chatId);
+  const EventChatMuted(super.chatId, this.duration);
 
   /// Duration the [Chat] should be muted until.
   final MuteDuration duration;
@@ -250,24 +232,9 @@ class EventChatMuted extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.muted;
 }
 
-/// Event of a [ChatAvatar] being deleted in a [Chat].
-class EventChatAvatarDeleted extends ChatEvent {
-  const EventChatAvatarDeleted(ChatId chatId, this.byUser, this.at)
-      : super(chatId);
-
-  /// [User] who deleted the [ChatAvatar].
-  final User byUser;
-
-  /// [PreciseDateTime] when the [ChatAvatar] was deleted.
-  final PreciseDateTime at;
-
-  @override
-  ChatEventKind get kind => ChatEventKind.avatarDeleted;
-}
-
 /// Event of a [ChatMember] started typing in a [Chat].
 class EventChatTypingStarted extends ChatEvent {
-  const EventChatTypingStarted(ChatId chatId, this.user) : super(chatId);
+  const EventChatTypingStarted(super.chatId, this.user);
 
   /// [User] who started typing.
   final User user;
@@ -286,7 +253,7 @@ class EventChatUnmuted extends ChatEvent {
 
 /// Event of a [ChatMember] stopped typing in a [Chat].
 class EventChatTypingStopped extends ChatEvent {
-  const EventChatTypingStopped(ChatId chatId, this.user) : super(chatId);
+  const EventChatTypingStopped(super.chatId, this.user);
 
   /// [User] who stopped typing.
   final User user;
@@ -297,7 +264,7 @@ class EventChatTypingStopped extends ChatEvent {
 
 /// Event of a [Chat] being hidden by the authenticated [MyUser].
 class EventChatHidden extends ChatEvent {
-  const EventChatHidden(ChatId chatId, this.at) : super(chatId);
+  const EventChatHidden(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was hidden.
   final PreciseDateTime at;
@@ -308,7 +275,7 @@ class EventChatHidden extends ChatEvent {
 
 /// Event of a [ChatItem] being deleted by some [User].
 class EventChatItemDeleted extends ChatEvent {
-  const EventChatItemDeleted(ChatId chatId, this.itemId) : super(chatId);
+  const EventChatItemDeleted(super.chatId, this.itemId);
 
   /// ID of the deleted [ChatItem].
   final ChatItemId itemId;
@@ -345,8 +312,7 @@ class EventChatCallStarted extends ChatEvent {
 
 /// Event of a [Chat] unread items count being updated.
 class EventChatUnreadItemsCountUpdated extends ChatEvent {
-  const EventChatUnreadItemsCountUpdated(ChatId chatId, this.count)
-      : super(chatId);
+  const EventChatUnreadItemsCountUpdated(super.chatId, this.count);
 
   /// Updated unread [ChatItem]s count.
   final int count;
@@ -355,28 +321,9 @@ class EventChatUnreadItemsCountUpdated extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.unreadItemsCountUpdated;
 }
 
-/// Event of a [ChatAvatar] being updated in a [Chat].
-class EventChatAvatarUpdated extends ChatEvent {
-  const EventChatAvatarUpdated(ChatId chatId, this.avatar, this.byUser, this.at)
-      : super(chatId);
-
-  /// Updated [ChatAvatar].
-  final ChatAvatar avatar;
-
-  /// [User] who updated the [ChatAvatar].
-  final User byUser;
-
-  /// [PreciseDateTime] when the [ChatAvatar] was updated.
-  final PreciseDateTime at;
-
-  @override
-  ChatEventKind get kind => ChatEventKind.avatarUpdated;
-}
-
 /// Event of a [Chat]'s [ChatDirectLink.usageCount] being updated.
 class EventChatDirectLinkUsageCountUpdated extends ChatEvent {
-  const EventChatDirectLinkUsageCountUpdated(ChatId chatId, this.usageCount)
-      : super(chatId);
+  const EventChatDirectLinkUsageCountUpdated(super.chatId, this.usageCount);
 
   /// New [Chat]'s [ChatDirectLink.usageCount].
   final int usageCount;
@@ -387,10 +334,13 @@ class EventChatDirectLinkUsageCountUpdated extends ChatEvent {
 
 /// Event of a [ChatCall] being finished.
 class EventChatCallFinished extends ChatEvent {
-  const EventChatCallFinished(ChatId chatId, this.call) : super(chatId);
+  const EventChatCallFinished(super.chatId, this.call, this.reason);
 
   /// Finished [ChatCall].
   final ChatCall call;
+
+  /// Reason of why the [call] was finished.
+  final ChatCallFinishReason reason;
 
   @override
   ChatEventKind get kind => ChatEventKind.callFinished;
@@ -398,8 +348,7 @@ class EventChatCallFinished extends ChatEvent {
 
 /// Event of a [User] leaving a [ChatCall].
 class EventChatCallMemberLeft extends ChatEvent {
-  const EventChatCallMemberLeft(ChatId chatId, this.user, this.at)
-      : super(chatId);
+  const EventChatCallMemberLeft(super.chatId, this.user, this.at);
 
   /// User who left the [ChatCall].
   final User user;
@@ -413,8 +362,7 @@ class EventChatCallMemberLeft extends ChatEvent {
 
 /// Event of a [User] joined a [ChatCall].
 class EventChatCallMemberJoined extends ChatEvent {
-  const EventChatCallMemberJoined(ChatId chatId, this.user, this.at)
-      : super(chatId);
+  const EventChatCallMemberJoined(super.chatId, this.user, this.at);
 
   /// [User] who joined the [ChatCall].
   final User user;
@@ -428,10 +376,10 @@ class EventChatCallMemberJoined extends ChatEvent {
 
 /// Event of a [Chat] last item being updated.
 class EventChatLastItemUpdated extends ChatEvent {
-  const EventChatLastItemUpdated(ChatId chatId, this.lastItem) : super(chatId);
+  const EventChatLastItemUpdated(super.chatId, this.lastItem);
 
   /// Updated last [ChatItem].
-  final List<HiveChatItem>? lastItem;
+  final HiveChatItem? lastItem;
 
   @override
   ChatEventKind get kind => ChatEventKind.lastItemUpdated;
@@ -440,7 +388,7 @@ class EventChatLastItemUpdated extends ChatEvent {
 /// Event of last [ChatItem]s posted by the authenticated [MyUser] being
 /// delivered to other [User]s in a [Chat].
 class EventChatDelivered extends ChatEvent {
-  const EventChatDelivered(ChatId chatId, this.at) : super(chatId);
+  const EventChatDelivered(super.chatId, this.at);
 
   /// [PreciseDateTime] when [ChatItem]s were delivered.
   final PreciseDateTime at;
@@ -451,7 +399,7 @@ class EventChatDelivered extends ChatEvent {
 
 /// Event of a [Chat] being read by a [User].
 class EventChatRead extends ChatEvent {
-  const EventChatRead(ChatId chatId, this.byUser, this.at) : super(chatId);
+  const EventChatRead(super.chatId, this.byUser, this.at);
 
   /// [User] who read the [Chat].
   final User byUser;
@@ -466,8 +414,7 @@ class EventChatRead extends ChatEvent {
 /// Event of a [ChatCall] being declined by a [ChatMember].
 class EventChatCallDeclined extends ChatEvent {
   const EventChatCallDeclined(
-      ChatId chatId, this.callId, this.call, this.user, this.at)
-      : super(chatId);
+      super.chatId, this.callId, this.call, this.user, this.at);
 
   /// ID of the [ChatCall] being declined.
   final ChatItemId callId;
@@ -487,10 +434,10 @@ class EventChatCallDeclined extends ChatEvent {
 
 /// Event of a new [ChatItem] being posted in a [Chat].
 class EventChatItemPosted extends ChatEvent {
-  const EventChatItemPosted(ChatId chatId, this.item) : super(chatId);
+  const EventChatItemPosted(super.chatId, this.item);
 
   /// New [ChatItem].
-  final List<HiveChatItem> item;
+  final HiveChatItem item;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemPosted;
@@ -498,8 +445,7 @@ class EventChatItemPosted extends ChatEvent {
 
 /// Event of a [Chat] total items count being updated.
 class EventChatTotalItemsCountUpdated extends ChatEvent {
-  const EventChatTotalItemsCountUpdated(ChatId chatId, this.count)
-      : super(chatId);
+  const EventChatTotalItemsCountUpdated(super.chatId, this.count);
 
   /// Updated total [ChatItem]s count.
   final int count;
@@ -518,11 +464,40 @@ class EventChatDirectLinkDeleted extends ChatEvent {
 
 /// Event of a [Chat]'s [ChatDirectLink] being updated.
 class EventChatDirectLinkUpdated extends ChatEvent {
-  const EventChatDirectLinkUpdated(ChatId chatId, this.link) : super(chatId);
+  const EventChatDirectLinkUpdated(super.chatId, this.link);
 
   /// New [Chat]'s [ChatDirectLink].
   final ChatDirectLink link;
 
   @override
   ChatEventKind get kind => ChatEventKind.directLinkUpdated;
+}
+
+/// Events happening in the the favorite [Chat]s list.
+abstract class FavoriteChatsEvent extends ChatEvent {
+  const FavoriteChatsEvent(super.chatId, this.at);
+
+  /// [PreciseDateTime] when this [FavoriteChatsEvent] happened.
+  final PreciseDateTime at;
+}
+
+/// Event of a [Chat] being added to the favorites list of the authenticated
+/// [MyUser].
+class EventChatFavorited extends FavoriteChatsEvent {
+  const EventChatFavorited(super.chatId, super.at, this.position);
+
+  /// Position of the [Chat] in the favorites list.
+  final ChatFavoritePosition position;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.favorited;
+}
+
+/// Event of a [Chat] being removed from the favorites list of the authenticated
+/// [MyUser].
+class EventChatUnfavorited extends FavoriteChatsEvent {
+  const EventChatUnfavorited(super.chatId, super.at);
+
+  @override
+  ChatEventKind get kind => ChatEventKind.unfavorited;
 }

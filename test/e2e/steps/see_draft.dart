@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,7 +41,7 @@ final StepDefinitionGeneric seeDraftInDialog =
     final ChatId dialog = context.world.sessions[user.name]!.dialog!;
 
     final Finder finder = context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy('ChatTile_$dialog', FindType.key),
+      context.world.appDriver.findBy('Chat_$dialog', FindType.key),
       context.world.appDriver.findBy('Draft', FindType.key),
       firstMatchOnly: true,
     );

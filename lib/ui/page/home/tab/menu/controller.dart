@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,33 +17,29 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
-import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/util/message_popup.dart';
-import '/util/web/web_utils.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
 
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._auth, this._myUserService, this._callService);
+  MenuTabController(this._authService, this._myUserService);
 
-  /// Authorization service.
-  final AuthService _auth;
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// [AuthService] used in a [logout].
+  final AuthService _authService;
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
-
-  /// [CallService], used to determine whether a confirm logout alert should be
-  /// shown or not.
-  final CallService _callService;
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -51,23 +48,14 @@ class MenuTabController extends GetxController {
   ///
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
-    if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
-      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
-          true) {
-        return false;
-      }
-    }
-
     // TODO: [MyUserService.myUser] might still be `null` here.
-    if (_myUserService.myUser.value?.hasPassword != true) {
-      if (await ConfirmLogoutView.show(router.context!) != true) {
-        return false;
-      }
+    if (await ConfirmLogoutView.show(router.context!) != true) {
+      return false;
     }
 
     return true;
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _auth.logout();
+  Future<String> logout() => _authService.logout();
 }

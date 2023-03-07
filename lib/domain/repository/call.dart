@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,16 +19,17 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../model/chat.dart';
 import '../model/chat_call.dart';
 import '../model/chat_item.dart';
-import '../model/chat.dart';
+import '../model/my_user.dart';
 import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/store/event/chat_call.dart';
-import '/store/event/incoming_chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 /// [OngoingCall]s repository interface.
 abstract class AbstractCallRepository {
@@ -40,14 +42,24 @@ abstract class AbstractCallRepository {
   /// Replaces the value of [OngoingCall] identified by [chatId] to [call].
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
-  /// Adds [call] identified by [chatId] to the [calls] map.
-  void add(Rx<OngoingCall> call);
+  /// Adds the provided [ChatCall] to the [calls], if not already.
+  Rx<OngoingCall>? add(ChatCall call);
+
+  /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
+  /// if not already.
+  Rx<OngoingCall> addStored(
+    WebStoredCall stored, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  });
 
   /// Switches the [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
 
-  /// Removes the [OngoingCall] identified by [chatId] from the [calls] map.
+  /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
+  /// [chatId].
   Rx<OngoingCall>? remove(ChatId chatId);
 
   /// Returns `true` if an [OngoingCall] identified by [chatId] exists in the
@@ -56,11 +68,22 @@ abstract class AbstractCallRepository {
 
   /// Starts a new [OngoingCall] in the specified [chatId] by the authenticated
   /// [MyUser].
-  Future<void> start(Rx<OngoingCall> call);
+  Future<Rx<OngoingCall>> start(
+    ChatId chatId, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  });
 
   /// Joins the current [OngoingCall] in the specified [chatId] by the
   /// authenticated [MyUser].
-  Future<void> join(Rx<OngoingCall> call);
+  Future<Rx<OngoingCall>?> join(
+    ChatId chatId,
+    ChatItemId? callId, {
+    bool withAudio = true,
+    bool withVideo = false,
+    bool withScreen = false,
+  });
 
   /// Leaves the current [OngoingCall] in the specified [chatId] by the
   /// authenticated [MyUser].
@@ -81,6 +104,10 @@ abstract class AbstractCallRepository {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   );
+
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId);
 
   /// Generates the [ChatCallCredentials] for a [Chat] identified by the
   /// provided [id].
@@ -112,16 +139,10 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   );
-
-  /// Returns the subscription of [IncomingChatCallsTopEvent]s.
-  ///
-  /// [count] determines the length of the list of incoming [ChatCall]s which
-  /// updates will be notified via events.
-  Future<Stream<IncomingChatCallsTopEvent>> events(int count);
 }
 
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists

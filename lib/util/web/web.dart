@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -437,11 +438,7 @@ class WebUtils {
     newState ??= WebUtils.getCall(chatId);
     WebUtils.removeCall(chatId);
     WebUtils.setCall(newState!);
-    html.window.history.replaceState(
-      null,
-      '',
-      Uri.base.toString().replaceFirst(chatId.val, newChatId.val),
-    );
+    replaceState(chatId.val, newChatId.val);
   }
 
   /// Removes all calls from the browser's storage, if any.
@@ -486,7 +483,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    Response response = await Dio().head(url);
+    final Response response = await PlatformUtils.dio.head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
@@ -499,4 +496,43 @@ class WebUtils {
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);
+
+  /// Requests the permission to use a camera.
+  static Future<void> cameraPermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'camera'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(video: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'microphone'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(audio: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
+    html.window.history.replaceState(
+      null,
+      html.document.title,
+      Uri.base.toString().replaceFirst(from, to),
+    );
+  }
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
@@ -38,7 +40,7 @@ class ChatDirectLinkView extends StatelessWidget {
           child: Obx(
             () => c.slug.value == null
                 ? Text('label_unknown_page'.l10n)
-                : const CircularProgressIndicator(),
+                : const CustomProgressIndicator(),
           ),
         ),
       ),

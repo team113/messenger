@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -55,6 +56,8 @@ void main() async {
   await chatHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   setUp(() async {
     Get.reset();
@@ -113,8 +116,8 @@ void main() async {
   }
 
   test('ContactService successfully renames contact', () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -126,7 +129,7 @@ void main() async {
             }
           },
         )
-      ])),
+      ]),
     );
 
     when(graphQlProvider.recentChats(
@@ -136,8 +139,7 @@ void main() async {
       before: null,
     )).thenAnswer(
         (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(
       graphQlProvider.changeContactName(
@@ -168,8 +170,8 @@ void main() async {
 
   test('ContactService throws UpdateChatContactNameException on contact rename',
       () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -181,7 +183,7 @@ void main() async {
             }
           },
         )
-      ])),
+      ]),
     );
 
     when(graphQlProvider.recentChats(

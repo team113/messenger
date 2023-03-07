@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -53,13 +54,14 @@ class Chat extends HiveObject {
     this.unreadCount = 0,
     this.totalCount = 0,
     this.ongoingCall,
+    this.favoritePosition,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
 
   /// Unique ID of this [Chat].
   @HiveField(0)
-  final ChatId id;
+  ChatId id;
 
   /// Avatar of this [Chat].
   @HiveField(1)
@@ -147,6 +149,11 @@ class Chat extends HiveObject {
   /// Current ongoing [ChatCall] of this [Chat], if any.
   @HiveField(16)
   ChatCall? ongoingCall;
+
+  /// Position of this [Chat] in the favorites list of the authenticated
+  /// [MyUser].
+  @HiveField(17)
+  ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
@@ -236,7 +243,18 @@ class LastChatRead {
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
-  const ChatId(String val) : super(val);
+  const ChatId(super.val);
+
+  /// Constructs a dummy [ChatId].
+  factory ChatId.local(UserId id) => ChatId('local_${id.val}');
+
+  /// Indicates whether this [ChatId] is a dummy ID.
+  bool get isLocal => val.startsWith('local_');
+
+  /// Returns [UserId] part of this [ChatId] if [isLocal].
+  UserId get userId => isLocal
+      ? UserId(val.replaceFirst('local_', ''))
+      : throw Exception('ChatId is not local');
 }
 
 /// Name of a [Chat].
@@ -257,4 +275,17 @@ class ChatName extends NewType<String> {
 
   /// Regular expression for a [ChatName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+}
+
+/// Position of this [Chat] in the favorites list of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.chatFavoritePosition)
+class ChatFavoritePosition extends NewType<double>
+    implements Comparable<ChatFavoritePosition> {
+  const ChatFavoritePosition(double val) : super(val);
+
+  factory ChatFavoritePosition.parse(String val) =>
+      ChatFavoritePosition(double.parse(val));
+
+  @override
+  int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
 }

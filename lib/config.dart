@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -139,8 +140,8 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        var response =
-            await Dio().fetch(RequestOptions(path: '$url:$port/conf.toml'));
+        final response = await PlatformUtils.dio
+            .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
           Map<String, dynamic> remote =
               TomlDocument.parse(response.data.toString()).toMap();

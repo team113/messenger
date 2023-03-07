@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,7 +24,10 @@ import 'configuration.dart';
 part 'suite.g.dart';
 
 /// Entry point of E2E tests.
-@GherkinTestSuite(featurePaths: ['test/e2e/features/**.feature'])
+@GherkinTestSuite(
+  featurePaths: ['test/e2e/features/**.feature'],
+  executionOrder: ExecutionOrder.alphabetical,
+)
 void main() async {
   Config.disableInfiniteAnimations = true;
   executeTestSuite(

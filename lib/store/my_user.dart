@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,11 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
+import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -35,11 +40,14 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
-import '/provider/gql/exceptions.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
+import '/provider/hive/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -49,6 +57,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._myUserLocal,
+    this._blacklistLocal,
     this._galleryItemLocal,
     this._userRepo,
   );
@@ -56,11 +65,17 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   late final Rx<MyUser?> myUser;
 
+  @override
+  final RxList<RxUser> blacklist = RxList<RxUser>();
+
   /// GraphQL's Endpoint provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
+
+  /// Blacklisted [User]s local [Hive] storage.
+  final BlacklistHiveProvider _blacklistLocal;
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
@@ -69,12 +84,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
+  StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [BlacklistHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _blacklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
@@ -86,23 +104,44 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final void Function() onPasswordUpdated;
 
   @override
-  void init({
+  Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
-  }) {
+  }) async {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
     myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
+
     _initLocalSubscription();
     _initRemoteSubscription();
     _initKeepOnlineSubscription();
+    _initBlacklistSubscription();
+
+    if (!_blacklistLocal.isEmpty) {
+      final List<RxUser?> users =
+          await Future.wait(_blacklistLocal.blacklisted.map(_userRepo.get));
+      blacklist.addAll(users.whereNotNull());
+    }
+
+    final List<HiveUser> blacklisted = await _fetchBlacklist();
+
+    for (UserId c in _blacklistLocal.blacklisted) {
+      if (blacklisted.none((e) => e.value.id == c)) {
+        _blacklistLocal.remove(c);
+      }
+    }
+
+    for (HiveUser c in blacklisted) {
+      _blacklistLocal.put(c.value.id);
+    }
   }
 
   @override
   void dispose() {
     _localSubscription?.cancel();
-    _remoteSubscription?.cancel();
+    _blacklistSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
   }
 
@@ -110,20 +149,74 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> clearCache() => _myUserLocal.clear();
 
   @override
-  Future<void> updateUserName(UserName? name) =>
-      _graphQlProvider.updateUserName(name);
+  Future<void> updateUserName(UserName? name) async {
+    final UserName? oldName = myUser.value?.name;
+
+    myUser.update((u) => u?.name = name);
+
+    try {
+      await _graphQlProvider.updateUserName(name);
+    } catch (_) {
+      myUser.update((u) => u?.name = oldName);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> updateUserBio(UserBio? bio) =>
-      _graphQlProvider.updateUserBio(bio);
+  Future<void> updateUserBio(UserBio? bio) async {
+    final UserBio? oldBio = myUser.value?.bio;
+
+    myUser.update((u) => u?.bio = bio);
+
+    try {
+      await _graphQlProvider.updateUserBio(bio);
+    } catch (_) {
+      myUser.update((u) => u?.bio = oldBio);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> updateUserLogin(UserLogin login) =>
-      _graphQlProvider.updateUserLogin(login);
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    final UserTextStatus? oldStatus = myUser.value?.status;
+
+    myUser.update((u) => u?.status = status);
+
+    try {
+      await _graphQlProvider.updateUserStatus(status);
+    } catch (_) {
+      myUser.update((u) => u?.status = oldStatus);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> updateUserPresence(Presence presence) =>
-      _graphQlProvider.updateUserPresence(presence);
+  Future<void> updateUserLogin(UserLogin login) async {
+    final UserLogin? oldLogin = myUser.value?.login;
+
+    myUser.update((u) => u?.login = login);
+
+    try {
+      await _graphQlProvider.updateUserLogin(login);
+    } catch (_) {
+      myUser.update((u) => u?.login = oldLogin);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateUserPresence(Presence presence) async {
+    final Presence? oldPresence = myUser.value?.presence;
+
+    myUser.update((u) => u?.presence = presence);
+
+    try {
+      await _graphQlProvider.updateUserPresence(presence);
+    } catch (_) {
+      myUser.update((u) => u?.presence = oldPresence!);
+      rethrow;
+    }
+  }
 
   @override
   Future<void> updateUserPassword(
@@ -136,28 +229,130 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> deleteMyUser() => _graphQlProvider.deleteMyUser();
 
   @override
-  Future<void> deleteUserEmail(UserEmail email) =>
-      _graphQlProvider.deleteUserEmail(email);
+  Future<void> deleteUserEmail(UserEmail email) async {
+    if (myUser.value?.emails.unconfirmed == email) {
+      final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+
+      myUser.update((u) => u?.emails.unconfirmed = null);
+
+      try {
+        await _graphQlProvider.deleteUserEmail(email);
+      } catch (_) {
+        myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
+        rethrow;
+      }
+    } else {
+      int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
+
+      if (i != -1) {
+        myUser.update((u) => u?.emails.confirmed.remove(email));
+      }
+
+      try {
+        await _graphQlProvider.deleteUserEmail(email);
+      } catch (_) {
+        if (i != -1) {
+          i = min(i, myUser.value?.emails.confirmed.length ?? 0);
+          myUser.update((u) => myUser.value?.emails.confirmed.insert(i, email));
+        }
+        rethrow;
+      }
+    }
+  }
 
   @override
-  Future<void> deleteUserPhone(UserPhone phone) =>
-      _graphQlProvider.deleteUserPhone(phone);
+  Future<void> deleteUserPhone(UserPhone phone) async {
+    if (myUser.value?.phones.unconfirmed == phone) {
+      final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+
+      myUser.update((u) => u?.phones.unconfirmed = null);
+
+      try {
+        await _graphQlProvider.deleteUserPhone(phone);
+      } catch (_) {
+        myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
+        rethrow;
+      }
+    } else {
+      int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
+
+      if (i != -1) {
+        myUser.update((u) => u?.phones.confirmed.remove(phone));
+      }
+
+      try {
+        await _graphQlProvider.deleteUserPhone(phone);
+      } catch (_) {
+        if (i != -1) {
+          i = min(i, myUser.value?.phones.confirmed.length ?? 0);
+          myUser.update((u) => myUser.value?.phones.confirmed.insert(i, phone));
+        }
+        rethrow;
+      }
+    }
+  }
 
   @override
-  Future<void> addUserEmail(UserEmail email) =>
-      _graphQlProvider.addUserEmail(email);
+  Future<void> addUserEmail(UserEmail email) async {
+    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+
+    myUser.update((u) => u?.emails.unconfirmed = email);
+
+    try {
+      await _graphQlProvider.addUserEmail(email);
+    } catch (_) {
+      myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> addUserPhone(UserPhone phone) =>
-      _graphQlProvider.addUserPhone(phone);
+  Future<void> addUserPhone(UserPhone phone) async {
+    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+
+    myUser.update((u) => u?.phones.unconfirmed = phone);
+
+    try {
+      await _graphQlProvider.addUserPhone(phone);
+    } catch (_) {
+      myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> confirmEmailCode(ConfirmationCode code) =>
-      _graphQlProvider.confirmEmailCode(code);
+  Future<void> confirmEmailCode(ConfirmationCode code) async {
+    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+
+    await _graphQlProvider.confirmEmailCode(code);
+
+    myUser.update(
+      (u) {
+        u?.emails.confirmed.addIf(
+          !u.emails.confirmed.contains(unconfirmed),
+          unconfirmed!,
+        );
+        u?.emails.unconfirmed = null;
+      },
+    );
+  }
 
   @override
-  Future<void> confirmPhoneCode(ConfirmationCode code) =>
-      _graphQlProvider.confirmPhoneCode(code);
+  Future<void> confirmPhoneCode(ConfirmationCode code) async {
+    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+
+    await _graphQlProvider.confirmPhoneCode(code);
+
+    myUser.update(
+      (u) {
+        u?.phones.confirmed.addIf(
+          !u.phones.confirmed.contains(unconfirmed),
+          unconfirmed!,
+        );
+        u?.phones.unconfirmed = null;
+      },
+    );
+  }
 
   @override
   Future<void> resendEmail() => _graphQlProvider.resendEmail();
@@ -166,15 +361,35 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> resendPhone() => _graphQlProvider.resendPhone();
 
   @override
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) =>
-      _graphQlProvider.createUserDirectLink(slug);
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    final ChatDirectLink? link = myUser.value?.chatDirectLink;
+
+    myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
+
+    try {
+      await _graphQlProvider.createUserDirectLink(slug);
+    } catch (_) {
+      myUser.update((u) => u?.chatDirectLink = link);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> deleteChatDirectLink() =>
-      _graphQlProvider.deleteUserDirectLink();
+  Future<void> deleteChatDirectLink() async {
+    final ChatDirectLink? link = myUser.value?.chatDirectLink;
+
+    myUser.update((u) => u?.chatDirectLink = null);
+
+    try {
+      await _graphQlProvider.deleteUserDirectLink();
+    } catch (_) {
+      myUser.update((u) => u?.chatDirectLink = link);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -189,9 +404,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         filename: file.name,
         contentType: file.mime,
       );
-    } else if (file.bytes != null) {
+    } else if (file.bytes.value != null) {
       upload = dio.MultipartFile.fromBytes(
-        file.bytes!,
+        file.bytes.value!,
         filename: file.name,
         contentType: file.mime,
       );
@@ -207,23 +422,95 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
+
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
+      if (e is EventUserGalleryItemAdded) {
+        return e.galleryItem;
+      }
+    }
+
+    return null;
   }
 
   @override
-  Future<void> deleteGalleryItem(GalleryItemId id) =>
-      _graphQlProvider.deleteUserGalleryItem(id);
+  Future<void> deleteGalleryItem(GalleryItemId id) async {
+    int i = myUser.value?.gallery?.indexWhere((e) => e.id == id) ?? -1;
+    ImageGalleryItem? item;
+
+    if (i != -1) {
+      item = myUser.value?.gallery?.elementAt(i);
+      myUser.update((u) => u?.gallery?.remove(item));
+    }
+
+    try {
+      await _graphQlProvider.deleteUserGalleryItem(id);
+    } catch (_) {
+      if (item != null) {
+        i = min(i, myUser.value?.gallery?.length ?? 0);
+        myUser.update((u) => u?.gallery?.insert(i, item!));
+      }
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> updateAvatar(GalleryItemId? id) =>
-      _graphQlProvider.updateUserAvatar(id, null);
+  Future<void> updateAvatar(GalleryItemId? id) async {
+    UserAvatar? avatar = myUser.value?.avatar;
+
+    if (id == null) {
+      myUser.update((u) => u?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateUserAvatar(id, null);
+    } catch (e) {
+      if (id == null) {
+        myUser.update((u) => u?.avatar = avatar);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> toggleMute(MuteDuration? mute) async {
+    final MuteDuration? muted = myUser.value?.muted;
+
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
+
+    myUser.update((u) => u?.muted = muting?.toModel());
+
+    try {
+      await _graphQlProvider.toggleMyUserMute(muting);
+    } catch (e) {
+      myUser.update((u) => u?.muted = muted);
+      rethrow;
+    }
+  }
 
   @override
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
+
+  // TODO: Blacklist can be huge, so we should implement pagination and
+  //       loading on demand.
+  /// Fetches __all__ blacklisted [User]s from the remote.
+  Future<List<HiveUser>> _fetchBlacklist() async {
+    final query = await _graphQlProvider.getBlacklist(first: 120);
+
+    List<HiveUser> users = query.edges.map((e) => e.node.toHive()).toList();
+    for (HiveUser user in users) {
+      _userRepo.put(user);
+    }
+
+    return users;
+  }
 
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
@@ -232,7 +519,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
         myUser.value = null;
-        _remoteSubscription?.cancel();
+        _remoteSubscription?.close(immediate: true);
       } else {
         myUser.value = event.value?.value;
 
@@ -243,38 +530,43 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [_myUserRemoteEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(
-        await _myUserRemoteEvents(noVersion ? null : _myUserLocal.myUser?.ver));
-
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    })) {
-      _myUserRemoteEvent(_remoteSubscription!.current);
+  /// Initializes [BlacklistHiveProvider.boxEvents] subscription.
+  Future<void> _initBlacklistSubscription() async {
+    _blacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
+    while (await _blacklistSubscription!.moveNext()) {
+      BoxEvent event = _blacklistSubscription!.current;
+      if (event.deleted) {
+        blacklist.removeWhere((e) => e.user.value.id.val == event.key);
+      } else {
+        final RxUser? user =
+            blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
+        if (user == null) {
+          final RxUser? user = await _userRepo.get(UserId(event.key));
+          if (user != null) {
+            blacklist.add(user);
+          }
+        }
+      }
     }
   }
 
+  /// Initializes [_myUserRemoteEvents] subscription.
+  Future<void> _initRemoteSubscription() async {
+    _remoteSubscription?.close(immediate: true);
+    _remoteSubscription =
+        StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
+    await _remoteSubscription!.execute(_myUserRemoteEvent);
+  }
+
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
-  Future<void> _initKeepOnlineSubscription() async {
+  void _initKeepOnlineSubscription() {
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = (await _graphQlProvider.keepOnline()).listen(
+    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen(
       (_) {
         // No-op.
       },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _initKeepOnlineSubscription();
-        } else {
-          throw e;
-        }
+      onError: (_) {
+        // No-op.
       },
     );
   }
@@ -498,6 +790,16 @@ class MyUserRepository implements AbstractMyUserRepository {
           event as EventUserDirectLinkUpdated;
           userEntity.value.chatDirectLink = event.directLink;
           break;
+
+        case MyUserEventKind.blacklistRecordAdded:
+          event as EventBlacklistRecordAdded;
+          _blacklistLocal.put(event.user.value.id);
+          break;
+
+        case MyUserEventKind.blacklistRecordRemoved:
+          event as EventBlacklistRecordRemoved;
+          _blacklistLocal.remove(event.user.value.id);
+          break;
       }
     }
 
@@ -505,11 +807,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
-  Future<Stream<MyUserEventsVersioned>> _myUserRemoteEvents(
-    MyUserVersion? ver,
-  ) async =>
-      (await _graphQlProvider.myUserEvents(ver)).asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
+  Stream<MyUserEventsVersioned> _myUserRemoteEvents(
+    MyUserVersion? Function() ver,
+  ) =>
+      _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
         var events =
             MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
@@ -682,6 +983,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

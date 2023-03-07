@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,6 +20,7 @@ import 'package:hive_flutter/adapters.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
 import 'base.dart';
@@ -37,6 +39,7 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
     Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RememberedSessionAdapter());
     Hive.maybeRegisterAdapter(RememberTokenAdapter());
@@ -52,6 +55,10 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   ChatContactsListVersion? getChatContactsListVersion() =>
       getSafe(0)?.chatContactsListVersion;
 
+  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
+  FavoriteChatsListVersion? getFavoriteChatsListVersion() =>
+      getSafe(0)?.favoriteChatsListVersion;
+
   /// Stores new [Credentials] to [Hive].
   Future<void> setCredentials(Credentials credentials) =>
       putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
@@ -59,4 +66,8 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   /// Stores a new [ChatContactsListVersion] to [Hive].
   Future<void> setChatContactsListVersion(ChatContactsListVersion ver) =>
       putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
+
+  /// Stores a new [FavoriteChatsListVersion] to [Hive].
+  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
+      putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
 }

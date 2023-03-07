@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,7 +23,7 @@ import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
@@ -32,7 +33,7 @@ import 'video_view.dart';
 class ParticipantWidget extends StatelessWidget {
   const ParticipantWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.fit,
     this.muted = false,
     this.outline,
@@ -41,9 +42,8 @@ class ParticipantWidget extends StatelessWidget {
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.useCallCover = false,
     this.expanded = false,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantWidget] represents.
   final Participant participant;
@@ -76,10 +76,6 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether an [UserCallCover] should be used when no video is
-  /// available.
-  final bool useCallCover;
-
   /// Indicator whether this [ParticipantWidget] should have its background
   /// expanded.
   final bool expanded;
@@ -91,40 +87,12 @@ class ParticipantWidget extends StatelessWidget {
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
-        return useCallCover &&
-                participant.user.value?.user.value.callCover != null
-            ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
-            : [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AnimatedContainer(
-                      key: const Key('AnimatedContainerAvatar'),
-                      duration: 150.milliseconds,
-                      curve: Curves.ease,
-                      width: expanded ? 180 : 120,
-                      height: expanded ? 180 : 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: expanded
-                            ? [
-                                const CustomBoxShadow(
-                                  color: Color(0x44000000),
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: AvatarWidget.fromRxUser(
-                        participant.user.value,
-                        radius: expanded ? 90 : 60,
-                        showBadge: false,
-                      ),
-                    ),
-                  ),
-                ),
-              ];
+        return [
+          CallCoverWidget(
+            participant.user.value?.user.value.callCover,
+            user: participant.user.value?.user.value,
+          )
+        ];
       }
 
       return Stack(
@@ -148,7 +116,8 @@ class ParticipantWidget extends StatelessWidget {
                               participant.source == MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      outline: outline,
+                      border:
+                          outline == null ? null : Border.all(color: outline!),
                       onSizeDetermined: onSizeDetermined,
                       enableContextMenu: false,
                       respectAspectRatio: respectAspectRatio,
@@ -223,32 +192,32 @@ class ParticipantOverlayWidget extends StatelessWidget {
           (participant.video.value?.direction.value.isEmitting ?? false) &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      bool isAudioDisabled = !isMuted &&
-          participant.audio.value != null &&
+      bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       List<Widget> additionally = [];
 
-      if (isMuted) {
+      if (isAudioDisabled) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
+            padding: const EdgeInsets.only(left: 3, right: 3),
             child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 12,
+              'assets/icons/audio_off_small.svg',
+              width: 20.88,
+              height: 17,
+              fit: BoxFit.fitWidth,
             ),
           ),
         );
-      } else if (isAudioDisabled) {
+      } else if (isMuted) {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
-              'assets/icons/speaker_off.svg',
-              height: 35,
-              fit: BoxFit.fitWidth,
+              'assets/icons/microphone_off_small.svg',
+              height: 16.5,
             ),
           ),
         );
@@ -256,27 +225,41 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
+
+        if (isVideoDisabled) {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
+            ),
+          );
+        }
       } else if (isVideoDisabled) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
+            padding: const EdgeInsets.only(left: 5, right: 5),
             child: SvgLoader.asset(
-              'assets/icons/video_off.svg',
-              height: 35,
+              'assets/icons/video_off_small.svg',
+              width: 19.8,
+              height: 17,
             ),
           ),
         );
@@ -286,7 +269,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const SizedBox(width: double.infinity, height: double.infinity),
+            const IgnorePointer(
+              child: SizedBox(width: double.infinity, height: double.infinity),
+            ),
             Positioned.fill(
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -323,7 +308,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   top: 4,
                                   bottom: 4,
                                 ),
-                                height: 28,
+                                height: 32,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -392,7 +377,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     color: Colors.black.withOpacity(0.2),
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: const Center(
+                      child: CustomProgressIndicator(size: 64),
+                    ),
                   );
                 }
 

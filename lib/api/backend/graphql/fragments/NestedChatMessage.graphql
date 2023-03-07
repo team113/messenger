@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,7 +22,57 @@ fragment NestedChatMessage on ChatMessage {
     at
     ver
     repliesTo {
-        cursor
+        __typename
+        original {
+            cursor
+        }
+        author {
+            __typename
+            ...User
+        }
+        at
+        ... on ChatMessageQuote {
+            text
+            attachments {
+                __typename
+                ... on ImageAttachment {
+                    ...ImageAttachment
+                }
+                ... on FileAttachment {
+                    ...FileAttachment
+                }
+            }
+        }
+        ... on ChatInfoQuote {
+            action {
+                __typename
+                ... on ChatInfoActionAvatarUpdated {
+                    avatar {
+                        __typename
+                        ...ChatAvatar
+                    }
+                }
+                ... on ChatInfoActionCreated {
+                    directLinkSlug
+                }
+                ... on ChatInfoActionMemberAdded {
+                    directLinkSlug
+                    user {
+                        __typename
+                        ...User
+                    }
+                }
+                ... on ChatInfoActionMemberRemoved {
+                    user {
+                        __typename
+                        ...User
+                    }
+                }
+                ... on ChatInfoActionNameUpdated {
+                    name
+                }
+            }
+        }
     }
     text
     editedAt

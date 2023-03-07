@@ -1,5 +1,6 @@
 /*
- * Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+ * Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+ *                       <https://github.com/team113>
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License v3.0 as published by the
@@ -30,6 +31,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.annotation.NonNull
+import androidx.core.view.WindowCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -39,6 +41,11 @@ import android.app.KeyguardManager
 
 class MainActivity: FlutterActivity() {
     private val UTILS_CHANNEL = "team113.flutter.dev/android_utils"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

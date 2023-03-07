@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -39,7 +41,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -47,7 +48,10 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_item.dart';
+import 'message_info/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -59,6 +63,8 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.reads = const [],
+    this.loadImages = true,
     this.user,
     this.getUser,
     this.animation,
@@ -95,6 +101,13 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
+  /// [LastChatRead] to display under this [ChatItem].
+  final Iterable<LastChatRead> reads;
+
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
+  final bool loadImages;
+
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
@@ -124,7 +137,7 @@ class ChatForwardWidget extends StatefulWidget {
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [ChatForward] is tapped.
-  final void Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemQuote)? onForwardedTap;
 
   /// Callback, called when a [FileAttachment] of some [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
@@ -145,6 +158,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
   Offset _offset = Offset.zero;
+
+  /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
 
   /// [Duration] to animate [_offset] changes with.
   ///
@@ -275,23 +291,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget _forwardedMessage(Rx<ChatItem> forward) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
-      ChatItem item = msg.item;
+      ChatItemQuote quote = msg.quote;
 
       Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
 
-      if (item is ChatMessage) {
-        if (item.attachments.isNotEmpty) {
-          List<Attachment> media = item.attachments
+      if (quote is ChatMessageQuote) {
+        if (quote.attachments.isNotEmpty) {
+          List<Attachment> media = quote.attachments
               .where((e) =>
                   e is ImageAttachment ||
                   (e is FileAttachment && e.isVideo) ||
                   (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
               .toList();
 
-          List<Attachment> files = item.attachments
+          List<Attachment> files = quote.attachments
               .where((e) =>
                   (e is FileAttachment && !e.isVideo) ||
                   (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
@@ -310,7 +326,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           (e) => ChatItemWidget.fileAttachment(
                             e,
                             fromMe: widget.authorId == widget.me,
-                            onFileTap: (a) => widget.onFileTap?.call(item, a),
+                            onFileTap: (a) => widget.onFileTap?.call(msg, a),
                           ),
                         )
                         .toList(),
@@ -323,12 +339,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: media.length == 1
                     ? ChatItemWidget.mediaAttachment(
+                        context,
                         media.first,
                         media,
-                        key: _galleryKeys[item.id]?.firstOrNull,
+                        key: _galleryKeys[msg.id]?.firstOrNull,
                         onGallery: widget.onGallery,
                         onError: widget.onAttachmentError,
                         filled: false,
+                        autoLoad: widget.loadImages,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -338,11 +356,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
+                                  context,
                                   e,
                                   media,
-                                  key: _galleryKeys[item.id]?[i],
+                                  key: _galleryKeys[msg.id]?[i],
                                   onGallery: widget.onGallery,
                                   onError: widget.onAttachmentError,
+                                  autoLoad: widget.loadImages,
                                 ),
                               )
                               .toList(),
@@ -352,32 +372,31 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ];
         }
 
-        if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-          );
+        if (quote.text != null && quote.text!.val.isNotEmpty) {
+          content = Text(quote.text!.val, style: style.boldBody);
         }
-      } else if (item is ChatCall) {
+      } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
         String? time;
-        bool fromMe = widget.me == item.authorId;
+        bool fromMe = widget.me == quote.author;
         bool isMissed = false;
 
-        if (item.finishReason == null && item.conversationStartedAt != null) {
-          title = 'label_chat_call_ongoing'.l10n;
-        } else if (item.finishReason != null) {
-          title = item.finishReason!.localizedString(fromMe) ?? title;
-          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-              item.finishReason == ChatCallFinishReason.unanswered;
+        final ChatCall? call = quote.original as ChatCall?;
 
-          if (item.conversationStartedAt != null) {
-            time = item.finishedAt!.val
-                .difference(item.conversationStartedAt!.val)
+        if (call?.finishReason == null && call?.conversationStartedAt != null) {
+          title = 'label_chat_call_ongoing'.l10n;
+        } else if (call?.finishReason != null) {
+          title = call!.finishReason!.localizedString(fromMe) ?? title;
+          isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+              call.finishReason == ChatCallFinishReason.unanswered;
+
+          if (call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
                 .localizedString();
           }
         } else {
-          title = item.authorId == widget.me
+          title = call?.authorId == widget.me
               ? 'label_outgoing_call'.l10n
               : 'label_incoming_call'.l10n;
         }
@@ -387,7 +406,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
+              child: call?.withVideo == true
                   ? SvgLoader.asset(
                       'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                       height: 13,
@@ -412,10 +431,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             ],
           ],
         );
-      } else if (item is ChatMemberInfo) {
-        content = Text(item.action.toString(), style: style.boldBody);
-      } else if (item is ChatForward) {
-        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+      } else if (quote is ChatInfoQuote) {
+        content = Text(quote.action.toString(), style: style.boldBody);
       } else {
         content = Text('err_unknown'.l10n, style: style.boldBody);
       }
@@ -423,7 +440,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
-          color: msg.item.authorId == widget.me
+          color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
                   ? const Color(0xFFDBEAFD)
                   : const Color(0xFFE6F1FE)
@@ -435,9 +452,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: () => widget.onForwardedTap?.call(item.id, item.chatId),
+            onPressed: () => widget.onForwardedTap?.call(quote),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(item.authorId),
+              future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
                 Color color = snapshot.data?.user.value.id == widget.me
                     ? Theme.of(context).colorScheme.secondary
@@ -616,12 +633,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: attachments.length == 1
                   ? ChatItemWidget.mediaAttachment(
+                      context,
                       attachments.first,
                       attachments,
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
+                      autoLoad: widget.loadImages,
                     )
                   : SizedBox(
                       width: attachments.length * 120,
@@ -631,11 +650,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
+                                context,
                                 e,
                                 attachments,
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
+                                autoLoad: widget.loadImages,
                               ),
                             )
                             .toList(),
@@ -661,9 +682,55 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+      (e) =>
+          !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
+          e.memberId != widget.authorId,
+    );
+
+    const int maxAvatars = 5;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        if (user != null) {
+          avatars.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: FutureBuilder<RxUser?>(
+                future: widget.getUser?.call(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                  }
+                  return AvatarWidget.fromUser(user, radius: 10);
+                },
+              ),
+            ),
+          );
+        }
+      }
+
+      if (widget.reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -677,6 +744,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -700,13 +768,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -714,6 +796,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -743,8 +826,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 +
-                            (_fromMe ? SwipeableStatus.width : -10),
+                        constraints.maxWidth - SwipeableStatus.width,
                       ),
                     ),
                     child: Padding(
@@ -757,45 +839,61 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
                           actions: [
+                            ContextMenuButton(
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_info'.l10n
+                                  : 'btn_message_info'.l10n,
+                              trailing: const Icon(Icons.info_outline),
+                              onPressed: () => MessageInfo.show(
+                                context,
+                                id: widget.forwards.first.value.id,
+                                reads: reads ?? [],
+                              ),
+                            ),
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
-                                label: 'btn_copy'.l10n,
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_copy'.l10n
+                                    : 'btn_copy_text'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/copy_small.svg',
-                                  width: 14.82,
-                                  height: 17,
+                                  height: 18,
                                 ),
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 18,
                               ),
                               onPressed: widget.onReply,
                             ),
                             ContextMenuButton(
                               key: const Key('ForwardButton'),
-                              label: 'btn_forward'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_forward'.l10n
+                                  : 'btn_forward_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/forward.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 18,
                               ),
                               onPressed: () async {
-                                final List<ChatItemQuote> quotes = [];
+                                final List<ChatItemQuoteInput> quotes = [];
 
                                 for (Rx<ChatItem> item in widget.forwards) {
-                                  quotes.add(ChatItemQuote(item: item.value));
+                                  quotes.add(
+                                    ChatItemQuoteInput(item: item.value),
+                                  );
                                 }
 
                                 if (widget.note.value != null) {
                                   quotes.add(
-                                    ChatItemQuote(
+                                    ChatItemQuoteInput(
                                       item: widget.note.value!.value,
                                     ),
                                   );
@@ -819,17 +917,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
+                                  height: 18,
                                 ),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
-                              label: 'btn_delete'.l10n,
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
+                                height: 18,
                               ),
                               onPressed: () async {
                                 bool deletable = widget.authorId == widget.me &&
@@ -866,7 +964,30 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: child,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child,
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: const Offset(-12, -4),
+                                  child: WidgetButton(
+                                    onPressed: () => MessageInfo.show(
+                                      context,
+                                      id: widget.forwards.first.value.id,
+                                      reads: reads ?? [],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -886,9 +1007,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     _galleryKeys.clear();
 
     for (Rx<ChatItem> forward in widget.forwards) {
-      final ChatItem item = (forward.value as ChatForward).item;
-      if (item is ChatMessage) {
-        _galleryKeys[item.id] = item.attachments
+      final ChatItemQuote item = (forward.value as ChatForward).quote;
+      if (item is ChatMessageQuote) {
+        _galleryKeys[forward.value.id] = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||

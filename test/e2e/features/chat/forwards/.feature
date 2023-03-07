@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,7 +34,7 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     And I fill `ForwardField` field with "Check this :)"
-    And I tap "Charlie" text
+    And I tap on chat with Charlie
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "Check this :)" is present
@@ -49,7 +50,7 @@ Feature: Chat items are forwarded correctly
 
     When I fill `ForwardField` field with "Mhm... Monkey."
     And I attach "test.jpg" image
-    And I tap "Charlie" text
+    And I tap on chat with Charlie
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until attachment "test.jpg" is present
@@ -67,8 +68,8 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "!!"
-    And I tap "Charlie" text
-    And I tap "Dave" text
+    And I tap on chat with Charlie
+    And I tap on chat with Dave
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "!!" is present

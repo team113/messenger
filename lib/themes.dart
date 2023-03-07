@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,9 +32,19 @@ class Themes {
           onBackground: Colors.black,
         );
 
-    SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-        ? SystemUiOverlayStyle.dark
-        : SystemUiOverlayStyle.light);
+    SystemChrome.setSystemUIOverlayStyle(
+      colors.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.light,
+    );
 
     return ThemeData.light().copyWith(
         extensions: [
@@ -51,7 +62,7 @@ class Themes {
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
             cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+            cardSelectedColor: const Color(0xFFD7ECFF),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
@@ -88,7 +99,7 @@ class Themes {
                   ?.copyWith(color: colors.primary),
               systemOverlayStyle: const SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.blue,
-                statusBarColor: Color(0xFFF8F8F8),
+                statusBarColor: Colors.transparent,
               ),
               elevation: 0,
               centerTitle: true,
@@ -107,34 +118,34 @@ class Themes {
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          headline3: const TextStyle(
+          displaySmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: const TextStyle(color: Colors.black, fontSize: 18),
-          headline5: const TextStyle(
+          headlineMedium: const TextStyle(color: Colors.black, fontSize: 18),
+          headlineSmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          caption: TextStyle(
+          bodySmall: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          button: const TextStyle(
+          labelLarge: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: TextStyle(
+          titleMedium: const TextStyle(color: Colors.black, fontSize: 15),
+          titleSmall: TextStyle(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyText1: const TextStyle(
+          bodyLarge: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
@@ -142,28 +153,34 @@ class Themes {
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
-              hoverColor: colors.secondary,
+              hoverColor: Colors.transparent,
               fillColor: colors.secondary,
-              hintStyle: GoogleFonts.roboto(color: colors.primary),
-              labelStyle: GoogleFonts.roboto(color: colors.primary),
+              hintStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              labelStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
+              helperStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              floatingLabelStyle:
+                  GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorMaxLines: 5,
-              floatingLabelStyle: GoogleFonts.roboto(color: colors.primary),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.secondary),
+                borderSide:
+                    const BorderSide(width: 2, color: Color(0xFFD0D0D0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
             ),
         textSelectionTheme: ThemeData.light().textSelectionTheme.copyWith(
@@ -220,9 +237,17 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light()
-            .scrollbarTheme
-            .copyWith(thickness: MaterialStateProperty.all(6)),
+        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
+              interactive: true,
+              thickness: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.dragged) ||
+                    states.contains(MaterialState.hovered)) {
+                  return 6;
+                }
+
+                return 4;
+              }),
+            ),
         radioTheme: ThemeData.light().radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
