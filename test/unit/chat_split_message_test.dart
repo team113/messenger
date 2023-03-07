@@ -87,8 +87,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callsPreferencesProvider = CallRectHiveProvider();
-  await callsPreferencesProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   AuthService authService = Get.put(
     AuthService(
@@ -168,7 +168,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -243,7 +243,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -326,7 +326,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -403,7 +403,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -472,7 +472,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -555,7 +555,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(

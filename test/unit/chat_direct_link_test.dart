@@ -85,8 +85,8 @@ void main() async {
   await backgroundProvider.init();
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
-  var callsPreferencesProvider = CallRectHiveProvider();
-  await callsPreferencesProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -256,7 +256,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -311,7 +311,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -387,7 +387,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -439,7 +439,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -502,7 +502,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -556,7 +556,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 

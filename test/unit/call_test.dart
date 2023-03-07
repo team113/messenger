@@ -112,8 +112,8 @@ void main() async {
   await chatProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var callsPreferencesProvider = CallRectHiveProvider();
-  await callsPreferencesProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -167,7 +167,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -296,7 +296,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
 
@@ -364,7 +364,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
-        callsPreferencesProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(

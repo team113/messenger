@@ -90,8 +90,8 @@ void main() async {
   await credentialsProvider.init(userId: const UserId('me'));
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init(userId: const UserId('me'));
-  var callsPreferencesProvider = CallRectHiveProvider();
-  await callsPreferencesProvider.init(userId: const UserId('me'));
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
