@@ -750,7 +750,13 @@ Widget desktopCall(CallController c, BuildContext context) {
             return const SizedBox();
           }
 
-          return _secondaryView(c, context);
+          return LayoutBuilder(builder: (_, __) {
+            if (!WebUtils.isPopup) {
+              c.relocateSecondary();
+            }
+
+            return _secondaryView(c, context);
+          });
         }),
 
         // Show a hint if any renderer is draggable.
@@ -865,16 +871,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   child: _titleBar(context, c),
                 ),
               ),
-            Expanded(
-              child: WebUtils.isPopup
-                  ? Stack(children: [...content, ...ui])
-                  : LayoutBuilder(
-                      builder: (_, __) {
-                        c.relocateSecondary();
-                        return Stack(children: [...content, ...ui]);
-                      },
-                    ),
-            ),
+            Expanded(child: Stack(children: [...content, ...ui])),
           ],
         ),
       );
