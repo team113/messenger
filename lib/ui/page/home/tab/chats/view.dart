@@ -207,7 +207,7 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
-                  if (c.chatsReady.value) {
+                  if (c.status.value.isSuccess) {
                     final Widget? child;
 
                     if (c.groupCreating.value) {
@@ -479,7 +479,7 @@ class ChatsTabView extends StatelessWidget {
                       }
                     } else {
                       if (c.chats.none((e) => !e.id.isLocal)) {
-                        if (!c.chatsReady.value) {
+                        if (c.status.value.isLoading) {
                           child = Center(
                             key: UniqueKey(),
                             child: const ColoredBox(

@@ -96,9 +96,6 @@ class ChatRepository implements AbstractChatRepository {
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [isReady] value.
-  final RxBool _isReady = RxBool(false);
-
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
@@ -140,13 +137,15 @@ class ChatRepository implements AbstractChatRepository {
   RxBool get hasNext => _fragment.hasNextPage;
 
   @override
-  RxBool get isReady => _isReady;
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   @override
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   }) async {
     this.onMemberRemoved = onMemberRemoved;
+
+    status.value = RxStatus.loading();
 
     _initLocalSubscription();
     _initDraftSubscription();
@@ -205,9 +204,8 @@ class ChatRepository implements AbstractChatRepository {
 
     await Future.delayed(Duration.zero);
 
-    print('_chats.isNotEmpty1');
     if (_chats.isNotEmpty) {
-      _isReady.value = true;
+      status.value = RxStatus.loadingMore();
     }
 
     try {
@@ -216,7 +214,7 @@ class ChatRepository implements AbstractChatRepository {
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
-      _isReady.value = true;
+      status.value = RxStatus.success();
     } on OperationCanceledException catch (_) {
       // No-op.
     }

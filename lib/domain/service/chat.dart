@@ -45,9 +45,16 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [chats] value is fetched.
-  RxBool get isReady => _chatRepository.isReady;
+  /// Status of the [chats] fetching.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning [chats] were not yet initialized.
+  /// - `status.isLoading`, meaning [chats] are being fetched from the local
+  ///   storage.
+  /// - `status.isSuccess`, meaning [chats] are successfully fetched.
+  /// - `status.isLoadingMore`, meaning [chats] are being fetched from the
+  ///   remote.
+  Rx<RxStatus> get status => _chatRepository.status;
 
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;

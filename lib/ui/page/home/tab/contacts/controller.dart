@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -101,6 +102,9 @@ class ContactsTabController extends GetxController {
   /// [Worker]s to [RxUser.user] reacting on its changes.
   final Map<UserId, Worker> _userWorkers = {};
 
+  /// Worker capturing any [status] changes.
+  Worker? _statusWorker;
+
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
@@ -111,8 +115,16 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get contactsReady => _contactService.isReady;
+  /// Status of the [contacts] fetching.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
+  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
+  ///   storage.
+  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
+  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
+  ///   remote.
+  Rx<RxStatus> get status => _contactService.status;
 
   /// Indicates whether [contacts] should be sorted by their names or otherwise
   /// by their [User.lastSeenAt] dates.
@@ -138,6 +150,26 @@ class ContactsTabController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
+    if (status.value.isSuccess && !status.value.isLoadingMore) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.position.maxScrollExtent == 0) {
+          _contactService.fetchNext();
+        }
+      });
+    } else {
+      _statusWorker = ever(status, (e) {
+        if (e.isSuccess && !e.isLoadingMore) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (scrollController.position.maxScrollExtent == 0) {
+              _contactService.fetchNext();
+            }
+          });
+          _statusWorker?.dispose();
+          _statusWorker = null;
+        }
+      });
+    }
+
     super.onInit();
   }
 
@@ -151,6 +183,7 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
+    _statusWorker?.dispose();
     scrollController.removeListener(_scrollListener);
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);

@@ -279,8 +279,8 @@ class HiveRxChat extends RxChat {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          messages.add(event.element.value.obs);
-          put(event.element, ignoreVersion: true);
+          _add(event.element.value);
+          put(event.element);
           break;
 
         case OperationKind.removed:
@@ -288,6 +288,7 @@ class HiveRxChat extends RxChat {
           break;
 
         case OperationKind.updated:
+          _add(event.element.value);
           put(event.element);
           break;
       }
@@ -788,6 +789,36 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Adds the provided [ChatItem] to the [messages] list.
+  void _add(ChatItem item) {
+    if (!PlatformUtils.isWeb) {
+      if (item is ChatMessage) {
+        for (var a in item.attachments.whereType<FileAttachment>()) {
+          a.init();
+        }
+      } else if (item is ChatForward) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          for (var a in nested.attachments.whereType<FileAttachment>()) {
+            a.init();
+          }
+        }
+      }
+    }
+
+    int i = messages.indexWhere((e) => e.value.id == item.id);
+    if (i == -1) {
+      Rx<ChatItem> rxItem = Rx<ChatItem>(item);
+      messages.insertAfter(
+        rxItem,
+        (e) => rxItem.value.at.compareTo(e.value.at) == 1,
+      );
+    } else {
+      messages[i].value = item;
+      messages[i].refresh();
+    }
+  }
+
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
@@ -907,33 +938,6 @@ class HiveRxChat extends RxChat {
         if (i != -1) {
           messages.removeAt(i);
         }
-      } else {
-        if (!PlatformUtils.isWeb) {
-          ChatItem item = event.value.value;
-          if (item is ChatMessage) {
-            for (var a in item.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
-          } else if (item is ChatForward) {
-            ChatItemQuote nested = item.quote;
-            if (nested is ChatMessageQuote) {
-              for (var a in nested.attachments.whereType<FileAttachment>()) {
-                a.init();
-              }
-            }
-          }
-        }
-
-        if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
-          messages.insertAfter(
-            item,
-            (e) => item.value.at.compareTo(e.value.at) == 1,
-          );
-        } else {
-          messages[i].value = event.value.value;
-          messages[i].refresh();
-        }
       }
     }
   }
@@ -1052,6 +1056,7 @@ class HiveRxChat extends RxChat {
                     if (chatItem != null) {
                       chatItem.value = message.value;
                       chatItem.save();
+                      _fragment.add(chatItem);
                     }
                   }
                 },
@@ -1100,6 +1105,7 @@ class HiveRxChat extends RxChat {
                 event.call.at = message.value.at;
                 message.value = event.call;
                 message.save();
+                _fragment.add(message);
               }
               break;
 

@@ -267,6 +267,9 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
+  /// Worker capturing any [status] changes.
+  Worker? _statusWorker;
+
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
 
@@ -369,6 +372,7 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
+    _statusWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
@@ -900,6 +904,31 @@ class ChatController extends GetxController {
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
       }
+
+      loadNextPage() {
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          for (int i = 0; i < 10 && !listController.hasClients; i++) {
+            await Future.delayed(10.milliseconds);
+          }
+
+          if (listController.hasClients &&
+              listController.position.maxScrollExtent == 0) {
+            _loadNextPage();
+          }
+        });
+      }
+
+      if (status.value.isSuccess && !status.value.isLoadingMore) {
+        loadNextPage();
+      } else {
+        _statusWorker = ever(status, (e) {
+          if (e.isSuccess && !e.isLoadingMore) {
+            loadNextPage();
+            _statusWorker?.dispose();
+            _statusWorker = null;
+          }
+        });
+      }
     }
   }
 
@@ -1159,55 +1188,65 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Loads next or previous page of the [RxChat.messages] based on the
-  /// [FlutterListViewController.position] value.
+  /// Loads next and previous page of the [RxChat.messages].
   void _loadMessages() async {
     if (listController.hasClients &&
         !_ignorePositionChanges &&
         status.value.isSuccess &&
         !status.value.isLoadingMore) {
-      if (hasNext.isTrue &&
-          listController.position.pixels >
-              listController.position.maxScrollExtent -
-                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
-        if (_topLoader == null) {
-          _topLoader = LoaderElement.top();
-          elements[_topLoader!.id] = _topLoader!;
+      _loadNextPage();
+      _loadPreviousPage();
+    }
+  }
+
+  /// Loads next page of the [RxChat.messages] based on the
+  /// [FlutterListViewController.position] value.
+  Future<void> _loadNextPage() async {
+    if (hasNext.isTrue &&
+        listController.position.pixels >
+            listController.position.maxScrollExtent -
+                (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+      if (_topLoader == null) {
+        _topLoader = LoaderElement.top();
+        elements[_topLoader!.id] = _topLoader!;
+      }
+
+      await chat!.fetchNext();
+
+      if (hasNext.isFalse) {
+        elements.remove(_topLoader?.id);
+        _topLoader = null;
+      }
+    }
+  }
+
+  /// Loads previous page of the [RxChat.messages] based on the
+  /// [FlutterListViewController.position] value.
+  Future<void> _loadPreviousPage() async {
+    if (hasPrevious.isTrue &&
+        !_isPrevPageLoading &&
+        listController.position.pixels <
+            MediaQuery.of(router.context!).size.height * 2 + 200) {
+      keepPositionOffset.value = 0;
+      _isPrevPageLoading = true;
+
+      _bottomLoader =
+          LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
+      elements[_bottomLoader!.id] = _bottomLoader!;
+
+      await chat!.fetchPrevious();
+
+      final double offset = listController.position.pixels;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        keepPositionOffset.value = 50;
+        if (offset < loadingHeight) {
+          listController.jumpTo(
+            listController.position.pixels - (loadingHeight + 42 - offset),
+          );
         }
-
-        chat!.fetchNext().whenComplete(() {
-          if (hasNext.isFalse) {
-            elements.remove(_topLoader?.id);
-            _topLoader = null;
-          }
-        });
-      }
-
-      if (hasPrevious.isTrue &&
-          !_isPrevPageLoading &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height * 2 + 200) {
-        keepPositionOffset.value = 0;
-        _isPrevPageLoading = true;
-
-        _bottomLoader =
-            LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
-        elements[_bottomLoader!.id] = _bottomLoader!;
-
-        chat!.fetchPrevious().whenComplete(() {
-          final double offset = listController.position.pixels;
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            keepPositionOffset.value = 50;
-            if (offset < loadingHeight) {
-              listController.jumpTo(
-                listController.position.pixels - (loadingHeight + 42 - offset),
-              );
-            }
-            elements.remove(_bottomLoader?.id);
-            _isPrevPageLoading = false;
-          });
-        });
-      }
+        elements.remove(_bottomLoader?.id);
+        _isPrevPageLoading = false;
+      });
     }
   }
 

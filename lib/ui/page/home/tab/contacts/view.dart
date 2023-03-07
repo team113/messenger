@@ -162,7 +162,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
-            if (!c.contactsReady.value) {
+            if (c.status.value.isLoading) {
               return const Center(child: CustomProgressIndicator());
             }
 

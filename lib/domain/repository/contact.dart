@@ -35,9 +35,16 @@ abstract class AbstractContactRepository {
   /// Indicates whether the [contacts] have next page.
   RxBool get hasNext;
 
-  /// Indicates whether this repository was initialized and [contacts] can be
-  /// used.
-  RxBool get isReady;
+  /// Status of the [contacts] fetching.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
+  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
+  ///   storage.
+  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
+  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
+  ///   remote.
+  Rx<RxStatus> get status;
 
   /// Initializes this repository.
   Future<void> init();

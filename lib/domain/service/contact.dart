@@ -30,9 +30,16 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [contacts] value is fetched.
-  RxBool get isReady => _contactRepository.isReady;
+  /// Status of the [contacts] fetching.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
+  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
+  ///   storage.
+  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
+  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
+  ///   remote.
+  Rx<RxStatus> get status => _contactRepository.status;
 
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>

@@ -38,9 +38,16 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Indicates whether this repository was initialized and [chats] can be
-  /// used.
-  RxBool get isReady;
+  /// Status of the [chats] fetching.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning [chats] were not yet initialized.
+  /// - `status.isLoading`, meaning [chats] are being fetched from the local
+  ///   storage.
+  /// - `status.isSuccess`, meaning [chats] are successfully fetched.
+  /// - `status.isLoadingMore`, meaning [chats] are being fetched from the
+  ///   remote.
+  Rx<RxStatus> get status;
 
   /// Indicates whether the [chats] have next page.
   RxBool get hasNext;

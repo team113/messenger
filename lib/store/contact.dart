@@ -54,7 +54,7 @@ class ContactRepository implements AbstractContactRepository {
   );
 
   @override
-  final RxBool isReady = RxBool(false);
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
@@ -96,6 +96,7 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> init() async {
+    status.value = RxStatus.loading();
     _initLocalSubscription();
 
     _fragment = PaginatedFragment<HiveChatContact>(
@@ -137,7 +138,8 @@ class ContactRepository implements AbstractContactRepository {
     _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          _putEntry(event.element, ignoreVersion: true);
+          add(event.element);
+          _putEntry(event.element);
           break;
 
         case OperationKind.removed:
@@ -145,6 +147,7 @@ class ContactRepository implements AbstractContactRepository {
           break;
 
         case OperationKind.updated:
+          add(event.element);
           _putEntry(event.element);
           break;
       }
@@ -153,14 +156,14 @@ class ContactRepository implements AbstractContactRepository {
     _fragment.init();
 
     if (!_contactLocal.isEmpty) {
-      isReady.value = true;
+      status.value = RxStatus.loadingMore();
     }
 
     await Backoff.run(_fragment.fetchInitialPage, _cancelToken);
 
     _initRemoteSubscription();
 
-    isReady.value = true;
+    status.value = RxStatus.success();
   }
 
   @override
@@ -299,14 +302,12 @@ class ContactRepository implements AbstractContactRepository {
   /// Puts the provided [contact] to [Hive].
   Future<void> _putEntry(
     HiveChatContact contact, {
-    bool ignoreVersion = false,
     bool add = false,
   }) async {
     var saved = _contactLocal.get(contact.value.id);
     // TODO: Version should not be zero at all.
     if (saved == null ||
         saved.ver <= contact.ver ||
-        ignoreVersion ||
         contact.ver.internal == BigInt.zero) {
       if (saved != null && contact.cursor == null) {
         contact.cursor = saved.cursor;
@@ -319,6 +320,33 @@ class ContactRepository implements AbstractContactRepository {
     }
   }
 
+  /// Adds the provided [HiveChatContact] to the [contacts] or [favorites] list.
+  add(HiveChatContact contact) {
+    if (contact.value.favoritePosition == null) {
+      favorites.remove(contact.value.id);
+      HiveRxChatContact? rxContact = contacts[contact.value.id];
+      if (rxContact == null) {
+        contacts[contact.value.id] = HiveRxChatContact(_userRepo, contact)
+          ..init();
+      } else {
+        rxContact.contact.value = contact.value;
+      }
+    } else {
+      contacts.remove(contact.value.id);
+      HiveRxChatContact? rxContact = favorites[contact.value.id];
+      if (rxContact == null) {
+        favorites[contact.value.id] = HiveRxChatContact(_userRepo, contact)
+          ..init();
+      } else {
+        rxContact.contact.value = contact.value;
+        rxContact.contact.refresh();
+        favorites.emit(
+          MapChangeNotification.updated(rxContact.id, rxContact.id, rxContact),
+        );
+      }
+    }
+  }
+
   /// Initializes [ContactHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_contactLocal.boxEvents);
@@ -327,30 +355,6 @@ class ContactRepository implements AbstractContactRepository {
       if (event.deleted) {
         favorites.remove(ChatContactId(event.key));
         contacts.remove(ChatContactId(event.key));
-      } else {
-        if (event.value?.value.favoritePosition == null) {
-          favorites.remove(ChatContactId(event.key));
-          HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
-          if (contact == null) {
-            contacts[ChatContactId(event.key)] =
-                HiveRxChatContact(_userRepo, event.value)..init();
-          } else {
-            contact.contact.value = event.value.value;
-          }
-        } else {
-          contacts.remove(ChatContactId(event.key));
-          HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
-          if (contact == null) {
-            favorites[ChatContactId(event.key)] =
-                HiveRxChatContact(_userRepo, event.value)..init();
-          } else {
-            contact.contact.value = event.value.value;
-            contact.contact.refresh();
-            favorites.emit(
-              MapChangeNotification.updated(contact.id, contact.id, contact),
-            );
-          }
-        }
       }
     }
   }
@@ -393,8 +397,6 @@ class ContactRepository implements AbstractContactRepository {
           _putEntry(c, add: true);
           _fragment.add(c);
         }
-
-        isReady.value = true;
         break;
 
       case ChatContactsEventsKind.event:
