@@ -506,6 +506,10 @@ class CallController extends GetxController {
     return args;
   }
 
+  /// Returns scale factor of the secondary view according to the [size].
+  double get secondarySizeFactor =>
+      (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+
   @override
   void onInit() {
     super.onInit();
@@ -546,9 +550,7 @@ class CallController extends GetxController {
     }
 
     double secondarySize = (this.size.shortestSide *
-            (this.size.aspectRatio > 2 || this.size.aspectRatio < 0.5
-                ? 0.45
-                : 0.33))
+            secondarySizeFactor)
         .clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
@@ -1603,7 +1605,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [secondaryScaleFactor] according to [constraints] and
+  /// Scales secondary by [secondarySizeFactor] according to [constraints] and
   /// [_lastConstraints] difference.
   void scaleSecondary(BoxConstraints constraints) {
     if (_lastConstraints == constraints) {
@@ -1611,18 +1613,14 @@ class CallController extends GetxController {
     }
 
     if (_lastConstraints != null) {
-      // Scale factor of the secondary view according to the [size].
-      final double secondaryScaleFactor =
-          size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
-
       final widthDif = constraints.maxWidth - (_lastConstraints?.maxWidth ?? 0);
       final heightDif =
           constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
 
       secondaryWidth.value =
-          _applySWidth(secondaryWidth.value + widthDif * secondaryScaleFactor);
+          _applySWidth(secondaryWidth.value + widthDif * secondarySizeFactor);
       secondaryHeight.value = _applySHeight(
-        secondaryHeight.value + heightDif * secondaryScaleFactor,
+        secondaryHeight.value + heightDif * secondarySizeFactor,
       );
     }
 
