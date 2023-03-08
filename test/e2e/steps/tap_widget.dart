@@ -48,7 +48,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
               (finder.evaluate().first.renderObject as RenderBox?)
                   ?.localToGlobal(Offset.zero);
 
-          if ((position?.dy ?? 0) + 200 >
+          if ((position?.dy ?? 0) >
               MediaQuery.of(router.context!).size.height) {
             await context.world.appDriver.scrollIntoView(finder);
           }

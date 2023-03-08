@@ -317,6 +317,8 @@ class ChatService extends DisposableService {
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
 
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
       _chatRepository.clearChat(id, untilId);
 }

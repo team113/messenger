@@ -80,8 +80,10 @@ class ContactsTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether multiple [ChatContact]s selection is active.
   final RxBool selecting = RxBool(false);
 
+  /// Reactive list of [ChatContactId] of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].
@@ -175,12 +177,22 @@ class ContactsTabController extends GetxController {
     await _contactService.deleteContact(contact.id);
   }
 
+  /// Deletes [ChatContact]s identified by the provided [ChatContactId] from
+  /// [selectedContacts].
   Future<void> deleteContacts() async {
-    toggleSelecting(false);
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
 
-    final Iterable<Future> futures =
-        selectedContacts.map((e) => _contactService.deleteContact(e));
-    await Future.wait(futures);
+    try {
+      final Iterable<Future> futures =
+          selectedContacts.map((e) => _contactService.deleteContact(e));
+      await Future.wait(futures);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedContacts.clear();
+    }
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
@@ -287,19 +299,19 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  void toggleSelecting([bool clearSelected = true]) {
-    if (clearSelected) {
-      selectedContacts.clear();
-    }
+  /// Toggles the [ChatContact]s selection.
+  void toggleSelecting() {
     selecting.toggle();
     router.navigation.value = !selecting.value;
+    selectedContacts.clear();
   }
 
-  void selectContact(RxChatContact e) {
-    if (selectedContacts.contains(e.id)) {
-      selectedContacts.remove(e.id);
+  /// Add a [ChatContactId] to the [selectedChats].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact.id)) {
+      selectedContacts.remove(contact.id);
     } else {
-      selectedContacts.add(e.id);
+      selectedContacts.add(contact.id);
     }
   }
 

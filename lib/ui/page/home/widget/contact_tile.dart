@@ -104,6 +104,7 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  /// Indicator whether should the context menu be available.
   final bool enabledContextMenu;
 
   /// Builder for building an [AvatarWidget] this [ContactTile] displays.

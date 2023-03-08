@@ -79,10 +79,13 @@ class RecentChatTile extends StatelessWidget {
   /// its trailing.
   final bool blocked;
 
+  /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
 
+  /// Indicator whether should the context menu be available.
   final bool enabledContextMenu;
 
+  /// List of [Widget]s to be displayed in subtitle.
   final List<Widget> trailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -120,8 +123,10 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onUnfavorite;
 
+  /// Callback, called when this [rxChat] select action is triggered.
   final void Function()? onSelect;
 
+  /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.

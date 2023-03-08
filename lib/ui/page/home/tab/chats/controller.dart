@@ -99,7 +99,10 @@ class ChatsTabController extends GetxController {
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
+  /// Indicator whether multiple [Chat]s selection is active.
   final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatId] of the selected [Chat]s.
   final RxList<ChatId> selectedChats = RxList();
 
   /// Indicator whether an ongoing reordering is happening or not.
@@ -313,8 +316,11 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Hides [Chat]s identified by the provided [ChatId] from [selectedChats]
+  /// cleansing the [Chat] history.
   Future<void> hideChats(bool clear) async {
-    toggleSelecting(false);
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
 
     try {
       final Iterable<Future> futures = [
@@ -330,6 +336,8 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 
@@ -383,17 +391,6 @@ class ChatsTabController extends GetxController {
       rethrow;
     }
   }
-
-  // Future<void> clearChat(ChatId id, ChatItemId untilId) async {
-  //   try {
-  //     await _chatService.clearChat(id, untilId);
-  //   } on ClearChatException catch (e) {
-  //     MessagePopup.error(e);
-  //   } catch (e) {
-  //     MessagePopup.error(e);
-  //     rethrow;
-  //   }
-  // }
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
@@ -483,19 +480,19 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  void toggleSelecting([bool clearSelected = true]) {
-    if (clearSelected) {
-      selectedChats.clear();
-    }
+  /// Toggles the [Chat]s selection.
+  void toggleSelecting() {
     selecting.toggle();
     router.navigation.value = !selecting.value;
+    selectedChats.clear();
   }
 
-  void selectChat(RxChat e) {
-    if (selectedChats.contains(e.id)) {
-      selectedChats.remove(e.id);
+  /// Add a [ChatId] to the [selectedChats].
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat.id)) {
+      selectedChats.remove(chat.id);
     } else {
-      selectedChats.add(e.id);
+      selectedChats.add(chat.id);
     }
   }
 

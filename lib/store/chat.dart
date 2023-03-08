@@ -388,8 +388,6 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChat(id);
-      // await Future.delayed(const Duration(seconds: 3));
-      // throw Exception();
     } catch (_) {
       if (chat != null) {
         _chats[id] = chat;

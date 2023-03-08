@@ -78,6 +78,7 @@ class ChatTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ChatTile].
   final double darken;
 
+  /// Indicator whether should the context menu be available.
   final bool enabledContextMenu;
 
   /// Builder for building an [AvatarWidget] this [ChatTile] displays.
@@ -119,7 +120,6 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,

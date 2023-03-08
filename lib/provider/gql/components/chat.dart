@@ -1257,6 +1257,22 @@ abstract class ChatGraphQlMixin {
     );
   }
 
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following ChatEvent may be produced on success:
+  /// - [EventChatCleared]
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already cleared until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> clearChat(
     ChatId id,
     ChatItemId untilId,

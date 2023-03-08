@@ -22,9 +22,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/ui/widget/selected_dot.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -32,16 +29,19 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
+import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
@@ -563,6 +563,8 @@ class ChatsTabView extends StatelessWidget {
                                   trailing: c.selecting.value
                                       ? [
                                           SelectedDot(
+                                            selectedKey:
+                                                Key('SelectedChat_${e.id.val}'),
                                             selected: selected,
                                             size: 20,
                                           )
@@ -843,30 +845,11 @@ class ChatsTabView extends StatelessWidget {
   }
 
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    Widget button({
-      Key? key,
-      Widget? leading,
-      required Widget child,
-      void Function()? onPressed,
-      Color? color,
-    }) {
-      return Expanded(
-        child: OutlinedRoundedButton(
-          key: key,
-          leading: leading,
-          title: child,
-          onPressed: onPressed,
-          color: color,
-          shadows: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-              blurStyle: BlurStyle.outer,
-            ),
-          ],
-        ),
-      );
-    }
+    CustomBoxShadow shadow = const CustomBoxShadow(
+      blurRadius: 8,
+      color: Color(0x22000000),
+      blurStyle: BlurStyle.outer,
+    );
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -879,30 +862,39 @@ class ChatsTabView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          button(
-            child: Text(
-              'btn_close'.l10n,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: const TextStyle(color: Colors.black),
+          Expanded(
+            child: OutlinedRoundedButton(
+              title: Text(
+                'btn_close'.l10n,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.black),
+              ),
+              onPressed: c.toggleSelecting,
+              color: Colors.white,
+              shadows: [shadow],
             ),
-            onPressed: c.toggleSelecting,
-            color: Colors.white,
           ),
           const SizedBox(width: 10),
           Obx(() {
-            return button(
-              child: Text(
-                '${'btn_delete'.l10n} (${c.selectedChats.length})',
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
-                    color:
-                        c.selectedChats.isEmpty ? Colors.black : Colors.white),
+            return Expanded(
+              child: OutlinedRoundedButton(
+                key: const Key('DeleteChats'),
+                title: Text(
+                  '${'btn_delete'.l10n} (${c.selectedChats.length})',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                      color: c.selectedChats.isEmpty
+                          ? Colors.black
+                          : Colors.white),
+                ),
+                onPressed: c.selectedChats.isEmpty
+                    ? null
+                    : () => _hideChats(context, c),
+                color: Theme.of(context).colorScheme.secondary,
+                shadows: [shadow],
               ),
-              onPressed:
-                  c.selectedChats.isEmpty ? null : () => _hideChats(context, c),
-              color: Theme.of(context).colorScheme.secondary,
             );
           }),
         ],
@@ -910,6 +902,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
+  /// Opens a confirmation popup hiding selected chats.
   Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
     bool clear = false;
 
