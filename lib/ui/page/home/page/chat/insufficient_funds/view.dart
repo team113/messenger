@@ -47,7 +47,7 @@ class InsufficientFundsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: InsufficientFundsController(),
+      init: InsufficientFundsController(Get.find()),
       builder: (InsufficientFundsController c) {
         final TextStyle? thin = Theme.of(context)
             .textTheme
@@ -102,11 +102,12 @@ class InsufficientFundsView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_add_funds'.l10n,
-                        style: thin?.copyWith(
-                          color: Colors.white,
-                        ),
+                        style: thin?.copyWith(color: Colors.white),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        c.topUp();
+                      },
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),

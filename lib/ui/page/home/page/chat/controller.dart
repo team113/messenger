@@ -27,6 +27,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
@@ -79,7 +81,8 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._balanceService, {
     this.itemId,
   });
 
@@ -251,6 +254,8 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
+  final BalanceService _balanceService;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -312,11 +317,17 @@ class ChatController extends GetxController {
         }
 
         if (paid) {
-          await InsufficientFundsView.show(
-            router.context!,
-            description: 'label_message_cant_send_message_funds'.l10n,
-          );
-          return;
+          if (_balanceService.balance.value < 100) {
+            await InsufficientFundsView.show(
+              router.context!,
+              description: 'label_message_cant_send_message_funds'.l10n,
+            );
+            return;
+          } else {
+            _balanceService.add(
+              OutgoingTransaction(amount: -100, at: DateTime.now()),
+            );
+          }
         }
 
         if (send.forwarding.value) {
@@ -420,11 +431,17 @@ class ChatController extends GetxController {
     }
 
     if (paid) {
-      await InsufficientFundsView.show(
-        router.context!,
-        description: 'label_message_cant_make_call_funds'.l10n,
-      );
-      return;
+      if (_balanceService.balance.value < 10) {
+        await InsufficientFundsView.show(
+          router.context!,
+          description: 'label_message_cant_make_call_funds'.l10n,
+        );
+        return;
+      } else {
+        _balanceService.add(
+          OutgoingTransaction(amount: -10, at: DateTime.now()),
+        );
+      }
     }
 
     await _callService.call(id, withVideo: withVideo);

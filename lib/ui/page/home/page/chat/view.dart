@@ -107,6 +107,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
@@ -532,7 +533,31 @@ class _ChatViewState extends State<ChatView>
                                                     style: thin,
                                                   ),
                                                   const Spacer(),
-                                                  Text('\$0.91', style: thin),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '¤',
+                                                          style: thin?.copyWith(
+                                                            height: 0.8,
+                                                            fontFamily:
+                                                                'InterRoboto',
+                                                            fontWeight:
+                                                                FontWeight.w300,
+                                                          ),
+                                                        ),
+                                                        const WidgetSpan(
+                                                          child: SizedBox(
+                                                            width: 1,
+                                                          ),
+                                                        ),
+                                                        TextSpan(
+                                                          text: '100',
+                                                          style: thin,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                               const SizedBox(height: 12),
@@ -543,8 +568,31 @@ class _ChatViewState extends State<ChatView>
                                                     style: thin,
                                                   ),
                                                   const Spacer(),
-                                                  Text('\$0.12/мин',
-                                                      style: thin),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '¤',
+                                                          style: thin?.copyWith(
+                                                            height: 0.8,
+                                                            fontFamily:
+                                                                'InterRoboto',
+                                                            fontWeight:
+                                                                FontWeight.w300,
+                                                          ),
+                                                        ),
+                                                        const WidgetSpan(
+                                                          child: SizedBox(
+                                                            width: 1,
+                                                          ),
+                                                        ),
+                                                        TextSpan(
+                                                          text: '10/min',
+                                                          style: thin,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ],
@@ -778,7 +826,8 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
-            paid: c.chat?.messageCost != 0,
+            // paid: c.chat?.messageCost != 0,
+            paid: c.paid,
             avatar: !previousSame,
             margin: EdgeInsets.only(
               top: previousSame ? 1.5 : 6,

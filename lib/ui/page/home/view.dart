@@ -232,30 +232,29 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                         Positioned.fill(
                                           child: Center(
-                                            child: c.displayFunds
-                                                ? Text(
-                                                    c.displayFunds
-                                                        ? _balance(
-                                                            c.balance.value,
-                                                          )
-                                                        : '\$',
-                                                    style: TextStyle(
-                                                      color: c.displayFunds
-                                                          ? Colors.white
-                                                          : const Color(
-                                                              0xFFF8B64C,
-                                                            ),
-                                                      fontSize: c.displayFunds
-                                                          ? 12
-                                                          : 15,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    textScaleFactor: 1,
-                                                  )
-                                                : SvgLoader.asset(
-                                                    'assets/icons/inter_white.svg',
-                                                    height: 12,
-                                                  ),
+                                            child: Obx(() {
+                                              if (!c.displayFunds) {
+                                                SvgLoader.asset(
+                                                  'assets/icons/inter_white.svg',
+                                                  height: 12,
+                                                );
+                                              }
+
+                                              return Text(
+                                                c.displayFunds
+                                                    ? _balance(c.balance.value)
+                                                    : '\$',
+                                                style: TextStyle(
+                                                  color: c.displayFunds
+                                                      ? Colors.white
+                                                      : const Color(0xFFF8B64C),
+                                                  fontSize:
+                                                      c.displayFunds ? 12 : 15,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                textScaleFactor: 1,
+                                              );
+                                            }),
                                           ),
                                         ),
                                       ],

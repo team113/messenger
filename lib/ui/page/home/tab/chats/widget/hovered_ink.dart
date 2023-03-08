@@ -161,3 +161,25 @@ class _Clipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
+
+/// [CustomClipper] clipping a top-left corner.
+class FoldedClipper extends CustomClipper<Path> {
+  const FoldedClipper(this.radius);
+
+  /// Radius of the corner being clipped.
+  final double radius;
+
+  @override
+  Path getClip(Size size) {
+    final path = Path()
+      ..lineTo(size.width - radius, 0)
+      ..lineTo(size.width, radius)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..lineTo(0, 0);
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}

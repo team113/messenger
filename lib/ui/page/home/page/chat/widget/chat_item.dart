@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -886,174 +887,179 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       Container(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-        child: IntrinsicWidth(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            decoration: BoxDecoration(
-              color: background,
-              borderRadius: BorderRadius.circular(15),
-              border: border,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (msg.repliesTo.isNotEmpty)
-                  ...msg.repliesTo.mapIndexed((i, e) {
-                    return AnimatedContainer(
+        child: FoldedWidget(
+          color: background.darken(0.05),
+          folded: widget.paid,
+          child: IntrinsicWidth(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: background,
+                borderRadius: BorderRadius.circular(15),
+                border: border,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (msg.repliesTo.isNotEmpty)
+                    ...msg.repliesTo.mapIndexed((i, e) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        decoration: BoxDecoration(
+                          color: e.author == widget.me
+                              ? _isRead || !_fromMe
+                                  ? const Color(0xFFDBEAFD)
+                                  : const Color(0xFFE6F1FE)
+                              : _isRead || !_fromMe
+                                  ? const Color(0xFFF9F9F9)
+                                  : const Color(0xFFFFFFFF),
+                          borderRadius: i == 0
+                              ? const BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15),
+                                )
+                              : BorderRadius.zero,
+                        ),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: _isRead || !_fromMe ? 1 : 0.55,
+                          child: WidgetButton(
+                            onPressed: () => widget.onRepliedTap?.call(e),
+                            child: _repliedMessage(e),
+                          ),
+                        ),
+                      );
+                    }),
+                  if (!_fromMe &&
+                      widget.chat.value?.isGroup == true &&
+                      widget.avatar)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        msg.attachments.isEmpty && text == null ? 4 : 8,
+                        9,
+                        files.isEmpty && media.isNotEmpty && text == null
+                            ? 8
+                            : files.isNotEmpty && text == null
+                                ? 0
+                                : 4,
+                      ),
+                      child: Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                  if (text != null)
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
-                      decoration: BoxDecoration(
-                        color: e.author == widget.me
-                            ? _isRead || !_fromMe
-                                ? const Color(0xFFDBEAFD)
-                                : const Color(0xFFE6F1FE)
-                            : _isRead || !_fromMe
-                                ? const Color(0xFFF9F9F9)
-                                : const Color(0xFFFFFFFF),
-                        borderRadius: i == 0
-                            ? const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
+                      opacity: _isRead || !_fromMe ? 1 : 0.7,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          !_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar
+                              ? 0
+                              : 10,
+                          12,
+                          files.isEmpty ? 10 : 0,
+                        ),
+                        child: Obx(() {
+                          if (ContextMenuRegion.displayed.value == msg.id.val) {
+                            return SelectionArea(
+                              child: Text(text!, style: textStyle),
+                            );
+                          }
+
+                          return Text(text!, style: textStyle);
+                        }),
+                      ),
+                    ),
+                  if (files.isNotEmpty)
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                        child: Column(
+                          children: files
+                              .map(
+                                (e) => ChatItemWidget.fileAttachment(
+                                  context,
+                                  e,
+                                  fromMe: _fromMe,
+                                  onFileTap: widget.onFileTap,
+                                ),
                               )
-                            : BorderRadius.zero,
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  if (media.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: text != null ||
+                                msg.repliesTo.isNotEmpty ||
+                                (!_fromMe &&
+                                    widget.chat.value?.isGroup == true &&
+                                    widget.avatar)
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        topRight: text != null ||
+                                msg.repliesTo.isNotEmpty ||
+                                (!_fromMe &&
+                                    widget.chat.value?.isGroup == true &&
+                                    widget.avatar)
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        bottomLeft: const Radius.circular(15),
+                        bottomRight: const Radius.circular(15),
                       ),
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
                         opacity: _isRead || !_fromMe ? 1 : 0.55,
-                        child: WidgetButton(
-                          onPressed: () => widget.onRepliedTap?.call(e),
-                          child: _repliedMessage(e),
-                        ),
-                      ),
-                    );
-                  }),
-                if (!_fromMe &&
-                    widget.chat.value?.isGroup == true &&
-                    widget.avatar)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      msg.attachments.isEmpty && text == null ? 4 : 8,
-                      9,
-                      files.isEmpty && media.isNotEmpty && text == null
-                          ? 8
-                          : files.isNotEmpty && text == null
-                              ? 0
-                              : 4,
-                    ),
-                    child: Text(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
-                    ),
-                  ),
-                if (text != null)
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.7,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        !_fromMe &&
-                                widget.chat.value?.isGroup == true &&
-                                widget.avatar
-                            ? 0
-                            : 10,
-                        12,
-                        files.isEmpty ? 10 : 0,
-                      ),
-                      child: Obx(() {
-                        if (ContextMenuRegion.displayed.value == msg.id.val) {
-                          return SelectionArea(
-                            child: Text(text!, style: textStyle),
-                          );
-                        }
-
-                        return Text(text!, style: textStyle);
-                      }),
-                    ),
-                  ),
-                if (files.isNotEmpty)
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.55,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: Column(
-                        children: files
-                            .map(
-                              (e) => ChatItemWidget.fileAttachment(
+                        child: media.length == 1
+                            ? ChatItemWidget.mediaAttachment(
                                 context,
-                                e,
-                                fromMe: _fromMe,
-                                onFileTap: widget.onFileTap,
+                                media.first,
+                                media,
+                                filled: false,
+                                key: _galleryKeys[0],
+                                onError: widget.onAttachmentError,
+                                onGallery: widget.onGallery,
+                                autoLoad: widget.loadImages,
+                              )
+                            : SizedBox(
+                                width: media.length * 120,
+                                height: max(media.length * 60, 300),
+                                child: FitView(
+                                  dividerColor: Colors.transparent,
+                                  children: media
+                                      .mapIndexed(
+                                        (i, e) =>
+                                            ChatItemWidget.mediaAttachment(
+                                          context,
+                                          e,
+                                          media,
+                                          key: _galleryKeys[i],
+                                          onError: widget.onAttachmentError,
+                                          onGallery: widget.onGallery,
+                                          autoLoad: widget.loadImages,
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
                               ),
-                            )
-                            .toList(),
                       ),
                     ),
-                  ),
-                if (media.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: text != null ||
-                              msg.repliesTo.isNotEmpty ||
-                              (!_fromMe &&
-                                  widget.chat.value?.isGroup == true &&
-                                  widget.avatar)
-                          ? Radius.zero
-                          : files.isEmpty
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                      topRight: text != null ||
-                              msg.repliesTo.isNotEmpty ||
-                              (!_fromMe &&
-                                  widget.chat.value?.isGroup == true &&
-                                  widget.avatar)
-                          ? Radius.zero
-                          : files.isEmpty
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                      bottomLeft: const Radius.circular(15),
-                      bottomRight: const Radius.circular(15),
-                    ),
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: _isRead || !_fromMe ? 1 : 0.55,
-                      child: media.length == 1
-                          ? ChatItemWidget.mediaAttachment(
-                              context,
-                              media.first,
-                              media,
-                              filled: false,
-                              key: _galleryKeys[0],
-                              onError: widget.onAttachmentError,
-                              onGallery: widget.onGallery,
-                              autoLoad: widget.loadImages,
-                            )
-                          : SizedBox(
-                              width: media.length * 120,
-                              height: max(media.length * 60, 300),
-                              child: FitView(
-                                dividerColor: Colors.transparent,
-                                children: media
-                                    .mapIndexed(
-                                      (i, e) => ChatItemWidget.mediaAttachment(
-                                        context,
-                                        e,
-                                        media,
-                                        key: _galleryKeys[i],
-                                        onError: widget.onAttachmentError,
-                                        onGallery: widget.onGallery,
-                                        autoLoad: widget.loadImages,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1949,5 +1955,68 @@ extension LocalizedDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+class FoldedWidget extends StatelessWidget {
+  const FoldedWidget({
+    super.key,
+    this.color,
+    this.folded = true,
+    required this.child,
+  });
+
+  final Color? color;
+  final Widget child;
+  final bool folded;
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return ClipPath(
+      clipper: folded ? const FoldedClipper(10) : null,
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          child,
+          if (folded)
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD15C),
+                // color: color ?? style.cardBorder.top.color.darken(0.1),
+                borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(4),
+                ),
+                boxShadow: const [
+                  CustomBoxShadow(
+                    color: Color(0xFFC0C0C0),
+                    blurStyle: BlurStyle.outer,
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              // child: Align(
+              //   alignment: Alignment.bottomLeft,
+              //   child: Padding(
+              //     padding: const EdgeInsets.only(bottom: 1, left: 1),
+              //     child: Text(
+              //       '¤',
+              //       style:
+              //           Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+              //                 height: 0.8,
+              //                 fontFamily: 'InterRoboto',
+              //                 fontWeight: FontWeight.w300,
+              //                 fontSize: 9,
+              //               ),
+              //     ),
+              //   ),
+              // ),
+            ),
+        ],
+      ),
+    );
   }
 }
