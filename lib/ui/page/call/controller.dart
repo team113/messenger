@@ -549,9 +549,8 @@ class CallController extends GetxController {
       height = RxDouble(width.value);
     }
 
-    double secondarySize = (this.size.shortestSide *
-            secondarySizeFactor)
-        .clamp(_minSHeight, 250);
+    double secondarySize =
+        (this.size.shortestSide * secondarySizeFactor).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
