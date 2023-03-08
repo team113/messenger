@@ -16,7 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned info and call messages. ([#357])
+    - Media panel:
+        - Position and size persistance. ([#270], [#264])
 
+[#264]: /../../issues/264
+[#270]: /../../pull/270
 [#357]: /../../pull/357
 
 
@@ -45,7 +49,6 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#347], [#228], [#222])
-        - Position and size persistance. ([#270], [#264])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -163,9 +166,7 @@ All user visible changes to this project will be documented in this file. This p
 [#260]: /../../pull/260
 [#262]: /../../issues/262
 [#263]: /../../issues/263
-[#264]: /../../issues/264
 [#265]: /../../pull/265
-[#270]: /../../pull/270
 [#274]: /../../pull/274
 [#275]: /../../pull/275
 [#276]: /../../pull/276
