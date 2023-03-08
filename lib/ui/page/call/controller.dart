@@ -506,7 +506,7 @@ class CallController extends GetxController {
     return args;
   }
 
-  /// Returns scale factor of the secondary view according to the [size].
+  /// Returns size factor of the secondary view according to the [size].
   double get secondarySizeFactor =>
       (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
 
