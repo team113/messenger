@@ -348,9 +348,9 @@ class PlatformUtilsImpl {
               },
               cancelToken,
             );
-
-            return file;
           }
+
+          return file;
         }
 
         return null;

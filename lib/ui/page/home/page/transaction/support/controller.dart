@@ -41,11 +41,11 @@ class ContactSupportController extends GetxController {
 
   Future<void> support() async {
     final user = await _userService
-        .get(const UserId('92b37f75-aeb3-4559-9176-dbbc88bf5d52'));
+        .get(const UserId('7d65c931-940e-4d2a-b208-b0795537944f'));
 
     RxChat? chat = user?.dialog.value;
     chat ??= await _chatService.get(
-      ChatId.local(const UserId('92b37f75-aeb3-4559-9176-dbbc88bf5d52')),
+      ChatId.local(const UserId('7d65c931-940e-4d2a-b208-b0795537944f')),
     );
 
     if (chat != null) {
