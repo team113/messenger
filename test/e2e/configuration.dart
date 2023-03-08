@@ -65,6 +65,7 @@ import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
@@ -138,6 +139,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollUntilPresent,
         seeChatAsFavorite,
         seeChatAsMuted,
+        seeChatAvatarAs,
+        seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatPosition,
         seeContactAsFavorite,

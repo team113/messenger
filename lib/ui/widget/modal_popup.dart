@@ -27,9 +27,8 @@ import 'widget_button.dart';
 abstract class ModalPopup {
   /// Returns a padding that should be applied to the elements inside a
   /// [ModalPopup].
-  static EdgeInsets padding(BuildContext context) => context.isMobile
-      ? EdgeInsets.zero
-      : const EdgeInsets.symmetric(horizontal: 30);
+  static EdgeInsets padding(BuildContext context) =>
+      const EdgeInsets.symmetric(horizontal: 30);
 
   /// Opens a new [ModalPopup] wrapping the provided [child].
   static Future<T?> show<T>({
