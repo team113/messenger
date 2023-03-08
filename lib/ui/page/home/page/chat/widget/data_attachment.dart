@@ -56,9 +56,10 @@ class _DataAttachmentState extends State<DataAttachment> {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
             leading = InkWell(
-              key: const Key('Downloading'),
+              key: const Key('CancelDownload'),
               onTap: e.cancelDownload,
               child: Container(
+                key: const Key('Downloading'),
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
