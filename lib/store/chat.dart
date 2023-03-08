@@ -236,8 +236,8 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> remove(ChatId id) => _chatLocal.remove(id);
 
   @override
-  Future<HiveRxChat> createMonolog(UserId responderId) async {
-    var chat = _chat(await _graphQlProvider.createDialogChat(responderId));
+  Future<HiveRxChat> createMonolog({ChatName? name}) async {
+    var chat = _chat(await _graphQlProvider.createMonologChat(name));
     return _putEntry(chat);
   }
 

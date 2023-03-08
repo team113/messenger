@@ -67,7 +67,8 @@ class ChatService extends DisposableService {
     super.onClose();
   }
 
-  Future<RxChat> createMonolog() => _chatRepository.createMonolog(me!);
+  Future<RxChat> createMonolog({ChatName? name}) =>
+      _chatRepository.createMonolog(name: name);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.

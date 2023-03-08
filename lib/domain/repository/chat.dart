@@ -70,10 +70,6 @@ abstract class AbstractChatRepository {
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name);
 
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createMonolog(UserId responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});
@@ -185,6 +181,9 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  /// Creates a [Chat]-monolog for the authenticated [MyUser].
+  Future<RxChat> createMonolog({ChatName? name});
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
