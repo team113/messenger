@@ -15,41 +15,38 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
-import '../configuration.dart';
-import '../parameters/selected_status.dart';
+import '../parameters/chat_cleaning_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is selected when multiple
-/// selection is active.
+/// Indicates whether the [Chat] history has been cleared.
 ///
 /// Examples:
-/// - Then I see "Dummy" chat as selected
-/// - Then I see "Dummy" chat as unselected
-final StepDefinitionGeneric seeChatAsSelected =
-    then2<String, SelectedStatus, CustomWorld>(
-  'I see {string} chat as {selected}',
-  (name, status, context) async {
+/// - Then I see chat as cleared
+/// - Then I see chat as uncleared
+final StepDefinitionGeneric seeChatClearing =
+    then1<ChatClearingStatus, CustomWorld>(
+  'I see chat as {clearing}',
+  (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
         switch (status) {
-          case SelectedStatus.selected:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('SelectedChat_$chatId'),
-            );
+          case ChatClearingStatus.cleared:
+            return chat!.messages.isEmpty;
 
-          case SelectedStatus.unselected:
-            return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('SelectedChat_$chatId'),
-            );
+          case ChatClearingStatus.uncleared:
+            return chat!.messages.isNotEmpty;
         }
       },
     );

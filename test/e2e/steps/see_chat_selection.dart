@@ -16,39 +16,39 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/contact.dart';
+import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
-import '../parameters/selected_status.dart';
+import '../parameters/selection_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [ChatContact] with the provided name is selected when
-/// multiple selection is active.
+/// Indicates whether a [Chat] with the provided name is selected when multiple
+/// selection is active.
 ///
 /// Examples:
-/// - Then I see "Bob" contact as selected
-/// - Then I see "Charlie" contact as unselected
-final StepDefinitionGeneric seeContactAsSelected =
-    then2<String, SelectedStatus, CustomWorld>(
-  'I see {string} contact as {selected}',
+/// - Then I see "Dummy" chat as selected
+/// - Then I see "Dummy" chat as unselected
+final StepDefinitionGeneric seeChatSelection =
+    then2<String, SelectionStatus, CustomWorld>(
+  'I see {string} chat as {selection}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatContactId contactId = context.world.contacts[name]!;
+        final ChatId chatId = context.world.groups[name]!;
 
         switch (status) {
-          case SelectedStatus.selected:
+          case SelectionStatus.selected:
             return await context.world.appDriver.isPresent(
               context.world.appDriver
-                  .findByKeySkipOffstage('SelectedContact_$contactId'),
+                  .findByKeySkipOffstage('SelectedChat_$chatId'),
             );
 
-          case SelectedStatus.unselected:
-            return await context.world.appDriver.isAbsent(
+          case SelectionStatus.unselected:
+            return await context.world.appDriver.isPresent(
               context.world.appDriver
-                  .findByKeySkipOffstage('SelectedContact_$contactId'),
+                  .findByKeySkipOffstage('UnSelectedChat_$chatId'),
             );
         }
       },

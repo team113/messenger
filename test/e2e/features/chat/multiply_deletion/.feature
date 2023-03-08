@@ -17,13 +17,12 @@
 
 Feature: Multiple deletion of chats
 
-  Background: User is in group chat with Bob and group chat with Charlie
+  Scenario: User selects and deletes chats
     Given I am Alice
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I have "Alice and Charlie" group with Charlie
 
-  Scenario: User selects and deletes chats
     When I long press "Alice and Bob" chat
     And I tap `SelectChatButton` button
     Then I see "Alice and Bob" chat as unselected

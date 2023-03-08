@@ -15,26 +15,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Multiple deletion of contacts
+Feature: Clear chat
 
-  Scenario: User selects and deletes contacts
+  Scenario: User clears chat
     Given I am Alice
-    And users Bob and Charlie
-    And contacts Bob and Charlie
-    And I wait until `HomeView` is present
-    And I tap `ContactsButton` button
-
-    When I long press "Bob" contact
-    And I tap `SelectContactButton` button
-    Then I see "Bob" contact as unselected
-    And I see "Charlie" contact as unselected
-
-    When I tap "Bob" contact
-    Then I see "Bob" contact as selected
-    When I tap "Charlie" contact
-    Then I see "Charlie" contact as selected
-
-    When I tap `DeleteContacts` button
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
+    Then I see chat as uncleared
+    When I open chat's info
+    And I scroll until `ClearHistoryButton` button
+    And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
-    Then I wait until "Bob" contact is absent
-    And I wait until "Charlie" contact is absent
+    And I return to previous page
+    Then I see chat as cleared

@@ -27,6 +27,7 @@ class SelectedDot extends StatelessWidget {
     this.size = 24,
     this.darken = 0,
     this.selectedKey,
+    this.unSelectedKey,
   });
 
   /// Indicator whether should display the [CircleAvatar].
@@ -40,6 +41,9 @@ class SelectedDot extends StatelessWidget {
 
   /// [Key] for the [CircleAvatar].
   final Key? selectedKey;
+
+  /// [Key] for the empty circle.
+  final Key? unSelectedKey;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +63,7 @@ class SelectedDot extends StatelessWidget {
                 ),
               )
             : Container(
+                key: unSelectedKey,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(

@@ -15,43 +15,43 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-
+import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../parameters/keys.dart';
 
-/// Taps the widget found with the given [WidgetKey].
+/// Scrolls until the specified [WidgetKey] is present within screen.
 ///
 /// Examples:
-/// - When I tap `WidgetKey` button
-/// - When I tap `WidgetKey` element
-/// - When I tap `WidgetKey` label
-/// - When I tap `WidgetKey` icon
-/// - When I tap `WidgetKey` field
-/// - When I tap `WidgetKey` text
-/// - When I tap `WidgetKey` widget
-final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
-  RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
+/// - And I scroll until `ClearHistoryButton` button
+final StepDefinitionGeneric scrollUntilWidget = when1<WidgetKey, FlutterWorld>(
+  RegExp(
+      r'I scroll until {key} (?:button|element|label|icon|field|text|widget)$'),
   (key, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
-
       try {
         final finder =
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
-        await context.world.appDriver.waitForAppToSettle();
-        await context.world.appDriver.tap(
-          finder,
-          timeout: context.configuration.timeout,
-        );
-        await context.world.appDriver.waitForAppToSettle();
-        return true;
+        if (await context.world.appDriver.isPresent(finder)) {
+          Offset? position =
+              (finder.evaluate().first.renderObject as RenderBox?)
+                  ?.localToGlobal(Offset.zero);
+
+          if ((position?.dy ?? 0) + 200 >
+              MediaQuery.of(router.context!).size.height) {
+            await context.world.appDriver.scrollIntoView(finder);
+          }
+
+          await context.world.appDriver.waitForAppToSettle();
+          return true;
+        }
       } catch (_) {
         // No-op.
       }
-
       return false;
     }, timeout: const Duration(seconds: 20));
   },

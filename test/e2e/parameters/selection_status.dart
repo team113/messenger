@@ -17,18 +17,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// Selection status when multiple selection is active.
-enum SelectedStatus { selected, unselected }
+/// [Chat] or [ChatContact] selection status when multiple selection is active.
+enum SelectionStatus { selected, unselected }
 
-/// [CustomParameter] representing a [SelectedStatusParameter].
-class SelectedStatusParameter extends CustomParameter<SelectedStatus> {
-  SelectedStatusParameter()
+/// [CustomParameter] representing a [SelectionStatusParameter].
+class SelectionStatusParameter extends CustomParameter<SelectionStatus> {
+  SelectionStatusParameter()
       : super(
-          'selected',
+          'selection',
           RegExp(
-            '(${SelectedStatus.values.map((e) => e.name).join('|')})',
+            '(${SelectionStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => SelectedStatus.values.firstWhere((e) => e.name == c),
+          (c) => SelectionStatus.values.firstWhere((e) => e.name == c),
         );
 }

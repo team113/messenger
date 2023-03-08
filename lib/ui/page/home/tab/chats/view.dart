@@ -563,10 +563,12 @@ class ChatsTabView extends StatelessWidget {
                                   trailing: c.selecting.value
                                       ? [
                                           SelectedDot(
-                                            selectedKey:
-                                                Key('SelectedChat_${e.id.val}'),
                                             selected: selected,
                                             size: 20,
+                                            selectedKey:
+                                                Key('SelectedChat_${e.id.val}'),
+                                            unSelectedKey: Key(
+                                                'UnSelectedChat_${e.id.val}'),
                                           )
                                         ]
                                       : [],

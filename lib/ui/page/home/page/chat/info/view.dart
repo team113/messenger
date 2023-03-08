@@ -716,6 +716,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           FieldButton(
+            key: const Key('ClearHistoryButton'),
             onPressed: () => _clearChat(c, context),
             text: 'btn_clear_history'.l10n,
             trailing: Transform.translate(

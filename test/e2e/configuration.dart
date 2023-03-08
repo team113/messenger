@@ -32,6 +32,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/chat_cleaning_status.dart';
 import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
@@ -41,7 +42,7 @@ import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
 import 'parameters/search_category.dart';
-import 'parameters/selected_status.dart';
+import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
@@ -66,15 +67,17 @@ import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/scroll_until_widget.dart';
 import 'steps/see_chat_avatar.dart';
+import 'steps/see_chat_clearing.dart';
 import 'steps/see_chat_position.dart';
+import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
+import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
-import 'steps/see_selected_chat.dart';
-import 'steps/see_selected_contact.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -143,16 +146,18 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         returnToPreviousPage,
         scrollAndSee,
         scrollUntilPresent,
+        scrollUntilWidget,
         seeChatAsFavorite,
         seeChatAsMuted,
-        seeChatAsSelected,
         seeChatAvatarAs,
         seeChatAvatarAsNone,
+        seeChatClearing,
         seeChatInSearchResults,
         seeChatPosition,
+        seeChatSelection,
         seeContactAsFavorite,
-        seeContactAsSelected,
         seeContactPosition,
+        seeContactSelection,
         seeDraftInDialog,
         seeUserInSearchResults,
         seesAs,
@@ -204,6 +209,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        ChatClearingStatusParameter(),
         DownloadStatusParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
@@ -212,7 +218,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         OnlineStatusParameter(),
         PositionStatusParameter(),
         SearchCategoryParameter(),
-        SelectedStatusParameter(),
+        SelectionStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

@@ -561,9 +561,10 @@ class ContactsTabView extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: SelectedDot(
-                selectedKey: Key('SelectedContact_${contact.id.val}'),
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
+                selectedKey: Key('SelectedContact_${contact.id.val}'),
+                unSelectedKey: Key('UnSelectedContact_${contact.id.val}'),
               ),
             );
           }),
