@@ -43,24 +43,13 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
         final finder =
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
-        if (await context.world.appDriver.isPresent(finder)) {
-          Offset? position =
-              (finder.evaluate().first.renderObject as RenderBox?)
-                  ?.localToGlobal(Offset.zero);
-
-          if ((position?.dy ?? 0) >
-              MediaQuery.of(router.context!).size.height) {
-            await context.world.appDriver.scrollIntoView(finder);
-          }
-
-          await context.world.appDriver.waitForAppToSettle();
-          await context.world.appDriver.tap(
-            finder,
-            timeout: context.configuration.timeout,
-          );
-          await context.world.appDriver.waitForAppToSettle();
-          return true;
-        }
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
+        return true;
       } catch (_) {
         // No-op.
       }
