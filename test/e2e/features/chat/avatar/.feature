@@ -26,7 +26,7 @@ Feature: Chat avatar
 
   Scenario: User uploads and deletes chat avatar
     When I update chat avatar with "test.jpg"
-    Then I wait until text "AA" is absent within `ChatAvatar`
+    Then I see chat avatar as "test.jpg"
 
     When I tap `DeleteAvatar` button
-    Then I wait until text "AA" is present within `ChatAvatar`
+    Then I see chat avatar as none
