@@ -43,6 +43,8 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkSlugAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkVersionAdapter());

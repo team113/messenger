@@ -17,11 +17,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '../call/view.dart';
 import '/domain/model/chat.dart';
 import '/routes.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 

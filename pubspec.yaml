@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.7+1
+version: 0.1.0-alpha.8
 publish_to: none
 
 environment:
@@ -57,10 +57,7 @@ dependencies:
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.0-dev+rev.a909030f9a6378036bb0571611fc9a3fe44fe917
-  medea_jason:
-    git:
-      url: https://github.com/instrumentisto/medea-jason.git
-      path: flutter/
+  medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
   mime: ^1.0.4
   mutex: ^3.0.1
   # TODO: Switch to pub.dev version when the following pull request is merged

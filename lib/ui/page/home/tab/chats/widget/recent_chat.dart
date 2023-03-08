@@ -28,15 +28,16 @@ import 'package:messenger/util/message_popup.dart';
 // import 'package:shimmer/shimmer.dart';
 import 'package:skeletons/skeletons.dart';
 
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -50,6 +51,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -132,7 +134,7 @@ class RecentChatTile extends StatelessWidget {
   final bool selected;
   final void Function()? onTap;
 
-  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  /// Builder for building an [AvatarWidget] the [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
@@ -548,86 +550,118 @@ class RecentChatTile extends StatelessWidget {
               ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
           ];
-        } else if (item is ChatMemberInfo) {
+        } else if (item is ChatInfo) {
           Widget content = Text('${item.action}');
 
-          switch (item.action) {
-            case ChatMemberInfoAction.created:
+          // Builds a [FutureBuilder] returning a [User] fetched by the provided
+          // [id].
+          Widget userBuilder(
+            UserId id,
+            Widget Function(BuildContext context, User? user) builder,
+          ) {
+            return FutureBuilder(
+              future: getUser?.call(id),
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return Obx(() => builder(context, snapshot.data!.user.value));
+                }
+
+                return builder(context, null);
+              },
+            );
+          }
+
+          switch (item.action.kind) {
+            case ChatInfoActionKind.created:
               if (chat.isGroup) {
-                content = FutureBuilder(
-                  future: getUser?.call(item.authorId),
-                  builder: (context, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final User user = snapshot.data!.user.value;
-                        final Map<String, dynamic> args = {
-                          'author': user.name?.val ?? user.num.val,
-                        };
+                content = userBuilder(item.authorId, (context, user) {
+                  user ??= (item as ChatInfo).author;
+                  final Map<String, dynamic> args = {
+                    'author': user.name?.val ?? user.num.val,
+                  };
 
-                        return Text('label_group_created_by'.l10nfmt(args));
-                      });
-                    }
-
-                    return Text('label_group_created'.l10n);
-                  },
-                );
+                  return Text('label_group_created_by'.l10nfmt(args));
+                });
               } else {
                 content = Text('label_dialog_created'.l10n);
               }
               break;
 
-            case ChatMemberInfoAction.added:
-              content = FutureBuilder(
-                future: getUser?.call(item.authorId),
-                builder: (context, snapshot) {
-                  final User who = (item as ChatMemberInfo).user;
-                  if (snapshot.data != null && item.authorId != who.id) {
-                    return Obx(() {
-                      final User user = snapshot.data!.user.value;
-                      final Map<String, dynamic> args = {
-                        'author': user.name?.val ?? user.num.val,
-                        'user': who.name?.val ?? who.num.val,
-                      };
+            case ChatInfoActionKind.memberAdded:
+              final action = item.action as ChatInfoActionMemberAdded;
 
-                      return Text('label_user_added_user'.l10nfmt(args));
-                    });
-                  }
+              if (item.authorId != action.user.id) {
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
 
-                  return Text(
-                    'label_was_added'.l10nfmt(
-                        {'author': '${item.user.name ?? item.user.num}'}),
-                  );
-                },
-              );
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
+
+                  return Text('label_user_added_user'.l10nfmt(args));
+                });
+              } else {
+                content = Text(
+                  'label_was_added'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
+              }
               break;
 
-            case ChatMemberInfoAction.removed:
-              content = FutureBuilder(
-                future: getUser?.call(item.authorId),
-                builder: (context, snapshot) {
-                  final User who = (item as ChatMemberInfo).user;
-                  if (snapshot.data != null && item.authorId != who.id) {
-                    return Obx(() {
-                      final User user = snapshot.data!.user.value;
-                      final Map<String, dynamic> args = {
-                        'author': user.name?.val ?? user.num.val,
-                        'user': who.name?.val ?? who.num.val,
-                      };
+            case ChatInfoActionKind.memberRemoved:
+              final action = item.action as ChatInfoActionMemberRemoved;
 
-                      return Text('label_user_removed_user'.l10nfmt(args));
-                    });
-                  }
+              if (item.authorId != action.user.id) {
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
 
-                  return Text(
-                    'label_was_removed'.l10nfmt(
-                        {'author': '${item.user.name ?? item.user.num}'}),
-                  );
-                },
-              );
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
+
+                  return Text('label_user_removed_user'.l10nfmt(args));
+                });
+              } else {
+                content = Text(
+                  'label_was_removed'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
+              }
               break;
 
-            case ChatMemberInfoAction.artemisUnknown:
-              content = Text(item.action.toString());
+            case ChatInfoActionKind.avatarUpdated:
+              final action = item.action as ChatInfoActionAvatarUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+              };
+
+              if (action.avatar == null) {
+                content = Text('label_avatar_removed'.l10nfmt(args));
+              } else {
+                content = Text('label_avatar_updated'.l10nfmt(args));
+              }
+              break;
+
+            case ChatInfoActionKind.nameUpdated:
+              final action = item.action as ChatInfoActionNameUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+                if (action.name != null) 'name': action.name?.val
+              };
+
+              if (action.name == null) {
+                content = Text('label_name_removed'.l10nfmt(args));
+              } else {
+                content = Text('label_name_updated'.l10nfmt(args));
+              }
               break;
           }
 

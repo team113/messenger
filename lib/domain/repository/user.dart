@@ -64,7 +64,7 @@ abstract class AbstractUserRepository {
   Future<RxUser?> get(UserId id);
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
-  Future<void> blacklistUser(UserId id);
+  Future<void> blacklistUser(UserId id, BlacklistReason? reason);
 
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].

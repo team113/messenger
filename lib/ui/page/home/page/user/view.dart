@@ -185,7 +185,7 @@ class UserView extends StatelessWidget {
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
-                      if (c.isBlacklisted == true)
+                      if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
                           children: [_blocked(c, context)],
@@ -243,7 +243,7 @@ class UserView extends StatelessWidget {
                 }),
               ),
               bottomNavigationBar: Obx(() {
-                if (c.isBlacklisted != true) {
+                if (c.isBlacklisted == null) {
                   return const SizedBox();
                 }
 
@@ -357,10 +357,10 @@ class UserView extends StatelessWidget {
         ],
         Obx(() {
           return action(
-            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
             text:
-                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true
+                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted != null
                 ? c.unblacklist
                 : () => _blacklistUser(c, context),
             trailing: Obx(() {
@@ -368,10 +368,13 @@ class UserView extends StatelessWidget {
               if (c.blacklistStatus.value.isEmpty) {
                 child = const SizedBox();
               } else {
-                child = const CircularProgressIndicator();
+                child = const CustomProgressIndicator();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           );
         }),
@@ -435,8 +438,7 @@ class UserView extends StatelessWidget {
   Widget _presence(UserController c, BuildContext context) {
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
-
-      if (presence == null || presence == Presence.hidden) {
+      if (presence == null) {
         return Container();
       }
 
@@ -462,20 +464,22 @@ class UserView extends StatelessWidget {
   Widget _blocked(UserController c, BuildContext context) {
     return Column(
       children: [
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_date'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.at != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
+              label: 'label_date'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(),
-            label: 'label_reason'.l10n,
-            enabled: false,
+        if (c.isBlacklisted?.reason != null)
+          _padding(
+            ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
+              label: 'label_reason'.l10n,
+              enabled: false,
+            ),
           ),
-        ),
       ],
     );
   }

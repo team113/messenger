@@ -42,6 +42,8 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());

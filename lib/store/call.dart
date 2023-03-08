@@ -522,6 +522,20 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      for (var m in node.call.members) {
+        _userRepo.put(m.user.toHive());
+      }
+      return EventChatCallAnswerTimeoutPassed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.call.toModel(),
+        node.nUser?.toModel(),
+        node.userId,
+      );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;

@@ -239,14 +239,14 @@ class _PublicViewState extends State<PublicView>
 
                               if (element is ChatMessageElement ||
                                   element is ChatCallElement ||
-                                  element is ChatMemberInfoElement) {
+                                  element is ChatInfoElement) {
                                 Rx<ChatItem> e;
 
                                 if (element is ChatMessageElement) {
                                   e = element.item;
                                 } else if (element is ChatCallElement) {
                                   e = element.item;
-                                } else if (element is ChatMemberInfoElement) {
+                                } else if (element is ChatInfoElement) {
                                   e = element.item;
                                 } else {
                                   throw Exception('Unreachable');

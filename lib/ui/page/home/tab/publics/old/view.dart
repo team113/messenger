@@ -28,6 +28,7 @@ import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat_info.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
@@ -1318,36 +1319,36 @@ class PublicsTabView extends StatelessWidget {
             //   ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
           ];
-        } else if (item is ChatMemberInfo) {
-          final Widget content;
+        } else if (item is ChatInfo) {
+          final Widget content = Container();
 
-          switch (item.action) {
-            case ChatMemberInfoAction.created:
-              if (chat.isGroup) {
-                content = Text('label_group_created'.l10n);
-              } else {
-                content = Text('label_dialog_created'.l10n);
-              }
-              break;
+          // switch (item.action) {
+          //   case ChatMemberInfoAction.created:
+          //     if (chat.isGroup) {
+          //       content = Text('label_group_created'.l10n);
+          //     } else {
+          //       content = Text('label_dialog_created'.l10n);
+          //     }
+          //     break;
 
-            case ChatMemberInfoAction.added:
-              content = Text(
-                'label_was_added'
-                    .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
-              );
-              break;
+          //   case ChatMemberInfoAction.added:
+          //     content = Text(
+          //       'label_was_added'
+          //           .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
+          //     );
+          //     break;
 
-            case ChatMemberInfoAction.removed:
-              content = Text(
-                'label_was_removed'
-                    .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
-              );
-              break;
+          //   case ChatMemberInfoAction.removed:
+          //     content = Text(
+          //       'label_was_removed'
+          //           .l10nfmt({'author': '${item.user.name ?? item.user.num}'}),
+          //     );
+          //     break;
 
-            case ChatMemberInfoAction.artemisUnknown:
-              content = Text('${item.action}');
-              break;
-          }
+          //   case ChatMemberInfoAction.artemisUnknown:
+          //     content = Text('${item.action}');
+          //     break;
+          // }
 
           subtitle = [Flexible(child: content)];
         } else {

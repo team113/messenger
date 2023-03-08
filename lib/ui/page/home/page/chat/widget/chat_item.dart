@@ -24,19 +24,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/home/page/transaction/widget/downloadable_file.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
-import 'package:path/path.dart' as p;
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
-import '/api/backend/schema.dart'
-    show ChatCallFinishReason, ChatMemberInfoAction;
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -147,7 +145,7 @@ class ChatItemWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
-  final void Function(ChatItemId)? onRepliedTap;
+  final void Function(ChatItemQuote)? onRepliedTap;
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
@@ -459,18 +457,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
         } else if (widget.item.value is ChatCall) {
           return _renderAsChatCall(context);
-        } else if (widget.item.value is ChatMemberInfo) {
-          return _renderAsChatMemberInfo();
+        } else if (widget.item.value is ChatInfo) {
+          return _renderAsChatInfo();
         }
         throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
       }),
     );
   }
 
-  /// Renders [widget.item] as [ChatMemberInfo].
-  Widget _renderAsChatMemberInfo() {
+  /// Renders [widget.item] as [ChatInfo].
+  Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
+    final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
 
@@ -491,109 +489,75 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    switch (message.action) {
-      case ChatMemberInfoAction.created:
+    switch (message.action.kind) {
+      case ChatInfoActionKind.created:
         if (widget.chat.value?.isGroup == true) {
-          content = FutureBuilder(
-            future: widget.getUser?.call(message.authorId),
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return Obx(() {
-                  final User user = snapshot.data!.user.value;
-                  final Map<String, dynamic> args = {
-                    'author': user.name?.val ?? user.num.val,
-                  };
+          content = userBuilder(message.authorId, (context, user) {
+            if (user != null) {
+              final Map<String, dynamic> args = {
+                'author': user.name?.val ?? user.num.val,
+              };
 
-                  return RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'label_group_created_by1'.l10nfmt(args),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => router.user(message.user.id, push: true),
-                        ),
-                        TextSpan(
-                          text: 'label_group_created_by2'.l10nfmt(args),
-                          style: style.systemMessageStyle.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ],
+              return RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'label_group_created_by1'.l10nfmt(args),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => router.user(user.id, push: true),
+                    ),
+                    TextSpan(
+                      text: 'label_group_created_by2'.l10nfmt(args),
                       style: style.systemMessageStyle.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                  );
-                });
-              }
+                  ],
+                  style: style.systemMessageStyle.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              );
+            }
 
-              return Text('label_group_created'.l10n);
-            },
-          );
+            return Text('label_group_created'.l10n);
+          });
         } else {
           content = Text('label_dialog_created'.l10n);
         }
         break;
 
-      case ChatMemberInfoAction.added:
-        content = FutureBuilder(
-          future: widget.getUser?.call(message.authorId),
-          builder: (context, snapshot) {
-            if (snapshot.data != null && message.authorId != message.user.id) {
-              return Obx(() {
-                final User user = snapshot.data!.user.value;
-                final Map<String, dynamic> args = {
-                  'author': user.name?.val ?? user.num.val,
-                  'user': message.user.name?.val ?? message.user.num.val,
-                };
+      case ChatInfoActionKind.memberAdded:
+        final action = message.action as ChatInfoActionMemberAdded;
 
-                return RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_user_added_user1'.l10nfmt(args),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () => router.user(user.id, push: true),
-                      ),
-                      TextSpan(
-                        text: 'label_user_added_user2'.l10nfmt(args),
-                        style: style.systemMessageStyle.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_user_added_user3'.l10nfmt(args),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.user(message.user.id, push: true),
-                      ),
-                    ],
-                    style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                );
-              });
-            }
+        if (action.user.id != message.authorId) {
+          content = userBuilder(action.user.id, (context, user) {
+            final User author = widget.user?.user.value ?? message.author;
+            user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': message.user.name?.val ?? message.user.num.val,
+              'author': author.name?.val ?? author.num.val,
+              'user': user.name?.val ?? user.num.val,
             };
 
             return RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'label_was_added1'.l10nfmt(args),
+                    text: 'label_user_added_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(message.user.id, push: true),
+                      ..onTap = () => router.user(author.id, push: true),
                   ),
                   TextSpan(
-                    text: 'label_was_added2'.l10nfmt(args),
+                    text: 'label_user_added_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                  ),
+                  TextSpan(
+                    text: 'label_user_added_user3'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
@@ -601,69 +565,66 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             );
-          },
-        );
+          });
+        } else {
+          final Map<String, dynamic> args = {
+            'author': action.user.name?.val ?? action.user.num.val,
+          };
+
+          content = RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'label_was_added1'.l10nfmt(args),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => router.user(action.user.id, push: true),
+                ),
+                TextSpan(
+                  text: 'label_was_added2'.l10nfmt(args),
+                  style: style.systemMessageStyle.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+              style: style.systemMessageStyle.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          );
+        }
         break;
 
-      case ChatMemberInfoAction.removed:
-        content = FutureBuilder(
-          future: widget.getUser?.call(message.authorId),
-          builder: (context, snapshot) {
-            if (snapshot.data != null && message.authorId != message.user.id) {
-              return Obx(() {
-                final User user = snapshot.data!.user.value;
-                final Map<String, dynamic> args = {
-                  'author': user.name?.val ?? user.num.val,
-                  'user': message.user.name?.val ?? message.user.num.val,
-                };
+      case ChatInfoActionKind.memberRemoved:
+        final action = message.action as ChatInfoActionMemberRemoved;
 
-                return RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_user_removed_user1'.l10nfmt(args),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.user(message.user.id, push: true),
-                      ),
-                      TextSpan(
-                        text: 'label_user_removed_user2'.l10nfmt(args),
-                        style: style.systemMessageStyle.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_user_removed_user3'.l10nfmt(args),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.user(message.user.id, push: true),
-                      ),
-                    ],
-                    style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                );
-              });
-            }
+        if (action.user.id != message.authorId) {
+          content = userBuilder(action.user.id, (context, user) {
+            final User author = widget.user?.user.value ?? message.author;
+            user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': message.user.name?.val ?? message.user.num.val,
+              'author': author.name?.val ?? author.num.val,
+              'user': user.name?.val ?? user.num.val,
             };
 
             return RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'label_was_removed1'.l10nfmt(args),
+                    text: 'label_user_removed_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(message.user.id, push: true),
+                      ..onTap = () => router.user(author.id, push: true),
                   ),
                   TextSpan(
-                    text: 'label_was_removed2'.l10nfmt(args),
+                    text: 'label_user_removed_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                  ),
+                  TextSpan(
+                    text: 'label_user_removed_user3'.l10nfmt(args),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
@@ -671,17 +632,116 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             );
-          },
+          });
+        } else {
+          final Map<String, dynamic> args = {
+            'author': action.user.name?.val ?? action.user.num.val,
+          };
+
+          content = RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'label_was_removed1'.l10nfmt(args),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => router.user(action.user.id, push: true),
+                ),
+                TextSpan(
+                  text: 'label_was_removed2'.l10nfmt(args),
+                  style: style.systemMessageStyle.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+              style: style.systemMessageStyle.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          );
+        }
+        break;
+
+      case ChatInfoActionKind.avatarUpdated:
+        final action = message.action as ChatInfoActionAvatarUpdated;
+
+        final User user = widget.user?.user.value ?? message.author;
+        final Map<String, dynamic> args = {
+          'author': user.name?.val ?? user.num.val,
+        };
+
+        final String phrase1, phrase2;
+        if (action.avatar == null) {
+          phrase1 = 'label_avatar_removed1';
+          phrase2 = 'label_avatar_removed2';
+        } else {
+          phrase1 = 'label_avatar_updated1';
+          phrase2 = 'label_avatar_updated2';
+        }
+
+        content = RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: phrase1.l10nfmt(args),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => router.user(user.id, push: true),
+              ),
+              TextSpan(
+                text: phrase2.l10nfmt(args),
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+            style: style.systemMessageStyle.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
         );
         break;
 
-      case ChatMemberInfoAction.artemisUnknown:
-        content = Text('${message.action}');
+      case ChatInfoActionKind.nameUpdated:
+        final action = message.action as ChatInfoActionNameUpdated;
+
+        final User user = widget.user?.user.value ?? message.author;
+        final Map<String, dynamic> args = {
+          'author': user.name?.val ?? user.num.val,
+          if (action.name != null) 'name': action.name?.val,
+        };
+
+        final String phrase1, phrase2;
+        if (action.name == null) {
+          phrase1 = 'label_name_removed1';
+          phrase2 = 'label_name_removed2';
+        } else {
+          phrase1 = 'label_name_updated1';
+          phrase2 = 'label_name_updated2';
+        }
+
+        content = RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: phrase1.l10nfmt(args),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => router.user(user.id, push: true),
+              ),
+              TextSpan(
+                text: phrase2.l10nfmt(args),
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+            style: style.systemMessageStyle.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+        );
         break;
     }
 
     final bool isSent = widget.item.value.status.value == SendingStatus.sent;
-    final bool isMonolog = widget.chat.value?.isMonolog == true;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -691,9 +751,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
-            (widget.chat.value?.lastDelivery.isBefore(message.at) == false ||
-                isMonolog),
-        isRead: isSent && (!_fromMe || _isRead || isMonolog),
+            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
+        isRead: isSent && (!_fromMe || _isRead),
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
@@ -747,8 +806,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
         msg.repliesTo.isNotEmpty) {
-      for (ChatItem reply in msg.repliesTo) {
-        if (reply is ChatMessage) {
+      for (ChatItemQuote reply in msg.repliesTo) {
+        if (reply is ChatMessageQuote) {
           if (reply.text != null && reply.attachments.isNotEmpty) {
             avatarOffset += 54 + 54 + 4;
           } else if (reply.text == null && reply.attachments.isNotEmpty) {
@@ -762,7 +821,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           }
         }
 
-        if (reply is ChatCall) {
+        if (reply is ChatCallQuote) {
           if (msg.attachments.isEmpty && text == null) {
             avatarOffset += 59 - 4;
           } else {
@@ -770,7 +829,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           }
         }
 
-        if (reply is ChatForward) {
+        if (reply is ChatInfoQuote) {
           if (msg.attachments.isEmpty && text == null) {
             avatarOffset += 59 - 5;
           } else {
@@ -843,7 +902,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 500),
                       decoration: BoxDecoration(
-                        color: e.authorId == widget.me
+                        color: e.author == widget.me
                             ? _isRead || !_fromMe
                                 ? const Color(0xFFDBEAFD)
                                 : const Color(0xFFE6F1FE)
@@ -861,7 +920,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         duration: const Duration(milliseconds: 500),
                         opacity: _isRead || !_fromMe ? 1 : 0.55,
                         child: WidgetButton(
-                          onPressed: () => widget.onRepliedTap?.call(e.id),
+                          onPressed: () => widget.onRepliedTap?.call(e),
                           child: _repliedMessage(e),
                         ),
                       ),
@@ -1214,14 +1273,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItem item) {
+  Widget _repliedMessage(ChatItemQuote item) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == widget.me;
+    bool fromMe = item.author == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
 
-    if (item is ChatMessage) {
+    if (item is ChatMessageQuote) {
       if (item.attachments.isNotEmpty) {
         additional = item.attachments
             .map((a) {
@@ -1302,26 +1361,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           style: style.boldBody,
         );
       }
-    } else if (item is ChatCall) {
+    } else if (item is ChatCallQuote) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
+      bool fromMe = widget.me == item.author;
       bool isMissed = false;
 
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
+      final ChatCall? call = item.original as ChatCall?;
 
-        if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time = item.finishedAt!.val
-              .difference(item.conversationStartedAt!.val)
+      if (call?.finishReason == null && call?.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (call?.finishReason != null) {
+        title = call!.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+            call.finishReason == ChatCallFinishReason.unanswered;
+
+        if (call.finishedAt != null && call.conversationStartedAt != null) {
+          time = call.finishedAt!.val
+              .difference(call.conversationStartedAt!.val)
               .localizedString();
         }
       } else {
-        title = item.authorId == widget.me
+        title = item.author == widget.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1331,7 +1392,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
+            child: call?.withVideo == true
                 ? SvgLoader.asset(
                     'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
@@ -1356,18 +1417,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
         ],
       );
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
+    } else if (item is ChatInfoQuote) {
+      // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else {
       content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
     return FutureBuilder<RxUser?>(
-      future: widget.getUser?.call(item.authorId),
+      future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
         Color color = snapshot.data?.user.value.id == widget.me
             ? Theme.of(context).colorScheme.secondary
@@ -1667,7 +1725,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   await ChatForwardView.show(
                                     context,
                                     widget.chat.value!.id,
-                                    [ChatItemQuote(item: item)],
+                                    [ChatItemQuoteInput(item: item)],
                                   );
                                 },
                               ),

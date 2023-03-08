@@ -26,6 +26,7 @@ import 'package:path/path.dart' as p;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
@@ -892,8 +893,8 @@ class MessageFieldView extends StatelessWidget {
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
       content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
+    } else if (item is ChatInfo) {
+      // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
     } else {
       content = Text('err_unknown'.l10n, style: style.boldBody);

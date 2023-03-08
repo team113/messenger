@@ -403,10 +403,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.hidden:
-        return 'label_hidden'.l10n;
-
-      case Presence.artemisUnknown:
+      default:
         return null;
     }
   }

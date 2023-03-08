@@ -1159,7 +1159,7 @@ class UserView extends StatelessWidget {
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
 
-      if (presence == null || presence == Presence.hidden) {
+      if (presence == null) {
         return Container();
       }
 
@@ -1176,11 +1176,7 @@ class UserView extends StatelessWidget {
           color = Colors.orange;
           break;
 
-        case Presence.hidden:
-          color = Colors.grey;
-          break;
-
-        case Presence.artemisUnknown:
+        default:
           break;
       }
 

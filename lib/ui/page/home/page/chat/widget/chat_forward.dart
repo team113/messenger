@@ -29,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -136,7 +137,7 @@ class ChatForwardWidget extends StatefulWidget {
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [ChatForward] is tapped.
-  final void Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemQuote)? onForwardedTap;
 
   /// Callback, called when a [FileAttachment] of some [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
@@ -291,23 +292,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget _forwardedMessage(Rx<ChatItem> forward) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
-      ChatItem item = msg.item;
+      ChatItemQuote quote = msg.quote;
 
       Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
 
-      if (item is ChatMessage) {
-        if (item.attachments.isNotEmpty) {
-          List<Attachment> media = item.attachments
+      if (quote is ChatMessageQuote) {
+        if (quote.attachments.isNotEmpty) {
+          List<Attachment> media = quote.attachments
               .where((e) =>
                   e is ImageAttachment ||
                   (e is FileAttachment && e.isVideo) ||
                   (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
               .toList();
 
-          List<Attachment> files = item.attachments
+          List<Attachment> files = quote.attachments
               .where((e) =>
                   (e is FileAttachment && !e.isVideo) ||
                   (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
@@ -327,7 +328,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             context,
                             e,
                             fromMe: widget.authorId == widget.me,
-                            onFileTap: (a) => widget.onFileTap?.call(item, a),
+                            onFileTap: (a) => widget.onFileTap?.call(msg, a),
                           ),
                         )
                         .toList(),
@@ -343,10 +344,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         context,
                         media.first,
                         media,
-                        key: _galleryKeys[item.id]?.firstOrNull,
+                        key: _galleryKeys[msg.id]?.firstOrNull,
                         onGallery: widget.onGallery,
                         onError: widget.onAttachmentError,
                         filled: false,
+                        autoLoad: widget.loadImages,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -359,9 +361,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   context,
                                   e,
                                   media,
-                                  key: _galleryKeys[item.id]?[i],
+                                  key: _galleryKeys[msg.id]?[i],
                                   onGallery: widget.onGallery,
                                   onError: widget.onAttachmentError,
+                                  autoLoad: widget.loadImages,
                                 ),
                               )
                               .toList(),
@@ -371,32 +374,31 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ];
         }
 
-        if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-          );
+        if (quote.text != null && quote.text!.val.isNotEmpty) {
+          content = Text(quote.text!.val, style: style.boldBody);
         }
-      } else if (item is ChatCall) {
+      } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
         String? time;
-        bool fromMe = widget.me == item.authorId;
+        bool fromMe = widget.me == quote.author;
         bool isMissed = false;
 
-        if (item.finishReason == null && item.conversationStartedAt != null) {
-          title = 'label_chat_call_ongoing'.l10n;
-        } else if (item.finishReason != null) {
-          title = item.finishReason!.localizedString(fromMe) ?? title;
-          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-              item.finishReason == ChatCallFinishReason.unanswered;
+        final ChatCall? call = quote.original as ChatCall?;
 
-          if (item.conversationStartedAt != null) {
-            time = item.finishedAt!.val
-                .difference(item.conversationStartedAt!.val)
+        if (call?.finishReason == null && call?.conversationStartedAt != null) {
+          title = 'label_chat_call_ongoing'.l10n;
+        } else if (call?.finishReason != null) {
+          title = call!.finishReason!.localizedString(fromMe) ?? title;
+          isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+              call.finishReason == ChatCallFinishReason.unanswered;
+
+          if (call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
                 .localizedString();
           }
         } else {
-          title = item.authorId == widget.me
+          title = call?.authorId == widget.me
               ? 'label_outgoing_call'.l10n
               : 'label_incoming_call'.l10n;
         }
@@ -406,7 +408,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
+              child: call?.withVideo == true
                   ? SvgLoader.asset(
                       'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                       height: 13,
@@ -431,10 +433,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             ],
           ],
         );
-      } else if (item is ChatMemberInfo) {
-        content = Text(item.action.toString(), style: style.boldBody);
-      } else if (item is ChatForward) {
-        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+      } else if (quote is ChatInfoQuote) {
+        content = Text(quote.action.toString(), style: style.boldBody);
       } else {
         content = Text('err_unknown'.l10n, style: style.boldBody);
       }
@@ -442,7 +442,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
-          color: msg.item.authorId == widget.me
+          color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
                   ? const Color(0xFFDBEAFD)
                   : const Color(0xFFE6F1FE)
@@ -454,9 +454,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: () => widget.onForwardedTap?.call(item.id, item.chatId),
+            onPressed: () => widget.onForwardedTap?.call(quote),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(item.authorId),
+              future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
                 Color color = snapshot.data?.user.value.id == widget.me
                     ? Theme.of(context).colorScheme.secondary
@@ -886,15 +886,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
-                                final List<ChatItemQuote> quotes = [];
+                                final List<ChatItemQuoteInput> quotes = [];
 
                                 for (Rx<ChatItem> item in widget.forwards) {
-                                  quotes.add(ChatItemQuote(item: item.value));
+                                  quotes.add(
+                                    ChatItemQuoteInput(item: item.value),
+                                  );
                                 }
 
                                 if (widget.note.value != null) {
                                   quotes.add(
-                                    ChatItemQuote(
+                                    ChatItemQuoteInput(
                                       item: widget.note.value!.value,
                                     ),
                                   );
@@ -1008,9 +1010,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     _galleryKeys.clear();
 
     for (Rx<ChatItem> forward in widget.forwards) {
-      final ChatItem item = (forward.value as ChatForward).item;
-      if (item is ChatMessage) {
-        _galleryKeys[item.id] = item.attachments
+      final ChatItemQuote item = (forward.value as ChatForward).quote;
+      if (item is ChatMessageQuote) {
+        _galleryKeys[forward.value.id] = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||

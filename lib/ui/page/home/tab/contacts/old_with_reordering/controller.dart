@@ -212,8 +212,9 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  Future<void> favorite(RxChatContact contact) => _contactService
-      .favoriteChatContact(contact.id, const ChatContactPosition(1000000));
+  Future<void> favorite(RxChatContact contact) =>
+      _contactService.favoriteChatContact(
+          contact.id, const ChatContactFavoritePosition(1000000));
 
   Future<void> unfavorite(RxChatContact contact) =>
       _contactService.unfavoriteChatContact(contact.id);

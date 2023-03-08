@@ -971,85 +971,86 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   Widget _renderAsChatForward(BuildContext context) {
-    ChatForward msg = widget.item.value as ChatForward;
-    ChatItem item = msg.item;
+    return Container();
+    // ChatForward msg = widget.item.value as ChatForward;
+    // ChatItem item = msg.item;
 
-    Style style = Theme.of(context).extension<Style>()!;
+    // Style style = Theme.of(context).extension<Style>()!;
 
-    return DefaultTextStyle(
-      style: style.boldBody,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Flexible(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(),
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: Material(
-                  borderRadius: BorderRadius.circular(15),
-                  type: MaterialType.transparency,
-                  child: ContextMenuRegion(
-                    preventContextMenu: false,
-                    alignment: Alignment.bottomLeft,
-                    actions: [
-                      ContextMenuButton(
-                        key: const Key('ReplyButton'),
-                        label: 'Reply'.l10n,
-                        leading: SvgLoader.asset(
-                          'assets/icons/reply.svg',
-                          width: 18.8,
-                          height: 16,
-                        ),
-                        onPressed: () => widget.onReply?.call(),
-                      ),
-                      ContextMenuButton(
-                        key: const Key('ForwardButton'),
-                        label: 'Forward'.l10n,
-                        leading: SvgLoader.asset(
-                          'assets/icons/forward.svg',
-                          width: 18.8,
-                          height: 16,
-                        ),
-                        onPressed: () async {},
-                      ),
-                      ContextMenuButton(
-                        label: 'Delete'.l10n,
-                        leading: SvgLoader.asset(
-                          'assets/icons/delete_small.svg',
-                          width: 17.75,
-                          height: 17,
-                        ),
-                        onPressed: () async {},
-                      ),
-                    ],
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-                      child: ClipRRect(
-                        clipBehavior: Clip.none,
-                        borderRadius: BorderRadius.circular(15),
-                        child: IntrinsicWidth(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 500),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              border: style.secondaryBorder,
-                            ),
-                            child: _forwardedMessage(item),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+    // return DefaultTextStyle(
+    //   style: style.boldBody,
+    //   child: Row(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     mainAxisAlignment: MainAxisAlignment.start,
+    //     children: [
+    //       Flexible(
+    //         child: ConstrainedBox(
+    //           constraints: const BoxConstraints(),
+    //           child: Padding(
+    //             padding: EdgeInsets.zero,
+    //             child: Material(
+    //               borderRadius: BorderRadius.circular(15),
+    //               type: MaterialType.transparency,
+    //               child: ContextMenuRegion(
+    //                 preventContextMenu: false,
+    //                 alignment: Alignment.bottomLeft,
+    //                 actions: [
+    //                   ContextMenuButton(
+    //                     key: const Key('ReplyButton'),
+    //                     label: 'Reply'.l10n,
+    //                     leading: SvgLoader.asset(
+    //                       'assets/icons/reply.svg',
+    //                       width: 18.8,
+    //                       height: 16,
+    //                     ),
+    //                     onPressed: () => widget.onReply?.call(),
+    //                   ),
+    //                   ContextMenuButton(
+    //                     key: const Key('ForwardButton'),
+    //                     label: 'Forward'.l10n,
+    //                     leading: SvgLoader.asset(
+    //                       'assets/icons/forward.svg',
+    //                       width: 18.8,
+    //                       height: 16,
+    //                     ),
+    //                     onPressed: () async {},
+    //                   ),
+    //                   ContextMenuButton(
+    //                     label: 'Delete'.l10n,
+    //                     leading: SvgLoader.asset(
+    //                       'assets/icons/delete_small.svg',
+    //                       width: 17.75,
+    //                       height: 17,
+    //                     ),
+    //                     onPressed: () async {},
+    //                   ),
+    //                 ],
+    //                 child: Padding(
+    //                   padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+    //                   child: ClipRRect(
+    //                     clipBehavior: Clip.none,
+    //                     borderRadius: BorderRadius.circular(15),
+    //                     child: IntrinsicWidth(
+    //                       child: AnimatedContainer(
+    //                         duration: const Duration(milliseconds: 500),
+    //                         decoration: BoxDecoration(
+    //                           color: Colors.white,
+    //                           borderRadius: BorderRadius.circular(15),
+    //                           border: style.secondaryBorder,
+    //                         ),
+    //                         child: _forwardedMessage(item),
+    //                       ),
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ),
+    //             ),
+    //           ),
+    //         ),
+    //       )
+    //     ],
+    //   ),
+    // );
   }
 
   Widget _forwardedMessage(ChatItem item) {
@@ -1327,12 +1328,12 @@ class _PostWidgetState extends State<PostWidget> {
                                         .map((a) => a.id)
                                         .toList();
                                   } else if (item is ChatForward) {
-                                    ChatItem nested = item.item;
-                                    if (nested is ChatMessage) {
-                                      attachments = nested.attachments
-                                          .map((a) => a.id)
-                                          .toList();
-                                    }
+                                    // ChatItem nested = item.item;
+                                    // if (nested is ChatMessage) {
+                                    //   attachments = nested.attachments
+                                    //       .map((a) => a.id)
+                                    //       .toList();
+                                    // }
                                   }
                                 },
                               ),
@@ -1639,16 +1640,16 @@ class _PostWidgetState extends State<PostWidget> {
           .map((e) => GlobalKey())
           .toList();
     } else if (msg is ChatForward) {
-      final ChatItem item = msg.item;
-      if (item is ChatMessage) {
-        _galleryKeys = item.attachments
-            .where((e) =>
-                e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-            .map((e) => GlobalKey())
-            .toList();
-      }
+      // final ChatItem item = msg.item;
+      // if (item is ChatMessage) {
+      //   _galleryKeys = item.attachments
+      //       .where((e) =>
+      //           e is ImageAttachment ||
+      //           (e is FileAttachment && e.isVideo) ||
+      //           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+      //       .map((e) => GlobalKey())
+      //       .toList();
+      // }
     }
   }
 }

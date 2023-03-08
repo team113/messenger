@@ -15,33 +15,42 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment ChatMessage on ChatMessage {
+fragment ChatInfo on ChatInfo {
     id
     chatId
     authorId
     at
     ver
-    repliesTo {
+    author {
         __typename
-        ... on ChatMessageQuote {
-            ...ChatMessageQuote
-        }
-        ... on ChatCallQuote {
-            ...ChatCallQuote
-        }
-        ... on ChatInfoQuote {
-            ...ChatInfoQuote
-        }
+        ...User
     }
-    text
-    editedAt
-    attachments {
+    action {
         __typename
-        ... on ImageAttachment {
-            ...ImageAttachment
+        ... on ChatInfoActionAvatarUpdated {
+            avatar {
+                __typename
+                ...ChatAvatar
+            }
         }
-        ... on FileAttachment {
-            ...FileAttachment
+        ... on ChatInfoActionCreated {
+            directLinkSlug
+        }
+        ... on ChatInfoActionMemberAdded {
+            directLinkSlug
+            user {
+                __typename
+                ...User
+            }
+        }
+        ... on ChatInfoActionMemberRemoved {
+            user {
+                __typename
+                ...User
+            }
+        }
+        ... on ChatInfoActionNameUpdated {
+            name
         }
     }
 }

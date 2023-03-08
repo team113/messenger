@@ -27,6 +27,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
+import 'package:messenger/domain/model/chat_info.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/native_file.dart';
@@ -235,14 +236,14 @@ class PublicController extends GetxController {
           (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         ));
       } else if (m.value is ChatForward) {
-        final ChatForward msg = m.value as ChatForward;
-        final ChatItem item = msg.item;
+        // final ChatForward msg = m.value as ChatForward;
+        // final ChatItem item = msg.item;
 
-        if (item is ChatMessage) {
-          attachments.addAll(item.attachments.where(
-            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-          ));
-        }
+        // if (item is ChatMessage) {
+        //   attachments.addAll(item.attachments.where(
+        //     (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+        //   ));
+        // }
       }
     }
 
@@ -337,8 +338,8 @@ class PublicController extends GetxController {
         } else if (item is ChatCall) {
           ChatCallElement element = ChatCallElement(e);
           elements[element.id] = element;
-        } else if (item is ChatMemberInfo) {
-          ChatMemberInfoElement element = ChatMemberInfoElement(e);
+        } else if (item is ChatInfo) {
+          ChatInfoElement element = ChatInfoElement(e);
           elements[element.id] = element;
         } else if (item is ChatForward) {
           ChatForwardElement element =
@@ -400,8 +401,7 @@ class PublicController extends GetxController {
               if (item.id == element.item.value.id) {
                 elements.remove(key);
               }
-            } else if (item is ChatMemberInfo &&
-                element is ChatMemberInfoElement) {
+            } else if (item is ChatInfo && element is ChatInfoElement) {
               if (item.id == element.item.value.id) {
                 elements.remove(key);
               }

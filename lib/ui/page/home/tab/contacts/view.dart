@@ -594,7 +594,7 @@ class ContactsTabView extends StatelessWidget {
             );
           }),
           Obx(() {
-            if (contact.user.value?.user.value.isBlacklisted == false) {
+            if (contact.user.value?.user.value.isBlacklisted == null) {
               return const SizedBox();
             }
 

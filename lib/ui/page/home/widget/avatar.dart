@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/file.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';

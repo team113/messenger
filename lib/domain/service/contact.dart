@@ -73,7 +73,7 @@ class ContactService extends DisposableService {
   /// [MyUser] and sets its position in the favorites list.
   Future<void> favoriteChatContact(
     ChatContactId id, [
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   ]) =>
       _contactRepository.favoriteChatContact(id, position);
 

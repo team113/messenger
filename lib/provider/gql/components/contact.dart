@@ -262,7 +262,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] is already favorited at the same position.
   Future<ChatContactEventsVersionedMixin?> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition position,
+    ChatContactFavoritePosition position,
   ) async {
     final variables = FavoriteChatContactArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(

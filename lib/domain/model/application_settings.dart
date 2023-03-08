@@ -29,10 +29,10 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
-    this.sortContactsByName = true,
+    this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.callButtons = const [],
+    this.sortContactsByName = true,
     this.loadImages = true,
     this.displayFunds = true,
     this.displayTransactions = true,
@@ -74,6 +74,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(7)
   bool sortContactsByName;
 
+  /// Indicator whether [ImageAttachment]s should be loaded automatically.
   @HiveField(8)
   bool loadImages;
 
