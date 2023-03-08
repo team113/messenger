@@ -750,7 +750,13 @@ Widget desktopCall(CallController c, BuildContext context) {
             return const SizedBox();
           }
 
-          return _secondaryView(c, context);
+          return LayoutBuilder(builder: (_, __) {
+            if (!WebUtils.isPopup) {
+              c.relocateSecondary();
+            }
+
+            return _secondaryView(c, context);
+          });
         }),
 
         // Show a hint if any renderer is draggable.
@@ -890,13 +896,8 @@ Widget desktopCall(CallController c, BuildContext context) {
             cursor: cursor,
             child: Scaler(
               key: key,
-              onDragStart: (_) {
-                c.secondaryScaled.value = true;
-                c.secondaryBottomShifted = null;
-              },
               onDragUpdate: onDrag,
               onDragEnd: (_) {
-                c.secondaryScaled.value = false;
                 c.updateSecondaryAttach();
               },
               width: width ?? Scaler.size,
@@ -1523,13 +1524,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
               child: Scaler(
                 key: key,
-                onDragStart: (_) {
-                  c.secondaryBottomShifted = null;
-                  c.secondaryScaled.value = true;
-                },
                 onDragUpdate: onDrag,
                 onDragEnd: (_) {
-                  c.secondaryScaled.value = false;
                   c.updateSecondaryAttach();
                 },
                 width: width ?? Scaler.size,
@@ -2001,6 +1997,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryBottomShifted = null;
+                          c.secondaryBottomShiftedByDock = null;
                           c.secondaryDragged.value = true;
                           c.displayMore.value = false;
                           c.keepUi(false);
