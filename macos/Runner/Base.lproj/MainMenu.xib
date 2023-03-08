@@ -45,12 +45,12 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="APP_NAME" id="1Xt-HY-uBw">
+                <menuItem title="Gapopa" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="APP_NAME"
+                    <menu key="submenu" title="Gapopa"
                           systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About APP_NAME" id="5kV-Vb-QxS">
+                            <menuItem title="About Gapopa" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action
@@ -69,7 +69,7 @@
                                       systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide APP_NAME" keyEquivalent="h"
+                            <menuItem title="Hide Gapopa" keyEquivalent="h"
                                       id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1"
@@ -93,7 +93,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Quit APP_NAME" keyEquivalent="q"
+                            <menuItem title="Quit Gapopa" keyEquivalent="q"
                                       id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1"
@@ -547,7 +547,7 @@
             </items>
             <point key="canvasLocation" x="142" y="-258"/>
         </menu>
-        <window title="APP_NAME"
+        <window title="Gapopa"
                 allowsToolTipsWhenApplicationIsInactive="NO"
                 autorecalculatesKeyViewLoop="NO"
                 releasedWhenClosed="NO"
