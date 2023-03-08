@@ -16,8 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned info and call messages. ([#357])
+        - Redesigned file attachments. ([#362])
 
 [#357]: /../../pull/357
+[#362]: /../../pull/362
 
 
 
