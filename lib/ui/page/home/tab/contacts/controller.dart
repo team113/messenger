@@ -306,7 +306,7 @@ class ContactsTabController extends GetxController {
     selectedContacts.clear();
   }
 
-  /// Add a [ChatContactId] to the [selectedChats].
+  /// Add a [ChatContactId] to the [selectedContacts].
   void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact.id)) {
       selectedContacts.remove(contact.id);
