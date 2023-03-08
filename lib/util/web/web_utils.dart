@@ -192,38 +192,6 @@ class WebStoredCall {
   }
 }
 
-/// Preferences of a popup call containing its [width], [height] and position.
-class WebCallPreferences {
-  WebCallPreferences({this.width, this.height, this.left, this.top});
-
-  /// Width of the popup window these [WebCallPreferences] are about.
-  final int? width;
-
-  /// Height of the popup window these [WebCallPreferences] are about.
-  final int? height;
-
-  /// Left position of the popup window these [WebCallPreferences] are about.
-  final int? left;
-
-  /// Top position of the popup window these [WebCallPreferences] are about.
-  final int? top;
-
-  /// Constructs a [WebCallPreferences] from the provided [data].
-  factory WebCallPreferences.fromJson(Map<dynamic, dynamic> data) {
-    return WebCallPreferences(
-      width: data['width'],
-      height: data['height'],
-      left: data['left'],
-      top: data['top'],
-    );
-  }
-
-  /// Returns a [Map] containing data of these [WebCallPreferences].
-  Map<String, dynamic> toJson() {
-    return {'width': width, 'height': height, 'left': left, 'top': top};
-  }
-}
-
 /// Extension adding a conversion from an [OngoingCall] to a [WebStoredCall].
 extension WebStoredOngoingCallConversion on OngoingCall {
   /// Constructs a [WebStoredCall] containing all necessary information of this
