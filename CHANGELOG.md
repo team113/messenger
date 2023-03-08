@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.9] · 2023-??-??
+[0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
+
+[Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned info and call messages. ([#357])
+
+[#357]: /../../pull/357
+
+
+
+
 ## [0.1.0-alpha.8] · 2023-03-07
 [0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
 

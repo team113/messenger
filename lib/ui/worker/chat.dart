@@ -242,39 +242,66 @@ class _ChatWatchData {
 
                 case ChatInfoActionKind.memberAdded:
                   final action = msg.action as ChatInfoActionMemberAdded;
-                  body.write(
-                    'label_was_added'.l10nfmt(
-                      {'who': '${action.user.name ?? action.user.num}'},
-                    ),
-                  );
+
+                  if (msg.authorId == action.user.id) {
+                    body.write(
+                      'label_was_added'.l10nfmt(
+                        {'author': '${action.user.name ?? action.user.num}'},
+                      ),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_added_user'.l10nfmt({
+                        'author': msg.author.name?.val ?? msg.author.num.val,
+                        'user': action.user.name?.val ?? action.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
                 case ChatInfoActionKind.memberRemoved:
                   final action = msg.action as ChatInfoActionMemberRemoved;
-                  body.write(
-                    'label_was_removed'.l10nfmt(
-                      {'who': '${action.user.name ?? action.user.num}'},
-                    ),
-                  );
+
+                  if (msg.authorId == action.user.id) {
+                    body.write(
+                      'label_was_removed'.l10nfmt(
+                        {'author': '${action.user.name ?? action.user.num}'},
+                      ),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_removed_user'.l10nfmt({
+                        'author': msg.author.name?.val ?? msg.author.num.val,
+                        'user': action.user.name?.val ?? action.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
                 case ChatInfoActionKind.avatarUpdated:
                   final action = msg.action as ChatInfoActionAvatarUpdated;
+                  final Map<String, dynamic> args = {
+                    'author': msg.author.name?.val ?? msg.author.num.val,
+                  };
+
                   if (action.avatar == null) {
-                    body.write('label_avatar_removed'.l10n);
+                    body.write('label_avatar_removed'.l10nfmt(args));
                   } else {
-                    body.write('label_avatar_updated'.l10n);
+                    body.write('label_avatar_updated'.l10nfmt(args));
                   }
                   break;
 
                 case ChatInfoActionKind.nameUpdated:
                   final action = msg.action as ChatInfoActionNameUpdated;
+                  final Map<String, dynamic> args = {
+                    'author': msg.author.name?.val ?? msg.author.num.val,
+                    if (action.name != null) 'name': action.name?.val,
+                  };
+
                   if (action.name == null) {
-                    body.write('label_name_removed'.l10n);
+                    body.write('label_name_removed'.l10nfmt(args));
                   } else {
-                    body.write(
-                      'label_name_updated'.l10nfmt({'name': action.name?.val}),
-                    );
+                    body.write('label_name_updated'.l10nfmt(args));
                   }
                   break;
               }
