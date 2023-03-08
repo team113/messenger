@@ -348,13 +348,13 @@ class ChatItemWidget extends StatefulWidget {
       switch (e.downloadStatus.value) {
         case DownloadStatus.inProgress:
           leading = InkWell(
+            key: const Key('CancelDownloading'),
             onTap: () => onFileTap?.call(e),
             child: Stack(
               alignment: Alignment.center,
               children: [
                 SvgLoader.asset(
                   'assets/icons/download_cancel.svg',
-                  key: const Key('CancelDownloading'),
                   width: 28,
                   height: 28,
                 ),
