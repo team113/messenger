@@ -1679,8 +1679,8 @@ class Track {
 
       case MediaKind.Video:
         renderer.value = RtcVideoRenderer(track);
-        await (renderer.value as RtcVideoRenderer).initialize();
-        (renderer.value as RtcVideoRenderer).srcObject = track.getTrack();
+        await (renderer.value as RtcVideoRenderer?)?.initialize();
+        (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
         break;
     }
   }

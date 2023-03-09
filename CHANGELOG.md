@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned info and call messages. ([#357])
+        - Redesigned file attachments. ([#362])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
 
@@ -32,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
+[#362]: /../../pull/362
 
 
 
