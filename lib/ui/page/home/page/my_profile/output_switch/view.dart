@@ -22,8 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -31,11 +30,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
-  const OutputSwitchView({
-    this.onChanged,
-    this.output,
-    super.key,
-  });
+  const OutputSwitchView({super.key, this.onChanged, this.output});
 
   /// Callback, called when the selected output device changes.
   final void Function(String)? onChanged;
@@ -57,7 +52,6 @@ class OutputSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
@@ -98,58 +92,16 @@ class OutputSwitchView extends StatelessWidget {
                                 (c.output.value == null && i == 0) ||
                                     c.output.value == e.deviceId();
 
-                            return Material(
-                              borderRadius: BorderRadius.circular(10),
-                              color: selected
-                                  ? style.cardSelectedColor.withOpacity(0.8)
-                                  : Colors.white.darken(0.05),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: selected
-                                    ? () {}
-                                    : () {
-                                        c.output.value = e.deviceId();
-                                        (onChanged ?? c.setOutputDevice)
-                                            .call(e.deviceId());
-                                      },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          e.label(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 15),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: AnimatedSwitcher(
-                                          duration: 200.milliseconds,
-                                          child: selected
-                                              ? CircleAvatar(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                  radius: 12,
-                                                  child: const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 12,
-                                                  ),
-                                                )
-                                              : const SizedBox(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            return RectangleButton(
+                              selected: selected,
+                              onPressed: selected
+                                  ? null
+                                  : () {
+                                      c.output.value = e.deviceId();
+                                      (onChanged ?? c.setOutputDevice)
+                                          .call(e.deviceId());
+                                    },
+                              label: e.label(),
                             );
                           });
                         },

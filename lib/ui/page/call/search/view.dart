@@ -169,6 +169,7 @@ class SearchView extends StatelessWidget {
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
                                 darken: 0.05,
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(user: e)
                                     : enabled
@@ -183,6 +184,7 @@ class SearchView extends StatelessWidget {
                                 contact: e,
                                 darken: 0.05,
                                 selected: c.selectedContacts.contains(e),
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(contact: e)
                                     : enabled
@@ -197,6 +199,7 @@ class SearchView extends StatelessWidget {
                                 chat: e,
                                 darken: 0.05,
                                 selected: c.selectedChats.contains(e),
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(chat: e)
                                     : enabled

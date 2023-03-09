@@ -96,9 +96,6 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
-  /// Indicator whether the secondary view is being scaled.
-  final RxBool secondaryScaled = RxBool(false);
-
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
@@ -312,7 +309,7 @@ class CallController extends GetxController {
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
-  /// Settings repository, used to get the [buttons] value.
+  /// Settings repository maintaining [OngoingCall] related preferences.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Current [OngoingCall].
@@ -371,6 +368,10 @@ class CallController extends GetxController {
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [secondaryBottom] value before the secondary view got relocated due to the
+  /// intersection with the [Dock].
+  double? secondaryBottomShiftedByDock;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -529,24 +530,28 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
+    final Rect? prefs =
+        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
+
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
-      width = RxDouble(size.width);
-      height = RxDouble(size.height);
+      width = RxDouble(prefs?.width ?? size.width);
+      height = RxDouble(prefs?.height ?? size.height);
     } else {
       width = RxDouble(
-        min(
-          max(
+        prefs?.width ??
             min(
-              500,
-              size.shortestSide * _maxWidth,
+              max(
+                min(
+                  500,
+                  size.shortestSide * _maxWidth,
+                ),
+                _minWidth,
+              ),
+              size.height * _maxHeight,
             ),
-            _minWidth,
-          ),
-          size.height * _maxHeight,
-        ),
       );
-      height = RxDouble(width.value);
+      height = RxDouble(prefs?.height ?? width.value);
     }
 
     double secondarySize =
@@ -555,11 +560,11 @@ class CallController extends GetxController {
     secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
-        ? RxDouble(size.width - width.value - 50)
-        : RxDouble(size.width / 2 - width.value / 2);
+        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
+        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
     top = height.value + 50 < size.height
-        ? RxDouble(50)
-        : RxDouble(size.height / 2 - height.value / 2);
+        ? RxDouble(prefs?.top ?? 50)
+        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
     void onChat(RxChat? v) {
       chat.value = v;
@@ -858,6 +863,11 @@ class CallController extends GetxController {
     _settingsWorker?.dispose();
 
     secondaryEntry?.remove();
+
+    _settingsRepository.setCallRect(
+      chat.value!.id,
+      Rect.fromLTWH(left.value, top.value, width.value, height.value),
+    );
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
@@ -1246,7 +1256,6 @@ class CallController extends GetxController {
   void relocateSecondary() {
     if (secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&
-        secondaryScaled.isFalse &&
         !_secondaryRelocated) {
       _secondaryRelocated = true;
 
@@ -1277,6 +1286,8 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
+        secondaryBottomShiftedByDock ??= secondaryBottomShifted;
+
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
           secondaryBottomShifted != null) {
@@ -1284,6 +1295,12 @@ class CallController extends GetxController {
         // it was before, so move it to its original position.
         double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
+
+        if (secondaryBottomShiftedByDock != null) {
+          secondaryBottomShifted = secondaryBottomShiftedByDock;
+        }
+        secondaryBottomShiftedByDock = null;
+
         if (bottom > secondaryBottomShifted!) {
           double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
