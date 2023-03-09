@@ -92,8 +92,8 @@ class MyProfileController extends GetxController {
   /// Used to discard repeated toggling.
   final RxBool isMuting = RxBool(false);
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
@@ -503,7 +503,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
     devices.value = ((await _mediaManager?.enumerateDevices() ?? []))

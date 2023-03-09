@@ -38,8 +38,8 @@ class MicrophoneSwitchController extends GetxController {
   /// ID of the initially selected microphone device.
   RxnString mic;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// Client for communicating with the [_mediaManager].
   Jason? _jason;
@@ -79,13 +79,13 @@ class MicrophoneSwitchController extends GetxController {
     await _settingsRepository.setAudioDevice(id);
   }
 
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
     devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
-              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.audioinput,
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.AudioInput,
         )
         .toList();
   }

@@ -35,8 +35,8 @@ class OutputSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// ID of the initially selected audio output device.
   RxnString output;
@@ -82,14 +82,14 @@ class OutputSwitchController extends GetxController {
     await _settingsRepository.setOutputDevice(id);
   }
 
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
     devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
               e.deviceId().isNotEmpty &&
-              e.kind() == MediaDeviceKind.audiooutput,
+              e.kind() == MediaDeviceKind.AudioOutput,
         )
         .toList();
   }

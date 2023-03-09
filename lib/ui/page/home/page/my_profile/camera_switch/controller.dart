@@ -35,8 +35,8 @@ class CameraSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// ID of the initially selected video device.
   RxnString camera;
@@ -148,13 +148,13 @@ class CameraSwitchController extends GetxController {
     }
   }
 
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
   /// available cameras.
   Future<void> _enumerateDevices() async {
     devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
-              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.videoinput,
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.VideoInput,
         )
         .toList();
   }
