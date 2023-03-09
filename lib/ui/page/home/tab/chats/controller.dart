@@ -487,7 +487,7 @@ class ChatsTabController extends GetxController {
     selectedChats.clear();
   }
 
-  /// Add a [ChatId] to the [selectedChats].
+  /// Adds a [ChatId] to the [selectedChats].
   void selectChat(RxChat chat) {
     if (selectedChats.contains(chat.id)) {
       selectedChats.remove(chat.id);

@@ -573,6 +573,8 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
+  /// Returns an animated [OutlinedRoundedButton]s for multiple deletion of
+  /// contacts.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     CustomBoxShadow shadow = const CustomBoxShadow(
       blurRadius: 8,

@@ -846,6 +846,8 @@ class ChatsTabView extends StatelessWidget {
     });
   }
 
+  /// Returns an animated [OutlinedRoundedButton]s for multiple deletion of
+  /// groups.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
     CustomBoxShadow shadow = const CustomBoxShadow(
       blurRadius: 8,
