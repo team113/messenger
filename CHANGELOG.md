@@ -6,7 +6,32 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.8] · 2022-??-??
+## [0.1.0-alpha.9] · 2023-??-??
+[0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
+
+[Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned info and call messages. ([#357])
+        - Redesigned file attachments. ([#362])
+    - Media panel:
+        - Position and size persistence. ([#270], [#264])
+        - Proportionally resizing secondary panel. ([#356], [#258])
+
+[#258]: /../../issues/258
+[#264]: /../../issues/264
+[#270]: /../../pull/270
+[#357]: /../../pull/357
+[#362]: /../../pull/362
+[#356]: /../../pull/356
+
+
+
+
+## [0.1.0-alpha.8] · 2023-03-07
 [0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
