@@ -23,12 +23,11 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-
 import 'controller.dart';
 
 /// View for changing [MyUser.status] and/or [MyUser.presence].
@@ -123,30 +122,11 @@ class StatusView extends StatelessWidget {
                       return Obx(() {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: FieldButton(
+                          child: RectangleButton(
+                            selected: c.presence.value == e,
+                            label: e.localizedString() ?? '',
                             onPressed: () => c.presence.value = e,
-                            text: e.localizedString(),
-                            trailing: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircleAvatar(
-                                backgroundColor: e.getColor(),
-                                radius: 12,
-                                child: AnimatedSwitcher(
-                                  duration: 200.milliseconds,
-                                  child: c.presence.value == e
-                                      ? const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 12,
-                                        )
-                                      : const SizedBox(key: Key('None')),
-                                ),
-                              ),
-                            ),
-                            fillColor: c.presence.value == e
-                                ? style.cardSelectedColor
-                                : Colors.white,
+                            trailingColor: e.getColor(),
                           ),
                         );
                       });
