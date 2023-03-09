@@ -73,6 +73,12 @@ import 'message_field/controller.dart';
 
 export 'view.dart';
 
+enum ConfirmAction {
+  audioCall,
+  videoCall,
+  sendMessage,
+}
+
 /// Controller of the [Routes.chat] page.
 class ChatController extends GetxController {
   ChatController(
@@ -185,6 +191,8 @@ class ChatController extends GetxController {
 
   late final RxBool paidDisclaimer;
   bool paidDisclaimerDismissed = false;
+
+  ConfirmAction? confirmAction;
 
   LoaderElement? _topLoader;
 
@@ -313,6 +321,7 @@ class ChatController extends GetxController {
       onSubmit: () async {
         if (paid && !paidDisclaimerDismissed) {
           paidDisclaimer.value = true;
+          confirmAction = ConfirmAction.sendMessage;
           return;
         }
 
@@ -427,6 +436,8 @@ class ChatController extends GetxController {
   Future<void> call(bool withVideo) async {
     if (paid && !paidDisclaimerDismissed) {
       paidDisclaimer.value = true;
+      confirmAction =
+          withVideo ? ConfirmAction.videoCall : ConfirmAction.audioCall;
       return;
     }
 

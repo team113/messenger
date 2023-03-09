@@ -888,7 +888,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       Container(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: FoldedWidget(
-          color: background.darken(0.05),
           folded: widget.paid,
           child: IntrinsicWidth(
             child: AnimatedContainer(
@@ -1254,24 +1253,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          decoration: BoxDecoration(
-            border: _fromMe
-                ? _isRead
-                    ? style.secondaryBorder
-                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                : style.primaryBorder,
-            color: _fromMe
-                ? _isRead
-                    ? style.readMessageColor
-                    : style.unreadMessageColor
-                : style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: child,
+        child: FoldedWidget(
+          folded: widget.paid,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              border: _fromMe
+                  ? _isRead
+                      ? style.secondaryBorder
+                      : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                  : style.primaryBorder,
+              color: _fromMe
+                  ? _isRead
+                      ? style.readMessageColor
+                      : style.unreadMessageColor
+                  : style.messageColor,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: child,
+            ),
           ),
         ),
       ),
@@ -1984,13 +1986,11 @@ class FoldedWidget extends StatelessWidget {
             Container(
               width: 10,
               height: 10,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFD15C),
-                // color: color ?? style.cardBorder.top.color.darken(0.1),
-                borderRadius: const BorderRadius.only(
-                  bottomRight: Radius.circular(4),
-                ),
-                boxShadow: const [
+              decoration: const BoxDecoration(
+                color: Color(0xFF72B060),
+                borderRadius:
+                    BorderRadius.only(bottomRight: Radius.circular(4)),
+                boxShadow: [
                   CustomBoxShadow(
                     color: Color(0xFFC0C0C0),
                     blurStyle: BlurStyle.outer,

@@ -223,41 +223,52 @@ class _HomeViewState extends State<HomeView> {
                                   onPressed: () => FundsMoreView.show(context),
                                   child: tab(
                                     tab: HomeTab.funds,
-                                    child: Stack(
-                                      children: [
-                                        SvgLoader.asset(
-                                          'assets/icons/balance.svg',
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        Positioned.fill(
-                                          child: Center(
-                                            child: Obx(() {
-                                              if (!c.displayFunds) {
-                                                SvgLoader.asset(
-                                                  'assets/icons/inter_white.svg',
-                                                  height: 12,
-                                                );
-                                              }
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xFF03a803),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          // SvgLoader.asset(
+                                          //   'assets/icons/balance.svg',
+                                          //   width: 30,
+                                          //   height: 30,
+                                          // ),
+                                          Positioned.fill(
+                                            child: Center(
+                                              child: Obx(() {
+                                                if (!c.displayFunds) {
+                                                  SvgLoader.asset(
+                                                    'assets/icons/inter_white.svg',
+                                                    height: 12,
+                                                  );
+                                                }
 
-                                              return Text(
-                                                c.displayFunds
-                                                    ? _balance(c.balance.value)
-                                                    : '\$',
-                                                style: TextStyle(
-                                                  color: c.displayFunds
-                                                      ? Colors.white
-                                                      : const Color(0xFFF8B64C),
-                                                  fontSize:
-                                                      c.displayFunds ? 12 : 15,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                textScaleFactor: 1,
-                                              );
-                                            }),
+                                                return Text(
+                                                  c.displayFunds
+                                                      ? _balance(
+                                                          c.balance.value)
+                                                      : '\$',
+                                                  style: TextStyle(
+                                                    color: c.displayFunds
+                                                        ? Colors.white
+                                                        : const Color(
+                                                            0xFFF8B64C),
+                                                    fontSize: c.displayFunds
+                                                        ? 12
+                                                        : 15,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                  textScaleFactor: 1,
+                                                );
+                                              }),
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

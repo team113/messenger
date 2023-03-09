@@ -187,536 +187,600 @@ class _ChatViewState extends State<ChatView>
                       child: child,
                     );
                   }),
-                  Scaffold(
-                    resizeToAvoidBottomInset: true,
-                    appBar: CustomAppBar(
-                      onBottom:
-                          c.paid ? () => c.paidDisclaimer.value = true : null,
-                      title: Row(
-                        children: [
-                          Material(
-                            elevation: 6,
-                            type: MaterialType.circle,
-                            shadowColor: const Color(0x55000000),
-                            color: Colors.white,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: onDetailsTap,
-                              child: Center(
-                                child: AvatarWidget.fromRxChat(
-                                  c.chat,
-                                  radius: 17,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: InkWell(
-                              splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: onDetailsTap,
-                              child: DefaultTextStyle.merge(
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    _chatSubtitle(c),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
-                      padding: const EdgeInsets.only(left: 4, right: 20),
-                      leading: const [StyledBackButton()],
-                      actions: [
-                        if (c.chat!.chat.value.ongoingCall == null) ...[
-                          WidgetButton(
-                            onPressed: c.paid && c.paidDisclaimer.value
-                                ? null
-                                : () => c.call(true),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
-                              height: 17,
-                            ),
-                          ),
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            key: const Key('AudioCall'),
-                            onPressed: c.paid && c.paidDisclaimer.value
-                                ? null
-                                : () => c.call(false),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
-                              height: 19,
-                            ),
-                          ),
-                        ] else ...[
-                          AnimatedSwitcher(
-                            key: const Key('ActiveCallButton'),
-                            duration: 300.milliseconds,
-                            child: c.inCall
-                                ? WidgetButton(
-                                    key: const Key('Drop'),
-                                    onPressed: c.dropCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/call_end.svg',
-                                          width: 32,
-                                          height: 32,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : WidgetButton(
-                                    key: const Key('Join'),
-                                    onPressed: c.joinCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/audio_call_start.svg',
-                                          width: 15,
-                                          height: 15,
-                                        ),
-                                      ),
-                                    ),
+                  LayoutBuilder(builder: (context, constraints) {
+                    return Scaffold(
+                      resizeToAvoidBottomInset: true,
+                      appBar: CustomAppBar(
+                        title: Row(
+                          children: [
+                            Material(
+                              elevation: 6,
+                              type: MaterialType.circle,
+                              shadowColor: const Color(0x55000000),
+                              color: Colors.white,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: onDetailsTap,
+                                child: Center(
+                                  child: AvatarWidget.fromRxChat(
+                                    c.chat,
+                                    radius: 17,
                                   ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    body: Stack(
-                      children: [
-                        Listener(
-                          onPointerSignal: (s) {
-                            if (s is PointerScrollEvent) {
-                              if ((s.scrollDelta.dy.abs() < 3 &&
-                                      s.scrollDelta.dx.abs() > 3) ||
-                                  c.isHorizontalScroll.value) {
-                                double value =
-                                    _animation.value + s.scrollDelta.dx / 100;
-                                _animation.value = value.clamp(0, 1);
-
-                                if (_animation.value == 0 ||
-                                    _animation.value == 1) {
-                                  _resetHorizontalScroll(c, 10.milliseconds);
-                                } else {
-                                  _resetHorizontalScroll(c);
-                                }
-                              }
-                            }
-                          },
-                          onPointerPanZoomUpdate: (s) {
-                            if (c.scrollOffset.dx.abs() < 7 &&
-                                c.scrollOffset.dy.abs() < 7) {
-                              c.scrollOffset = c.scrollOffset.translate(
-                                s.panDelta.dx.abs(),
-                                s.panDelta.dy.abs(),
-                              );
-                            }
-                          },
-                          onPointerMove: (d) {
-                            if (c.scrollOffset.dx.abs() < 7 &&
-                                c.scrollOffset.dy.abs() < 7) {
-                              c.scrollOffset = c.scrollOffset.translate(
-                                d.delta.dx.abs(),
-                                d.delta.dy.abs(),
-                              );
-                            }
-                          },
-                          child: RawGestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            gestures: {
-                              AllowMultipleHorizontalDragGestureRecognizer:
-                                  GestureRecognizerFactoryWithHandlers<
-                                      AllowMultipleHorizontalDragGestureRecognizer>(
-                                () =>
-                                    AllowMultipleHorizontalDragGestureRecognizer(),
-                                (AllowMultipleHorizontalDragGestureRecognizer
-                                    instance) {
-                                  instance.onUpdate = (d) {
-                                    if (!c.isItemDragged.value &&
-                                        c.scrollOffset.dy.abs() < 7 &&
-                                        c.scrollOffset.dx.abs() > 7) {
-                                      double value =
-                                          (_animation.value - d.delta.dx / 100)
-                                              .clamp(0, 1);
-
-                                      if (_animation.value != 1 && value == 1 ||
-                                          _animation.value != 0 && value == 0) {
-                                        HapticFeedback.selectionClick();
-                                      }
-
-                                      _animation.value = value.clamp(0, 1);
-                                    }
-                                  };
-
-                                  instance.onEnd = (d) async {
-                                    c.scrollOffset = Offset.zero;
-                                    if (!c.isItemDragged.value &&
-                                        _animation.value != 1 &&
-                                        _animation.value != 0) {
-                                      if (_animation.value >= 0.5) {
-                                        await _animation.forward();
-                                        HapticFeedback.selectionClick();
-                                      } else {
-                                        await _animation.reverse();
-                                        HapticFeedback.selectionClick();
-                                      }
-                                    }
-                                  };
-                                },
-                              )
-                            },
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Stack(
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: onDetailsTap,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      // Required for the [Stack] to take [Scaffold]'s
-                                      // size.
-                                      IgnorePointer(
-                                        child: ContextMenuInterceptor(
-                                            child: Container()),
+                                      Text(
+                                        c.chat!.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       ),
-                                      Scrollbar(
-                                        controller: c.listController,
-                                        child: Obx(() {
-                                          return FlutterListView(
-                                            key: const Key('MessagesList'),
-                                            controller: c.listController,
-                                            physics: c.isHorizontalScroll
-                                                        .isTrue ||
-                                                    (PlatformUtils.isDesktop &&
-                                                        c.isItemDragged.isTrue)
-                                                ? const NeverScrollableScrollPhysics()
-                                                : const BouncingScrollPhysics(),
-                                            delegate: FlutterListViewDelegate(
-                                              (context, i) =>
-                                                  _listElement(context, c, i),
-                                              childCount:
-                                                  // ignore: invalid_use_of_protected_member
-                                                  c.elements.value.length,
-                                              keepPosition: true,
-                                              onItemKey: (i) => c
-                                                  .elements.values
-                                                  .elementAt(i)
-                                                  .id
-                                                  .toString(),
-                                              onItemSticky: (i) =>
-                                                  c.elements.values.elementAt(i)
-                                                      is DateTimeElement,
-                                              initIndex: c.initIndex,
-                                              initOffset: c.initOffset,
-                                              initOffsetBasedOnBottom: false,
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                      Obx(() {
-                                        if ((c.chat!.status.value.isSuccess ||
-                                                c.chat!.status.value.isEmpty) &&
-                                            c.chat!.messages.isEmpty) {
-                                          return Center(
-                                            child:
-                                                Text('label_no_messages'.l10n),
-                                          );
-                                        }
-                                        if (c.chat!.status.value.isLoading) {
-                                          return const Center(
-                                            child: CustomProgressIndicator(),
-                                          );
-                                        }
-
-                                        return const SizedBox();
-                                      }),
+                                      _chatSubtitle(c),
                                     ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 10),
+                          ],
                         ),
-                        Obx(() {
-                          final Widget child;
-                          if (c.paidDisclaimer.value) {
-                            final TextStyle? thin = Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(color: Colors.black);
-
-                            final Style style =
-                                Theme.of(context).extension<Style>()!;
-
-                            child = Stack(
-                              key: const Key('Stack'),
-                              children: [
-                                GestureDetector(
-                                  onTap: () => c.paidDisclaimer.value = false,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    color: style.barrierColor,
-                                  ),
+                        padding: const EdgeInsets.only(left: 4, right: 20),
+                        leading: const [StyledBackButton()],
+                        actions: [
+                          if (c.paid) ...[
+                            WidgetButton(
+                              onPressed: c.paid
+                                  ? () {
+                                      c.paidDisclaimer.value = true;
+                                      c.confirmAction = null;
+                                    }
+                                  : null,
+                              child: Transform.translate(
+                                offset: const Offset(0, 1),
+                                child: SvgLoader.asset(
+                                  'assets/icons/paid_chat.svg',
+                                  width: 21.57,
+                                  height: 21.5,
                                 ),
-                                Align(
-                                  alignment: context.isNarrow
-                                      ? Alignment.bottomCenter
-                                      : Alignment.center,
-                                  child: Container(
-                                    constraints: context.isNarrow
-                                        ? null
-                                        : const BoxConstraints(maxWidth: 380),
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
+                              ),
+                            ),
+                            const SizedBox(width: 28),
+                          ],
+                          if (c.chat!.chat.value.ongoingCall == null) ...[
+                            if (!c.paid || constraints.maxWidth > 400) ...[
+                              Obx(() {
+                                return WidgetButton(
+                                  onPressed: c.paidDisclaimer.value && c.paid
+                                      ? null
+                                      : () => c.call(true),
+                                  child: SvgLoader.asset(
+                                    // 'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
+                                    'assets/icons/chat_video_call.svg',
+                                    height: 17,
+                                  ),
+                                );
+                              }),
+                              const SizedBox(width: 28),
+                            ],
+                            Obx(() {
+                              return WidgetButton(
+                                key: const Key('AudioCall'),
+                                onPressed: c.paidDisclaimer.value && c.paid
+                                    ? null
+                                    : () => c.call(false),
+                                child: SvgLoader.asset(
+                                  // 'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
+                              );
+                            }),
+                          ] else ...[
+                            AnimatedSwitcher(
+                              key: const Key('ActiveCallButton'),
+                              duration: 300.milliseconds,
+                              child: c.inCall
+                                  ? WidgetButton(
+                                      key: const Key('Drop'),
+                                      onPressed: c.dropCall,
+                                      child: Container(
+                                        height: 32,
+                                        width: 32,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: SvgLoader.asset(
+                                            'assets/icons/call_end.svg',
+                                            width: 32,
+                                            height: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : WidgetButton(
+                                      key: const Key('Join'),
+                                      onPressed: c.joinCall,
+                                      child: Container(
+                                        height: 32,
+                                        width: 32,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: SvgLoader.asset(
+                                            'assets/icons/audio_call_start.svg',
+                                            width: 15,
+                                            height: 15,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: style.cardRadius,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
+                            ),
+                          ],
+                        ],
+                      ),
+                      body: Stack(
+                        children: [
+                          Listener(
+                            onPointerSignal: (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
+
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
+                            },
+                            onPointerPanZoomUpdate: (s) {
+                              if (c.scrollOffset.dx.abs() < 7 &&
+                                  c.scrollOffset.dy.abs() < 7) {
+                                c.scrollOffset = c.scrollOffset.translate(
+                                  s.panDelta.dx.abs(),
+                                  s.panDelta.dy.abs(),
+                                );
+                              }
+                            },
+                            onPointerMove: (d) {
+                              if (c.scrollOffset.dx.abs() < 7 &&
+                                  c.scrollOffset.dy.abs() < 7) {
+                                c.scrollOffset = c.scrollOffset.translate(
+                                  d.delta.dx.abs(),
+                                  d.delta.dy.abs(),
+                                );
+                              }
+                            },
+                            child: RawGestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              gestures: {
+                                AllowMultipleHorizontalDragGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                        AllowMultipleHorizontalDragGestureRecognizer>(
+                                  () =>
+                                      AllowMultipleHorizontalDragGestureRecognizer(),
+                                  (AllowMultipleHorizontalDragGestureRecognizer
+                                      instance) {
+                                    instance.onUpdate = (d) {
+                                      if (!c.isItemDragged.value &&
+                                          c.scrollOffset.dy.abs() < 7 &&
+                                          c.scrollOffset.dx.abs() > 7) {
+                                        double value = (_animation.value -
+                                                d.delta.dx / 100)
+                                            .clamp(0, 1);
+
+                                        if (_animation.value != 1 &&
+                                                value == 1 ||
+                                            _animation.value != 0 &&
+                                                value == 0) {
+                                          HapticFeedback.selectionClick();
+                                        }
+
+                                        _animation.value = value.clamp(0, 1);
+                                      }
+                                    };
+
+                                    instance.onEnd = (d) async {
+                                      c.scrollOffset = Offset.zero;
+                                      if (!c.isItemDragged.value &&
+                                          _animation.value != 1 &&
+                                          _animation.value != 0) {
+                                        if (_animation.value >= 0.5) {
+                                          await _animation.forward();
+                                          HapticFeedback.selectionClick();
+                                        } else {
+                                          await _animation.reverse();
+                                          HapticFeedback.selectionClick();
+                                        }
+                                      }
+                                    };
+                                  },
+                                )
+                              },
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Stack(
                                       children: [
-                                        const SizedBox(height: 4),
-                                        ModalPopupHeader(
-                                          onClose: () =>
-                                              c.paidDisclaimer.value = false,
-                                          header: Center(
-                                            child: Text(
-                                              'label_paid_chat'.l10n,
-                                              style:
-                                                  thin?.copyWith(fontSize: 18),
-                                            ),
-                                          ),
+                                        // Required for the [Stack] to take [Scaffold]'s
+                                        // size.
+                                        IgnorePointer(
+                                          child: ContextMenuInterceptor(
+                                              child: Container()),
                                         ),
-                                        const SizedBox(height: 13),
-                                        Flexible(
-                                          child: ListView(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 30,
-                                            ),
-                                            shrinkWrap: true,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'label_send_message'.l10n,
-                                                    style: thin,
-                                                  ),
-                                                  const Spacer(),
-                                                  RichText(
-                                                    text: TextSpan(
-                                                      children: [
-                                                        TextSpan(
-                                                          text: '¤',
-                                                          style: thin?.copyWith(
-                                                            height: 0.8,
-                                                            fontFamily:
-                                                                'InterRoboto',
-                                                            fontWeight:
-                                                                FontWeight.w300,
-                                                          ),
-                                                        ),
-                                                        const WidgetSpan(
-                                                          child: SizedBox(
-                                                            width: 1,
-                                                          ),
-                                                        ),
-                                                        TextSpan(
-                                                          text: '100',
-                                                          style: thin,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
+                                        Scrollbar(
+                                          controller: c.listController,
+                                          child: Obx(() {
+                                            return FlutterListView(
+                                              key: const Key('MessagesList'),
+                                              controller: c.listController,
+                                              physics: c.isHorizontalScroll
+                                                          .isTrue ||
+                                                      (PlatformUtils
+                                                              .isDesktop &&
+                                                          c.isItemDragged
+                                                              .isTrue)
+                                                  ? const NeverScrollableScrollPhysics()
+                                                  : const BouncingScrollPhysics(),
+                                              delegate: FlutterListViewDelegate(
+                                                (context, i) =>
+                                                    _listElement(context, c, i),
+                                                childCount:
+                                                    // ignore: invalid_use_of_protected_member
+                                                    c.elements.value.length,
+                                                keepPosition: true,
+                                                onItemKey: (i) => c
+                                                    .elements.values
+                                                    .elementAt(i)
+                                                    .id
+                                                    .toString(),
+                                                onItemSticky: (i) => c
+                                                        .elements.values
+                                                        .elementAt(i)
+                                                    is DateTimeElement,
+                                                initIndex: c.initIndex,
+                                                initOffset: c.initOffset,
+                                                initOffsetBasedOnBottom: false,
                                               ),
-                                              const SizedBox(height: 12),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'label_make_call'.l10n,
-                                                    style: thin,
-                                                  ),
-                                                  const Spacer(),
-                                                  RichText(
-                                                    text: TextSpan(
-                                                      children: [
-                                                        TextSpan(
-                                                          text: '¤',
-                                                          style: thin?.copyWith(
-                                                            height: 0.8,
-                                                            fontFamily:
-                                                                'InterRoboto',
-                                                            fontWeight:
-                                                                FontWeight.w300,
-                                                          ),
-                                                        ),
-                                                        const WidgetSpan(
-                                                          child: SizedBox(
-                                                            width: 1,
-                                                          ),
-                                                        ),
-                                                        TextSpan(
-                                                          text: '10/min',
-                                                          style: thin,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                            );
+                                          }),
                                         ),
-                                        const SizedBox(height: 25),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 30,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              if (context.isMobile) ...[
-                                                Expanded(
-                                                  child: OutlinedRoundedButton(
-                                                    key: const Key('Close'),
-                                                    maxWidth: double.infinity,
-                                                    title:
-                                                        Text('btn_close'.l10n),
-                                                    onPressed: () {
-                                                      c.paidDisclaimer.value =
-                                                          false;
-                                                    },
-                                                    color:
-                                                        const Color(0xFFEEEEEE),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                              ],
-                                              Expanded(
-                                                child: OutlinedRoundedButton(
-                                                  key: const Key('Accept'),
-                                                  maxWidth: double.infinity,
-                                                  title: Text(
-                                                    'btn_accept'.l10n,
-                                                    style: thin?.copyWith(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    c.paidDisclaimer.value =
-                                                        false;
-                                                    c.paidDisclaimerDismissed =
-                                                        true;
-                                                  },
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
+                                        Obx(() {
+                                          if ((c.chat!.status.value.isSuccess ||
+                                                  c.chat!.status.value
+                                                      .isEmpty) &&
+                                              c.chat!.messages.isEmpty) {
+                                            return Center(
+                                              child: Text(
+                                                  'label_no_messages'.l10n),
+                                            );
+                                          }
+                                          if (c.chat!.status.value.isLoading) {
+                                            return const Center(
+                                              child: CustomProgressIndicator(),
+                                            );
+                                          }
+
+                                          return const SizedBox();
+                                        }),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            child = const SizedBox();
-                          }
+                                ],
+                              ),
+                            ),
+                          ),
+                          Obx(() {
+                            final Widget child;
+                            if (c.paidDisclaimer.value) {
+                              final TextStyle? thin = Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(color: Colors.black);
 
-                          return AnimatedSwitcher(
-                            duration: 150.milliseconds,
-                            child: child,
-                          );
-                        }),
-                      ],
-                    ),
-                    // floatingActionButtonLocation:
-                    //     FloatingActionButtonLocation.centerFloat,
-                    floatingActionButton: Obx(() {
-                      return SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: AnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: c.canGoBack.isTrue
-                              ? FloatingActionButton.small(
-                                  onPressed: c.animateToBack,
-                                  child: const Icon(Icons.arrow_upward),
-                                )
-                              : c.canGoDown.isTrue
-                                  ? FloatingActionButton.small(
-                                      onPressed: c.animateToBottom,
-                                      child: const Icon(Icons.arrow_downward),
-                                    )
-                                  : const SizedBox(),
-                        ),
-                      );
-                    }),
-                    bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                      child:
-                          NotificationListener<SizeChangedLayoutNotification>(
-                        onNotification: (l) {
-                          Rect previous = c.bottomBarRect.value ??
-                              const Rect.fromLTWH(0, 0, 0, 55);
-                          SchedulerBinding.instance.addPostFrameCallback((_) {
-                            c.bottomBarRect.value =
-                                c.bottomBarKey.globalPaintBounds;
-                            if (c.bottomBarRect.value != null &&
-                                c.listController.position.maxScrollExtent > 0 &&
-                                c.listController.position.pixels <
-                                    c.listController.position.maxScrollExtent) {
-                              Rect current = c.bottomBarRect.value!;
-                              c.listController.jumpTo(
-                                c.listController.position.pixels +
-                                    (current.height - previous.height),
+                              final Style style =
+                                  Theme.of(context).extension<Style>()!;
+
+                              child = Stack(
+                                key: const Key('Stack'),
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => c.paidDisclaimer.value = false,
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      color: style.barrierColor,
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: context.isNarrow
+                                        ? Alignment.bottomCenter
+                                        : Alignment.center,
+                                    child: Container(
+                                      constraints: context.isNarrow
+                                          ? null
+                                          : const BoxConstraints(maxWidth: 380),
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: style.cardRadius,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          ModalPopupHeader(
+                                            onClose: () =>
+                                                c.paidDisclaimer.value = false,
+                                            header: Center(
+                                              child: Text(
+                                                'label_paid_chat'.l10n,
+                                                style: thin?.copyWith(
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 13),
+                                          Flexible(
+                                            child: ListView(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 30,
+                                              ),
+                                              shrinkWrap: true,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'label_send_message'.l10n,
+                                                      style: thin,
+                                                    ),
+                                                    const Spacer(),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text: '¤',
+                                                            style:
+                                                                thin?.copyWith(
+                                                              height: 0.8,
+                                                              fontFamily:
+                                                                  'InterRoboto',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w300,
+                                                            ),
+                                                          ),
+                                                          const WidgetSpan(
+                                                            child: SizedBox(
+                                                              width: 1,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: '100',
+                                                            style: thin,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 12),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'label_make_call'.l10n,
+                                                      style: thin,
+                                                    ),
+                                                    const Spacer(),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text: '¤',
+                                                            style:
+                                                                thin?.copyWith(
+                                                              height: 0.8,
+                                                              fontFamily:
+                                                                  'InterRoboto',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w300,
+                                                            ),
+                                                          ),
+                                                          const WidgetSpan(
+                                                            child: SizedBox(
+                                                              width: 1,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: '10/min',
+                                                            style: thin,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 25),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 30,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                if (context.isMobile) ...[
+                                                  Expanded(
+                                                    child:
+                                                        OutlinedRoundedButton(
+                                                      key: const Key('Close'),
+                                                      maxWidth: double.infinity,
+                                                      title: Text(
+                                                          'btn_close'.l10n),
+                                                      onPressed: () {
+                                                        c.paidDisclaimer.value =
+                                                            false;
+                                                      },
+                                                      color: const Color(
+                                                          0xFFEEEEEE),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                ],
+                                                Expanded(
+                                                  child: OutlinedRoundedButton(
+                                                    key: const Key('Accept'),
+                                                    maxWidth: double.infinity,
+                                                    title: Text(
+                                                      'btn_proceed'.l10n,
+                                                      style: thin?.copyWith(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      c.paidDisclaimer.value =
+                                                          false;
+                                                      c.paidDisclaimerDismissed =
+                                                          true;
+
+                                                      switch (c.confirmAction) {
+                                                        case ConfirmAction
+                                                            .audioCall:
+                                                          c.call(false);
+                                                          break;
+
+                                                        case ConfirmAction
+                                                            .videoCall:
+                                                          c.call(true);
+                                                          break;
+
+                                                        case ConfirmAction
+                                                            .sendMessage:
+                                                          c.send.onSubmit
+                                                              ?.call();
+                                                          break;
+
+                                                        case null:
+                                                          // No-op.
+                                                          break;
+                                                      }
+                                                    },
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               );
+                            } else {
+                              child = const SizedBox();
                             }
-                          });
 
-                          return true;
-                        },
-                        child: SizeChangedLayoutNotifier(
-                          key: c.bottomBarKey,
-                          child: _bottomBar(c),
+                            return AnimatedSwitcher(
+                              duration: 150.milliseconds,
+                              child: child,
+                            );
+                          }),
+                        ],
+                      ),
+                      // floatingActionButtonLocation:
+                      //     FloatingActionButtonLocation.centerFloat,
+                      floatingActionButton: Obx(() {
+                        return SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: AnimatedSwitcher(
+                            duration: 200.milliseconds,
+                            child: c.canGoBack.isTrue
+                                ? FloatingActionButton.small(
+                                    onPressed: c.animateToBack,
+                                    child: const Icon(Icons.arrow_upward),
+                                  )
+                                : c.canGoDown.isTrue
+                                    ? FloatingActionButton.small(
+                                        onPressed: c.animateToBottom,
+                                        child: const Icon(Icons.arrow_downward),
+                                      )
+                                    : const SizedBox(),
+                          ),
+                        );
+                      }),
+                      bottomNavigationBar: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        child:
+                            NotificationListener<SizeChangedLayoutNotification>(
+                          onNotification: (l) {
+                            Rect previous = c.bottomBarRect.value ??
+                                const Rect.fromLTWH(0, 0, 0, 55);
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              c.bottomBarRect.value =
+                                  c.bottomBarKey.globalPaintBounds;
+                              if (c.bottomBarRect.value != null &&
+                                  c.listController.position.maxScrollExtent >
+                                      0 &&
+                                  c.listController.position.pixels <
+                                      c.listController.position
+                                          .maxScrollExtent) {
+                                Rect current = c.bottomBarRect.value!;
+                                c.listController.jumpTo(
+                                  c.listController.position.pixels +
+                                      (current.height - previous.height),
+                                );
+                              }
+                            });
+
+                            return true;
+                          },
+                          child: SizeChangedLayoutNotifier(
+                            key: c.bottomBarKey,
+                            child: _bottomBar(c),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                   IgnorePointer(
                     child: Obx(() {
                       return AnimatedSwitcher(
@@ -1384,9 +1448,9 @@ class _ChatViewState extends State<ChatView>
         onChanged: c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
-        canSend: !disabled,
-        canAttach: !disabled,
-        disabled: disabled,
+        // canSend: !disabled,
+        // canAttach: !disabled,
+        // disabled: disabled,
       );
     });
   }
