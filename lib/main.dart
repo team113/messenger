@@ -23,6 +23,9 @@ library main;
 
 import 'dart:async';
 
+import 'package:callkeep/callkeep.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -31,12 +34,15 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
+import 'domain/model/chat.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
@@ -47,6 +53,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/window.dart';
+import 'util/android_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -58,6 +65,9 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
+
+    FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
     await _initHive();
 
@@ -90,6 +100,18 @@ Future<void> main() async {
 
     await authService.init();
     await L10n.init();
+
+    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      RemoteMessage? initialMessage =
+          await FirebaseMessaging.instance.getInitialMessage();
+
+      if (initialMessage != null) {
+        _handleMessage(initialMessage);
+      }
+    }
 
     runApp(
       DefaultAssetBundle(
@@ -138,7 +160,86 @@ Future<void> main() async {
   );
 }
 
-/// Callback, triggered when an user taps on a notification.
+/// Callback, triggered when an user taps on a FCM notification.
+void _handleMessage(RemoteMessage message) {
+  if (message.data['chatId'] != null) {
+    router.chat(ChatId(message.data['chatId']), push: true);
+  }
+}
+
+/// Callback, triggered when a FCM notification is received in the background.
+///
+/// Must be a top level function.
+Future<void> _backgroundHandler(RemoteMessage message) async {
+  if (message.notification?.android?.tag?.endsWith('_call') == true) {
+    final FlutterCallkeep callKeep = FlutterCallkeep();
+
+    if (await callKeep.hasPhoneAccount() &&
+        await AndroidUtils.canDrawOverlays()) {
+      await Config.init();
+
+      await Hive.initFlutter('hive');
+      var sessionProvider = SessionDataHiveProvider();
+      await sessionProvider.init();
+
+      final GraphQlProvider provider = GraphQlProvider();
+      provider.token = sessionProvider.getCredentials()?.session.token;
+      provider.reconnect();
+
+      await sessionProvider.close();
+
+      await callKeep.setup(
+        null,
+        {
+          'ios': {'appName': 'Gapopa'},
+          'android': {
+            'alertTitle': 'label_call_permissions_title'.l10n,
+            'alertDescription': 'label_call_permissions_description'.l10n,
+            'cancelButton': 'btn_dismiss'.l10n,
+            'okButton': 'btn_allow'.l10n,
+            'foregroundService': {
+              'channelId': 'com.team113.messenger',
+              'channelName': 'Foreground calls service',
+              'notificationTitle': 'My app is running on background',
+              'notificationIcon': 'mipmap/ic_notification_launcher',
+            },
+            'additionalPermissions': <String>[],
+          },
+        },
+        backgroundMode: true,
+      );
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      callKeep.on(CallKeepPerformAnswerCallAction(),
+          (CallKeepPerformAnswerCallAction event) async {
+        await prefs.setString('answeredCall', event.callUUID!);
+        await callKeep.rejectCall(event.callUUID!);
+        await callKeep.backToForeground();
+      });
+
+      callKeep.on(CallKeepPerformEndCallAction(),
+          (CallKeepPerformEndCallAction event) async {
+        if (prefs.getString('answeredCall') != event.callUUID!) {
+          await provider.declineChatCall(ChatId(event.callUUID!));
+        }
+
+        provider.disconnect();
+
+        await Hive.close();
+      });
+
+      callKeep.displayIncomingCall(
+        message.data['chatId'],
+        message.notification?.title ?? 'gapopa',
+        localizedCallerName: message.notification?.title ?? 'gapopa',
+        handleType: 'generic',
+      );
+    }
+  }
+}
+
+/// Callback, triggered when an user taps on a local notification.
 ///
 /// Must be a top level function.
 void onNotificationResponse(NotificationResponse response) {

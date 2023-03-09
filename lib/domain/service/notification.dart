@@ -19,13 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 
 import '/domain/model/fcm_registration_token.dart';
-import '/firebase_options.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -66,8 +64,7 @@ class NotificationService extends DisposableService {
   /// Optional [onDidReceiveLocalNotification] callback is called
   /// when a notification is triggered while the app is in the foreground and is
   /// only applicable to iOS versions older than 10.
-  Future<void> init(
-    {
+  Future<void> init({
     void Function(NotificationResponse)? onNotificationResponse,
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
@@ -181,11 +178,7 @@ class NotificationService extends DisposableService {
   /// Initializes the [FirebaseMessaging] to receive push notifications.
   Future<void> _initPushNotifications() async {
     if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-
-      if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
+      if (PlatformUtils.isWeb || PlatformUtils.isMobile) {
         await FirebaseMessaging.instance.requestPermission();
       }
 

@@ -923,7 +923,7 @@ List<String?>?
                 fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(
                     e))
             .toList();
-            
+
 // BlacklistCursor
 
 BlacklistCursor fromGraphQLBlacklistCursorToDartBlacklistCursor(String v) =>

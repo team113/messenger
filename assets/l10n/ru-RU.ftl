@@ -312,14 +312,14 @@ err_you_already_has_unconfirmed_email = Вы имеете неподтвержд
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
-fcm_dialog_attachment = 
+fcm_dialog_attachment =
     {$kind ->
         [image] [Изображение]
         [video] [Видео]
        *[file] [Файл]
     }
 fcm_dialog_message = {$text}
-fcm_dialog_title = 
+fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -332,28 +332,37 @@ fcm_group_attachment =
         [image] [Изображение]
         [video] [Видео]
        *[file] [Файл]
-    } 
-fcm_group_message = 
+    }
+fcm_group_message =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }: {$text}
-fcm_group_title = 
+fcm_group_title =
     {$user1Name ->
-        [x] {$user1Num}
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
        *[other] {$user1Name}
     }{$user2Name ->
-        [x] {$user2Num}
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] {$user2Num}
+            }
        *[other] , {$user2Name}
     }{$user3Name ->
-        [x] {$user3Num}
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] {$user3Num}
+            }
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
 fcm_incoming_call = Входящий звонок
-fcm_user_added_user = 
+fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
@@ -361,22 +370,22 @@ fcm_user_added_user =
         [x] {$userNum}
        *[other] {$userName}
     }
-fcm_user_added_you_to_group = 
+fcm_user_added_you_to_group =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
     } добавил Вас в группу
-fcm_user_joined_group_by_link = 
+fcm_user_joined_group_by_link =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
     } присоединился к группе по ссылке
-fcm_user_left_group = 
+fcm_user_left_group =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
     } покинул группу
-fcm_user_removed_user = 
+fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}

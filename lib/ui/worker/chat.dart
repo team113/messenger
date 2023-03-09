@@ -203,12 +203,13 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?)? onNotification,
     UserId? Function()? me,
-  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
+  }) : updatedAt = PreciseDateTime.now() {
     worker = ever(
       c,
       (Chat chat) {
         if (chat.lastItem != null) {
-          if (chat.lastItem!.at.isAfter(updatedAt) &&
+          if (router.lifecycle.value.inForeground &&
+              chat.lastItem!.at.isAfter(updatedAt) &&
               DateTime.now()
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=

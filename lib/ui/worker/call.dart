@@ -24,18 +24,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
-import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
-import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
@@ -48,11 +46,8 @@ import '/util/web/web_utils.dart';
 class CallWorker extends DisposableService {
   CallWorker(
     this._callService,
-    this._chatService,
     this._myUserService,
-    this._notificationService,
   );
-
 
   /// [AudioPlayer] currently playing an audio.
   AudioPlayer? _audioPlayer;
@@ -60,14 +55,8 @@ class CallWorker extends DisposableService {
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
 
-  /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
-  final ChatService _chatService;
-
   /// [MyUserService] used to get [MyUser.muted] status.
   final MyUserService _myUserService;
-
-  /// [NotificationService] used to show an incoming call notification.
-  final NotificationService _notificationService;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -91,13 +80,15 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// [Worker] reacting on the [RouterState.lifecycle] changes.
+  Worker? _lifecycleWorker;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
     _initAudio();
-    _initBackgroundService();
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
@@ -105,7 +96,25 @@ class CallWorker extends DisposableService {
       Wakelock.enable().onError((_, __) => false);
     }
 
+    _lifecycleWorker = ever(router.lifecycle, (e) async {
+      if (e.inForeground) {
+        _callKeep.endAllCalls();
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        _callService.calls.forEach((key, value) {
+          if ((_answeredCalls.contains(key) ||
+                  prefs.getString('answeredCall') == key.val) &&
+              !value.value.isActive) {
+            _callService.join(key, withVideo: false);
+            _answeredCalls.remove(key);
+            prefs.remove('answeredCall');
+          }
+        });
+      }
+    });
+
     _subscription = _callService.calls.changes.listen((event) async {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
         Wakelock.enable().onError((_, __) => false);
@@ -125,10 +134,12 @@ class CallWorker extends DisposableService {
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
             bool isInForeground = router.lifecycle.value.inForeground;
-
-            if (_answeredCalls.contains(c.chatId.value)) {
+            if (isInForeground &&
+                (prefs.getString('answeredCall') == c.chatId.value.val ||
+                    _answeredCalls.contains(c.chatId.value))) {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
+              prefs.remove('acceptedCall');
             } else if (calling) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
@@ -161,36 +172,6 @@ class CallWorker extends DisposableService {
                 }
               }
             });
-
-            // Show a notification of an incoming call.
-            if (!calling) {
-              // On mobile, notification should be displayed only if application
-              // is not in the foreground and the call permissions are not
-              // granted.
-              bool showNotification = !PlatformUtils.isMobile;
-              if (PlatformUtils.isMobile) {
-                showNotification =
-                    !isInForeground && !(await _callKeep.hasPhoneAccount());
-              }
-
-              if (showNotification && _myUser.value?.muted == null) {
-                _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  if (chat?.chat.value.muted == null) {
-                    String? title = chat?.title.value ??
-                        c.caller?.name?.val ??
-                        c.caller?.num.val;
-
-                    _notificationService.show(
-                      title ?? 'label_incoming_call'.l10n,
-                      body: title == null ? null : 'label_incoming_call'.l10n,
-                      payload: '${Routes.chat}/${c.chatId}',
-                      icon: chat?.avatar.value?.original.url,
-                      playSound: false,
-                    );
-                  }
-                });
-              }
-            }
           }
 
           break;
@@ -235,6 +216,12 @@ class CallWorker extends DisposableService {
           },
         );
 
+        _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
+          if (event.callUUID != null) {
+            _answeredCalls.add(ChatId(event.callUUID!));
+          }
+        });
+
         if (PlatformUtils.isAndroid) {
           AndroidUtils.canDrawOverlays().then((v) {
             if (!v) {
@@ -275,6 +262,7 @@ class CallWorker extends DisposableService {
     _subscription.cancel();
     _storageSubscription?.cancel();
     _workers.forEach((_, value) => value.dispose());
+    _lifecycleWorker?.dispose();
 
     if (_vibrationTimer != null) {
       _vibrationTimer?.cancel();
@@ -325,10 +313,6 @@ class CallWorker extends DisposableService {
     } on MissingPluginException {
       _audioPlayer = null;
     }
-  }
-
-  /// Initializes a connection to the [_background] worker.
-  void _initBackgroundService() {
   }
 
   /// Initializes [WebUtils] related functionality.
