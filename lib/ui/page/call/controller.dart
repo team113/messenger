@@ -300,7 +300,8 @@ class CallController extends GetxController {
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
 
-  /// Saved last constraints to define size changes for scale.
+  /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
+  /// to calculate the difference.
   BoxConstraints? _lastConstraints;
 
   /// Service managing the [_currentCall].
@@ -507,9 +508,9 @@ class CallController extends GetxController {
     return args;
   }
 
-  /// Returns size factor of the secondary view according to the [size].
-  double get secondarySizeFactor =>
-      (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33);
+  /// Returns a size ratio of the secondary view relative to the [size].
+  double get secondaryRatio =>
+      size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
 
   @override
   void onInit() {
@@ -554,8 +555,8 @@ class CallController extends GetxController {
       height = RxDouble(prefs?.height ?? width.value);
     }
 
-    double secondarySize =
-        (this.size.shortestSide * secondarySizeFactor).clamp(_minSHeight, 250);
+    final double secondarySize =
+        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
@@ -1634,10 +1635,9 @@ class CallController extends GetxController {
           constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
 
       secondaryWidth.value =
-          _applySWidth(secondaryWidth.value + widthDif * secondarySizeFactor);
-      secondaryHeight.value = _applySHeight(
-        secondaryHeight.value + heightDif * secondarySizeFactor,
-      );
+          _applySWidth(secondaryWidth.value + widthDif * secondaryRatio);
+      secondaryHeight.value =
+          _applySHeight(secondaryHeight.value + heightDif * secondaryRatio);
     }
 
     _lastConstraints = constraints;
@@ -1776,7 +1776,7 @@ class CallController extends GetxController {
 
     primary.value ??= parentEmptySpace - (secondary.value ?? 0);
 
-    // Nullify the opposite offset.
+    // Nullify the [secondary] offset.
     secondary.value = null;
   }
 
@@ -1811,9 +1811,8 @@ class CallController extends GetxController {
     final double newSize = applyAxisSize(sizeAxis.value - delta);
 
     if (sizeAxis.value - delta == newSize) {
-      double? offset = applyOffset(
-        sideOffset.value! + (sizeAxis.value - newSize),
-      );
+      double? offset =
+          applyOffset(sideOffset.value! + (sizeAxis.value - newSize));
 
       if (sideOffset.value! + (sizeAxis.value - newSize) == offset) {
         sideOffset.value = offset;
