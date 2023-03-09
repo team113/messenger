@@ -19,11 +19,14 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned file attachments. ([#362])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
+        - Proportionally resizing secondary panel. ([#356], [#258])
 
+[#258]: /../../issues/258
 [#264]: /../../issues/264
 [#270]: /../../pull/270
 [#357]: /../../pull/357
 [#362]: /../../pull/362
+[#356]: /../../pull/356
 
 
 

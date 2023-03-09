@@ -300,6 +300,10 @@ class CallController extends GetxController {
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
 
+  /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
+  /// to calculate the difference.
+  BoxConstraints? _lastConstraints;
+
   /// Service managing the [_currentCall].
   final CallService _calls;
 
@@ -504,6 +508,10 @@ class CallController extends GetxController {
     return args;
   }
 
+  /// Returns a size ratio of the secondary view relative to the [size].
+  double get secondaryRatio =>
+      size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
+
   @override
   void onInit() {
     super.onInit();
@@ -547,11 +555,8 @@ class CallController extends GetxController {
       height = RxDouble(prefs?.height ?? width.value);
     }
 
-    double secondarySize = (this.size.shortestSide *
-            (this.size.aspectRatio > 2 || this.size.aspectRatio < 0.5
-                ? 0.45
-                : 0.33))
-        .clamp(_minSHeight, 250);
+    final double secondarySize =
+        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
@@ -661,7 +666,6 @@ class CallController extends GetxController {
 
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
-      applySecondaryConstraints();
       refresh();
     });
 
@@ -1036,8 +1040,6 @@ class CallController extends GetxController {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
     }
-
-    relocateSecondary();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1504,8 +1506,13 @@ class CallController extends GetxController {
   }
 
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
-  void resize(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+  void resize(
+    BuildContext context, {
+    ScaleModeY? y,
+    ScaleModeX? x,
+    double? dx,
+    double? dy,
+  }) {
     switch (x) {
       case ScaleModeX.left:
         double w = _applyWidth(context, width.value - dx!);
@@ -1560,100 +1567,80 @@ class CallController extends GetxController {
         break;
     }
 
+    // Update the secondary constraints.
     applySecondaryConstraints();
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
-  void resizeSecondary(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    secondaryLeft.value ??=
-        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
-    secondaryTop.value ??=
-        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
-    secondaryBottom.value = null;
-    secondaryRight.value = null;
+  void resizeSecondary(
+    BuildContext context, {
+    ScaleModeY? y,
+    ScaleModeX? x,
+    double? dx,
+    double? dy,
+  }) {
+    if (x != null && dx != null) {
+      final RxnDouble xPrimaryOffset =
+          x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+      final RxnDouble xSecondaryOffset =
+          x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
-    switch (x) {
-      case ScaleModeX.left:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double? left = _applySLeft(
-            secondaryLeft.value! + (secondaryWidth.value - width),
-          );
+      _updateSecondaryAxisOffset(
+        primary: xPrimaryOffset,
+        secondary: xSecondaryOffset,
+        axis: Axis.horizontal,
+      );
 
-          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
-            secondaryLeft.value = left;
-            secondaryWidth.value = width;
-          } else if (left == size.width - secondaryWidth.value) {
-            secondaryLeft.value = size.width - width;
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeX.right:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double right = secondaryLeft.value! + width;
-          if (right < size.width) {
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
+      _updateSecondarySize(
+        sideOffset: xPrimaryOffset,
+        applyOffset: x == ScaleModeX.left ? _applySLeft : _applySRight,
+        delta: dx,
+        axis: Axis.horizontal,
+      );
     }
 
-    switch (y) {
-      case ScaleModeY.top:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double? top = _applySTop(
-            secondaryTop.value! + (secondaryHeight.value - height),
-          );
+    if (y != null && dy != null) {
+      final RxnDouble yPrimaryOffset =
+          y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+      final RxnDouble ySecondaryOffset =
+          y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
-          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
-            secondaryTop.value = top;
-            secondaryHeight.value = height;
-          } else if (top == size.height - secondaryHeight.value) {
-            secondaryTop.value = size.height - height;
-            secondaryHeight.value = height;
-          }
+      _updateSecondaryAxisOffset(
+        primary: yPrimaryOffset,
+        secondary: ySecondaryOffset,
+        axis: Axis.vertical,
+      );
 
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeY.bottom:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double bottom = secondaryTop.value! + height;
-          if (bottom < size.height) {
-            secondaryHeight.value = height;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
+      _updateSecondarySize(
+        sideOffset: yPrimaryOffset,
+        applyOffset: y == ScaleModeY.top ? _applySTop : _applySBottom,
+        delta: dy,
+        axis: Axis.vertical,
+      );
     }
 
     applySecondaryConstraints();
+  }
+
+  /// Scales secondary by [secondaryRatio] according to the [constraints] and
+  /// [_lastConstraints] difference.
+  void scaleSecondary(BoxConstraints constraints) {
+    if (_lastConstraints == constraints) {
+      return;
+    }
+
+    if (_lastConstraints != null) {
+      final widthDif = constraints.maxWidth - (_lastConstraints?.maxWidth ?? 0);
+      final heightDif =
+          constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
+
+      secondaryWidth.value =
+          _applySWidth(secondaryWidth.value + widthDif * secondaryRatio);
+      secondaryHeight.value =
+          _applySHeight(secondaryHeight.value + heightDif * secondaryRatio);
+    }
+
+    _lastConstraints = constraints;
   }
 
   /// Returns corrected according to secondary constraints [width] value.
@@ -1774,6 +1761,67 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Updates the [primary] and [secondary] offsets according to the current
+  /// [size].
+  void _updateSecondaryAxisOffset({
+    required RxnDouble primary,
+    required RxnDouble secondary,
+    required Axis axis,
+  }) {
+    final double parentEmptySpace = axis == Axis.horizontal
+        ? size.width - secondaryWidth.value
+        : size.height - secondaryHeight.value;
+
+    primary.value ??= parentEmptySpace - (secondary.value ?? 0);
+
+    // Nullify the [secondary] offset.
+    secondary.value = null;
+  }
+
+  /// Updates the secondary panel size and translates it, if necessary.
+  void _updateSecondarySize({
+    required RxnDouble sideOffset,
+    required double? Function(double?) applyOffset,
+    required double delta,
+    required Axis axis,
+  }) {
+    late RxDouble sizeAxis;
+    late double parentAxisSize;
+    late double Function(double) applyAxisSize;
+
+    switch (axis) {
+      case Axis.horizontal:
+        sizeAxis = secondaryWidth;
+        parentAxisSize = size.width;
+        applyAxisSize = _applySWidth;
+        break;
+
+      case Axis.vertical:
+        sizeAxis = secondaryHeight;
+        parentAxisSize = size.height;
+        applyAxisSize = _applySHeight;
+        break;
+
+      default:
+        return;
+    }
+
+    final double newSize = applyAxisSize(sizeAxis.value - delta);
+
+    if (sizeAxis.value - delta == newSize) {
+      double? offset =
+          applyOffset(sideOffset.value! + (sizeAxis.value - newSize));
+
+      if (sideOffset.value! + (sizeAxis.value - newSize) == offset) {
+        sideOffset.value = offset;
+        sizeAxis.value = newSize;
+      } else if (offset == parentAxisSize - sizeAxis.value) {
+        sideOffset.value = parentAxisSize - newSize;
+        sizeAxis.value = newSize;
+      }
+    }
   }
 
   /// Invokes [minimize], if not [minimized] already.
