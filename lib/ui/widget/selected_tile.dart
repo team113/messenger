@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
@@ -40,6 +41,7 @@ class SelectedTile extends StatelessWidget {
     this.subtitle = const [],
     this.onTap,
     this.darken = 0,
+    this.onAvatarTap = _defaultAvatarTap,
   });
 
   /// [RxUser] this [SelectedTile] is about.
@@ -68,6 +70,9 @@ class SelectedTile extends StatelessWidget {
   /// [ChatTile].
   final double darken;
 
+  /// Callback, called when an [AvatarWidget] of this [SelectedTile] is pressed.
+  final void Function(UserId id)? onAvatarTap;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -82,9 +87,11 @@ class SelectedTile extends StatelessWidget {
               darken: darken,
               onTap: onTap,
               avatarBuilder: (c) => WidgetButton(
-                onPressed: () => router.user(
-                  user?.id ?? contact?.user.value?.id ?? myUser!.id,
-                ),
+                onPressed: onAvatarTap == null
+                    ? onTap
+                    : () => onAvatarTap!(
+                          user?.id ?? contact?.user.value?.id ?? myUser!.id,
+                        ),
                 child: c,
               ),
               trailing: _trailing(context),
@@ -135,4 +142,7 @@ class SelectedTile extends StatelessWidget {
         ),
     ];
   }
+
+  /// Opens the [Router.user] page with the provided [id].
+  static void _defaultAvatarTap(UserId id) => router.user(id);
 }

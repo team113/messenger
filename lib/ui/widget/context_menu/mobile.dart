@@ -15,13 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -32,7 +32,7 @@ import '/ui/widget/context_menu/menu.dart';
 /// Animated context menu optimized and decorated for mobile screens.
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
-    Key? key,
+    super.key,
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
@@ -42,7 +42,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.onOpened,
     this.onClosed,
     this.unconstrained = false,
-  }) : super(key: key);
+  });
 
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
@@ -62,9 +62,13 @@ class FloatingContextMenu extends StatefulWidget {
 
   final String? id;
 
+  /// Callback, called when this [FloatingContextMenu] opens.
   final void Function()? onOpened;
+
+  /// Callback, called when this [FloatingContextMenu] closes.
   final void Function()? onClosed;
 
+  /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
 
   @override
@@ -78,7 +82,10 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   OverlayEntry? _entry;
 
   /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
-  final GlobalKey _key = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
+
+  /// [GlobalKey] of the [FloatingContextMenu.actions] to get their height.
+  final GlobalKey _actionsKey = GlobalKey();
 
   /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
   Rect? _rect;
@@ -95,7 +102,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
       behavior: HitTestBehavior.translucent,
       onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
-        key: _key,
+        key: _globalKey,
         child: _entry == null || !widget.moveDownwards
             ? widget.child
             : SizedBox(
@@ -112,10 +119,11 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
     widget.onOpened?.call();
 
-    _rect = _key.globalPaintBounds;
+    _rect = _globalKey.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
-        globalKey: _key,
+        globalKey: _globalKey,
+        actionsKey: _actionsKey,
         alignment: widget.alignment,
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
@@ -145,6 +153,7 @@ class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
     required this.globalKey,
+    required this.actionsKey,
     required this.actions,
     required this.alignment,
     required this.showAbove,
@@ -159,6 +168,9 @@ class _AnimatedMenu extends StatefulWidget {
 
   /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
+
+  /// [GlobalKey] of the [actions].
+  final GlobalKey actionsKey;
 
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
@@ -176,6 +188,7 @@ class _AnimatedMenu extends StatefulWidget {
   /// Margin to apply to this [_AnimatedMenu].
   final EdgeInsets margin;
 
+  /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
 
   @override
@@ -191,11 +204,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [Rect] of the [_AnimatedMenu.child].
   late Rect _bounds;
 
+  /// [Rect] of the [_AnimatedMenu.actions].
+  Rect? _actionsBounds;
+
   @override
   void initState() {
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
+      debugLabel: '$runtimeType',
     )
       ..addStatusListener(
         (status) {
@@ -215,6 +232,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       ..forward();
 
     _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _actionsBounds = widget.actionsKey.globalPaintBounds;
+    });
+
     super.initState();
   }
 
@@ -299,23 +320,19 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   else ...[
                     if (!widget.showAbove)
                       Positioned(
-                        // left: widget.unconstrained ? 0 : _bounds.left,
                         left: widget.unconstrained
                             ? (10 * _fading.value +
                                 _bounds.left * (1 - _fading.value))
                             : _bounds.left,
                         width: widget.unconstrained
                             ? (_bounds.width +
-                                (MediaQuery.of(context).size.width -
-                                        _bounds.width) *
-                                    _fading.value)
+                                    (constraints.maxWidth - _bounds.width) *
+                                        _fading.value) -
+                                (20 * _fading.value)
                             : _bounds.width,
-                        // width: widget.unconstrained ? 0 : _bounds.width,
-                        // height: _bounds.height,
                         height: widget.unconstrained
                             ? (_bounds.height +
-                                (MediaQuery.of(context).size.height / 2 -
-                                        _bounds.height) *
+                                (constraints.maxHeight / 2 - _bounds.height) *
                                     _fading.value)
                             : _bounds.height,
                         bottom: (1 - _fading.value) *
@@ -324,7 +341,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                     _bounds.height) +
                             (10 +
                                     router.context!.mediaQueryPadding.bottom +
-                                    widget.actions.length * 50) *
+                                    (_actionsBounds?.height ??
+                                        widget.actions.length * 50)) *
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
@@ -341,36 +359,55 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
-    final EdgeInsets padding;
+    final double width = MediaQuery.of(context).size.width;
+    EdgeInsets padding;
 
-    if (widget.alignment == Alignment.bottomLeft) {
-      padding = EdgeInsets.only(
-        left: _bounds.left - 2,
-        right: 68,
-      );
-    } else if (widget.alignment == Alignment.bottomRight) {
-      padding = const EdgeInsets.only(left: 68, right: 4);
-    } else {
+    if (widget.alignment == Alignment.bottomLeft ||
+        widget.alignment == Alignment.bottomRight) {
+      const double minWidth = 230;
+      final double menuWidth = _bounds.right - _bounds.left;
+
+      if (widget.alignment == Alignment.bottomLeft) {
+        padding = EdgeInsets.only(
+          left: _bounds.left - 5,
+          right: menuWidth < minWidth
+              ? width - _bounds.left - minWidth
+              : width - _bounds.right - 5,
+        );
+      } else {
+        padding = EdgeInsets.only(
+          left: menuWidth < minWidth
+              ? _bounds.right - minWidth
+              : _bounds.left - 5,
+          right: width - _bounds.right - 5,
+        );
+      }
+
+      if (padding.left < 3) {
+        padding = EdgeInsets.only(
+          left: 3,
+          right: width - minWidth - 8,
+        );
+      }
+    } else if (widget.unconstrained) {
       padding = const EdgeInsets.only(left: 0, right: 0);
+    } else {
+      padding = EdgeInsets.only(
+        left: max(0, _bounds.left - 10),
+        right: max(0, width - _bounds.right - 10),
+      );
     }
 
     return Align(
       alignment: widget.alignment,
       child: Padding(
-        padding: widget.margin.add(
-          padding,
-          // EdgeInsets.only(
-          //   left: widget.alignment == Alignment.bottomLeft
-          //       ? _bounds.left - 2
-          //       : 68,
-          //   right: widget.alignment == Alignment.bottomRight ? 4 : 68,
-          // ),
-        ),
+        padding: widget.margin.add(padding),
         child: SlideTransition(
           position: slide,
           child: FadeTransition(
             opacity: fade,
             child: Padding(
+              key: widget.actionsKey,
               padding: EdgeInsets.only(
                 bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
@@ -417,13 +454,11 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
             color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,
           ),
-          // child: IntrinsicWidth(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: widgets,
           ),
-          // ),
         ),
       ),
     );

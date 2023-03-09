@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:google_fonts/google_fonts.dart';
 
 /// Application themes constants.
 class Themes {
@@ -46,17 +45,19 @@ class Themes {
           : SystemUiOverlayStyle.light,
     );
 
+    const TextStyle textStyle = TextStyle(
+      fontFamily: 'SFUI',
+      fontFamilyFallback: ['.SF UI Display'],
+      color: Colors.black,
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
+    );
+
     return ThemeData.light().copyWith(
         extensions: [
           Style(
             barrierColor: const Color(0xBB000000),
-            boldBody: const TextStyle(
-              fontFamily: 'SFUI',
-              fontFamilyFallback: ['.SF UI Display'],
-              color: Colors.black,
-              fontSize: 17,
-              fontWeight: FontWeight.w400,
-            ),
+            boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             callDock: const Color(0xFF1E88E5),
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
@@ -80,10 +81,8 @@ class Themes {
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
-            systemMessageStyle: const TextStyle(
-              fontFamily: 'SFUI',
-              fontFamilyFallback: ['.SF UI Display'],
-              color: Color(0xFF888888),
+            systemMessageStyle: textStyle.copyWith(
+              color: colors.primary,
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
@@ -110,9 +109,7 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
+              titleTextStyle: textStyle.copyWith(
                 color: Colors.black,
                 fontWeight: FontWeight.w300,
                 fontSize: 18,
@@ -122,112 +119,43 @@ class Themes {
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: Typography.blackCupertino,
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
+          displayLarge: textStyle.copyWith(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 24,
           ),
-          displayMedium: TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
+          displayMedium: textStyle.copyWith(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 15.4,
           ),
-          displaySmall: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
-          headlineLarge: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 24,
-          ),
-          headlineMedium: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
-          headlineSmall: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            fontSize: 18,
-          ),
-          titleLarge: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-          labelLarge: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 17,
-          ),
-          labelMedium: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 17,
-          ),
-          labelSmall: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 17,
-          ),
-          titleMedium: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          titleSmall: TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
+          displaySmall:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
+          headlineLarge:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+          headlineMedium: textStyle.copyWith(fontSize: 18),
+          headlineSmall: textStyle.copyWith(fontSize: 18),
+          labelLarge:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          labelMedium:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          labelSmall:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          titleMedium: textStyle.copyWith(fontSize: 15),
+          titleSmall: textStyle.copyWith(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyLarge: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          bodyMedium: const TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
-            color: Colors.black,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
-          bodySmall: TextStyle(
-            fontFamily: 'SFUI',
-            fontFamilyFallback: ['.SF UI Display'],
+          bodyLarge:
+              textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+          bodyMedium:
+              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+          bodySmall: textStyle.copyWith(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 13,
@@ -237,46 +165,41 @@ class Themes {
               focusColor: colors.secondary,
               hoverColor: Colors.transparent,
               fillColor: colors.secondary,
-              hintStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
+              hintStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
               ),
-              labelStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
+              labelStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
               ),
-              errorStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
+              errorStyle: textStyle.copyWith(color: Colors.red, fontSize: 13),
+              helperStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              prefixStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              suffixStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              counterStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
                 fontSize: 13,
-                color: Colors.red,
+                fontWeight: FontWeight.w300,
               ),
-              helperStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
-              ),
-              prefixStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
-              ),
-              suffixStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
-              ),
-              counterStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
-              ),
-              floatingLabelStyle: const TextStyle(
-                fontFamily: 'SFUI',
-                fontFamilyFallback: ['.SF UI Display'],
-                color: Color(0xFFC4C4C4),
+              floatingLabelStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
               ),
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
@@ -318,12 +241,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.primary,
-            textStyle: TextStyle(
-              fontFamily: 'SFUI',
-              fontFamilyFallback: ['.SF UI Display'],
-              color: colors.primary,
-              fontSize: 17,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 17),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -335,12 +253,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             side: BorderSide(width: 1, color: colors.primary),
-            textStyle: TextStyle(
-              fontFamily: 'SFUI',
-              fontFamilyFallback: ['.SF UI Display'],
-              color: colors.primary,
-              fontSize: 17,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 17),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -349,12 +262,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
-            textStyle: TextStyle(
-              fontFamily: 'SFUI',
-              fontFamilyFallback: ['.SF UI Display'],
-              color: colors.primary,
-              fontSize: 15,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 15),
           ),
         ),
         sliderTheme: ThemeData.light().sliderTheme.copyWith(
@@ -385,7 +293,7 @@ class Themes {
               return const Color(0xFF63B4FF);
             }
 
-            return const Color(0xFF888888);
+            return colors.primary;
           }),
         ),
         pageTransitionsTheme: const PageTransitionsTheme(

@@ -18,18 +18,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-
 import 'controller.dart';
 
 /// View for changing [MyUser.status] and/or [MyUser.presence].
