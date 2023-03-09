@@ -393,10 +393,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 );
               }
 
-              return AnimatedSwitcher(
-                duration: 250.milliseconds,
-                child: child,
-              );
+              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
             }),
           ],
         ),
