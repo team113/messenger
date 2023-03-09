@@ -458,7 +458,7 @@ class AvatarWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 15 * (maxWidth / 40.0),
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
 
                   // Disable the accessibility size settings for this [Text].

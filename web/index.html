@@ -66,6 +66,12 @@
       overflow-x: hidden;
     }
 
+    @font-face {
+      font-family: "SF UI Display";
+      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf');
+      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf') format('truetype');
+    }
+
     .content {
       position: absolute;
       left: 50%;
@@ -208,17 +214,17 @@
   <div id="loader" class="container content">
     <div class="col align-middle" style="vertical-align: middle;">
       <div class="row justify-content-center">
-        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt; font-family: system-ui;">Messenger</div>
+        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
       </div>
       <div class="row justify-content-center mb-5">
         <div class="col-auto h4"
-          style="color:#888888; font-weight: 300; font-size:13pt; font-family: system-ui; transform: translate(0px, -8px);">by Gapopa</div>
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
       </div>
       <div class="row justify-content-center">
         <canvas class="gapopa" id="canvas"></canvas>
       </div>
       <div class="row justify-content-center mt-5">
-        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: system-ui;">Downloading</div>
+        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading</div>
       </div>
     </div>
   </div>

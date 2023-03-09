@@ -153,6 +153,8 @@ flutter:
           weight: 400
         - asset: assets/fonts/SFUIDisplay-Light.ttf
           weight: 300
+        - asset: assets/fonts/SFUIDisplay-Bold.ttf
+          weight: 700
 
 sentry:
   upload_native_symbols: true
