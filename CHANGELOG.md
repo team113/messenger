@@ -11,6 +11,14 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
 
+### Added
+
+- UI:
+    - Chats tab:
+        - Multiple selection and deletion. ([#361], [#348])
+    - Contacts tab:
+        - Multiple selection and deletion. ([#361], [#348])
+
 ### Changed
 
 - UI:
@@ -21,7 +29,9 @@ All user visible changes to this project will be documented in this file. This p
 
 [#264]: /../../issues/264
 [#270]: /../../pull/270
+[#348]: /../../issues/348
 [#357]: /../../pull/357
+[#361]: /../../pull/361
 
 
 
