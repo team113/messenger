@@ -1622,7 +1622,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [secondarySizeFactor] according to [constraints] and
+  /// Scales secondary by [secondaryRatio] according to the [constraints] and
   /// [_lastConstraints] difference.
   void scaleSecondary(BoxConstraints constraints) {
     if (_lastConstraints == constraints) {
