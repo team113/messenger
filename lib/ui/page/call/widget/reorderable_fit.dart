@@ -798,6 +798,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 },
               ),
             ),
+
           Positioned(
             left: widget.left,
             top: widget.top,

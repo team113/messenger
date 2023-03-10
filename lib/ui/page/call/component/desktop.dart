@@ -750,9 +750,16 @@ Widget desktopCall(CallController c, BuildContext context) {
             return const SizedBox();
           }
 
-          return LayoutBuilder(builder: (_, __) {
-            if (!WebUtils.isPopup) {
-              c.relocateSecondary();
+          return LayoutBuilder(builder: (_, constraints) {
+            if (c.secondary.isNotEmpty && c.secondaryAlignment.value == null) {
+              // Scale the secondary panel after this frame is displayed, as
+              // otherwise it invokes re-drawing twice in a frame, resulting in
+              // an error.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                c.scaleSecondary(constraints);
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => c.relocateSecondary());
+              });
             }
 
             return _secondaryView(c, context);
@@ -875,9 +882,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           ],
         ),
       );
-
-      c.relocateSecondary();
-      c.applySecondaryConstraints();
 
       if (c.minimized.value && !c.fullscreen.value) {
         // Applies constraints on every rebuild.
