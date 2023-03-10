@@ -34,6 +34,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -89,6 +90,8 @@ void main() async {
   await credentialsProvider.init(userId: const UserId('me'));
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init(userId: const UserId('me'));
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
@@ -232,13 +235,13 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) async {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(int count) {
+    return const Stream.empty();
   }
 
   @override
-  Future<Stream<QueryResult<Object?>>> keepOnline() {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
   }
 
   @override

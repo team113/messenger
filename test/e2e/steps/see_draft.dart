@@ -41,7 +41,7 @@ final StepDefinitionGeneric seeDraftInDialog =
     final ChatId dialog = context.world.sessions[user.name]!.dialog!;
 
     final Finder finder = context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy('ChatTile_$dialog', FindType.key),
+      context.world.appDriver.findBy('Chat_$dialog', FindType.key),
       context.world.appDriver.findBy('Draft', FindType.key),
       firstMatchOnly: true,
     );

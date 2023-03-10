@@ -173,7 +173,7 @@ class ContactsTabController extends GetxController {
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
   Future<void> favoriteContact(
     ChatContactId id, [
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   ]) async {
     try {
       await _contactService.favoriteChatContact(id, position);
@@ -219,7 +219,7 @@ class ContactsTabController extends GetxController {
     final ChatContactId contactId = favorites[from].id;
     favorites.insert(to, favorites.removeAt(from));
 
-    await favoriteContact(contactId, ChatContactPosition(position));
+    await favoriteContact(contactId, ChatContactFavoritePosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
@@ -278,10 +278,8 @@ class ContactsTabController extends GetxController {
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
   Future<void> _call(User user, bool withVideo) async {
-    Chat? dialog = user.dialog;
-    dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
     try {
-      await _calls.call(dialog.id, withVideo: withVideo);
+      await _calls.call(user.dialog, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {

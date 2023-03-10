@@ -26,6 +26,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -93,7 +94,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CustomProgressIndicator()),
+      );
     }
 
     return GetBuilder(
@@ -186,7 +190,7 @@ class _HomeViewState extends State<HomeView> {
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
-                          beginOffset: const Offset(0.0, 1),
+                          beginOffset: const Offset(0.0, 5),
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
@@ -214,20 +218,27 @@ class _HomeViewState extends State<HomeView> {
                                   child: tab(
                                     tab: HomeTab.chats,
                                     child: Obx(() {
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: SvgLoader.asset(
-                                          c.myUser.value?.muted != null
-                                              ? 'assets/icons/chats_muted.svg'
-                                              : 'assets/icons/chats.svg',
-                                          key: Key(
-                                            c.myUser.value?.muted != null
-                                                ? 'Muted'
-                                                : 'Unmuted',
-                                          ),
+                                      final Widget child;
+
+                                      if (c.myUser.value?.muted != null) {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats_muted.svg',
+                                          key: const Key('Muted'),
                                           width: 36.06,
                                           height: 30,
-                                        ),
+                                        );
+                                      } else {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats.svg',
+                                          key: const Key('Unmuted'),
+                                          width: 36.06,
+                                          height: 30,
+                                        );
+                                      }
+
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: child,
                                       );
                                     }),
                                   ),
@@ -314,6 +325,11 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
@@ -321,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator()),
                   )
               ],
             );

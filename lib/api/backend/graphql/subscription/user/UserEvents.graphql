@@ -31,7 +31,10 @@ subscription UserEvents($id: UserId!, $ver: UserVersion) {
             ...BlacklistEventsVersioned
         }
         ... on IsBlacklisted {
-            blacklisted
+            record {
+                reason
+                at
+            }
             myVer: ver
         }
     }

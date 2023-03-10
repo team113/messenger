@@ -26,14 +26,17 @@ import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -72,47 +75,7 @@ class ContactsTabView extends StatelessWidget {
 
               if (c.search.value != null) {
                 child = Theme(
-                  data: Theme.of(context).copyWith(
-                    shadowColor: const Color(0x55000000),
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                    inputDecorationTheme: InputDecorationTheme(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusColor: Colors.white,
-                      fillColor: Colors.white,
-                      hoverColor: Colors.transparent,
-                      filled: true,
-                      isDense: true,
-                      contentPadding: EdgeInsets.fromLTRB(
-                        15,
-                        PlatformUtils.isDesktop ? 30 : 23,
-                        15,
-                        0,
-                      ),
-                    ),
-                  ),
+                  data: MessageFieldView.theme(context),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(
@@ -143,34 +106,39 @@ class ContactsTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.search.value != null) {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
                     key: const Key('CloseSearch'),
-                    onPressed: () => c.toggleSearch(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/close_primary.svg',
-                      height: 15,
-                      width: 15,
-                    ),
+                    'assets/icons/close_primary.svg',
+                    height: 15,
+                    width: 15,
                   );
                 } else {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                     key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    onPressed: c.toggleSorting,
-                    child: SvgLoader.asset(
-                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                      width: 29.69,
-                      height: 21,
-                    ),
+                    width: 29.69,
+                    height: 21,
                   );
                 }
-                return Container(
-                  alignment: Alignment.center,
-                  width: 29.69,
-                  height: 21,
-                  margin: const EdgeInsets.only(left: 12, right: 18),
-                  child: AnimatedSwitcher(
-                    duration: 250.milliseconds,
-                    child: child,
+
+                return WidgetButton(
+                  onPressed: () {
+                    if (c.search.value != null) {
+                      c.toggleSearch(false);
+                    } else {
+                      c.toggleSorting();
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 29.69 + 12 + 18,
+                    height: double.infinity,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: child,
+                      ),
+                    ),
                   ),
                 );
               }),
@@ -195,7 +163,7 @@ class ContactsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           body: Obx(() {
             if (!c.contactsReady.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CustomProgressIndicator());
             }
 
             final Widget? child;
@@ -203,15 +171,19 @@ class ContactsTabView extends StatelessWidget {
             if (c.search.value?.search.isEmpty.value == false) {
               if (c.search.value!.searchStatus.value.isLoading &&
                   c.elements.isEmpty) {
-                child = const Center(
-                  key: Key('Loading'),
-                  child: CircularProgressIndicator(),
+                child = Center(
+                  key: UniqueKey(),
+                  child: const ColoredBox(
+                    key: Key('Loading'),
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
+                  ),
                 );
               } else if (c.elements.isNotEmpty) {
-                child = AnimationLimiter(
-                  key: const Key('Search'),
-                  child: Scrollbar(
-                    controller: c.scrollController,
+                child = SafeScrollbar(
+                  controller: c.scrollController,
+                  child: AnimationLimiter(
+                    key: const Key('Search'),
                     child: ListView.builder(
                       controller: c.scrollController,
                       itemCount: c.elements.length,
@@ -266,28 +238,33 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Center(
-                  key: const Key('NothingFound'),
-                  child: Text('label_nothing_found'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  ),
                 );
               }
             } else {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
-                child = Center(
-                  key: const Key('NoContacts'),
-                  child: Text('label_no_contacts'.l10n),
+                child = KeyedSubtree(
+                  key: UniqueKey(),
+                  child: Center(
+                    key: const Key('NoContacts'),
+                    child: Text('label_no_contacts'.l10n),
+                  ),
                 );
               } else {
                 child = AnimationLimiter(
-                  child: Scrollbar(
+                  child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
                       controller: c.scrollController,
                       slivers: [
                         SliverPadding(
-                          padding: EdgeInsets.only(
-                            top: CustomAppBar.height +
-                                MediaQuery.of(context).viewPadding.top,
+                          padding: const EdgeInsets.only(
+                            top: CustomAppBar.height,
                             left: 10,
                             right: 10,
                           ),
@@ -339,17 +316,30 @@ class ContactsTabView extends StatelessWidget {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
                                           key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
                                           index: i,
                                           child: child,
                                         );
                                       }
 
-                                      return ReorderableDragStartListener(
-                                        key: Key(
-                                            'ReorderHandle_${contact.id.val}'),
-                                        index: i,
-                                        child: child,
+                                      return RawGestureDetector(
+                                        gestures: {
+                                          DisableSecondaryButtonRecognizer:
+                                              GestureRecognizerFactoryWithHandlers<
+                                                  DisableSecondaryButtonRecognizer>(
+                                            () =>
+                                                DisableSecondaryButtonRecognizer(),
+                                            (_) {},
+                                          ),
+                                        },
+                                        child: ReorderableDragStartListener(
+                                          key: Key(
+                                            'ReorderHandle_${contact.id.val}',
+                                          ),
+                                          index: i,
+                                          child: child,
+                                        ),
                                       );
                                     },
                                   );
@@ -518,7 +508,7 @@ class ContactsTabView extends StatelessWidget {
           );
         }),
         Obx(() {
-          if (contact.user.value?.user.value.isBlacklisted == false) {
+          if (contact.user.value?.user.value.isBlacklisted == null) {
             return const SizedBox();
           }
 
@@ -543,7 +533,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'label_remove_from_contacts'.l10n,
+      'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(

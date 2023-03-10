@@ -24,8 +24,9 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
+import '../model/my_user.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -68,10 +69,6 @@ abstract class AbstractChatRepository {
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name);
 
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});
@@ -111,12 +108,12 @@ abstract class AbstractChatRepository {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This method should be called whenever the authenticated [MyUser] reads
-  /// new [ChatItem]s appeared in the Chat's UI and directly influences the
+  /// new [ChatItem]s appeared in the [Chat]'s UI and directly influences the
   /// [Chat.unreadCount] value.
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
@@ -146,7 +143,7 @@ abstract class AbstractChatRepository {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId id);
+  Stream<dynamic> keepTyping(ChatId id);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
@@ -159,7 +156,7 @@ abstract class AbstractChatRepository {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
@@ -234,6 +231,10 @@ abstract class RxChat {
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
 
+  /// Count of [ChatItem]s unread by the authenticated [MyUser] in this
+  /// [RxChat].
+  RxInt get unreadCount;
+
   /// Indicates whether this [RxChat] is blacklisted or not.
   bool get blacklisted =>
       chat.value.isDialog &&
@@ -241,8 +242,8 @@ abstract class RxChat {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted ==
-          true;
+              .isBlacklisted !=
+          null;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();

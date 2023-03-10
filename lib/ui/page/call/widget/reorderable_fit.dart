@@ -558,9 +558,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/pop.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/pop.mp3');
 
     super.dispose();
   }
@@ -593,7 +591,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   Widget build(BuildContext context) {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
-    Widget cell(int index) {
+    Widget cell(int index, [bool withOverlay = true]) {
       var item = _items[index];
       return Stack(
         children: [
@@ -711,20 +709,20 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               ),
             ],
           ),
-          if (widget.overlayBuilder != null)
+          if (withOverlay && widget.overlayBuilder != null)
             widget.overlayBuilder!.call(item.item),
         ],
       );
     }
 
     /// Creates a column of a row at [rowIndex] index.
-    List<Widget> createColumn(int rowIndex) {
+    List<Widget> createColumn(int rowIndex, Widget Function(int) builder) {
       final List<Widget> column = [];
 
       for (int columnIndex = 0; columnIndex < widget.mColumns; columnIndex++) {
         final cellIndex = rowIndex * widget.mColumns + columnIndex;
         if (cellIndex <= _items.length - 1) {
-          column.add(Expanded(child: cell(cellIndex)));
+          column.add(Expanded(child: builder(cellIndex)));
           if (widget.dividerColor != null &&
               columnIndex < widget.mColumns - 1 &&
               cellIndex < _items.length - 1) {
@@ -743,12 +741,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     }
 
     /// Creates a row of a [_createColumn]s.
-    List<Widget> createRows() {
+    List<Widget> createRows(Widget Function(int) builder) {
       final List<Widget> rows = [];
       final rowCount = (_items.length / widget.mColumns).ceil();
 
       for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        final List<Widget> column = createColumn(rowIndex);
+        final List<Widget> column = createColumn(rowIndex, builder);
         rows.add(Expanded(child: Row(children: column)));
         if (widget.dividerColor != null && rowIndex < rowCount - 1) {
           rows.add(IgnorePointer(
@@ -800,6 +798,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 },
               ),
             ),
+
           Positioned(
             left: widget.left,
             top: widget.top,
@@ -822,15 +821,51 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                               (i, e) => SizedBox(
                                 width: widget.wrapSize,
                                 height: widget.wrapSize,
-                                child: cell(i),
+                                child: cell(i, false),
                               ),
                             )
                             .toList(),
                       )
-                    : Column(children: createRows()),
+                    : Column(children: createRows((i) => cell(i, false))),
               ),
             ),
           ),
+
+          // Draw the overlay in its own [Wrap]/[Column] to fix double
+          // [ClipRRect] bug.
+          if (widget.overlayBuilder != null)
+            Positioned(
+              left: widget.left,
+              top: widget.top,
+              right: widget.right,
+              bottom: widget.bottom,
+              child: SizedBox(
+                width: widget.width,
+                height: widget.height,
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .mapIndexed(
+                              (i, e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: widget.overlayBuilder!(e.item),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(
+                        children: createRows(
+                          (i) => widget.overlayBuilder!(_items[i].item),
+                        ),
+                      ),
+              ),
+            ),
 
           // Pseudo-[Overlay].
           ..._items.map((e) => e.entry).whereNotNull().map(

@@ -161,7 +161,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRenamed].
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -288,7 +288,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -323,7 +323,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -390,9 +390,9 @@ abstract class ChatGraphQlMixin {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This mutation should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -467,7 +467,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
+  Stream<QueryResult> recentChatsTopEvents(int count) {
     final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -525,7 +525,7 @@ abstract class ChatGraphQlMixin {
   /// of subscribing (emits nothing, completes immediately after being
   /// established).
   /// - The authenticated [MyUser] is no longer a member of the [Chat] (emits
-  /// [EventChatItemPosted] with [ChatMemberInfo] of [MyUser] being removed and
+  /// [EventChatItemPosted] with [ChatInfo] of [MyUser] being removed and
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
@@ -533,14 +533,15 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
+    final variables = ChatEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -866,7 +867,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  Future<Stream<QueryResult>> keepTyping(ChatId id) {
+  Stream<QueryResult> keepTyping(ChatId id) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -1054,8 +1055,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
-  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -1242,9 +1242,10 @@ abstract class ChatGraphQlMixin {
   /// which have already been applied to the state of some [Chat], so a client
   /// side is expected to handle all the events idempotently considering the
   /// `Chat.ver`.
-  Future<Stream<QueryResult>> favoriteChatsEvents(
-      FavoriteChatsListVersion? ver) {
-    final variables = FavoriteChatsEventsArguments(ver: ver);
+  Stream<QueryResult> favoriteChatsEvents(
+    FavoriteChatsListVersion? Function() ver,
+  ) {
+    final variables = FavoriteChatsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'FavoriteChatsEvents',
@@ -1252,6 +1253,7 @@ abstract class ChatGraphQlMixin {
             FavoriteChatsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 }

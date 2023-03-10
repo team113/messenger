@@ -89,6 +89,16 @@ class UserController extends GetxController {
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 
+  /// Status of a [blacklist] progression.
+  ///
+  /// May be:
+  /// - `status.isLoading`, meaning [blacklist] is executing.
+  /// - `status.isEmpty`, meaning no [blacklist] is executing.
+  final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
+
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -110,7 +120,7 @@ class UserController extends GetxController {
   StreamSubscription? _favoritesSubscription;
 
   /// Indicates whether this [user] is blacklisted.
-  bool? get isBlacklisted => user?.user.value.isBlacklisted;
+  BlacklistRecord? get isBlacklisted => user?.user.value.isBlacklisted;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -224,23 +234,15 @@ class UserController extends GetxController {
     }
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
-  ///
-  /// Creates a new one if it doesn't exist.
-  Future<void> openChat() async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
-    router.chat(dialog.id, push: true);
+  void openChat() {
+    router.chat(user!.user.value.dialog, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
-
     try {
-      await _callService.call(dialog.id, withVideo: withVideo);
+      await _callService.call(user!.user.value.dialog, withVideo: withVideo);
     } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
     }
@@ -248,12 +250,27 @@ class UserController extends GetxController {
 
   /// Blacklists the [user] for the authenticated [MyUser].
   Future<void> blacklist() async {
-    await _userService.blacklistUser(id);
-    reason.clear();
+    blacklistStatus.value = RxStatus.loading();
+    try {
+      await _userService.blacklistUser(
+        id,
+        reason.text.isEmpty ? null : BlacklistReason(reason.text),
+      );
+      reason.clear();
+    } finally {
+      blacklistStatus.value = RxStatus.empty();
+    }
   }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() => _userService.unblacklistUser(id);
+  Future<void> unblacklist() async {
+    blacklistStatus.value = RxStatus.loading();
+    try {
+      await _userService.unblacklistUser(id);
+    } finally {
+      blacklistStatus.value = RxStatus.empty();
+    }
+  }
 
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
@@ -292,8 +309,7 @@ class UserController extends GetxController {
 
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -309,8 +325,7 @@ class UserController extends GetxController {
 
   /// Unmutes a [Chat]-dialog with the [user].
   Future<void> unmuteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -326,8 +341,7 @@ class UserController extends GetxController {
 
   /// Hides a [Chat]-dialog with the [user].
   Future<void> hideChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -379,7 +393,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.hidden:
+      case null:
         return 'label_hidden'.l10n;
 
       case Presence.artemisUnknown:

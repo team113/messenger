@@ -22,6 +22,8 @@ Feature: Favorite chats
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I have "Alice and Charlie" group with Charlie
+    And I wait until "Alice and Bob" chat is present
+    And I wait until "Alice and Charlie" chat is present
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
@@ -42,3 +44,15 @@ Feature: Favorite chats
     And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
     And I see "Alice and Bob" chat last in chats list
+
+  Scenario: User reorders favorite chats
+    Given "Alice and Bob" chat is favorite
+    And I see "Alice and Bob" chat as favorite
+    And "Alice and Charlie" chat is favorite
+    And I see "Alice and Charlie" chat as favorite
+
+    When I drag "Alice and Bob" chat 200 pixels down
+    Then I see "Alice and Bob" chat last in chats list
+
+    When I drag "Alice and Charlie" chat 200 pixels down
+    Then I see "Alice and Charlie" chat last in chats list

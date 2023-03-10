@@ -32,6 +32,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.color = Colors.white,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
+    this.shadows,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -75,6 +76,9 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Height of this button.
   final double? height;
 
+  /// [BoxShadow]s to apply to this button.
+  final List<BoxShadow>? shadows;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -84,6 +88,7 @@ class OutlinedRoundedButton extends StatelessWidget {
         maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
+        boxShadow: shadows,
         color: onPressed == null ? const Color(0xFFEEEEEE) : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
@@ -116,7 +121,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.caption?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.black,
                         fontSize: 24 * 0.7,
                       ),

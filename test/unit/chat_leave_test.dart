@@ -30,6 +30,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -40,7 +41,6 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -75,6 +75,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -104,8 +106,7 @@ void main() async {
     }
   };
 
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   AuthService authService = Get.put(
     AuthService(
@@ -116,18 +117,17 @@ void main() async {
   await authService.init();
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -135,6 +135,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -192,13 +193,13 @@ void main() async {
                 'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                 'item': {
                   'node': {
-                    '__typename': 'ChatMemberInfo',
+                    '__typename': 'ChatInfo',
                     'id': 'id',
                     'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                     'authorId': 'me',
                     'at': DateTime.now().toString(),
                     'ver': '0',
-                    'user': {
+                    'author': {
                       '__typename': 'User',
                       'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                       'num': '1234567890123456',
@@ -221,7 +222,32 @@ void main() async {
                         'ver': '0',
                       },
                     },
-                    'action': 'REMOVED'
+                    'action': {
+                      '__typename': 'ChatInfoActionMemberRemoved',
+                      'user': {
+                        '__typename': 'User',
+                        'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                        'num': '1234567890123456',
+                        'login': null,
+                        'name': null,
+                        'bio': null,
+                        'emails': {'confirmed': []},
+                        'phones': {'confirmed': []},
+                        'gallery': {'nodes': []},
+                        'chatDirectLink': null,
+                        'hasPassword': false,
+                        'unreadChatsCount': 0,
+                        'ver': '0',
+                        'presence': 'AWAY',
+                        'online': {'__typename': 'UserOnline'},
+                        'mutualContactsCount': 0,
+                        'isDeleted': false,
+                        'isBlacklisted': {
+                          'blacklisted': false,
+                          'ver': '0',
+                        },
+                      },
+                    },
                   },
                   'cursor': '123'
                 },

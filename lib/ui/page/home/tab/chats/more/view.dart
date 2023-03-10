@@ -57,7 +57,7 @@ class ChatsMoreView extends StatelessWidget {
                   'label_audio_notifications'.l10n,
                   style: Theme.of(context)
                       .textTheme
-                      .bodyText1
+                      .bodyLarge
                       ?.copyWith(color: Colors.black, fontSize: 18),
                 ),
               ),
@@ -166,7 +166,7 @@ class ChatsMoreView extends StatelessWidget {
                       ),
                     );
 
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null

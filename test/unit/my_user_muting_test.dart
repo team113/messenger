@@ -37,7 +37,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'my_profile_phones_test.mocks.dart';
+import 'my_user_muting_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
@@ -93,8 +93,8 @@ void main() async {
   Get.put(sessionProvider);
 
   test('MyUserService successfully mutes and unmutes MyUser', () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -102,11 +102,13 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         )
-      ])),
+      ]),
     );
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
+      (_) => const Stream.empty(),
+    );
 
     when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
       (_) => Future.value(ToggleMyUserMute$Mutation.fromJson({
@@ -158,8 +160,8 @@ void main() async {
 
   test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -167,7 +169,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(graphQlProvider.toggleMyUserMute(null)).thenThrow(

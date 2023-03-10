@@ -365,14 +365,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) {
-    final variables = MyUserEventsArguments(ver: ver);
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
+    final variables = MyUserEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -430,14 +431,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
-    final variables = UserEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
+    final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -1021,11 +1023,13 @@ abstract class UserGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> keepOnline() {
-    return client.subscribe(SubscriptionOptions(
-      operationName: 'KeepOnline',
-      document: KeepOnlineSubscription().document,
-    ));
+  Stream<QueryResult> keepOnline() {
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'KeepOnline',
+        document: KeepOnlineSubscription().document,
+      ),
+    );
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
@@ -1048,8 +1052,11 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
   /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blacklistUser(UserId id) async {
-    final variables = BlacklistUserArguments(id: id);
+  Future<BlacklistEventsVersionedMixin?> blacklistUser(
+    UserId id,
+    BlacklistReason? reason,
+  ) async {
+    final variables = BlacklistUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'BlacklistUser',

@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 
@@ -92,9 +91,7 @@ class NotificationService extends DisposableService {
   void onClose() {
     _onFocusChanged?.cancel();
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/notification.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/notification.mp3');
   }
 
   // TODO: Implement icons and attachments on non-web platforms.

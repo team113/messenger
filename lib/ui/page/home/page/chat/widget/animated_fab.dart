@@ -93,6 +93,7 @@ class _AnimatedFabState extends State<AnimatedFab>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+      debugLabel: '$runtimeType',
     )..addStatusListener(
         (status) {
           switch (status) {
@@ -269,7 +270,7 @@ class _AnimatedFabState extends State<AnimatedFab>
 
     setState(() {});
 
-    Overlay.of(context, rootOverlay: true)!.insert(_overlayEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
   }
 
   /// Toggles overlay state based on [_controller]'s status.

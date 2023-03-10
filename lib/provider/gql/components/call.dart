@@ -133,7 +133,7 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> callEvents(
+  Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
@@ -186,7 +186,7 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -415,9 +415,8 @@ abstract class CallGraphQlMixin {
   /// For using this mutation the authenticated [MyUser] must be a member of the
   /// ongoing [ChatCall].
   ///
-  /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
-  /// and the ongoing [ChatCall] appearing in his [incomingCallsTopEvents]
-  /// again.
+  /// Redialed [User] should see the ongoing [ChatCall] appearing in his
+  /// [incomingCallsTopEvents] again.
   ///
   /// ### Authentication
   ///

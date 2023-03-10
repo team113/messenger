@@ -84,15 +84,7 @@ class SwipeableStatus extends StatelessWidget {
           ? Alignment.bottomRight
           : Alignment.centerRight,
       children: [
-        translate
-            ? _animatedBuilder(
-                Padding(
-                  padding: const EdgeInsets.only(left: width),
-                  child: child,
-                ),
-                translated: false,
-              )
-            : child,
+        translate ? _animatedBuilder(child, translated: false) : child,
         _animatedBuilder(
           Padding(
             padding: padding,

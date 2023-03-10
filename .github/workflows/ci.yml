@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.3"
+  FLUTTER_VER: "3.7"
 
 jobs:
 
@@ -186,7 +186,7 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.7.0
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
@@ -329,7 +329,7 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FCM_API_KEY: ${{ secrets.E2E_FCM_API_KEY }}
+          envkey_COMPOSE_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
@@ -554,7 +554,7 @@ jobs:
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.7.0
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: artifacts/docs.zip
           path: .cache/dartdoc/

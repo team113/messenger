@@ -41,6 +41,7 @@ class FloatingFit<T> extends StatefulWidget {
     this.fit = false,
     this.intersection,
     this.onManipulated,
+    this.onSwapped,
   });
 
   /// Builder building the provided item.
@@ -66,6 +67,9 @@ class FloatingFit<T> extends StatefulWidget {
 
   /// Callback, called when floating panel is being manipulated in some way.
   final void Function(bool)? onManipulated;
+
+  /// Callback, called when [primary] and [panel]ed items are swapped.
+  final void Function(T, T)? onSwapped;
 
   @override
   State<FloatingFit> createState() => _FloatingFitState<T>();
@@ -185,8 +189,9 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: Container(
                 width: width,
                 height: height,
-                decoration: const BoxDecoration(
-                  boxShadow: [
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
                     CustomBoxShadow(
                       color: Color(0x44000000),
                       blurRadius: 9,
@@ -211,6 +216,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   children: [
+                    Container(color: const Color(0xFF0A1724)),
                     SvgLoader.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,
@@ -325,6 +331,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
         curve: Curves.ease,
         onEnd: () {
           paneled.entry?.remove();
@@ -341,6 +348,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
         curve: Curves.ease,
         onEnd: () {
           primary.entry?.remove();
@@ -353,10 +361,12 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
 
     Overlay.of(context)
-        ?.insertAll([paneled.entry, primary.entry].whereNotNull());
+        .insertAll([paneled.entry, primary.entry].whereNotNull());
 
     _paneled = primary;
     _primary = paneled;
+
+    widget.onSwapped?.call(_primary.item, _paneled.item);
 
     setState(() {});
   }

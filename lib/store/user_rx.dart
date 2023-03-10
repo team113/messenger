@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -24,11 +25,10 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
-import '/provider/gql/exceptions.dart'
-    show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
 class HiveRxUser extends RxUser {
@@ -53,7 +53,7 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
-  StreamIterator<UserEvents>? _remoteSubscription;
+  StreamQueue<UserEvents>? _remoteSubscription;
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
@@ -62,10 +62,10 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    final Chat? chat = user.value.dialog;
+    final ChatId id = user.value.dialog;
 
-    if (_dialog.value == null && chat != null) {
-      _userRepository.getChat?.call(chat.id).then((v) => _dialog.value = v);
+    if (_dialog.value == null) {
+      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
     }
 
     return _dialog;
@@ -81,27 +81,18 @@ class HiveRxUser extends RxUser {
   @override
   void stopUpdates() {
     if (--_listeners == 0) {
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _userLocal.get(id)?.ver;
-    _remoteSubscription =
-        StreamIterator(await _userRepository.userEvents(id, ver));
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    })) {
-      await _userEvent(_remoteSubscription!.current);
-    }
+  Future<void> _initRemoteSubscription() async {
+    _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = StreamQueue(
+      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+    );
+    await _remoteSubscription!.execute(_userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
@@ -234,7 +225,7 @@ class HiveRxUser extends RxUser {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.blacklisted;
+          userEntity.value.isBlacklisted = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
           _userLocal.put(userEntity);
         }

@@ -25,6 +25,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
 import '/domain/model/session.dart';
+import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'exceptions.dart';
@@ -173,30 +174,12 @@ class GraphQlClient {
     }
   }
 
-  /// Subscribes to a GraphQL subscription according to the options specified
-  /// and returns a [Stream] which either emits received data or an error.
-  ///
-  /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> subscribe(SubscriptionOptions options) async {
-    var stream = (await client).subscribe(options);
-
-    final connection = SubscriptionConnection(stream.expand((event) {
-      Exception? e = GraphQlProviderExceptions.parse(event);
-
-      if (e != null) {
-        if (e is AuthorizationException) {
-          authExceptionHandler?.call(e);
-          return [];
-        } else {
-          throw e;
-        }
-      }
-
-      return [event];
-    }));
-
-    _subscriptions.add(connection);
-    return connection.stream;
+  /// Subscribes to a GraphQL subscription according to the [options] specified.
+  Stream<QueryResult> subscribe(
+    SubscriptionOptions options, {
+    Version? Function()? ver,
+  }) {
+    return SubscriptionHandle(_subscribe, options, ver: ver).stream;
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -247,6 +230,34 @@ class GraphQlClient {
 
   /// Clears the cache attached to the [client].
   void clearCache() => _client?.cache.store.reset();
+
+  /// Subscribes to a GraphQL subscription according to the [options] specified
+  /// and returns a [Stream] which either emits received data or an error.
+  ///
+  /// Re-subscription is required on [ResubscriptionRequiredException] errors.
+  Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
+    var stream = (await client).subscribe(options);
+
+    final connection = SubscriptionConnection(
+      stream.expand((event) {
+        Object? e = GraphQlProviderExceptions.parse(event);
+
+        if (e != null) {
+          if (e is AuthorizationException) {
+            authExceptionHandler?.call(e);
+            return [];
+          } else {
+            throw e;
+          }
+        }
+
+        return [event];
+      }),
+    );
+
+    _subscriptions.add(connection);
+    return connection.stream;
+  }
 
   /// Middleware that wraps the provided [fn] execution and attempts to handle
   /// [AuthorizationException] if any.
@@ -422,4 +433,100 @@ class SubscriptionConnection {
   /// Sends or enqueues an error event to the [stream].
   void addError(Object error, [StackTrace? stackTrace]) =>
       _addonController.addError(error, stackTrace);
+}
+
+/// Steady [StreamController] listening to the provided GraphQL subscription
+/// events and resubscribing on the errors.
+class SubscriptionHandle {
+  SubscriptionHandle(this._listen, this._options, {this.ver});
+
+  /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
+  /// required.
+  final Version? Function()? ver;
+
+  /// Callback, called to get the [Stream] of [QueryResult]s itself.
+  final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
+
+  /// [SubscriptionOptions] to pass to the [_listen].
+  final SubscriptionOptions _options;
+
+  /// [StreamController] of the [stream] exposed containing the events.
+  late final StreamController<QueryResult> _controller =
+      StreamController.broadcast(onListen: _subscribe, onCancel: cancel);
+
+  /// [StreamSubscription] to the [_subscribe] stream.
+  StreamSubscription? _subscription;
+
+  /// [Timer] invoking [_resubscribe] with backoff algorithm.
+  Timer? _backoff;
+
+  /// Current delay of exponential backoff subscribing.
+  Duration _backoffDuration = Duration.zero;
+
+  /// [Stream] of the events of this [SubscriptionHandle].
+  Stream<QueryResult> get stream => _controller.stream;
+
+  /// Cancels the subscription.
+  void cancel() {
+    _backoff?.cancel();
+    _backoffDuration = Duration.zero;
+    _subscription?.cancel();
+  }
+
+  /// Subscribes to the events.
+  Future<void> _subscribe() async {
+    _subscription?.cancel();
+
+    try {
+      _subscription = (await _listen(_options)).listen(
+        (e) {
+          if (_backoff != null) {
+            Log.print(
+              'Successfully resubscribed 👍',
+              _options.operationName,
+            );
+
+            _backoffDuration = Duration.zero;
+            _backoff?.cancel();
+            _backoff = null;
+          }
+
+          _controller.add(e);
+        },
+        onDone: _resubscribe,
+        onError: (e) {
+          _controller.addError(e);
+          if (e is ResubscriptionRequiredException) {
+            _resubscribe();
+          } else if (e is StaleVersionException) {
+            _resubscribe(noVersion: true);
+          } else {
+            _resubscribe();
+          }
+        },
+      );
+    } catch (e) {
+      _controller.addError(e);
+      _resubscribe();
+    }
+  }
+
+  /// Resubscribes to the events.
+  void _resubscribe({bool noVersion = false}) {
+    Log.print('Reconnecting in $_backoffDuration...', _options.operationName);
+
+    if (ver != null) {
+      _options.variables['ver'] = noVersion ? null : ver!()?.val;
+    }
+
+    if (_backoff?.isActive != true) {
+      _backoff?.cancel();
+      _backoff = Timer(_backoffDuration, _subscribe);
+      if (_backoffDuration == Duration.zero) {
+        _backoffDuration = const Duration(milliseconds: 500);
+      } else if (_backoffDuration < const Duration(seconds: 16)) {
+        _backoffDuration *= 2;
+      }
+    }
+  }
 }

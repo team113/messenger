@@ -6,7 +6,32 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.8] · 2022-??-??
+## [0.1.0-alpha.9] · 2023-??-??
+[0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
+
+[Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned info and call messages. ([#357])
+        - Redesigned file attachments. ([#362])
+    - Media panel:
+        - Position and size persistence. ([#270], [#264])
+        - Proportionally resizing secondary panel. ([#356], [#258])
+
+[#258]: /../../issues/258
+[#264]: /../../issues/264
+[#270]: /../../pull/270
+[#357]: /../../pull/357
+[#362]: /../../pull/362
+[#356]: /../../pull/356
+
+
+
+
+## [0.1.0-alpha.8] · 2023-03-07
 [0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
@@ -18,39 +43,47 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
-        - Favorite chats. ([#218], [#209])
+        - Favorite chats. ([#359], [#218], [#209])
         - Searching. ([#323], [#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
         - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
-        - Screen share display choosing on desktop. ([#228], [#222])
+        - Screen share display choosing on desktop. ([#347], [#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
     - User page:
         - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
+- Windows:
+    - Unread chats count badge on app's icon. ([#342], [#327])    
 
 ### Changed
 
+- Android:
+    - Transparent status and navigation. ([#211], [#208])
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142])
+        - Redesigned chats tab. ([#211], [#142])
         - Redesigned introduction and logout modals. ([#249])
-        - Redesigned menu tab. ([#313], [#244], [#243])
+        - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#316], [#287], [#246])
+        - Redesigned mobile interface. ([#340], [#319], [#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. ([#332], [#328])
+        - Redesigned desktop interface. ([#319], [#309])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
         - Redesigned forwarding modal. ([#189], [#181])
+        - Nearby messages grouping. ([#337])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
@@ -67,6 +100,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])
     - Redesigned scrollbar. ([#276], [#262])
+    - Redesigned snackbar. ([#336])
+    - Redesigned loaders. ([#350], [#345])
 
 ### Fixed
 
@@ -99,7 +134,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#205]: /../../issues/205
 [#206]: /../../pull/206
+[#208]: /../../issues/208
 [#209]: /../../issues/209
+[#211]: /../../pull/211
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#215]: /../../issues/215
@@ -149,11 +186,26 @@ All user visible changes to this project will be documented in this file. This p
 [#295]: /../../issues/295
 [#300]: /../../pull/300
 [#305]: /../../pull/305
+[#309]: /../../issues/309
 [#310]: /../../pull/310
 [#313]: /../../pull/313
 [#316]: /../../pull/316
 [#317]: /../../pull/317
+[#319]: /../../pull/319
 [#323]: /../../pull/323
+[#327]: /../../issues/327
+[#328]: /../../issues/328
+[#330]: /../../issues/330
+[#332]: /../../pull/332
+[#335]: /../../pull/335
+[#336]: /../../pull/336
+[#337]: /../../pull/337
+[#340]: /../../pull/340
+[#342]: /../../pull/342
+[#345]: /../../issues/345
+[#347]: /../../pull/347
+[#350]: /../../pull/350
+[#359]: /../../pull/359
 
 
 

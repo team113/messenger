@@ -40,6 +40,7 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blacklist.dart';
+import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
@@ -102,6 +103,7 @@ enum ProfileTab {
   calls,
   media,
   notifications,
+  storage,
   language,
   blacklist,
   download,
@@ -131,7 +133,13 @@ class RouterState extends ChangeNotifier {
   RouteInformationProvider? provider;
 
   /// This router's global [BuildContext] to use in contextless scenarios.
+  ///
+  /// Note that this [BuildContext] doesn't contain a [Overlay] widget. If you
+  /// need one, use the [overlay].
   BuildContext? context;
+
+  /// This router's global [OverlayState] to use in contextless scenarios.
+  OverlayState? overlay;
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
@@ -221,6 +229,17 @@ class RouterState extends ChangeNotifier {
 
       notifyListeners();
     }
+  }
+
+  /// Removes the [routes] satisfying the provided [predicate].
+  void removeWhere(bool Function(String element) predicate) {
+    for (String e in routes.toList(growable: false)) {
+      if (predicate(e)) {
+        routes.remove(route);
+      }
+    }
+
+    notifyListeners();
   }
 
   /// Returns guarded route based on [_auth] status.
@@ -328,8 +347,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) {
-    Future.delayed(
-        Duration.zero, () => _state.context = navigatorKey.currentContext);
+    Future.delayed(Duration.zero, () {
+      _state.context = navigatorKey.currentContext;
+      _state.overlay = navigatorKey.currentState?.overlay;
+    });
     return setNewRoutePath(configuration);
   }
 
@@ -411,11 +432,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
+                deps.put(CallRectHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find(), Get.find()),
+                SettingsRepository(
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                ),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
@@ -516,11 +543,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
+              deps.put(CallRectHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find(), Get.find()),
+              SettingsRepository(
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                Get.find(),
+              ),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -534,30 +567,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             );
             deps.put<AbstractUserRepository>(userRepository);
-            AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(
-              CallRepository(
-                graphQlProvider,
-                userRepository,
-                Get.find(),
-                settingsRepository,
-                me: me,
-              ),
+            CallRepository callRepository = CallRepository(
+              graphQlProvider,
+              userRepository,
+              Get.find(),
+              settingsRepository,
+              me: me,
             );
-            AbstractChatRepository chatRepository =
-                deps.put<AbstractChatRepository>(
-              ChatRepository(
-                graphQlProvider,
-                Get.find(),
-                callRepository,
-                Get.find(),
-                userRepository,
-                Get.find(),
-                me: me,
-              ),
+            deps.put<AbstractCallRepository>(callRepository);
+            ChatRepository chatRepository = ChatRepository(
+              graphQlProvider,
+              Get.find(),
+              callRepository,
+              Get.find(),
+              userRepository,
+              Get.find(),
+              me: me,
             );
+            deps.put<AbstractChatRepository>(chatRepository);
 
             userRepository.getChat = chatRepository.get;
+            callRepository.ensureRemoteDialog =
+                chatRepository.ensureRemoteDialog;
 
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
@@ -717,7 +748,13 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+  void chatInfo(ChatId id, {bool push = false}) {
+    if (push) {
+      this.push('${Routes.chat}/$id${Routes.chatInfo}');
+    } else {
+      go('${Routes.chat}/$id${Routes.chatInfo}');
+    }
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

@@ -86,6 +86,9 @@ class ChatInfoController extends GetxController {
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
 
@@ -348,9 +351,6 @@ class ChatInfoController extends GetxController {
   Future<void> hideChat() async {
     try {
       await _chatService.hideChat(chatId);
-      if (router.route == '${Routes.chat}/$chatId') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -371,8 +371,6 @@ class ChatInfoController extends GetxController {
       await _callService.join(chatId);
       return;
     }
-
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
 
     try {
       await _callService.redialChatCallMember(chatId, userId);
@@ -402,10 +400,14 @@ class ChatInfoController extends GetxController {
       _worker = ever(
         chat!.chat,
         (Chat chat) {
-          if (!name.focus.hasFocus && !name.changed.value) {
+          if (!name.focus.hasFocus &&
+              !name.changed.value &&
+              name.editable.value) {
             name.unchecked = chat.name?.val;
           }
-          if (!link.focus.hasFocus && !link.changed.value) {
+          if (!link.focus.hasFocus &&
+              !link.changed.value &&
+              link.editable.value) {
             link.unchecked = chat.directLink?.slug.val;
           }
         },

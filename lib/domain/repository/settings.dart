@@ -17,9 +17,11 @@
 
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 
 /// Application settings repository interface.
@@ -71,4 +73,15 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled);
+
+  /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Future<void> setCallRect(ChatId chatId, Rect prefs);
+
+  /// Returns the [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Rect? getCallRect(ChatId id);
 }

@@ -21,9 +21,9 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -57,10 +58,18 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [FlutterListViewController] of the profile's [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  /// Index of the initial profile page section to show in a
+  /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
   /// [MyUser.name]'s field state.
@@ -86,6 +95,9 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -93,10 +105,10 @@ class MyProfileController extends GetxController {
   final AbstractSettingsRepository _settingsRepo;
 
   /// Client for communicating with the [_mediaManager].
-  late final Jason? _jason;
+  Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? _mediaManager;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -133,15 +145,17 @@ class MyProfileController extends GetxController {
 
   @override
   void onInit() {
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => enumerateDevices());
-      enumerateDevices();
-    } catch (_) {
-      // [Jason] might not be supported on the current platform.
-      _jason = null;
-      _mediaManager = null;
+    if (!PlatformUtils.isMobile) {
+      try {
+        _jason = Jason();
+        _mediaManager = _jason?.mediaManager();
+        _mediaManager?.onDeviceChange(() => enumerateDevices());
+        enumerateDevices();
+      } catch (_) {
+        // [Jason] might not be supported on the current platform.
+        _jason = null;
+        _mediaManager = null;
+      }
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -156,8 +170,8 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await listController.sliverController.animateToIndex(
-            tab?.index ?? 0,
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
@@ -166,17 +180,17 @@ class MyProfileController extends GetxController {
       },
     );
 
-    listController.sliverController.onPaintItemPositionsCallback =
-        (height, positions) {
-      if (positions.isNotEmpty && !ignorePositions) {
-        final ProfileTab tab = ProfileTab.values[positions.first.index];
+    positionsListener.itemPositions.addListener(() {
+      if (!ignorePositions) {
+        final ProfileTab tab = ProfileTab
+            .values[positionsListener.itemPositions.value.first.index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
-    };
+    });
 
     _myUserWorker = ever(
       _myUserService.myUser,
@@ -313,7 +327,7 @@ class MyProfileController extends GetxController {
         }
 
         try {
-          UserLogin(s.text);
+          UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_login_input'.l10n;
         }
@@ -324,7 +338,8 @@ class MyProfileController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.updateUserLogin(UserLogin(s.text));
+            await _myUserService
+                .updateUserLogin(UserLogin(s.text.toLowerCase()));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),
@@ -397,7 +412,9 @@ class MyProfileController extends GetxController {
   @override
   void onClose() {
     _mediaManager?.free();
+    _mediaManager = null;
     _jason?.free();
+    _jason = null;
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     super.onClose();
@@ -527,6 +544,10 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsRepo.setLoadImages(enabled);
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].
   ///
@@ -556,8 +577,6 @@ extension PresenceL10n on Presence {
         return 'label_presence_present'.l10n;
       case Presence.away:
         return 'label_presence_away'.l10n;
-      case Presence.hidden:
-        return 'label_presence_hidden'.l10n;
       case Presence.artemisUnknown:
         return null;
     }
@@ -570,8 +589,6 @@ extension PresenceL10n on Presence {
         return Colors.green;
       case Presence.away:
         return Colors.orange;
-      case Presence.hidden:
-        return Colors.grey;
       case Presence.artemisUnknown:
         return null;
     }

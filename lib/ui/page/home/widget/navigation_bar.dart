@@ -17,7 +17,7 @@
 
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -90,25 +90,33 @@ class CustomNavigationBar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (b.child != null)
-                            Badge(
-                              badgeContent: b.badge == null
-                                  ? null
-                                  : Text(
-                                      b.badge!,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
+                            InkResponse(
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              onTap: () => onTap?.call(i),
+                              child: Container(
+                                width: 80,
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: badges.Badge(
+                                    badgeStyle: badges.BadgeStyle(
+                                      badgeColor: b.badgeColor,
                                     ),
-                              badgeColor: b.badgeColor,
-                              showBadge: b.badge != null,
-                              child: InkResponse(
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onTap: () => onTap?.call(i),
-                                child: b.child!,
+                                    badgeContent: b.badge == null
+                                        ? null
+                                        : Text(
+                                            b.badge!,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                    showBadge: b.badge != null,
+                                    child: b.child!,
+                                  ),
+                                ),
                               ),
                             ),
                         ],

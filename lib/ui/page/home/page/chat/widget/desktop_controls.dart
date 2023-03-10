@@ -31,6 +31,7 @@ import 'package:video_player/video_player.dart';
 
 import 'progress_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/widget/progress_indicator.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -188,7 +189,7 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
             _latestValue.isBuffering
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CustomProgressIndicator())
                 : _buildHitArea(),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -248,7 +249,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.button!.color;
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -378,7 +379,7 @@ class _DesktopControlsState extends State<DesktopControls>
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true)!.insert(_volumeEntry!);
+          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
           setState(() {});
         }
       },
@@ -496,7 +497,8 @@ class _DesktopControlsState extends State<DesktopControls>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).backgroundColor.withOpacity(0.5),
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

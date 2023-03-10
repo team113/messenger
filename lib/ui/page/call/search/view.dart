@@ -24,8 +24,10 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
@@ -33,7 +35,7 @@ import 'controller.dart';
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
   const SearchView({
-    Key? key,
+    super.key,
     required this.categories,
     required this.title,
     this.chat,
@@ -44,7 +46,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
-  }) : super(key: key);
+  });
 
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;
@@ -84,7 +86,7 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -130,10 +132,13 @@ class SearchView extends StatelessWidget {
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
-                      return Center(
-                        child: Text(
-                          'label_nothing_found'.l10n,
-                          textAlign: TextAlign.center,
+                      return AnimatedDelayedSwitcher(
+                        delay: const Duration(milliseconds: 300),
+                        child: Center(
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       );
                     } else if (c.searchStatus.value.isEmpty) {
@@ -145,7 +150,7 @@ class SearchView extends StatelessWidget {
                       );
                     }
 
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomProgressIndicator());
                   }
 
                   return Scrollbar(
@@ -164,6 +169,7 @@ class SearchView extends StatelessWidget {
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
                                 darken: 0.05,
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(user: e)
                                     : enabled
@@ -178,6 +184,7 @@ class SearchView extends StatelessWidget {
                                 contact: e,
                                 darken: 0.05,
                                 selected: c.selectedContacts.contains(e),
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(contact: e)
                                     : enabled
@@ -188,9 +195,11 @@ class SearchView extends StatelessWidget {
                           } else if (e is RxChat) {
                             child = Obx(() {
                               return SelectedTile(
+                                key: Key('SearchChat_${e.id}'),
                                 chat: e,
                                 darken: 0.05,
                                 selected: c.selectedChats.contains(e),
+                                onAvatarTap: null,
                                 onTap: selectable
                                     ? () => c.select(chat: e)
                                     : enabled
@@ -208,6 +217,7 @@ class SearchView extends StatelessWidget {
                             c.contacts.length +
                             c.users.length +
                             c.recent.length,
+                        disableCacheItems: true,
                       ),
                     ),
                   );

@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -47,6 +49,12 @@ class ScreenShareController extends GetxController {
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Currently selected [MediaDisplayInfo].
+  final Rx<MediaDisplayInfo?> selected = Rx(null);
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _callsSubscription;
@@ -99,6 +107,8 @@ class ScreenShareController extends GetxController {
       initRenderer(e);
     }
 
+    selected.value = call.value.displays.firstOrNull;
+
     super.onInit();
   }
 
@@ -106,16 +116,10 @@ class ScreenShareController extends GetxController {
   void onClose() {
     _callsSubscription?.cancel();
     _displaysSubscription?.cancel();
+
+    freeTracks();
     _mediaManager.free();
     _jason.free();
-
-    for (RtcVideoRenderer t in renderers.values) {
-      t.dispose();
-    }
-
-    for (LocalMediaTrack t in _localTracks) {
-      t.free();
-    }
 
     super.onClose();
   }
@@ -133,6 +137,19 @@ class ScreenShareController extends GetxController {
     renderer.srcObject = tracks.first.getTrack();
 
     renderers[display] = renderer;
+  }
+
+  /// Disposes the [renderers] and frees the [LocalMediaTrack]s being used.
+  void freeTracks() {
+    for (RtcVideoRenderer t in renderers.values) {
+      t.dispose();
+    }
+    renderers.clear();
+
+    for (LocalMediaTrack t in _localTracks) {
+      t.free();
+    }
+    _localTracks.clear();
   }
 
   /// Constructs the [MediaStreamSettings] with the provided [screenDevice].

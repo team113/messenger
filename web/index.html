@@ -19,6 +19,7 @@
 -->
 
 <html>
+
 <head>
   <base href="/">
 
@@ -32,6 +33,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
@@ -41,7 +44,7 @@
   <link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
   <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -49,36 +52,107 @@
   <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
 
-  <link rel="icon" type="image/pg" href="favicon/png"/>
+  <link rel="icon" type="image/pg" href="favicon/png" />
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
   <style type="text/css">
-    .container {
-      position: fixed;
+    body {
+      background-image: url('assets/assets/images/background_light.svg');
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      overflow-x: hidden;
+    }
+
+    @font-face {
+      font-family: "SF UI Display";
+      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf');
+      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf') format('truetype');
+    }
+
+    .content {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .shimmer {
+      color: grey;
+      display: inline-block;
+      mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
+      -webkit-mask: linear-gradient(-60deg, #000 30%, #0004, #000 70%) right/300% 100%;
+      background-repeat: no-repeat;
+      animation: shimmer 2.5s infinite;
+      font-size: 50px;
+      max-width: 200px;
+    }
+
+    @keyframes shimmer {
+      100% {
+        -webkit-mask-position: left
+      }
+    }
+
+    .dot-flashing {
+      position: relative;
+      width: 4px;
+      height: 4px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite linear alternate;
+      animation-delay: 0.3s;
+    }
+
+    .dot-flashing::before,
+    .dot-flashing::after {
+      content: "";
+      display: inline-block;
+      position: absolute;
       top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      text-align: center;
-      font-size: 0;
-      white-space: nowrap;
-      overflow: auto;
     }
 
-    .container:after {
-      content: '';
-      display: inline-block;
-      height: 100%;
-      vertical-align: middle;
+    .dot-flashing::before {
+      left: -7px;
+      width: 4px;
+      height: 4px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite alternate;
+      animation-delay: 0s;
     }
 
-    .splash {
-      display: inline-block;
-      vertical-align: middle;
-      text-align: left;
-      font-size: 14px;
-      white-space: normal;
+    .dot-flashing::after {
+      left: 7px;
+      width: 4px;
+      height: 4px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite alternate;
+      animation-delay: 800ms;
+    }
+
+    .gapopa {
+      max-width: none;
+      padding-left: unset;
+      padding-right: unset;
+    }
+
+    @keyframes dot-flashing {
+      0% {
+        background-color: #888888;
+      }
+
+      50%,
+      100% {
+        background-color: rgba(136, 136, 136, 0.2);
+      }
     }
   </style>
   <script type="module">
@@ -135,9 +209,24 @@
     }
   </script>
 </head>
+
 <body>
-  <div id="loader" class="container">
-    <img class="splash" src="/assets/assets/images/logo/head0000.svg" />
+  <div id="loader" class="container content">
+    <div class="col align-middle" style="vertical-align: middle;">
+      <div class="row justify-content-center">
+        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
+      </div>
+      <div class="row justify-content-center mb-5">
+        <div class="col-auto h4"
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
+      </div>
+      <div class="row justify-content-center">
+        <canvas class="gapopa" id="canvas"></canvas>
+      </div>
+      <div class="row justify-content-center mt-5">
+        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading</div>
+      </div>
+    </div>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
@@ -218,13 +307,13 @@
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;
-    document.onclick = function() {
-        Notification.requestPermission();
-        if (click) {
-            click();
-        }
+    document.onclick = function () {
+      Notification.requestPermission();
+      if (click) {
+        click();
+      }
 
-        document.onclick = click;
+      document.onclick = click;
     }
   </script>
   <!-- TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=934640 is
@@ -234,40 +323,90 @@
        support enumerating existing databases. -->
   <script>
     if (window.indexedDB && typeof window.indexedDB.databases === 'undefined') {
-        const LOCALSTORAGE_CACHE_KEY = 'indexedDBDatabases';
+      const LOCALSTORAGE_CACHE_KEY = 'indexedDBDatabases';
 
-        const getFromStorage = () =>
-            JSON.parse(window.localStorage[LOCALSTORAGE_CACHE_KEY] || '{}');
+      const getFromStorage = () =>
+        JSON.parse(window.localStorage[LOCALSTORAGE_CACHE_KEY] || '{}');
 
-        const writeToStorage = value =>
-            (window.localStorage[LOCALSTORAGE_CACHE_KEY] = JSON.stringify(value));
+      const writeToStorage = value =>
+        (window.localStorage[LOCALSTORAGE_CACHE_KEY] = JSON.stringify(value));
 
-        IDBFactory.prototype.databases = () =>
-            Promise.resolve(
-                Object.entries(getFromStorage()).reduce((acc, [name, version]) => {
-                    acc.push({ name, version });
-                    return acc;
-                }, [])
-            );
+      IDBFactory.prototype.databases = () =>
+        Promise.resolve(
+          Object.entries(getFromStorage()).reduce((acc, [name, version]) => {
+            acc.push({ name, version });
+            return acc;
+          }, [])
+        );
 
-        const open = IDBFactory.prototype.open;
-        IDBFactory.prototype.open = function (...args) {
-            const dbName = args[0];
-            const version = args[1] || 1;
-            const existing = getFromStorage();
-            writeToStorage({ ...existing, [dbName]: version });
-            return open.apply(this, args);
-        };
+      const open = IDBFactory.prototype.open;
+      IDBFactory.prototype.open = function (...args) {
+        const dbName = args[0];
+        const version = args[1] || 1;
+        const existing = getFromStorage();
+        writeToStorage({ ...existing, [dbName]: version });
+        return open.apply(this, args);
+      };
 
-        const deleteDatabase = IDBFactory.prototype.deleteDatabase;
-        IDBFactory.prototype.deleteDatabase = function (...args) {
-            const dbName = args[0];
-            const existing = getFromStorage();
-            delete existing[dbName];
-            writeToStorage(existing);
-            return deleteDatabase.apply(this, args);
-        };
+      const deleteDatabase = IDBFactory.prototype.deleteDatabase;
+      IDBFactory.prototype.deleteDatabase = function (...args) {
+        const dbName = args[0];
+        const existing = getFromStorage();
+        delete existing[dbName];
+        writeToStorage(existing);
+        return deleteDatabase.apply(this, args);
+      };
     }
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- Animate the blinking loader -->
+  <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
+  <script>
+    var canvas = document.getElementById("canvas");
+
+    function embed(name) {
+      const r = new rive.Rive({
+        src: `./assets/assets/images/logo/${name}.riv`,
+        canvas: canvas,
+        stateMachines: ["Machine"],
+        autoplay: true,
+        onLoad: () => {
+          r.resizeDrawingSurfaceToCanvas();
+          const inputs = r.stateMachineInputs("Machine");
+          const blink = inputs.find((input) => {
+            return input.name === "blink";
+          });
+
+          setTimeout(() => blink.fire(), 500);
+
+          window.addEventListener("click", function (e) {
+            blink.fire();
+          });
+        }
+      });
+    }
+
+    var lastNarrow = undefined;
+    var narrow = undefined;
+
+    function recalculate() {
+      narrow = window.innerHeight < 500;
+      if (narrow != lastNarrow) {
+        lastNarrow = narrow;
+        if (narrow) {
+          document.getElementById('canvas').height = 90;
+          document.getElementById('canvas').setAttribute("style", "height: 150px; width:" + window.innerWidth + "px;");
+          embed('head');
+        } else {
+          document.getElementById('canvas').height = 200;
+          document.getElementById('canvas').setAttribute("style", "height: 300px; width:" + window.innerWidth + "px;");
+          embed('logo');
+        }
+      }
+    }
+
+    window.addEventListener("resize", (_) => { recalculate(); });
+    recalculate();
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
@@ -286,4 +425,5 @@
     }
   </script>
 </body>
+
 </html>
