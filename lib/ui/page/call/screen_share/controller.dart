@@ -48,14 +48,14 @@ class ScreenShareController extends GetxController {
   final void Function()? pop;
 
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
-  final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
-      RxMap<MediaDisplayInfo, RtcVideoRenderer>();
+  final RxMap<MediaDisplayDetails, RtcVideoRenderer> renderers =
+      RxMap<MediaDisplayDetails, RtcVideoRenderer>();
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Currently selected [MediaDisplayInfo].
-  final Rx<MediaDisplayInfo?> selected = Rx(null);
+  /// Currently selected [MediaDisplayDetails].
+  final Rx<MediaDisplayDetails?> selected = Rx(null);
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _callsSubscription;
@@ -88,7 +88,7 @@ class ScreenShareController extends GetxController {
     });
 
     _displaysSubscription = call.value.displays.listen((e) {
-      for (MediaDisplayInfo display in e) {
+      for (MediaDisplayDetails display in e) {
         if (renderers[display] == null) {
           initRenderer(display);
         }
@@ -113,7 +113,7 @@ class ScreenShareController extends GetxController {
   }
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
-  Future<void> initRenderer(MediaDisplayInfo display) async {
+  Future<void> initRenderer(MediaDisplayDetails display) async {
     final List<LocalMediaTrack> tracks = await MediaUtils.mediaManager
             ?.initLocalTracks(_mediaStreamSettings(display.deviceId())) ??
         [];

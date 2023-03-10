@@ -93,8 +93,8 @@ class MyProfileController extends GetxController {
   /// Used to discard repeated toggling.
   final RxBool isMuting = RxBool(false);
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();

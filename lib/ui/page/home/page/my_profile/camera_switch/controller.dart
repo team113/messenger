@@ -38,8 +38,8 @@ class CameraSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// ID of the initially selected video device.
   RxnString camera;
@@ -67,13 +67,13 @@ class CameraSwitchController extends GetxController {
       (e) {
         print('[$runtimeType] onDeviceChange');
         devices.value =
-            e.where((d) => d.kind() == MediaDeviceKind.videoinput).toList();
+            e.where((d) => d.kind() == MediaDeviceKind.VideoInput).toList();
       },
     );
 
     await WebUtils.cameraPermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.videoinput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.VideoInput);
 
     initRenderer();
 

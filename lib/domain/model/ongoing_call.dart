@@ -37,9 +37,6 @@ import 'chat_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
-/// Reactive list of [MediaDeviceInfo]s.
-typedef InputDevices = RxList<MediaDeviceInfo>;
-
 /// Possible states of an [OngoingCall].
 enum OngoingCallState {
   /// Initialized locally, so a server is not yet aware of it.
@@ -237,11 +234,11 @@ class OngoingCall {
   /// and not just as a notification of an ongoing call in background.
   bool connected = false;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  final InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// List of [MediaDisplayInfo] of all the available displays.
-  final RxList<MediaDisplayInfo> displays = RxList<MediaDisplayInfo>([]);
+  /// List of [MediaDisplayDetails] of all the available displays.
+  final RxList<MediaDisplayDetails> displays = RxList<MediaDisplayDetails>([]);
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -312,21 +309,21 @@ class OngoingCall {
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         print('[$runtimeType] onDeviceChange');
-        final List<MediaDeviceInfo> previous =
+        final List<MediaDeviceDetails> previous =
             List.from(devices, growable: false);
 
         devices.value = e;
 
-        final List<MediaDeviceInfo> added = [];
-        final List<MediaDeviceInfo> removed = [];
+        final List<MediaDeviceDetails> added = [];
+        final List<MediaDeviceDetails> removed = [];
 
-        for (MediaDeviceInfo d in devices) {
+        for (MediaDeviceDetails d in devices) {
           if (previous.none((p) => p.deviceId() == d.deviceId())) {
             added.add(d);
           }
         }
 
-        for (MediaDeviceInfo d in previous) {
+        for (MediaDeviceDetails d in previous) {
           if (devices.none((p) => p.deviceId() == d.deviceId())) {
             removed.add(d);
           }
@@ -737,7 +734,7 @@ class OngoingCall {
       setVideoEnabled(videoState.value != LocalTrackState.enabled &&
           videoState.value != LocalTrackState.enabling);
 
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
     try {
@@ -1427,9 +1424,9 @@ class OngoingCall {
   /// Picks the [outputDevice] based on the provided [previous], [added] and
   /// [removed].
   void _pickOutputDevice([
-    List<MediaDeviceInfo> previous = const [],
-    List<MediaDeviceInfo> added = const [],
-    List<MediaDeviceInfo> removed = const [],
+    List<MediaDeviceDetails> previous = const [],
+    List<MediaDeviceDetails> added = const [],
+    List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.output().isNotEmpty) {
       setOutputDevice(added.output().first.deviceId());
@@ -1444,9 +1441,9 @@ class OngoingCall {
   /// Picks the [audioDevice] based on the provided [previous], [added] and
   /// [removed].
   void _pickAudioDevice([
-    List<MediaDeviceInfo> previous = const [],
-    List<MediaDeviceInfo> added = const [],
-    List<MediaDeviceInfo> removed = const [],
+    List<MediaDeviceDetails> previous = const [],
+    List<MediaDeviceDetails> added = const [],
+    List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.audio().isNotEmpty) {
       setAudioDevice(added.audio().first.deviceId());
@@ -1684,22 +1681,22 @@ class Track {
   }
 }
 
-extension DevicesList on List<MediaDeviceInfo> {
-  /// Returns a new [Iterable] with [MediaDeviceInfo]s of
-  /// [MediaDeviceKind.videoinput].
-  Iterable<MediaDeviceInfo> video() {
-    return where((i) => i.kind() == MediaDeviceKind.videoinput);
+extension DevicesList on List<MediaDeviceDetails> {
+  /// Returns a new [Iterable] with [MediaDeviceDetails]s of
+  /// [MediaDeviceKind.VideoInput].
+  Iterable<MediaDeviceDetails> video() {
+    return where((i) => i.kind() == MediaDeviceKind.VideoInput);
   }
 
-  /// Returns a new [Iterable] with [MediaDeviceInfo]s of
-  /// [MediaDeviceKind.audioinput].
-  Iterable<MediaDeviceInfo> audio() {
-    return where((i) => i.kind() == MediaDeviceKind.audioinput);
+  /// Returns a new [Iterable] with [MediaDeviceDetails]s of
+  /// [MediaDeviceKind.AudioInput].
+  Iterable<MediaDeviceDetails> audio() {
+    return where((i) => i.kind() == MediaDeviceKind.AudioInput);
   }
 
-  /// Returns a new [Iterable] with [MediaDeviceInfo]s of
-  /// [MediaDeviceKind.audiooutput].
-  Iterable<MediaDeviceInfo> output() {
-    return where((i) => i.kind() == MediaDeviceKind.audiooutput);
+  /// Returns a new [Iterable] with [MediaDeviceDetails]s of
+  /// [MediaDeviceKind.AudioOutput].
+  Iterable<MediaDeviceDetails> output() {
+    return where((i) => i.kind() == MediaDeviceKind.AudioOutput);
   }
 }

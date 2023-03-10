@@ -36,8 +36,8 @@ class OutputSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// ID of the initially selected audio output device.
   RxnString output;
@@ -50,14 +50,14 @@ class OutputSwitchController extends GetxController {
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
       (e) => devices.value =
-          e.where((d) => d.kind() == MediaDeviceKind.audiooutput).toList(),
+          e.where((d) => d.kind() == MediaDeviceKind.AudioOutput).toList(),
     );
 
     // Output devices are permitted to be use when requesting a microphone
     // permission.
     await WebUtils.microphonePermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audiooutput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.AudioOutput);
 
     super.onInit();
   }

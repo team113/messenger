@@ -914,7 +914,7 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayInfo? display =
+        final MediaDisplayDetails? display =
             await ScreenShareView.show(context, _currentCall);
 
         if (display != null) {
@@ -955,7 +955,8 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
+    List<MediaDeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       int selected = _currentCall.value.videoDevice.value == null
           ? 0
@@ -976,10 +977,10 @@ class CallController extends GetxController {
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceInfo> outputs =
+      final List<MediaDeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        MediaDeviceInfo? device;
+        MediaDeviceDetails? device;
 
         if (PlatformUtils.isIOS) {
           device = _currentCall.value.devices.output().firstWhereOrNull(

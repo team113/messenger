@@ -14,9 +14,9 @@ class MediaUtils {
   /// [MediaManagerHandle] maintaining the media devices.
   static MediaManagerHandle? _mediaManager;
 
-  /// [StreamController] of the [MediaDeviceInfo]s updating in the
+  /// [StreamController] of the [MediaDeviceDetails]s updating in the
   /// [MediaManagerHandle.onDeviceChange].
-  static StreamController<List<MediaDeviceInfo>>? _devicesController;
+  static StreamController<List<MediaDeviceDetails>>? _devicesController;
 
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
@@ -38,8 +38,8 @@ class MediaUtils {
     return _mediaManager;
   }
 
-  /// Returns a [Stream] of the [MediaDeviceInfo]s changes.
-  static Stream<List<MediaDeviceInfo>> get onDeviceChange {
+  /// Returns a [Stream] of the [MediaDeviceDetails]s changes.
+  static Stream<List<MediaDeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
@@ -55,9 +55,9 @@ class MediaUtils {
     return _devicesController!.stream;
   }
 
-  /// Returns the [MediaDeviceInfo]s currently available with the provided
+  /// Returns the [MediaDeviceDetails]s currently available with the provided
   /// [kind], if specified.
-  static Future<List<MediaDeviceInfo>> enumerateDevices([
+  static Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
     return (await mediaManager?.enumerateDevices() ?? [])

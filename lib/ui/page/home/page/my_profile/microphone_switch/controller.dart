@@ -39,8 +39,8 @@ class MicrophoneSwitchController extends GetxController {
   /// ID of the initially selected microphone device.
   RxnString mic;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
@@ -50,12 +50,12 @@ class MicrophoneSwitchController extends GetxController {
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
       (e) => devices.value =
-          e.where((d) => d.kind() == MediaDeviceKind.audioinput).toList(),
+          e.where((d) => d.kind() == MediaDeviceKind.AudioInput).toList(),
     );
 
     await WebUtils.microphonePermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioinput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.AudioInput);
 
     super.onInit();
   }
