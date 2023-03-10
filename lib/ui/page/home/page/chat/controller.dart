@@ -608,7 +608,7 @@ class ChatController extends GetxController {
               e.user.value.name?.val == 'alex2' ||
               e.user.value.name?.val == 'kirey') &&
           chat!.chat.value.isDialog;
-      paidDisclaimer = RxBool(paid);
+      paidDisclaimer = RxBool(false);
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {

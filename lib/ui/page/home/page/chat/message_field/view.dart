@@ -62,6 +62,7 @@ class MessageFieldView extends StatelessWidget {
     this.canSend = true,
     this.constraints,
     this.disabled = false,
+    this.background,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -92,6 +93,8 @@ class MessageFieldView extends StatelessWidget {
   final BoxConstraints? constraints;
 
   final bool disabled;
+
+  final Color? background;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -435,7 +438,7 @@ class MessageFieldView extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
-      decoration: BoxDecoration(color: style.cardColor),
+      decoration: BoxDecoration(color: background ?? style.cardColor),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,

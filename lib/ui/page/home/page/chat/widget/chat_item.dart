@@ -1965,6 +1965,7 @@ class FoldedWidget extends StatelessWidget {
     super.key,
     this.color,
     this.folded = true,
+    this.radius = 10,
     required this.child,
   });
 
@@ -1972,24 +1973,25 @@ class FoldedWidget extends StatelessWidget {
   final Widget child;
   final bool folded;
 
+  final double radius;
+
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return ClipPath(
-      clipper: folded ? const FoldedClipper(10) : null,
+      clipper: folded ? FoldedClipper(radius) : null,
       child: Stack(
         alignment: Alignment.topRight,
         children: [
           child,
           if (folded)
             Container(
-              width: 10,
-              height: 10,
+              width: radius,
+              height: radius,
               decoration: const BoxDecoration(
-                color: Color(0xFF72B060),
-                borderRadius:
-                    BorderRadius.only(bottomRight: Radius.circular(4)),
+                // color: Color(0xFF72B060)
+                // color: Color(0xFF8383ff),
+                color: Color(0xFFfff7ea),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4)),
                 boxShadow: [
                   CustomBoxShadow(
                     color: Color(0xFFC0C0C0),

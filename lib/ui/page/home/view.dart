@@ -224,14 +224,19 @@ class _HomeViewState extends State<HomeView> {
                                   child: tab(
                                     tab: HomeTab.funds,
                                     child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Color(0xFF03a803),
-                                      ),
+                                      // width: 30,
+                                      // height: 30,
+                                      // decoration: const BoxDecoration(
+                                      //   shape: BoxShape.circle,
+                                      //   color: Color(0xFF03a803),
+                                      // ),
                                       child: Stack(
                                         children: [
+                                          SvgLoader.asset(
+                                            'assets/icons/partner5.svg',
+                                            width: 30,
+                                            height: 30,
+                                          ),
                                           // SvgLoader.asset(
                                           //   'assets/icons/balance.svg',
                                           //   width: 30,
@@ -306,7 +311,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.public,
                                   child: SvgLoader.asset(
-                                    'assets/icons/publics.svg',
+                                    'assets/icons/publics2.svg',
                                     width: 30,
                                     height: 30,
                                   ),

@@ -238,6 +238,7 @@ class _ChatViewState extends State<ChatView>
                             const SizedBox(width: 10),
                           ],
                         ),
+                        // background: c.paid ? const Color(0xFFfff7ea) : null,
                         padding: const EdgeInsets.only(left: 4, right: 20),
                         leading: const [StyledBackButton()],
                         actions: [
@@ -1437,6 +1438,7 @@ class _ChatViewState extends State<ChatView>
           controller: c.edit.value,
           onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
           canAttach: false,
+          background: const Color(0xFFfff7ea),
         );
       }
 
@@ -1448,6 +1450,7 @@ class _ChatViewState extends State<ChatView>
         onChanged: c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
+        // background: const Color(0xFFfff7ea),
         // canSend: !disabled,
         // canAttach: !disabled,
         // disabled: disabled,

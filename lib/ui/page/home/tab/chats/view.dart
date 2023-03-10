@@ -746,7 +746,10 @@ class ChatsTabView extends StatelessWidget {
                                                     'ReorderHandle_${chat.id.val}',
                                                   ),
                                                   index: i,
-                                                  child: child,
+                                                  child: GestureDetector(
+                                                    onLongPress: () {},
+                                                    child: child,
+                                                  ),
                                                 ),
                                               );
                                             },

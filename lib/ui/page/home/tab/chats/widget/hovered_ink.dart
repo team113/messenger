@@ -171,12 +171,27 @@ class FoldedClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
+    // final path = Path()
+    //   ..lineTo(size.width, 0)
+    //   ..lineTo(size.width, size.height - radius)
+    //   ..lineTo(size.width - radius, size.height)
+    //   ..lineTo(0, size.height)
+    //   ..lineTo(0, 0);
+
+    // final path = Path()
+    //   ..lineTo(size.width, 0)
+    //   ..lineTo(size.width, size.height)
+    //   ..lineTo(radius, size.height)
+    //   ..lineTo(0, size.height - radius)
+    //   ..lineTo(0, 0);
+
     final path = Path()
       ..lineTo(size.width - radius, 0)
       ..lineTo(size.width, radius)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..lineTo(0, 0);
+
     return path;
   }
 

@@ -148,6 +148,7 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        folded: rxChat.messageCost != 0,
         avatarBuilder: chat.isMonolog
             ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
             : avatarBuilder,
@@ -927,7 +928,10 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
+        onLongPress: () {},
+        child: child,
+      );
 }
 
 /// Extension adding conversion from [DateTime] to its short text relative to

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -42,6 +43,7 @@ class ChatTile extends StatelessWidget {
     this.height = 94,
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
+    this.folded = false,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -83,6 +85,8 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  final bool folded;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -96,63 +100,67 @@ class ChatTile extends StatelessWidget {
         height: height,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: style.cardSelectedColor,
-            unselectedColor: style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder:
-                selected ? style.primaryBorder : style.cardHoveredBorder,
-            border: selected ? style.primaryBorder : style.cardBorder,
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor.darken(darken),
-            selectedHoverColor: style.cardSelectedColor,
-            folded: chat?.chat.value.favoritePosition != null,
-            child: Padding(
-              key: chat?.chat.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
-                  : null,
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-              child: Row(
-                children: [
-                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
-                  const SizedBox(width: 12),
-                  ...leading,
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Obx(() {
-                                      return Text(
-                                        chat?.title.value ?? ('dot'.l10n * 3),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall,
-                                      );
-                                    }),
-                                  ),
-                                  ...title,
-                                ],
+          child: FoldedWidget(
+            radius: 15,
+            folded: folded,
+            child: InkWellWithHover(
+              selectedColor: style.cardSelectedColor,
+              unselectedColor: style.cardColor.darken(darken),
+              selected: selected,
+              hoveredBorder:
+                  selected ? style.primaryBorder : style.cardHoveredBorder,
+              border: selected ? style.primaryBorder : style.cardBorder,
+              borderRadius: style.cardRadius,
+              onTap: onTap,
+              unselectedHoverColor: style.cardHoveredColor.darken(darken),
+              selectedHoverColor: style.cardSelectedColor,
+              folded: chat?.chat.value.favoritePosition != null,
+              child: Padding(
+                key: chat?.chat.value.favoritePosition != null
+                    ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                    : null,
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                child: Row(
+                  children: [
+                    avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                    const SizedBox(width: 12),
+                    ...leading,
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Obx(() {
+                                        return Text(
+                                          chat?.title.value ?? ('dot'.l10n * 3),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall,
+                                        );
+                                      }),
+                                    ),
+                                    ...title,
+                                  ],
+                                ),
                               ),
-                            ),
-                            ...status,
-                          ],
-                        ),
-                        ...subtitle,
-                      ],
+                              ...status,
+                            ],
+                          ),
+                          ...subtitle,
+                        ],
+                      ),
                     ),
-                  ),
-                  ...trailing,
-                ],
+                    ...trailing,
+                  ],
+                ),
               ),
             ),
           ),
