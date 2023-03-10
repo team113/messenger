@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
@@ -51,6 +52,9 @@ class NotificationService extends DisposableService {
   /// Subscription to the [FirebaseMessaging.onTokenRefresh].
   StreamSubscription? _onTokenRefresh;
 
+  /// [StreamSubscription] on the [FirebaseMessaging.onMessage] stream.
+  StreamSubscription? _foregroundSubscription;
+
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
@@ -66,8 +70,6 @@ class NotificationService extends DisposableService {
   /// only applicable to iOS versions older than 10.
   Future<void> init({
     void Function(NotificationResponse)? onNotificationResponse,
-    void Function(int, String?, String?, String?)?
-        onDidReceiveLocalNotification,
   }) async {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
@@ -83,14 +85,11 @@ class NotificationService extends DisposableService {
       if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
         await _plugin!.initialize(
-          InitializationSettings(
-            android: const AndroidInitializationSettings('@mipmap/ic_launcher'),
-            iOS: DarwinInitializationSettings(
-              onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-            ),
-            macOS: const DarwinInitializationSettings(),
-            linux:
-                const LinuxInitializationSettings(defaultActionName: 'click'),
+          const InitializationSettings(
+            android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+            iOS: DarwinInitializationSettings(),
+            macOS: DarwinInitializationSettings(),
+            linux: LinuxInitializationSettings(defaultActionName: 'click'),
           ),
           onDidReceiveNotificationResponse: onNotificationResponse,
           onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
@@ -103,6 +102,7 @@ class NotificationService extends DisposableService {
   void onClose() {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
+    _foregroundSubscription?.cancel();
     _audioPlayer?.dispose();
     AudioCache.instance.clear('audio/notification.mp3');
   }
@@ -118,6 +118,7 @@ class NotificationService extends DisposableService {
     String? icon,
     String? tag,
     bool playSound = true,
+    String? imageUrl,
   }) async {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
@@ -135,6 +136,23 @@ class NotificationService extends DisposableService {
           throw e;
         }
       });
+    }
+
+    Uint8List? imageBytes;
+    if (PlatformUtils.isAndroid && imageUrl != null) {
+      try {
+        Response response = await PlatformUtils.dio.get(
+          imageUrl,
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.statusCode == 200) {
+          imageBytes = response.data;
+        }
+      } catch (_) {
+        print(_);
+        // No-op.
+      }
     }
 
     if (PlatformUtils.isWeb) {
@@ -158,6 +176,8 @@ class NotificationService extends DisposableService {
             'Gapopa',
             playSound: playSound,
             sound: const RawResourceAndroidNotificationSound('notification'),
+            largeIcon:
+                imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
           ),
         ),
         payload: payload,
@@ -178,9 +198,19 @@ class NotificationService extends DisposableService {
   /// Initializes the [FirebaseMessaging] to receive push notifications.
   Future<void> _initPushNotifications() async {
     if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
-      if (PlatformUtils.isWeb || PlatformUtils.isMobile) {
-        await FirebaseMessaging.instance.requestPermission();
-      }
+      _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
+        print('FirebaseMessaging.onMessage');
+        if (event.notification != null && event.notification?.title != null) {
+          show(
+            event.notification!.title!,
+            body: event.notification!.body,
+            payload: '${Routes.chat}/${event.data['chatId']}',
+            imageUrl: event.notification!.android?.imageUrl,
+          );
+        }
+      });
+
+      await FirebaseMessaging.instance.requestPermission();
 
       String? token = await FirebaseMessaging.instance.getToken(
         vapidKey: PlatformUtils.isWeb
