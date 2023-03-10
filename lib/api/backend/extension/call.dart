@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '../schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import 'user.dart';
 
@@ -44,6 +45,30 @@ extension ChatCallConversion on ChatCallMixin {
         finishReasonIndex: finishReason?.index,
         finishedAt: finishedAt,
         joinLink: joinLink,
-        answered: answered,
+        dialed: dialed?.toModel(),
       );
+}
+
+/// Extension adding models construction from [ChatCallMixin$Dialed].
+extension ChatCallDialedConversion on ChatCallMixin$Dialed {
+  /// Constructs a new [ChatMembersDialed] from this [ChatCallMixin$Dialed].
+  ChatMembersDialed toModel() {
+    if ($$typename == 'ChatMembersDialedAll') {
+      final model = this as ChatCallMixin$Dialed$ChatMembersDialedAll;
+      return ChatMembersDialedAll(
+        model.answeredMembers
+            .map((e) => ChatMember(e.user.toModel(), e.joinedAt))
+            .toList(),
+      );
+    } else if ($$typename == 'ChatMembersDialedConcrete') {
+      final model = this as ChatCallMixin$Dialed$ChatMembersDialedConcrete;
+      return ChatMembersDialedConcrete(
+        model.members
+            .map((e) => ChatMember(e.user.toModel(), e.joinedAt))
+            .toList(),
+      );
+    }
+
+    throw Exception('Unknown ChatMembersDialed: ${$$typename}');
+  }
 }

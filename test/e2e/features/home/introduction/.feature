@@ -21,26 +21,25 @@ Feature: Introduction
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present
 
-    Then I tap `SetPasswordButton` button
-    And I wait until `PasswordStage` is present
+    When I tap `SetPasswordButton` button
+    Then I wait until `PasswordStage` is present
 
-    Then I fill `PasswordField` field with "123"
+    When I fill `PasswordField` field with "123"
     And I fill `RepeatPasswordField` field with "123"
     And I copy from `NumCopyable` field
-
-    Then I tap `ChangePasswordButton` button
-    And I wait until `SuccessStage` is present
+    And I tap `ChangePasswordButton` button
+    Then I wait until `SuccessStage` is present
     And I tap `CloseButton` button
 
     When I tap `MenuButton` button
-    Then I tap `LogoutButton` button
+    And I scroll `MenuListView` until `LogoutButton` is present
+    And I tap `LogoutButton` button
     And I tap `ConfirmLogoutButton` button
-    And I wait until `AuthView` is present
+    Then I wait until `AuthView` is present
 
-    Then I tap `SignInButton` button
+    When I tap `SignInButton` button
     And I wait until `LoginView` is present
     And I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
-
-    When I tap `LoginButton` button
+    And I tap `LoginButton` button
     Then I wait until `HomeView` is present

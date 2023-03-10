@@ -1,0 +1,25 @@
+fragment ChatCallQuote on ChatCallQuote {
+    original {
+        node {
+            __typename
+            ... on ChatInfo {
+                ...ChatInfo
+            }
+            ... on ChatCall {
+                ...ChatCall
+            }
+            ... on ChatMessage {
+                ...NestedChatMessage
+            }
+            ... on ChatForward {
+                ...NestedChatForward
+            }
+        }
+        cursor
+    }
+    author {
+        __typename
+        ...User
+    }
+    at
+}

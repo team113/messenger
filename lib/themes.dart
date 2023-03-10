@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Application themes constants.
 class Themes {
@@ -46,15 +45,19 @@ class Themes {
           : SystemUiOverlayStyle.light,
     );
 
+    const TextStyle textStyle = TextStyle(
+      fontFamily: 'SFUI',
+      fontFamilyFallback: ['.SF UI Display'],
+      color: Colors.black,
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
+    );
+
     return ThemeData.light().copyWith(
         extensions: [
           Style(
             barrierColor: const Color(0xBB000000),
-            boldBody: GoogleFonts.roboto(
-              color: Colors.black,
-              fontSize: 17,
-              fontWeight: FontWeight.w400,
-            ),
+            boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
@@ -62,13 +65,13 @@ class Themes {
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
             cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+            cardSelectedColor: const Color(0xFFD7ECFF),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             messageColor: Colors.white,
             primaryBorder:
-                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
@@ -76,8 +79,8 @@ class Themes {
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
-            systemMessageStyle: GoogleFonts.roboto(
-              color: const Color(0xFF888888),
+            systemMessageStyle: textStyle.copyWith(
+              color: colors.primary,
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
@@ -103,7 +106,7 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: GoogleFonts.roboto(
+              titleTextStyle: textStyle.copyWith(
                 color: Colors.black,
                 fontWeight: FontWeight.w300,
                 fontSize: 18,
@@ -113,57 +116,88 @@ class Themes {
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: GoogleFonts.robotoTextTheme(),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
-        textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          displaySmall: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
-          headlineMedium: const TextStyle(color: Colors.black, fontSize: 18),
-          headlineSmall: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            fontSize: 18,
-          ),
-          bodySmall: TextStyle(
+        textTheme: Typography.blackCupertino.copyWith(
+          displayLarge: textStyle.copyWith(
             color: colors.primary,
             fontWeight: FontWeight.w300,
-            fontSize: 13,
+            fontSize: 24,
           ),
-          labelLarge: const TextStyle(
-            color: Colors.black,
+          displayMedium: textStyle.copyWith(
+            color: colors.primary,
             fontWeight: FontWeight.w300,
-            fontSize: 13,
+            fontSize: 15.4,
           ),
-          titleMedium: const TextStyle(color: Colors.black, fontSize: 15),
-          titleSmall: TextStyle(
+          displaySmall:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
+          headlineLarge:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+          headlineMedium: textStyle.copyWith(fontSize: 18),
+          headlineSmall: textStyle.copyWith(fontSize: 18),
+          labelLarge:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          labelMedium:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          labelSmall:
+              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          titleMedium: textStyle.copyWith(fontSize: 15),
+          titleSmall: textStyle.copyWith(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyLarge: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
+          bodyLarge:
+              textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+          bodyMedium:
+              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+          bodySmall: textStyle.copyWith(
+            color: colors.primary,
             fontWeight: FontWeight.w300,
+            fontSize: 13,
           ),
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
               hoverColor: Colors.transparent,
               fillColor: colors.secondary,
-              hintStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              labelStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
-              helperStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              floatingLabelStyle:
-                  GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              hintStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              labelStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              errorStyle: textStyle.copyWith(color: Colors.red, fontSize: 13),
+              helperStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              prefixStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              suffixStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+              counterStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 13,
+                fontWeight: FontWeight.w300,
+              ),
+              floatingLabelStyle: textStyle.copyWith(
+                color: const Color(0xFFC4C4C4),
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -204,10 +238,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.primary,
-            textStyle: GoogleFonts.roboto(
-              color: colors.primary,
-              fontSize: 17,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 17),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -219,10 +250,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             side: BorderSide(width: 1, color: colors.primary),
-            textStyle: GoogleFonts.roboto(
-              color: colors.primary,
-              fontSize: 17,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 17),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -231,10 +259,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
-            textStyle: GoogleFonts.roboto(
-              color: colors.primary,
-              fontSize: 15,
-            ),
+            textStyle: textStyle.copyWith(color: colors.primary, fontSize: 15),
           ),
         ),
         scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
@@ -254,7 +279,7 @@ class Themes {
               return const Color(0xFF63B4FF);
             }
 
-            return const Color(0xFF888888);
+            return colors.primary;
           }),
         ),
         pageTransitionsTheme: const PageTransitionsTheme(

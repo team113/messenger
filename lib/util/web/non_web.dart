@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:permission_handler/permission_handler.dart';
@@ -165,12 +166,12 @@ class WebUtils {
   static bool containsCalls() => false;
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, WebCallPreferences prefs) {
+  static void setCallRect(ChatId chatId, Rect prefs) {
     // No-op.
   }
 
-  /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
-  static WebCallPreferences? getCallPreferences(ChatId chatId) => null;
+  /// Returns the [Rect] stored by the provided [chatId], if any.
+  static Rect? getCallRect(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
@@ -199,5 +200,10 @@ class WebUtils {
     } catch (_) {
       // No-op.
     }
+  }
+
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
+    // No-op.
   }
 }

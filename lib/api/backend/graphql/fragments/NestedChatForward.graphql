@@ -21,19 +21,57 @@ fragment NestedChatForward on ChatForward {
     authorId
     at
     ver
-    item {
-        node {
+    quote {
+        __typename
+        original {
+            cursor
+        }
+        author {
             __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
-            }
-            ... on ChatCall {
-                ...ChatCall
-            }
-            ... on ChatMessage {
-                ...NestedChatMessage
+            ...User
+        }
+        at
+        ... on ChatMessageQuote {
+            text
+            attachments {
+                __typename
+                ... on ImageAttachment {
+                    ...ImageAttachment
+                }
+                ... on FileAttachment {
+                    ...FileAttachment
+                }
             }
         }
-        cursor
+        ... on ChatInfoQuote {
+            action {
+                __typename
+                ... on ChatInfoActionAvatarUpdated {
+                    avatar {
+                        __typename
+                        ...ChatAvatar
+                    }
+                }
+                ... on ChatInfoActionCreated {
+                    directLinkSlug
+                }
+                ... on ChatInfoActionMemberAdded {
+                    directLinkSlug
+                    user {
+                        __typename
+                        ...User
+                    }
+                }
+                ... on ChatInfoActionMemberRemoved {
+                    user {
+                        __typename
+                        ...User
+                    }
+                }
+                ... on ChatInfoActionNameUpdated {
+                    name
+                }
+            }
+        }
     }
 }

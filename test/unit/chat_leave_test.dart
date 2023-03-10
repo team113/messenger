@@ -30,6 +30,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -74,6 +75,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -132,6 +135,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -189,13 +193,13 @@ void main() async {
                 'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                 'item': {
                   'node': {
-                    '__typename': 'ChatMemberInfo',
+                    '__typename': 'ChatInfo',
                     'id': 'id',
                     'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                     'authorId': 'me',
                     'at': DateTime.now().toString(),
                     'ver': '0',
-                    'user': {
+                    'author': {
                       '__typename': 'User',
                       'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                       'num': '1234567890123456',
@@ -218,7 +222,32 @@ void main() async {
                         'ver': '0',
                       },
                     },
-                    'action': 'REMOVED'
+                    'action': {
+                      '__typename': 'ChatInfoActionMemberRemoved',
+                      'user': {
+                        '__typename': 'User',
+                        'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                        'num': '1234567890123456',
+                        'login': null,
+                        'name': null,
+                        'bio': null,
+                        'emails': {'confirmed': []},
+                        'phones': {'confirmed': []},
+                        'gallery': {'nodes': []},
+                        'chatDirectLink': null,
+                        'hasPassword': false,
+                        'unreadChatsCount': 0,
+                        'ver': '0',
+                        'presence': 'AWAY',
+                        'online': {'__typename': 'UserOnline'},
+                        'mutualContactsCount': 0,
+                        'isDeleted': false,
+                        'isBlacklisted': {
+                          'blacklisted': false,
+                          'ver': '0',
+                        },
+                      },
+                    },
                   },
                   'cursor': '123'
                 },

@@ -96,10 +96,12 @@ class UserEventsInitialized extends UserEvents {
 /// Information about some [User] being present in [MyUser]'s blacklist of the
 /// authenticated [MyUser].
 class UserEventsIsBlacklisted extends UserEvents {
-  UserEventsIsBlacklisted(this.blacklisted, this.ver);
+  UserEventsIsBlacklisted(this.record, this.ver);
 
-  /// Indicator whether the [User] is blacklisted.
-  final bool blacklisted;
+  /// [BlacklistRecord] of the [User] in blacklist.
+  ///
+  /// `null` if the [User] is not blacklisted by the authenticated [MyUser].
+  final BlacklistRecord? record;
 
   /// Version of the authenticated [MyUser]'s state.
   final MyUserVersion ver;

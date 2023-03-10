@@ -101,7 +101,31 @@ class WebStoredCall {
                       ))
                   .toList(),
               withVideo: data['call']['withVideo'],
-              answered: data['call']['answered'],
+              dialed: data['call']['dialed'] == null
+                  ? null
+                  : data['call']['dialed']['type'] == 'ChatMembersDialedAll'
+                      ? ChatMembersDialedAll(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        )
+                      : ChatMembersDialedConcrete(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        ),
             ),
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
       deviceId:
@@ -140,44 +164,31 @@ class WebStoredCall {
                       })
                   .toList(),
               'withVideo': call!.withVideo,
-              'answered': call!.answered,
+              'dialed': call!.dialed == null
+                  ? null
+                  : {
+                      'type': '${call!.dialed.runtimeType}',
+                      'members': (call!.dialed is ChatMembersDialedAll
+                              ? (call!.dialed as ChatMembersDialedAll)
+                                  .answeredMembers
+                              : (call!.dialed as ChatMembersDialedConcrete)
+                                  .members)
+                          .map(
+                            (e) => {
+                              'user': {
+                                'id': e.user.id.val,
+                                'num': e.user.num.val
+                              },
+                              'joinedAt': e.joinedAt.toString(),
+                            },
+                          )
+                          .toList(),
+                    },
             },
       'creds': creds?.val,
       'deviceId': deviceId?.val,
       'state': state.index,
     };
-  }
-}
-
-/// Preferences of a popup call containing its [width], [height] and position.
-class WebCallPreferences {
-  WebCallPreferences({this.width, this.height, this.left, this.top});
-
-  /// Width of the popup window these [WebCallPreferences] are about.
-  final int? width;
-
-  /// Height of the popup window these [WebCallPreferences] are about.
-  final int? height;
-
-  /// Left position of the popup window these [WebCallPreferences] are about.
-  final int? left;
-
-  /// Top position of the popup window these [WebCallPreferences] are about.
-  final int? top;
-
-  /// Constructs a [WebCallPreferences] from the provided [data].
-  factory WebCallPreferences.fromJson(Map<dynamic, dynamic> data) {
-    return WebCallPreferences(
-      width: data['width'],
-      height: data['height'],
-      left: data['left'],
-      top: data['top'],
-    );
-  }
-
-  /// Returns a [Map] containing data of these [WebCallPreferences].
-  Map<String, dynamic> toJson() {
-    return {'width': width, 'height': height, 'left': left, 'top': top};
   }
 }
 

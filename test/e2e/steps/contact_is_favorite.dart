@@ -56,8 +56,9 @@ final StepDefinitionGeneric contactIsFavorite =
           ? null
           : sortFavorites.first.contact.value.favoritePosition!.val;
 
-      final position =
-          ChatContactPosition(lowest == null ? 9007199254740991 : lowest / 2);
+      final position = ChatContactFavoritePosition(
+        lowest == null ? 9007199254740991 : lowest / 2,
+      );
 
       await provider.favoriteChatContact(contactId, position);
     } else {

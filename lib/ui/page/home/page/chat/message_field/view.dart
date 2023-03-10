@@ -26,16 +26,17 @@ import 'package:path/path.dart' as p;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
@@ -86,6 +87,38 @@ class MessageFieldView extends StatelessWidget {
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
 
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  static ThemeData theme(BuildContext context) {
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide.none,
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: const Color(0x55000000),
+      iconTheme: const IconThemeData(color: Colors.blue),
+      inputDecorationTheme: InputDecorationTheme(
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: Colors.white,
+        fillColor: Colors.white,
+        hoverColor: Colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(
+          15,
+          PlatformUtils.isDesktop ? 30 : 23,
+          15,
+          0,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -95,47 +128,7 @@ class MessageFieldView extends StatelessWidget {
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            shadowColor: const Color(0x55000000),
-            iconTheme: const IconThemeData(color: Colors.blue),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusColor: Colors.white,
-              fillColor: Colors.white,
-              hoverColor: Colors.transparent,
-              filled: true,
-              isDense: true,
-              contentPadding: EdgeInsets.fromLTRB(
-                15,
-                PlatformUtils.isDesktop ? 30 : 23,
-                15,
-                0,
-              ),
-            ),
-          ),
+          data: theme(context),
           child: SafeArea(
             child: Container(
               key: const Key('SendField'),
@@ -440,13 +433,16 @@ class MessageFieldView extends StatelessWidget {
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
                     ? c.pickFile
-                    : () => AttachmentSourceSelector.show(
+                    : () async {
+                        c.field.focus.unfocus();
+                        await AttachmentSourceSelector.show(
                           context,
                           onPickFile: c.pickFile,
                           onTakePhoto: c.pickImageFromCamera,
                           onPickMedia: c.pickMedia,
                           onTakeVideo: c.pickVideoFromCamera,
-                        )
+                        );
+                      }
                 : null,
             child: SizedBox(
               width: 56,
@@ -886,8 +882,8 @@ class MessageFieldView extends StatelessWidget {
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
       content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
+    } else if (item is ChatInfo) {
+      // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
     } else {
       content = Text('err_unknown'.l10n, style: style.boldBody);

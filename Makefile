@@ -528,6 +528,10 @@ endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
 endif
+ifeq ($(wildcard .cache/backend/l10n),)
+	@mkdir -p .cache/backend/l10n/
+	@chmod 0777 .cache/backend/l10n/
+endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/
 	@mkdir -p .cache/baza/cache/
@@ -779,7 +783,7 @@ endif
 # Usage:
 #	make git.release [ver=($(VERSION)|<proj-ver>)]
 
-git-release-tag = $(strip $(or $(ver),$(VERSION)))
+git-release-tag = v$(strip $(or $(ver),$(VERSION)))
 
 git.release:
 ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)

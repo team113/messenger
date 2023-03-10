@@ -30,6 +30,7 @@ import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -93,7 +94,7 @@ class AuthView extends StatelessWidget {
                 : constraints.maxHeight <= 140
                     ? 140
                     : height,
-            child: const Center(child: CircularProgressIndicator()),
+            child: const Center(child: CustomProgressIndicator()),
           );
 
           return ConstrainedBox(
@@ -230,6 +231,13 @@ class AuthView extends StatelessWidget {
         return Stack(
           key: const Key('AuthView'),
           children: [
+            IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color(0xFFF6F8F9),
+              ),
+            ),
             IgnorePointer(
               child: SvgLoader.asset(
                 'assets/images/background_light.svg',
