@@ -268,6 +268,7 @@ class ChatInfoView extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             WidgetButton(
+              key: Key('ChatAvatar_${c.chat!.id}'),
               onPressed: c.chat?.chat.value.avatar == null
                   ? c.pickAvatar
                   : () async {

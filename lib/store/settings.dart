@@ -18,14 +18,17 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
 import '/provider/hive/background.dart';
+import '/provider/hive/call_rect.dart';
 import '/provider/hive/media_settings.dart';
 
 /// Application settings repository.
@@ -35,6 +38,7 @@ class SettingsRepository extends DisposableInterface
     this._mediaLocal,
     this._settingsLocal,
     this._backgroundLocal,
+    this._callRectLocal,
   );
 
   @override
@@ -54,6 +58,10 @@ class SettingsRepository extends DisposableInterface
 
   /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
+
+  /// [CallRectHiveProvider] persisting the [Rect] preferences of the
+  /// [OngoingCall]s.
+  final CallRectHiveProvider _callRectLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
@@ -134,6 +142,13 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setLoadImages(bool enabled) =>
       _settingsLocal.setLoadImages(enabled);
+
+  @override
+  Future<void> setCallRect(ChatId chatId, Rect prefs) =>
+      _callRectLocal.put(chatId, prefs);
+
+  @override
+  Rect? getCallRect(ChatId id) => _callRectLocal.get(id);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {

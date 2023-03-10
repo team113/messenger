@@ -363,16 +363,13 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      double badgeSize = max(5, maxWidth / 12);
-      if (maxWidth < 40) {
-        badgeSize = maxWidth / 8;
-      }
+      final double badgeSize = maxWidth / 10;
 
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
           badgeColor: Colors.white,
-          padding: EdgeInsets.all(badgeSize / 3),
+          padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
         badgeContent: Container(
@@ -384,8 +381,8 @@ class AvatarWidget extends StatelessWidget {
         ),
         badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
         position: badges.BadgePosition.bottomEnd(
-          bottom: -badgeSize / 5,
-          end: -badgeSize / 5,
+          bottom: badgeSize / 3,
+          end: badgeSize / 3,
         ),
         child: Container(
           constraints: BoxConstraints(
@@ -402,21 +399,23 @@ class AvatarWidget extends StatelessWidget {
             ),
             shape: BoxShape.circle,
           ),
-          child: avatar == null
-              ? Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+          child: Stack(
+            children: [
+              Center(
+                child: Text(
+                  (title ?? '??').initials(),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: 15 * (maxWidth / 40.0),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
 
-                    // Disable the accessibility size settings for this [Text].
-                    textScaleFactor: 1,
-                  ),
-                )
-              : ClipOval(
+                  // Disable the accessibility size settings for this [Text].
+                  textScaleFactor: 1,
+                ),
+              ),
+              if (avatar != null)
+                ClipOval(
                   child: RetryImage(
                     avatar!.original.url,
                     checksum: avatar!.original.checksum,
@@ -426,6 +425,8 @@ class AvatarWidget extends StatelessWidget {
                     displayProgress: false,
                   ),
                 ),
+            ],
+          ),
         ),
       );
     });

@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.7
+version: 0.1.0-alpha.8
 publish_to: none
 
 environment:
@@ -44,9 +44,7 @@ dependencies:
   flutter_svg: ^2.0.0-dev.2
   flutter_web_plugins:
     sdk: flutter
-  font_awesome_flutter: ^10.3.0
   get: ^4.6.5
-  google_fonts: ^3.0.1
   graphql_flutter: ^5.1.2
   hive_flutter: ^1.1.0
   hive: ^2.2.3
@@ -133,6 +131,15 @@ flutter:
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
+  fonts:
+    - family: SFUI
+      fonts:
+        - asset: assets/fonts/SFUIDisplay-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/SFUIDisplay-Light.ttf
+          weight: 300
+        - asset: assets/fonts/SFUIDisplay-Bold.ttf
+          weight: 700
 
 sentry:
   upload_native_symbols: true
