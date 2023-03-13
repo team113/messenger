@@ -124,7 +124,7 @@ class NotificationService extends DisposableService {
     // don't show a local notification.
     if (_focused && payload == router.route) return;
 
-    if (playSound) {
+    if (playSound && !PlatformUtils.isAndroid) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
           AssetSource('audio/notification.mp3'),
@@ -150,7 +150,6 @@ class NotificationService extends DisposableService {
           imageBytes = response.data;
         }
       } catch (_) {
-        print(_);
         // No-op.
       }
     }
@@ -179,6 +178,7 @@ class NotificationService extends DisposableService {
             largeIcon:
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
           ),
+          // TODO: Setup custom notification sound for IOS.
         ),
         payload: payload,
       );
@@ -199,7 +199,6 @@ class NotificationService extends DisposableService {
   Future<void> _initPushNotifications() async {
     if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
-        print('FirebaseMessaging.onMessage');
         if (event.notification != null && event.notification?.title != null) {
           show(
             event.notification!.title!,

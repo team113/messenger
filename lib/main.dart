@@ -29,7 +29,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show NotificationResponse;
+    show
+        FlutterLocalNotificationsPlugin,
+        NotificationAppLaunchDetails,
+        NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -111,6 +114,16 @@ Future<void> main() async {
       if (initialMessage != null) {
         _handleMessage(initialMessage);
       }
+
+      final localNotifications = FlutterLocalNotificationsPlugin();
+      NotificationAppLaunchDetails? notificationAppLaunchDetails =
+          await localNotifications.getNotificationAppLaunchDetails();
+
+      if (notificationAppLaunchDetails?.notificationResponse != null) {
+        onNotificationResponse(
+          notificationAppLaunchDetails!.notificationResponse!,
+        );
+      }
     }
 
     runApp(
@@ -170,6 +183,7 @@ void _handleMessage(RemoteMessage message) {
 /// Callback, triggered when a FCM notification is received in the background.
 ///
 /// Must be a top level function.
+@pragma('vm:entry-point')
 Future<void> _backgroundHandler(RemoteMessage message) async {
   if (message.notification?.android?.tag?.endsWith('_call') == true) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
@@ -242,10 +256,11 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
 /// Callback, triggered when an user taps on a local notification.
 ///
 /// Must be a top level function.
+@pragma('vm:entry-point')
 void onNotificationResponse(NotificationResponse response) {
   if (response.payload != null) {
     if (response.payload!.startsWith(Routes.chat)) {
-      router.go(response.payload!);
+      router.push(response.payload!);
     }
   }
 }

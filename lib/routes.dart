@@ -348,12 +348,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   late final Worker _prefixWorker;
 
   @override
-  Future<void> setInitialRoutePath(RouteConfiguration configuration) {
+  Future<void> setInitialRoutePath(RouteConfiguration configuration) async {
     Future.delayed(Duration.zero, () {
       _state.context = navigatorKey.currentContext;
       _state.overlay = navigatorKey.currentState?.overlay;
     });
-    return setNewRoutePath(configuration);
+
+    if (_state.routes.isEmpty) {
+      await setNewRoutePath(configuration);
+    }
   }
 
   @override
@@ -612,9 +615,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            Get.put(NotificationService(graphQlProvider)).init(
-              onNotificationResponse: onNotificationResponse,
-            );
+            deps.put(NotificationService(graphQlProvider)).init(
+                  onNotificationResponse: onNotificationResponse,
+                );
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
