@@ -535,6 +535,11 @@ class WebUtils {
       Uri.base.toString().replaceFirst(from, to),
     );
   }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) {
+    // No-op.
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

@@ -298,6 +298,15 @@ class OngoingCall {
   bool get isActive => (state.value == OngoingCallState.active ||
       state.value == OngoingCallState.joining);
 
+  /// Indicates whether this [OngoingCall] has an active microphone track.
+  bool get hasAudio =>
+      members[_me]
+          ?.tracks
+          .where((t) =>
+              t.kind == MediaKind.Audio && t.source == MediaSourceKind.Device)
+          .isEmpty ??
+      false;
+
   /// Initializes the media client resources.
   ///
   /// No-op if already initialized.
@@ -630,18 +639,12 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
-            if (members[_me]
-                    ?.tracks
-                    .where((t) =>
-                        t.kind == MediaKind.Audio &&
-                        t.source == MediaSourceKind.Device)
-                    .isEmpty ??
-                false) {
+            if (!hasAudio) {
               await _room?.enableAudio();
+              await _updateTracks();
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
-            await _updateTracks();
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -1256,7 +1259,8 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link?token=$creds');
+    await _room?.join(
+        '${link.val.replaceFirst('localhost', '192.168.50.100')}?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1321,10 +1325,13 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
-    List<LocalMediaTrack> tracks =
+    print(
+        '($hasAudio) tracks before: ${(members[_me]?.tracks.toList() ?? []).map((e) => '${e.kind} ${e.source} ${e.track.getTrack().id()}')}');
+
+    final List<LocalMediaTrack> tracks =
         await MediaUtils.mediaManager!.initLocalTracks(
       _mediaStreamSettings(
-        audio: audioState.value.isEnabled,
+        audio: hasAudio,
         video: videoState.value.isEnabled,
         screen: screenShareState.value.isEnabled,
         audioDevice: audioDevice.value,
@@ -1333,10 +1340,25 @@ class OngoingCall {
       ),
     );
 
-    _disposeLocalMedia();
-    for (LocalMediaTrack track in tracks) {
-      await _addLocalTrack(track);
+    print(
+        'tracks: ${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().id()}')}');
+
+    for (Track t in members[_me]?.tracks.toList() ?? []) {
+      if (tracks.none((p) => p.getTrack().id() == t.track.getTrack().id())) {
+        members[_me]?.tracks.remove(t);
+        t.dispose();
+      }
     }
+
+    for (LocalMediaTrack p in tracks) {
+      if ((members[_me]?.tracks.toList() ?? [])
+          .none((t) => p.getTrack().id() == t.track.getTrack().id())) {
+        await _addLocalTrack(p);
+      }
+    }
+
+    print(
+        'tracks now: ${(members[_me]?.tracks.toList() ?? []).map((e) => '${e.kind} ${e.source} ${e.track.getTrack().id()}')}');
   }
 
   /// Adds the provided [track] to the local tracks and initializes video
@@ -1386,8 +1408,10 @@ class OngoingCall {
   /// Removes and stops the [LocalMediaTrack]s that match the [kind] and
   /// [source] from the local [CallMember].
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
+    print('_removeLocalTracks($kind, $source)');
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
+        print('$kind $source disposing');
         t.dispose();
         return true;
       }

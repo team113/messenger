@@ -115,6 +115,9 @@ class CameraSwitchController extends GetxController {
       final List<LocalMediaTrack> tracks =
           await MediaUtils.mediaManager?.initLocalTracks(settings) ?? [];
 
+      print(
+          '${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().deviceId()}')}');
+
       if (isClosed) {
         tracks.firstOrNull?.free();
         _localTrack = null;

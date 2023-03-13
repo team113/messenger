@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/chat.dart';
@@ -206,4 +207,7 @@ class WebUtils {
   static void replaceState(String from, String to) {
     // No-op.
   }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) => jason.onPanic(cb);
 }

@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'log.dart';
+import 'web/web_utils.dart';
 
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
@@ -39,7 +40,8 @@ class MediaUtils {
   static Jason? get jason {
     if (_jason == null) {
       _jason = Jason();
-      onPanic((e) {
+
+      WebUtils.onPanic((e) {
         Log.print('Panic: $e', 'Jason');
         _jason = null;
         _mediaManager = null;
