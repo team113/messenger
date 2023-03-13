@@ -142,7 +142,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
-        seeChatPosition,
+        seeFavoriteChatPosition,
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
