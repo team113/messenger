@@ -68,7 +68,7 @@ import 'video_thumbnail/video_thumbnail.dart';
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
-    Key? key,
+    super.key,
     required this.item,
     required this.chat,
     required this.me,
@@ -91,7 +91,8 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.paid = false,
-  }) : super(key: key);
+    this.displayTime = true,
+  });
 
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
@@ -161,6 +162,8 @@ class ChatItemWidget extends StatefulWidget {
   final Future<void> Function()? onAttachmentError;
 
   final bool paid;
+
+  final bool displayTime;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -883,183 +886,267 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     textStyle = style.boldBody;
     // }
 
+    final bool isMonolog = widget.chat.value?.isMonolog == true;
+    final bool sent = msg.status.value == SendingStatus.sent;
+
+    final bool isSent = sent && _fromMe;
+    final bool isDelivered = sent &&
+        _fromMe &&
+        (widget.chat.value?.lastDelivery.isBefore(msg.at) == false ||
+            isMonolog);
+    final bool isRead = sent && (!_fromMe || _isRead || isMonolog);
+    final bool isError = msg.status.value == SendingStatus.error;
+    final bool isSending = msg.status.value == SendingStatus.sending;
+
+    final bool timeInBubble = msg.attachments.isNotEmpty;
+
+    final Widget timeline = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isSent || isDelivered || isRead || isSending || isError)
+          Icon(
+            (isRead || isDelivered)
+                ? Icons.done_all
+                : isSending
+                    ? Icons.access_alarm
+                    : isError
+                        ? Icons.error_outline
+                        : Icons.done,
+            color: isRead
+                ? Theme.of(context).colorScheme.secondary
+                : isError
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+            size: 12,
+          ),
+        const SizedBox(width: 3),
+        Text(
+          DateFormat.Hm().format(msg.at.val.toLocal()),
+          style: style.systemMessageStyle.copyWith(fontSize: 11),
+        ),
+      ],
+    );
+
     return _rounded(
       context,
       Container(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: FoldedWidget(
           folded: widget.paid,
-          child: IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: background,
-                borderRadius: BorderRadius.circular(15),
-                border: border,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (msg.repliesTo.isNotEmpty)
-                    ...msg.repliesTo.mapIndexed((i, e) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        decoration: BoxDecoration(
-                          color: e.author == widget.me
-                              ? _isRead || !_fromMe
-                                  ? const Color(0xFFDBEAFD)
-                                  : const Color(0xFFE6F1FE)
-                              : _isRead || !_fromMe
-                                  ? const Color(0xFFF9F9F9)
-                                  : const Color(0xFFFFFFFF),
-                          borderRadius: i == 0
-                              ? const BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15),
-                                )
-                              : BorderRadius.zero,
-                        ),
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 500),
-                          opacity: _isRead || !_fromMe ? 1 : 0.55,
-                          child: WidgetButton(
-                            onPressed: () => widget.onRepliedTap?.call(e),
-                            child: _repliedMessage(e),
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: background,
+                    borderRadius: BorderRadius.circular(15),
+                    border: border,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (msg.repliesTo.isNotEmpty)
+                        ...msg.repliesTo.mapIndexed((i, e) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            decoration: BoxDecoration(
+                              color: e.author == widget.me
+                                  ? _isRead || !_fromMe
+                                      ? const Color(0xFFDBEAFD)
+                                      : const Color(0xFFE6F1FE)
+                                  : _isRead || !_fromMe
+                                      ? const Color(0xFFF9F9F9)
+                                      : const Color(0xFFFFFFFF),
+                              borderRadius: i == 0
+                                  ? const BorderRadius.only(
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
+                                    )
+                                  : BorderRadius.zero,
+                            ),
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 500),
+                              opacity: _isRead || !_fromMe ? 1 : 0.55,
+                              child: WidgetButton(
+                                onPressed: () => widget.onRepliedTap?.call(e),
+                                child: _repliedMessage(e),
+                              ),
+                            ),
+                          );
+                        }),
+                      if (!_fromMe &&
+                          widget.chat.value?.isGroup == true &&
+                          widget.avatar)
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            12,
+                            msg.attachments.isEmpty && text == null ? 4 : 8,
+                            9,
+                            files.isEmpty && media.isNotEmpty && text == null
+                                ? 8
+                                : files.isNotEmpty && text == null
+                                    ? 0
+                                    : 4,
+                          ),
+                          child: Text(
+                            widget.user?.user.value.name?.val ??
+                                widget.user?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            style: style.boldBody.copyWith(color: color),
                           ),
                         ),
-                      );
-                    }),
-                  if (!_fromMe &&
-                      widget.chat.value?.isGroup == true &&
-                      widget.avatar)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        msg.attachments.isEmpty && text == null ? 4 : 8,
-                        9,
-                        files.isEmpty && media.isNotEmpty && text == null
-                            ? 8
-                            : files.isNotEmpty && text == null
-                                ? 0
-                                : 4,
-                      ),
-                      child: Text(
-                        widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.val ??
-                            'dot'.l10n * 3,
-                        style: style.boldBody.copyWith(color: color),
-                      ),
-                    ),
-                  if (text != null)
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: _isRead || !_fromMe ? 1 : 0.7,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          12,
-                          !_fromMe &&
-                                  widget.chat.value?.isGroup == true &&
-                                  widget.avatar
-                              ? 0
-                              : 10,
-                          12,
-                          files.isEmpty ? 10 : 0,
-                        ),
-                        child: Obx(() {
-                          if (ContextMenuRegion.displayed.value == msg.id.val) {
-                            return SelectionArea(
-                              child: Text(text!, style: textStyle),
-                            );
-                          }
+                      if (text != null)
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: _isRead || !_fromMe ? 1 : 0.7,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              12,
+                              !_fromMe &&
+                                      widget.chat.value?.isGroup == true &&
+                                      widget.avatar
+                                  ? 0
+                                  : 10,
+                              12,
+                              files.isEmpty ? 10 : 0,
+                            ),
+                            child: Obx(() {
+                              bool _dummy = ContextMenuRegion.displayed.value ==
+                                  msg.id.val;
+                              // if (ContextMenuRegion.displayed.value ==
+                              //     msg.id.val) {
+                              //   return SelectionArea(
+                              //     child: Text(text!, style: textStyle),
+                              //   );
+                              // }
 
-                          return Text(text!, style: textStyle);
-                        }),
-                      ),
-                    ),
-                  if (files.isNotEmpty)
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: _isRead || !_fromMe ? 1 : 0.55,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                        child: Column(
-                          children: files
-                              .map(
-                                (e) => ChatItemWidget.fileAttachment(
-                                  context,
-                                  e,
-                                  fromMe: _fromMe,
-                                  onFileTap: widget.onFileTap,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                  if (media.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: text != null ||
-                                msg.repliesTo.isNotEmpty ||
-                                (!_fromMe &&
-                                    widget.chat.value?.isGroup == true &&
-                                    widget.avatar)
-                            ? Radius.zero
-                            : files.isEmpty
-                                ? const Radius.circular(15)
-                                : Radius.zero,
-                        topRight: text != null ||
-                                msg.repliesTo.isNotEmpty ||
-                                (!_fromMe &&
-                                    widget.chat.value?.isGroup == true &&
-                                    widget.avatar)
-                            ? Radius.zero
-                            : files.isEmpty
-                                ? const Radius.circular(15)
-                                : Radius.zero,
-                        bottomLeft: const Radius.circular(15),
-                        bottomRight: const Radius.circular(15),
-                      ),
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: _isRead || !_fromMe ? 1 : 0.55,
-                        child: media.length == 1
-                            ? ChatItemWidget.mediaAttachment(
-                                context,
-                                media.first,
-                                media,
-                                filled: false,
-                                key: _galleryKeys[0],
-                                onError: widget.onAttachmentError,
-                                onGallery: widget.onGallery,
-                                autoLoad: widget.loadImages,
-                              )
-                            : SizedBox(
-                                width: media.length * 120,
-                                height: max(media.length * 60, 300),
-                                child: FitView(
-                                  dividerColor: Colors.transparent,
-                                  children: media
-                                      .mapIndexed(
-                                        (i, e) =>
-                                            ChatItemWidget.mediaAttachment(
-                                          context,
-                                          e,
-                                          media,
-                                          key: _galleryKeys[i],
-                                          onError: widget.onAttachmentError,
-                                          onGallery: widget.onGallery,
-                                          autoLoad: widget.loadImages,
+                              return RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(text: text),
+                                    if (widget.displayTime && !timeInBubble)
+                                      WidgetSpan(
+                                        child: Opacity(
+                                          opacity: 0,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 3,
+                                            ),
+                                            child: timeline,
+                                          ),
                                         ),
-                                      )
-                                      .toList(),
+                                      ),
+                                  ],
+                                  style: textStyle,
                                 ),
-                              ),
-                      ),
-                    ),
-                ],
+                              );
+
+                              return Text(text!, style: textStyle);
+                            }),
+                          ),
+                        ),
+                      if (files.isNotEmpty)
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: _isRead || !_fromMe ? 1 : 0.55,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                            child: Column(
+                              children: files
+                                  .map(
+                                    (e) => ChatItemWidget.fileAttachment(
+                                      context,
+                                      e,
+                                      fromMe: _fromMe,
+                                      onFileTap: widget.onFileTap,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                      if (media.isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: text != null ||
+                                    msg.repliesTo.isNotEmpty ||
+                                    (!_fromMe &&
+                                        widget.chat.value?.isGroup == true &&
+                                        widget.avatar)
+                                ? Radius.zero
+                                : files.isEmpty
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                            topRight: text != null ||
+                                    msg.repliesTo.isNotEmpty ||
+                                    (!_fromMe &&
+                                        widget.chat.value?.isGroup == true &&
+                                        widget.avatar)
+                                ? Radius.zero
+                                : files.isEmpty
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                            bottomLeft: const Radius.circular(15),
+                            bottomRight: const Radius.circular(15),
+                          ),
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 500),
+                            opacity: _isRead || !_fromMe ? 1 : 0.55,
+                            child: media.length == 1
+                                ? ChatItemWidget.mediaAttachment(
+                                    context,
+                                    media.first,
+                                    media,
+                                    filled: false,
+                                    key: _galleryKeys[0],
+                                    onError: widget.onAttachmentError,
+                                    onGallery: widget.onGallery,
+                                    autoLoad: widget.loadImages,
+                                  )
+                                : SizedBox(
+                                    width: media.length * 120,
+                                    height: max(media.length * 60, 300),
+                                    child: FitView(
+                                      dividerColor: Colors.transparent,
+                                      children: media
+                                          .mapIndexed(
+                                            (i, e) =>
+                                                ChatItemWidget.mediaAttachment(
+                                              context,
+                                              e,
+                                              media,
+                                              key: _galleryKeys[i],
+                                              onError: widget.onAttachmentError,
+                                              onGallery: widget.onGallery,
+                                              autoLoad: widget.loadImages,
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              if (widget.displayTime)
+                Positioned(
+                  right: timeInBubble ? 4 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: timeline,
+                        )
+                      : timeline,
+                )
+            ],
           ),
         ),
       ),
@@ -1504,7 +1591,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           e.memberId != widget.item.value.authorId,
     );
 
-    bool isSent = item.status.value == SendingStatus.sent;
+    final bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -1567,57 +1654,63 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         curve: Curves.ease,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onHorizontalDragStart: (d) {
-            _draggingStarted = true;
-            setState(() => _offsetDuration = Duration.zero);
-          },
-          onHorizontalDragUpdate: (d) {
-            if (_draggingStarted && !_dragging) {
-              if (widget.animation?.value == 0 &&
-                  _offset.dx == 0 &&
-                  d.delta.dx > 0) {
-                _dragging = true;
-                widget.onDrag?.call(_dragging);
-              } else {
-                _draggingStarted = false;
-              }
-            }
-
-            if (_dragging) {
-              // Distance [_totalOffset] should exceed in order for dragging to
-              // start.
-              const int delta = 10;
-
-              if (_totalOffset.dx > delta) {
-                _offset += d.delta;
-
-                if (_offset.dx > 30 + delta &&
-                    _offset.dx - d.delta.dx < 30 + delta) {
-                  HapticFeedback.selectionClick();
-                  widget.onReply?.call();
+          onHorizontalDragStart: PlatformUtils.isMobile
+              ? (d) {
+                  _draggingStarted = true;
+                  setState(() => _offsetDuration = Duration.zero);
                 }
+              : null,
+          onHorizontalDragUpdate: PlatformUtils.isMobile
+              ? (d) {
+                  if (_draggingStarted && !_dragging) {
+                    if (widget.animation?.value == 0 &&
+                        _offset.dx == 0 &&
+                        d.delta.dx > 0) {
+                      _dragging = true;
+                      widget.onDrag?.call(_dragging);
+                    } else {
+                      _draggingStarted = false;
+                    }
+                  }
 
-                setState(() {});
-              } else {
-                _totalOffset += d.delta;
-                if (_totalOffset.dx <= 0) {
-                  _dragging = false;
-                  widget.onDrag?.call(_dragging);
+                  if (_dragging) {
+                    // Distance [_totalOffset] should exceed in order for dragging to
+                    // start.
+                    const int delta = 10;
+
+                    if (_totalOffset.dx > delta) {
+                      _offset += d.delta;
+
+                      if (_offset.dx > 30 + delta &&
+                          _offset.dx - d.delta.dx < 30 + delta) {
+                        HapticFeedback.selectionClick();
+                        widget.onReply?.call();
+                      }
+
+                      setState(() {});
+                    } else {
+                      _totalOffset += d.delta;
+                      if (_totalOffset.dx <= 0) {
+                        _dragging = false;
+                        widget.onDrag?.call(_dragging);
+                      }
+                    }
+                  }
                 }
-              }
-            }
-          },
-          onHorizontalDragEnd: (d) {
-            if (_dragging) {
-              _dragging = false;
-              _draggingStarted = false;
-              _offset = Offset.zero;
-              _totalOffset = Offset.zero;
-              _offsetDuration = 200.milliseconds;
-              widget.onDrag?.call(_dragging);
-              setState(() {});
-            }
-          },
+              : null,
+          onHorizontalDragEnd: PlatformUtils.isMobile
+              ? (d) {
+                  if (_dragging) {
+                    _dragging = false;
+                    _draggingStarted = false;
+                    _offset = Offset.zero;
+                    _totalOffset = Offset.zero;
+                    _offsetDuration = 200.milliseconds;
+                    widget.onDrag?.call(_dragging);
+                    setState(() {});
+                  }
+                }
+              : null,
           child: Row(
             crossAxisAlignment:
                 _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,

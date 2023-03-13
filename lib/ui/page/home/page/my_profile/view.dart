@@ -56,6 +56,7 @@ import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
+import 'timeline_switch/view.dart';
 import 'widget/copyable.dart';
 import 'widget/download_button.dart';
 
@@ -230,6 +231,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_background'.l10n,
                           children: [_background(context, c)],
+                        );
+
+                      case ProfileTab.chats:
+                        return Block(
+                          title: 'label_chats'.l10n,
+                          children: [_chats(context, c)],
                         );
 
                       case ProfileTab.calls:
@@ -1107,6 +1114,46 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.chats] section.
+Widget _chats(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'label_timeline_displaying'.l10n,
+              style: style.systemMessageStyle.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      _dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.timelineEnabled ?? true)
+                ? 'label_compact_timeline'.l10n
+                : 'label_detailed_timeline'.l10n,
+            maxLines: null,
+            onPressed: () => TimelineSwitchView.show(context),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),

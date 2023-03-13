@@ -90,4 +90,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.displayTransactions] value.
   Future<void> setDisplayTransactions(bool enabled);
+
+  /// Sets the [ApplicationSettings.timelineEnabled] value.
+  Future<void> setTimelineEnabled(bool enabled);
 }

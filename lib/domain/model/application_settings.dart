@@ -36,6 +36,7 @@ class ApplicationSettings extends HiveObject {
     this.loadImages = true,
     this.displayFunds = true,
     this.displayTransactions = true,
+    this.timelineEnabled = false,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -83,4 +84,7 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(10)
   bool displayTransactions;
+
+  @HiveField(11)
+  bool timelineEnabled;
 }

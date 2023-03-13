@@ -102,4 +102,9 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..displayTransactions = enabled,
       );
+
+  Future<void> setTimelineEnabled(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
+      );
 }

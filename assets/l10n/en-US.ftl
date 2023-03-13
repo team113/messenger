@@ -425,7 +425,7 @@ label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = To myself
-label_chats = Messages
+label_chats = Chats
 label_clear_history = Clear history
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
@@ -767,3 +767,8 @@ label_support = Note: Financial support service is provided only in English.
     The use of slang or rude and offensive language is prohibited.
 
     Please indicate the payer's name.
+label_messages_displaying = Timeline style
+label_compact_timeline = As timeline
+label_detailed_timeline = In message
+label_timeline_displaying = Display time stamps
+

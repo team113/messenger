@@ -388,39 +388,42 @@ class _ChatViewState extends State<ChatView>
                                       AllowMultipleHorizontalDragGestureRecognizer(),
                                   (AllowMultipleHorizontalDragGestureRecognizer
                                       instance) {
-                                    instance.onUpdate = (d) {
-                                      if (!c.isItemDragged.value &&
-                                          c.scrollOffset.dy.abs() < 7 &&
-                                          c.scrollOffset.dx.abs() > 7) {
-                                        double value = (_animation.value -
-                                                d.delta.dx / 100)
-                                            .clamp(0, 1);
+                                    if (c.settings.value?.timelineEnabled ==
+                                        true) {
+                                      instance.onUpdate = (d) {
+                                        if (!c.isItemDragged.value &&
+                                            c.scrollOffset.dy.abs() < 7 &&
+                                            c.scrollOffset.dx.abs() > 7) {
+                                          double value = (_animation.value -
+                                                  d.delta.dx / 100)
+                                              .clamp(0, 1);
 
-                                        if (_animation.value != 1 &&
-                                                value == 1 ||
-                                            _animation.value != 0 &&
-                                                value == 0) {
-                                          HapticFeedback.selectionClick();
+                                          if (_animation.value != 1 &&
+                                                  value == 1 ||
+                                              _animation.value != 0 &&
+                                                  value == 0) {
+                                            HapticFeedback.selectionClick();
+                                          }
+
+                                          _animation.value = value.clamp(0, 1);
                                         }
+                                      };
 
-                                        _animation.value = value.clamp(0, 1);
-                                      }
-                                    };
-
-                                    instance.onEnd = (d) async {
-                                      c.scrollOffset = Offset.zero;
-                                      if (!c.isItemDragged.value &&
-                                          _animation.value != 1 &&
-                                          _animation.value != 0) {
-                                        if (_animation.value >= 0.5) {
-                                          await _animation.forward();
-                                          HapticFeedback.selectionClick();
-                                        } else {
-                                          await _animation.reverse();
-                                          HapticFeedback.selectionClick();
+                                      instance.onEnd = (d) async {
+                                        c.scrollOffset = Offset.zero;
+                                        if (!c.isItemDragged.value &&
+                                            _animation.value != 1 &&
+                                            _animation.value != 0) {
+                                          if (_animation.value >= 0.5) {
+                                            await _animation.forward();
+                                            HapticFeedback.selectionClick();
+                                          } else {
+                                            await _animation.reverse();
+                                            HapticFeedback.selectionClick();
+                                          }
                                         }
-                                      }
-                                    };
+                                      };
+                                    }
                                   },
                                 )
                               },
@@ -908,6 +911,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            displayTime: c.settings.value?.timelineEnabled != true,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {

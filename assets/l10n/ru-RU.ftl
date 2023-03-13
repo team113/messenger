@@ -791,3 +791,9 @@ label_support = Note: Financial support service is provided only in English.
     The use of slang or rude and offensive language is prohibited.
 
     Please indicate the payer's name.
+label_messages_displaying = Стиль метки времени
+label_compact_timeline = Как таймлайн
+label_detailed_timeline = В сообщении
+label_timeline_displaying = Отображать метки времени
+
+
