@@ -210,26 +210,29 @@ class NotificationService extends DisposableService {
         }
       });
 
-      await FirebaseMessaging.instance.requestPermission();
+      NotificationSettings notificationSettings =
+          await FirebaseMessaging.instance.requestPermission();
 
-      String? token = await FirebaseMessaging.instance.getToken(
-        vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
-      );
+      if (notificationSettings.alert == AppleNotificationSetting.enabled) {
+        String? token = await FirebaseMessaging.instance.getToken(
+          vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
+        );
 
-      if (token != null) {
-        _graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
-      }
-
-      _onTokenRefresh =
-          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
         if (token != null) {
-          await _graphQlProvider
-              .unregisterFcmDevice(FcmRegistrationToken(token!));
+          _graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
         }
 
-        token = fcmToken;
-        _graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
-      });
+        _onTokenRefresh =
+            FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+          if (token != null) {
+            await _graphQlProvider
+                .unregisterFcmDevice(FcmRegistrationToken(token!));
+          }
+
+          token = fcmToken;
+          _graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+        });
+      }
     }
   }
 }

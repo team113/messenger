@@ -50,7 +50,7 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
-  /// Key used to get the FCM token on Web.
+  /// Key used to get a FCM token on the Web.
   String vapidKey =
       'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
 

@@ -98,11 +98,16 @@ class AuthRepository implements AbstractAuthRepository {
   @override
   Future<void> logout() async {
     if (PlatformUtils.isWeb || PlatformUtils.isMobile) {
-      String? token = await FirebaseMessaging.instance.getToken(
-        vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
-      );
-      if (token != null) {
-        _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(token));
+      NotificationSettings notificationSettings =
+          await FirebaseMessaging.instance.getNotificationSettings();
+
+      if (notificationSettings.alert == AppleNotificationSetting.enabled) {
+        String? token = await FirebaseMessaging.instance.getToken(
+          vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
+        );
+        if (token != null) {
+          _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(token));
+        }
       }
     }
 
