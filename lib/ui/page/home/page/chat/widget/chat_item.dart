@@ -392,7 +392,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       return false;
     }
 
-    if (_fromMe) {
+    if (_fromMe && !chat.isMonolog) {
       return chat.isRead(widget.item.value, widget.me);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
@@ -516,6 +516,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
             return Text('label_group_created'.l10n);
           });
+        } else if (widget.chat.value?.isMonolog == true) {
+          content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -1649,6 +1651,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                if (widget.chat.value!.isMonolog) {
+                                  widget.onHide?.call();
+                                  return;
+                                }
+
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&

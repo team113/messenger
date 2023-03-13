@@ -741,4 +741,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
   };
+
+  @override
+  Future<void> createMonologChat(ChatName? name) async {}
 }

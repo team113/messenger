@@ -22,6 +22,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -253,4 +254,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }) {
     return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
   }
+
+  @override
+  Future<void> createMonologChat(ChatName? name) async {}
 }

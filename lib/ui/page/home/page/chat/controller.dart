@@ -37,6 +37,7 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -46,6 +47,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -78,7 +80,8 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._myUserService, {
     this.itemId,
   });
 
@@ -243,6 +246,9 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -290,6 +296,9 @@ class ChatController extends GetxController {
   /// takes part in the [Chat.ongoingCall], if any.
   bool get inCall =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {

@@ -103,6 +103,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
@@ -140,6 +141,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -159,16 +162,22 @@ class _ChatViewState extends State<ChatView>
                             type: MaterialType.circle,
                             shadowColor: const Color(0x55000000),
                             color: Colors.white,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: onDetailsTap,
-                              child: Center(
-                                child: AvatarWidget.fromRxChat(
-                                  c.chat,
-                                  radius: 17,
-                                ),
-                              ),
-                            ),
+                            child: isMonolog
+                                ? AvatarWidget.fromMyUser(
+                                    c.myUser.value,
+                                    radius: 17,
+                                    badge: false,
+                                  )
+                                : InkWell(
+                                    customBorder: const CircleBorder(),
+                                    onTap: onDetailsTap,
+                                    child: Center(
+                                      child: AvatarWidget.fromRxChat(
+                                        c.chat,
+                                        radius: 17,
+                                      ),
+                                    ),
+                                  ),
                           ),
                           const SizedBox(width: 10),
                           Flexible(
@@ -176,7 +185,7 @@ class _ChatViewState extends State<ChatView>
                               splashFactory: NoSplash.splashFactory,
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
-                              onTap: onDetailsTap,
+                              onTap: isMonolog ? null : onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -189,7 +198,7 @@ class _ChatViewState extends State<ChatView>
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                     ),
-                                    _chatSubtitle(c),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -958,7 +967,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.keepTyping,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
       );

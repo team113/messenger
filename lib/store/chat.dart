@@ -170,6 +170,10 @@ class ChatRepository implements AbstractChatRepository {
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
+      if (!chats.values.any((e) => e.chat.value.isMonolog)) {
+        createMonologChat();
+      }
+
       _isReady.value = true;
     } on OperationCanceledException catch (_) {
       // No-op.
@@ -250,6 +254,10 @@ class ChatRepository implements AbstractChatRepository {
         _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
     return _putEntry(chat);
   }
+
+  @override
+  Future<void> createMonologChat([ChatName? name]) =>
+      _graphQlProvider.createMonologChat(name);
 
   @override
   Future<void> sendChatMessage(

@@ -23,6 +23,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -62,6 +63,7 @@ class RecentChatTile extends StatelessWidget {
     this.onFavorite,
     this.onUnfavorite,
     Widget Function(Widget)? avatarBuilder,
+    this.myUser,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -115,6 +117,9 @@ class RecentChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// [MyUser] of authenticated user.
+  final Rx<MyUser?>? myUser;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -123,6 +128,7 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        myUser: myUser,
         status: [
           _status(context),
           Text(
@@ -544,6 +550,8 @@ class RecentChatTile extends StatelessWidget {
 
                   return Text('label_group_created_by'.l10nfmt(args));
                 });
+              } else if (chat.isMonolog) {
+                content = Text('label_monolog_created'.l10n);
               } else {
                 content = Text('label_dialog_created'.l10n);
               }
@@ -757,7 +765,9 @@ class RecentChatTile extends StatelessWidget {
 
       if (item != null && item.authorId == me) {
         final bool isSent = item.status.value == SendingStatus.sent;
-        final bool isRead = chat.isRead(item, me) && isSent;
+        final bool isRead = chat.isMonolog
+            ? chat.isReadBy(item, me) && isSent
+            : chat.isRead(item, me) && isSent;
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;

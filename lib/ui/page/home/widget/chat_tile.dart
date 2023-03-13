@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -42,6 +43,7 @@ class ChatTile extends StatelessWidget {
     this.height = 94,
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
+    this.myUser,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -83,6 +85,9 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// [MyUser] of authenticated user.
+  final Rx<MyUser?>? myUser;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -115,7 +120,17 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                  avatarBuilder(
+                    chat?.chat.value.isMonolog == true && myUser != null
+                        ? Obx(() {
+                            return AvatarWidget.fromMyUser(
+                              myUser?.value,
+                              radius: 30,
+                              badge: false,
+                            );
+                          })
+                        : AvatarWidget.fromRxChat(chat, radius: 30),
+                  ),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

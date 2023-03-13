@@ -184,7 +184,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return false;
     }
 
-    if (_fromMe) {
+    if (_fromMe && !chat.isMonolog) {
       return chat.isRead(widget.forwards.first.value, widget.me);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
@@ -928,6 +928,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                if (widget.chat.value!.isMonolog) {
+                                  widget.onHide?.call();
+                                  return;
+                                }
+
                                 bool deletable = widget.authorId == widget.me &&
                                     !widget.chat.value!.isRead(
                                       widget.forwards.first.value,

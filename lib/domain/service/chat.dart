@@ -70,6 +70,10 @@ class ChatService extends DisposableService {
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) =>
       _chatRepository.createGroupChat(memberIds, name: name);
 
+  /// Creates a [Chat]-monolog for the authenticated [MyUser].
+  Future<void> createMonologChat([ChatName? name]) =>
+      _chatRepository.createMonologChat(name);
+
   /// Returns a [Chat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
 

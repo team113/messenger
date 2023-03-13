@@ -1256,4 +1256,27 @@ abstract class ChatGraphQlMixin {
       ver: ver,
     );
   }
+
+  /// Creates a [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// There can be only one [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
+  /// exists already, and returns it.
+  Future<void> createMonologChat(ChatName? name) async {
+    final variables = CreateMonologChatArguments(name: name);
+    await client.mutate(
+      MutationOptions(
+        operationName: 'CreateMonologChat',
+        document: CreateMonologChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+  }
 }
