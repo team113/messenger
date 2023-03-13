@@ -127,10 +127,8 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.selecting.value) {
-                      child = Text(
-                        'label_select_chats'.l10n,
-                        key: const Key('3'),
-                      );
+                      child =
+                          Text('label_select_chats'.l10n, key: const Key('3'));
                     } else {
                       child = Text('label_chats'.l10n, key: const Key('2'));
                     }
@@ -141,27 +139,27 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }),
                   leading: [
-                    if (c.selecting.value)
-                      const SizedBox(width: 49.77)
-                    else
-                      Obx(() {
-                        return AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: WidgetButton(
-                            key: const Key('SearchButton'),
-                            onPressed: c.searching.value ? null : c.startSearch,
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.only(left: 20, right: 12),
-                              height: double.infinity,
-                              child: SvgLoader.asset(
-                                'assets/icons/search.svg',
-                                width: 17.77,
-                              ),
+                    Obx(() {
+                      if (c.selecting.value) {
+                        return const SizedBox(width: 49.77);
+                      }
+
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: WidgetButton(
+                          key: const Key('SearchButton'),
+                          onPressed: c.searching.value ? null : c.startSearch,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
+                            child: SvgLoader.asset(
+                              'assets/icons/search.svg',
+                              width: 17.77,
                             ),
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    }),
                   ],
                   actions: [
                     Obx(() {
@@ -544,7 +542,14 @@ class ChatsTabView extends StatelessWidget {
                                   key: Key('RecentChat_${e.id}'),
                                   me: c.me,
                                   blocked: e.blacklisted,
+                                  selected: selected,
                                   getUser: c.getUser,
+                                  avatarBuilder: c.selecting.value
+                                      ? (c) => WidgetButton(
+                                            onPressed: () => router.chat(e.id),
+                                            child: c,
+                                          )
+                                      : avatarBuilder,
                                   onJoin: () => c.joinCall(e.id),
                                   onDrop: () => c.dropCall(e.id),
                                   onLeave: () => c.leaveChat(e.id),
@@ -558,26 +563,21 @@ class ChatsTabView extends StatelessWidget {
                                   onTap: c.selecting.value
                                       ? () => c.selectChat(e)
                                       : null,
-                                  selected: selected,
-                                  enabledContextMenu: !c.selecting.value,
+                                  enableContextMenu: !c.selecting.value,
                                   trailing: c.selecting.value
                                       ? [
                                           SelectedDot(
                                             selected: selected,
                                             size: 20,
-                                            selectedKey:
-                                                Key('SelectedChat_${e.id.val}'),
+                                            selectedKey: Key(
+                                              'SelectedChat_${e.id.val}',
+                                            ),
                                             unSelectedKey: Key(
-                                                'UnSelectedChat_${e.id.val}'),
+                                              'UnSelectedChat_${e.id.val}',
+                                            ),
                                           )
                                         ]
                                       : [],
-                                  avatarBuilder: c.selecting.value
-                                      ? (c) => WidgetButton(
-                                            onPressed: () => router.chat(e.id),
-                                            child: c,
-                                          )
-                                      : avatarBuilder,
                                 );
                               }
 
@@ -846,14 +846,16 @@ class ChatsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns an animated [OutlinedRoundedButton]s for multiple deletion of
-  /// groups.
+  /// Returns an animated [OutlinedRoundedButton]s for multiple selected
+  /// [Chat]s manipulation.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    CustomBoxShadow shadow = const CustomBoxShadow(
-      blurRadius: 8,
-      color: Color(0x22000000),
-      blurStyle: BlurStyle.outer,
-    );
+    const List<CustomBoxShadow> shadows = [
+      CustomBoxShadow(
+        blurRadius: 8,
+        color: Color(0x22000000),
+        blurStyle: BlurStyle.outer,
+      ),
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -876,7 +878,7 @@ class ChatsTabView extends StatelessWidget {
               ),
               onPressed: c.toggleSelecting,
               color: Colors.white,
-              shadows: [shadow],
+              shadows: shadows,
             ),
           ),
           const SizedBox(width: 10),
@@ -889,15 +891,15 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
-                      color: c.selectedChats.isEmpty
-                          ? Colors.black
-                          : Colors.white),
+                    color:
+                        c.selectedChats.isEmpty ? Colors.black : Colors.white,
+                  ),
                 ),
                 onPressed: c.selectedChats.isEmpty
                     ? null
                     : () => _hideChats(context, c),
                 color: Theme.of(context).colorScheme.secondary,
-                shadows: [shadow],
+                shadows: shadows,
               ),
             );
           }),
@@ -906,7 +908,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup hiding selected chats.
+  /// Opens a confirmation popup hiding the selected chats.
   Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
     bool clear = false;
 

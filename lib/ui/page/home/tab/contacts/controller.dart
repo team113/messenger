@@ -83,7 +83,7 @@ class ContactsTabController extends GetxController {
   /// Indicator whether multiple [ChatContact]s selection is active.
   final RxBool selecting = RxBool(false);
 
-  /// Reactive list of [ChatContactId] of the selected [ChatContact]s.
+  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].

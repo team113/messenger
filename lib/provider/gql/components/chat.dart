@@ -1266,8 +1266,8 @@ abstract class ChatGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatCleared]
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatCleared].
   ///
   /// ### Idempotent
   ///
@@ -1277,10 +1277,8 @@ abstract class ChatGraphQlMixin {
     ChatId id,
     ChatItemId untilId,
   ) async {
-    final ClearChatArguments variables = ClearChatArguments(
-      id: id,
-      untilId: untilId,
-    );
+    final ClearChatArguments variables =
+        ClearChatArguments(id: id, untilId: untilId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ClearChat',
@@ -1292,7 +1290,7 @@ abstract class ChatGraphQlMixin {
                   as ClearChat$Mutation$ClearChat$ClearChatError)
               .code),
     );
-    return (ClearChat$Mutation.fromJson(result.data!).clearChat
-        as ChatEventsVersionedMixin?);
+    return ClearChat$Mutation.fromJson(result.data!).clearChat
+        as ChatEventsVersionedMixin?;
   }
 }

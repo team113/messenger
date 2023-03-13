@@ -52,7 +52,6 @@ class RecentChatTile extends StatelessWidget {
     this.me,
     this.blocked = false,
     this.selected = false,
-    this.enabledContextMenu = true,
     this.trailing = const [],
     this.getUser,
     this.inCall,
@@ -67,6 +66,7 @@ class RecentChatTile extends StatelessWidget {
     this.onSelect,
     this.onTap,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -81,9 +81,6 @@ class RecentChatTile extends StatelessWidget {
 
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
-
-  /// Indicator whether should the context menu be available.
-  final bool enabledContextMenu;
 
   /// List of [Widget]s to be displayed in subtitle.
   final List<Widget> trailing;
@@ -135,11 +132,14 @@ class RecentChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu is enabled over this [RecentChatTile].
+  final bool enableContextMenu;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-      final bool opened = chat.isRoute(router.route, me);
+      final bool isRoute = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -234,13 +234,13 @@ class RecentChatTile extends StatelessWidget {
             trailing: const Icon(Icons.select_all),
           ),
         ],
-        selected: opened || selected,
-        enabledContextMenu: enabledContextMenu,
+        selected: isRoute || selected,
         avatarBuilder: avatarBuilder,
+        enableContextMenu: enableContextMenu,
         onTap: () {
           if (onTap != null) {
-            onTap!.call();
-          } else if (!opened) {
+            onTap!();
+          } else if (!isRoute) {
             router.chat(chat.id);
           }
         },

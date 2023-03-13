@@ -150,23 +150,24 @@ class ContactsTabView extends StatelessWidget {
               }),
             ],
             leading: [
-              if (c.selecting.value)
-                const SizedBox(width: 49.77)
-              else
-                Obx(() {
-                  return WidgetButton(
-                    key: const Key('SearchButton'),
-                    onPressed: c.search.value != null ? null : c.toggleSearch,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      height: double.infinity,
-                      child: SvgLoader.asset(
-                        'assets/icons/search.svg',
-                        width: 17.77,
-                      ),
+              Obx(() {
+                if (c.selecting.value) {
+                  return const SizedBox(width: 49.77);
+                }
+
+                return WidgetButton(
+                  key: const Key('SearchButton'),
+                  onPressed: c.search.value != null ? null : c.toggleSearch,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 20, right: 12),
+                    height: double.infinity,
+                    child: SvgLoader.asset(
+                      'assets/icons/search.svg',
+                      width: 17.77,
                     ),
-                  );
-                }),
+                  ),
+                );
+              }),
             ],
           ),
           extendBodyBehindAppBar: true,
@@ -314,9 +315,7 @@ class ContactsTabView extends StatelessWidget {
                             },
                             itemBuilder: (_, i) {
                               if (c.favorites.isEmpty) {
-                                return const SizedBox.shrink(
-                                  key: Key(''),
-                                );
+                                return const SizedBox.shrink(key: Key('0'));
                               }
 
                               RxChatContact contact = c.favorites.elementAt(i);
@@ -464,9 +463,10 @@ class ContactsTabView extends StatelessWidget {
         contact: contact,
         folded: favorite,
         selected: selected || c.selectedContacts.contains(contact.id),
-        enabledContextMenu: !c.selecting.value,
+        enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
             ? (child) => WidgetButton(
+                  // TODO: Open [Routes.contact] page when it's implemented.
                   onPressed: () => router.user(contact.user.value!.id),
                   child: avatarBuilder?.call(child) ?? child,
                 )
@@ -546,11 +546,7 @@ class ContactsTabView extends StatelessWidget {
 
             return const Padding(
               padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(
-                Icons.block,
-                color: Color(0xFFC0C0C0),
-                size: 20,
-              ),
+              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
             );
           }),
           Obx(() {
@@ -573,14 +569,16 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns an animated [OutlinedRoundedButton]s for multiple deletion of
-  /// contacts.
+  /// Returns an animated [OutlinedRoundedButton]s for multiple selected
+  /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    CustomBoxShadow shadow = const CustomBoxShadow(
-      blurRadius: 8,
-      color: Color(0x22000000),
-      blurStyle: BlurStyle.outer,
-    );
+    const List<CustomBoxShadow> shadows = [
+      CustomBoxShadow(
+        blurRadius: 8,
+        color: Color(0x22000000),
+        blurStyle: BlurStyle.outer,
+      ),
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -603,7 +601,7 @@ class ContactsTabView extends StatelessWidget {
               ),
               onPressed: c.toggleSelecting,
               color: Colors.white,
-              shadows: [shadow],
+              shadows: shadows,
             ),
           ),
           const SizedBox(width: 10),
@@ -616,15 +614,16 @@ class ContactsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
-                      color: c.selectedContacts.isEmpty
-                          ? Colors.black
-                          : Colors.white),
+                    color: c.selectedContacts.isEmpty
+                        ? Colors.black
+                        : Colors.white,
+                  ),
                 ),
                 onPressed: c.selectedContacts.isEmpty
                     ? null
                     : () => _removeContacts(context, c),
                 color: Theme.of(context).colorScheme.secondary,
-                shadows: [shadow],
+                shadows: shadows,
               ),
             );
           }),
@@ -657,7 +656,7 @@ class ContactsTabView extends StatelessWidget {
     }
   }
 
-  /// Opens a confirmation popup deleting selected contacts.
+  /// Opens a confirmation popup deleting the selected contacts.
   Future<void> _removeContacts(
     BuildContext context,
     ContactsTabController c,

@@ -102,7 +102,7 @@ class ChatsTabController extends GetxController {
   /// Indicator whether multiple [Chat]s selection is active.
   final RxBool selecting = RxBool(false);
 
-  /// Reactive list of [ChatId] of the selected [Chat]s.
+  /// Reactive list of [ChatId]s of the selected [Chat]s.
   final RxList<ChatId> selectedChats = RxList();
 
   /// Indicator whether an ongoing reordering is happening or not.
@@ -316,9 +316,9 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides [Chat]s identified by the provided [ChatId] from [selectedChats]
-  /// cleansing the [Chat] history.
-  Future<void> hideChats(bool clear) async {
+  /// Hides the [selectedChats], clearing their histories as well if [clear] is
+  /// `true`.
+  Future<void> hideChats([bool clear = false]) async {
     selecting.toggle();
     router.navigation.value = !selecting.value;
 

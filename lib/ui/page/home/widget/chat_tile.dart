@@ -41,8 +41,8 @@ class ChatTile extends StatelessWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
-    this.enabledContextMenu = true,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -78,14 +78,14 @@ class ChatTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ChatTile].
   final double darken;
 
-  /// Indicator whether should the context menu be available.
-  final bool enabledContextMenu;
-
   /// Builder for building an [AvatarWidget] this [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
+
+  /// Indicator whether context menu is enabled over this [ChatTile].
+  final bool enableContextMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +96,7 @@ class ChatTile extends StatelessWidget {
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,
-      enabled: enabledContextMenu,
+      enabled: enableContextMenu,
       child: SizedBox(
         height: height,
         child: Padding(

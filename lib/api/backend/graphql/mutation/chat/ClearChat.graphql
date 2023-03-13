@@ -19,7 +19,7 @@ mutation ClearChat($id: ChatId!, $untilId: ChatItemId!) {
     clearChat(id: $id, untilId: $untilId) {
         __typename
         ... on ChatEventsVersioned {
-            ... ChatEventsVersioned
+            ...ChatEventsVersioned
         }
         ... on ClearChatError {
             code

@@ -319,6 +319,9 @@ class ChatService extends DisposableService {
 
   /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
   /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
       _chatRepository.clearChat(id, untilId);
 }

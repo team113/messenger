@@ -359,7 +359,7 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Clears the [chat] history.
+  /// Clears all the [ChatItem]s of the [chat].
   Future<void> clearChat() async {
     try {
       await _chatService.clearChat(chatId);

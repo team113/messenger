@@ -14,10 +14,12 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
+    - Chat page:
+        - History clearing. ([#361])
     - Chats tab:
-        - Multiple selection and deletion. ([#361], [#348])
+        - Multiple chats selection. ([#361], [#348])
     - Contacts tab:
-        - Multiple selection and deletion. ([#361], [#348])
+        - Multiple contacts selection. ([#361], [#348])
 
 ### Changed
 

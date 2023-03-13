@@ -183,6 +183,9 @@ abstract class AbstractChatRepository {
 
   /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
   /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
 }
 

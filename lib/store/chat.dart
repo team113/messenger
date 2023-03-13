@@ -861,32 +861,36 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     final HiveRxChat? chat = _chats[id];
-    final ChatItem? oldLastItem = chat?.chat.value.lastItem;
-    final ChatItemId? untilChatItemId = untilId ?? oldLastItem?.id;
+    final ChatItem? lastItem = chat?.chat.value.lastItem;
+    final ChatItemId? until = untilId ?? lastItem?.id;
 
-    if (untilChatItemId == null) {
+    if (until == null) {
+      // No-op, as there's nothing to clear until.
       return;
     }
 
-    Iterable<Rx<ChatItem>>? oldMessages;
+    Iterable<Rx<ChatItem>>? items;
 
-    final int? index =
-        chat?.messages.indexWhere((c) => c.value.id == untilChatItemId);
+    if (chat != null) {
+      final int index = chat.messages.indexWhere((c) => c.value.id == until);
 
-    if (index != null) {
-      oldMessages = chat?.messages.toList().getRange(0, index + 1);
-      chat?.messages.removeRange(0, index + 1);
+      if (index != -1) {
+        items = chat.messages.toList().getRange(0, index + 1);
+        chat.messages.removeRange(0, index + 1);
 
-      final ChatItem? newLastItem =
-          chat?.messages.isNotEmpty == true ? chat?.messages.last.value : null;
-      chat?.chat.update((c) => c?.lastItem = newLastItem);
+        final ChatItem? last =
+            chat.messages.isNotEmpty ? chat.messages.last.value : null;
+        chat.chat.update((c) => c?.lastItem = last);
+      }
     }
 
     try {
-      await _graphQlProvider.clearChat(id, untilChatItemId);
+      await _graphQlProvider.clearChat(id, until);
     } catch (_) {
-      chat?.messages.insertAll(0, oldMessages ?? []);
-      chat?.chat.update((c) => c?.lastItem = oldLastItem);
+      if (chat != null) {
+        chat.messages.insertAll(0, items ?? []);
+        chat.chat.update((c) => c?.lastItem = lastItem);
+      }
       rethrow;
     }
   }

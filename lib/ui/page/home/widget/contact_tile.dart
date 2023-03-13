@@ -50,8 +50,8 @@ class ContactTile extends StatelessWidget {
     this.dense = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.enabledContextMenu = true,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [MyUser] to display.
@@ -104,14 +104,14 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  /// Indicator whether should the context menu be available.
-  final bool enabledContextMenu;
-
   /// Builder for building an [AvatarWidget] this [ContactTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
+
+  /// Indicator whether context menu is enabled over this [ContactTile].
+  final bool enableContextMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +124,7 @@ class ContactTile extends StatelessWidget {
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
       indicateOpenedMenu: true,
-      enabled: enabledContextMenu,
+      enabled: enableContextMenu,
       child: Padding(
         padding: margin,
         child: InkWellWithHover(

@@ -125,14 +125,13 @@ class ContactRepository implements AbstractContactRepository {
     final bool isFavorite = favorites.containsKey(id);
 
     final HiveRxChatContact? oldChatContact =
-        isFavorite ? favorites.remove(id) : contacts.remove(id);
+        (isFavorite ? favorites : contacts).remove(id);
 
     try {
       await _graphQlProvider.deleteChatContact(id);
     } catch (_) {
-      isFavorite
-          ? favorites.addIf(oldChatContact != null, id, oldChatContact!)
-          : contacts.addIf(oldChatContact != null, id, oldChatContact!);
+      (isFavorite ? favorites : contacts)
+          .addIf(oldChatContact != null, id, oldChatContact!);
       rethrow;
     }
   }
