@@ -132,9 +132,13 @@ class ScreenShareController extends GetxController {
 
     _localTracks.addAll(tracks);
 
-    final RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
+    // TODO: Wait for fix.
+    final LocalMediaTrack track =
+        tracks.firstWhere((e) => e.kind() == MediaKind.Video);
+
+    final RtcVideoRenderer renderer = RtcVideoRenderer(track);
     await renderer.initialize();
-    renderer.srcObject = tracks.first.getTrack();
+    renderer.srcObject = track.getTrack();
 
     renderers[display] = renderer;
   }
