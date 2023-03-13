@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
 
+### Added
+
+- UI:
+    - Chats tab:
+        - Chat-monolog. ([#333], [#326])    
+
 ### Changed
 
 - UI:
@@ -24,6 +30,8 @@ All user visible changes to this project will be documented in this file. This p
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#270]: /../../pull/270
+[#326]: /../../issues/326
+[#333]: /../../pull/333
 [#357]: /../../pull/357
 [#362]: /../../pull/362
 [#356]: /../../pull/356
