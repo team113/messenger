@@ -30,7 +30,6 @@ import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
-import '/routes.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
@@ -186,8 +185,7 @@ class _ChatWatchData {
       c,
       (Chat chat) {
         if (chat.lastItem != null) {
-          if (router.lifecycle.value.inForeground &&
-              chat.lastItem!.at.isAfter(updatedAt) &&
+          if (chat.lastItem!.at.isAfter(updatedAt) &&
               DateTime.now()
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=

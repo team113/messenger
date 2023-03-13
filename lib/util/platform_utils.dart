@@ -50,6 +50,10 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
+  /// Key used to get the FCM token on Web.
+  String vapidKey =
+      'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
+
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 
@@ -145,7 +149,11 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);
     } else if (isDesktop) {
-      return await WindowManager.instance.isFocused();
+      try {
+        return await WindowManager.instance.isFocused();
+      } on MissingPluginException {
+        return true;
+      }
     } else {
       return Future.value(router.lifecycle.value.inForeground);
     }

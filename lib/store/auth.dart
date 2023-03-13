@@ -99,9 +99,7 @@ class AuthRepository implements AbstractAuthRepository {
   Future<void> logout() async {
     if (PlatformUtils.isWeb || PlatformUtils.isMobile) {
       String? token = await FirebaseMessaging.instance.getToken(
-        vapidKey: PlatformUtils.isWeb
-            ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-            : null,
+        vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
       );
       if (token != null) {
         _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(token));

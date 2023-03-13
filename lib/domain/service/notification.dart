@@ -64,10 +64,6 @@ class NotificationService extends DisposableService {
   ///
   /// Optional [onNotificationResponse] callback is called when user taps on a
   /// notification.
-  ///
-  /// Optional [onDidReceiveLocalNotification] callback is called
-  /// when a notification is triggered while the app is in the foreground and is
-  /// only applicable to iOS versions older than 10.
   Future<void> init({
     void Function(NotificationResponse)? onNotificationResponse,
   }) async {
@@ -84,16 +80,21 @@ class NotificationService extends DisposableService {
     } else {
       if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
-        await _plugin!.initialize(
-          const InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-            iOS: DarwinInitializationSettings(),
-            macOS: DarwinInitializationSettings(),
-            linux: LinuxInitializationSettings(defaultActionName: 'click'),
-          ),
-          onDidReceiveNotificationResponse: onNotificationResponse,
-          onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
-        );
+
+        try {
+          await _plugin!.initialize(
+            const InitializationSettings(
+              android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+              iOS: DarwinInitializationSettings(),
+              macOS: DarwinInitializationSettings(),
+              linux: LinuxInitializationSettings(defaultActionName: 'click'),
+            ),
+            onDidReceiveNotificationResponse: onNotificationResponse,
+            onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
+          );
+        } on MissingPluginException {
+          _plugin = null;
+        }
       }
     }
   }
@@ -212,9 +213,7 @@ class NotificationService extends DisposableService {
       await FirebaseMessaging.instance.requestPermission();
 
       String? token = await FirebaseMessaging.instance.getToken(
-        vapidKey: PlatformUtils.isWeb
-            ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-            : null,
+        vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
       );
 
       if (token != null) {

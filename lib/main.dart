@@ -24,6 +24,7 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -53,10 +54,11 @@ import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
+import 'store/call.dart';
+import 'store/event/incoming_chat_call.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/window.dart';
-import 'util/android_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -188,8 +190,7 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
   if (message.notification?.android?.tag?.endsWith('_call') == true) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
 
-    if (await callKeep.hasPhoneAccount() &&
-        await AndroidUtils.canDrawOverlays()) {
+    if (await callKeep.hasPhoneAccount()) {
       await Config.init();
 
       await Hive.initFlutter('hive');
@@ -201,6 +202,33 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
       provider.reconnect();
 
       await sessionProvider.close();
+
+      StreamSubscription callsTopEventSubscriptions =
+          CallRepository.incomingEvents(3, provider, null).listen((e) {
+        switch (e.kind) {
+          case IncomingChatCallsTopEventKind.initialized:
+            // No-op.
+            break;
+
+          case IncomingChatCallsTopEventKind.list:
+            e as IncomingChatCallsTop;
+            if (e.list.none((c) => c.chatId.val == message.data['chatId'])) {
+              callKeep.rejectCall(message.data['chatId']);
+            }
+            break;
+
+          case IncomingChatCallsTopEventKind.added:
+            // No-op.
+            break;
+
+          case IncomingChatCallsTopEventKind.removed:
+            e as EventIncomingChatCallsTopChatCallRemoved;
+            if (e.call.chatId.val == message.data['chatId']) {
+              callKeep.endCall(message.data['chatId']);
+            }
+            break;
+        }
+      });
 
       await callKeep.setup(
         null,
@@ -238,8 +266,8 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
           await provider.declineChatCall(ChatId(event.callUUID!));
         }
 
+        callsTopEventSubscriptions.cancel();
         provider.disconnect();
-
         await Hive.close();
       });
 

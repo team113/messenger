@@ -100,21 +100,16 @@ class CallWorker extends DisposableService {
       if (e.inForeground) {
         _callKeep.endAllCalls();
 
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
         _callService.calls.forEach((key, value) {
-          if ((_answeredCalls.contains(key) ||
-                  prefs.getString('answeredCall') == key.val) &&
-              !value.value.isActive) {
+          if (_answeredCalls.contains(key) && !value.value.isActive) {
             _callService.join(key, withVideo: false);
             _answeredCalls.remove(key);
-            prefs.remove('answeredCall');
           }
         });
       }
     });
 
     _subscription = _callService.calls.changes.listen((event) async {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
         Wakelock.enable().onError((_, __) => false);
@@ -133,13 +128,17 @@ class CallWorker extends DisposableService {
               c.conversationStartedAt == null;
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+            if (prefs.getString('answeredCall') != null) {
+              _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
+              prefs.remove('answeredCall');
+            }
+
             bool isInForeground = router.lifecycle.value.inForeground;
-            if (isInForeground &&
-                (prefs.getString('answeredCall') == c.chatId.value.val ||
-                    _answeredCalls.contains(c.chatId.value))) {
+            if (isInForeground && _answeredCalls.contains(c.chatId.value)) {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
-              prefs.remove('acceptedCall');
             } else if (calling) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
