@@ -38,7 +38,7 @@ Feature: Account creation
     Then I wait until `ChangePassword` is present
 
     When I tap `DangerZone` button
-    And I scroll until `DeleteAccount` button
+    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
     And I tap `DeleteAccount` button
     And I tap `Proceed` button
     Then I wait until `AuthView` is present
