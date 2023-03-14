@@ -607,16 +607,7 @@ class OngoingCall {
 
                   final CallMemberId id = CallMemberId(node.user.id, null);
                   if (!members.containsKey(id)) {
-                    members[id] = CallMember(
-                      id,
-                      null,
-                      isHandRaised: call.value?.members
-                              .firstWhereOrNull((e) => e.user.id == id.userId)
-                              ?.handRaised ??
-                          false,
-                      isConnected: false,
-                      isRedialing: true,
-                    );
+                    members[id] = CallMember(id, null, isRedialing: true);
                   }
                   break;
 
@@ -697,7 +688,8 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
+            if (!isActive ||
+                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -755,7 +747,8 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
+            if (!isActive ||
+                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -803,7 +796,8 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
+            if (!isActive ||
+                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -1431,7 +1425,8 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          if (!isActive || members.length <= 1) {
+          if (!isActive ||
+              members.values.where((e) => e.isConnected.isTrue).length <= 1) {
             await _updateTracks();
           }
         } catch (_) {
@@ -1465,8 +1460,6 @@ class OngoingCall {
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
-
-    await enumerateDevices();
   }
 
   /// Adds the provided [track] to the local tracks and initializes video

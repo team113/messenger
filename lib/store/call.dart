@@ -320,7 +320,6 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
     final Rx<OngoingCall>? ongoing = calls[chatId];
-
     final CallMemberId id = CallMemberId(memberId, null);
 
     if (ongoing != null) {
