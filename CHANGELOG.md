@@ -20,8 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
-- UX:
-    - Add a smooth increase in the ringtone sound. ([#375], [#367])
+        - Incoming ringtone fading in. ([#375], [#367])
 
 [#258]: /../../issues/258
 [#264]: /../../issues/264
