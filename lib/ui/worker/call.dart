@@ -136,7 +136,7 @@ class CallWorker extends DisposableService {
             } else if (calling) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
-              play('chinese.mp3');
+              play('chinese.mp3', fade: true);
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -291,7 +291,8 @@ class CallWorker extends DisposableService {
   }
 
   /// Plays the given [asset].
-  Future<void> play(String asset) async {
+  Timer? _fadeTimer;
+  Future<void> play(String asset, {bool fade = false}) async {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
         await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
@@ -301,9 +302,17 @@ class CallWorker extends DisposableService {
           position: Duration.zero,
           mode: PlayerMode.mediaPlayer,
         );
-        for (var i = 0; i <= 100; i += 10) {
-          await _audioPlayer?.setVolume(i / 100);
-          await Future.delayed(const Duration(milliseconds: 700));
+
+        if (fade) {
+          _fadeTimer?.cancel();
+          _fadeTimer =
+              Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+            if (timer.tick > 10) {
+              timer.cancel();
+            } else {
+              await _audioPlayer?.setVolume(timer.tick / 10);
+            }
+          });
         }
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {
@@ -320,6 +329,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
+    _fadeTimer?.cancel();
+    _fadeTimer = null;
     await _audioPlayer?.setReleaseMode(ReleaseMode.release);
     await _audioPlayer?.stop();
     await _audioPlayer?.release();
