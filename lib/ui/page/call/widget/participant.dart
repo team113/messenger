@@ -313,37 +313,39 @@ class ParticipantOverlayWidget extends StatelessWidget {
                             if (additionally.isNotEmpty && hovered)
                               const SizedBox(width: 3),
                             Flexible(
-                              child: AnimatedSize(
-                                duration: 150.milliseconds,
-                                child: hovered
-                                    ? Container(
-                                        padding: const EdgeInsets.only(
-                                          left: 3,
-                                          right: 3,
-                                        ),
-                                        child: Text(
-                                          participant.user.value?.user.value
-                                                  .name?.val ??
-                                              participant.user.value?.user.value
-                                                  .num.val ??
-                                              'dot'.l10n * 3,
-                                          style: context
-                                              .theme
-                                              .outlinedButtonTheme
-                                              .style!
-                                              .textStyle!
-                                              .resolve({
-                                            MaterialState.disabled
-                                          })!.copyWith(
-                                            fontSize: 15,
-                                            color: const Color(0xFFFFFFFF),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      )
-                                    : const SizedBox(),
-                              ),
+                              child: Builder(builder: (context) {
+                                Widget widget = Container(
+                                  padding: const EdgeInsets.only(
+                                    left: 3,
+                                    right: 3,
+                                  ),
+                                  child: Text(
+                                    participant
+                                            .user.value?.user.value.name?.val ??
+                                        participant
+                                            .user.value?.user.value.num.val ??
+                                        'dot'.l10n * 3,
+                                    style: context.theme.outlinedButtonTheme
+                                        .style!.textStyle!
+                                        .resolve(
+                                            {MaterialState.disabled})!.copyWith(
+                                      fontSize: 15,
+                                      color: const Color(0xFFFFFFFF),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+
+                                if (additionally.isEmpty) {
+                                  return widget;
+                                } else {
+                                  return AnimatedSize(
+                                    duration: 150.milliseconds,
+                                    child: hovered ? widget : const SizedBox(),
+                                  );
+                                }
+                              }),
                             ),
                           ],
                         ),
