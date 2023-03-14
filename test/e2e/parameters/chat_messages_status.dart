@@ -17,18 +17,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// Status of clearing the [Chat] history.
-enum ChatClearingStatus { cleared, uncleared }
+/// Status of the presence of messages in the [Chat].
+enum ChatMessagesStatus { no, some }
 
-/// [CustomParameter] representing a [ChatClearingStatusParameter].
-class ChatClearingStatusParameter extends CustomParameter<ChatClearingStatus> {
-  ChatClearingStatusParameter()
+/// [CustomParameter] representing a [ChatMessagesStatusParameter].
+class ChatMessagesStatusParameter extends CustomParameter<ChatMessagesStatus> {
+  ChatMessagesStatusParameter()
       : super(
-          'clearing',
+          'status',
           RegExp(
-            '(${ChatClearingStatus.values.map((e) => e.name).join('|')})',
+            '(${ChatMessagesStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => ChatClearingStatus.values.firstWhere((e) => e.name == c),
+          (c) => ChatMessagesStatus.values.firstWhere((e) => e.name == c),
         );
 }

@@ -559,8 +559,6 @@ class ContactsTabView extends StatelessWidget {
               child: SelectedDot(
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
-                selectedKey: Key('SelectedContact_${contact.id.val}'),
-                unSelectedKey: Key('UnSelectedContact_${contact.id.val}'),
               ),
             );
           }),
@@ -610,7 +608,8 @@ class ContactsTabView extends StatelessWidget {
               child: OutlinedRoundedButton(
                 key: const Key('DeleteContacts'),
                 title: Text(
-                  '${'btn_delete'.l10n} (${c.selectedContacts.length})',
+                  'btn_delete_count'
+                      .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(

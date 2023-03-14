@@ -569,12 +569,6 @@ class ChatsTabView extends StatelessWidget {
                                           SelectedDot(
                                             selected: selected,
                                             size: 20,
-                                            selectedKey: Key(
-                                              'SelectedChat_${e.id.val}',
-                                            ),
-                                            unSelectedKey: Key(
-                                              'UnSelectedChat_${e.id.val}',
-                                            ),
                                           )
                                         ]
                                       : [],
@@ -887,7 +881,7 @@ class ChatsTabView extends StatelessWidget {
               child: OutlinedRoundedButton(
                 key: const Key('DeleteChats'),
                 title: Text(
-                  '${'btn_delete'.l10n} (${c.selectedChats.length})',
+                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(

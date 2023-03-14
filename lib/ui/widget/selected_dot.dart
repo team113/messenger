@@ -26,8 +26,6 @@ class SelectedDot extends StatelessWidget {
     this.selected = false,
     this.size = 24,
     this.darken = 0,
-    this.selectedKey,
-    this.unSelectedKey,
   });
 
   /// Indicator whether should display the [CircleAvatar].
@@ -39,12 +37,6 @@ class SelectedDot extends StatelessWidget {
   /// Darkening the circle displayed when [SelectedDot] is not selected.
   final double darken;
 
-  /// [Key] for the [CircleAvatar].
-  final Key? selectedKey;
-
-  /// [Key] for the empty circle.
-  final Key? unSelectedKey;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -53,7 +45,7 @@ class SelectedDot extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         child: selected
             ? CircleAvatar(
-                key: selectedKey,
+                key: const Key('Selected'),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 radius: size / 2,
                 child: const Icon(
@@ -63,7 +55,7 @@ class SelectedDot extends StatelessWidget {
                 ),
               )
             : Container(
-                key: unSelectedKey,
+                key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(

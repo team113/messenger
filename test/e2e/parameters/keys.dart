@@ -92,6 +92,7 @@ enum WidgetKey {
   MyProfileView,
   NameField,
   NewPasswordField,
+  NoMessages,
   NumCopyable,
   PasswordExpandable,
   PasswordField,
@@ -129,6 +130,8 @@ enum WidgetKey {
   UnfavoriteContactButton,
   UnmuteChatButton,
   Unmuted,
+  Unselected,
+  UserColumn,
   UsernameField,
 }
 

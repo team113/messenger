@@ -29,7 +29,7 @@ Feature: Account creation
     And I fill `NameField` field with "Alice"
     And I tap `Approve` button
 
-    When I scroll until `SetPassword` button
+    When I scroll `MyProfileScrollable` until `SetPassword` is present
     And I tap `SetPassword` button
     And I fill `NewPasswordField` field with "123"
     And I fill `RepeatPasswordField` field with "123"

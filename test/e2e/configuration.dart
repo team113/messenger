@@ -32,7 +32,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
-import 'parameters/chat_cleaning_status.dart';
+import 'parameters/chat_messages_status.dart';
 import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
@@ -69,7 +69,7 @@ import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/scroll_until_widget.dart';
 import 'steps/see_chat_avatar.dart';
-import 'steps/see_chat_clearing.dart';
+import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
@@ -151,8 +151,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAsMuted,
         seeChatAvatarAs,
         seeChatAvatarAsNone,
-        seeChatClearing,
         seeChatInSearchResults,
+        seeChatMessages,
         seeChatPosition,
         seeChatSelection,
         seeContactAsFavorite,
@@ -209,7 +209,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
-        ChatClearingStatusParameter(),
+        ChatMessagesStatusParameter(),
         DownloadStatusParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),

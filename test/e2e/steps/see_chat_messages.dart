@@ -15,38 +15,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/routes.dart';
 
-import '../parameters/chat_cleaning_status.dart';
+import '../configuration.dart';
+import '../parameters/chat_messages_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether the [Chat] history has been cleared.
+/// Indicates whether there are messages in the [Chat].
 ///
 /// Examples:
-/// - Then I see chat as cleared
-/// - Then I see chat as uncleared
-final StepDefinitionGeneric seeChatClearing =
-    then1<ChatClearingStatus, CustomWorld>(
-  'I see chat as {clearing}',
+/// - Then I see some messages in chat
+/// - Then I see no messages in chat
+final StepDefinitionGeneric seeChatMessages =
+    then1<ChatMessagesStatus, CustomWorld>(
+  'I see {status} messages in chat',
   (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
         switch (status) {
-          case ChatClearingStatus.cleared:
-            return chat!.messages.isEmpty;
+          case ChatMessagesStatus.no:
+            return await context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'));
 
-          case ChatClearingStatus.uncleared:
-            return chat!.messages.isNotEmpty;
+          case ChatMessagesStatus.some:
+            return await context.world.appDriver.isAbsent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'));
         }
       },
     );

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 
@@ -38,18 +39,25 @@ final StepDefinitionGeneric seeChatSelection =
 
         final ChatId chatId = context.world.groups[name]!;
 
+        final Finder chat =
+            context.world.appDriver.findByKeySkipOffstage('RecentChat_$chatId');
+
         switch (status) {
           case SelectionStatus.selected:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('SelectedChat_$chatId'),
+            final Finder selected = context.world.appDriver.findByDescendant(
+              chat,
+              context.world.appDriver.findByKeySkipOffstage('Selected'),
             );
 
+            return await context.world.appDriver.isPresent(selected);
+
           case SelectionStatus.unselected:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('UnSelectedChat_$chatId'),
+            final Finder unselected = context.world.appDriver.findByDescendant(
+              chat,
+              context.world.appDriver.findByKeySkipOffstage('Unselected'),
             );
+
+            return await context.world.appDriver.isPresent(unselected);
         }
       },
     );

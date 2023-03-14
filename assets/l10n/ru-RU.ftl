@@ -162,6 +162,7 @@ btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
+btn_delete_count = Удалить ({$count})
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов

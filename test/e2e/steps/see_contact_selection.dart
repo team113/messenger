@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
 
@@ -38,18 +39,25 @@ final StepDefinitionGeneric seeContactSelection =
 
         final ChatContactId contactId = context.world.contacts[name]!;
 
+        final Finder contact =
+            context.world.appDriver.findByKeySkipOffstage('Contact_$contactId');
+
         switch (status) {
           case SelectionStatus.selected:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('SelectedContact_$contactId'),
+            final Finder selected = context.world.appDriver.findByDescendant(
+              contact,
+              context.world.appDriver.findByKeySkipOffstage('Selected'),
             );
 
+            return await context.world.appDriver.isPresent(selected);
+
           case SelectionStatus.unselected:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('UnSelectedContact_$contactId'),
+            final Finder unselected = context.world.appDriver.findByDescendant(
+              contact,
+              context.world.appDriver.findByKeySkipOffstage('Unselected'),
             );
+
+            return await context.world.appDriver.isPresent(unselected);
         }
       },
     );

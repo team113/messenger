@@ -659,6 +659,8 @@ class RecentChatTile extends StatelessWidget {
         } else {
           subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
         }
+      } else {
+        subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
       }
 
       return DefaultTextStyle(

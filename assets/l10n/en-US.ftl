@@ -162,6 +162,7 @@ btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
+btn_delete_count = Delete ({$count})
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts

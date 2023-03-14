@@ -22,10 +22,10 @@ Feature: Clear chat
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    Then I see chat as uncleared
+    And I see some messages in chat
     When I open chat's info
     And I scroll until `ClearHistoryButton` button
     And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
     And I return to previous page
-    Then I see chat as cleared
+    Then I see no messages in chat
