@@ -1248,8 +1248,9 @@ class _ChatViewState extends State<ChatView>
         animation: _animation,
         padding: const EdgeInsets.only(right: 8),
         crossAxisAlignment: CrossAxisAlignment.center,
+        design: SwipeableStyle.system,
         swipeable: Padding(
-          padding: const EdgeInsets.only(right: 4),
+          padding: const EdgeInsets.only(right: 0),
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
         child: Obx(() {

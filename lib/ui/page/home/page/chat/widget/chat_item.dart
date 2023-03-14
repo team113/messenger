@@ -753,6 +753,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         animation: widget.animation,
         translate: false,
         isSent: isSent && _fromMe,
+        design: SwipeableStyle.system,
+        width: 50,
         isDelivered: isSent &&
             _fromMe &&
             widget.chat.value?.lastDelivery.isBefore(message.at) == false,
@@ -903,23 +905,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (isSent || isDelivered || isRead || isSending || isError)
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? Theme.of(context).colorScheme.secondary
-                : isError
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
-            size: 12,
-          ),
-        const SizedBox(width: 3),
+        if (_fromMe) ...[
+          if (isSent || isDelivered || isRead || isSending || isError)
+            Icon(
+              (isRead || isDelivered)
+                  ? Icons.done_all
+                  : isSending
+                      ? Icons.access_alarm
+                      : isError
+                          ? Icons.error_outline
+                          : Icons.done,
+              color: isRead
+                  ? Theme.of(context).colorScheme.secondary
+                  : isError
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.primary,
+              size: 12,
+            ),
+          const SizedBox(width: 3),
+        ],
         Text(
           DateFormat.Hm().format(msg.at.val.toLocal()),
           style: style.systemMessageStyle.copyWith(fontSize: 11),
@@ -1634,10 +1638,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     final bool isMonolog = widget.chat.value?.isMonolog == true;
+    final double swipeableWidth = _fromMe ? 65 : 50;
 
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
+      design: _fromMe ? SwipeableStyle.secondary : SwipeableStyle.primary,
+      width: swipeableWidth,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1764,7 +1771,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth - SwipeableStatus.width,
+                        constraints.maxWidth - swipeableWidth,
                       ),
                     ),
                     child: Material(

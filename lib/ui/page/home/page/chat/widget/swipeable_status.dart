@@ -16,8 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/themes.dart';
+
+enum SwipeableStyle { primary, secondary, system }
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -26,6 +29,7 @@ class SwipeableStatus extends StatelessWidget {
     super.key,
     required this.child,
     required this.swipeable,
+    this.width = 65,
     this.animation,
     this.translate = false,
     this.isSent = false,
@@ -33,12 +37,13 @@ class SwipeableStatus extends StatelessWidget {
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
+    this.design = SwipeableStyle.primary,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
   });
 
   /// Expanded width of the [swipeable].
-  static const double width = 65;
+  final double width;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -66,6 +71,8 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is error.
   final bool isError;
+
+  final SwipeableStyle design;
 
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
@@ -95,44 +102,73 @@ class SwipeableStatus extends StatelessWidget {
     );
   }
 
+  bool get _status => design == SwipeableStyle.secondary;
+
   /// Returns a [Row] of [swipeable] and a status.
   Widget _swipeableWithStatus(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
+    final Border border;
+    final Color color;
+
+    // switch (design) {
+    //   case SwipeableStyle.primary:
+    //     border = style.primaryBorder;
+    //     color = style.messageColor;
+    //     break;
+
+    //   case SwipeableStyle.secondary:
+    //     border = style.secondaryBorder;
+    //     color = style.readMessageColor;
+    //     break;
+
+    //   case SwipeableStyle.system:
+    //     border = style.systemMessageBorder;
+    //     color = style.systemMessageColor;
+    //     break;
+    // }
+    border = style.systemMessageBorder;
+    color = style.systemMessageColor;
 
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.systemMessageStyle.copyWith(fontSize: 11),
+      style: style.systemMessageStyle.copyWith(
+        fontSize: 11,
+        // color: color.darken(0.3),
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: style.systemMessageBorder,
-          color: style.systemMessageColor,
+          border: border, // style.systemMessageBorder,
+          color: color, //style.systemMessageColor
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSent || isDelivered || isRead || isSending || isError)
-              Icon(
-                (isRead || isDelivered)
-                    ? Icons.done_all
-                    : isSending
-                        ? Icons.access_alarm
-                        : isError
-                            ? Icons.error_outline
-                            : Icons.done,
-                color: isRead
-                    ? Theme.of(context).colorScheme.secondary
-                    : isError
-                        ? Colors.red
-                        : Theme.of(context).colorScheme.primary,
-                size: 12,
-              ),
-            const SizedBox(width: 3),
+            if (_status) ...[
+              if (isSent || isDelivered || isRead || isSending || isError)
+                Icon(
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? Theme.of(context).colorScheme.secondary
+                      : isError
+                          ? Colors.red
+                          : Theme.of(context).colorScheme.primary,
+                  size: 12,
+                ),
+              const SizedBox(width: 3),
+            ],
             swipeable,
           ],
         ),
@@ -147,8 +183,8 @@ class SwipeableStatus extends StatelessWidget {
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: translated ? const Offset(width, 0) : Offset.zero,
-              end: translated ? Offset.zero : const Offset(-width, 0),
+              begin: translated ? Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

@@ -829,7 +829,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth - SwipeableStatus.width,
+                        constraints.maxWidth - 65,
                       ),
                     ),
                     child: Padding(
