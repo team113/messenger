@@ -29,7 +29,7 @@ import '../world/custom_world.dart';
 /// - Then I see no messages in chat
 final StepDefinitionGeneric seeChatMessages =
     then1<ChatMessagesStatus, CustomWorld>(
-  'I see {status} messages in chat',
+  'I see {messages} messages in chat',
   (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {

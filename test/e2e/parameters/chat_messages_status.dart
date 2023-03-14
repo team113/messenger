@@ -24,7 +24,7 @@ enum ChatMessagesStatus { no, some }
 class ChatMessagesStatusParameter extends CustomParameter<ChatMessagesStatus> {
   ChatMessagesStatusParameter()
       : super(
-          'status',
+          'messages',
           RegExp(
             '(${ChatMessagesStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
