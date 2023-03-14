@@ -53,7 +53,6 @@ dependencies:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.5
-  loading_indicator: ^3.1.0
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
   medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
@@ -71,7 +70,7 @@ dependencies:
   permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.10.1
+  rive: ^0.10.3
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list

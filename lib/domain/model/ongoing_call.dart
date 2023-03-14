@@ -229,9 +229,6 @@ class OngoingCall {
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
-  /// [List] of IDs of the [User]s being redialed.
-  final RxList<UserId> redialedMembers = RxList<UserId>();
-
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
   ///
@@ -369,6 +366,26 @@ class OngoingCall {
       return;
     }
 
+    calls.getChat(chatId.value).then((v) {
+      for (var m in (v?.chat.value.members ?? [])
+          .where((e) => e.user.id != me.id.userId)) {
+        final CallMemberId id = CallMemberId(m.user.id, null);
+
+        if (members.values.none((e) => e.id.userId == id.userId)) {
+          members[id] = CallMember(
+            id,
+            null,
+            isHandRaised: call.value?.members
+                    .firstWhereOrNull((e) => e.user.id == id.userId)
+                    ?.handRaised ??
+                false,
+            isConnected: false,
+            isRedialing: true,
+          );
+        }
+      }
+    });
+
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members.move(_me, id);
     _me = id;
@@ -461,8 +478,6 @@ class OngoingCall {
                 case ChatCallEventKind.memberJoined:
                   var node = event as EventChatCallMemberJoined;
 
-                  redialedMembers.remove(node.user.id);
-
                   final CallMemberId redialedId =
                       CallMemberId(node.user.id, null);
                   final CallMemberId id =
@@ -471,6 +486,7 @@ class OngoingCall {
                   final CallMember? redialed = members[redialedId];
                   if (redialed?.isRedialing.value == true) {
                     redialed!.isRedialing.value = false;
+                    redialed.id = id;
                     members.move(redialedId, id);
                   }
 
@@ -535,7 +551,6 @@ class OngoingCall {
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id);
                   }
-                  redialedMembers.remove(node.user.id);
                   break;
 
                 case ChatCallEventKind.callMoved:
@@ -573,7 +588,21 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
-                  // TODO: Implement EventChatCallAnswerTimeoutPassed.
+                  var node = event as EventChatCallAnswerTimeoutPassed;
+
+                  if (node.user?.id != null) {
+                    print('ChatCallEventKind.answerTimeoutPassed1');
+                    final CallMemberId id = CallMemberId(node.user!.id, null);
+                    if (members[id]?.isConnected.value == false) {
+                      print('ChatCallEventKind.answerTimeoutPassed2');
+                      members.remove(id);
+                    }
+                  } else {
+                    members.removeWhere(
+                      (key, value) =>
+                          key.deviceId == null && value.isConnected.isFalse,
+                    );
+                  }
                   break;
               }
             }
@@ -1033,8 +1062,6 @@ class OngoingCall {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
-      redialedMembers.remove(id.userId);
-
       final CallMember? redialed = members[redialedId];
       if (redialed?.isRedialing.value == true) {
         members.move(redialedId, id);
@@ -1043,6 +1070,7 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
+        member.id = id;
         member._connection = conn;
         member.isConnected.value = true;
         member.isRedialing.value = false;
@@ -1652,7 +1680,7 @@ class CallMember {
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
-  final CallMemberId id;
+  CallMemberId id;
 
   /// List of [Track]s of this [CallMember].
   final ObsList<Track> tracks = ObsList();

@@ -321,11 +321,19 @@ class CallRepository extends DisposableInterface
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
     final Rx<OngoingCall>? ongoing = calls[chatId];
 
+    final CallMemberId id = CallMemberId(memberId, null);
+
+    if (ongoing != null) {
+      if (!ongoing.value.members.containsKey(id)) {
+        ongoing.value.members[id] =
+            CallMember(id, null, isConnected: false, isRedialing: true);
+      }
+    }
+
     try {
-      ongoing?.value.redialedMembers.add(memberId);
       await _graphQlProvider.redialChatCallMember(chatId, memberId);
     } catch (_) {
-      ongoing?.value.redialedMembers.remove(memberId);
+      ongoing?.value.members.remove(id);
     }
   }
 
