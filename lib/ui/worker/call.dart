@@ -295,11 +295,17 @@ class CallWorker extends DisposableService {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
         await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer?.setVolume(0.0); //set initial volume to 0
         await _audioPlayer?.play(
           AssetSource('audio/$asset'),
           position: Duration.zero,
           mode: PlayerMode.mediaPlayer,
         );
+        for (var i = 0; i <= 100; i += 10) {
+          await _audioPlayer?.setVolume(i / 100); //change the volume gradually
+          await Future.delayed(
+              const Duration(milliseconds: 700)); //pause between volume changes
+        }
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {
           throw e;
