@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
-        - Participants redialing. ([#286], [#281])
+        - Participants dialing indication. ([#286], [#281])
 
 [#258]: /../../issues/258
 [#264]: /../../issues/264

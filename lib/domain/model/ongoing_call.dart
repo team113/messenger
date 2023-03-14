@@ -262,6 +262,9 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
+  /// Subscription to the [RxChat.members] changes.
+  StreamSubscription? _membersSubscription;
+
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
@@ -366,25 +369,22 @@ class OngoingCall {
       return;
     }
 
-    calls.getChat(chatId.value).then((v) {
-      for (var m in (v?.chat.value.members ?? [])
-          .where((e) => e.user.id != me.id.userId)) {
-        final CallMemberId id = CallMemberId(m.user.id, null);
+    addMember(UserId userId) {
+      final CallMemberId id = CallMemberId(userId, null);
 
-        if (members.values.none((e) => e.id.userId == id.userId)) {
-          members[id] = CallMember(
-            id,
-            null,
-            isHandRaised: call.value?.members
-                    .firstWhereOrNull((e) => e.user.id == id.userId)
-                    ?.handRaised ??
-                false,
-            isConnected: false,
-            isRedialing: true,
-          );
-        }
+      if (members.values.none((e) => e.id.userId == id.userId)) {
+        members[id] = CallMember(
+          id,
+          null,
+          isHandRaised: call.value?.members
+                  .firstWhereOrNull((e) => e.user.id == id.userId)
+                  ?.handRaised ??
+              false,
+          isConnected: false,
+          isRedialing: true,
+        );
       }
-    });
+    }
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members.move(_me, id);
@@ -421,6 +421,39 @@ class OngoingCall {
                 }
                 state.value = OngoingCallState.active;
               }
+
+              ChatMembersDialed? dialed = node.call.dialed;
+              calls.getChat(chatId.value).then((v) {
+                if (dialed is ChatMembersDialedConcrete) {
+                  for (var m in dialed.members) {
+                    addMember(m.user.id);
+                  }
+                } else if (dialed is ChatMembersDialedAll) {
+                  for (var m in (v?.chat.value.members ?? []).where((e) =>
+                      e.user.id != me.id.userId &&
+                      dialed.answeredMembers
+                          .none((a) => a.user.id == e.user.id))) {
+                    addMember(m.user.id);
+                  }
+                }
+
+                _membersSubscription?.cancel();
+                _membersSubscription = v?.members.changes.listen((event) {
+                  switch (event.op) {
+                    case OperationKind.added:
+                      addMember(event.key!);
+                      break;
+
+                    case OperationKind.removed:
+                      members.remove(CallMemberId(event.key!, null));
+                      break;
+
+                    case OperationKind.updated:
+                      // No-op.
+                      break;
+                  }
+                });
+              });
 
               members[_me]?.isHandRaised.value = node.call.members
                       .firstWhereOrNull((e) => e.user.id == _me.userId)
@@ -622,6 +655,7 @@ class OngoingCall {
         _jason = null;
       }
       _heartbeat?.cancel();
+      _membersSubscription?.cancel();
       connected = false;
     });
   }
