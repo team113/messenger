@@ -591,10 +591,8 @@ class OngoingCall {
                   var node = event as EventChatCallAnswerTimeoutPassed;
 
                   if (node.user?.id != null) {
-                    print('ChatCallEventKind.answerTimeoutPassed1');
                     final CallMemberId id = CallMemberId(node.user!.id, null);
                     if (members[id]?.isConnected.value == false) {
-                      print('ChatCallEventKind.answerTimeoutPassed2');
                       members.remove(id);
                     }
                   } else {
