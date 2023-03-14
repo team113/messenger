@@ -36,12 +36,15 @@ final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
 
     await context.world.appDriver.scrollUntilVisible(
       context.world.appDriver.findByKeySkipOffstage(key.name),
-      scrollable: find
-          .descendant(
-            of: find.byKey(Key(list.name)),
-            matching: find.byType(Scrollable),
-          )
-          .first,
+      scrollable: find.descendant(
+        of: find.byKey(Key(list.name)),
+        matching: find.byWidgetPredicate((widget) {
+          if (widget is Scrollable) {
+            return widget.restorationId == null;
+          }
+          return false;
+        }),
+      ),
       dy: 100,
     );
 
