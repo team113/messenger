@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -46,6 +47,7 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
   /// Indicator whether the [AnimatedSwitcher] should be enabled.
   bool _show = false;
 
+  /// [Timer] switching the [_show] indicator.
   Timer? _timer;
 
   @override
@@ -64,9 +66,10 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedSwitcher(
+  Widget build(BuildContext context) => AnimatedOpacity(
+        opacity: _show ? 1 : 0,
         duration: widget.duration,
-        child: _show ? widget.child : Container(),
+        child: widget.child,
       );
 
   /// Starts the [_timer] switching the [AnimatedSwitcher] visibility.

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -139,7 +140,8 @@ void main() async {
     when(graphQlProvider.signIn(
             UserPassword('123'), null, null, null, null, true))
         .thenThrow(
-            const CreateSessionException((CreateSessionErrorCode.unknownUser)));
+      const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
+    );
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
@@ -201,15 +203,31 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
 
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('unknown'), null, null, null))
-        .thenThrow(const RecoverUserPasswordException(
-            RecoverUserPasswordErrorCode.unknownUser));
+    when(
+      graphQlProvider.recoverUserPassword(
+        UserLogin('unknown'),
+        null,
+        null,
+        null,
+      ),
+    ).thenThrow(
+      const RecoverUserPasswordException(
+        RecoverUserPasswordErrorCode.codeLimitExceeded,
+      ),
+    );
 
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('empty'), null, null, null))
-        .thenThrow(const RecoverUserPasswordException(
-            RecoverUserPasswordErrorCode.nowhereToSend));
+    when(
+      graphQlProvider.recoverUserPassword(
+        UserLogin('empty'),
+        null,
+        null,
+        null,
+      ),
+    ).thenThrow(
+      const RecoverUserPasswordException(
+        RecoverUserPasswordErrorCode.codeLimitExceeded,
+      ),
+    );
 
     when(graphQlProvider.validateUserPasswordRecoveryCode(
             UserLogin('unknown'), null, null, null, ConfirmationCode('1111')))

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,11 +23,11 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-
+import '/util/message_popup.dart';
 import 'controller.dart';
 
 /// View for changing [MyUser.status] and/or [MyUser.presence].
@@ -50,7 +51,7 @@ class StatusView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
@@ -68,83 +69,70 @@ class StatusView extends StatelessWidget {
               ),
             ),
             Flexible(
-              child: ListView(
-                padding: ModalPopup.padding(context),
-                shrinkWrap: true,
-                children: [
-                  if (expanded) ...[
-                    _padding(
-                      ReactiveTextField(
-                        key: const Key('StatusField'),
-                        state: c.status,
-                        label: 'label_status'.l10n,
-                        filled: true,
-                        onSuffixPressed: c.status.text.isEmpty
-                            ? null
-                            : () {
-                                Clipboard.setData(
-                                  ClipboardData(text: c.status.text),
-                                );
-                              },
-                        trailing: c.status.text.isEmpty
-                            ? null
-                            : Transform.translate(
-                                offset: const Offset(0, -1),
-                                child: Transform.scale(
-                                  scale: 1.15,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/copy.svg',
-                                    height: 15,
+              child: Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  padding: ModalPopup.padding(context),
+                  shrinkWrap: true,
+                  children: [
+                    if (expanded) ...[
+                      _padding(
+                        ReactiveTextField(
+                          key: const Key('StatusField'),
+                          state: c.status,
+                          label: 'label_status'.l10n,
+                          filled: true,
+                          maxLength: 25,
+                          onSuffixPressed: c.status.text.isEmpty
+                              ? null
+                              : () {
+                                  Clipboard.setData(
+                                    ClipboardData(text: c.status.text),
+                                  );
+                                  MessagePopup.success('label_copied'.l10n);
+                                },
+                          trailing: c.status.text.isEmpty
+                              ? null
+                              : Transform.translate(
+                                  offset: const Offset(0, -1),
+                                  child: Transform.scale(
+                                    scale: 1.15,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/copy.svg',
+                                      height: 15,
+                                    ),
                                   ),
                                 ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 18),
-                      child: Center(
-                        child: Text(
-                          'label_presence'.l10n,
-                          style: style.systemMessageStyle
-                              .copyWith(color: Colors.black, fontSize: 18),
                         ),
                       ),
-                    ),
-                  ],
-                  ...[Presence.present, Presence.away].map((e) {
-                    return Obx(() {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: FieldButton(
-                          onPressed: () => c.presence.value = e,
-                          text: e.localizedString(),
-                          trailing: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircleAvatar(
-                              backgroundColor: e.getColor(),
-                              radius: 12,
-                              child: AnimatedSwitcher(
-                                duration: 200.milliseconds,
-                                child: c.presence.value == e
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 12,
-                                      )
-                                    : const SizedBox(key: Key('None')),
-                              ),
-                            ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 6, 12, 18),
+                        child: Center(
+                          child: Text(
+                            'label_presence'.l10n,
+                            style: style.systemMessageStyle
+                                .copyWith(color: Colors.black, fontSize: 18),
                           ),
-                          fillColor: c.presence.value == e
-                              ? style.cardSelectedColor
-                              : Colors.white,
                         ),
-                      );
-                    });
-                  }),
-                ],
+                      ),
+                    ],
+                    ...[Presence.present, Presence.away].map((e) {
+                      return Obx(() {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: RectangleButton(
+                            selected: c.presence.value == e,
+                            label: e.localizedString() ?? '',
+                            onPressed: () => c.presence.value = e,
+                            trailingColor: e.getColor(),
+                          ),
+                        );
+                      });
+                    }),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),

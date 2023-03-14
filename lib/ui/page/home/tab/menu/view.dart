@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,10 +22,10 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -44,34 +45,26 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: const Color(0x55000000),
-                  color: Colors.white,
-                  child: InkWell(
-                    onTap: context.isNarrow &&
-                            ModalRoute.of(context)?.canPop == true
-                        ? Navigator.of(context).pop
-                        : null,
-                    customBorder: const CircleBorder(),
+            title: WidgetButton(
+              onPressed: () => StatusView.show(context),
+              child: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
                           radius: 17,
-                          badge: false,
                         );
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: WidgetButton(
-                    onPressed: () => StatusView.show(context),
+                  const SizedBox(width: 10),
+                  Flexible(
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -88,14 +81,14 @@ class MenuTabView extends StatelessWidget {
                             ),
                             Obx(() {
                               return Text(
-                                c.myUser.value?.presence.localizedString() ??
-                                    'dot'.l10n * 3,
+                                c.myUser.value?.status?.val ??
+                                    'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .caption
+                                    .bodySmall
                                     ?.copyWith(
                                       color:
-                                          c.myUser.value?.presence.getColor(),
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                               );
                             }),
@@ -104,17 +97,18 @@ class MenuTabView extends StatelessWidget {
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-              ],
+                  const SizedBox(width: 10),
+                ],
+              ),
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : const [SizedBox(width: 23)],
+                : const [SizedBox(width: 30)],
           ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+          body: SafeScrollbar(
+            controller: c.scrollController,
             child: ListView.builder(
+              controller: c.scrollController,
               key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {
@@ -183,7 +177,7 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headline5!,
+                                                .headlineSmall!,
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
@@ -265,6 +259,22 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.notifications:
+                    child = card(
+                      icon: Icons.notifications,
+                      title: 'label_notifications'.l10n,
+                      subtitle: 'label_sound_and_vibrations'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.storage:
+                    child = card(
+                      icon: Icons.storage,
+                      title: 'label_storage'.l10n,
+                      subtitle: 'label_cache_and_downloads'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.language:
                     child = card(
                       key: const Key('Language'),
@@ -272,6 +282,15 @@ class MenuTabView extends StatelessWidget {
                       title: 'label_language'.l10n,
                       subtitle: L10n.chosen.value?.name ??
                           'label_current_language'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.blacklist:
+                    child = card(
+                      key: const Key('Blocked'),
+                      icon: Icons.block,
+                      title: 'label_blocked_users'.l10n,
+                      subtitle: 'label_your_blacklist'.l10n,
                     );
                     break;
 
@@ -285,7 +304,6 @@ class MenuTabView extends StatelessWidget {
                     } else {
                       return const SizedBox();
                     }
-
                     break;
 
                   case ProfileTab.danger:

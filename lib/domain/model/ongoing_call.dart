@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,7 +26,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
-import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -271,6 +271,10 @@ class OngoingCall {
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
+  /// [_toggleHand]s of the authenticated [MyUser] used to discard the
+  /// [connect]ed events following these invokes.
+  final List<bool> _handToggles = [];
+
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
@@ -321,8 +325,28 @@ class OngoingCall {
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
+        final List<MediaDeviceInfo> previous =
+            List.from(devices, growable: false);
+
         await enumerateDevices();
-        _pickOutputDevice();
+
+        final List<MediaDeviceInfo> added = [];
+        final List<MediaDeviceInfo> removed = [];
+
+        for (MediaDeviceInfo d in devices) {
+          if (previous.none((p) => p.deviceId() == d.deviceId())) {
+            added.add(d);
+          }
+        }
+
+        for (MediaDeviceInfo d in previous) {
+          if (devices.none((p) => p.deviceId() == d.deviceId())) {
+            removed.add(d);
+          }
+        }
+
+        _pickAudioDevice(previous, added, removed);
+        _pickOutputDevice(previous, added, removed);
       });
 
       _initRoom();
@@ -340,7 +364,7 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(CallService calls) async {
+  void connect(CallService calls) {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
@@ -351,7 +375,7 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
+    _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
@@ -360,6 +384,8 @@ class OngoingCall {
 
           case ChatCallEventsKind.chatCall:
             var node = e as ChatCallEventsChatCall;
+
+            _handToggles.clear();
 
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
@@ -378,11 +404,15 @@ class OngoingCall {
                 }
                 state.value = OngoingCallState.active;
               }
+
+              members[_me]?.isHandRaised.value = node.call.members
+                      .firstWhereOrNull((e) => e.user.id == _me.userId)
+                      ?.handRaised ??
+                  false;
             }
 
             call.value = node.call;
             call.refresh();
-
             break;
 
           case ChatCallEventsKind.event:
@@ -421,6 +451,11 @@ class OngoingCall {
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id);
                   }
+
+                  if (members.keys.none((e) => e.userId == node.user.id)) {
+                    call.value?.members
+                        .removeWhere((e) => e.user.id == node.user.id);
+                  }
                   break;
 
                 case ChatCallEventKind.memberJoined:
@@ -452,15 +487,20 @@ class OngoingCall {
                       isConnected: false,
                     );
                   }
-
                   break;
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
 
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = false;
+                  // Ignore the event, if it's our hand and is already lowered.
+                  if (node.user.id == _me.userId &&
+                      _handToggles.firstOrNull == false) {
+                    _handToggles.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = false;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -471,9 +511,16 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = true;
+
+                  // Ignore the event, if it's our hand and is already raised.
+                  if (node.user.id == _me.userId &&
+                      _handToggles.firstOrNull == true) {
+                    _handToggles.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = true;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -524,22 +571,15 @@ class OngoingCall {
                     );
                   }
                   break;
+
+                case ChatCallEventKind.answerTimeoutPassed:
+                  // TODO: Implement EventChatCallAnswerTimeoutPassed.
+                  break;
               }
             }
             break;
         }
       },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          connected = false;
-          connect(calls);
-        } else {
-          Log.print(e.toString(), 'CALL');
-          calls.remove(chatId.value);
-          throw e;
-        }
-      },
-      onDone: () => calls.remove(chatId.value),
     );
   }
 
@@ -593,10 +633,7 @@ class OngoingCall {
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
-            if (deviceId != screenDevice.value) {
-              await _updateSettings(screenDevice: deviceId);
-            }
-
+            await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
@@ -606,7 +643,7 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            if (!e.cause().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied')) {
               _errors.add('enableScreenShare() call failed with $e');
               rethrow;
             }
@@ -657,8 +694,17 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
+            if (!isActive || members.length <= 1) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            audioState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('unmuteAudio() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
             _errors.add('unmuteAudio() call failed with $e');
@@ -697,10 +743,16 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            videoState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('enableVideo() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             _errors.add('enableVideo() call failed with $e');
             videoState.value = LocalTrackState.disabled;
@@ -925,11 +977,19 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to initiate screen capture: $e');
               await setScreenShareEnabled(false);
               break;
 
             default:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to get media: $e');
 
               await _room?.disableAudio();
@@ -1071,7 +1131,11 @@ class OngoingCall {
 
   /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service) {
-    members[_me]!.isHandRaised.toggle();
+    // Toggle the hands of all the devices of the authenticated [MyUser].
+    for (MapEntry<CallMemberId, CallMember> m
+        in members.entries.where((e) => e.key.userId == _me.userId)) {
+      m.value.isHandRaised.toggle();
+    }
     return _toggleHand(service);
   }
 
@@ -1082,6 +1146,7 @@ class OngoingCall {
 
       bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
+        _handToggles.add(raised);
         await service.toggleHand(chatId.value, raised);
       });
 
@@ -1164,6 +1229,19 @@ class OngoingCall {
         }
       }
 
+      if (audioState.value != LocalTrackState.enabled &&
+          audioState.value != LocalTrackState.enabling) {
+        await _room?.muteAudio();
+      }
+      if (videoState.value != LocalTrackState.enabled &&
+          videoState.value != LocalTrackState.enabling) {
+        await _room?.disableVideo(MediaSourceKind.Device);
+      }
+      if (screenShareState.value != LocalTrackState.enabled &&
+          screenShareState.value != LocalTrackState.enabling) {
+        await _room?.disableVideo(MediaSourceKind.Display);
+      }
+
       try {
         await initLocalTracks();
       } catch (e) {
@@ -1193,16 +1271,6 @@ class OngoingCall {
               : screenShareState.value;
 
       try {
-        if (audioState.value != LocalTrackState.enabled) {
-          await _room?.muteAudio();
-        }
-        if (videoState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Device);
-        }
-        if (screenShareState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Display);
-        }
-
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(
@@ -1252,7 +1320,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link/$_me?token=$creds');
+    await _room?.join('$link?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1287,7 +1355,9 @@ class OngoingCall {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
           audioDevice == null ? MediaKind.Video : MediaKind.Audio,
-          MediaSourceKind.Device,
+          screenDevice == null
+              ? MediaSourceKind.Device
+              : MediaSourceKind.Display,
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
@@ -1316,6 +1386,10 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
+    if (_mediaManager == null) {
+      return;
+    }
+
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled,
@@ -1417,24 +1491,37 @@ class OngoingCall {
     }
   }
 
-  /// Updates the [outputDevice] on Android.
-  ///
-  /// The following priority is used:
-  /// 1. bluetooth headset;
-  /// 2. speakerphone.
-  void _pickOutputDevice() {
-    if (PlatformUtils.isAndroid) {
-      var output = devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'bluetooth-headset')
-              ?.deviceId() ??
-          devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'speakerphone')
-              ?.deviceId();
-      if (output != null && outputDevice.value != output) {
-        setOutputDevice(output);
-      }
+  /// Picks the [outputDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickOutputDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.output().isNotEmpty) {
+      setOutputDevice(added.output().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+        (outputDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+      setOutputDevice(devices.output().first.deviceId());
+    }
+  }
+
+  /// Picks the [audioDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickAudioDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.audio().isNotEmpty) {
+      setAudioDevice(added.audio().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+        (audioDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+      setAudioDevice(devices.audio().first.deviceId());
     }
   }
 }
@@ -1646,8 +1733,8 @@ class Track {
 
       case MediaKind.Video:
         renderer.value = RtcVideoRenderer(track);
-        await (renderer.value as RtcVideoRenderer).initialize();
-        (renderer.value as RtcVideoRenderer).srcObject = track.getTrack();
+        await (renderer.value as RtcVideoRenderer?)?.initialize();
+        (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
         break;
     }
   }
@@ -1671,7 +1758,7 @@ class Track {
   }
 }
 
-extension DevicesList on InputDevices {
+extension DevicesList on List<MediaDeviceInfo> {
   /// Returns a new [Iterable] with [MediaDeviceInfo]s of
   /// [MediaDeviceKind.videoinput].
   Iterable<MediaDeviceInfo> video() {

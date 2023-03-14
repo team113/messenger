@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,6 +33,8 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -43,6 +46,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
@@ -84,6 +88,10 @@ void main() async {
   await backgroundProvider.init(userId: const UserId('me'));
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init(userId: const UserId('me'));
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init(userId: const UserId('me'));
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
@@ -187,6 +195,16 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   @override
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
       UserPassword password,
@@ -217,12 +235,22 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) async {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(int count) {
+    return const Stream.empty();
   }
 
   @override
-  Future<Stream<QueryResult<Object?>>> keepOnline() {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
+  }
+
+  @override
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    BlacklistCursor? after,
+    BlacklistCursor? before,
+    int? first,
+    int? last,
+  }) {
+    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
   }
 }

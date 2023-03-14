@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,6 +26,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -32,9 +34,11 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
+import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
+import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -90,7 +94,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CustomProgressIndicator()),
+      );
     }
 
     return GetBuilder(
@@ -132,19 +139,20 @@ class _HomeViewState extends State<HomeView> {
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
                           if (s.scrollDelta.dx.abs() < 3 &&
-                              (s.scrollDelta.dy.abs() > 1 ||
+                              (s.scrollDelta.dy.abs() > 3 ||
                                   c.verticalScrollTimer.value != null)) {
                             c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value =
-                                Timer(150.milliseconds, () {
-                              c.verticalScrollTimer.value = null;
-                            });
+                            c.verticalScrollTimer.value = Timer(
+                              300.milliseconds,
+                              () => c.verticalScrollTimer.value = null,
+                            );
                           }
                         }
                       },
                       child: Obx(() {
                         return PageView(
-                          physics: c.verticalScrollTimer.value == null
+                          physics: c.verticalScrollTimer.value == null &&
+                                  router.navigation.value
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
@@ -179,53 +187,84 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
-                        return CustomNavigationBar(
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              child: tab(
-                                tab: HomeTab.contacts,
-                                child: SvgLoader.asset(
-                                  'assets/icons/contacts.svg',
-                                  width: 30,
-                                  height: 30,
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 5),
+                          translate: false,
+                          child: CustomNavigationBar(
+                            items: [
+                              CustomNavigationBarItem(
+                                key: const Key('ContactsButton'),
+                                child: tab(
+                                  tab: HomeTab.contacts,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contacts.svg',
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('ChatsButton'),
-                              badge: c.unreadChatsCount.value == 0
-                                  ? null
-                                  : '${c.unreadChatsCount.value}',
-                              child: tab(
-                                tab: HomeTab.chats,
-                                child: SvgLoader.asset(
-                                  'assets/icons/chats.svg',
-                                  width: 36.06,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              child: RmbDetector(
-                                onPressed: () => StatusView.show(context),
-                                child: Padding(
-                                  key: c.profileKey,
-                                  padding: const EdgeInsets.only(bottom: 2),
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                badgeColor: c.myUser.value?.muted != null
+                                    ? const Color(0xFFC0C0C0)
+                                    : Colors.red,
+                                child: RmbDetector(
+                                  onPressed: () => ChatsMoreView.show(context),
                                   child: tab(
-                                    tab: HomeTab.menu,
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
+                                    tab: HomeTab.chats,
+                                    child: Obx(() {
+                                      final Widget child;
+
+                                      if (c.myUser.value?.muted != null) {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats_muted.svg',
+                                          key: const Key('Muted'),
+                                          width: 36.06,
+                                          height: 30,
+                                        );
+                                      } else {
+                                        child = SvgLoader.asset(
+                                          'assets/icons/chats.svg',
+                                          key: const Key('Unmuted'),
+                                          width: 36.06,
+                                          height: 30,
+                                        );
+                                      }
+
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: child,
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: RmbDetector(
+                                  onPressed: () => StatusView.show(context),
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: tab(
+                                      tab: HomeTab.menu,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: c.pages.jumpToPage,
+                          ),
                         );
                       }),
                     ),
@@ -286,6 +325,11 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
@@ -293,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator()),
                   )
               ],
             );

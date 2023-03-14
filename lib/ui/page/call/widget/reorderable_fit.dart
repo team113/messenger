@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -65,6 +66,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowEmptyTarget = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -158,6 +160,9 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
   /// Hover color of the [DragTarget].
   final Color hoverColor;
+
+  /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
+  final BorderRadius? borderRadius;
 
   /// Returns calculated size of a [ReorderableFit] in its [Wrap] form with
   /// [maxSize], [constraints], [axis] and children [length].
@@ -381,6 +386,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           useLongPress: useLongPress,
           allowDraggingLast: allowDraggingLast,
           itemConstraints: itemConstraints,
+          borderRadius: borderRadius,
         );
       }),
     );
@@ -421,6 +427,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -517,6 +524,9 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Indicator whether this [_ReorderableFit] should use a [Wrap].
   final bool useWrap;
 
+  /// Optional [BorderRadius] to decorate this [_ReorderableFit] with.
+  final BorderRadius? borderRadius;
+
   @override
   State<_ReorderableFit<T>> createState() => _ReorderableFitState<T>();
 }
@@ -548,9 +558,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/pop.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/pop.mp3');
 
     super.dispose();
   }
@@ -583,7 +591,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   Widget build(BuildContext context) {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
-    Widget cell(int index) {
+    Widget cell(int index, [bool withOverlay = true]) {
       var item = _items[index];
       return Stack(
         children: [
@@ -701,20 +709,20 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               ),
             ],
           ),
-          if (widget.overlayBuilder != null)
+          if (withOverlay && widget.overlayBuilder != null)
             widget.overlayBuilder!.call(item.item),
         ],
       );
     }
 
     /// Creates a column of a row at [rowIndex] index.
-    List<Widget> createColumn(int rowIndex) {
+    List<Widget> createColumn(int rowIndex, Widget Function(int) builder) {
       final List<Widget> column = [];
 
       for (int columnIndex = 0; columnIndex < widget.mColumns; columnIndex++) {
         final cellIndex = rowIndex * widget.mColumns + columnIndex;
         if (cellIndex <= _items.length - 1) {
-          column.add(Expanded(child: cell(cellIndex)));
+          column.add(Expanded(child: builder(cellIndex)));
           if (widget.dividerColor != null &&
               columnIndex < widget.mColumns - 1 &&
               cellIndex < _items.length - 1) {
@@ -733,12 +741,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     }
 
     /// Creates a row of a [_createColumn]s.
-    List<Widget> createRows() {
+    List<Widget> createRows(Widget Function(int) builder) {
       final List<Widget> rows = [];
       final rowCount = (_items.length / widget.mColumns).ceil();
 
       for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        final List<Widget> column = createColumn(rowIndex);
+        final List<Widget> column = createColumn(rowIndex, builder);
         rows.add(Expanded(child: Row(children: column)));
         if (widget.dividerColor != null && rowIndex < rowCount - 1) {
           rows.add(IgnorePointer(
@@ -790,34 +798,74 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 },
               ),
             ),
+
           Positioned(
             left: widget.left,
             top: widget.top,
             right: widget.right,
             bottom: widget.bottom,
-            child: SizedBox(
-              width: widget.width,
-              height: widget.height,
-              child: widget.useWrap
-                  ? Wrap(
-                      direction: widget.axis ?? Axis.horizontal,
-                      alignment: WrapAlignment.start,
-                      runAlignment: WrapAlignment.start,
-                      spacing: 0,
-                      runSpacing: 0,
-                      children: _items
-                          .mapIndexed(
-                            (i, e) => SizedBox(
-                              width: widget.wrapSize,
-                              height: widget.wrapSize,
-                              child: cell(i),
-                            ),
-                          )
-                          .toList(),
-                    )
-                  : Column(children: createRows()),
+            child: ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: SizedBox(
+                width: widget.width,
+                height: widget.height,
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .mapIndexed(
+                              (i, e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: cell(i, false),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(children: createRows((i) => cell(i, false))),
+              ),
             ),
           ),
+
+          // Draw the overlay in its own [Wrap]/[Column] to fix double
+          // [ClipRRect] bug.
+          if (widget.overlayBuilder != null)
+            Positioned(
+              left: widget.left,
+              top: widget.top,
+              right: widget.right,
+              bottom: widget.bottom,
+              child: SizedBox(
+                width: widget.width,
+                height: widget.height,
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .mapIndexed(
+                              (i, e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: widget.overlayBuilder!(e.item),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(
+                        children: createRows(
+                          (i) => widget.overlayBuilder!(_items[i].item),
+                        ),
+                      ),
+              ),
+            ),
 
           // Pseudo-[Overlay].
           ..._items.map((e) => e.entry).whereNotNull().map(

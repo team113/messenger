@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,10 +21,8 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -31,27 +30,33 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MicrophoneSwitchView extends StatelessWidget {
-  const MicrophoneSwitchView(this._call, {super.key});
+  const MicrophoneSwitchView({super.key, this.onChanged, this.mic});
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when the selected microphone device changes.
+  final void Function(String)? onChanged;
+
+  /// ID of the initially selected microphone device.
+  final String? mic;
 
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChanged,
+    String? mic,
   }) {
-    return ModalPopup.show(context: context, child: MicrophoneSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: MicrophoneSwitchView(onChanged: onChanged, mic: mic),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: MicrophoneSwitchController(_call, Get.find()),
+      init: MicrophoneSwitchController(Get.find(), mic: mic),
       builder: (MicrophoneSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -78,62 +83,25 @@ class MicrophoneSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.audio().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e =
-                                c.devices.audio().toList()[i];
+                            final MediaDeviceInfo e = c.devices[i];
 
                             final bool selected =
                                 (c.mic.value == null && i == 0) ||
                                     c.mic.value == e.deviceId();
 
-                            return Material(
-                              borderRadius: BorderRadius.circular(10),
-                              color: selected
-                                  ? style.cardSelectedColor.withOpacity(0.8)
-                                  : Colors.white.darken(0.05),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setAudioDevice(e.deviceId()),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          e.label(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 15),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: AnimatedSwitcher(
-                                          duration: 200.milliseconds,
-                                          child: selected
-                                              ? CircleAvatar(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                  radius: 12,
-                                                  child: const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 12,
-                                                  ),
-                                                )
-                                              : const SizedBox(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            return RectangleButton(
+                              selected: selected,
+                              onPressed: selected
+                                  ? null
+                                  : () {
+                                      c.mic.value = e.deviceId();
+                                      (onChanged ?? c.setAudioDevice)
+                                          .call(e.deviceId());
+                                    },
+                              label: e.label(),
                             );
                           });
                         },

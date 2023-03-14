@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../parameters/users.dart';
@@ -28,7 +30,8 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
-    router.chat(context.world.sessions[user.name]!.dialog!);
+    final CustomUser customUser = context.world.sessions[user.name]!;
+    router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
 
     await context.world.appDriver.waitUntil(
       () async {

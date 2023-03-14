@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,8 +29,11 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
-    this.sortContactsByName = true,
     this.callButtons = const [],
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
+    this.sortContactsByName = true,
+    this.loadImages = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -67,4 +71,8 @@ class ApplicationSettings extends HiveObject {
   /// Indicator whether [ChatContact]s should be sorted by their names.
   @HiveField(7)
   bool sortContactsByName;
+
+  /// Indicator whether [ImageAttachment]s should be loaded automatically.
+  @HiveField(8)
+  bool loadImages;
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -94,6 +95,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       .map(
                         (e) => GalleryItem.image(
                           e.original.url,
+                          checksum: e.original.checksum,
                           'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.id}',
                           size: e.original.size,
                         ),
@@ -115,6 +117,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     key: ValueKey(widget.index),
                     child: RetryImage(
                       widget.items![widget.index].original.url,
+                      checksum: widget.items![widget.index].original.checksum,
                       fit: BoxFit.cover,
                       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                       width: double.infinity,
@@ -146,6 +149,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       .map(
                         (e) => RetryImage(
                           e.original.url,
+                          checksum: e.original.checksum,
                           height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),

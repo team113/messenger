@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,14 +21,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         chatId
         ... on EventChatTotalItemsCountUpdated {
             count
-        }
-        ... on EventChatRenamed {
-            name
-            byUser {
-                __typename
-                ...User
-            }
-            at
         }
         ... on EventChatCallMemberRedialed {
             callId
@@ -58,13 +51,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                     until
                 }
             }
-        }
-        ... on EventChatAvatarDeleted {
-            byUser {
-               __typename
-               ...User
-            }
-            at
         }
         ... on EventChatDirectLinkUsageCountUpdated {
             usageCount
@@ -107,17 +93,6 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         ... on EventChatUnreadItemsCountUpdated {
             count
         }
-        ... on EventChatAvatarUpdated {
-            avatar {
-                __typename
-                ...ChatAvatar
-            }
-            byUser {
-                __typename
-                ...User
-            }
-            at
-        }
         ... on EventChatCallFinished {
             callId
             call {
@@ -155,8 +130,8 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             lastItem {
                 node {
                     __typename
-                    ... on ChatMemberInfo {
-                        ...ChatMemberInfo
+                    ... on ChatInfo {
+                        ...ChatInfo
                     }
                     ... on ChatCall {
                         ...ChatCall
@@ -207,8 +182,8 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             item {
                 node {
                     __typename
-                    ... on ChatMemberInfo {
-                        ...ChatMemberInfo
+                    ... on ChatInfo {
+                        ...ChatInfo
                     }
                     ... on ChatCall {
                         ...ChatCall

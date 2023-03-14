@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -35,6 +37,9 @@ class IntroductionController extends GetxController {
 
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState num;
@@ -86,6 +91,7 @@ class IntroductionController extends GetxController {
           }
         }
       },
+      onSubmitted: (_) => repeat.focus.requestFocus(),
     );
 
     repeat = TextFieldState(
@@ -109,6 +115,7 @@ class IntroductionController extends GetxController {
           }
         }
       },
+      onSubmitted: (_) => setPassword(),
     );
 
     super.onInit();

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -364,14 +365,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) {
-    final variables = MyUserEventsArguments(ver: ver);
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
+    final variables = MyUserEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -429,14 +431,15 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
-    final variables = UserEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
+    final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -860,6 +863,48 @@ abstract class UserGraphQlMixin {
         .updateUserCallCover as MyUserEventsVersionedMixin?);
   }
 
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
+  /// any already existing mute even if it's longer.
+  ///
+  /// Muted [MyUser] implies that all his [Chat]s events don't produce sounds
+  /// and notifications on a client side. This, however, has nothing to do with
+  /// a server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleMyUserMute` doesn't correlate with
+  /// `Mutation.toggleChatMute`. Unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds, and so, muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds too.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserMuted] (if [mute] argument is not `null`);
+  /// - [EventUserUnmuted] (if [mute] argument is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] is muted already `until` the specified [DateTime] (or unmuted).
+  Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
+    final variables = ToggleMyUserMuteArguments(mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleMyUserMute',
+        document: ToggleMyUserMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleMyUserMuteException(
+          ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+              as ToggleMyUserMuteErrorCode),
+    );
+    return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
+        as MyUserEventsVersionedMixin?);
+  }
+
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
   ///
   /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
@@ -978,11 +1023,13 @@ abstract class UserGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> keepOnline() {
-    return client.subscribe(SubscriptionOptions(
-      operationName: 'KeepOnline',
-      document: KeepOnlineSubscription().document,
-    ));
+  Stream<QueryResult> keepOnline() {
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'KeepOnline',
+        document: KeepOnlineSubscription().document,
+      ),
+    );
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
@@ -1005,8 +1052,11 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
   /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blacklistUser(UserId id) async {
-    final variables = BlacklistUserArguments(id: id);
+  Future<BlacklistEventsVersionedMixin?> blacklistUser(
+    UserId id,
+    BlacklistReason? reason,
+  ) async {
+    final variables = BlacklistUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'BlacklistUser',
@@ -1053,5 +1103,48 @@ abstract class UserGraphQlMixin {
     );
     return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
         as BlacklistEventsVersionedMixin?;
+  }
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
+  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    int? first,
+    BlacklistCursor? after,
+    int? last,
+    BlacklistCursor? before,
+  }) async {
+    final variables = GetBlacklistArguments(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetBlacklist',
+        document: GetBlacklistQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetBlacklist$Query.fromJson(result.data!).blacklist;
   }
 }

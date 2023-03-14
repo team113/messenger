@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -41,6 +43,9 @@ class AddEmailController extends GetxController {
 
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserEmail] field state.
   late final TextFieldState email;
@@ -77,7 +82,7 @@ class AddEmailController extends GetxController {
       onSubmitted: (s) async {
         UserEmail? email;
         try {
-          email = UserEmail(s.text);
+          email = UserEmail(s.text.toLowerCase());
 
           if (myUser.value!.emails.confirmed.contains(email) ||
               myUser.value?.emails.unconfirmed == email) {

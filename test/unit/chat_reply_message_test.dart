@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,6 +32,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -41,7 +43,6 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -77,6 +78,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -107,20 +110,18 @@ void main() async {
   };
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   AuthService authService = Get.put(
     AuthService(
@@ -140,7 +141,8 @@ void main() async {
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+    )).thenAnswer(
+        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -165,25 +167,40 @@ void main() async {
                   'ver': '1',
                   'repliesTo': [
                     {
-                      'node': {
-                        '__typename': 'ChatMessage',
-                        'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
-                        'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                        'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
-                        'at': '2022-01-27T10:53:21.405546+00:00',
-                        'ver': '1',
-                        'text': '123',
-                        'repliesTo': [
-                          {
-                            'cursor':
-                                'IjQyNDQ3MTRjLWQ3M2MtNGIzMS04MzUyLWY4ZDNmZTJlNWMxYiI='
-                          }
-                        ],
-                        'editedAt': null,
-                        'attachments': []
+                      '__typename': 'ChatMessageQuote',
+                      'original': {
+                        'node': {
+                          '__typename': 'ChatMessage',
+                          'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
+                          'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                          'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
+                          'at': '2022-01-27T10:53:21.405546+00:00',
+                          'ver': '1',
+                          'text': '123',
+                          'editedAt': null,
+                          'attachments': [],
+                          'repliesTo': [],
+                        },
+                        'cursor':
+                            'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
                       },
-                      'cursor':
-                          'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
+                      'at': '2022-01-27T10:53:21.405546+00:00',
+                      'author': {
+                        'id': 'me',
+                        'num': '1234123412341234',
+                        'isDeleted': false,
+                        'gallery': {
+                          'nodes': [],
+                          'edges': [],
+                        },
+                        'mutualContactsCount': 0,
+                        'isBlacklisted': {
+                          'ver': '0',
+                        },
+                        'ver': '0',
+                      },
+                      'text': '123',
+                      'attachments': [],
                     },
                   ],
                   'text': '1',
@@ -207,6 +224,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -268,7 +286,8 @@ void main() async {
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+    )).thenAnswer(
+        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -285,6 +304,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(

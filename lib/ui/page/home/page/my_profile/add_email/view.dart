@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -42,7 +44,7 @@ class AddEmailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: AddEmailController(
@@ -56,120 +58,130 @@ class AddEmailView extends StatelessWidget {
 
           switch (c.stage.value) {
             case AddEmailFlowStage.code:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Obx(() {
-                      return Text(
-                        c.resent.value
-                            ? 'label_add_email_confirmation_sent_again'.l10n
-                            : 'label_add_email_confirmation_sent'.l10n,
-                        style: thin?.copyWith(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Obx(() {
+                        return Text(
+                          c.resent.value
+                              ? 'label_add_email_confirmation_sent_again'.l10n
+                              : 'label_add_email_confirmation_sent'.l10n,
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('ConfirmationCode'),
+                      state: c.emailCode,
+                      label: 'label_confirmation_code'.l10n,
+                      formatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Resend'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                c.resendEmailTimeout.value == 0
+                                    ? 'label_resend'.l10n
+                                    : 'label_resend_timeout'.l10nfmt(
+                                        {'timeout': c.resendEmailTimeout.value},
+                                      ),
+                                style: thin?.copyWith(
+                                  color: c.resendEmailTimeout.value == 0
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                              onPressed: c.resendEmailTimeout.value == 0
+                                  ? c.resendEmail
+                                  : null,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Proceed'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                'btn_proceed'.l10n,
+                                style: thin?.copyWith(
+                                  color: c.emailCode.isEmpty.value
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                              ),
+                              onPressed: c.emailCode.isEmpty.value
+                                  ? null
+                                  : c.emailCode.submit,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
                       );
                     }),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('ConfirmationCode'),
-                    state: c.emailCode,
-                    label: 'label_confirmation_code'.l10n,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Resend'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              c.resendEmailTimeout.value == 0
-                                  ? 'label_resend'.l10n
-                                  : 'label_resend_timeout'.l10nfmt(
-                                      {'timeout': c.resendEmailTimeout.value},
-                                    ),
-                              style: thin?.copyWith(
-                                color: c.resendEmailTimeout.value == 0
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
-                            ),
-                            onPressed: c.resendEmailTimeout.value == 0
-                                ? c.resendEmail
-                                : null,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Proceed'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              'btn_proceed'.l10n,
-                              style: thin?.copyWith(
-                                color: c.emailCode.isEmpty.value
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
-                            ),
-                            onPressed: c.emailCode.isEmpty.value
-                                ? null
-                                : c.emailCode.submit,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
+                  ],
+                ),
               );
               break;
 
             default:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'label_add_email_description'.l10n,
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('Email'),
-                    state: c.email,
-                    label: 'label_email'.l10n,
-                    hint: 'label_email_example'.l10n,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return OutlinedRoundedButton(
-                      key: const Key('Proceed'),
-                      maxWidth: double.infinity,
-                      title: Text(
-                        'btn_proceed'.l10n,
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        'label_add_email_description'.l10n,
                         style: thin?.copyWith(
-                          color: c.email.isEmpty.value
-                              ? Colors.black
-                              : Colors.white,
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      onPressed: c.email.isEmpty.value ? null : c.email.submit,
-                      color: Theme.of(context).colorScheme.secondary,
-                    );
-                  }),
-                ],
+                    ),
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('Email'),
+                      state: c.email,
+                      label: 'label_email'.l10n,
+                      hint: 'label_email_example'.l10n,
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return OutlinedRoundedButton(
+                        key: const Key('Proceed'),
+                        maxWidth: double.infinity,
+                        title: Text(
+                          'btn_proceed'.l10n,
+                          style: thin?.copyWith(
+                            color: c.email.isEmpty.value
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                        ),
+                        onPressed:
+                            c.email.isEmpty.value ? null : c.email.submit,
+                        color: Theme.of(context).colorScheme.secondary,
+                      );
+                    }),
+                  ],
+                ),
               );
               break;
           }

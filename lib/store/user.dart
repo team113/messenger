@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,10 +24,12 @@ import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
@@ -44,6 +47,12 @@ class UserRepository implements AbstractUserRepository {
     this._userLocal,
     this._galleryItemLocal,
   );
+
+  /// Callback, called when a [RxChat] with the provided [ChatId] is required
+  /// by this [UserRepository].
+  ///
+  /// Used to populate the [RxUser.dialog] values.
+  Future<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -131,21 +140,23 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id) async {
+  Future<void> blacklistUser(UserId id, BlacklistReason? reason) async {
     final RxUser? user = _users[id];
-    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+    final BlacklistRecord? record = user?.user.value.isBlacklisted;
 
-    if (user?.user.value.isBlacklisted == false) {
-      user?.user.value.isBlacklisted = true;
+    if (user?.user.value.isBlacklisted == null) {
+      user?.user.value.isBlacklisted = BlacklistRecord(
+        reason: reason,
+        at: PreciseDateTime.now(),
+      );
       user?.user.refresh();
     }
 
     try {
-      await _graphQlProvider.blacklistUser(id);
+      await _graphQlProvider.blacklistUser(id, reason);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted =
-            isBlacklisted ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlacklisted != record) {
+        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
@@ -155,19 +166,18 @@ class UserRepository implements AbstractUserRepository {
   @override
   Future<void> unblacklistUser(UserId id) async {
     final RxUser? user = _users[id];
-    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+    final BlacklistRecord? record = user?.user.value.isBlacklisted;
 
-    if (user?.user.value.isBlacklisted == true) {
-      user?.user.value.isBlacklisted = false;
+    if (user?.user.value.isBlacklisted != null) {
+      user?.user.value.isBlacklisted = null;
       user?.user.refresh();
     }
 
     try {
       await _graphQlProvider.unblacklistUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted =
-            isBlacklisted ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlacklisted != record) {
+        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
@@ -193,13 +203,8 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
-  Future<Stream<UserEvents>> userEvents(
-    UserId id,
-    UserVersion? ver,
-  ) async {
-    return (await _graphQlProvider.userEvents(id, ver))
-        .asyncExpand((event) async* {
-      GraphQlProviderExceptions.fire(event);
+  Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
+    return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
@@ -221,7 +226,15 @@ class UserRepository implements AbstractUserRepository {
         ));
       } else if (events.$$typename == 'IsBlacklisted') {
         var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+        yield UserEventsIsBlacklisted(
+          node.record == null
+              ? null
+              : BlacklistRecord(
+                  reason: node.record!.reason,
+                  at: node.record!.at,
+                ),
+          node.myVer,
+        );
       }
     });
   }
@@ -229,7 +242,11 @@ class UserRepository implements AbstractUserRepository {
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver || ignoreVersion) {
+
+    if (saved == null ||
+        saved.ver < user.ver ||
+        saved.blacklistedVer < user.blacklistedVer ||
+        ignoreVersion) {
       await _userLocal.put(user);
     }
   }

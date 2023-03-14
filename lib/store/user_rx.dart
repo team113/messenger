@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,16 +17,18 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
-import '/provider/gql/exceptions.dart'
-    show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
 class HiveRxUser extends RxUser {
@@ -44,15 +47,29 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
+  /// Reactive value of the [RxChat]-dialog with this [RxUser].
+  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
-  StreamIterator<UserEvents>? _remoteSubscription;
+  StreamQueue<UserEvents>? _remoteSubscription;
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
+
+  @override
+  Rx<RxChat?> get dialog {
+    final ChatId id = user.value.dialog;
+
+    if (_dialog.value == null) {
+      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
+    }
+
+    return _dialog;
+  }
 
   @override
   void listenUpdates() {
@@ -64,27 +81,18 @@ class HiveRxUser extends RxUser {
   @override
   void stopUpdates() {
     if (--_listeners == 0) {
-      _remoteSubscription?.cancel();
+      _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _userLocal.get(id)?.ver;
-    _remoteSubscription =
-        StreamIterator(await _userRepository.userEvents(id, ver));
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    })) {
-      await _userEvent(_remoteSubscription!.current);
-    }
+  Future<void> _initRemoteSubscription() async {
+    _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = StreamQueue(
+      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+    );
+    await _remoteSubscription!.execute(_userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
@@ -194,9 +202,11 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blacklistEvent:
-        var saved = _userLocal.get(id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsBlacklistEventsEvent).event;
-        if (saved != null && saved.blacklistedVer > versioned.ver) {
+
+        // TODO: Properly account `MyUserVersion` returned.
+        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
           break;
         }
 
@@ -206,7 +216,19 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.isBlacklisted:
-        // TODO: Handle this case.
+        var versioned = events as UserEventsIsBlacklisted;
+        var userEntity = _userLocal.get(id);
+
+        if (userEntity != null) {
+          // TODO: Properly account `MyUserVersion` returned.
+          if (userEntity.blacklistedVer > versioned.ver) {
+            break;
+          }
+
+          userEntity.value.isBlacklisted = versioned.record;
+          userEntity.blacklistedVer = versioned.ver;
+          _userLocal.put(userEntity);
+        }
         break;
     }
   }

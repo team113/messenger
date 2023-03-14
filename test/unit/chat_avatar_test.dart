@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,6 +32,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -99,6 +101,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -108,7 +112,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   test('ChatService successfully adds and resets chat avatar', () async {
     when(graphQlProvider.updateChatAvatar(
@@ -163,6 +167,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -253,6 +258,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 

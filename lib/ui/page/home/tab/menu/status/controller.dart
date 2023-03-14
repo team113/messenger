@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -31,6 +33,9 @@ class StatusController extends GetxController {
 
   /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUser.status]'s field state.
   late final TextFieldState status;

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,9 +18,11 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
@@ -28,8 +31,8 @@ import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
@@ -46,16 +49,24 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
+    Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
-    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionAvatarUpdatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionCreatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionMemberAddedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionMemberRemovedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionNameUpdatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatItemIdAdapter());
     Hive.maybeRegisterAdapter(ChatItemVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatMemberAdapter());
-    Hive.maybeRegisterAdapter(ChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
+    Hive.maybeRegisterAdapter(ChatMessageQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageTextAdapter());
     Hive.maybeRegisterAdapter(ChatNameAdapter());
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
@@ -64,7 +75,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
-    Hive.maybeRegisterAdapter(HiveChatMemberInfoAdapter());
+    Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
@@ -88,4 +99,13 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) => deleteSafe(id.val);
+
+  /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
+  Future<void> move(ChatId oldKey, ChatId newKey) async {
+    final ChatMessage? value = get(oldKey);
+    if (value != null) {
+      remove(oldKey);
+      put(newKey, value);
+    }
+  }
 }

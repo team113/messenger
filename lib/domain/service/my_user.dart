@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,7 +26,9 @@ import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -46,6 +49,9 @@ class MyUserService extends DisposableService {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _userRepo.blacklist;
 
   @override
   void onInit() {
@@ -188,6 +194,9 @@ class MyUserService extends DisposableService {
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
   Future<void> updateCallCover(GalleryItemId? id) =>
       _userRepo.updateCallCover(id);
+
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async => await _userRepo.clearCache();

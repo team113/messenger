@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -193,14 +194,15 @@ abstract class ContactGraphQlMixin {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
-  Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) {
-    final variables = ContactsEventsArguments(ver: ver);
+  Stream<QueryResult> contactsEvents(ChatContactsListVersion? Function() ver) {
+    final variables = ContactsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ContactsEvents',
         document: ContactsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -222,8 +224,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] has such name already.
   Future<ChatContactEventsVersionedMixin> changeContactName(
       ChatContactId id, UserName name) async {
-    UpdateChatContactNameArguments variables =
-        UpdateChatContactNameArguments(id: id, name: name);
+    final variables = UpdateChatContactNameArguments(id: id, name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UpdateChatContactName',
@@ -261,7 +262,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] is already favorited at the same position.
   Future<ChatContactEventsVersionedMixin?> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition position,
+    ChatContactFavoritePosition position,
   ) async {
     final variables = FavoriteChatContactArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(

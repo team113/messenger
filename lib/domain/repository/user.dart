@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,7 +19,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/user.dart';
+import '/domain/model/user.dart';
+import 'chat.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -62,7 +64,7 @@ abstract class AbstractUserRepository {
   Future<RxUser?> get(UserId id);
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
-  Future<void> blacklistUser(UserId id);
+  Future<void> blacklistUser(UserId id, BlacklistReason? reason);
 
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].
@@ -73,6 +75,9 @@ abstract class AbstractUserRepository {
 abstract class RxUser {
   /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
+
+  /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
+  Rx<RxChat?> get dialog;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;

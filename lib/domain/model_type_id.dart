@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -50,7 +51,7 @@ class ModelTypeId {
   static const usersCursor = 28;
   static const userVersion = 29;
   static const chatContactId = 30;
-  static const chatContactPosition = 31;
+  static const chatContactFavoritePosition = 31;
   static const chatContactVersion = 32;
   static const chatId = 33;
   static const user = 34;
@@ -77,14 +78,14 @@ class ModelTypeId {
   static const rememberedSession = 55;
   static const rememberedToken = 56;
   static const rememberedSessionVersion = 57;
-  static const chatMemberInfo = 58;
+  static const chatInfo = 58;
   static const chatMessage = 59;
   static const chatForward = 60;
   static const attachmentId = 61;
   static const imageAttachment = 62;
   static const fileAttachment = 63;
   static const chatItemsCursor = 64;
-  static const hiveChatMemberInfo = 65;
+  static const hiveChatInfo = 65;
   static const hiveChatCall = 66;
   static const hiveChatMessage = 67;
   static const hiveChatForward = 68;
@@ -103,4 +104,19 @@ class ModelTypeId {
   static const chatCallCredentials = 81;
   static const chatFavoritePosition = 82;
   static const favoriteChatsListVersion = 83;
+  static const blacklistCursor = 84;
+  static const windowPreferences = 85;
+  static const blacklistReason = 86;
+  static const chatMembersDialedAll = 87;
+  static const chatMembersDialedConcrete = 88;
+  static const chatInfoActionAvatarUpdated = 89;
+  static const chatInfoActionCreated = 90;
+  static const chatInfoActionMemberAdded = 91;
+  static const chatInfoActionMemberRemoved = 92;
+  static const chatInfoActionNameUpdated = 93;
+  static const chatMessageQuote = 94;
+  static const chatCallQuote = 95;
+  static const chatInfoQuote = 96;
+  static const blacklistRecord = 97;
+  static const rect = 98;
 }

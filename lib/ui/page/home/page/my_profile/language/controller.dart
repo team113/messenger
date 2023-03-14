@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -27,11 +29,14 @@ export 'view.dart';
 class LanguageSelectionController extends GetxController {
   LanguageSelectionController(this._settingsRepository);
 
-  /// Settings repository updating the [ApplicationSettings.locale].
-  final AbstractSettingsRepository? _settingsRepository;
-
   /// Currently selected [Language].
   late final Rx<Language?> selected;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Settings repository updating the [ApplicationSettings.locale].
+  final AbstractSettingsRepository? _settingsRepository;
 
   @override
   void onInit() {

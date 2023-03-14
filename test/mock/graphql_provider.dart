@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,7 +39,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   void disconnect() {}
 
   @override
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     Future.delayed(
         Duration.zero,
         () => ongoingCallStream.add(QueryResult.internal(
@@ -51,7 +52,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
               },
               parserFn: (_) => null,
             )));
-    return Future.value(ongoingCallStream.stream);
+    return ongoingCallStream.stream;
   }
 
   @override
@@ -78,15 +79,16 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
       });
 
   @override
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) =>
+      const Stream.empty();
 
   @override
-  Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> contactsEvents(
+          ChatContactsListVersion? Function()? getVer) =>
+      const Stream.empty();
 
   @override
-  Future<Stream<QueryResult>> favoriteChatsEvents(
-          FavoriteChatsListVersion? ver) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> favoriteChatsEvents(
+          FavoriteChatsListVersion? Function()? getVer) =>
+      const Stream.empty();
 }

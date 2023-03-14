@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -36,6 +38,9 @@ class ChangePasswordController extends GetxController {
 
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;
@@ -74,6 +79,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => newPassword.focus.requestFocus(),
     );
     newPassword = TextFieldState(
       onChanged: (s) {
@@ -86,6 +92,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
     );
     repeatPassword = TextFieldState(
       onChanged: (s) {
@@ -95,6 +102,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
+      onSubmitted: (s) => changePassword(),
     );
 
     super.onInit();

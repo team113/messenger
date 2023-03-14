@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,11 +41,14 @@ import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
+import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
+import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -56,16 +60,33 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-    }
 
     await _initHive();
 
-    var graphQlProvider = Get.put(GraphQlProvider());
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      await windowManager.ensureInitialized();
+      await windowManager.setMinimumSize(const Size(100, 100));
+
+      final WindowPreferencesHiveProvider preferences = Get.find();
+      final WindowPreferences? prefs = preferences.get();
+
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
+      }
+
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
+      }
+
+      await windowManager.show();
+
+      Get.put(WindowWorker(preferences));
+    }
+
+    final graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    var authService =
+    final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
@@ -176,6 +197,7 @@ Future<void> _initHive() async {
   }
 
   await Get.put(SessionDataHiveProvider()).init();
+  await Get.put(WindowPreferencesHiveProvider()).init();
 }
 
 /// Extension adding an ability to clean [Hive].

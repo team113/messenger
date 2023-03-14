@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +25,7 @@ import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.
@@ -74,8 +78,12 @@ class _VideoState extends State<Video> {
   /// Indicator whether the [_initVideo] has failed.
   bool _hasError = false;
 
+  /// [Timer] for displaying the loading animation when non-`null`.
+  Timer? _loading;
+
   @override
   void initState() {
+    _loading = Timer(1.seconds, () => setState(() => _loading = null));
     _initVideo();
     super.initState();
   }
@@ -83,6 +91,7 @@ class _VideoState extends State<Video> {
   @override
   void dispose() {
     widget.onController?.call(null);
+    _loading?.cancel();
     _controller.dispose();
     _chewie?.dispose();
     super.dispose();
@@ -108,6 +117,7 @@ class _VideoState extends State<Video> {
             )
           : _hasError
               ? Center(
+                  key: const Key('Error'),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
@@ -122,6 +132,7 @@ class _VideoState extends State<Video> {
                   ),
                 )
               : GestureDetector(
+                  key: Key(_loading == null ? 'Loading' : 'Box'),
                   onTap: () {},
                   child: Center(
                     child: Container(
@@ -131,7 +142,9 @@ class _VideoState extends State<Video> {
                         color: const Color(0x00000000),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: _loading != null
+                          ? const SizedBox()
+                          : const Center(child: CustomProgressIndicator()),
                     ),
                   ),
                 ),
@@ -198,6 +211,6 @@ class _VideoState extends State<Video> {
       }
     }
 
-    setState(() {});
+    setState(() => _loading?.cancel());
   }
 }

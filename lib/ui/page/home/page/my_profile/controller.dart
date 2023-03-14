@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,19 +21,22 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/media_settings.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -54,14 +58,19 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [FlutterListViewController] of the profile's [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  /// Index of the initial profile page section to show in a
+  /// [ScrollablePositionedList].
   int listInitIndex = 0;
-
-  /// [OngoingCall] used for getting local media devices.
-  late final Rx<OngoingCall> call;
 
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
@@ -78,11 +87,28 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
+
+  /// List of [MediaDeviceInfo] of all the available devices.
+  InputDevices devices = RxList<MediaDeviceInfo>([]);
+
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// Client for communicating with the [_mediaManager].
+  Jason? _jason;
+
+  /// Handle to a media manager tracking all the connected devices.
+  MediaManagerHandle? _mediaManager;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -111,20 +137,27 @@ class MyProfileController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => call.value.devices;
+  /// Returns the current [MediaSettings] value.
+  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns ID of the currently used video device.
-  RxnString get camera => call.value.videoDevice;
-
-  /// Returns ID of the currently used microphone device.
-  RxnString get mic => call.value.audioDevice;
-
-  /// Returns ID of the currently used output device.
-  RxnString get output => call.value.outputDevice;
+  /// Returns the [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
   void onInit() {
+    if (!PlatformUtils.isMobile) {
+      try {
+        _jason = Jason();
+        _mediaManager = _jason?.mediaManager();
+        _mediaManager?.onDeviceChange(() => enumerateDevices());
+        enumerateDevices();
+      } catch (_) {
+        // [Jason] might not be supported on the current platform.
+        _jason = null;
+        _mediaManager = null;
+      }
+    }
+
     listInitIndex = router.profileSection.value?.index ?? 0;
 
     bool ignoreWorker = false;
@@ -137,8 +170,8 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await listController.sliverController.animateToIndex(
-            tab?.index ?? 0,
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
@@ -147,17 +180,17 @@ class MyProfileController extends GetxController {
       },
     );
 
-    listController.sliverController.onPaintItemPositionsCallback =
-        (height, positions) {
-      if (positions.isNotEmpty && !ignorePositions) {
-        final ProfileTab tab = ProfileTab.values[positions.first.index];
+    positionsListener.itemPositions.addListener(() {
+      if (!ignorePositions) {
+        final ProfileTab tab = ProfileTab
+            .values[positionsListener.itemPositions.value.first.index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
-    };
+    });
 
     _myUserWorker = ever(
       _myUserService.myUser,
@@ -294,7 +327,7 @@ class MyProfileController extends GetxController {
         }
 
         try {
-          UserLogin(s.text);
+          UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_login_input'.l10n;
         }
@@ -305,7 +338,8 @@ class MyProfileController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.updateUserLogin(UserLogin(s.text));
+            await _myUserService
+                .updateUserLogin(UserLogin(s.text.toLowerCase()));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),
@@ -372,31 +406,17 @@ class MyProfileController extends GetxController {
       },
     );
 
-    if (!PlatformUtils.isMobile) {
-      // TODO: This is a really bad hack. We should not create a call here.
-      //       Required functionality should be decoupled from the
-      //       [OngoingCall] or reimplemented here.
-      call = Rx<OngoingCall>(OngoingCall(
-        const ChatId('settings'),
-        const UserId(''),
-        state: OngoingCallState.local,
-        mediaSettings: _settingsRepo.mediaSettings.value,
-        withAudio: false,
-        withVideo: false,
-        withScreen: false,
-      ));
-
-      call.value.init();
-    }
-
     super.onInit();
   }
 
   @override
   void onClose() {
+    _mediaManager?.free();
+    _mediaManager = null;
+    _jason?.free();
+    _jason = null;
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
-    call.value.dispose();
     super.onClose();
   }
 
@@ -414,6 +434,26 @@ class MyProfileController extends GetxController {
 
     if (result != null && result.files.isNotEmpty) {
       _settingsRepo.setBackground(result.files.first.bytes);
+    }
+  }
+
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
     }
   }
 
@@ -463,6 +503,51 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available media input devices, such as microphones, cameras, and so forth.
+  Future<void> enumerateDevices() async {
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
+        .whereNot((e) => e.deviceId().isEmpty)
+        .toList();
+    devices.refresh();
+  }
+
+  /// Deletes the provided [email] from [MyUser.emails].
+  Future<void> deleteEmail(UserEmail email) async {
+    try {
+      await _myUserService.deleteUserEmail(email);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes the provided [phone] from [MyUser.phones].
+  Future<void> deletePhone(UserPhone phone) async {
+    try {
+      await _myUserService.deleteUserPhone(phone);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes [myUser]'s account.
+  Future<void> deleteAccount() async {
+    try {
+      await _myUserService.deleteMyUser();
+      router.go(Routes.auth);
+      router.tab = HomeTab.chats;
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsRepo.setLoadImages(enabled);
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].
   ///
@@ -492,8 +577,6 @@ extension PresenceL10n on Presence {
         return 'label_presence_present'.l10n;
       case Presence.away:
         return 'label_presence_away'.l10n;
-      case Presence.hidden:
-        return 'label_presence_hidden'.l10n;
       case Presence.artemisUnknown:
         return null;
     }
@@ -506,8 +589,6 @@ extension PresenceL10n on Presence {
         return Colors.green;
       case Presence.away:
         return Colors.orange;
-      case Presence.hidden:
-        return Colors.grey;
       case Presence.artemisUnknown:
         return null;
     }

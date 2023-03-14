@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,7 +28,6 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
-import 'package:path_provider_ios/path_provider_ios.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
@@ -135,8 +135,6 @@ class _BackgroundService {
 
     if (Platform.isAndroid) {
       PathProviderAndroid.registerWith();
-    } else if (Platform.isIOS) {
-      PathProviderIOS.registerWith();
     }
 
     _provider.authExceptionHandler = (e) async {
@@ -389,10 +387,9 @@ class _BackgroundService {
   }
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].
-  Future<void> _subscribe() async {
-    _subscription = (await _provider.incomingCallsTopEvents(3)).listen(
+  void _subscribe() {
+    _subscription = _provider.incomingCallsTopEvents(3).listen(
       (event) {
-        GraphQlProviderExceptions.fire(event);
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
         switch (e.$$typename) {
@@ -467,19 +464,10 @@ class _BackgroundService {
         }
       },
       onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.l10n,
-            content: '${DateTime.now()}',
-          );
-          _subscribe();
-        } else {
-          _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.l10n,
-            content: e,
-          );
-          throw e;
-        }
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
       },
     );
   }

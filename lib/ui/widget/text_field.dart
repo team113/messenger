@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,11 +18,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'allow_overflow.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 
@@ -214,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? UnconstrainedBox(
+                                        ? AllowOverflow(
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
@@ -252,7 +253,10 @@ class ReactiveTextField extends StatelessWidget {
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
                 floatingLabelStyle: state.error.value?.isNotEmpty == true
-                    ? GoogleFonts.roboto(color: Colors.red)
+                    ? Theme.of(context)
+                        .inputDecorationTheme
+                        .floatingLabelStyle
+                        ?.copyWith(color: Colors.red)
                     : null,
               ),
         ),
@@ -357,6 +361,9 @@ abstract class ReactiveFieldState {
   /// Indicator whether [controller]'s text should be approved.
   bool approvable = false;
 
+  /// Reactive [FocusNode.hasFocus] of this [ReactiveFieldState].
+  final RxBool isFocused = RxBool(false);
+
   /// Reactive error message.
   final RxnString error = RxnString();
 
@@ -396,19 +403,22 @@ class TextFieldState extends ReactiveFieldState {
       controller.addListener(() {
         changed.value = controller.text != _previousSubmit;
       });
-      this.focus.addListener(
-        () {
-          if (controller.text != _previousText &&
-              (_previousText != null || controller.text.isNotEmpty)) {
-            isEmpty.value = controller.text.isEmpty;
-            if (!this.focus.hasFocus) {
-              onChanged?.call(this);
-              _previousText = controller.text;
-            }
-          }
-        },
-      );
     }
+
+    this.focus.addListener(() {
+      isFocused.value = this.focus.hasFocus;
+
+      if (onChanged != null) {
+        if (controller.text != _previousText &&
+            (_previousText != null || controller.text.isNotEmpty)) {
+          isEmpty.value = controller.text.isEmpty;
+          if (!this.focus.hasFocus) {
+            onChanged?.call(this);
+            _previousText = controller.text;
+          }
+        }
+      }
+    });
   }
 
   /// Callback, called when the [text] has finished changing.

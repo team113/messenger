@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -43,7 +44,7 @@ class CallWindowSwitchView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),

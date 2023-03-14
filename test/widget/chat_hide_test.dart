@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,10 +33,13 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
@@ -43,6 +47,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -50,7 +55,7 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -94,6 +99,16 @@ void main() async {
     }
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -101,13 +116,14 @@ void main() async {
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.myUserEvents(any))
+      .thenAnswer((realInvocation) => const Stream.empty());
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
@@ -140,6 +156,13 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -163,11 +186,11 @@ void main() async {
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatVersion('0'),
-    )).thenAnswer((_) => Future.value(chatEvents.stream));
+      any,
+    )).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -179,10 +202,9 @@ void main() async {
             }
           },
         )
-      ])),
+      ]),
     );
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.hideChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -219,7 +241,16 @@ void main() async {
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
+
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    );
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
@@ -238,11 +269,21 @@ void main() async {
       ),
     );
 
+    MyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    Get.put(MyUserService(authService, myUserRepository));
+
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -276,6 +317,8 @@ void main() async {
     await tester.longPress(find.byType(ContextMenuRegion));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('ButtonHideChat')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('chatname'), findsNothing);

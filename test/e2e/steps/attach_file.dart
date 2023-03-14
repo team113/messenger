@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -49,11 +50,11 @@ final StepDefinitionGeneric attachFile =
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.addPlatformAttachment(file);
+          controller.send.addPlatformAttachment(file);
         } else {
           final controller =
               Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.addPlatformAttachment(file);
+          controller.send.addPlatformAttachment(file);
         }
         break;
 
@@ -68,11 +69,11 @@ final StepDefinitionGeneric attachFile =
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.addPlatformAttachment(image);
+          controller.send.addPlatformAttachment(image);
         } else {
           final controller =
               Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.addPlatformAttachment(image);
+          controller.send.addPlatformAttachment(image);
         }
         break;
     }

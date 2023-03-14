@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,8 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -37,26 +38,26 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
-import 'delete_account/view.dart';
-import 'delete_email/view.dart';
-import 'delete_phone/view.dart';
 import 'language/view.dart';
 import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'widget/copyable.dart';
+import 'widget/download_button.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -78,13 +79,18 @@ class MyProfileView extends StatelessWidget {
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
-                return const CircularProgressIndicator();
+                return const CustomProgressIndicator();
               }
 
-              return FlutterListView(
-                controller: c.listController,
-                delegate: FlutterListViewDelegate(
-                  (context, i) {
+              return Scrollbar(
+                controller: c.scrollController,
+                child: ScrollablePositionedList.builder(
+                  initialScrollIndex: c.listInitIndex,
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  itemCount: ProfileTab.values.length,
+                  itemBuilder: (context, i) {
                     switch (ProfileTab.values[i]) {
                       case ProfileTab.public:
                         return Block(
@@ -94,9 +100,26 @@ class MyProfileView extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 WidgetButton(
-                                  onPressed: c.uploadAvatar,
+                                  onPressed: c.myUser.value?.avatar == null
+                                      ? c.uploadAvatar
+                                      : () async {
+                                          await GalleryPopup.show(
+                                            context: context,
+                                            gallery: GalleryPopup(
+                                              initialKey: c.avatarKey,
+                                              children: [
+                                                GalleryItem.image(
+                                                  c.myUser.value!.avatar!
+                                                      .original.url,
+                                                  c.myUser.value!.num.val,
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
+                                    key: c.avatarKey,
                                     radius: 100,
                                     badge: false,
                                   ),
@@ -115,7 +138,7 @@ class MyProfileView extends StatelessWidget {
                                               ),
                                               child: const Center(
                                                 child:
-                                                    CircularProgressIndicator(),
+                                                    CustomProgressIndicator(),
                                               ),
                                             )
                                           : const SizedBox.shrink(),
@@ -126,18 +149,14 @@ class MyProfileView extends StatelessWidget {
                             ),
                             const SizedBox(height: 5),
                             Obx(() {
-                              if (c.myUser.value?.avatar == null) {
-                                return const SizedBox();
-                              }
-
-                              return Center(
-                                child: WidgetButton(
-                                  key: const Key('DeleteAvatar'),
-                                  onPressed: c.deleteAvatar,
-                                  child: SizedBox(
-                                    height: 20,
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  WidgetButton(
+                                    key: const Key('UploadAvatar'),
+                                    onPressed: c.uploadAvatar,
                                     child: Text(
-                                      'btn_delete'.l10n,
+                                      'btn_upload'.l10n,
                                       style: TextStyle(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -146,7 +165,29 @@ class MyProfileView extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                ),
+                                  if (c.myUser.value?.avatar != null) ...[
+                                    Text(
+                                      'space_or_space'.l10n,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                    WidgetButton(
+                                      key: const Key('DeleteAvatar'),
+                                      onPressed: c.deleteAvatar,
+                                      child: Text(
+                                        'btn_delete'.l10n.toLowerCase(),
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               );
                             }),
                             const SizedBox(height: 10),
@@ -201,10 +242,28 @@ class MyProfileView extends StatelessWidget {
 
                         return const SizedBox();
 
+                      case ProfileTab.notifications:
+                        return Block(
+                          title: 'label_audio_notifications'.l10n,
+                          children: [_notifications(context, c)],
+                        );
+
+                      case ProfileTab.storage:
+                        return Block(
+                          title: 'label_storage'.l10n,
+                          children: [_storage(context, c)],
+                        );
+
                       case ProfileTab.language:
                         return Block(
                           title: 'label_language'.l10n,
                           children: [_language(context, c)],
+                        );
+
+                      case ProfileTab.blacklist:
+                        return Block(
+                          title: 'label_blocked_users'.l10n,
+                          children: [_blockedUsers(context, c)],
                         );
 
                       case ProfileTab.download:
@@ -220,15 +279,13 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: [_deleteAccount(context, c)],
+                          children: [_danger(context, c)],
                         );
 
                       case ProfileTab.logout:
                         return const SizedBox();
                     }
                   },
-                  initIndex: c.listInitIndex,
-                  childCount: ProfileTab.values.length,
                 ),
               );
             }),
@@ -260,7 +317,7 @@ Widget _name(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.login.text.isEmpty
           ? null
@@ -288,7 +345,7 @@ Widget _status(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.status.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.status.text.isEmpty
           ? null
@@ -360,7 +417,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                     ),
                   );
 
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.link.isEmpty.value
               ? null
@@ -429,7 +486,7 @@ Widget _login(MyProfileController c, BuildContext context) {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.login.text));
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.login.text.isEmpty
               ? null
@@ -537,9 +594,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
               hint: 'label_email'.l10n,
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => DeleteEmailView.show(context, email: e),
+              onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -1),
@@ -647,9 +704,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               email: c.myUser.value!.emails.unconfirmed!,
             ),
-            onTrailingPressed: () => DeleteEmailView.show(
+            onTrailingPressed: () => _deleteEmail(
+              c,
               context,
-              email: c.myUser.value!.emails.unconfirmed!,
+              c.myUser.value!.emails.unconfirmed!,
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
@@ -710,9 +768,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
               ),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => DeletePhoneView.show(context, phone: e),
+              onTrailingPressed: () => _deletePhone(c, context, e),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
@@ -806,9 +864,10 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               phone: c.myUser.value!.phones.unconfirmed!,
             ),
-            onTrailingPressed: () => DeletePhoneView.show(
+            onTrailingPressed: () => _deletePhone(
+              c,
               context,
-              phone: c.myUser.value!.phones.unconfirmed!,
+              c.myUser.value!.phones.unconfirmed!,
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
@@ -869,21 +928,25 @@ Widget _password(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the contents of a [ProfileTab.danger] section.
-Widget _deleteAccount(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      key: const Key('DeleteAccount'),
-      text: 'btn_delete_account'.l10n,
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+Widget _danger(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          key: const Key('DeleteAccount'),
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => _deleteAccount(c, context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      onPressed: () => DeleteAccountView.show(context),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-    ),
+    ],
   );
 }
 
@@ -991,23 +1054,27 @@ Widget _background(BuildContext context, MyProfileController c) {
           ),
         ),
         Obx(() {
-          if (c.background.value == null) {
-            return const SizedBox();
-          }
-
           return Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Center(
-              child: WidgetButton(
-                onPressed:
-                    c.background.value == null ? null : c.removeBackground,
-                child: Text(
-                  'btn_delete'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed: c.background.value == null
+                        ? c.pickBackground
+                        : c.removeBackground,
+                    child: Text(
+                      c.background.value == null
+                          ? 'btn_upload'.l10n
+                          : 'btn_delete'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -1046,13 +1113,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull(
-                            (e) => e.deviceId() == c.camera.value) ??
+            text: (c.devices.video().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.videoDevice) ??
                         c.devices.video().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_camera'.l10n,
-            onPressed: () => CameraSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await CameraSwitchView.show(
+                context,
+                camera: c.media.value?.videoDevice,
+              );
+
+              if (c.devices.video().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
@@ -1061,13 +1137,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull(
-                            (e) => e.deviceId() == c.mic.value) ??
+            text: (c.devices.audio().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_microphone'.l10n,
-            onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await MicrophoneSwitchView.show(
+                context,
+                mic: c.media.value?.audioDevice,
+              );
+
+              if (c.devices.audio().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
@@ -1076,13 +1161,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.output().firstWhereOrNull(
-                            (e) => e.deviceId() == c.output.value) ??
+            text: (c.devices.output().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.outputDevice) ??
                         c.devices.output().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_output'.l10n,
-            onPressed: () => OutputSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await OutputSwitchView.show(
+                context,
+                output: c.media.value?.outputDevice,
+              );
+
+              if (c.devices.output().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
@@ -1091,97 +1185,93 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.download] section.
-Widget _downloads(BuildContext context, MyProfileController c) {
-  Widget button({
-    required String asset,
-    required double width,
-    required double height,
-    required String title,
-    String? link,
-  }) {
-    return FieldButton(
-      text: 'space'.l10n * 4 + title,
-      textAlign: TextAlign.center,
-      onPressed: link == null
-          ? null
-          : () {
-              WebUtils.download('${Config.origin}/artifacts/$link', link);
-            },
-      onTrailingPressed: () {
-        if (link != null) {
-          Clipboard.setData(
-            ClipboardData(text: '${Config.origin}/artifacts/$link'),
-          );
-          MessagePopup.success('label_copied_to_clipboard'.l10n);
-        }
-      },
-      prefix: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Transform.scale(
-          scale: 2,
-          child: SvgLoader.asset(
-            'assets/icons/$asset.svg',
-            width: width / 2,
-            height: height / 2,
+/// Returns the contents of a [ProfileTab.notifications] section.
+Widget _notifications(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: (c.myUser.value?.muted == null
+                        ? 'label_enabled'
+                        : 'label_disabled')
+                    .l10n,
+                editable: false,
+              ),
+            ),
           ),
-        ),
-      ),
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset(
-            'assets/icons/copy.svg',
-            height: 15,
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(
+                    platform: TargetPlatform.macOS,
+                  ),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.myUser.value?.muted == null,
+                    onChanged: c.isMuting.value ? null : c.toggleMute,
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
+        ],
       ),
     );
-  }
+  });
+}
 
+/// Returns the contents of a [ProfileTab.download] section.
+Widget _downloads(BuildContext context, MyProfileController c) {
   return _dense(
     Column(
-      children: [
-        button(
+      children: const [
+        DownloadButton(
           asset: 'windows',
           width: 21.93,
           height: 22,
-          title: 'Windows'.l10n,
+          title: 'Windows',
           link: 'messenger-windows.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'macOS'.l10n,
+          title: 'macOS',
           link: 'messenger-macos.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'linux',
           width: 18.85,
           height: 22,
-          title: 'Linux'.l10n,
+          title: 'Linux',
           link: 'messenger-linux.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'iOS'.l10n,
+          title: 'iOS',
+          link: 'messenger-ios.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android'.l10n,
+          title: 'Android',
           link: 'messenger-android.apk',
         ),
       ],
@@ -1205,4 +1295,134 @@ Widget _language(BuildContext context, MyProfileController c) {
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
+}
+
+/// Returns the contents of a [ProfileTab.blacklist] section.
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          text: 'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: TextStyle(
+              color: c.blacklist.isEmpty
+                  ? Colors.black
+                  : Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: 'label_load_images'.l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(platform: TargetPlatform.macOS),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.settings.value?.loadImages == true,
+                    onChanged:
+                        c.settings.value == null ? null : c.setLoadImages,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
+}
+
+/// Opens a confirmation popup deleting the provided [email] from the
+/// [MyUser.emails].
+Future<void> _deleteEmail(
+  MyProfileController c,
+  BuildContext context,
+  UserEmail email,
+) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_email'.l10n,
+    description: [
+      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
+      TextSpan(
+        text: email.val,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteEmail(email);
+  }
+}
+
+/// Opens a confirmation popup deleting the provided [phone] from the
+/// [MyUser.phones].
+Future<void> _deletePhone(
+  MyProfileController c,
+  BuildContext context,
+  UserPhone phone,
+) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_phone_number'.l10n,
+    description: [
+      TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
+      TextSpan(
+        text: phone.val,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deletePhone(phone);
+  }
+}
+
+/// Opens a confirmation popup deleting the [MyUser]'s account.
+Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_account'.l10n,
+    description: [
+      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
+      TextSpan(
+        text: c.myUser.value?.name?.val ??
+            c.myUser.value?.login?.val ??
+            c.myUser.value?.num.val ??
+            'dot'.l10n * 3,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteAccount();
+  }
 }

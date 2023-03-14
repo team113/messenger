@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
@@ -30,7 +32,7 @@ import '/util/platform_utils.dart';
 class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
-    Key? key,
+    super.key,
     this.source = MediaSourceKind.Device,
     this.borderRadius,
     this.enableContextMenu = true,
@@ -38,12 +40,12 @@ class RtcVideoView extends StatefulWidget {
     this.label,
     this.mirror = false,
     this.muted = false,
-    this.outline,
+    this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.framelessBuilder,
-  }) : super(key: key);
+  });
 
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
@@ -85,8 +87,8 @@ class RtcVideoView extends StatefulWidget {
   /// Only effective under the web, since only web has default context menu.
   final bool enableContextMenu;
 
-  /// Optional outline of this video.
-  final Color? outline;
+  /// Optional border to apply to this [RtcVideoView].
+  final Border? border;
 
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
@@ -182,6 +184,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       mirror: widget.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
+      autoRotate: !widget.mirror,
     );
 
     // Wait for the size to be determined if necessary.
@@ -192,7 +195,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           children: [
             Offstage(child: video),
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CircularProgressIndicator())
+            const Center(child: CustomProgressIndicator(size: 64))
           ],
         );
       }
@@ -211,7 +214,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           return Stack(
             children: [
               Offstage(child: video),
-              const Center(child: CircularProgressIndicator())
+              const Center(child: CustomProgressIndicator(size: 64))
             ],
           );
         }
@@ -246,14 +249,12 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
-    Widget outlined(BoxFit? fit) => Container(
-          decoration: widget.outline == null
-              ? null
-              : BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: widget.outline!),
-                  borderRadius: widget.borderRadius,
-                ),
+    Widget outlined(BoxFit? fit) => AnimatedContainer(
+          duration: 200.milliseconds,
+          decoration: BoxDecoration(
+            border: widget.border,
+            borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
+          ),
           child: clipped(fit),
         );
 

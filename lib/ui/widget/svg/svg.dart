@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -44,7 +45,6 @@ class SvgLoader {
     String asset, {
     Key? key,
     Alignment alignment = Alignment.center,
-    Color? color,
     BoxFit fit = BoxFit.contain,
     double? height,
     String? package,
@@ -57,7 +57,6 @@ class SvgLoader {
         asset,
         key: key,
         alignment: alignment,
-        color: color,
         fit: fit,
         height: height,
         package: package,
@@ -77,7 +76,6 @@ class SvgLoader {
     Uint8List bytes, {
     Key? key,
     Alignment alignment = Alignment.center,
-    Color? color,
     BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
@@ -89,7 +87,6 @@ class SvgLoader {
         bytes,
         key: key,
         alignment: Alignment.center,
-        color: color,
         fit: fit,
         width: width,
         height: height,
@@ -107,7 +104,6 @@ class SvgLoader {
     File file, {
     Key? key,
     Alignment alignment = Alignment.center,
-    Color? color,
     BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
@@ -119,7 +115,6 @@ class SvgLoader {
         file,
         key: key,
         alignment: Alignment.center,
-        color: color,
         excludeFromSemantics: excludeFromSemantics,
         fit: fit,
         height: height,

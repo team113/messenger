@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -102,9 +103,16 @@ void main() async {
     ).thenAnswer((_) => Future.value());
     when(
       graphQlProvider.recoverUserPassword(
-          UserLogin('emptyuser'), null, null, null),
-    ).thenAnswer((_) => throw const RecoverUserPasswordException(
-        RecoverUserPasswordErrorCode.unknownUser));
+        UserLogin('emptyuser'),
+        null,
+        null,
+        null,
+      ),
+    ).thenAnswer(
+      (_) => throw const RecoverUserPasswordException(
+        RecoverUserPasswordErrorCode.codeLimitExceeded,
+      ),
+    );
     when(
       graphQlProvider.validateUserPasswordRecoveryCode(
           UserLogin('login'), null, null, null, ConfirmationCode('1234')),

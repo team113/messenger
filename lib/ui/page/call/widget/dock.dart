@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -349,7 +350,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           ),
         ),
       );
-      Overlay.of(context)?.insert(_entry!);
+      Overlay.of(context).insert(_entry!);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
@@ -484,7 +485,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       builder: (_) => AnimatedTransition(
         beginRect: beginRect,
         endRect: endRect,
-        animationDuration: jumpDuration,
+        duration: jumpDuration,
         onEnd: () {
           onEnd();
           _removeOverlay();
@@ -493,7 +494,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       ),
     );
 
-    Overlay.of(context)?.insert(_entry!);
+    Overlay.of(context).insert(_entry!);
   }
 
   /// Removes the [_entry].

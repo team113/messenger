@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -35,6 +36,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -110,6 +112,8 @@ void main() async {
   await chatProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -163,6 +167,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -291,6 +296,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -358,6 +364,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -489,14 +496,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
-  Future<Stream<QueryResult>> callEvents(
+  Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) =>
-      Future.value(_heartbeat.stream);
+      _heartbeat.stream;
 
   @override
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(
@@ -510,11 +517,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         parserFn: (_) => null,
       )),
     );
-    return Future.value(chatEventsStream.stream);
+    return chatEventsStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
       data: {
@@ -525,12 +532,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       },
       parserFn: (_) => null,
     ));
-    return Future.value(ongoingCallStream.stream);
+    return ongoingCallStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(int count) => const Stream.empty();
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
@@ -716,7 +722,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
-    return GetChat$Query.fromJson(chatData);
+    return GetChat$Query.fromJson({'chat': chatData});
   }
 
   Map<String, dynamic> userData = {

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -51,6 +52,7 @@ import 'component/common.dart';
 import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
+import 'widget/dock.dart';
 
 export 'view.dart';
 
@@ -93,9 +95,6 @@ class CallController extends GetxController {
 
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
-
-  /// Indicator whether the secondary view is being scaled.
-  final RxBool secondaryScaled = RxBool(false);
 
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
@@ -143,7 +142,7 @@ class CallController extends GetxController {
   final RxBool cameraSwitched = RxBool(false);
 
   /// Indicator whether the speaker was switched or not.
-  final RxBool speakerSwitched = RxBool(true);
+  late final RxBool speakerSwitched;
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
@@ -153,6 +152,9 @@ class CallController extends GetxController {
 
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
+
+  /// [DateTime] of when the last [Listener.onPointerDown] callback happened.
+  DateTime? downAt;
 
   /// Position of a [Listener.onPointerDown] callback used in
   /// [Listener.onPointerUp] since the latter does not provide this info.
@@ -167,17 +169,6 @@ class CallController extends GetxController {
 
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
-
-  /// Temporary indicator whether the secondary view should always be on top.
-  final RxBool panelUp = RxBool(false);
-
-  /// Temporary indicator whether a left mouse button clicks on
-  /// [RtcVideoRenderer]s should call [focus], [unfocus] and [center] or not.
-  final RxBool handleLmb = RxBool(false);
-
-  /// Timeout of a [handleLmb] used to decline any clicks happened after it
-  /// reaches zero.
-  int lmbTimeout = 7;
 
   /// Error happened in a call.
   final RxString error = RxString('');
@@ -208,6 +199,11 @@ class CallController extends GetxController {
 
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
+
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
@@ -281,10 +277,10 @@ class CallController extends GetxController {
   static const double _maxHeight = 0.99;
 
   /// Min width of the minimized view in pixels.
-  static const double _minWidth = 500;
+  static const double _minWidth = 300;
 
   /// Min height of the minimized view in pixels.
-  static const double _minHeight = 500;
+  static const double _minHeight = 300;
 
   /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.80;
@@ -304,13 +300,17 @@ class CallController extends GetxController {
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
 
+  /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
+  /// to calculate the difference.
+  BoxConstraints? _lastConstraints;
+
   /// Service managing the [_currentCall].
   final CallService _calls;
 
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
-  /// Settings repository, used to get the [buttons] value.
+  /// Settings repository maintaining [OngoingCall] related preferences.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Current [OngoingCall].
@@ -369,6 +369,10 @@ class CallController extends GetxController {
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [secondaryBottom] value before the secondary view got relocated due to the
+  /// intersection with the [Dock].
+  double? secondaryBottomShiftedByDock;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -504,6 +508,10 @@ class CallController extends GetxController {
     return args;
   }
 
+  /// Returns a size ratio of the secondary view relative to the [size].
+  double get secondaryRatio =>
+      size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
+
   @override
   void onInit() {
     super.onInit();
@@ -513,48 +521,51 @@ class CallController extends GetxController {
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
+    final Rect? prefs =
+        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
+
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
-      width = RxDouble(size.width);
-      height = RxDouble(size.height);
+      width = RxDouble(prefs?.width ?? size.width);
+      height = RxDouble(prefs?.height ?? size.height);
     } else {
       width = RxDouble(
-        min(
-          max(
+        prefs?.width ??
             min(
-              500,
-              size.shortestSide * _maxWidth,
+              max(
+                min(
+                  500,
+                  size.shortestSide * _maxWidth,
+                ),
+                _minWidth,
+              ),
+              size.height * _maxHeight,
             ),
-            _minWidth,
-          ),
-          size.height * _maxHeight,
-        ),
       );
-      height = RxDouble(width.value);
+      height = RxDouble(prefs?.height ?? width.value);
     }
 
-    double secondarySize = (this.size.shortestSide *
-            (this.size.aspectRatio > 2 || this.size.aspectRatio < 0.5
-                ? 0.45
-                : 0.33))
-        .clamp(_minSHeight, 250);
+    final double secondarySize =
+        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
-        ? RxDouble(size.width - width.value - 50)
-        : RxDouble(size.width / 2 - width.value / 2);
+        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
+        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
     top = height.value + 50 < size.height
-        ? RxDouble(50)
-        : RxDouble(size.height / 2 - height.value / 2);
+        ? RxDouble(prefs?.top ?? 50)
+        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
     void onChat(RxChat? v) {
       chat.value = v;
@@ -602,33 +613,52 @@ class CallController extends GetxController {
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
-        DateTime begunAt = DateTime.now();
-        _durationTimer = Timer.periodic(
-          const Duration(seconds: 1),
-          (_) {
-            duration.value = DateTime.now().difference(begunAt);
-            if (hoveredRendererTimeout > 0) {
-              --hoveredRendererTimeout;
-              if (hoveredRendererTimeout == 0) {
-                hoveredRenderer.value = null;
-                isCursorHidden.value = true;
-              }
-            }
+      switch (state) {
+        case OngoingCallState.active:
+          if (_durationTimer == null) {
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) {
+                dockRect.value = dockKey.globalPaintBounds;
+                relocateSecondary();
+              },
+            );
+            DateTime begunAt = DateTime.now();
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                duration.value = DateTime.now().difference(begunAt);
+                if (hoveredRendererTimeout > 0) {
+                  --hoveredRendererTimeout;
+                  if (hoveredRendererTimeout == 0) {
+                    hoveredRenderer.value = null;
+                    isCursorHidden.value = true;
+                  }
+                }
 
-            if (lmbTimeout > 0) {
-              --lmbTimeout;
-            }
+                if (errorTimeout.value > 0) {
+                  --errorTimeout.value;
+                }
+              },
+            );
 
-            if (errorTimeout.value > 0) {
-              --errorTimeout.value;
-            }
-          },
-        );
+            keepUi();
+            _ensureSpeakerphone();
+          }
+          break;
 
-        keepUi();
+        case OngoingCallState.joining:
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => SchedulerBinding.instance.addPostFrameCallback(
+              (_) => relocateSecondary(),
+            ),
+          );
+          break;
+
+        case OngoingCallState.pending:
+        case OngoingCallState.local:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       refresh();
@@ -636,7 +666,6 @@ class CallController extends GetxController {
 
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
-      applySecondaryConstraints();
       refresh();
     });
 
@@ -809,7 +838,6 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
-
           break;
 
         case OperationKind.updated:
@@ -836,6 +864,11 @@ class CallController extends GetxController {
     _settingsWorker?.dispose();
 
     secondaryEntry?.remove();
+
+    _settingsRepository.setCallRect(
+      chat.value!.id,
+      Rect.fromLTWH(left.value, top.value, width.value, height.value),
+    );
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
@@ -871,7 +904,9 @@ class CallController extends GetxController {
 
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare(BuildContext context) async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
     final LocalTrackState state = _currentCall.value.screenShareState.value;
 
@@ -879,7 +914,15 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }
@@ -888,20 +931,29 @@ class CallController extends GetxController {
 
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     await _currentCall.value.toggleAudio();
   }
 
   /// Toggles local video stream on and off.
   Future<void> toggleVideo() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     await _currentCall.value.toggleVideo();
+    await _ensureSpeakerphone();
   }
 
   /// Changes the local video device to the next one from the
   /// [OngoingCall.devices] list.
   Future<void> switchCamera() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
     List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
@@ -919,24 +971,49 @@ class CallController extends GetxController {
 
   /// Toggles speaker on and off.
   Future<void> toggleSpeaker() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
-    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
-        !PlatformUtils.isWeb) {
-      List<MediaDeviceInfo> outputs =
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      final List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        int selected = _currentCall.value.outputDevice.value == null
-            ? 0
-            : outputs.indexWhere(
-                (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
-        selected += 1;
-        var deviceId = outputs[(selected) % outputs.length].deviceId();
-        speakerSwitched.value = deviceId == 'speakerphone';
-        await _currentCall.value.setOutputDevice(deviceId);
+        MediaDeviceInfo? device;
+
+        if (PlatformUtils.isIOS) {
+          device = _currentCall.value.devices.output().firstWhereOrNull(
+              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
+        } else {
+          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
+        }
+
+        if (device == null) {
+          if (speakerSwitched.value) {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+            speakerSwitched.value = !(device != null);
+          } else {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+            speakerSwitched.value = (device != null);
+          }
+
+          if (device == null) {
+            int selected = _currentCall.value.outputDevice.value == null
+                ? 0
+                : outputs.indexWhere((e) =>
+                    e.deviceId() == _currentCall.value.outputDevice.value!);
+            selected += 1;
+            device = outputs[(selected) % outputs.length];
+          }
+        }
+
+        await _currentCall.value.setOutputDevice(device.deviceId());
       }
     } else {
-      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
       //       switching.
       speakerSwitched.toggle();
     }
@@ -944,7 +1021,10 @@ class CallController extends GetxController {
 
   /// Raises/lowers a hand.
   Future<void> toggleHand() {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
+
     return _currentCall.value.toggleHand(_calls);
   }
 
@@ -960,8 +1040,6 @@ class CallController extends GetxController {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
     }
-
-    relocateSecondary();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1132,25 +1210,19 @@ class CallController extends GetxController {
   }
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
-  Future<void> openSettings(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (_) => CallSettingsView(
-        _currentCall,
-        lmbValue: handleLmb.value,
-        onLmbChanged: (b) {
-          lmbTimeout = 7;
-          handleLmb.value = b ?? false;
-        },
-        panelValue: panelUp.value,
-        onPanelChanged: (b) => panelUp.value = b ?? false,
-      ),
-    );
+  Future<dynamic> openSettings(BuildContext context) {
+    return CallSettingsView.show(context, call: _currentCall);
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
-    keepUi(false);
+    if (isMobile) {
+      panelController.close().then((_) {
+        isPanelOpen.value = false;
+        keepUi(false);
+      });
+    }
+
     await ParticipantView.show(
       context,
       call: _currentCall,
@@ -1185,12 +1257,18 @@ class CallController extends GetxController {
   void relocateSecondary() {
     if (secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&
-        secondaryScaled.isFalse &&
         !_secondaryRelocated) {
       _secondaryRelocated = true;
 
-      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
-      final Rect? dockBounds = dockKey.globalPaintBounds;
+      Rect? secondaryBounds, dockBounds;
+
+      try {
+        secondaryBounds = secondaryKey.globalPaintBounds;
+        dockBounds = dockKey.globalPaintBounds;
+      } catch (_) {
+        // No-op.
+      }
+
       Rect intersect =
           secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
 
@@ -1209,6 +1287,8 @@ class CallController extends GetxController {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
+        secondaryBottomShiftedByDock ??= secondaryBottomShifted;
+
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
           secondaryBottomShifted != null) {
@@ -1216,6 +1296,12 @@ class CallController extends GetxController {
         // it was before, so move it to its original position.
         double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
+
+        if (secondaryBottomShiftedByDock != null) {
+          secondaryBottomShifted = secondaryBottomShiftedByDock;
+        }
+        secondaryBottomShiftedByDock = null;
+
         if (bottom > secondaryBottomShifted!) {
           double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
@@ -1420,8 +1506,13 @@ class CallController extends GetxController {
   }
 
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
-  void resize(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+  void resize(
+    BuildContext context, {
+    ScaleModeY? y,
+    ScaleModeX? x,
+    double? dx,
+    double? dy,
+  }) {
     switch (x) {
       case ScaleModeX.left:
         double w = _applyWidth(context, width.value - dx!);
@@ -1476,132 +1567,80 @@ class CallController extends GetxController {
         break;
     }
 
+    // Update the secondary constraints.
     applySecondaryConstraints();
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
-  void resizeSecondary(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    secondaryLeft.value ??=
-        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
-    secondaryTop.value ??=
-        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
-    secondaryBottom.value = null;
-    secondaryRight.value = null;
+  void resizeSecondary(
+    BuildContext context, {
+    ScaleModeY? y,
+    ScaleModeX? x,
+    double? dx,
+    double? dy,
+  }) {
+    if (x != null && dx != null) {
+      final RxnDouble xPrimaryOffset =
+          x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+      final RxnDouble xSecondaryOffset =
+          x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
-    switch (x) {
-      case ScaleModeX.left:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double? left = _applySLeft(
-            secondaryLeft.value! + (secondaryWidth.value - width),
-          );
+      _updateSecondaryAxisOffset(
+        primary: xPrimaryOffset,
+        secondary: xSecondaryOffset,
+        axis: Axis.horizontal,
+      );
 
-          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
-            secondaryLeft.value = left;
-            secondaryWidth.value = width;
-          } else if (left == size.width - secondaryWidth.value) {
-            secondaryLeft.value = size.width - width;
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeX.right:
-        double width = _applySWidth(secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double right = secondaryLeft.value! + width;
-          if (right < size.width) {
-            secondaryWidth.value = width;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
+      _updateSecondarySize(
+        sideOffset: xPrimaryOffset,
+        applyOffset: x == ScaleModeX.left ? _applySLeft : _applySRight,
+        delta: dx,
+        axis: Axis.horizontal,
+      );
     }
 
-    switch (y) {
-      case ScaleModeY.top:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double? top = _applySTop(
-            secondaryTop.value! + (secondaryHeight.value - height),
-          );
+    if (y != null && dy != null) {
+      final RxnDouble yPrimaryOffset =
+          y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+      final RxnDouble ySecondaryOffset =
+          y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
-          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
-            secondaryTop.value = top;
-            secondaryHeight.value = height;
-          } else if (top == size.height - secondaryHeight.value) {
-            secondaryTop.value = size.height - height;
-            secondaryHeight.value = height;
-          }
+      _updateSecondaryAxisOffset(
+        primary: yPrimaryOffset,
+        secondary: ySecondaryOffset,
+        axis: Axis.vertical,
+      );
 
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      case ScaleModeY.bottom:
-        double height = _applySHeight(secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double bottom = secondaryTop.value! + height;
-          if (bottom < size.height) {
-            secondaryHeight.value = height;
-          }
-
-          if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height * secondary.length);
-          }
-        }
-        break;
-
-      default:
-        break;
+      _updateSecondarySize(
+        sideOffset: yPrimaryOffset,
+        applyOffset: y == ScaleModeY.top ? _applySTop : _applySBottom,
+        delta: dy,
+        axis: Axis.vertical,
+      );
     }
 
     applySecondaryConstraints();
   }
 
-  /// Scales the secondary view by the provided [scale].
-  void scaleSecondary(double scale) {
-    _scaleSWidth(scale);
-    _scaleSHeight(scale);
-  }
-
-  /// Scales the [secondaryWidth] according to the provided [scale].
-  void _scaleSWidth(double scale) {
-    double width = _applySWidth(secondaryUnscaledSize! * scale);
-    if (width != secondaryWidth.value) {
-      double widthDifference = width - secondaryWidth.value;
-      secondaryWidth.value = width;
-      secondaryLeft.value =
-          _applySLeft(secondaryLeft.value! - widthDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(widthDifference / 2, 0);
+  /// Scales secondary by [secondaryRatio] according to the [constraints] and
+  /// [_lastConstraints] difference.
+  void scaleSecondary(BoxConstraints constraints) {
+    if (_lastConstraints == constraints) {
+      return;
     }
-  }
 
-  /// Scales the [secondaryHeight] according to the provided [scale].
-  void _scaleSHeight(double scale) {
-    double height = _applySHeight(secondaryUnscaledSize! * scale);
-    if (height != secondaryHeight.value) {
-      double heightDifference = height - secondaryHeight.value;
-      secondaryHeight.value = height;
-      secondaryTop.value =
-          _applySTop(secondaryTop.value! - heightDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(0, heightDifference / 2);
+    if (_lastConstraints != null) {
+      final widthDif = constraints.maxWidth - (_lastConstraints?.maxWidth ?? 0);
+      final heightDif =
+          constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
+
+      secondaryWidth.value =
+          _applySWidth(secondaryWidth.value + widthDif * secondaryRatio);
+      secondaryHeight.value =
+          _applySHeight(secondaryHeight.value + heightDif * secondaryRatio);
     }
+
+    _lastConstraints = constraints;
   }
 
   /// Returns corrected according to secondary constraints [width] value.
@@ -1722,6 +1761,67 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Updates the [primary] and [secondary] offsets according to the current
+  /// [size].
+  void _updateSecondaryAxisOffset({
+    required RxnDouble primary,
+    required RxnDouble secondary,
+    required Axis axis,
+  }) {
+    final double parentEmptySpace = axis == Axis.horizontal
+        ? size.width - secondaryWidth.value
+        : size.height - secondaryHeight.value;
+
+    primary.value ??= parentEmptySpace - (secondary.value ?? 0);
+
+    // Nullify the [secondary] offset.
+    secondary.value = null;
+  }
+
+  /// Updates the secondary panel size and translates it, if necessary.
+  void _updateSecondarySize({
+    required RxnDouble sideOffset,
+    required double? Function(double?) applyOffset,
+    required double delta,
+    required Axis axis,
+  }) {
+    late RxDouble sizeAxis;
+    late double parentAxisSize;
+    late double Function(double) applyAxisSize;
+
+    switch (axis) {
+      case Axis.horizontal:
+        sizeAxis = secondaryWidth;
+        parentAxisSize = size.width;
+        applyAxisSize = _applySWidth;
+        break;
+
+      case Axis.vertical:
+        sizeAxis = secondaryHeight;
+        parentAxisSize = size.height;
+        applyAxisSize = _applySHeight;
+        break;
+
+      default:
+        return;
+    }
+
+    final double newSize = applyAxisSize(sizeAxis.value - delta);
+
+    if (sizeAxis.value - delta == newSize) {
+      double? offset =
+          applyOffset(sideOffset.value! + (sizeAxis.value - newSize));
+
+      if (sideOffset.value! + (sizeAxis.value - newSize) == offset) {
+        sideOffset.value = offset;
+        sizeAxis.value = newSize;
+      } else if (offset == parentAxisSize - sizeAxis.value) {
+        sideOffset.value = parentAxisSize - newSize;
+        sizeAxis.value = newSize;
+      }
+    }
   }
 
   /// Invokes [minimize], if not [minimized] already.
@@ -1864,6 +1964,11 @@ class CallController extends GetxController {
           } else {
             paneled.add(participant);
           }
+
+          if (state.value == OngoingCallState.local || outgoing) {
+            SchedulerBinding.instance
+                .addPostFrameCallback((_) => relocateSecondary());
+          }
           break;
 
         case MediaOwnerKind.remote:
@@ -1931,6 +2036,32 @@ class CallController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
+  Future<void> _ensureSpeakerphone() async {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
+          _currentCall.value.videoState.value == LocalTrackState.enabling) {
+        final bool ear;
+
+        if (PlatformUtils.isIOS) {
+          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-piece');
+        } else {
+          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-speaker');
+        }
+
+        if (ear) {
+          await toggleSpeaker();
+        }
+      }
+    }
   }
 }
 

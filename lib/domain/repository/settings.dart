@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,9 +17,11 @@
 
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 
 /// Application settings repository interface.
@@ -70,4 +73,15 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled);
+
+  /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Future<void> setCallRect(ChatId chatId, Rect prefs);
+
+  /// Returns the [Rect] preferences of an [OngoingCall] happening in the
+  /// specified [Chat].
+  Rect? getCallRect(ChatId id);
 }

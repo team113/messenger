@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -56,6 +57,16 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.me,
           child: MyProfileView(),
         ));
+      } else if (route.startsWith('${Routes.chat}/') &&
+          route.endsWith(Routes.chatInfo)) {
+        String id = route
+            .replaceFirst('${Routes.chat}/', '')
+            .replaceAll(Routes.chatInfo, '');
+        pages.add(_CustomPage(
+          key: ValueKey('ChatInfoPage$id'),
+          name: '${Routes.chat}/$id${Routes.chatInfo}',
+          child: ChatInfoView(ChatId(id)),
+        ));
       } else if (route.startsWith('${Routes.chat}/')) {
         String id = route
             .replaceFirst('${Routes.chat}/', '')
@@ -68,14 +79,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             itemId: router.arguments?['itemId'] as ChatItemId?,
           ),
         ));
-
-        if (route.endsWith(Routes.chatInfo)) {
-          pages.add(_CustomPage(
-            key: ValueKey('ChatInfoPage$id'),
-            name: '${Routes.chat}/$id${Routes.chatInfo}',
-            child: ChatInfoView(ChatId(id)),
-          ));
-        }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
         pages.add(_CustomPage(

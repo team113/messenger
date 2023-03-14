@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,13 +20,12 @@ import 'package:flutter/material.dart';
 
 /// [AnimatedSwitcher] with an elastic [ScaleTransition] of its [child].
 class ElasticAnimatedSwitcher extends StatelessWidget {
-  const ElasticAnimatedSwitcher({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
+  const ElasticAnimatedSwitcher({super.key, required this.child});
 
-  /// Current child widget to display. If there was a previous child, then it
-  /// will be elastically faded out, while the new one is faded in.
+  /// Current child widget to display.
+  ///
+  /// If there was a previous child, then it will be elastically faded out,
+  /// while the new one is faded in.
   final Widget child;
 
   @override

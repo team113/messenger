@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -170,22 +171,32 @@ class FileAttachment extends Attachment {
     }
   }
 
-  /// Opens this [FileAttachment], if downloaded, or otherwise downloads it.
-  Future<void> open() async {
+  /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
+  Future<bool> open() async {
     if (path != null) {
       File file = File(path!);
 
       if (await file.exists() && await file.length() == original.size) {
         await OpenFile.open(path!);
-        return;
+        return true;
+      } else {
+        path = null;
       }
     }
 
-    await download();
+    return false;
   }
 
   /// Cancels the downloading of this [FileAttachment].
-  void cancelDownload() => _token?.cancel();
+  void cancelDownload() {
+    try {
+      _token?.cancel();
+    } on DioError catch (e) {
+      if (e.type != DioErrorType.cancel) {
+        rethrow;
+      }
+    }
+  }
 }
 
 /// Unique ID of an [Attachment].

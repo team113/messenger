@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -60,7 +61,7 @@ class Chat extends HiveObject {
 
   /// Unique ID of this [Chat].
   @HiveField(0)
-  final ChatId id;
+  ChatId id;
 
   /// Avatar of this [Chat].
   @HiveField(1)
@@ -242,7 +243,18 @@ class LastChatRead {
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
-  const ChatId(String val) : super(val);
+  const ChatId(super.val);
+
+  /// Constructs a dummy [ChatId].
+  factory ChatId.local(UserId id) => ChatId('local_${id.val}');
+
+  /// Indicates whether this [ChatId] is a dummy ID.
+  bool get isLocal => val.startsWith('local_');
+
+  /// Returns [UserId] part of this [ChatId] if [isLocal].
+  UserId get userId => isLocal
+      ? UserId(val.replaceFirst('local_', ''))
+      : throw Exception('ChatId is not local');
 }
 
 /// Name of a [Chat].

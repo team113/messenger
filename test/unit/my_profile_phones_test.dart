@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,6 +28,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -58,6 +60,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -70,6 +82,8 @@ void main() async {
   await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -83,8 +97,8 @@ void main() async {
   test(
       'MyUserService successfully adds, removes, confirms phone and resends confirmation code',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -92,11 +106,10 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         )
-      ])),
+      ]),
     );
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserPhone(UserPhone('+380999999999'))).thenAnswer(
       (_) => Future.value(AddUserPhone$Mutation.fromJson({
@@ -158,6 +171,15 @@ void main() async {
       }).deleteUserPhone),
     );
 
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    );
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
@@ -169,6 +191,7 @@ void main() async {
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
+      blacklistedUsersProvider,
       galleryItemProvider,
       userRepository,
     );
@@ -193,8 +216,8 @@ void main() async {
   test(
       'MyUserService throws AddUserPhoneException, ResendUserPhoneConfirmationErrorCode, ConfirmUserPhoneException',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -202,7 +225,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(
@@ -231,6 +254,7 @@ void main() async {
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
+      blacklistedUsersProvider,
       galleryItemProvider,
       userRepository,
     );

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,6 +27,7 @@ enum WidgetKey {
   AlertNoButton,
   AlertYesButton,
   Approve,
+  AudioCall,
   AuthView,
   BioField,
   Block,
@@ -75,10 +77,13 @@ enum WidgetKey {
   LoginView,
   LogoutButton,
   MenuButton,
+  MenuListView,
   MenuTab,
   MessageField,
   MonologButton,
   MuteChatButton,
+  MuteMyUserSwitch,
+  Muted,
   MyProfileButton,
   MyProfileScrollable,
   MyProfileView,
@@ -117,6 +122,7 @@ enum WidgetKey {
   UnfavoriteChatButton,
   UnfavoriteContactButton,
   UnmuteChatButton,
+  Unmuted,
   UsernameField,
 }
 

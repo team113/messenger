@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,11 +17,14 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+import '/util/platform_utils.dart';
+
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 
 /// [ReactiveTextField]-styled button.
-class FieldButton extends StatelessWidget {
+class FieldButton extends StatefulWidget {
   const FieldButton({
     Key? key,
     this.text,
@@ -68,37 +72,58 @@ class FieldButton extends StatelessWidget {
   final Color fillColor;
 
   @override
+  State<FieldButton> createState() => _FieldButtonState();
+}
+
+/// State of a [FieldButton] maintaining the [_hovered] indicator.
+class _FieldButtonState extends State<FieldButton> {
+  /// Indicator whether this [FieldButton] is hovered.
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final Widget widget = WidgetButton(
-      behavior: HitTestBehavior.deferToChild,
-      onPressed: onPressed,
-      child: IgnorePointer(
-        child: ReactiveTextField(
-          textAlign: textAlign,
-          state: TextFieldState(text: text, editable: false),
-          label: hint,
-          maxLines: maxLines,
-          trailing: trailing,
-          prefix: prefix,
-          style: style,
-          fillColor: fillColor,
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final Widget child = MouseRegion(
+      onEnter: PlatformUtils.isMobile
+          ? null
+          : (_) => setState(() => _hovered = true),
+      onExit: PlatformUtils.isMobile
+          ? null
+          : (_) => setState(() => _hovered = false),
+      child: WidgetButton(
+        behavior: HitTestBehavior.deferToChild,
+        onPressed: widget.onPressed,
+        child: IgnorePointer(
+          child: ReactiveTextField(
+            textAlign: widget.textAlign,
+            state: TextFieldState(text: widget.text, editable: false),
+            label: widget.hint,
+            maxLines: widget.maxLines,
+            trailing: widget.trailing,
+            prefix: widget.prefix,
+            style: widget.style,
+            fillColor: _hovered && widget.onPressed != null
+                ? style.cardHoveredColor
+                : widget.fillColor,
+          ),
         ),
       ),
     );
 
-    if (trailing == null || onTrailingPressed == null) {
-      return widget;
+    if (widget.trailing == null || widget.onTrailingPressed == null) {
+      return child;
     }
 
     return Stack(
       alignment: Alignment.centerRight,
       children: [
-        widget,
+        child,
         Positioned.fill(
           child: Align(
             alignment: Alignment.centerRight,
             child: WidgetButton(
-              onPressed: onTrailingPressed,
+              onPressed: widget.onTrailingPressed,
               child: const SizedBox(width: 50, height: double.infinity),
             ),
           ),

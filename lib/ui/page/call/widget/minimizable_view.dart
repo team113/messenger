@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -111,6 +112,7 @@ class _MinimizableViewState extends State<MinimizableView>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      debugLabel: '$runtimeType',
     );
     _controller.addListener(_animationListener);
     _controller.addStatusListener(_animationStatusListener);
