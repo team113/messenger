@@ -430,33 +430,19 @@ class TextFieldState extends ReactiveFieldState {
     });
   }
 
-  /// Callback, called when the [text] has finished changing.
-  ///
-  /// This callback is fired only when the [text] is changed on:
-  /// - submit action of [TextEditingController] was emitted;
-  /// - [focus] node changed its focus;
-  /// - setter or [submit] was manually called.
   Function(TextFieldState)? onChanged;
 
-  /// Callback, called when the [text] is submitted.
-  ///
-  /// This callback is fired only when the [text] value was not yet submitted:
-  /// - submit action of [TextEditingController] was emitted;
-  /// - [submit] was manually called.
   final Function(TextFieldState)? onSubmitted;
 
   @override
   final RxBool changed = RxBool(false);
 
-  /// [TextEditingController] of this [TextFieldState].
   @override
   late final TextEditingController controller;
 
-  /// Reactive [RxStatus] of this [TextFieldState].
   @override
   late final Rx<RxStatus> status;
 
-  /// Indicator whether this [TextFieldState] should be editable or not.
   @override
   late final RxBool editable;
 
@@ -466,18 +452,12 @@ class TextFieldState extends ReactiveFieldState {
   @override
   late final FocusNode focus;
 
-  /// Previous [TextEditingController]'s text used to determine if the [text]
-  /// was modified on any [focus] change.
   String? _previousText;
 
-  /// Previous [TextEditingController]'s text used to determine if the [text]
-  /// was modified since the last [submit] action.
   String? _previousSubmit;
 
-  /// Returns the text of the [TextEditingController].
   String get text => controller.text;
 
-  /// Sets the text of [TextEditingController] to [value] and calls [onChanged].
   set text(String value) {
     controller.text = value;
     _previousText = value;
@@ -486,8 +466,6 @@ class TextFieldState extends ReactiveFieldState {
     onChanged?.call(this);
   }
 
-  /// Sets the text of [TextEditingController] to [value] without calling
-  /// [onChanged].
   set unchecked(String? value) {
     controller.text = value ?? '';
     _previousText = value ?? '';
@@ -496,11 +474,8 @@ class TextFieldState extends ReactiveFieldState {
     isEmpty.value = controller.text.isEmpty;
   }
 
-  /// Indicates whether [onChanged] was called after the [focus] change and no
-  /// more text editing was done since then.
   bool get isValidated => controller.text == _previousText;
 
-  /// Submits this [TextFieldState].
   @override
   void submit() {
     if (editable.value) {
@@ -516,13 +491,11 @@ class TextFieldState extends ReactiveFieldState {
     }
   }
 
-  /// Clears the last submitted value.
   void unsubmit() {
     _previousSubmit = null;
     changed.value = false;
   }
 
-  /// Clears the [TextEditingController]'s text without calling [onChanged].
   void clear() {
     isEmpty.value = true;
     controller.text = '';
