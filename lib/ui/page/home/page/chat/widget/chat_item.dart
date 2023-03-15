@@ -1669,7 +1669,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                               onPressed: () async {
                                 bool isMonolog =
-                                    widget.chat.value!.members.length <= 1;
+                                    widget.chat.value!.isMonolog;
                                 bool deletable;
                                 if (isMonolog) {
                                   deletable = false;

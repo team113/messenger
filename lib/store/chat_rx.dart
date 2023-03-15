@@ -720,8 +720,21 @@ class HiveRxChat extends RxChat {
       }
     }
 
-    members
-        .removeWhere((k, _) => chat.value.members.none((m) => m.user.id == k));
+    members.removeWhere((k, _) {
+      bool shouldRemoved = chat.value.members.none((m) => m.user.id == k);
+
+      if (shouldRemoved) {
+        HiveChat? chatEntity = _chatLocal.get(id);
+        if (chatEntity != null) {
+          chatEntity.value.lastReads.removeWhere((e) {
+            return e.memberId == k;
+          });
+          _chatLocal.put(chatEntity);
+        }
+      }
+
+      return shouldRemoved;
+    });
 
     if (chat.value.name == null) {
       var users = members.values.take(3);

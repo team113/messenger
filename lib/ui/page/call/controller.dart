@@ -1219,7 +1219,7 @@ class CallController extends GetxController {
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
-    if (chat.value?.chat.value.isMonolog ?? false) {
+    if (isMonolog) {
       return;
     }
 
