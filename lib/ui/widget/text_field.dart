@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -15,6 +16,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -31,28 +34,27 @@ class ReactiveTextField extends StatelessWidget {
   const ReactiveTextField({
     Key? key,
     required this.state,
-    this.dense,
     this.enabled = true,
-    this.formatters,
-    this.hint,
-    this.icon,
-    this.label,
-    this.obscure = false,
-    this.worker,
-    this.onChanged,
     this.style,
+    this.type,
+    this.icon,
     this.suffix,
     this.prefix,
-    this.trailing,
-    this.type,
     this.padding,
+    this.trailing,
+    this.label,
+    this.hint,
+    this.onChanged,
+    this.formatters,
+    this.dense,
+    this.obscure = false,
     this.minLines,
     this.maxLines = 1,
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.filled,
     this.treatErrorAsStatus = true,
+    this.filled,
     this.textAlign = TextAlign.start,
     this.fillColor = Colors.white,
     this.maxLength,
@@ -99,8 +101,7 @@ class ReactiveTextField extends StatelessWidget {
   /// this [ReactiveTextField] use [state] instead.
   final VoidCallback? onChanged;
 
-  /// Some description
-  final Worker? worker;
+  final Duration debounceDuration = const Duration(milliseconds: 500);
 
   /// List of [TextInputFormatter] that formats the input of [TextField].
   final List<TextInputFormatter>? formatters;
@@ -380,6 +381,7 @@ abstract class ReactiveFieldState {
 /// Wrapper with all the necessary methods and fields to make a [TextField]
 /// reactive to any changes and validations.
 class TextFieldState extends ReactiveFieldState {
+  Timer? debounceTimer;
   TextFieldState({
     String? text,
     this.onChanged,
@@ -405,13 +407,16 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        if (debounceTimer?.isActive ?? false) debounceTimer!.cancel();
+        debounceTimer = Timer(const Duration(milliseconds: 500), () {
+          changed.value = controller.text != _previousSubmit;
+          onChanged?.call(this);
+        });
       });
     }
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
-
       if (onChanged != null) {
         if (controller.text != _previousText &&
             (_previousText != null || controller.text.isNotEmpty)) {
