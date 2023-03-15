@@ -932,8 +932,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
-                                bool isMonolog =
-                                    widget.chat.value!.isMonolog;
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable;
                                 if (isMonolog) {
                                   deletable = false;
