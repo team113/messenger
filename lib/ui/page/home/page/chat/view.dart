@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
-import 'package:messenger/ui/widget/animated_size_and_fade.dart';
+// import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
@@ -154,39 +156,39 @@ class _ChatViewState extends State<ChatView>
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(
                 children: [
-                  Obx(() {
-                    final Widget child;
+                  // Obx(() {
+                  //   final Widget child;
 
-                    if (c.paidDisclaimer.value) {
-                      child = Column(
-                        key: const Key('Column'),
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: CustomAppBar.height,
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .barrierColor,
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: double.infinity,
-                            height: CustomNavigationBar.height + 4,
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .barrierColor,
-                          ),
-                        ],
-                      );
-                    } else {
-                      child = const SizedBox();
-                    }
+                  //   if (c.paidDisclaimer.value) {
+                  //     child = Column(
+                  //       key: const Key('Column'),
+                  //       children: [
+                  //         Container(
+                  //           width: double.infinity,
+                  //           height: CustomAppBar.height,
+                  //           color: Theme.of(context)
+                  //               .extension<Style>()!
+                  //               .barrierColor,
+                  //         ),
+                  //         const Spacer(),
+                  //         Container(
+                  //           width: double.infinity,
+                  //           height: CustomNavigationBar.height + 4,
+                  //           color: Theme.of(context)
+                  //               .extension<Style>()!
+                  //               .barrierColor,
+                  //         ),
+                  //       ],
+                  //     );
+                  //   } else {
+                  //     child = const SizedBox();
+                  //   }
 
-                    return AnimatedSwitcher(
-                      duration: 150.milliseconds,
-                      child: child,
-                    );
-                  }),
+                  //   return AnimatedSwitcher(
+                  //     duration: 150.milliseconds,
+                  //     child: child,
+                  //   );
+                  // }),
                   LayoutBuilder(builder: (context, constraints) {
                     return Scaffold(
                       resizeToAvoidBottomInset: true,
@@ -251,11 +253,11 @@ class _ChatViewState extends State<ChatView>
                                     }
                                   : null,
                               child: Transform.translate(
-                                offset: const Offset(0, 1),
+                                offset: const Offset(0, 0),
                                 child: SvgLoader.asset(
                                   'assets/icons/paid_chat.svg',
-                                  width: 21.57,
-                                  height: 21.5,
+                                  width: 10.05,
+                                  height: 17.54,
                                 ),
                               ),
                             ),
@@ -343,7 +345,8 @@ class _ChatViewState extends State<ChatView>
                         children: [
                           Listener(
                             onPointerSignal: (s) {
-                              if (s is PointerScrollEvent) {
+                              if (s is PointerScrollEvent &&
+                                  c.settings.value?.timelineEnabled == true) {
                                 if ((s.scrollDelta.dy.abs() < 3 &&
                                         s.scrollDelta.dx.abs() > 3) ||
                                     c.isHorizontalScroll.value) {
@@ -500,233 +503,233 @@ class _ChatViewState extends State<ChatView>
                               ),
                             ),
                           ),
-                          Obx(() {
-                            final Widget child;
-                            if (c.paidDisclaimer.value) {
-                              final TextStyle? thin = Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(color: Colors.black);
+                          // Obx(() {
+                          //   final Widget child;
+                          //   if (c.paidDisclaimer.value) {
+                          //     final TextStyle? thin = Theme.of(context)
+                          //         .textTheme
+                          //         .bodyLarge
+                          //         ?.copyWith(color: Colors.black);
 
-                              final Style style =
-                                  Theme.of(context).extension<Style>()!;
+                          //     final Style style =
+                          //         Theme.of(context).extension<Style>()!;
 
-                              child = Stack(
-                                key: const Key('Stack'),
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => c.paidDisclaimer.value = false,
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: style.barrierColor,
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: context.isNarrow
-                                        ? Alignment.bottomCenter
-                                        : Alignment.center,
-                                    child: Container(
-                                      constraints: context.isNarrow
-                                          ? null
-                                          : const BoxConstraints(maxWidth: 380),
-                                      width: double.infinity,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: style.cardRadius,
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const SizedBox(height: 4),
-                                          ModalPopupHeader(
-                                            onClose: () =>
-                                                c.paidDisclaimer.value = false,
-                                            header: Center(
-                                              child: Text(
-                                                'label_paid_chat'.l10n,
-                                                style: thin?.copyWith(
-                                                    fontSize: 18),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 13),
-                                          Flexible(
-                                            child: ListView(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 30,
-                                              ),
-                                              shrinkWrap: true,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      'label_send_message'.l10n,
-                                                      style: thin,
-                                                    ),
-                                                    const Spacer(),
-                                                    RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text: '¤',
-                                                            style:
-                                                                thin?.copyWith(
-                                                              height: 0.8,
-                                                              fontFamily:
-                                                                  'InterRoboto',
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w300,
-                                                            ),
-                                                          ),
-                                                          const WidgetSpan(
-                                                            child: SizedBox(
-                                                              width: 1,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: '100',
-                                                            style: thin,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 12),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      'label_make_call'.l10n,
-                                                      style: thin,
-                                                    ),
-                                                    const Spacer(),
-                                                    RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text: '¤',
-                                                            style:
-                                                                thin?.copyWith(
-                                                              height: 0.8,
-                                                              fontFamily:
-                                                                  'InterRoboto',
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w300,
-                                                            ),
-                                                          ),
-                                                          const WidgetSpan(
-                                                            child: SizedBox(
-                                                              width: 1,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: '10/min',
-                                                            style: thin,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 25),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 30,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                if (context.isMobile) ...[
-                                                  Expanded(
-                                                    child:
-                                                        OutlinedRoundedButton(
-                                                      key: const Key('Close'),
-                                                      maxWidth: double.infinity,
-                                                      title: Text(
-                                                          'btn_close'.l10n),
-                                                      onPressed: () {
-                                                        c.paidDisclaimer.value =
-                                                            false;
-                                                      },
-                                                      color: const Color(
-                                                          0xFFEEEEEE),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                ],
-                                                Expanded(
-                                                  child: OutlinedRoundedButton(
-                                                    key: const Key('Accept'),
-                                                    maxWidth: double.infinity,
-                                                    title: Text(
-                                                      'btn_proceed'.l10n,
-                                                      style: thin?.copyWith(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      c.paidDisclaimer.value =
-                                                          false;
-                                                      c.paidDisclaimerDismissed =
-                                                          true;
+                          //     child = Stack(
+                          //       key: const Key('Stack'),
+                          //       children: [
+                          //         GestureDetector(
+                          //           onTap: () => c.paidDisclaimer.value = false,
+                          //           child: Container(
+                          //             width: double.infinity,
+                          //             height: double.infinity,
+                          //             color: style.barrierColor,
+                          //           ),
+                          //         ),
+                          //         Align(
+                          //           alignment: context.isNarrow
+                          //               ? Alignment.bottomCenter
+                          //               : Alignment.center,
+                          //           child: Container(
+                          //             constraints: context.isNarrow
+                          //                 ? null
+                          //                 : const BoxConstraints(maxWidth: 380),
+                          //             width: double.infinity,
+                          //             margin: const EdgeInsets.symmetric(
+                          //               horizontal: 8,
+                          //               vertical: 3,
+                          //             ),
+                          //             padding: const EdgeInsets.all(10),
+                          //             decoration: BoxDecoration(
+                          //               color: Colors.white,
+                          //               borderRadius: style.cardRadius,
+                          //             ),
+                          //             child: Column(
+                          //               mainAxisSize: MainAxisSize.min,
+                          //               children: [
+                          //                 const SizedBox(height: 4),
+                          //                 ModalPopupHeader(
+                          //                   onClose: () =>
+                          //                       c.paidDisclaimer.value = false,
+                          //                   header: Center(
+                          //                     child: Text(
+                          //                       'label_paid_chat'.l10n,
+                          //                       style: thin?.copyWith(
+                          //                           fontSize: 18),
+                          //                     ),
+                          //                   ),
+                          //                 ),
+                          //                 const SizedBox(height: 13),
+                          //                 Flexible(
+                          //                   child: ListView(
+                          //                     padding:
+                          //                         const EdgeInsets.symmetric(
+                          //                       horizontal: 30,
+                          //                     ),
+                          //                     shrinkWrap: true,
+                          //                     children: [
+                          //                       Row(
+                          //                         children: [
+                          //                           Text(
+                          //                             'label_send_message'.l10n,
+                          //                             style: thin,
+                          //                           ),
+                          //                           const Spacer(),
+                          //                           RichText(
+                          //                             text: TextSpan(
+                          //                               children: [
+                          //                                 TextSpan(
+                          //                                   text: '¤',
+                          //                                   style:
+                          //                                       thin?.copyWith(
+                          //                                     height: 0.8,
+                          //                                     fontFamily:
+                          //                                         'InterRoboto',
+                          //                                     fontWeight:
+                          //                                         FontWeight
+                          //                                             .w300,
+                          //                                   ),
+                          //                                 ),
+                          //                                 const WidgetSpan(
+                          //                                   child: SizedBox(
+                          //                                     width: 1,
+                          //                                   ),
+                          //                                 ),
+                          //                                 TextSpan(
+                          //                                   text: '100',
+                          //                                   style: thin,
+                          //                                 ),
+                          //                               ],
+                          //                             ),
+                          //                           ),
+                          //                         ],
+                          //                       ),
+                          //                       const SizedBox(height: 12),
+                          //                       Row(
+                          //                         children: [
+                          //                           Text(
+                          //                             'label_make_call'.l10n,
+                          //                             style: thin,
+                          //                           ),
+                          //                           const Spacer(),
+                          //                           RichText(
+                          //                             text: TextSpan(
+                          //                               children: [
+                          //                                 TextSpan(
+                          //                                   text: '¤',
+                          //                                   style:
+                          //                                       thin?.copyWith(
+                          //                                     height: 0.8,
+                          //                                     fontFamily:
+                          //                                         'InterRoboto',
+                          //                                     fontWeight:
+                          //                                         FontWeight
+                          //                                             .w300,
+                          //                                   ),
+                          //                                 ),
+                          //                                 const WidgetSpan(
+                          //                                   child: SizedBox(
+                          //                                     width: 1,
+                          //                                   ),
+                          //                                 ),
+                          //                                 TextSpan(
+                          //                                   text: '10/min',
+                          //                                   style: thin,
+                          //                                 ),
+                          //                               ],
+                          //                             ),
+                          //                           ),
+                          //                         ],
+                          //                       ),
+                          //                     ],
+                          //                   ),
+                          //                 ),
+                          //                 const SizedBox(height: 25),
+                          //                 Padding(
+                          //                   padding: const EdgeInsets.symmetric(
+                          //                     horizontal: 30,
+                          //                   ),
+                          //                   child: Row(
+                          //                     children: [
+                          //                       if (context.isMobile) ...[
+                          //                         Expanded(
+                          //                           child:
+                          //                               OutlinedRoundedButton(
+                          //                             key: const Key('Close'),
+                          //                             maxWidth: double.infinity,
+                          //                             title: Text(
+                          //                                 'btn_close'.l10n),
+                          //                             onPressed: () {
+                          //                               c.paidDisclaimer.value =
+                          //                                   false;
+                          //                             },
+                          //                             color: const Color(
+                          //                                 0xFFEEEEEE),
+                          //                           ),
+                          //                         ),
+                          //                         const SizedBox(width: 10),
+                          //                       ],
+                          //                       Expanded(
+                          //                         child: OutlinedRoundedButton(
+                          //                           key: const Key('Accept'),
+                          //                           maxWidth: double.infinity,
+                          //                           title: Text(
+                          //                             'btn_proceed'.l10n,
+                          //                             style: thin?.copyWith(
+                          //                               color: Colors.white,
+                          //                             ),
+                          //                           ),
+                          //                           onPressed: () {
+                          //                             c.paidDisclaimer.value =
+                          //                                 false;
+                          //                             c.paidDisclaimerDismissed =
+                          //                                 true;
 
-                                                      switch (c.confirmAction) {
-                                                        case ConfirmAction
-                                                            .audioCall:
-                                                          c.call(false);
-                                                          break;
+                          //                             switch (c.confirmAction) {
+                          //                               case ConfirmAction
+                          //                                   .audioCall:
+                          //                                 c.call(false);
+                          //                                 break;
 
-                                                        case ConfirmAction
-                                                            .videoCall:
-                                                          c.call(true);
-                                                          break;
+                          //                               case ConfirmAction
+                          //                                   .videoCall:
+                          //                                 c.call(true);
+                          //                                 break;
 
-                                                        case ConfirmAction
-                                                            .sendMessage:
-                                                          c.send.onSubmit
-                                                              ?.call();
-                                                          break;
+                          //                               case ConfirmAction
+                          //                                   .sendMessage:
+                          //                                 c.send.onSubmit
+                          //                                     ?.call();
+                          //                                 break;
 
-                                                        case null:
-                                                          // No-op.
-                                                          break;
-                                                      }
-                                                    },
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              child = const SizedBox();
-                            }
+                          //                               case null:
+                          //                                 // No-op.
+                          //                                 break;
+                          //                             }
+                          //                           },
+                          //                           color: Theme.of(context)
+                          //                               .colorScheme
+                          //                               .secondary,
+                          //                         ),
+                          //                       ),
+                          //                     ],
+                          //                   ),
+                          //                 ),
+                          //                 const SizedBox(height: 16),
+                          //               ],
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     );
+                          //   } else {
+                          //     child = const SizedBox();
+                          //   }
 
-                            return AnimatedSwitcher(
-                              duration: 150.milliseconds,
-                              child: child,
-                            );
-                          }),
+                          //   return AnimatedSwitcher(
+                          //     duration: 150.milliseconds,
+                          //     child: child,
+                          //   );
+                          // }),
                         ],
                       ),
                       // floatingActionButtonLocation:
@@ -1080,6 +1083,111 @@ class _ChatViewState extends State<ChatView>
       });
     } else if (element is PaidElement) {
       return _paidElement(c, element.messages, element.calls);
+    } else if (element is FeeElement) {
+      final bool fromMe = element.fromMe;
+      final Style style = Theme.of(context).extension<Style>()!;
+
+      const String? text = 'dqwdqw';
+      final String fee =
+          fromMe ? 'Вы установили плату за:' : 'kirey установил плату за:';
+
+      final BoxBorder border =
+          fromMe ? style.secondaryBorder : style.primaryBorder;
+      final Color background =
+          fromMe ? style.readMessageColor : style.messageColor;
+
+      return Row(
+        // crossAxisAlignment:
+        //     fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        // mainAxisAlignment:
+        //     fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: LayoutBuilder(builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  // maxWidth: min(550, constraints.maxWidth),
+                  maxWidth: 300,
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
+                        // child: IntrinsicWidth(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: background,
+                            borderRadius: BorderRadius.circular(15),
+                            // border: border,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: style.systemMessageColor,
+                                  border: style.systemMessageBorder,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                  ),
+                                ),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                child: DefaultTextStyle(
+                                  style: style.systemMessageStyle,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(fee),
+                                      Row(
+                                        children: const [
+                                          Text('- сообщения'),
+                                          Spacer(),
+                                          Text('\$5'),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: const [
+                                          Text('- звонки'),
+                                          Spacer(),
+                                          Text('\$5/min'),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (text != null)
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    12,
+                                    10,
+                                    12,
+                                    10,
+                                  ),
+                                  child: Text(text!, style: style.boldBody),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
+      );
     }
 
     return const SizedBox();
@@ -1449,16 +1557,78 @@ class _ChatViewState extends State<ChatView>
 
       final bool disabled = c.paid && c.paidDisclaimer.value;
 
-      return MessageFieldView(
-        key: const Key('SendField'),
-        controller: c.send,
-        onChanged: c.keepTyping,
-        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-        canForward: true,
-        // background: const Color(0xFFfff7ea),
-        // canSend: !disabled,
-        // canAttach: !disabled,
-        // disabled: disabled,
+      final Style style = Theme.of(context).extension<Style>()!;
+      final TextStyle? thin =
+          Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MessageFieldView(
+            key: const Key('SendField'),
+            controller: c.send,
+            onChanged: c.keepTyping,
+            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            canForward: true,
+            // background: const Color(0xFFfff7ea),
+            // canSend: !disabled,
+            // canAttach: !disabled,
+            // disabled: disabled,
+          ),
+          AnimatedSizeAndFade.showHide(
+            show: c.paidDisclaimer.value,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                boxShadow: const [
+                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                ],
+                color: Colors.white,
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Вы совершаете очень платную операцию',
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedRoundedButton(
+                    maxWidth: double.infinity,
+                    onPressed: () {
+                      c.paidDisclaimer.value = false;
+                      c.paidDisclaimerDismissed = true;
+
+                      switch (c.confirmAction) {
+                        case ConfirmAction.audioCall:
+                          c.call(false);
+                          break;
+
+                        case ConfirmAction.videoCall:
+                          c.call(true);
+                          break;
+
+                        case ConfirmAction.sendMessage:
+                          c.send.onSubmit?.call();
+                          break;
+
+                        case null:
+                          // No-op.
+                          break;
+                      }
+                    },
+                    title: Text(
+                      'Продолжить',
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
     });
   }

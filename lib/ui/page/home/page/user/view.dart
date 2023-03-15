@@ -587,6 +587,9 @@ class UserView extends StatelessWidget {
             ],
           ),
         ),
+        _padding(
+          ReactiveTextField(state: TextFieldState(), label: 'Comment'.l10n),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
           child: Row(

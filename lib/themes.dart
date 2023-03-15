@@ -74,10 +74,11 @@ class Themes {
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
-            // readMessageColor: const Color(0xFFD2E3F9),
+            readMessageColor: const Color(0xFFD2E3F9),
             // readMessageColor: Color.fromRGBO(231, 253, 203, 1),
             // readMessageColor: Color.fromRGBO(224, 252, 214, 1),
-            readMessageColor: Color.fromRGBO(217, 253, 210, 1),
+            // readMessageColor: Color.fromRGBO(217, 253, 210, 1),
+            // readMessageColor: const Color(0xFFD7ECFF),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             sidebarColor: Colors.white.withOpacity(0.4),

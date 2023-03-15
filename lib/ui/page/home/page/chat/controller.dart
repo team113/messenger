@@ -189,6 +189,8 @@ class ChatController extends GetxController {
 
   bool paid = false;
 
+  final RxBool acceptPaid = RxBool(false);
+
   late final RxBool paidDisclaimer;
   bool paidDisclaimerDismissed = false;
 
@@ -710,6 +712,14 @@ class ChatController extends GetxController {
 
       for (Rx<ChatItem> e in chat!.messages) {
         add(e);
+      }
+
+      if (paid) {
+        final theirFee = FeeElement(false);
+        elements[theirFee.id] = theirFee;
+
+        final oursFee = FeeElement(true);
+        elements[oursFee.id] = oursFee;
       }
 
       // if (chat?.messageCost != 0 || chat?.callCost != 0) {
@@ -1517,6 +1527,13 @@ class PaidElement extends ListElement {
 
   final double messages;
   final double calls;
+}
+
+class FeeElement extends ListElement {
+  FeeElement(this.fromMe)
+      : super(ListElementId(PreciseDateTime.now(), ChatItemId('$fromMe')));
+
+  final bool fromMe;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
