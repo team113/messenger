@@ -145,7 +145,11 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);
     } else if (isDesktop) {
-      return await WindowManager.instance.isFocused();
+      try {
+        return await WindowManager.instance.isFocused();
+      } on MissingPluginException {
+        return true;
+      }
     } else {
       return Future.value(router.lifecycle.value.inForeground);
     }

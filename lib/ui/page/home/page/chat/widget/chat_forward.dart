@@ -184,7 +184,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return false;
     }
 
-    if (_fromMe && !chat.isMonolog) {
+    if (chat.members.length <= 1) {
+      return true;
+    }
+
+    if (_fromMe) {
       return chat.isRead(widget.forwards.first.value, widget.me);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
@@ -928,21 +932,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
-                                if (widget.chat.value!.isMonolog) {
-                                  widget.onHide?.call();
-                                  return;
+                                bool isMonolog =
+                                    widget.chat.value!.members.length <= 1;
+                                bool deletable;
+                                if (isMonolog) {
+                                  deletable = false;
+                                } else {
+                                  deletable = widget.authorId == widget.me &&
+                                      !widget.chat.value!.isRead(
+                                        widget.forwards.first.value,
+                                        widget.me,
+                                      );
                                 }
-
-                                bool deletable = widget.authorId == widget.me &&
-                                    !widget.chat.value!.isRead(
-                                      widget.forwards.first.value,
-                                      widget.me,
-                                    );
 
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,

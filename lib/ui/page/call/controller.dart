@@ -458,6 +458,9 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
+  /// Indicates whether the [chat] is a monolog.
+  bool get isMonolog => chat.value?.chat.value.isMonolog ?? false;
+
   /// Reactive map of the current call [CallMember]s.
   RxObsMap<CallMemberId, CallMember> get members => _currentCall.value.members;
 
@@ -1955,7 +1958,7 @@ class CallController extends GetxController {
 
       switch (member.owner) {
         case MediaOwnerKind.local:
-          if (isGroup) {
+          if (isGroup || isMonolog) {
             switch (participant.source) {
               case MediaSourceKind.Device:
                 locals.add(participant);

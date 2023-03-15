@@ -170,7 +170,7 @@ class ChatRepository implements AbstractChatRepository {
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
-      if (!chats.values.any((e) => e.chat.value.isMonolog)) {
+      if (chats.values.none((e) => e.chat.value.isMonolog)) {
         createMonologChat();
       }
 

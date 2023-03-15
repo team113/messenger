@@ -118,7 +118,7 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
-  /// [MyUserService] maintaining the [myUser].
+  /// [MyUserService] used to get [MyUser].
   final MyUserService _myUserService;
 
   /// Subscription for [ChatService.chats] changes.

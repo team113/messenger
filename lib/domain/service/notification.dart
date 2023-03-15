@@ -58,9 +58,7 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
-    PlatformUtils.isFocused
-        .then((value) => _focused = value)
-        .catchError((_, __) => false);
+    PlatformUtils.isFocused.then((value) => _focused = value);
 
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 

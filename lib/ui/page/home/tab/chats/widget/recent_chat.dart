@@ -765,9 +765,8 @@ class RecentChatTile extends StatelessWidget {
 
       if (item != null && item.authorId == me) {
         final bool isSent = item.status.value == SendingStatus.sent;
-        final bool isRead = chat.isMonolog
-            ? chat.isReadBy(item, me) && isSent
-            : chat.isRead(item, me) && isSent;
+        final bool isRead =
+            chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;

@@ -392,7 +392,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       return false;
     }
 
-    if (_fromMe && !chat.isMonolog) {
+    if (chat.members.length <= 1) {
+      return true;
+    }
+
+    if (_fromMe) {
       return chat.isRead(widget.item.value, widget.me);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
@@ -874,11 +878,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ? const Color(0xFFF9F9F9)
                                 : const Color(0xFFFFFFFF),
                         borderRadius: i == 0
-                            ? const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
+                            ? BorderRadius.only(
+                                topLeft: const Radius.circular(15),
+                                topRight: const Radius.circular(15),
+                                bottomLeft:
+                                    msg.repliesTo.length == 1 && text == null
+                                        ? const Radius.circular(15)
+                                        : Radius.zero,
+                                bottomRight:
+                                    msg.repliesTo.length == 1 && text == null
+                                        ? const Radius.circular(15)
+                                        : Radius.zero,
                               )
-                            : BorderRadius.zero,
+                            : i == msg.repliesTo.length - 1 && text == null
+                                ? const BorderRadius.only(
+                                    bottomLeft: Radius.circular(15),
+                                    bottomRight: Radius.circular(15),
+                                  )
+                                : BorderRadius.zero,
                       ),
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
@@ -1651,20 +1668,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
-                                if (widget.chat.value!.isMonolog) {
-                                  widget.onHide?.call();
-                                  return;
+                                bool isMonolog =
+                                    widget.chat.value!.members.length <= 1;
+                                bool deletable;
+                                if (isMonolog) {
+                                  deletable = false;
+                                } else {
+                                  deletable = _fromMe &&
+                                      !widget.chat.value!.isRead(
+                                          widget.item.value, widget.me) &&
+                                      (widget.item.value is ChatMessage);
                                 }
-
-                                bool deletable = _fromMe &&
-                                    !widget.chat.value!
-                                        .isRead(widget.item.value, widget.me) &&
-                                    (widget.item.value is ChatMessage);
 
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,

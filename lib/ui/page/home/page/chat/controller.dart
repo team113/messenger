@@ -246,7 +246,7 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// [MyUserService] maintaining the [myUser].
+  /// [MyUserService] used to get [MyUser].
   final MyUserService _myUserService;
 
   /// Worker capturing any [RxChat.messages] changes.
