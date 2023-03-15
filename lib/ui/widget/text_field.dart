@@ -38,6 +38,7 @@ class ReactiveTextField extends StatelessWidget {
     this.icon,
     this.label,
     this.obscure = false,
+    this.worker,
     this.onChanged,
     this.style,
     this.suffix,
@@ -97,6 +98,9 @@ class ReactiveTextField extends StatelessWidget {
   /// Should only be used to rebuild a widget tree. To react to the changes of
   /// this [ReactiveTextField] use [state] instead.
   final VoidCallback? onChanged;
+
+  /// Some description
+  final Worker? worker;
 
   /// List of [TextInputFormatter] that formats the input of [TextField].
   final List<TextInputFormatter>? formatters;
