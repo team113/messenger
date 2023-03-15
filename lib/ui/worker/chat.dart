@@ -18,9 +18,10 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
+import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -33,6 +34,7 @@ import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
 class ChatWorker extends DisposableService {
@@ -61,6 +63,16 @@ class ChatWorker extends DisposableService {
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
 
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
+
+  /// Indicator whether the icon in the taskbar has a flash effect applied.
+  bool _flashed = false;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
@@ -82,12 +94,24 @@ class ChatWorker extends DisposableService {
       }
     });
 
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      PlatformUtils.isFocused.then((value) => _focused = value);
+
+      _onFocusChanged = PlatformUtils.onFocusChanged.listen((_) async {
+        _focused = await PlatformUtils.isFocused;
+        if (_focused) {
+          _flashed = false;
+        }
+      });
+    }
+
     super.onReady();
   }
 
   @override
   void onClose() {
     _subscription.cancel();
+    _onFocusChanged?.cancel();
     _chats.forEach((_, value) => value.dispose());
     super.onClose();
   }
@@ -99,14 +123,17 @@ class ChatWorker extends DisposableService {
     if (viaSubscription && c.chat.value.isGroup) {
       bool newChat = false;
 
-      if (c.chat.value.lastItem is ChatMemberInfo) {
-        var msg = c.chat.value.lastItem as ChatMemberInfo;
-        newChat = msg.action == ChatMemberInfoAction.added &&
-            msg.user.id == _chatService.me &&
-            DateTime.now()
-                    .difference(msg.at.val)
-                    .compareTo(newMessageThreshold) <=
-                -1;
+      if (c.chat.value.lastItem is ChatInfo) {
+        final msg = c.chat.value.lastItem as ChatInfo;
+        if (msg.action.kind == ChatInfoActionKind.memberAdded) {
+          final action = msg.action as ChatInfoActionMemberAdded;
+          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
+              action.user.id == _chatService.me &&
+              DateTime.now()
+                      .difference(msg.at.val)
+                      .compareTo(newMessageThreshold) <=
+                  -1;
+        }
       } else if (c.chat.value.lastItem == null) {
         // The chat was created just now.
         newChat = DateTime.now()
@@ -124,6 +151,8 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: c.chat.value.id.val,
           );
+
+          _flashTaskbarIcon();
         }
       }
     }
@@ -139,10 +168,31 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: tag,
           );
+
+          await _flashTaskbarIcon();
         }
       },
       me: () => _chatService.me,
     );
+  }
+
+  /// Applies the flashing effect to the application's icon in the taskbar.
+  Future<void> _flashTaskbarIcon() async {
+    if (PlatformUtils.isWindows &&
+        !PlatformUtils.isWeb &&
+        !_focused &&
+        !_flashed) {
+      try {
+        await WindowsTaskbar.setFlashTaskbarAppIcon(
+          mode: TaskbarFlashMode.tray | TaskbarFlashMode.timer,
+          flashCount: 1,
+        );
+
+        _flashed = true;
+      } catch (_) {
+        // No-op.
+      }
+    }
   }
 }
 
@@ -182,30 +232,77 @@ class _ChatWatchData {
                       .l10nfmt({'count': msg.attachments.length}),
                 );
               }
-            } else if (chat.lastItem is ChatMemberInfo) {
-              final ChatMemberInfo msg = chat.lastItem as ChatMemberInfo;
+            } else if (chat.lastItem is ChatInfo) {
+              final ChatInfo msg = chat.lastItem as ChatInfo;
 
-              switch (msg.action) {
-                case ChatMemberInfoAction.created:
+              switch (msg.action.kind) {
+                case ChatInfoActionKind.created:
                   // No-op, as it shouldn't be in a notification.
                   break;
 
-                case ChatMemberInfoAction.added:
-                  body.write(
-                    'label_was_added'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
-                  );
+                case ChatInfoActionKind.memberAdded:
+                  final action = msg.action as ChatInfoActionMemberAdded;
+
+                  if (msg.authorId == action.user.id) {
+                    body.write(
+                      'label_was_added'.l10nfmt(
+                        {'author': '${action.user.name ?? action.user.num}'},
+                      ),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_added_user'.l10nfmt({
+                        'author': msg.author.name?.val ?? msg.author.num.val,
+                        'user': action.user.name?.val ?? action.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
-                case ChatMemberInfoAction.removed:
-                  body.write(
-                    'label_was_removed'
-                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
-                  );
+                case ChatInfoActionKind.memberRemoved:
+                  final action = msg.action as ChatInfoActionMemberRemoved;
+
+                  if (msg.authorId == action.user.id) {
+                    body.write(
+                      'label_was_removed'.l10nfmt(
+                        {'author': '${action.user.name ?? action.user.num}'},
+                      ),
+                    );
+                  } else {
+                    body.write(
+                      'label_user_removed_user'.l10nfmt({
+                        'author': msg.author.name?.val ?? msg.author.num.val,
+                        'user': action.user.name?.val ?? action.user.num.val,
+                      }),
+                    );
+                  }
                   break;
 
-                case ChatMemberInfoAction.artemisUnknown:
-                  body.write(msg.action.toString());
+                case ChatInfoActionKind.avatarUpdated:
+                  final action = msg.action as ChatInfoActionAvatarUpdated;
+                  final Map<String, dynamic> args = {
+                    'author': msg.author.name?.val ?? msg.author.num.val,
+                  };
+
+                  if (action.avatar == null) {
+                    body.write('label_avatar_removed'.l10nfmt(args));
+                  } else {
+                    body.write('label_avatar_updated'.l10nfmt(args));
+                  }
+                  break;
+
+                case ChatInfoActionKind.nameUpdated:
+                  final action = msg.action as ChatInfoActionNameUpdated;
+                  final Map<String, dynamic> args = {
+                    'author': msg.author.name?.val ?? msg.author.num.val,
+                    if (action.name != null) 'name': action.name?.val,
+                  };
+
+                  if (action.name == null) {
+                    body.write('label_name_removed'.l10nfmt(args));
+                  } else {
+                    body.write('label_name_updated'.l10nfmt(args));
+                  }
                   break;
               }
             } else if (chat.lastItem is ChatForward) {

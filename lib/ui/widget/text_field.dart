@@ -18,11 +18,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'allow_overflow.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 
@@ -215,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? UnconstrainedBox(
+                                        ? AllowOverflow(
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
@@ -253,7 +253,10 @@ class ReactiveTextField extends StatelessWidget {
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
                 floatingLabelStyle: state.error.value?.isNotEmpty == true
-                    ? GoogleFonts.roboto(color: Colors.red)
+                    ? Theme.of(context)
+                        .inputDecorationTheme
+                        .floatingLabelStyle
+                        ?.copyWith(color: Colors.red)
                     : null,
               ),
         ),

@@ -98,6 +98,11 @@ class ChatsTabController extends GetxController {
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -244,7 +249,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -259,9 +263,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
-        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-        router.chat(dialog.id);
+        router.chat(user.user.value.dialog);
       }
     }
   }
@@ -299,9 +301,6 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -335,9 +334,12 @@ class ChatsTabController extends GetxController {
   }
 
   /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(ChatId id) async {
+  Future<void> favoriteChat(
+    ChatId id, [
+    ChatFavoritePosition? position,
+  ]) async {
     try {
-      await _chatService.favoriteChat(id);
+      await _chatService.favoriteChat(id, position);
     } on FavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -430,7 +432,8 @@ class ChatsTabController extends GetxController {
         name: null,
       );
 
-      router.chatInfo(chat.chat.value.id);
+      router.chat(chat.chat.value.id);
+      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -443,6 +446,34 @@ class ChatsTabController extends GetxController {
     } finally {
       creatingStatus.value = RxStatus.empty();
     }
+  }
+
+  /// Reorders a [Chat] from the [from] position to the [to] position.
+  Future<void> reorderChat(int from, int to) async {
+    // [chats] are guaranteed to have favorite [Chat]s on the top.
+    final int length =
+        chats.where((e) => e.chat.value.favoritePosition != null).length;
+
+    double position;
+
+    if (to <= 0) {
+      position = chats.first.chat.value.favoritePosition!.val / 2;
+    } else if (to >= length) {
+      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
+    } else {
+      position = (chats[to].chat.value.favoritePosition!.val +
+              chats[to - 1].chat.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatId chatId = chats[from].id;
+    chats.insert(to, chats.removeAt(from));
+
+    await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
   /// Enables and initializes or disables and disposes the [search].
@@ -539,6 +570,12 @@ class ChatsTabController extends GetxController {
         return -1;
       } else if (a.chat.value.ongoingCall == null &&
           b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
+        return -1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
         return 1;
       }
 

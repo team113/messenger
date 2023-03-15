@@ -31,6 +31,7 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
@@ -50,6 +51,9 @@ class CallRepository extends DisposableInterface
     this._settingsRepo, {
     required this.me,
   });
+
+  /// Callback, called when the provided [Chat] should be remotely accessible.
+  Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -191,6 +195,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    // TODO: Call should be displayed right away.
+    if (chatId.isLocal && ensureRemoteDialog != null) {
+      chatId = (await ensureRemoteDialog!.call(chatId))!.id;
+    }
+
     if (calls[chatId] != null) {
       throw CallAlreadyExistsException();
     }
@@ -495,6 +504,20 @@ class CallRepository extends DisposableInterface
         node.call.toModel(),
         node.user.toModel(),
         node.byUser.toModel(),
+      );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      for (var m in node.call.members) {
+        _userRepo.put(m.user.toHive());
+      }
+      return EventChatCallAnswerTimeoutPassed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.call.toModel(),
+        node.nUser?.toModel(),
+        node.userId,
       );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
       var node =

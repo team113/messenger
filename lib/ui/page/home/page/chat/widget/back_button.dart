@@ -21,7 +21,7 @@ import '/ui/widget/widget_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({Key? key}) : super(key: key);
+  const StyledBackButton({super.key});
 
   @override
   Widget build(BuildContext context) {

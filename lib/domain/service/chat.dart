@@ -20,12 +20,13 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart'
+    show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -63,11 +64,6 @@ class ChatService extends DisposableService {
     _chatRepository.dispose();
     super.onClose();
   }
-
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId) =>
-      _chatRepository.createDialogChat(responderId);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
@@ -136,8 +132,9 @@ class ChatService extends DisposableService {
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {
-    if (router.route.startsWith('${Routes.chat}/$id')) {
-      router.home();
+    final Chat? chat = chats[id]?.chat.value;
+    if (chat != null) {
+      router.removeWhere((e) => chat.isRoute(e, me));
     }
 
     return _chatRepository.hideChat(id);
@@ -263,7 +260,7 @@ class ChatService extends DisposableService {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {
@@ -319,4 +316,20 @@ class ChatService extends DisposableService {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
+}
+
+/// Extension adding a route from the [router] comparison with a [Chat].
+extension ChatIsRoute on Chat {
+  /// Indicates whether the provided [route] represents this [Chat].
+  bool isRoute(String route, UserId? me) {
+    final UserId? member =
+        members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
+
+    final bool byId = route.startsWith('${Routes.chat}/$id');
+    final bool byUser = isDialog &&
+        member != null &&
+        route.startsWith('${Routes.chat}/${ChatId.local(member)}');
+
+    return byId || byUser;
+  }
 }

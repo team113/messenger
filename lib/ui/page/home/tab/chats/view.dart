@@ -15,6 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
+import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -26,9 +30,11 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -213,16 +219,24 @@ class ChatsTabView extends StatelessWidget {
                           c.search.value?.users.isEmpty == true) {
                         if (c.search.value?.searchStatus.value.isSuccess ==
                             true) {
-                          center =
-                              Center(child: Text('label_nothing_found'.l10n));
+                          center = Center(
+                            key: UniqueKey(),
+                            child: Text('label_nothing_found'.l10n),
+                          );
                         } else {
-                          center =
-                              const Center(child: CircularProgressIndicator());
+                          center = Center(
+                            key: UniqueKey(),
+                            child: const ColoredBox(
+                              color: Colors.transparent,
+                              child: CustomProgressIndicator(),
+                            ),
+                          );
                         }
                       }
 
                       if (center != null) {
                         child = Padding(
+                          key: UniqueKey(),
                           padding: const EdgeInsets.only(top: 67),
                           child: center,
                         );
@@ -234,6 +248,7 @@ class ChatsTabView extends StatelessWidget {
                             top: Radius.circular(40),
                           ),
                           child: ListView.builder(
+                            key: const Key('GroupCreating'),
                             controller: c.search.value!.controller,
                             itemCount: c.elements.length,
                             itemBuilder: (context, i) {
@@ -352,9 +367,13 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.search.isEmpty.value == false) {
                       if (c.search.value!.searchStatus.value.isLoading &&
                           c.elements.isEmpty) {
-                        child = const Center(
-                          key: Key('Loading'),
-                          child: CircularProgressIndicator(),
+                        child = Center(
+                          key: UniqueKey(),
+                          child: const ColoredBox(
+                            key: Key('Loading'),
+                            color: Colors.transparent,
+                            child: CustomProgressIndicator(),
+                          ),
                         );
                       } else if (c.elements.isNotEmpty) {
                         child = SafeScrollbar(
@@ -450,59 +469,228 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         );
                       } else {
-                        child = Center(
-                          key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
+                        child = KeyedSubtree(
+                          key: UniqueKey(),
+                          child: Center(
+                            key: const Key('NothingFound'),
+                            child: Text('label_nothing_found'.l10n),
+                          ),
                         );
                       }
                     } else {
-                      child = SafeScrollbar(
-                        controller: c.scrollController,
-                        child: AnimationLimiter(
-                          key: const Key('Chats'),
-                          child: ListView.builder(
-                            controller: c.scrollController,
-                            itemCount: c.chats.length,
-                            itemBuilder: (_, i) {
-                              final RxChat chat = c.chats[i];
-                              return AnimationConfiguration.staggeredList(
-                                position: i,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  horizontalOffset: 50,
-                                  child: FadeInAnimation(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: Obx(() {
-                                        return RecentChatTile(
-                                          chat,
-                                          key: Key('RecentChat_${chat.id}'),
-                                          me: c.me,
-                                          blocked: chat.blacklisted,
-                                          getUser: c.getUser,
-                                          onJoin: () => c.joinCall(chat.id),
-                                          onDrop: () => c.dropCall(chat.id),
-                                          onLeave: () => c.leaveChat(chat.id),
-                                          onHide: () => c.hideChat(chat.id),
-                                          inCall: () => c.inCall(chat.id),
-                                          onMute: () => c.muteChat(chat.id),
-                                          onUnmute: () => c.unmuteChat(chat.id),
-                                          onFavorite: () =>
-                                              c.favoriteChat(chat.id),
-                                          onUnfavorite: () =>
-                                              c.unfavoriteChat(chat.id),
+                      if (c.chats.none((e) => !e.id.isLocal)) {
+                        if (!c.chatsReady.value) {
+                          child = Center(
+                            key: UniqueKey(),
+                            child: const ColoredBox(
+                              key: Key('Loading'),
+                              color: Colors.transparent,
+                              child: CustomProgressIndicator(),
+                            ),
+                          );
+                        } else {
+                          child = KeyedSubtree(
+                            key: UniqueKey(),
+                            child: Center(
+                              key: const Key('NoChats'),
+                              child: Text('label_no_chats'.l10n),
+                            ),
+                          );
+                        }
+                      } else {
+                        child = SafeScrollbar(
+                          controller: c.scrollController,
+                          child: AnimationLimiter(
+                            key: const Key('Chats'),
+                            child: Obx(() {
+                              final List<RxChat> favorites = [];
+                              final List<RxChat> chats = [];
+
+                              for (RxChat e in c.chats) {
+                                if (!e.id.isLocal || e.messages.isNotEmpty) {
+                                  if (e.chat.value.favoritePosition != null) {
+                                    favorites.add(e);
+                                  } else {
+                                    chats.add(e);
+                                  }
+                                }
+                              }
+
+                              // Builds a [RecentChatTile] from the provided
+                              // [RxChat].
+                              Widget tile(
+                                RxChat e, {
+                                Widget Function(Widget)? avatarBuilder,
+                              }) {
+                                return RecentChatTile(
+                                  e,
+                                  key: Key('RecentChat_${e.id}'),
+                                  me: c.me,
+                                  blocked: e.blacklisted,
+                                  getUser: c.getUser,
+                                  avatarBuilder: avatarBuilder,
+                                  onJoin: () => c.joinCall(e.id),
+                                  onDrop: () => c.dropCall(e.id),
+                                  onLeave: () => c.leaveChat(e.id),
+                                  onHide: () => c.hideChat(e.id),
+                                  inCall: () => c.inCall(e.id),
+                                  onMute: () => c.muteChat(e.id),
+                                  onUnmute: () => c.unmuteChat(e.id),
+                                  onFavorite: () => c.favoriteChat(e.id),
+                                  onUnfavorite: () => c.unfavoriteChat(e.id),
+                                );
+                              }
+
+                              return CustomScrollView(
+                                controller: c.scrollController,
+                                slivers: [
+                                  SliverPadding(
+                                    padding: const EdgeInsets.only(
+                                      top: CustomAppBar.height,
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    sliver: SliverReorderableList(
+                                      onReorderStart: (_) =>
+                                          c.reordering.value = true,
+                                      proxyDecorator: (child, _, animation) {
+                                        return AnimatedBuilder(
+                                          animation: animation,
+                                          builder: (_, Widget? child) {
+                                            final double t = Curves.easeInOut
+                                                .transform(animation.value);
+                                            final double elevation =
+                                                lerpDouble(0, 6, t)!;
+                                            final Color color = Color.lerp(
+                                              const Color(0x00000000),
+                                              const Color(0x33000000),
+                                              t,
+                                            )!;
+
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  CustomBoxShadow(
+                                                    color: color,
+                                                    blurRadius: elevation,
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    style.cardRadius.copyWith(
+                                                  topLeft: Radius.circular(
+                                                    style.cardRadius.topLeft.x *
+                                                        1.75,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: child,
+                                            );
+                                          },
+                                          child: child,
                                         );
-                                      }),
+                                      },
+                                      itemBuilder: (_, i) {
+                                        final RxChat chat = favorites[i];
+
+                                        return KeyedSubtree(
+                                          key: Key(chat.id.val),
+                                          child: Obx(() {
+                                            final Widget child = tile(
+                                              chat,
+                                              avatarBuilder: (child) {
+                                                if (PlatformUtils.isMobile) {
+                                                  return ReorderableDelayedDragStartListener(
+                                                    key: Key(
+                                                      'ReorderHandle_${chat.id.val}',
+                                                    ),
+                                                    index: i,
+                                                    child: child,
+                                                  );
+                                                }
+
+                                                return RawGestureDetector(
+                                                  gestures: {
+                                                    DisableSecondaryButtonRecognizer:
+                                                        GestureRecognizerFactoryWithHandlers<
+                                                            DisableSecondaryButtonRecognizer>(
+                                                      () =>
+                                                          DisableSecondaryButtonRecognizer(),
+                                                      (_) {},
+                                                    ),
+                                                  },
+                                                  child:
+                                                      ReorderableDragStartListener(
+                                                    key: Key(
+                                                      'ReorderHandle_${chat.id.val}',
+                                                    ),
+                                                    index: i,
+                                                    child: child,
+                                                  ),
+                                                );
+                                              },
+                                            );
+
+                                            // Ignore the animation, if there's
+                                            // an ongoing reordering happening.
+                                            if (c.reordering.value) {
+                                              return child;
+                                            }
+
+                                            return AnimationConfiguration
+                                                .staggeredList(
+                                              position: i,
+                                              duration: const Duration(
+                                                milliseconds: 375,
+                                              ),
+                                              child: SlideAnimation(
+                                                horizontalOffset: 50,
+                                                child: FadeInAnimation(
+                                                  child: child,
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                        );
+                                      },
+                                      itemCount: favorites.length,
+                                      onReorder: (a, b) {
+                                        c.reorderChat(a, b);
+                                        c.reordering.value = false;
+                                      },
                                     ),
                                   ),
-                                ),
+                                  SliverPadding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: CustomNavigationBar.height + 5,
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    sliver: SliverList(
+                                      delegate: SliverChildListDelegate.fixed(
+                                        chats.mapIndexed((i, e) {
+                                          return AnimationConfiguration
+                                              .staggeredList(
+                                            position: i,
+                                            duration: const Duration(
+                                              milliseconds: 375,
+                                            ),
+                                            child: SlideAnimation(
+                                              horizontalOffset: 50,
+                                              child: FadeInAnimation(
+                                                child: tile(e),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               );
-                            },
+                            }),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
 
                     return ContextMenuInterceptor(
@@ -513,7 +701,7 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }
 
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CustomProgressIndicator());
                 }),
                 bottomNavigationBar:
                     c.groupCreating.value ? _createGroup(context, c) : null,
@@ -527,7 +715,7 @@ class ChatsTabView extends StatelessWidget {
                   width: double.infinity,
                   height: double.infinity,
                   color: const Color(0x33000000),
-                  child: const Center(child: CircularProgressIndicator()),
+                  child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
                 child = const SizedBox();
@@ -613,5 +801,32 @@ class ChatsTabView extends StatelessWidget {
 
       return AnimatedSwitcher(duration: 250.milliseconds, child: child);
     });
+  }
+}
+
+/// [OneSequenceGestureRecognizer] rejecting the secondary mouse button events.
+class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
+  @override
+  String get debugDescription => 'DisableSecondaryButtonRecognizer';
+
+  @override
+  void didStopTrackingLastPointer(int pointer) {
+    // No-op.
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    // No-op.
+  }
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    startTrackingPointer(event.pointer);
+
+    if (event.buttons == kPrimaryButton) {
+      resolve(GestureDisposition.rejected);
+    } else {
+      resolve(GestureDisposition.accepted);
+    }
   }
 }

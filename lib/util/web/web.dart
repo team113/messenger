@@ -364,7 +364,7 @@ class WebUtils {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    WebCallPreferences? prefs = getCallPreferences(chatId);
+    final Rect? prefs = getCallRect(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
     final height = min(prefs?.height ?? 500, screenH);
@@ -380,7 +380,7 @@ class WebUtils {
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {
-      top = screenH - height;
+      top = screenH.toDouble() - height;
     }
 
     List parameters = [
@@ -438,11 +438,7 @@ class WebUtils {
     newState ??= WebUtils.getCall(chatId);
     WebUtils.removeCall(chatId);
     WebUtils.setCall(newState!);
-    html.window.history.replaceState(
-      null,
-      '',
-      Uri.base.toString().replaceFirst(chatId.val, newChatId.val),
-    );
+    replaceState(chatId.val, newChatId.val);
   }
 
   /// Removes all calls from the browser's storage, if any.
@@ -471,15 +467,15 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, WebCallPreferences prefs) =>
+  static void setCallRect(ChatId chatId, Rect prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.toJson());
 
-  /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
-  static WebCallPreferences? getCallPreferences(ChatId chatId) {
+  /// Returns the [Rect] stored by the provided [chatId], if any.
+  static Rect? getCallRect(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return WebCallPreferences.fromJson(json.decode(data));
+      return _RectExtension.fromJson(json.decode(data));
     }
 
     return null;
@@ -530,4 +526,32 @@ class WebUtils {
       }
     }
   }
+
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
+    html.window.history.replaceState(
+      null,
+      html.document.title,
+      Uri.base.toString().replaceFirst(from, to),
+    );
+  }
+}
+
+/// Extension adding JSON manipulation methods to a [Rect].
+extension _RectExtension on Rect {
+  /// Returns a [Map] containing parameters of this [Rect].
+  Map<String, dynamic> toJson() => {
+        'width': width,
+        'height': height,
+        'left': left,
+        'top': top,
+      };
+
+  /// Constructs a [Rect] from the provided [data].
+  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
+        data['left'],
+        data['top'],
+        data['width'],
+        data['height'],
+      );
 }

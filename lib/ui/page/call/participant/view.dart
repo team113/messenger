@@ -27,6 +27,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -76,7 +77,7 @@ class ParticipantView extends StatelessWidget {
       builder: (ParticipantController c) {
         return Obx(() {
           if (c.chat.value == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomProgressIndicator());
           }
 
           final Widget child;

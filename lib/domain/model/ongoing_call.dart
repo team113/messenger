@@ -268,6 +268,10 @@ class OngoingCall {
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
+  /// [_toggleHand]s of the authenticated [MyUser] used to discard the
+  /// [connect]ed events following these invokes.
+  final List<bool> _handToggles = [];
+
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
@@ -378,6 +382,8 @@ class OngoingCall {
           case ChatCallEventsKind.chatCall:
             var node = e as ChatCallEventsChatCall;
 
+            _handToggles.clear();
+
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);
@@ -395,6 +401,11 @@ class OngoingCall {
                 }
                 state.value = OngoingCallState.active;
               }
+
+              members[_me]?.isHandRaised.value = node.call.members
+                      .firstWhereOrNull((e) => e.user.id == _me.userId)
+                      ?.handRaised ??
+                  false;
             }
 
             call.value = node.call;
@@ -437,6 +448,11 @@ class OngoingCall {
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id);
                   }
+
+                  if (members.keys.none((e) => e.userId == node.user.id)) {
+                    call.value?.members
+                        .removeWhere((e) => e.user.id == node.user.id);
+                  }
                   break;
 
                 case ChatCallEventKind.memberJoined:
@@ -455,15 +471,20 @@ class OngoingCall {
                       isConnected: false,
                     );
                   }
-
                   break;
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
 
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = false;
+                  // Ignore the event, if it's our hand and is already lowered.
+                  if (node.user.id == _me.userId &&
+                      _handToggles.firstOrNull == false) {
+                    _handToggles.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = false;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -474,9 +495,16 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  for (MapEntry<CallMemberId, CallMember> m in members.entries
-                      .where((e) => e.key.userId == node.user.id)) {
-                    m.value.isHandRaised.value = true;
+
+                  // Ignore the event, if it's our hand and is already raised.
+                  if (node.user.id == _me.userId &&
+                      _handToggles.firstOrNull == true) {
+                    _handToggles.removeAt(0);
+                  } else {
+                    for (MapEntry<CallMemberId, CallMember> m in members.entries
+                        .where((e) => e.key.userId == node.user.id)) {
+                      m.value.isHandRaised.value = true;
+                    }
                   }
 
                   for (ChatCallMember m in (call.value?.members ?? [])
@@ -507,6 +535,10 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   // TODO: Implement EventChatCallMemberRedialed.
+                  break;
+
+                case ChatCallEventKind.answerTimeoutPassed:
+                  // TODO: Implement EventChatCallAnswerTimeoutPassed.
                   break;
               }
             }
@@ -1054,7 +1086,11 @@ class OngoingCall {
 
   /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service) {
-    members[_me]!.isHandRaised.toggle();
+    // Toggle the hands of all the devices of the authenticated [MyUser].
+    for (MapEntry<CallMemberId, CallMember> m
+        in members.entries.where((e) => e.key.userId == _me.userId)) {
+      m.value.isHandRaised.toggle();
+    }
     return _toggleHand(service);
   }
 
@@ -1065,6 +1101,7 @@ class OngoingCall {
 
       bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
+        _handToggles.add(raised);
         await service.toggleHand(chatId.value, raised);
       });
 
@@ -1238,7 +1275,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link/$_me?token=$creds');
+    await _room?.join('$link?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1642,8 +1679,8 @@ class Track {
 
       case MediaKind.Video:
         renderer.value = RtcVideoRenderer(track);
-        await (renderer.value as RtcVideoRenderer).initialize();
-        (renderer.value as RtcVideoRenderer).srcObject = track.getTrack();
+        await (renderer.value as RtcVideoRenderer?)?.initialize();
+        (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
         break;
     }
   }
