@@ -204,7 +204,7 @@ class ChatInfoView extends StatelessWidget {
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: const Key('ChatInfoListView'),
+                key: const Key('ChatInfoScrollable'),
                 children: [
                   const SizedBox(height: 8),
                   Block(

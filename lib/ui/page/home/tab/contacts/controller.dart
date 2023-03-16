@@ -177,10 +177,10 @@ class ContactsTabController extends GetxController {
     await _contactService.deleteContact(contact.id);
   }
 
-  /// Deletes [ChatContact]s identified by the provided [ChatContactId] from
-  /// [selectedContacts].
+  /// Deletes the [selectedContacts] from the authenticated [MyUser]'s address
+  /// book.
   Future<void> deleteContacts() async {
-    selecting.toggle();
+    selecting.value = false;
     router.navigation.value = !selecting.value;
 
     try {
@@ -306,7 +306,8 @@ class ContactsTabController extends GetxController {
     selectedContacts.clear();
   }
 
-  /// Adds a [ChatContactId] to the [selectedContacts].
+  /// Selects or unselects the provided [contact], meaning adding or removing it
+  /// from the [selectedContacts].
   void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact.id)) {
       selectedContacts.remove(contact.id);

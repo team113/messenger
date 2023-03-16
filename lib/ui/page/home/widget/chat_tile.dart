@@ -84,7 +84,7 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
-  /// Indicator whether context menu is enabled over this [ChatTile].
+  /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
 
   @override

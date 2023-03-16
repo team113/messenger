@@ -38,7 +38,7 @@ enum WidgetKey {
   ChatAvatar,
   ChatDirectLinkExpandable,
   ChatForwardView,
-  ChatInfoListView,
+  ChatInfoScrollable,
   ChatMessage,
   ChatView,
   ChatsButton,
@@ -132,7 +132,7 @@ enum WidgetKey {
   UnmuteChatButton,
   Unmuted,
   Unselected,
-  UserColumn,
+  UserScrollable,
   UsernameField,
 }
 

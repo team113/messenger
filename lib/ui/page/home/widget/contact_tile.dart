@@ -110,7 +110,7 @@ class ContactTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
-  /// Indicator whether context menu is enabled over this [ContactTile].
+  /// Indicator whether context menu should be enabled over this [ContactTile].
   final bool enableContextMenu;
 
   @override

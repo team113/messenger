@@ -32,11 +32,11 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
-import 'parameters/chat_messages_status.dart';
 import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
+import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
@@ -207,11 +207,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
-        ChatMessagesStatusParameter(),
         DownloadStatusParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
+        IterableAmountParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),

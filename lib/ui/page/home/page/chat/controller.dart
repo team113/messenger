@@ -404,7 +404,8 @@ class ChatController extends GetxController {
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
     try {
-      await _chatService.hideChatItem(item);
+      await _chatService.clearChat(id, item.id);
+      // await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

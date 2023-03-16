@@ -17,18 +17,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// Status of the presence of messages in the [Chat].
-enum ChatMessagesStatus { no, some }
+/// Some [Iterable] amount status.
+enum IterableAmount { no, some }
 
-/// [CustomParameter] representing a [ChatMessagesStatusParameter].
-class ChatMessagesStatusParameter extends CustomParameter<ChatMessagesStatus> {
-  ChatMessagesStatusParameter()
+/// [CustomParameter] representing a [IterableStatus].
+class IterableAmountParameter extends CustomParameter<IterableAmount> {
+  IterableAmountParameter()
       : super(
-          'messages',
+          'iterable_amount',
           RegExp(
-            '(${ChatMessagesStatus.values.map((e) => e.name).join('|')})',
+            '(${IterableAmount.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => ChatMessagesStatus.values.firstWhere((e) => e.name == c),
+          (c) => IterableAmount.values.firstWhere((e) => e.name == c),
         );
 }

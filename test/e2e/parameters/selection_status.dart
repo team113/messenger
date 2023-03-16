@@ -17,7 +17,7 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [Chat] or [ChatContact] selection status when multiple selection is active.
+/// Some tile or object selection status.
 enum SelectionStatus { selected, unselected }
 
 /// [CustomParameter] representing a [SelectionStatusParameter].

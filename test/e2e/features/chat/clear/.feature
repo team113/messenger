@@ -23,8 +23,9 @@ Feature: Clear chat
     And Bob has dialog with me
     And I am in chat with Bob
     And I see some messages in chat
+
     When I open chat's info
-    And I scroll `ChatInfoListView` until `ClearHistoryButton` is present
+    And I scroll `ChatInfoScrollable` until `ClearHistoryButton` is present
     And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
     And I return to previous page

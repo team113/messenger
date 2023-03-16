@@ -24,11 +24,11 @@ Feature: Blacklist
     And I wait until `HomeView` is present
 
     When I go to Bob's page
-    When I scroll `UserColumn` until `Block` is present
+    And I scroll `UserScrollable` until `Block` is present
     And I tap `Block` button
     And I tap `Proceed` button
     Then Bob sends message to me and receives blacklisted exception
 
-    When I scroll `UserColumn` until `Unblock` is present
+    When I scroll `UserScrollable` until `Unblock` is present
     And I tap `Unblock` button
     Then Bob sends message to me and receives no exception

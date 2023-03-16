@@ -15,25 +15,26 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Multiple deletion of chats
+Feature: Contacts selection
 
-  Scenario: User selects and deletes chats
+  Scenario: User selects and deletes contacts
     Given I am Alice
     And users Bob and Charlie
-    And I have "Alice and Bob" group with Bob
-    And I have "Alice and Charlie" group with Charlie
+    And contacts Bob and Charlie
+    And I wait until `HomeView` is present
+    And I tap `ContactsButton` button
 
-    When I long press "Alice and Bob" chat
-    And I tap `SelectChatButton` button
-    Then I see "Alice and Bob" chat as unselected
-    And I see "Alice and Charlie" chat as unselected
+    When I long press "Bob" contact
+    And I tap `SelectContactButton` button
+    Then I see "Bob" contact as unselected
+    And I see "Charlie" contact as unselected
 
-    When I tap "Alice and Bob" chat
-    Then I see "Alice and Bob" chat as selected
-    When I tap "Alice and Charlie" chat
-    Then I see "Alice and Charlie" chat as selected
+    When I tap "Bob" contact
+    Then I see "Bob" contact as selected
+    When I tap "Charlie" contact
+    Then I see "Charlie" contact as selected
 
-    When I tap `DeleteChats` button
+    When I tap `DeleteContacts` button
     And I tap `Proceed` button
-    Then I wait until "Alice and Bob" chat is absent
-    And I wait until "Alice and Charlie" chat is absent
+    Then I wait until "Bob" contact is absent
+    And I wait until "Charlie" contact is absent

@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/ui/page/home/widget/avatar.dart';
 
-/// Animated [CircleAvatar] representing selection circle.
+/// Animated [CircleAvatar] representing a selection circle.
 class SelectedDot extends StatelessWidget {
   const SelectedDot({
     super.key,
@@ -28,13 +28,13 @@ class SelectedDot extends StatelessWidget {
     this.darken = 0,
   });
 
-  /// Indicator whether should display the [CircleAvatar].
+  /// Indicator whether this [SelectedDot] is selected.
   final bool selected;
 
-  /// Size [CircleAvatar] representing selection circle.
+  /// Diameter of this [SelectedDot].
   final double size;
 
-  /// Darkening the circle displayed when [SelectedDot] is not selected.
+  /// Amount of darkening to apply to the background of this [SelectedDot].
   final double darken;
 
   @override
@@ -48,11 +48,7 @@ class SelectedDot extends StatelessWidget {
                 key: const Key('Selected'),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 radius: size / 2,
-                child: const Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 14,
-                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 14),
               )
             : Container(
                 key: const Key('Unselected'),

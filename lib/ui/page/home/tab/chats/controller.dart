@@ -319,7 +319,7 @@ class ChatsTabController extends GetxController {
   /// Hides the [selectedChats], clearing their histories as well if [clear] is
   /// `true`.
   Future<void> hideChats([bool clear = false]) async {
-    selecting.toggle();
+    selecting.value = false;
     router.navigation.value = !selecting.value;
 
     try {
@@ -487,7 +487,8 @@ class ChatsTabController extends GetxController {
     selectedChats.clear();
   }
 
-  /// Adds a [ChatId] to the [selectedChats].
+  /// Selects or unselects the provided [chat], meaning adding or removing it
+  /// from the [selectedChats].
   void selectChat(RxChat chat) {
     if (selectedChats.contains(chat.id)) {
       selectedChats.remove(chat.id);

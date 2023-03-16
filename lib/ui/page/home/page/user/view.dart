@@ -172,7 +172,7 @@ class UserView extends StatelessWidget {
                 controller: c.scrollController,
                 child: Obx(() {
                   return ListView(
-                    key: const Key('UserColumn'),
+                    key: const Key('UserScrollable'),
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),

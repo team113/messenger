@@ -19,30 +19,33 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
-import '../parameters/chat_messages_status.dart';
+import '../parameters/iterable_amount.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether there are messages in the [Chat].
+/// Indicates whether there are the provided amount of [ChatItem]s in the opened
+/// [Chat].
 ///
 /// Examples:
 /// - Then I see some messages in chat
 /// - Then I see no messages in chat
 final StepDefinitionGeneric seeChatMessages =
-    then1<ChatMessagesStatus, CustomWorld>(
-  'I see {messages} messages in chat',
+    then1<IterableAmount, CustomWorld>(
+  'I see {iterable_amount} messages in chat',
   (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         switch (status) {
-          case ChatMessagesStatus.no:
+          case IterableAmount.no:
             return await context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage('NoMessages'));
+              context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+            );
 
-          case ChatMessagesStatus.some:
+          case IterableAmount.some:
             return await context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage('NoMessages'));
+              context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+            );
         }
       },
     );

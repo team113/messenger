@@ -52,7 +52,7 @@ class RecentChatTile extends StatelessWidget {
     this.me,
     this.blocked = false,
     this.selected = false,
-    this.trailing = const [],
+    this.trailing,
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -82,8 +82,8 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
 
-  /// List of [Widget]s to be displayed in subtitle.
-  final List<Widget> trailing;
+  /// [Widget]s to display in the trailing instead of the defaults.
+  final List<Widget>? trailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -132,7 +132,8 @@ class RecentChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
-  /// Indicator whether context menu is enabled over this [RecentChatTile].
+  /// Indicator whether context menu should be enabled over this
+  /// [RecentChatTile].
   final bool enableContextMenu;
 
   @override
@@ -158,7 +159,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context, selected)),
-                if (trailing.isEmpty) ...[
+                if (trailing == null) ...[
                   if (blocked) ...[
                     const SizedBox(width: 5),
                     const Icon(
@@ -180,7 +181,7 @@ class RecentChatTile extends StatelessWidget {
                   ],
                   _counter(),
                 ] else
-                  ...trailing,
+                  ...trailing!,
               ],
             ),
           ),
@@ -237,13 +238,12 @@ class RecentChatTile extends StatelessWidget {
         selected: isRoute || selected,
         avatarBuilder: avatarBuilder,
         enableContextMenu: enableContextMenu,
-        onTap: () {
-          if (onTap != null) {
-            onTap!();
-          } else if (!isRoute) {
-            router.chat(chat.id);
-          }
-        },
+        onTap: onTap ??
+            () {
+              if (!isRoute) {
+                router.chat(chat.id);
+              }
+            },
       );
     });
   }

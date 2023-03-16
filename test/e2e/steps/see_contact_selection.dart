@@ -23,8 +23,7 @@ import '../configuration.dart';
 import '../parameters/selection_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [ChatContact] with the provided name is selected when
-/// multiple selection is active.
+/// Indicates whether a [ChatContact] with the provided name is selected.
 ///
 /// Examples:
 /// - Then I see "Bob" contact as selected
@@ -38,27 +37,17 @@ final StepDefinitionGeneric seeContactSelection =
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatContactId contactId = context.world.contacts[name]!;
-
         final Finder contact =
             context.world.appDriver.findByKeySkipOffstage('Contact_$contactId');
 
-        switch (status) {
-          case SelectionStatus.selected:
-            final Finder selected = context.world.appDriver.findByDescendant(
-              contact,
-              context.world.appDriver.findByKeySkipOffstage('Selected'),
-            );
-
-            return await context.world.appDriver.isPresent(selected);
-
-          case SelectionStatus.unselected:
-            final Finder unselected = context.world.appDriver.findByDescendant(
-              contact,
-              context.world.appDriver.findByKeySkipOffstage('Unselected'),
-            );
-
-            return await context.world.appDriver.isPresent(unselected);
-        }
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findByDescendant(
+            contact,
+            context.world.appDriver.findByKeySkipOffstage(
+              status == SelectionStatus.selected ? 'Selected' : 'Unselected',
+            ),
+          ),
+        );
       },
     );
   },

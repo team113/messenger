@@ -567,7 +567,7 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns an animated [OutlinedRoundedButton]s for multiple selected
+  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     const List<CustomBoxShadow> shadows = [
