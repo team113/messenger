@@ -233,6 +233,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               .textTheme
               .bodySmall
               ?.copyWith(color: Colors.black);
+
           if (b is ContextMenuButton) {
             return Row(
               children: [

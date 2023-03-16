@@ -256,8 +256,8 @@ class _ChatViewState extends State<ChatView>
                                 offset: const Offset(0, 0),
                                 child: SvgLoader.asset(
                                   'assets/icons/paid_chat.svg',
-                                  width: 10.05,
-                                  height: 17.54,
+                                  width: 20,
+                                  height: 0,
                                 ),
                               ),
                             ),

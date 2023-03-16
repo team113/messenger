@@ -80,8 +80,10 @@ class ContextMenu extends StatelessWidget {
   }
 }
 
+/// [Widget] to be displayed in a [ContextMenu].
 mixin ContextMenuItem on Widget {}
 
+/// [ContextMenuItem] representing a divider in [ContextMenu].
 class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
   const ContextMenuDivider({super.key});
 
@@ -96,7 +98,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
   }
 }
 
-/// Styled button used in [ContextMenu].
+/// [ContextMenuItem] representing a styled button used in [ContextMenu].
 class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
     Key? key,
