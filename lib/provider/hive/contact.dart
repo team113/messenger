@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/store/model/page_info.dart';
 
 import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
@@ -87,11 +88,11 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage:
+        hasNext:
             box.length > count || items.isEmpty || items.last.cursor != null,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: false,
+        hasPrevious: false,
       ),
     );
   }
@@ -112,12 +113,12 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
         PageInfo(
           endCursor:
               items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasNextPage: box.length > count + i + 1 ||
+          hasNext: box.length > count + i + 1 ||
               sorted.isEmpty ||
               sorted.last.cursor != null,
           startCursor:
               items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasPreviousPage: true,
+          hasPrevious: true,
         ),
       );
     }

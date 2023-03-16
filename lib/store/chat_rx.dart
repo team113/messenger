@@ -160,10 +160,10 @@ class HiveRxChat extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNext => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNext;
 
   @override
-  RxBool get hasPrevious => _fragment.hasPreviousPage;
+  RxBool get hasPrevious => _fragment.hasPrevious;
 
   @override
   UserCallCover? get callCover {
@@ -295,7 +295,7 @@ class HiveRxChat extends RxChat {
     });
 
     return _guard.protect(() async {
-      await _local.init(userId: me, lazy: true);
+      await _local.init(userId: me);
 
       _initLocalSubscription();
 
@@ -768,7 +768,7 @@ class HiveRxChat extends RxChat {
       _local.close();
 
       _local = ChatItemHiveProvider(id);
-      await _local.init(userId: me, lazy: true);
+      await _local.init(userId: me);
 
       for (var e in saved) {
         if (e is HiveChatMessage) {

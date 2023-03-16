@@ -22,6 +22,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -92,7 +93,7 @@ class ContactRepository implements AbstractContactRepository {
   StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
-  RxBool get hasNext => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNext;
 
   @override
   Future<void> init() async {
@@ -530,10 +531,10 @@ class ContactRepository implements AbstractContactRepository {
         _userRepo.put(user);
       }
 
-      contacts.add(c.node.toHive(cursor: c.cursor));
+      contacts.add(c.node.toHive(c.cursor));
     }
 
-    return ItemsPage<HiveChatContact>(contacts, query.pageInfo);
+    return ItemsPage<HiveChatContact>(contacts, query.pageInfo.toModel());
   }
 
   /// Notifies about updates in all [ChatContact]s of the authenticated
@@ -569,7 +570,7 @@ class ContactRepository implements AbstractContactRepository {
           }
           yield ChatContactsEventsChatContactsList(
             list.chatContacts.edges
-                .map((e) => e.node.toHive(cursor: e.cursor))
+                .map((e) => e.node.toHive(e.cursor))
                 .toList(),
             list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
             list.chatContacts.ver,

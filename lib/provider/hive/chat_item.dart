@@ -17,6 +17,12 @@
 
 import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/domain/model/avatar.dart';
+import 'package:messenger/domain/model/file.dart';
+import 'package:messenger/domain/model/gallery_item.dart';
+import 'package:messenger/domain/model/image_gallery_item.dart';
+import 'package:messenger/domain/model/user_call_cover.dart';
+import 'package:messenger/store/model/user.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -30,13 +36,14 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
     implements PageProvider<HiveChatItem> {
   ChatItemHiveProvider(this.id, {this.initialKey});
 
@@ -53,15 +60,11 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   String get boxName => 'messages_$id';
 
   @override
-  Future<void> init({UserId? userId, bool lazy = false}) {
-    assert(lazy, 'ChatItemHiveProvider can be only lazy');
-
-    return super.init(userId: userId, lazy: lazy);
-  }
-
-  @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
+    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
+    Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
@@ -81,23 +84,37 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     Hive.maybeRegisterAdapter(ChatMembersDialedAllAdapter());
     Hive.maybeRegisterAdapter(ChatMembersDialedConcreteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
+    Hive.maybeRegisterAdapter(ChatNameAdapter());
+    Hive.maybeRegisterAdapter(ChatAvatarAdapter());
     Hive.maybeRegisterAdapter(ChatMessageQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageTextAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
+    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
+    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(StorageFileAdapter());
+    Hive.maybeRegisterAdapter(UserAdapter());
+    Hive.maybeRegisterAdapter(UserAvatarAdapter());
+    Hive.maybeRegisterAdapter(UserBioAdapter());
+    Hive.maybeRegisterAdapter(UserCallCoverAdapter());
+    Hive.maybeRegisterAdapter(UserIdAdapter());
+    Hive.maybeRegisterAdapter(UserNameAdapter());
+    Hive.maybeRegisterAdapter(UserNumAdapter());
+    Hive.maybeRegisterAdapter(UserTextStatusAdapter());
+    Hive.maybeRegisterAdapter(UserVersionAdapter());
   }
 
   /// Returns a list of [ChatItem]s from [Hive].
-  Future<Iterable<HiveChatItem>> get messages => lazyValuesSafe;
+  Future<Iterable<HiveChatItem>> get messages => valuesSafe;
 
   /// Puts the provided [ChatItem] to [Hive].
   Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
@@ -112,18 +129,16 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
   }
 
   /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  Future<HiveChatItem?> get(String timestamp) => lazyGetSafe(timestamp);
+  Future<HiveChatItem?> get(String timestamp) => getSafe(timestamp);
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
   Future<void> remove(String timestamp) => deleteSafe(timestamp);
 
   @override
   Future<ItemsPage<HiveChatItem>> initial(int count, String? cursor) async {
-    final lazyBox = box as LazyBox<HiveChatItem>;
-
-    Iterable<dynamic> keys = lazyBox.keys.toList().reversed;
+    Iterable<dynamic> keys = box.keys.toList().reversed;
     if (initialKey != null) {
-      int initialIndex = keys.toList().indexOf(initialKey);
+      final int initialIndex = keys.toList().indexOf(initialKey);
       if (initialIndex != -1) {
         if (initialIndex < (count ~/ 2)) {
           keys = keys.take(count - ((count ~/ 2) - initialIndex));
@@ -136,17 +151,18 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     keys = keys.take(count);
 
     final List<HiveChatItem> items =
-        (await Future.wait(keys.map((e) => lazyBox.get(e))))
+        (await Future.wait(keys.map((e) => box.get(e))))
             .whereNotNull()
             .toList();
+
     return ItemsPage<HiveChatItem>(
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: id.isLocal ? false : true,
+        hasNext: id.isLocal ? false : true,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: id.isLocal ? false : true,
+        hasPrevious: id.isLocal ? false : true,
       ),
     );
   }
@@ -157,24 +173,25 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     String? cursor,
     int count,
   ) async {
-    final lazyBox = box as LazyBox<HiveChatItem>;
-    List<dynamic> keys = lazyBox.keys.toList().reversed.toList();
-    int index = keys.indexOf(after.value.timestamp);
-    List<Future<HiveChatItem?>> futures = [];
+    final List<dynamic> keys = box.keys.toList().reversed.toList();
+    final int index = keys.indexOf(after.value.timestamp);
+    final List<Future<HiveChatItem?>> futures = [];
+
     if (index != -1) {
-      futures = keys.skip(index + 1).map((e) => lazyGetSafe(e)).toList();
+      futures.addAll(keys.skip(index + 1).map((e) => getSafe(e)));
     }
 
     final List<HiveChatItem> items =
         (await Future.wait(futures)).whereNotNull().toList();
+
     return ItemsPage<HiveChatItem>(
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: true,
+        hasNext: true,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: true,
+        hasPrevious: true,
       ),
     );
   }
@@ -185,24 +202,24 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem>
     String? cursor,
     int count,
   ) async {
-    final lazyBox = box as LazyBox<HiveChatItem>;
-    int index = lazyBox.keys.toList().indexOf(before.value.timestamp);
-    List<Future<HiveChatItem?>> futures = [];
+    final int index = box.keys.toList().indexOf(before.value.timestamp);
+    final List<Future<HiveChatItem?>> futures = [];
+
     if (index != -1) {
-      futures =
-          lazyBox.keys.skip(index + 1).map((e) => lazyGetSafe(e)).toList();
+      futures.addAll(box.keys.skip(index + 1).map((e) => getSafe(e)).toList());
     }
 
     final List<HiveChatItem> items =
         (await Future.wait(futures)).whereNotNull().toList();
+
     return ItemsPage<HiveChatItem>(
       items,
       PageInfo(
         endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNextPage: true,
+        hasNext: true,
         startCursor:
             items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPreviousPage: true,
+        hasPrevious: true,
       ),
     );
   }

@@ -134,7 +134,7 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  RxBool get hasNext => _fragment.hasNextPage;
+  RxBool get hasNext => _fragment.hasNext;
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
@@ -807,7 +807,7 @@ class ChatRepository implements AbstractChatRepository {
 
     return ItemsPage<HiveChatItem>(
       query.chat?.items.edges.map((e) => e.toHive()).toList() ?? [],
-      query.chat?.items.pageInfo,
+      query.chat?.items.pageInfo.toModel(),
     );
   }
 
@@ -1241,7 +1241,7 @@ class ChatRepository implements AbstractChatRepository {
 
     return ItemsPage<HiveChat>(
       query.edges.map((e) => _chat(e.node, cursor: e.cursor)).toList(),
-      query.pageInfo,
+      query.pageInfo.toModel(),
     );
   }
 
@@ -1296,7 +1296,7 @@ class ChatRepository implements AbstractChatRepository {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toHive(cursor: cursor);
+    return q.toHive(cursor);
   }
 
   /// Initializes [_favoriteChatsEvents] subscription.

@@ -29,6 +29,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/page_info.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';
@@ -71,7 +72,7 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive({RecentChatsCursor? cursor}) => HiveChat(
+  HiveChat toHive([RecentChatsCursor? cursor]) => HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
@@ -612,6 +613,17 @@ extension EventChatMuted$DurationConversion
             as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
         .until);
   }
+}
+
+/// Extension adding models construction from [PageInfoMixin].
+extension PageInfoConversion on PageInfoMixin {
+  /// Constructs a new [PageInfo] from this [PageInfoMixin].
+  PageInfo<String> toModel() => PageInfo<String>(
+        hasPrevious: hasPreviousPage,
+        hasNext: hasNextPage,
+        startCursor: startCursor,
+        endCursor: endCursor,
+      );
 }
 
 /// Constructs a new [Attachment] based on the [node].

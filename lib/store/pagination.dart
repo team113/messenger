@@ -19,9 +19,9 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show PageInfoMixin;
 import '/store/chat_rx.dart';
 import '/util/obs/rxlist.dart';
+import 'model/page_info.dart';
 
 /// Helper to fetches items with pagination.
 class PaginatedFragment<T> {
@@ -71,10 +71,10 @@ class PaginatedFragment<T> {
   final RxObsList<T> elements = RxObsList<T>();
 
   /// Indicator whether next page is exist.
-  final RxBool hasNextPage = RxBool(true);
+  final RxBool hasNext = RxBool(true);
 
   /// Indicator whether previous page is exist.
-  final RxBool hasPreviousPage = RxBool(true);
+  final RxBool hasPrevious = RxBool(true);
 
   /// Indicator whether this [PaginatedFragment] is initialized.
   bool initialized = false;
@@ -108,9 +108,8 @@ class PaginatedFragment<T> {
     if (!shouldSynced) {
       _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
-      hasPreviousPage.value =
-          cached.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
-      hasNextPage.value = cached.pageInfo?.hasNextPage ?? hasNextPage.value;
+      hasPrevious.value = cached.pageInfo?.hasPrevious ?? hasPrevious.value;
+      hasNext.value = cached.pageInfo?.hasNext ?? hasNext.value;
     }
 
     initialized = true;
@@ -119,11 +118,11 @@ class PaginatedFragment<T> {
   /// Adds the provided [item] to the [elements].
   void add(T item) {
     if (elements.isNotEmpty) {
-      if ((compare(item, elements.first) == 1 || hasPreviousPage.isFalse) &&
-          (compare(item, elements.last) == -1 || hasNextPage.isFalse)) {
+      if ((compare(item, elements.first) == 1 || hasPrevious.isFalse) &&
+          (compare(item, elements.last) == -1 || hasNext.isFalse)) {
         _add(item);
       }
-    } else if (hasNextPage.isFalse && hasPreviousPage.isFalse) {
+    } else if (hasNext.isFalse && hasPrevious.isFalse) {
       _add(item);
     }
   }
@@ -131,8 +130,8 @@ class PaginatedFragment<T> {
   /// Clears the [elements] and related resources.
   void clear() {
     elements.clear();
-    hasNextPage.value = true;
-    hasPreviousPage.value = true;
+    hasNext.value = true;
+    hasPrevious.value = true;
     _startCursor = null;
     _endCursor = null;
   }
@@ -141,7 +140,7 @@ class PaginatedFragment<T> {
   Future<void> fetchInitialPage() async {
     if (_synced.isNotEmpty ||
         (elements.length >= pageSize && !shouldSynced) ||
-        (hasNextPage.isFalse && hasPreviousPage.isFalse)) {
+        (hasNext.isFalse && hasPrevious.isFalse)) {
       // Return if initial page is already fetched.
       return;
     }
@@ -149,12 +148,11 @@ class PaginatedFragment<T> {
     // TODO: Temporary timeout, remove before merging.
     await Future.delayed(const Duration(seconds: 2));
 
-    ItemsPage<T>? fetched =
+    final ItemsPage<T> fetched =
         await remoteProvider.initial(pageSize, initialCursor);
 
-    hasNextPage.value = fetched.pageInfo?.hasNextPage ?? hasNextPage.value;
-    hasPreviousPage.value =
-        fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+    hasNext.value = fetched.pageInfo?.hasNext ?? hasNext.value;
+    hasPrevious.value = fetched.pageInfo?.hasPrevious ?? hasPrevious.value;
     _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
     _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
@@ -169,7 +167,7 @@ class PaginatedFragment<T> {
 
   /// Fetches next page of the [elements].
   Future<void> fetchNextPage() async {
-    if (hasNextPage.isFalse || _isNextPageCacheFetching) {
+    if (hasNext.isFalse || _isNextPageCacheFetching) {
       return;
     }
 
@@ -183,7 +181,7 @@ class PaginatedFragment<T> {
 
     if (!shouldSynced) {
       _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
-      hasNextPage.value = cached.pageInfo?.hasNextPage ?? hasNextPage.value;
+      hasNext.value = cached.pageInfo?.hasNext ?? hasNext.value;
     }
 
     if (cached.items.length < pageSize || shouldSynced) {
@@ -193,7 +191,7 @@ class PaginatedFragment<T> {
 
   /// Fetches next page of the [elements].
   Future<void> _fetchNextPage() async {
-    if (!_isNextPageFetching && hasNextPage.isTrue) {
+    if (!_isNextPageFetching && hasNext.isTrue) {
       _isNextPageFetching = true;
 
       // TODO: Temporary timeout, remove before merging.
@@ -205,7 +203,7 @@ class PaginatedFragment<T> {
         pageSize,
       );
 
-      hasNextPage.value = fetched.pageInfo?.hasNextPage ?? hasNextPage.value;
+      hasNext.value = fetched.pageInfo?.hasNext ?? hasNext.value;
       _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
 
       if (shouldSynced) {
@@ -225,7 +223,7 @@ class PaginatedFragment<T> {
 
   /// Fetches previous page of the [elements].
   FutureOr<void> fetchPreviousPage() async {
-    if (_isPrevPageFetching || hasPreviousPage.isFalse) {
+    if (_isPrevPageFetching || hasPrevious.isFalse) {
       return;
     }
 
@@ -242,8 +240,7 @@ class PaginatedFragment<T> {
         elements.insertAfter(i, (e) => compare(i, e) == 1);
       }
 
-      hasPreviousPage.value =
-          cached.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+      hasPrevious.value = cached.pageInfo?.hasPrevious ?? hasPrevious.value;
       _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
     }
 
@@ -251,8 +248,7 @@ class PaginatedFragment<T> {
       ItemsPage<T>? fetched =
           await remoteProvider.before(elements.first, _startCursor, pageSize);
 
-      hasPreviousPage.value =
-          fetched.pageInfo?.hasPreviousPage ?? hasPreviousPage.value;
+      hasPrevious.value = fetched.pageInfo?.hasPrevious ?? hasPrevious.value;
       _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
 
       for (T i in fetched.items) {
@@ -316,34 +312,13 @@ class ItemsPage<T> {
   final List<T> _items;
 
   /// Page info of this [ItemsPage].
-  final PageInfoMixin? _pageInfo;
+  final PageInfo? _pageInfo;
 
   /// Fetched items.
   List<T> get items => _items;
 
   /// Page info of this [ItemsPage].
-  PageInfoMixin? get pageInfo => _pageInfo;
-}
-
-class PageInfo implements PageInfoMixin {
-  PageInfo({
-    this.endCursor,
-    required this.hasNextPage,
-    this.startCursor,
-    required this.hasPreviousPage,
-  });
-
-  @override
-  String? endCursor;
-
-  @override
-  bool hasNextPage;
-
-  @override
-  bool hasPreviousPage;
-
-  @override
-  String? startCursor;
+  PageInfo? get pageInfo => _pageInfo;
 }
 
 /// Base class for load items with pagination.
@@ -393,13 +368,9 @@ class RemotePageProvider<T> implements PageProvider<T> {
         before: cursor,
       );
     } else if (startFromLastPage) {
-      return onFetchPage(
-        last: count,
-      );
+      return onFetchPage(last: count);
     } else {
-      return onFetchPage(
-        first: count,
-      );
+      return onFetchPage(first: count);
     }
   }
 }
