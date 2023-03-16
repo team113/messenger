@@ -183,7 +183,8 @@ class HiveRxChat extends RxChat {
     );
 
     _updateTitle(chat.value.members.map((e) => e.user));
-    _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
+    _updateFields().then((_) =>
+        chat.value.isGroup || chat.value.isMonolog ? null : _updateAvatar());
     _worker = ever(chat, (_) => _updateFields());
 
     _messagesSubscription = messages.changes.listen((e) {
@@ -691,7 +692,7 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.isGroup) {
+    if (chat.value.isGroup || chat.value.isMonolog) {
       avatar.value = chat.value.avatar;
     }
 
@@ -776,15 +777,12 @@ class HiveRxChat extends RxChat {
     RxUser? member;
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
-        member = members.values.firstOrNull;
-        break;
-
       case ChatKind.dialog:
         member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
+      case ChatKind.monolog:
         avatar.value = chat.value.avatar;
         break;
 

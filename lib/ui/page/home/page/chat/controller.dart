@@ -1441,7 +1441,7 @@ extension ChatViewExt on Chat {
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.l10n;
+        title = name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
       case ChatKind.dialog:

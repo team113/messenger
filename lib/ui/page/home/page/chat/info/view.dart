@@ -215,14 +215,16 @@ class ChatInfoView extends StatelessWidget {
                       _name(c, context),
                     ],
                   ),
-                  Block(
-                    title: 'label_chat_members'.l10n,
-                    children: [_members(c, context)],
-                  ),
-                  Block(
-                    title: 'label_direct_chat_link'.l10n,
-                    children: [_link(c, context)],
-                  ),
+                  if (!c.isMonolog)
+                    Block(
+                      title: 'label_chat_members'.l10n,
+                      children: [_members(c, context)],
+                    ),
+                  if (!c.isMonolog)
+                    Block(
+                      title: 'label_direct_chat_link'.l10n,
+                      children: [_link(c, context)],
+                    ),
                   Block(
                     title: 'label_actions'.l10n,
                     children: [_actions(c, context)],
@@ -269,22 +271,26 @@ class ChatInfoView extends StatelessWidget {
           children: [
             WidgetButton(
               key: Key('ChatAvatar_${c.chat!.id}'),
-              onPressed: c.chat?.chat.value.avatar == null
-                  ? c.pickAvatar
-                  : () async {
-                      await GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initialKey: c.avatarKey,
-                          children: [
-                            GalleryItem.image(
-                              c.chat!.chat.value.avatar!.original.url,
-                              c.chat!.chat.value.id.val,
+              // TODO: Remove the "c.isMonolog" check when the backend supports
+              //       removing the avatar from the chat-monolog.
+              onPressed: c.isMonolog
+                  ? null
+                  : c.chat?.chat.value.avatar == null
+                      ? c.pickAvatar
+                      : () async {
+                          await GalleryPopup.show(
+                            context: context,
+                            gallery: GalleryPopup(
+                              initialKey: c.avatarKey,
+                              children: [
+                                GalleryItem.image(
+                                  c.chat!.chat.value.avatar!.original.url,
+                                  c.chat!.chat.value.id.val,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        },
               child: AvatarWidget.fromRxChat(
                 c.chat,
                 key: c.avatarKey,
@@ -312,39 +318,42 @@ class ChatInfoView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            WidgetButton(
-              key: const Key('UploadAvatar'),
-              onPressed: c.pickAvatar,
-              child: Text(
-                'btn_upload'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            if (c.chat?.chat.value.avatar != null) ...[
-              Text(
-                'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
-              ),
+        // TODO: Remove the "c.isMonolog" check when the backend supports
+        //       removing the avatar from the chat-monolog.
+        if (!c.isMonolog)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               WidgetButton(
-                key: const Key('DeleteAvatar'),
-                onPressed: c.deleteAvatar,
+                key: const Key('UploadAvatar'),
+                onPressed: c.pickAvatar,
                 child: Text(
-                  'btn_delete'.l10n.toLowerCase(),
+                  'btn_upload'.l10n,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 11,
                   ),
                 ),
               ),
+              if (c.chat?.chat.value.avatar != null) ...[
+                Text(
+                  'space_or_space'.l10n,
+                  style: const TextStyle(color: Colors.black, fontSize: 11),
+                ),
+                WidgetButton(
+                  key: const Key('DeleteAvatar'),
+                  onPressed: c.deleteAvatar,
+                  child: Text(
+                    'btn_delete'.l10n.toLowerCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
       ],
     );
   }
@@ -634,21 +643,22 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog)
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_add_to_contacts'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
+        if (!c.isMonolog) const SizedBox(height: 10),
         _dense(
           Obx(() {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
@@ -670,50 +680,53 @@ class ChatInfoView extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool muted = c.chat?.chat.value.muted != null;
+        if (!c.isMonolog)
+          _dense(
+            Obx(() {
+              final bool muted = c.chat?.chat.value.muted != null;
 
-            return FieldButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              return FieldButton(
+                onPressed: muted ? c.unmuteChat : c.muteChat,
+                text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: muted
+                        ? SvgLoader.asset(
+                            'assets/icons/btn_mute.svg',
+                            width: 18.68,
+                            height: 15,
+                          )
+                        : SvgLoader.asset(
+                            'assets/icons/btn_unmute.svg',
+                            width: 17.86,
+                            height: 15,
+                          ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              );
+            }),
+          ),
+        if (!c.isMonolog) const SizedBox(height: 10),
+        if (!c.isMonolog)
+          _dense(
+            FieldButton(
+              onPressed: () => _hideChat(c, context),
+              text: 'btn_hide_chat'.l10n,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: muted
-                      ? SvgLoader.asset(
-                          'assets/icons/btn_mute.svg',
-                          width: 18.68,
-                          height: 15,
-                        )
-                      : SvgLoader.asset(
-                          'assets/icons/btn_unmute.svg',
-                          width: 17.86,
-                          height: 15,
-                        ),
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _hideChat(c, context),
-            text: 'btn_hide_chat'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-              ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
+        if (!c.isMonolog) const SizedBox(height: 10),
         _dense(
           FieldButton(
             onPressed: () => _clearChat(c, context),
@@ -729,50 +742,53 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _leaveGroup(c, context),
-            text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog)
+          _dense(
+            FieldButton(
+              onPressed: () => _leaveGroup(c, context),
+              text: 'btn_leave_group'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _blacklistChat(c, context),
-            text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog) const SizedBox(height: 10),
+        if (!c.isMonolog)
+          _dense(
+            FieldButton(
+              onPressed: () => _blacklistChat(c, context),
+              text: 'btn_block'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog) const SizedBox(height: 10),
+        if (!c.isMonolog)
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_report'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
       ],
     );
   }

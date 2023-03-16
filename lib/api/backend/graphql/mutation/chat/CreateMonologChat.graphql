@@ -17,8 +17,6 @@
 
 mutation CreateMonologChat($name: ChatName) {
     createMonologChat(name: $name) {
-        ... on Chat {
-            ...Chat
-        }
+        ...Chat
     }
 }

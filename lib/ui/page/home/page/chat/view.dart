@@ -113,7 +113,7 @@ class _ChatViewState extends State<ChatView>
         void onDetailsTap() {
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
@@ -162,22 +162,16 @@ class _ChatViewState extends State<ChatView>
                             type: MaterialType.circle,
                             shadowColor: const Color(0x55000000),
                             color: Colors.white,
-                            child: isMonolog
-                                ? AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    radius: 17,
-                                    badge: false,
-                                  )
-                                : InkWell(
-                                    customBorder: const CircleBorder(),
-                                    onTap: onDetailsTap,
-                                    child: Center(
-                                      child: AvatarWidget.fromRxChat(
-                                        c.chat,
-                                        radius: 17,
-                                      ),
-                                    ),
-                                  ),
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: onDetailsTap,
+                              child: Center(
+                                child: AvatarWidget.fromRxChat(
+                                  c.chat,
+                                  radius: 17,
+                                ),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Flexible(
@@ -185,7 +179,7 @@ class _ChatViewState extends State<ChatView>
                               splashFactory: NoSplash.splashFactory,
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
-                              onTap: isMonolog ? null : onDetailsTap,
+                              onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

@@ -120,17 +120,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  avatarBuilder(
-                    chat?.chat.value.isMonolog == true && myUser != null
-                        ? Obx(() {
-                            return AvatarWidget.fromMyUser(
-                              myUser?.value,
-                              radius: 30,
-                              badge: false,
-                            );
-                          })
-                        : AvatarWidget.fromRxChat(chat, radius: 30),
-                  ),
+                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

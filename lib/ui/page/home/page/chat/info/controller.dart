@@ -109,6 +109,8 @@ class ChatInfoController extends GetxController {
   bool get inCall =>
       _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
+  bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
   @override
   void onInit() {
     name = TextFieldState(
