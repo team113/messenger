@@ -6,10 +6,10 @@ void main() {
     test('the debouncer is triggered after 500 milliseconds', () async {
       final state = TextFieldState(
         onChanged: (s) {
-          expect(s.text, 'test');
+          expect(s.text, 'zhorenty');
         },
       );
-      state.controller.text = 'test';
+      state.controller.text = 'zhorenty';
       await Future.delayed(const Duration(milliseconds: 400));
       expect(state.changed.value, false);
       await Future.delayed(const Duration(milliseconds: 150));
