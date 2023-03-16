@@ -20,7 +20,7 @@ import 'package:gherkin/gherkin.dart';
 /// Some tile or object selection status.
 enum SelectionStatus { selected, unselected }
 
-/// [CustomParameter] representing a [SelectionStatusParameter].
+/// [CustomParameter] representing a [SelectionStatus].
 class SelectionStatusParameter extends CustomParameter<SelectionStatus> {
   SelectionStatusParameter()
       : super(

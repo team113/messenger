@@ -20,7 +20,7 @@ import 'package:gherkin/gherkin.dart';
 /// Some [Iterable] amount status.
 enum IterableAmount { no, some }
 
-/// [CustomParameter] representing a [IterableStatus].
+/// [CustomParameter] representing an [IterableStatus].
 class IterableAmountParameter extends CustomParameter<IterableAmount> {
   IterableAmountParameter()
       : super(
