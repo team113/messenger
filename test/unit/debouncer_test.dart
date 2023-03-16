@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 void main() {
@@ -18,7 +17,7 @@ void main() {
     });
   });
 
-  group('TextField tests', () {
+  group('TextFieldState tests', () {
     test('TextFieldState onChanged called for valid input', () {
       final state = TextFieldState(
         onChanged: (state) {
@@ -29,7 +28,7 @@ void main() {
       state.controller.addListener(() => state.onChanged!(state));
     });
 
-    test('TextFieldState onChanged not called for invalid input', () {
+    test('TextFieldState onChanged not called for invalid input', () async {
       final state = TextFieldState(
         onChanged: (state) {
           expect(state.changed.value, true);
@@ -38,6 +37,11 @@ void main() {
       state.controller.text = 'zhorenty#';
       state.controller.addListener(() => state.onChanged!(state));
       expect(state.changed.value, false);
+
+      await Future.delayed(const Duration(milliseconds: 600));
+      state.controller.text = 'zhorenty';
+      state.controller.addListener(() => state.onChanged!(state));
+      expect(state.changed.value, true);
     });
 
     test('TextFieldState onSubmitted called when submit() is called', () {
