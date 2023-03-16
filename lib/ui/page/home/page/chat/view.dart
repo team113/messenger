@@ -304,49 +304,57 @@ class _ChatViewState extends State<ChatView>
                           );
                         }
                       },
+                      onPointerUp: (_) {
+                        c.scrollOffset = Offset.zero;
+                      },
+                      onPointerCancel: (_) {
+                        c.scrollOffset = Offset.zero;
+                      },
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          AllowMultipleHorizontalDragGestureRecognizer:
-                              GestureRecognizerFactoryWithHandlers<
-                                  AllowMultipleHorizontalDragGestureRecognizer>(
-                            () =>
-                                AllowMultipleHorizontalDragGestureRecognizer(),
-                            (AllowMultipleHorizontalDragGestureRecognizer
-                                instance) {
-                              instance.onUpdate = (d) {
-                                if (!c.isItemDragged.value &&
-                                    c.scrollOffset.dy.abs() < 7 &&
-                                    c.scrollOffset.dx.abs() > 7) {
-                                  double value =
-                                      (_animation.value - d.delta.dx / 100)
-                                          .clamp(0, 1);
+                          if (c.isTextCopying.isFalse)
+                            AllowMultipleHorizontalDragGestureRecognizer:
+                                GestureRecognizerFactoryWithHandlers<
+                                    AllowMultipleHorizontalDragGestureRecognizer>(
+                              () =>
+                                  AllowMultipleHorizontalDragGestureRecognizer(),
+                              (AllowMultipleHorizontalDragGestureRecognizer
+                                  instance) {
+                                instance.onUpdate = (d) {
+                                  if (!c.isItemDragged.value &&
+                                      c.scrollOffset.dy.abs() < 7 &&
+                                      c.scrollOffset.dx.abs() > 7 &&
+                                      c.isTextCopying.isFalse) {
+                                    double value =
+                                        (_animation.value - d.delta.dx / 100)
+                                            .clamp(0, 1);
 
-                                  if (_animation.value != 1 && value == 1 ||
-                                      _animation.value != 0 && value == 0) {
-                                    HapticFeedback.selectionClick();
+                                    if (_animation.value != 1 && value == 1 ||
+                                        _animation.value != 0 && value == 0) {
+                                      HapticFeedback.selectionClick();
+                                    }
+
+                                    _animation.value = value.clamp(0, 1);
                                   }
+                                };
 
-                                  _animation.value = value.clamp(0, 1);
-                                }
-                              };
-
-                              instance.onEnd = (d) async {
-                                c.scrollOffset = Offset.zero;
-                                if (!c.isItemDragged.value &&
-                                    _animation.value != 1 &&
-                                    _animation.value != 0) {
-                                  if (_animation.value >= 0.5) {
-                                    await _animation.forward();
-                                    HapticFeedback.selectionClick();
-                                  } else {
-                                    await _animation.reverse();
-                                    HapticFeedback.selectionClick();
+                                instance.onEnd = (d) async {
+                                  c.scrollOffset = Offset.zero;
+                                  if (!c.isItemDragged.value &&
+                                      _animation.value != 1 &&
+                                      _animation.value != 0) {
+                                    if (_animation.value >= 0.5) {
+                                      await _animation.forward();
+                                      HapticFeedback.selectionClick();
+                                    } else {
+                                      await _animation.reverse();
+                                      HapticFeedback.selectionClick();
+                                    }
                                   }
-                                }
-                              };
-                            },
-                          )
+                                };
+                              },
+                            )
                         },
                         child: Stack(
                           children: [
@@ -390,7 +398,8 @@ class _ChatViewState extends State<ChatView>
                               }
 
                               return SelectionArea(
-                                onSelectionChanged: (a) => c.selection = a,
+                                onSelectionChanged: (a) =>
+                                    c.selection.value = a,
                                 contextMenuBuilder: (_, __) => const SizedBox(),
                                 selectionControls: EmptyTextSelectionControls(),
                                 child: ContextMenuInterceptor(child: child),
@@ -589,6 +598,7 @@ class _ChatViewState extends State<ChatView>
                     m.memberId != c.me &&
                     m.memberId != e.value.authorId),
             user: u.data,
+            selection: c.selection,
             getUser: c.getUser,
             animation: _animation,
             onHide: () => c.hideChatItem(e.value),
@@ -615,6 +625,7 @@ class _ChatViewState extends State<ChatView>
               await c.chat?.updateAttachments(e.value);
               await Future.delayed(Duration.zero);
             },
+            onTextCopying: (state) => c.isTextCopying.value = state,
           ),
         ),
       );
@@ -638,6 +649,7 @@ class _ChatViewState extends State<ChatView>
                     m.memberId != c.me &&
                     m.memberId != element.authorId),
             user: u.data,
+            selection: c.selection,
             getUser: c.getUser,
             animation: _animation,
             onHide: () async {
@@ -717,6 +729,7 @@ class _ChatViewState extends State<ChatView>
 
               await Future.delayed(Duration.zero);
             },
+            onTextCopying: (state) => c.isTextCopying.value = state,
           ),
         ),
       );

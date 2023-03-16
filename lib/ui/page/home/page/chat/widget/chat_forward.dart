@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -66,6 +67,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.me,
     this.reads = const [],
     this.loadImages = true,
+    this.selection,
     this.user,
     this.getUser,
     this.animation,
@@ -79,6 +81,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onFileTap,
     this.onAttachmentError,
+    this.onTextCopying,
   }) : super(key: key);
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -108,6 +111,9 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
+
+  /// [SelectedContent] of a [SelectionArea] within the [ChatView].
+  final Rx<SelectedContent?>? selection;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -146,6 +152,9 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
+  /// Callback, called when a text copying starts or ends.
+  final void Function(bool state)? onTextCopying;
+
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
 }
@@ -176,6 +185,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   ///
   /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
+
+  /// [SelectedContent] of a [SelectionArea] within this [ChatForwardWidget].
+  SelectedContent? _selection;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
@@ -378,10 +390,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style: style.boldBody,
           );
           if (PlatformUtils.isMobile && menu) {
-            content = SelectionArea(child: content);
+            content = SelectionArea(
+              onSelectionChanged: (a) => _selection = a,
+              child: content,
+            );
             if (PlatformUtils.isWeb) {
               content = ContextMenuInterceptor(child: content);
             }
+          } else if (PlatformUtils.isDesktop) {
+            content = Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (_) {
+                widget.onTextCopying?.call(true);
+              },
+              onPointerUp: (_) {
+                widget.onTextCopying?.call(false);
+              },
+              onPointerCancel: (_) {
+                widget.onTextCopying?.call(false);
+              },
+              child: content,
+            );
           }
         }
       } else if (quote is ChatCallQuote) {
@@ -568,10 +597,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       Widget textWidget = Text(item.text!.val, style: style.boldBody);
       if (PlatformUtils.isMobile && menu) {
-        textWidget = SelectionArea(child: textWidget);
+        textWidget = SelectionArea(
+          onSelectionChanged: (a) => _selection = a,
+          child: textWidget,
+        );
         if (PlatformUtils.isWeb) {
           textWidget = ContextMenuInterceptor(child: textWidget);
         }
+      } else if (PlatformUtils.isDesktop) {
+        textWidget = Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) {
+            widget.onTextCopying?.call(true);
+          },
+          onPointerUp: (_) {
+            widget.onTextCopying?.call(false);
+          },
+          onPointerCancel: (_) {
+            widget.onTextCopying?.call(false);
+          },
+          child: textWidget,
+        );
       }
 
       return [
@@ -767,57 +813,63 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         curve: Curves.ease,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onHorizontalDragStart: (d) {
-            _draggingStarted = true;
-            setState(() => _offsetDuration = Duration.zero);
-          },
-          onHorizontalDragUpdate: (d) {
-            if (_draggingStarted && !_dragging) {
-              if (widget.animation?.value == 0 &&
-                  _offset.dx == 0 &&
-                  d.delta.dx > 0) {
-                _dragging = true;
-                widget.onDrag?.call(_dragging);
-              } else {
-                _draggingStarted = false;
-              }
-            }
+          onHorizontalDragStart: PlatformUtils.isDesktop
+              ? null
+              : (d) {
+                  _draggingStarted = true;
+                  setState(() => _offsetDuration = Duration.zero);
+                },
+          onHorizontalDragUpdate: PlatformUtils.isDesktop
+              ? null
+              : (d) {
+                  if (_draggingStarted && !_dragging) {
+                    if (widget.animation?.value == 0 &&
+                        _offset.dx == 0 &&
+                        d.delta.dx > 0) {
+                      _dragging = true;
+                      widget.onDrag?.call(_dragging);
+                    } else {
+                      _draggingStarted = false;
+                    }
+                  }
 
-            if (_dragging) {
-              // Distance [_totalOffset] should exceed in order for dragging to
-              // start.
-              const int delta = 10;
+                  if (_dragging) {
+                    // Distance [_totalOffset] should exceed in order for dragging to
+                    // start.
+                    const int delta = 10;
 
-              if (_totalOffset.dx > delta) {
-                _offset += d.delta;
+                    if (_totalOffset.dx > delta) {
+                      _offset += d.delta;
 
-                if (_offset.dx > 30 + delta &&
-                    _offset.dx - d.delta.dx < 30 + delta) {
-                  HapticFeedback.selectionClick();
-                  widget.onReply?.call();
-                }
+                      if (_offset.dx > 30 + delta &&
+                          _offset.dx - d.delta.dx < 30 + delta) {
+                        HapticFeedback.selectionClick();
+                        widget.onReply?.call();
+                      }
 
-                setState(() {});
-              } else {
-                _totalOffset += d.delta;
-                if (_totalOffset.dx <= 0) {
-                  _dragging = false;
-                  widget.onDrag?.call(_dragging);
-                }
-              }
-            }
-          },
-          onHorizontalDragEnd: (d) {
-            if (_dragging) {
-              _dragging = false;
-              _draggingStarted = false;
-              _offset = Offset.zero;
-              _totalOffset = Offset.zero;
-              _offsetDuration = 200.milliseconds;
-              widget.onDrag?.call(_dragging);
-              setState(() {});
-            }
-          },
+                      setState(() {});
+                    } else {
+                      _totalOffset += d.delta;
+                      if (_totalOffset.dx <= 0) {
+                        _dragging = false;
+                        widget.onDrag?.call(_dragging);
+                      }
+                    }
+                  }
+                },
+          onHorizontalDragEnd: PlatformUtils.isDesktop
+              ? null
+              : (d) {
+                  if (_dragging) {
+                    _dragging = false;
+                    _draggingStarted = false;
+                    _offset = Offset.zero;
+                    _totalOffset = Offset.zero;
+                    _offsetDuration = 200.milliseconds;
+                    widget.onDrag?.call(_dragging);
+                    setState(() {});
+                  }
+                },
           child: Row(
             crossAxisAlignment:
                 _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -876,7 +928,28 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                                // TODO: Copy all text.
+                                // Needs https://github.com/flutter/flutter/issues/119314
+                                onPressed: () {
+                                  if (_selection?.plainText.isNotEmpty ==
+                                      true) {
+                                    widget.onCopy?.call(_selection!.plainText);
+                                  } else {
+                                    widget.onCopy?.call(copyable!);
+                                  }
+                                },
+                              ),
+                            if (widget.selection?.value?.plainText.isNotEmpty ==
+                                true)
+                              ContextMenuButton(
+                                key: const Key('CopySelectedButton'),
+                                label: 'btn_copy_selected'.l10n,
+                                trailing: SvgLoader.asset(
+                                  'assets/icons/copy_small.svg',
+                                  height: 18,
+                                ),
+                                onPressed: () => widget.onCopy
+                                    ?.call(widget.selection!.value!.plainText),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),

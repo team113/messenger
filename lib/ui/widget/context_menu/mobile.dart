@@ -204,6 +204,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [Rect] of the [_AnimatedMenu.actions].
   Rect? _actionsBounds;
 
+  /// [Offset] of the pointer down event.
+  Offset? _pointerDown;
+
   @override
   void initState() {
     _fading = AnimationController(
@@ -438,7 +441,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
-      onPointerUp: (d) => _dismiss(),
+      onPointerUp: (d) {
+        if (_pointerDown != null &&
+            (_pointerDown!.distance - d.position.distance).abs() < 7) {
+          _dismiss();
+        }
+      },
+      onPointerDown: (d) {
+        _pointerDown = d.position;
+      },
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(

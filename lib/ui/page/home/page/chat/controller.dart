@@ -98,6 +98,9 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
+  /// Indicator whether a text is copying in a [ChatItem].
+  final RxBool isTextCopying = RxBool(false);
+
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -127,7 +130,7 @@ class ChatController extends GetxController {
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
   /// [SelectedContent] of a [SelectionArea] within this [ChatView].
-  SelectedContent? selection;
+  Rx<SelectedContent?> selection = Rx<SelectedContent?>(null);
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
@@ -1060,7 +1063,7 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
-    PlatformUtils.copy(selection?.plainText ?? text);
+    PlatformUtils.copy(text);
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
