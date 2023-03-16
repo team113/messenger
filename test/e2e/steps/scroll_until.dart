@@ -39,6 +39,9 @@ final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
       scrollable: find.descendant(
         of: find.byKey(Key(list.name)),
         matching: find.byWidgetPredicate((widget) {
+          // TODO: Find a proper way to differentiate [Scrollable]s from
+          //       [TextField]s:
+          //       https://github.com/flutter/flutter/issues/76981
           if (widget is Scrollable) {
             return widget.restorationId == null;
           }

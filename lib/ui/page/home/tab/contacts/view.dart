@@ -315,6 +315,9 @@ class ContactsTabView extends StatelessWidget {
                             },
                             itemBuilder: (_, i) {
                               if (c.favorites.isEmpty) {
+                                // This builder is invoked for some reason when
+                                // deleting all favorite contacts, so put a
+                                // guard for that case.
                                 return const SizedBox.shrink(key: Key('0'));
                               }
 

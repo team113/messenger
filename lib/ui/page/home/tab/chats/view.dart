@@ -571,7 +571,7 @@ class ChatsTabView extends StatelessWidget {
                                             size: 20,
                                           )
                                         ]
-                                      : [],
+                                      : null,
                                 );
                               }
 
