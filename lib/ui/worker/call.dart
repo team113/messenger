@@ -98,6 +98,9 @@ class CallWorker extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
+  /// [Timer] is used to increase [fade] gradually.
+  Timer? _fadeTimer;
+
   @override
   void onInit() {
     _initAudio();
@@ -291,7 +294,6 @@ class CallWorker extends DisposableService {
   }
 
   /// Plays the given [asset].
-  Timer? _fadeTimer;
   Future<void> play(String asset, {bool fade = false}) async {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
@@ -305,14 +307,16 @@ class CallWorker extends DisposableService {
 
         if (fade) {
           _fadeTimer?.cancel();
-          _fadeTimer =
-              Timer.periodic(const Duration(milliseconds: 100), (timer) async {
-            if (timer.tick > 10) {
-              timer.cancel();
-            } else {
-              await _audioPlayer?.setVolume(timer.tick / 10);
-            }
-          });
+          _fadeTimer = Timer.periodic(
+            const Duration(milliseconds: 100),
+            (timer) async {
+              if (timer.tick > 10) {
+                timer.cancel();
+              } else {
+                await _audioPlayer?.setVolume(timer.tick / 10);
+              }
+            },
+          );
         }
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {
