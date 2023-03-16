@@ -1575,58 +1575,148 @@ class _ChatViewState extends State<ChatView>
             // canAttach: !disabled,
             // disabled: disabled,
           ),
-          AnimatedSizeAndFade.showHide(
-            show: c.paidDisclaimer.value,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-                ],
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Вы совершаете очень платную операцию',
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedRoundedButton(
-                    maxWidth: double.infinity,
-                    onPressed: () {
-                      c.paidDisclaimer.value = false;
-                      c.paidDisclaimerDismissed = true;
-
-                      switch (c.confirmAction) {
-                        case ConfirmAction.audioCall:
-                          c.call(false);
-                          break;
-
-                        case ConfirmAction.videoCall:
-                          c.call(true);
-                          break;
-
-                        case ConfirmAction.sendMessage:
-                          c.send.onSubmit?.call();
-                          break;
-
-                        case null:
-                          // No-op.
-                          break;
-                      }
-                    },
-                    title: Text(
-                      'Продолжить',
-                      style: thin?.copyWith(color: Colors.white),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Obx(() {
+                return AnimatedSizeAndFade.showHide(
+                  show: c.paidDisclaimer.value,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                    decoration: BoxDecoration(
+                      borderRadius: style.cardRadius,
+                      boxShadow: const [
+                        CustomBoxShadow(
+                          blurRadius: 8,
+                          color: Color(0x22000000),
+                        ),
+                      ],
+                      color: Colors.white,
                     ),
-                    color: Theme.of(context).colorScheme.secondary,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'kirey взимает плату в размере \$5 за сообщение. ',
+                                ),
+                                // TextSpan(
+                                //   text: 'Принять.',
+                                //   style: thin?.copyWith(
+                                //     fontSize: 18,
+                                //     color:
+                                //         Theme.of(context).colorScheme.secondary,
+                                //   ),
+                                // ),
+                              ],
+                              style: thin?.copyWith(fontSize: 18),
+                            ),
+                          ),
+                          // child: Text(
+                          //   'kirey взимает плату в размере \$5 за сообщение.',
+                          //   style: thin?.copyWith(fontSize: 18),
+                          // ),
+                        ),
+                        const SizedBox(width: 12),
+                        WidgetButton(
+                          onPressed: () {
+                            c.paidDisclaimer.value = false;
+                            c.paidDisclaimerDismissed = true;
+
+                            switch (c.confirmAction) {
+                              case ConfirmAction.audioCall:
+                                c.call(false);
+                                break;
+
+                              case ConfirmAction.videoCall:
+                                c.call(true);
+                                break;
+
+                              case ConfirmAction.sendMessage:
+                                c.send.onSubmit?.call();
+                                break;
+
+                              case null:
+                                // No-op.
+                                break;
+                            }
+                          },
+                          child: Text(
+                            'Принять',
+                            style: thin?.copyWith(
+                              fontSize: 18,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: 150),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Expanded(
+                                //   child: OutlinedRoundedButton(
+                                //     maxWidth: double.infinity,
+                                //     onPressed: () {
+                                //       c.paidDisclaimer.value = false;
+                                //     },
+                                //     title: Text(
+                                //       'Закрыть',
+                                //       style:
+                                //           thin?.copyWith(color: Colors.black),
+                                //     ),
+                                //     color: const Color(0xFFEEEEEE),
+                                //   ),
+                                // ),
+                                // const SizedBox(width: 12),
+                                // Expanded(
+                                //   child: OutlinedRoundedButton(
+                                //     maxWidth: double.infinity,
+                                //     onPressed: () {
+                                //       c.paidDisclaimer.value = false;
+                                //       c.paidDisclaimerDismissed = true;
+
+                                //       switch (c.confirmAction) {
+                                //         case ConfirmAction.audioCall:
+                                //           c.call(false);
+                                //           break;
+
+                                //         case ConfirmAction.videoCall:
+                                //           c.call(true);
+                                //           break;
+
+                                //         case ConfirmAction.sendMessage:
+                                //           c.send.onSubmit?.call();
+                                //           break;
+
+                                //         case null:
+                                //           // No-op.
+                                //           break;
+                                //       }
+                                //     },
+                                //     title: Text(
+                                //       'Принять',
+                                //       style:
+                                //           thin?.copyWith(color: Colors.white),
+                                //     ),
+                                //     color:
+                                //         Theme.of(context).colorScheme.secondary,
+                                //   ),
+                                // ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
+                );
+              });
+            },
           ),
         ],
       );
