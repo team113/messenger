@@ -497,6 +497,7 @@ class ContactsTabView extends StatelessWidget {
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
           ),
+          const ContextMenuDivider(),
           ContextMenuButton(
             key: const Key('SelectContactButton'),
             label: 'btn_select'.l10n,

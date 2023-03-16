@@ -228,6 +228,7 @@ class RecentChatTile extends StatelessWidget {
               onPressed: onUnmute,
               trailing: const Icon(Icons.notifications),
             ),
+          const ContextMenuDivider(),
           ContextMenuButton(
             key: const Key('SelectChatButton'),
             label: 'btn_select'.l10n,

@@ -90,7 +90,7 @@ class ContactTile extends StatelessWidget {
   final bool preventContextMenu;
 
   /// [ContextMenuRegion.actions] of this [ContactTile].
-  final List<ContextMenuButton>? actions;
+  final List<ContextMenuItem>? actions;
 
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
