@@ -10,7 +10,7 @@ void main() {
         },
       );
       state.controller.text = 'zhorenty';
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future.delayed(const Duration(milliseconds: 900));
       expect(state.changed.value, false);
       await Future.delayed(const Duration(milliseconds: 150));
       expect(state.changed.value, true);
@@ -38,7 +38,7 @@ void main() {
       state.controller.addListener(() => state.onChanged!(state));
       expect(state.changed.value, false);
 
-      await Future.delayed(const Duration(milliseconds: 600));
+      await Future.delayed(const Duration(milliseconds: 1100));
       state.controller.text = 'zhorenty';
       state.controller.addListener(() => state.onChanged!(state));
       expect(state.changed.value, true);
