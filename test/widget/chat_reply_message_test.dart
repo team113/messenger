@@ -424,5 +424,6 @@ void main() async {
     expect(find.text('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
   });
 }
