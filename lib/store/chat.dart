@@ -866,6 +866,43 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
+  @override
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatItem? lastItem = chat?.chat.value.lastItem;
+    final ChatItemId? until = untilId ?? lastItem?.id;
+
+    if (until == null) {
+      // No-op, as there's nothing to clear until.
+      return;
+    }
+
+    Iterable<Rx<ChatItem>>? items;
+
+    if (chat != null) {
+      final int index = chat.messages.indexWhere((c) => c.value.id == until);
+
+      if (index != -1) {
+        items = chat.messages.toList().getRange(0, index + 1);
+        chat.messages.removeRange(0, index + 1);
+
+        final ChatItem? last =
+            chat.messages.isNotEmpty ? chat.messages.last.value : null;
+        chat.chat.update((c) => c?.lastItem = last);
+      }
+    }
+
+    try {
+      await _graphQlProvider.clearChat(id, until);
+    } catch (_) {
+      if (chat != null) {
+        chat.messages.insertAll(0, items ?? []);
+        chat.chat.update((c) => c?.lastItem = lastItem);
+      }
+      rethrow;
+    }
+  }
+
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventChatCleared') {

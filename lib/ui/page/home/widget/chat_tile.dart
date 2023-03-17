@@ -43,6 +43,7 @@ class ChatTile extends StatelessWidget {
     this.height = 94,
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
     this.myUser,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
@@ -65,7 +66,7 @@ class ChatTile extends StatelessWidget {
   final List<Widget> subtitle;
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
-  final List<ContextMenuButton> actions;
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
@@ -85,6 +86,9 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu should be enabled over this [ChatTile].
+  final bool enableContextMenu;
+
   /// [MyUser] of authenticated user.
   final Rx<MyUser?>? myUser;
 
@@ -97,6 +101,7 @@ class ChatTile extends StatelessWidget {
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,
+      enabled: enableContextMenu,
       child: SizedBox(
         height: height,
         child: Padding(

@@ -1257,6 +1257,43 @@ abstract class ChatGraphQlMixin {
     );
   }
 
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatCleared].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already cleared until the specified [ChatItem].
+  Future<ChatEventsVersionedMixin?> clearChat(
+    ChatId id,
+    ChatItemId untilId,
+  ) async {
+    final ClearChatArguments variables =
+        ClearChatArguments(id: id, untilId: untilId);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ClearChat',
+        document: ClearChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ClearChatException(
+          (ClearChat$Mutation.fromJson(data).clearChat
+                  as ClearChat$Mutation$ClearChat$ClearChatError)
+              .code),
+    );
+    return ClearChat$Mutation.fromJson(result.data!).clearChat
+        as ChatEventsVersionedMixin?;
+  }
+
   /// Creates a [Chat]-monolog for the authenticated [MyUser].
   ///
   /// There can be only one [Chat]-monolog for the authenticated [MyUser].
