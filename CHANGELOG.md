@@ -17,10 +17,13 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
+        - Messages text selection. ([#118], [#17])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
 
+[#17]: /../../issues/17
+[#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#270]: /../../pull/270
@@ -44,7 +47,6 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
         - Message info modal. ([#335], [#330])
-        - Message text selection. ([#118], [#17])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#359], [#218], [#209])
@@ -113,10 +115,8 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
-[#17]: /../../issues/17
 [#63]: /../../issues/63
 [#102]: /../../issues/102
-[#118]: /../../pull/118
 [#126]: /../../issues/126
 [#134]: /../../issues/134
 [#142]: /../../pull/142

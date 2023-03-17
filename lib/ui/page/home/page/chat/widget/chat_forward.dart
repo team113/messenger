@@ -385,10 +385,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (quote.text != null && quote.text!.val.isNotEmpty) {
-          content = Text(
-            quote.text!.val,
-            style: style.boldBody,
-          );
+          content = Text(quote.text!.val, style: style.boldBody);
           if (PlatformUtils.isMobile && menu) {
             content = SelectionArea(
               onSelectionChanged: (a) => _selection = a,
@@ -939,6 +936,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   }
                                 },
                               ),
+                            // TODO: Remove when flutter/flutter#117561 is fixed:
+                            //       https://github.com/flutter/flutter/issues/117561
                             if (widget.selection?.value?.plainText.isNotEmpty ==
                                 true)
                               ContextMenuButton(
@@ -1053,32 +1052,30 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          builder: (bool menu) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                builder(menu),
-                                if (avatars.isNotEmpty)
-                                  Transform.translate(
-                                    offset: const Offset(-12, -4),
-                                    child: WidgetButton(
-                                      onPressed: () => MessageInfo.show(
-                                        context,
-                                        id: widget.forwards.first.value.id,
-                                        reads: reads ?? [],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: avatars,
-                                      ),
+                          builder: (bool menu) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              builder(menu),
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: const Offset(-12, -4),
+                                  child: WidgetButton(
+                                    onPressed: () => MessageInfo.show(
+                                      context,
+                                      id: widget.forwards.first.value.id,
+                                      reads: reads ?? [],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
                                     ),
                                   ),
-                              ],
-                            );
-                          },
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

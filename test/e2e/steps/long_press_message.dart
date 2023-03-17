@@ -48,13 +48,7 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
     Finder finder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
-    final TestGesture gesture =
-        await context.world.appDriver.nativeDriver.startGesture(
-      context.world.appDriver.nativeDriver.getCenter(finder),
-      kind: PointerDeviceKind.touch,
-    );
-    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
-    await gesture.cancel();
+    await context.world.appDriver.nativeDriver.longPress(finder);
 
     await context.world.appDriver.waitForAppToSettle();
   },

@@ -399,12 +399,7 @@ void main() async {
     var message = find.text('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
-    final TestGesture gesture1 = await tester.startGesture(
-      tester.getCenter(message),
-      kind: PointerDeviceKind.mouse,
-    );
-    await tester.pump(const Duration(seconds: 1));
-    await gesture1.cancel();
+    await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('ReplyButton')));
@@ -416,12 +411,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('CancelReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    final TestGesture gesture2 = await tester.startGesture(
-      tester.getCenter(message),
-      kind: PointerDeviceKind.mouse,
-    );
-    await tester.pump(const Duration(seconds: 1));
-    await gesture2.cancel();
+    await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(

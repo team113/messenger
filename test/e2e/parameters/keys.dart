@@ -52,6 +52,7 @@ enum WidgetKey {
   ContactsButton,
   ContactsTab,
   CopyButton,
+  CopySelectedButton,
   CurrentPasswordField,
   DangerZone,
   Delete,
