@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/widget/animated_slider.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -426,6 +427,45 @@ class _ChatViewState extends State<ChatView>
                               },
                               child: Column(
                                 children: [
+                                  Obx(() {
+                                    final Style style =
+                                        Theme.of(context).extension<Style>()!;
+                                    return AnimatedSizeAndFade.showHide(
+                                      show: c.paid &&
+                                          c.paidDisclaimerDismissed.value,
+                                      child: WidgetButton(
+                                        onPressed: () {
+                                          c.paidDisclaimerDismissed.value =
+                                              false;
+                                          c.paidDisclaimer.value = true;
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          margin: const EdgeInsets.only(
+                                            left: 6,
+                                            right: 6,
+                                            top: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: style.cardRadius,
+                                            border: style.systemMessageBorder,
+                                            color: style.systemMessageColor,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'Платный чат',
+                                              style: style.systemMessageStyle
+                                                  .copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
                                   Expanded(
                                     child: Stack(
                                       children: [
@@ -782,6 +822,175 @@ class _ChatViewState extends State<ChatView>
                       ),
                     );
                   }),
+                  Obx(() {
+                    final Style style = Theme.of(context).extension<Style>()!;
+
+                    return Align(
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedSlider(
+                        isOpen: c.paidDisclaimer.value,
+                        duration: 300.milliseconds,
+                        translate: true,
+                        beginOffset: const Offset(0, 200),
+                        endOffset: const Offset(0, -60),
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                            top: 8,
+                            bottom: 8,
+                            left: 8,
+                            right: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: style.cardRadius,
+                            boxShadow: const [
+                              CustomBoxShadow(
+                                blurRadius: 8,
+                                color: Color(0x22000000),
+                              ),
+                            ],
+                          ),
+                          child: IntrinsicWidth(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: style.cardRadius.topLeft,
+                                      topRight: style.cardRadius.topRight,
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  child: Text(
+                                    'Askldjskldjsqkdjqw',
+                                    style: style.boldBody,
+                                  ),
+                                ),
+                                WidgetButton(
+                                  onPressed: () {
+                                    c.paidDisclaimer.value = false;
+                                    c.paidDisclaimerDismissed.value = true;
+
+                                    // final theirFee = FeeElement(false);
+                                    // c.elements[theirFee.id] = theirFee;
+
+                                    // SchedulerBinding.instance
+                                    //     .addPostFrameCallback((_) {
+                                    //   c.listController.animateTo(
+                                    //     c.listController.offset + 150,
+                                    //     duration: 200.milliseconds,
+                                    //     curve: Curves.ease,
+                                    //   );
+                                    // });
+
+                                    switch (c.confirmAction) {
+                                      case ConfirmAction.audioCall:
+                                        c.call(false);
+                                        break;
+
+                                      case ConfirmAction.videoCall:
+                                        c.call(true);
+                                        break;
+
+                                      case ConfirmAction.sendMessage:
+                                        c.send.onSubmit?.call();
+                                        break;
+
+                                      case null:
+                                        // No-op.
+                                        break;
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      18,
+                                      18,
+                                      18,
+                                      18,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: style.cardRadius.bottomLeft,
+                                        bottomRight:
+                                            style.cardRadius.bottomRight,
+                                      ),
+                                      border: style.systemMessageBorder,
+                                      color: style.systemMessageColor,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Платный чат',
+                                          style: style.systemMessageStyle,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'kirey установил плату за: отправку сообщения - \$5, совершение звонка - \$5/min',
+                                          style: style.systemMessageStyle,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Принять и продолжить',
+                                          style:
+                                              style.systemMessageStyle.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  // Obx(() {
+                  //   final Style style = Theme.of(context).extension<Style>()!;
+
+                  //   return AnimatedPositioned(
+                  //     duration: 300.milliseconds,
+                  //     curve: Curves.ease,
+                  //     top: c.paidDisclaimer.value ? null : 60,
+                  //     bottom: c.paidDisclaimer.value ? 60 : null,
+                  //     child: AnimatedContainer(
+                  //       duration: 300.milliseconds,
+                  //       curve: Curves.ease,
+                  //       child: Column(
+                  //         children: [
+                  //           WidgetButton(
+                  //             onPressed: () {
+                  //               c.paidDisclaimer.value = false;
+                  //             },
+                  //             child: Container(
+                  //               decoration: BoxDecoration(
+                  //                 borderRadius: BorderRadius.only(
+                  //                   bottomLeft: style.cardRadius.bottomLeft,
+                  //                   bottomRight: style.cardRadius.bottomRight,
+                  //                 ),
+                  //                 border: style.systemMessageBorder,
+                  //                 color: style.systemMessageColor,
+                  //               ),
+                  //               child: Text(
+                  //                 'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
+                  //                 style: style.systemMessageStyle,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   );
+                  // }),
+
                   IgnorePointer(
                     child: Obx(() {
                       return AnimatedSwitcher(
@@ -1558,67 +1767,50 @@ class _ChatViewState extends State<ChatView>
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          MessageFieldView(
-            key: const Key('SendField'),
-            controller: c.send,
-            onChanged: c.keepTyping,
-            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-            canForward: true,
-            // background: const Color(0xFFfff7ea),
-            // canSend: !disabled,
-            // canAttach: !disabled,
-            // disabled: disabled,
-          ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return Obx(() {
-                return AnimatedSizeAndFade.showHide(
-                  show: c.paidDisclaimer.value,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                    decoration: BoxDecoration(
-                      borderRadius: style.cardRadius,
-                      boxShadow: const [
-                        CustomBoxShadow(
-                          blurRadius: 8,
-                          color: Color(0x22000000),
-                        ),
-                      ],
-                      color: Colors.white,
-                    ),
-                    child: Row(
+          if (false)
+            Obx(() {
+              return AnimatedSizeAndFade.showHide(
+                show: c.paidDisclaimer.value,
+                child: Container(
+                  margin: const EdgeInsets.only(
+                    top: 8,
+                    bottom: 8,
+                    left: 8,
+                    right: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: Color(0x22000000),
+                      ),
+                    ],
+                  ),
+                  child: IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text:
-                                      'kirey взимает плату в размере \$5 за сообщение. ',
-                                ),
-                                // TextSpan(
-                                //   text: 'Принять.',
-                                //   style: thin?.copyWith(
-                                //     fontSize: 18,
-                                //     color:
-                                //         Theme.of(context).colorScheme.secondary,
-                                //   ),
-                                // ),
-                              ],
-                              style: thin?.copyWith(fontSize: 18),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: style.cardRadius.topLeft,
+                              topRight: style.cardRadius.topRight,
                             ),
+                            color: Colors.white,
                           ),
-                          // child: Text(
-                          //   'kirey взимает плату в размере \$5 за сообщение.',
-                          //   style: thin?.copyWith(fontSize: 18),
-                          // ),
+                          child: Text(
+                            'Askldjskldjsqkdjqw',
+                            style: style.boldBody,
+                          ),
                         ),
-                        const SizedBox(width: 12),
                         WidgetButton(
                           onPressed: () {
                             c.paidDisclaimer.value = false;
-                            c.paidDisclaimerDismissed = true;
+                            c.paidDisclaimerDismissed.value = true;
 
                             switch (c.confirmAction) {
                               case ConfirmAction.audioCall:
@@ -1638,69 +1830,30 @@ class _ChatViewState extends State<ChatView>
                                 break;
                             }
                           },
-                          child: Text(
-                            'Принять',
-                            style: thin?.copyWith(
-                              fontSize: 18,
-                              color: Theme.of(context).colorScheme.secondary,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: style.cardRadius.bottomLeft,
+                                bottomRight: style.cardRadius.bottomRight,
+                              ),
+                              border: style.systemMessageBorder,
+                              color: style.systemMessageColor,
                             ),
-                          ),
-                        ),
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 150),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                            child: Column(
                               children: [
-                                // Expanded(
-                                //   child: OutlinedRoundedButton(
-                                //     maxWidth: double.infinity,
-                                //     onPressed: () {
-                                //       c.paidDisclaimer.value = false;
-                                //     },
-                                //     title: Text(
-                                //       'Закрыть',
-                                //       style:
-                                //           thin?.copyWith(color: Colors.black),
-                                //     ),
-                                //     color: const Color(0xFFEEEEEE),
-                                //   ),
-                                // ),
-                                // const SizedBox(width: 12),
-                                // Expanded(
-                                //   child: OutlinedRoundedButton(
-                                //     maxWidth: double.infinity,
-                                //     onPressed: () {
-                                //       c.paidDisclaimer.value = false;
-                                //       c.paidDisclaimerDismissed = true;
-
-                                //       switch (c.confirmAction) {
-                                //         case ConfirmAction.audioCall:
-                                //           c.call(false);
-                                //           break;
-
-                                //         case ConfirmAction.videoCall:
-                                //           c.call(true);
-                                //           break;
-
-                                //         case ConfirmAction.sendMessage:
-                                //           c.send.onSubmit?.call();
-                                //           break;
-
-                                //         case null:
-                                //           // No-op.
-                                //           break;
-                                //       }
-                                //     },
-                                //     title: Text(
-                                //       'Принять',
-                                //       style:
-                                //           thin?.copyWith(color: Colors.white),
-                                //     ),
-                                //     color:
-                                //         Theme.of(context).colorScheme.secondary,
-                                //   ),
-                                // ),
+                                Text(
+                                  'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
+                                  style: style.systemMessageStyle,
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'Принять и продолжить',
+                                  style: style.systemMessageStyle.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -1708,10 +1861,163 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                   ),
-                );
-              });
-            },
+                ),
+              );
+            }),
+          MessageFieldView(
+            key: const Key('SendField'),
+            controller: c.send,
+            onChanged: c.keepTyping,
+            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            canForward: true,
+            // background: const Color(0xFFfff7ea),
+            // canSend: !disabled,
+            // canAttach: !disabled,
+            // disabled: disabled,
           ),
+          // LayoutBuilder(
+          //   builder: (context, constraints) {
+          //     return Obx(() {
+          //       return AnimatedSizeAndFade.showHide(
+          //         show: c.paidDisclaimer.value,
+          //         child: Container(
+          //           margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+          //           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+          //           decoration: BoxDecoration(
+          //             borderRadius: style.cardRadius,
+          //             boxShadow: const [
+          //               CustomBoxShadow(
+          //                 blurRadius: 8,
+          //                 color: Color(0x22000000),
+          //               ),
+          //             ],
+          //             color: Colors.white,
+          //           ),
+          //           child: Row(
+          //             children: [
+          //               Expanded(
+          //                 child: RichText(
+          //                   text: TextSpan(
+          //                     children: [
+          //                       TextSpan(
+          //                         text:
+          //                             'kirey взимает плату в размере \$5 за сообщение. ',
+          //                       ),
+          //                       // TextSpan(
+          //                       //   text: 'Принять.',
+          //                       //   style: thin?.copyWith(
+          //                       //     fontSize: 18,
+          //                       //     color:
+          //                       //         Theme.of(context).colorScheme.secondary,
+          //                       //   ),
+          //                       // ),
+          //                     ],
+          //                     style: thin?.copyWith(fontSize: 18),
+          //                   ),
+          //                 ),
+          //                 // child: Text(
+          //                 //   'kirey взимает плату в размере \$5 за сообщение.',
+          //                 //   style: thin?.copyWith(fontSize: 18),
+          //                 // ),
+          //               ),
+          //               const SizedBox(width: 12),
+          //               WidgetButton(
+          //                 onPressed: () {
+          //                   c.paidDisclaimer.value = false;
+          //                   c.paidDisclaimerDismissed = true;
+
+          //                   switch (c.confirmAction) {
+          //                     case ConfirmAction.audioCall:
+          //                       c.call(false);
+          //                       break;
+
+          //                     case ConfirmAction.videoCall:
+          //                       c.call(true);
+          //                       break;
+
+          //                     case ConfirmAction.sendMessage:
+          //                       c.send.onSubmit?.call();
+          //                       break;
+
+          //                     case null:
+          //                       // No-op.
+          //                       break;
+          //                   }
+          //                 },
+          //                 child: Text(
+          //                   'Принять',
+          //                   style: thin?.copyWith(
+          //                     fontSize: 18,
+          //                     color: Theme.of(context).colorScheme.secondary,
+          //                   ),
+          //                 ),
+          //               ),
+          //               Center(
+          //                 child: ConstrainedBox(
+          //                   constraints: BoxConstraints(maxWidth: 150),
+          //                   child: Row(
+          //                     mainAxisSize: MainAxisSize.min,
+          //                     children: [
+          //                       // Expanded(
+          //                       //   child: OutlinedRoundedButton(
+          //                       //     maxWidth: double.infinity,
+          //                       //     onPressed: () {
+          //                       //       c.paidDisclaimer.value = false;
+          //                       //     },
+          //                       //     title: Text(
+          //                       //       'Закрыть',
+          //                       //       style:
+          //                       //           thin?.copyWith(color: Colors.black),
+          //                       //     ),
+          //                       //     color: const Color(0xFFEEEEEE),
+          //                       //   ),
+          //                       // ),
+          //                       // const SizedBox(width: 12),
+          //                       // Expanded(
+          //                       //   child: OutlinedRoundedButton(
+          //                       //     maxWidth: double.infinity,
+          //                       //     onPressed: () {
+          //                       //       c.paidDisclaimer.value = false;
+          //                       //       c.paidDisclaimerDismissed = true;
+
+          //                       //       switch (c.confirmAction) {
+          //                       //         case ConfirmAction.audioCall:
+          //                       //           c.call(false);
+          //                       //           break;
+
+          //                       //         case ConfirmAction.videoCall:
+          //                       //           c.call(true);
+          //                       //           break;
+
+          //                       //         case ConfirmAction.sendMessage:
+          //                       //           c.send.onSubmit?.call();
+          //                       //           break;
+
+          //                       //         case null:
+          //                       //           // No-op.
+          //                       //           break;
+          //                       //       }
+          //                       //     },
+          //                       //     title: Text(
+          //                       //       'Принять',
+          //                       //       style:
+          //                       //           thin?.copyWith(color: Colors.white),
+          //                       //     ),
+          //                       //     color:
+          //                       //         Theme.of(context).colorScheme.secondary,
+          //                       //   ),
+          //                       // ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       );
+          //     });
+          //   },
+          // ),
         ],
       );
     });

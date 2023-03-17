@@ -192,7 +192,7 @@ class ChatController extends GetxController {
   final RxBool acceptPaid = RxBool(false);
 
   late final RxBool paidDisclaimer;
-  bool paidDisclaimerDismissed = false;
+  final RxBool paidDisclaimerDismissed = RxBool(false);
 
   ConfirmAction? confirmAction;
 
@@ -321,7 +321,7 @@ class ChatController extends GetxController {
       _userService,
       onChanged: updateDraft,
       onSubmit: () async {
-        if (paid && !paidDisclaimerDismissed) {
+        if (paid && !paidDisclaimerDismissed.value) {
           paidDisclaimer.value = true;
           confirmAction = ConfirmAction.sendMessage;
           return;
@@ -436,7 +436,7 @@ class ChatController extends GetxController {
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    if (paid && !paidDisclaimerDismissed) {
+    if (paid && !paidDisclaimerDismissed.value) {
       paidDisclaimer.value = true;
       confirmAction =
           withVideo ? ConfirmAction.videoCall : ConfirmAction.audioCall;
@@ -610,7 +610,7 @@ class ChatController extends GetxController {
               e.user.value.name?.val == 'alex2' ||
               e.user.value.name?.val == 'kirey') &&
           chat!.chat.value.isDialog;
-      paidDisclaimer = RxBool(false);
+      paidDisclaimer = RxBool(paid);
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -715,11 +715,11 @@ class ChatController extends GetxController {
       }
 
       if (paid) {
-        final theirFee = FeeElement(false);
-        elements[theirFee.id] = theirFee;
-
         final oursFee = FeeElement(true);
         elements[oursFee.id] = oursFee;
+
+        // final theirFee = FeeElement(false);
+        // elements[theirFee.id] = theirFee;
       }
 
       // if (chat?.messageCost != 0 || chat?.callCost != 0) {
