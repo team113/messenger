@@ -98,7 +98,7 @@ class CallWorker extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
-  /// [Timer] is used to increase [fade] gradually.
+  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
   Timer? _fadeTimer;
 
   @override
@@ -298,9 +298,9 @@ class CallWorker extends DisposableService {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
         await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-        await _audioPlayer?.setVolume(0.0);
         await _audioPlayer?.play(
           AssetSource('audio/$asset'),
+          volume: fade ? 0 : 1,
           position: Duration.zero,
           mode: PlayerMode.mediaPlayer,
         );
@@ -310,10 +310,10 @@ class CallWorker extends DisposableService {
           _fadeTimer = Timer.periodic(
             const Duration(milliseconds: 100),
             (timer) async {
-              if (timer.tick > 10) {
+              if (timer.tick > 9) {
                 timer.cancel();
               } else {
-                await _audioPlayer?.setVolume(timer.tick / 10);
+                await _audioPlayer?.setVolume((timer.tick + 1) / 10);
               }
             },
           );
