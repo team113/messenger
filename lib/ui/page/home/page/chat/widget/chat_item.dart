@@ -1031,18 +1031,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               height: max(media.length * 60, 300),
                               child: FitView(
                                 dividerColor: Colors.transparent,
-                                children: media.mapIndexed(
-                                  (i, e) {
-                                    return ChatItemWidget.mediaAttachment(
-                                      context,
-                                      e,
-                                      media,
-                                      key: _galleryKeys[i],
-                                      onError: widget.onAttachmentError,
-                                      onGallery: widget.onGallery,
-                                    );
-                                  },
-                                ).toList(),
+                                children: media
+                                    .mapIndexed(
+                                      (i, e) => ChatItemWidget.mediaAttachment(
+                                        context,
+                                        e,
+                                        media,
+                                        key: _galleryKeys[i],
+                                        onError: widget.onAttachmentError,
+                                        onGallery: widget.onGallery,
+                                      ),
+                                    )
+                                    .toList(),
                               ),
                             ),
                     ),

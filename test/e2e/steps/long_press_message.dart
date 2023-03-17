@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -49,7 +48,6 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
     await context.world.appDriver.nativeDriver.longPress(finder);
-
     await context.world.appDriver.waitForAppToSettle();
   },
 );
@@ -101,7 +99,6 @@ final StepDefinitionGeneric tapMessage = then1<String, CustomWorld>(
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
     await context.world.appDriver.nativeDriver.tap(finder);
-
     await context.world.appDriver.waitForAppToSettle();
   },
 );
