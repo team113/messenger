@@ -933,16 +933,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
-                                bool deletable;
-                                if (isMonolog) {
-                                  deletable = false;
-                                } else {
-                                  deletable = widget.authorId == widget.me &&
-                                      !widget.chat.value!.isRead(
-                                        widget.forwards.first.value,
-                                        widget.me,
-                                      );
-                                }
+                                bool deletable = !isMonolog &&
+                                    widget.authorId == widget.me &&
+                                    !widget.chat.value!.isRead(
+                                      widget.forwards.first.value,
+                                      widget.me,
+                                    );
 
                                 await ConfirmDialog.show(
                                   context,

@@ -183,8 +183,7 @@ class HiveRxChat extends RxChat {
     );
 
     _updateTitle(chat.value.members.map((e) => e.user));
-    _updateFields().then((_) =>
-        chat.value.isGroup || chat.value.isMonolog ? null : _updateAvatar());
+    _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
     _worker = ever(chat, (_) => _updateFields());
 
     _messagesSubscription = messages.changes.listen((e) {
@@ -692,7 +691,7 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.isGroup || chat.value.isMonolog) {
+    if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
 
@@ -721,21 +720,8 @@ class HiveRxChat extends RxChat {
       }
     }
 
-    members.removeWhere((k, _) {
-      bool shouldRemoved = chat.value.members.none((m) => m.user.id == k);
-
-      if (shouldRemoved) {
-        HiveChat? chatEntity = _chatLocal.get(id);
-        if (chatEntity != null) {
-          chatEntity.value.lastReads.removeWhere((e) {
-            return e.memberId == k;
-          });
-          _chatLocal.put(chatEntity);
-        }
-      }
-
-      return shouldRemoved;
-    });
+    members
+        .removeWhere((k, _) => chat.value.members.none((m) => m.user.id == k));
 
     if (chat.value.name == null) {
       var users = members.values.take(3);
@@ -1133,6 +1119,8 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    chatEntity.value.lastReads
+                        .removeWhere((e) => e.memberId == action.user.id);
                     await _chatRepository.onMemberRemoved(id, action.user.id);
                     break;
 

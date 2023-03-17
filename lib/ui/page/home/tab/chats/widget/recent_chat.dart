@@ -68,7 +68,6 @@ class RecentChatTile extends StatelessWidget {
     this.onTap,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
-    this.myUser,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -138,9 +137,6 @@ class RecentChatTile extends StatelessWidget {
   /// [RecentChatTile].
   final bool enableContextMenu;
 
-  /// [MyUser] of authenticated user.
-  final Rx<MyUser?>? myUser;
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -149,7 +145,6 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        myUser: myUser,
         status: [
           _status(context),
           Text(

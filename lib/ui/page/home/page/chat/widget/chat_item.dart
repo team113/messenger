@@ -1669,15 +1669,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
-                                bool deletable;
-                                if (isMonolog) {
-                                  deletable = false;
-                                } else {
-                                  deletable = _fromMe &&
-                                      !widget.chat.value!.isRead(
-                                          widget.item.value, widget.me) &&
-                                      (widget.item.value is ChatMessage);
-                                }
+                                bool deletable = !isMonolog &&
+                                    _fromMe &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage);
 
                                 await ConfirmDialog.show(
                                   context,

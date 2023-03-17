@@ -544,7 +544,6 @@ class ChatsTabView extends StatelessWidget {
                                   blocked: e.blacklisted,
                                   selected: selected,
                                   getUser: c.getUser,
-                                  myUser: c.myUser,
                                   avatarBuilder: c.selecting.value
                                       ? (c) => WidgetButton(
                                             onPressed: () => router.chat(e.id),

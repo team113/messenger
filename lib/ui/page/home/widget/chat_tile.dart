@@ -44,7 +44,6 @@ class ChatTile extends StatelessWidget {
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
-    this.myUser,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -88,9 +87,6 @@ class ChatTile extends StatelessWidget {
 
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
-
-  /// [MyUser] of authenticated user.
-  final Rx<MyUser?>? myUser;
 
   @override
   Widget build(BuildContext context) {
