@@ -43,6 +43,7 @@ class ChatTile extends StatelessWidget {
     this.height = 94,
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
     this.folded = false,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
@@ -85,6 +86,9 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu should be enabled over this [ChatTile].
+  final bool enableContextMenu;
+
   final bool folded;
 
   @override
@@ -92,10 +96,11 @@ class ChatTile extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ChatTile_${chat?.chat.value.id}'),
+      key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
       indicateOpenedMenu: true,
+      enabled: enableContextMenu,
       child: SizedBox(
         height: height,
         child: Padding(

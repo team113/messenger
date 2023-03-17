@@ -22,7 +22,6 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -42,6 +41,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
+import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
@@ -82,7 +82,10 @@ class ContactsTabController extends GetxController {
 
   late final Rx<Timer?> timer;
 
+  /// Indicator whether multiple [ChatContact]s selection is active.
   final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].
@@ -179,6 +182,24 @@ class ContactsTabController extends GetxController {
     await _contactService.deleteContact(contact.id);
   }
 
+  /// Deletes the [selectedContacts] from the authenticated [MyUser]'s address
+  /// book.
+  Future<void> deleteContacts() async {
+    selecting.value = false;
+    router.navigation.value = !selecting.value;
+
+    try {
+      final Iterable<Future> futures =
+          selectedContacts.map((e) => _contactService.deleteContact(e));
+      await Future.wait(futures);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedContacts.clear();
+    }
+  }
+
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
   Future<void> favoriteContact(
     ChatContactId id, [
@@ -237,20 +258,6 @@ class ContactsTabController extends GetxController {
     _sortContacts();
   }
 
-  void toggleSelecting() {
-    selecting.toggle();
-    selectedContacts.clear();
-    router.navigation.value = !selecting.value;
-  }
-
-  void selectContact(RxChatContact e) {
-    if (selectedContacts.contains(e.id)) {
-      selectedContacts.remove(e.id);
-    } else {
-      selectedContacts.add(e.id);
-    }
-  }
-
   /// Enables and initializes or disables and disposes the [search].
   void toggleSearch([bool enable = true]) {
     search.value?.onClose();
@@ -294,6 +301,23 @@ class ContactsTabController extends GetxController {
     } else {
       search.value = null;
       elements.clear();
+    }
+  }
+
+  /// Toggles the [ChatContact]s selection.
+  void toggleSelecting() {
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+    selectedContacts.clear();
+  }
+
+  /// Selects or unselects the provided [contact], meaning adding or removing it
+  /// from the [selectedContacts].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact.id)) {
+      selectedContacts.remove(contact.id);
+    } else {
+      selectedContacts.add(contact.id);
     }
   }
 

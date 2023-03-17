@@ -170,4 +170,10 @@ class RxObsList<E> extends ListMixin<E>
     _value.sort(compare);
     refresh();
   }
+
+  @override
+  void removeRange(int start, int end) {
+    _value.removeRange(start, end);
+    refresh();
+  }
 }

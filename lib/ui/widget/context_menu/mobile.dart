@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -47,7 +48,7 @@ class FloatingContextMenu extends StatefulWidget {
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
 
-  /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
+  /// [ContextMenuItem]s representing actions of this [FloatingContextMenu].
   final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [FloatingContextMenu].
@@ -131,12 +132,16 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         unconstrained: widget.unconstrained,
         onClosed: () {
           widget.onClosed?.call();
-          _entry?.remove();
-          _entry = null;
 
-          if (mounted) {
-            setState(() {});
-          }
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (_entry?.mounted == true) {
+              _entry?.remove();
+              _entry = null;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          });
         },
         child: widget.child,
       );
@@ -175,7 +180,7 @@ class _AnimatedMenu extends StatefulWidget {
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
 
-  /// [ContextMenuButton]s to display in this [_AnimatedMenu].
+  /// [ContextMenuItem]s to display in this [_AnimatedMenu].
   final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [_AnimatedMenu].
@@ -237,6 +242,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _fading.dispose();
+    super.dispose();
   }
 
   @override

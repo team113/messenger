@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -38,7 +37,9 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -100,7 +101,7 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else if (c.selecting.value) {
-                child = Text('Select contacts'.l10n);
+                child = Text('label_select_contacts'.l10n);
               } else {
                 final bool isLoading = c.timer.value == null &&
                     (c.status.value.isLoadingMore || !c.status.value.isSuccess);
@@ -162,15 +163,13 @@ class ContactsTabView extends StatelessWidget {
                   onPressed: () {
                     if (c.selecting.value) {
                       c.toggleSelecting();
+                    } else if (c.search.value != null) {
+                      c.toggleSearch(false);
                     } else {
-                      if (c.search.value != null) {
-                        c.toggleSearch(false);
+                      if (onSwitched != null) {
+                        onSwitched?.call();
                       } else {
-                        if (onSwitched != null) {
-                          onSwitched?.call();
-                        } else {
-                          c.toggleSorting();
-                        }
+                        c.toggleSorting();
                       }
                     }
                   },
@@ -190,6 +189,10 @@ class ContactsTabView extends StatelessWidget {
             ],
             leading: [
               Obx(() {
+                if (c.selecting.value) {
+                  return const SizedBox(width: 49.77);
+                }
+
                 return WidgetButton(
                   key: const Key('SearchButton'),
                   onPressed: c.search.value != null ? null : c.toggleSearch,
@@ -349,6 +352,13 @@ class ContactsTabView extends StatelessWidget {
                               );
                             },
                             itemBuilder: (_, i) {
+                              if (c.favorites.isEmpty) {
+                                // This builder is invoked for some reason when
+                                // deleting all favorite contacts, so put a
+                                // guard for that case.
+                                return const SizedBox.shrink(key: Key('0'));
+                              }
+
                               RxChatContact contact = c.favorites.elementAt(i);
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
@@ -364,6 +374,7 @@ class ContactsTabView extends StatelessWidget {
                                             'ReorderHandle_${contact.id.val}',
                                           ),
                                           index: i,
+                                          enabled: !c.selecting.value,
                                           child: child,
                                         );
                                       }
@@ -383,6 +394,7 @@ class ContactsTabView extends StatelessWidget {
                                             'ReorderHandle_${contact.id.val}',
                                           ),
                                           index: i,
+                                          enabled: !c.selecting.value,
                                           child: child,
                                         ),
                                       );
@@ -505,10 +517,12 @@ class ContactsTabView extends StatelessWidget {
         contact: contact,
         folded: favorite,
         selected: selected || c.selectedContacts.contains(contact.id),
+        enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
-            ? (c) => WidgetButton(
+            ? (child) => WidgetButton(
+                  // TODO: Open [Routes.contact] page when it's implemented.
                   onPressed: () => router.user(contact.user.value!.id),
-                  child: avatarBuilder?.call(c) ?? c,
+                  child: avatarBuilder?.call(child) ?? child,
                 )
             : avatarBuilder,
         onTap: c.selecting.value
@@ -553,6 +567,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           const ContextMenuDivider(),
           ContextMenuButton(
+            key: const Key('SelectContactButton'),
             label: 'btn_select'.l10n,
             onPressed: c.toggleSelecting,
             trailing: const Icon(Icons.select_all),
@@ -600,11 +615,7 @@ class ContactsTabView extends StatelessWidget {
 
             return const Padding(
               padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(
-                Icons.block,
-                color: Color(0xFFC0C0C0),
-                size: 20,
-              ),
+              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
             );
           }),
           Obx(() {
@@ -612,40 +623,12 @@ class ContactsTabView extends StatelessWidget {
               return const SizedBox();
             }
 
-            Widget dot(bool selected) {
-              return SizedBox(
-                width: 30,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: selected
-                      ? CircleAvatar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
-                          radius: 11,
-                          child: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                        )
-                      : Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFD7D7D7),
-                              width: 1,
-                            ),
-                          ),
-                          width: 22,
-                          height: 22,
-                        ),
-                ),
-              );
-            }
-
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: dot(c.selectedContacts.contains(contact.id)),
+              child: SelectedDot(
+                selected: c.selectedContacts.contains(contact.id),
+                size: 22,
+              ),
             );
           }),
         ],
@@ -653,32 +636,16 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
+  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
+  /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    Widget button({
-      Key? key,
-      Widget? leading,
-      required Widget child,
-      void Function()? onPressed,
-      Color? color,
-    }) {
-      return Expanded(
-        child: OutlinedRoundedButton(
-          key: key,
-          leading: leading,
-          title: child,
-          onPressed: onPressed,
-          color: color,
-          shadows: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-              blurStyle: BlurStyle.outer,
-            ),
-          ],
-        ),
-      );
-    }
+    const List<CustomBoxShadow> shadows = [
+      CustomBoxShadow(
+        blurRadius: 8,
+        color: Color(0x22000000),
+        blurStyle: BlurStyle.outer,
+      ),
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -691,32 +658,41 @@ class ContactsTabView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          button(
-            child: Text(
-              'btn_close'.l10n,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: const TextStyle(color: Colors.black),
+          Expanded(
+            child: OutlinedRoundedButton(
+              title: Text(
+                'btn_close'.l10n,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.black),
+              ),
+              onPressed: c.toggleSelecting,
+              color: Colors.white,
+              shadows: shadows,
             ),
-            onPressed: c.toggleSelecting,
-            color: Colors.white,
           ),
           const SizedBox(width: 10),
           Obx(() {
-            return button(
-              child: Text(
-                'Delete (${c.selectedContacts.length})',
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
+            return Expanded(
+              child: OutlinedRoundedButton(
+                key: const Key('DeleteContacts'),
+                title: Text(
+                  'btn_delete_count'
+                      .l10nfmt({'count': c.selectedContacts.length}),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
                     color: c.selectedContacts.isEmpty
                         ? Colors.black
-                        : Colors.white),
+                        : Colors.white,
+                  ),
+                ),
+                onPressed: c.selectedContacts.isEmpty
+                    ? null
+                    : () => _removeContacts(context, c),
+                color: Theme.of(context).colorScheme.secondary,
+                shadows: shadows,
               ),
-              onPressed: c.selectedContacts.isEmpty
-                  ? null
-                  : () => _removeContacts(context, c),
-              color: Theme.of(context).colorScheme.secondary,
             );
           }),
         ],
@@ -748,6 +724,7 @@ class ContactsTabView extends StatelessWidget {
     }
   }
 
+  /// Opens a confirmation popup deleting the selected contacts.
   Future<void> _removeContacts(
     BuildContext context,
     ContactsTabController c,
@@ -756,13 +733,14 @@ class ContactsTabView extends StatelessWidget {
       'label_delete_contacts'.l10n,
       description: [
         TextSpan(
-          text:
-              'Контакты (${c.selectedContacts.length}) будут удалены. Продолжить?'
-                  .l10n,
+          text: 'alert_contacts_will_be_deleted'
+              .l10nfmt({'count': c.selectedContacts.length}),
         ),
       ],
     );
 
-    if (result == true) {}
+    if (result == true) {
+      await c.deleteContacts();
+    }
   }
 }

@@ -51,6 +51,7 @@ class ContactTile extends StatelessWidget {
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [MyUser] to display.
@@ -109,6 +110,9 @@ class ContactTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu should be enabled over this [ContactTile].
+  final bool enableContextMenu;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -120,6 +124,7 @@ class ContactTile extends StatelessWidget {
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
       indicateOpenedMenu: true,
+      enabled: enableContextMenu,
       child: Padding(
         padding: margin,
         child: InkWellWithHover(

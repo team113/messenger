@@ -17,14 +17,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/domain/model/sending_status.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/sending_status.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -56,9 +56,10 @@ class _DataAttachmentState extends State<DataAttachment> {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
             leading = InkWell(
-              key: const Key('InProgress'),
+              key: const Key('CancelDownloading'),
               onTap: e.cancelDownload,
               child: Container(
+                key: const Key('Downloading'),
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(

@@ -321,6 +321,14 @@ class ChatService extends DisposableService {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
+
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
+      _chatRepository.clearChat(id, untilId);
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].

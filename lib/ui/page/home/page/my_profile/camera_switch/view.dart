@@ -24,7 +24,6 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
@@ -28,11 +27,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
-// import 'package:messenger/ui/widget/animated_size_and_fade.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';

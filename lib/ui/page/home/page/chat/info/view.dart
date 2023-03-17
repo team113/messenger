@@ -204,7 +204,7 @@ class ChatInfoView extends StatelessWidget {
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: const Key('ChatInfoListView'),
+                key: const Key('ChatInfoScrollable'),
                 children: [
                   const SizedBox(height: 8),
                   Block(
@@ -268,6 +268,7 @@ class ChatInfoView extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             WidgetButton(
+              key: Key('ChatAvatar_${c.chat!.id}'),
               onPressed: c.chat?.chat.value.avatar == null
                   ? c.pickAvatar
                   : () async {
@@ -715,6 +716,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           FieldButton(
+            key: const Key('ClearHistoryButton'),
             onPressed: () => _clearChat(c, context),
             text: 'btn_clear_history'.l10n,
             trailing: Transform.translate(
@@ -849,7 +851,7 @@ class ChatInfoView extends StatelessWidget {
     );
 
     if (result == true) {
-      // TODO: Hide this [Chat].
+      await c.clearChat();
     }
   }
 

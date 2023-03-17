@@ -135,7 +135,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
     final Widget child;
 
-    if (_darkened) {
+    if (_darkened && PlatformUtils.isDesktop) {
       final Style style = Theme.of(context).extension<Style>()!;
       child = Stack(
         children: [
@@ -167,6 +167,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   margin: widget.margin,
                   unconstrained: widget.unconstrained,
                   onOpened: () {
+                    _displayed = true;
                     print('onOpened');
                     ContextMenuRegion.displayed.value = widget.id;
                     if (widget.indicateOpenedMenu) {
@@ -174,6 +175,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                     }
                   },
                   onClosed: () {
+                    _displayed = false;
                     print('onClosed');
                     ContextMenuRegion.displayed.value = null;
                     if (widget.indicateOpenedMenu) {

@@ -182,6 +182,13 @@ abstract class AbstractChatRepository {
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
 
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
+
   /// Creates a [Chat]-monolog for the authenticated [MyUser].
   Future<RxChat> createMonolog({ChatName? name});
 }

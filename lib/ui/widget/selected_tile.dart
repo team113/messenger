@@ -26,6 +26,7 @@ import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/widget_button.dart';
 
 /// Selectable tile representing the provided [Chat], [User], [ChatContact] or
@@ -94,7 +95,10 @@ class SelectedTile extends StatelessWidget {
                         ),
                 child: c,
               ),
-              trailing: _trailing(context),
+              trailing: [
+                if (myUser == null)
+                  SelectedDot(selected: selected, darken: darken)
+              ],
             )
           : ChatTile(
               key: Key('Chat_${chat!.id}'),
@@ -103,44 +107,12 @@ class SelectedTile extends StatelessWidget {
               subtitle: subtitle,
               onTap: onTap,
               darken: darken,
-              trailing: _trailing(context),
+              trailing: [
+                if (myUser == null)
+                  SelectedDot(selected: selected, darken: darken)
+              ],
             ),
     );
-  }
-
-  /// Returns an animated [CircleAvatar] representing selection circle.
-  List<Widget> _trailing(BuildContext context) {
-    return [
-      if (myUser == null)
-        SizedBox(
-          width: 30,
-          height: 30,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: selected
-                ? CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    radius: 12,
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 14,
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFD7D7D7).darken(darken),
-                        width: 1,
-                      ),
-                    ),
-                    width: 24,
-                    height: 24,
-                  ),
-          ),
-        ),
-    ];
   }
 
   /// Opens the [Router.user] page with the provided [id].

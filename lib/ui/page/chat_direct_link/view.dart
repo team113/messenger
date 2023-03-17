@@ -17,11 +17,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.

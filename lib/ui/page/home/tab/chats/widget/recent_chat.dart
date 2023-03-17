@@ -15,18 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/skeleton_container.dart';
 import 'package:messenger/util/message_popup.dart';
-// import 'package:shimmer/shimmer.dart';
-import 'package:skeletons/skeletons.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -62,6 +57,8 @@ class RecentChatTile extends StatelessWidget {
     this.me,
     this.myUser,
     this.blocked = false,
+    this.selected = false,
+    this.trailing,
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -74,10 +71,9 @@ class RecentChatTile extends StatelessWidget {
     this.onUnfavorite,
     this.onSelect,
     this.onCreateGroup,
-    this.trailing = const [],
     this.onTap,
-    this.selected = false,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -91,6 +87,12 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] should display a blocked icon in
   /// its trailing.
   final bool blocked;
+
+  /// Indicator whether this [RecentChatTile] is selected.
+  final bool selected;
+
+  /// [Widget]s to display in the trailing instead of the defaults.
+  final List<Widget>? trailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -127,11 +129,12 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onUnfavorite;
 
+  /// Callback, called when this [rxChat] select action is triggered.
   final void Function()? onSelect;
+
   final void Function()? onCreateGroup;
 
-  final List<Widget> trailing;
-  final bool selected;
+  /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.
@@ -140,11 +143,15 @@ class RecentChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu should be enabled over this
+  /// [RecentChatTile].
+  final bool enableContextMenu;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-      final bool selected = chat.isRoute(router.route, me);
+      final bool isRoute = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -166,8 +173,8 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context)),
-                if (trailing.isEmpty) ...[
+                Expanded(child: _subtitle(context, selected)),
+                if (trailing == null) ...[
                   if (blocked) ...[
                     const SizedBox(width: 5),
                     const Icon(
@@ -189,7 +196,7 @@ class RecentChatTile extends StatelessWidget {
                   ],
                   _counter(),
                 ] else
-                  ...trailing,
+                  ...trailing!,
               ],
             ),
           ),
@@ -244,24 +251,27 @@ class RecentChatTile extends StatelessWidget {
           ),
           const ContextMenuDivider(),
           ContextMenuButton(
+            key: const Key('SelectChatButton'),
             label: 'btn_select'.l10n,
             onPressed: onSelect,
             trailing: const Icon(Icons.select_all),
           ),
         ],
-        selected: selected,
-        onTap: () {
-          if (!selected) {
-            router.chat(chat.id);
-          }
-        },
+        selected: isRoute || selected,
+        enableContextMenu: enableContextMenu,
+        onTap: onTap ??
+            () {
+              if (!isRoute) {
+                router.chat(chat.id);
+              }
+            },
       );
     });
   }
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context) {
+  Widget _subtitle(BuildContext context, bool selected) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -670,6 +680,8 @@ class RecentChatTile extends StatelessWidget {
         } else {
           subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
         }
+      } else {
+        subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
       }
 
       return DefaultTextStyle(
@@ -903,12 +915,12 @@ class RecentChatTile extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
       additional: [
         const SizedBox(height: 21),
