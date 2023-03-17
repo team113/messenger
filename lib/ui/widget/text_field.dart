@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -100,8 +99,6 @@ class ReactiveTextField extends StatelessWidget {
   /// Should only be used to rebuild a widget tree. To react to the changes of
   /// this [ReactiveTextField] use [state] instead.
   final VoidCallback? onChanged;
-
-  final Duration debounceDuration = const Duration(milliseconds: 500);
 
   /// List of [TextInputFormatter] that formats the input of [TextField].
   final List<TextInputFormatter>? formatters;

@@ -402,6 +402,6 @@ void main() async {
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pumpAndSettle(const Duration(milliseconds: 500));
   });
 }
