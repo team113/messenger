@@ -120,15 +120,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   OverlayEntry? _entry;
 
   @override
-  void dispose() {
-    if (_entry?.mounted == true) {
-      _entry?.remove();
-    }
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget builder() {
       if (widget.builder == null) {
