@@ -85,6 +85,7 @@ class MyProfileView extends StatelessWidget {
               return Scrollbar(
                 controller: c.scrollController,
                 child: ScrollablePositionedList.builder(
+                  key: const Key('MyProfileScrollable'),
                   initialScrollIndex: c.listInitIndex,
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,

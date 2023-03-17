@@ -70,8 +70,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// [Alignment] of a [FloatingContextMenu] this region displays.
   final Alignment alignment;
 
-  /// [ContextMenuButton]s representing the actions of the context menu.
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s representing the actions of the context menu.
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
@@ -193,7 +193,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     setState(() {});
 
     if (widget.selector != null) {
-      await Selector.show<ContextMenuButton>(
+      await Selector.show<ContextMenuItem>(
         context: context,
         items: widget.actions,
         width: widget.width,
@@ -212,18 +212,26 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               .textTheme
               .bodySmall
               ?.copyWith(color: Colors.black);
-          return Row(
-            children: [
-              if (b.leading != null) ...[b.leading!, const SizedBox(width: 12)],
-              Text(b.label, style: thin?.copyWith(fontSize: 15)),
-              if (b.trailing != null) ...[
-                const SizedBox(width: 12),
-                b.trailing!,
+
+          if (b is ContextMenuButton) {
+            return Row(
+              children: [
+                if (b.leading != null) ...[
+                  b.leading!,
+                  const SizedBox(width: 12)
+                ],
+                Text(b.label, style: thin?.copyWith(fontSize: 15)),
+                if (b.trailing != null) ...[
+                  const SizedBox(width: 12),
+                  b.trailing!,
+                ],
               ],
-            ],
-          );
+            );
+          }
+
+          return const SizedBox();
         },
-        onSelected: (b) => b.onPressed?.call(),
+        onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
