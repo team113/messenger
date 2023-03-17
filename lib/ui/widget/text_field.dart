@@ -410,7 +410,7 @@ class TextFieldState extends ReactiveFieldState {
     if (onChanged != null) {
       controller.addListener(() {
         if (debounceTimer?.isActive ?? false) debounceTimer!.cancel();
-        debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+        debounceTimer = Timer(const Duration(milliseconds: 500), () {
           changed.value = controller.text != _previousSubmit;
           onChanged?.call(this);
         });
