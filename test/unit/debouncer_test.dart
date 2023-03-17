@@ -27,7 +27,7 @@ void main() {
         },
       );
       state.controller.text = 'zhorenty';
-      await Future.delayed(const Duration(milliseconds: 900));
+      await Future.delayed(const Duration(milliseconds: 400));
       expect(state.changed.value, false);
       await Future.delayed(const Duration(milliseconds: 150));
       expect(state.changed.value, true);
