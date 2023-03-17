@@ -431,8 +431,8 @@ class _ChatViewState extends State<ChatView>
                                     final Style style =
                                         Theme.of(context).extension<Style>()!;
                                     return AnimatedSizeAndFade.showHide(
-                                      show: c.paid &&
-                                          c.paidDisclaimerDismissed.value,
+                                      show: c.paidDisclaimerDismissed.value &&
+                                          c.paid,
                                       child: WidgetButton(
                                         onPressed: () {
                                           c.paidDisclaimerDismissed.value =
