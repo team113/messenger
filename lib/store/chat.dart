@@ -256,7 +256,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> createMonologChat([ChatName? name]) =>
+  Future<void> createMonologChat({ChatName? name}) =>
       _graphQlProvider.createMonologChat(name);
 
   @override

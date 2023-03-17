@@ -74,7 +74,7 @@ abstract class AbstractChatRepository {
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});
 
   /// Creates a [Chat]-monolog for the authenticated [MyUser].
-  Future<void> createMonologChat([ChatName? name]);
+  Future<void> createMonologChat({ChatName? name});
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
