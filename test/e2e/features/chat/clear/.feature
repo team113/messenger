@@ -15,20 +15,18 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: Clear chat
 
-  Scenario: Blacklisted user cannot send me a message
+  Scenario: User clears chat
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I wait until `HomeView` is present
+    And I am in chat with Bob
+    And I see some messages in chat
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` until `Block` is present
-    And I tap `Block` button
+    When I open chat's info
+    And I scroll `ChatInfoScrollable` until `ClearHistoryButton` is present
+    And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
-    Then Bob sends message to me and receives blacklisted exception
-
-    When I scroll `UserScrollable` until `Unblock` is present
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    And I return to previous page
+    Then I see no messages in chat

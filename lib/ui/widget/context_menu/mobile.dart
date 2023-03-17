@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -46,8 +47,8 @@ class FloatingContextMenu extends StatefulWidget {
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
 
-  /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s representing actions of this [FloatingContextMenu].
+  final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
@@ -128,12 +129,16 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         unconstrained: widget.unconstrained,
         onClosed: () {
           widget.onClosed?.call();
-          _entry?.remove();
-          _entry = null;
 
-          if (mounted) {
-            setState(() {});
-          }
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (_entry?.mounted == true) {
+              _entry?.remove();
+              _entry = null;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          });
         },
         child: widget.child,
       );
@@ -172,8 +177,8 @@ class _AnimatedMenu extends StatefulWidget {
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
 
-  /// [ContextMenuButton]s to display in this [_AnimatedMenu].
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s to display in this [_AnimatedMenu].
+  final List<ContextMenuItem> actions;
 
   /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
@@ -237,6 +242,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _fading.dispose();
+    super.dispose();
   }
 
   @override
@@ -424,17 +435,19 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     List<Widget> widgets = [];
 
     for (int i = 0; i < widget.actions.length; ++i) {
-      widgets.add(widget.actions[i]);
+      if (widget.actions[i] is! ContextMenuDivider) {
+        widgets.add(widget.actions[i]);
 
-      // Add a divider, if required.
-      if (i < widget.actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
+        // Add a divider, if required.
+        if (i < widget.actions.length - 1) {
+          widgets.add(
+            Container(
+              color: const Color(0x11000000),
+              height: 1,
+              width: double.infinity,
+            ),
+          );
+        }
       }
     }
 

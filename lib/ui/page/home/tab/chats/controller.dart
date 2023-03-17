@@ -52,7 +52,8 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException;
+        UnfavoriteChatException,
+        ClearChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
@@ -97,6 +98,12 @@ class ChatsTabController extends GetxController {
   /// - `status.isEmpty`, meaning the query has not yet started.
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// Indicator whether multiple [Chat]s selection is active.
+  final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatId]s of the selected [Chat]s.
+  final RxList<ChatId> selectedChats = RxList();
 
   /// Indicator whether an ongoing reordering is happening or not.
   ///
@@ -309,6 +316,31 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Hides the [selectedChats], clearing their histories as well if [clear] is
+  /// `true`.
+  Future<void> hideChats([bool clear = false]) async {
+    selecting.value = false;
+    router.navigation.value = !selecting.value;
+
+    try {
+      final Iterable<Future> futures = [
+        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
+        ...selectedChats.map((e) => _chatService.hideChat(e)),
+      ];
+
+      await Future.wait(futures);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
+    }
+  }
+
   /// Unmutes a [Chat] identified by the provided [id].
   Future<void> unmuteChat(ChatId id) async {
     try {
@@ -445,6 +477,23 @@ class ChatsTabController extends GetxController {
       rethrow;
     } finally {
       creatingStatus.value = RxStatus.empty();
+    }
+  }
+
+  /// Toggles the [Chat]s selection.
+  void toggleSelecting() {
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+    selectedChats.clear();
+  }
+
+  /// Selects or unselects the provided [chat], meaning adding or removing it
+  /// from the [selectedChats].
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat.id)) {
+      selectedChats.remove(chat.id);
+    } else {
+      selectedChats.add(chat.id);
     }
   }
 

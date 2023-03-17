@@ -410,7 +410,10 @@ class _ChatViewState extends State<ChatView>
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
                                 return Center(
-                                  child: Text('label_no_messages'.l10n),
+                                  child: Text(
+                                    key: const Key('NoMessages'),
+                                    'label_no_messages'.l10n,
+                                  ),
                                 );
                               }
                               if (c.chat!.status.value.isLoading) {
