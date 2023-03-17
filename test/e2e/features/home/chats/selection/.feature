@@ -15,20 +15,25 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: Chats selection
 
-  Scenario: Blacklisted user cannot send me a message
+  Scenario: User selects and deletes chats
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
-    And I wait until `HomeView` is present
+    And users Bob and Charlie
+    And I have "Alice and Bob" group with Bob
+    And I have "Alice and Charlie" group with Charlie
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` until `Block` is present
-    And I tap `Block` button
+    When I long press "Alice and Bob" chat
+    And I tap `SelectChatButton` button
+    Then I see "Alice and Bob" chat as unselected
+    And I see "Alice and Charlie" chat as unselected
+
+    When I tap "Alice and Bob" chat
+    Then I see "Alice and Bob" chat as selected
+    When I tap "Alice and Charlie" chat
+    Then I see "Alice and Charlie" chat as selected
+
+    When I tap `DeleteChats` button
     And I tap `Proceed` button
-    Then Bob sends message to me and receives blacklisted exception
-
-    When I scroll `UserScrollable` until `Unblock` is present
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    Then I wait until "Alice and Bob" chat is absent
+    And I wait until "Alice and Charlie" chat is absent

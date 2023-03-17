@@ -36,11 +36,13 @@ import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
+import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
 import 'parameters/search_category.dart';
+import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
@@ -66,8 +68,11 @@ import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
+import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
+import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
+import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
@@ -77,7 +82,9 @@ import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
+import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
@@ -91,6 +98,7 @@ import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_chat.dart';
+import 'steps/wait_until_contact.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
@@ -142,9 +150,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
+        seeChatMessages,
         seeChatPosition,
+        seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
+        seeContactSelection,
         seeDraftInDialog,
         seeUserInSearchResults,
         seesAs,
@@ -154,6 +165,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsMessageToMe,
         sendsMessageWithException,
         signInAs,
+        tapChat,
+        tapContact,
         tapDropdownItem,
         tapText,
         tapUserInSearchResults,
@@ -163,6 +176,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilAttachmentExists,
         untilAttachmentFetched,
         untilChatExists,
+        untilContactExists,
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
@@ -197,10 +211,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
+        IterableAmountParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
         SearchCategoryParameter(),
+        SelectionStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

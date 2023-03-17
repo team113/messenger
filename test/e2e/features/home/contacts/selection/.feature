@@ -15,20 +15,26 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: Contacts selection
 
-  Scenario: Blacklisted user cannot send me a message
+  Scenario: User selects and deletes contacts
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
+    And users Bob and Charlie
+    And contacts Bob and Charlie
     And I wait until `HomeView` is present
+    And I tap `ContactsButton` button
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` until `Block` is present
-    And I tap `Block` button
+    When I long press "Bob" contact
+    And I tap `SelectContactButton` button
+    Then I see "Bob" contact as unselected
+    And I see "Charlie" contact as unselected
+
+    When I tap "Bob" contact
+    Then I see "Bob" contact as selected
+    When I tap "Charlie" contact
+    Then I see "Charlie" contact as selected
+
+    When I tap `DeleteContacts` button
     And I tap `Proceed` button
-    Then Bob sends message to me and receives blacklisted exception
-
-    When I scroll `UserScrollable` until `Unblock` is present
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    Then I wait until "Bob" contact is absent
+    And I wait until "Charlie" contact is absent
