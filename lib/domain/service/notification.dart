@@ -213,7 +213,8 @@ class NotificationService extends DisposableService {
       NotificationSettings notificationSettings =
           await FirebaseMessaging.instance.requestPermission();
 
-      if (notificationSettings.alert == AppleNotificationSetting.enabled) {
+      if (notificationSettings.authorizationStatus ==
+          AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
           vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
         );
