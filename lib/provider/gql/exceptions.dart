@@ -1513,6 +1513,29 @@ class UnblacklistUserException
   }
 }
 
+/// Exception of `Mutation.clearChat` described in the [code].
+class ClearChatException with LocalizedExceptionMixin implements Exception {
+  const ClearChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ClearChatErrorCode code;
+
+  @override
+  String toString() => 'ClearChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ClearChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case ClearChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ClearChatErrorCode.unknownChatItem:
+        return 'err_unknown_chat_item'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.registerFcmDevice` described in the [code].
 class RegisterFcmDeviceException
     with LocalizedExceptionMixin
