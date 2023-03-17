@@ -195,6 +195,7 @@ class ContactsTabView extends StatelessWidget {
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
+                      key: const Key('SearchScrollable'),
                       controller: c.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
