@@ -149,7 +149,6 @@ class ChangePasswordController extends GetxController {
               myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
           newPassword: UserPassword(newPassword.text),
         );
-        hasPassword = myUser.value?.hasPassword ?? false;
         stage.value = hadPassword
             ? ChangePasswordFlowStage.changed
             : ChangePasswordFlowStage.set;
