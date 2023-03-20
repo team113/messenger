@@ -1305,6 +1305,10 @@ class _ChatViewState extends State<ChatView>
     } else if (element is PaidElement) {
       return _paidElement(c, element.messages, element.calls);
     } else if (element is FeeElement) {
+      if (!element.fromMe) {
+        return SizedBox(height: 100);
+      }
+
       final bool fromMe = element.fromMe;
       final Style style = Theme.of(context).extension<Style>()!;
 

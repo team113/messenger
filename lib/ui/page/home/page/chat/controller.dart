@@ -715,11 +715,11 @@ class ChatController extends GetxController {
       }
 
       if (paid) {
-        final oursFee = FeeElement(true);
-        elements[oursFee.id] = oursFee;
+        // final oursFee = FeeElement(true);
+        // elements[oursFee.id] = oursFee;
 
-        // final theirFee = FeeElement(false);
-        // elements[theirFee.id] = theirFee;
+        final theirFee = FeeElement(false);
+        elements[theirFee.id] = theirFee;
       }
 
       // if (chat?.messageCost != 0 || chat?.callCost != 0) {
