@@ -526,3 +526,31 @@ class Style extends ThemeExtension<Style> {
     );
   }
 }
+
+class AppColors extends ThemeExtension<AppColors> {
+  AppColors({required this.cardSelectedColor});
+
+  /// [Color] of the modal background barrier color.
+  final Color cardSelectedColor;
+
+  @override
+  ThemeExtension<AppColors> copyWith({
+    Color? cardSelectedColor,
+  }) {
+    return AppColors(
+      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
+    );
+  }
+
+  @override
+  ThemeExtension<AppColors> lerp(ThemeExtension<AppColors>? other, double t) {
+    if (other is! AppColors) {
+      return this;
+    }
+
+    return AppColors(
+      cardSelectedColor:
+          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
+    );
+  }
+}
