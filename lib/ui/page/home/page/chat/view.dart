@@ -243,20 +243,20 @@ class _ChatViewState extends State<ChatView>
                             WidgetButton(
                               onPressed: c.paid
                                   ? () {
-                                      c.paidDisclaimer.value = true;
-                                      c.confirmAction = null;
+                                      // c.paidDisclaimer.value = true;
+                                      // c.confirmAction = null;
                                     }
                                   : null,
                               child: Transform.translate(
                                 offset: const Offset(0, 0),
                                 child: SvgLoader.asset(
-                                  'assets/icons/paid_chat.svg',
-                                  width: 20,
-                                  height: 0,
+                                  'assets/icons/savings.svg',
+                                  width: 24,
+                                  height: 24,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 28),
+                            const SizedBox(width: 29),
                           ],
                           if (c.chat!.chat.value.ongoingCall == null) ...[
                             if (!c.paid || constraints.maxWidth > 400) ...[
@@ -854,22 +854,39 @@ class _ChatViewState extends State<ChatView>
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: style.cardRadius.topLeft,
-                                      topRight: style.cardRadius.topRight,
-                                    ),
-                                    color: Colors.white,
-                                  ),
-                                  child: Text(
-                                    'Askldjskldjsqkdjqw',
-                                    style: style.boldBody,
-                                  ),
-                                ),
+                                // Container(
+                                //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                //   padding:
+                                //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                                //   decoration: BoxDecoration(
+                                //     borderRadius: BorderRadius.only(
+                                //       topLeft: style.cardRadius.topLeft,
+                                //       topRight: style.cardRadius.topRight,
+                                //     ),
+                                //     color: style.readMessageColor,
+                                //   ),
+                                //   child: Text(
+                                //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
+                                //     // style: style.boldBody,
+                                //     style: style.systemMessageStyle,
+                                //   ),
+                                // ),
+                                // Container(
+                                //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                //   padding:
+                                //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                                //   decoration: BoxDecoration(
+                                //     borderRadius: BorderRadius.only(
+                                //       topLeft: style.cardRadius.topLeft,
+                                //       topRight: style.cardRadius.topRight,
+                                //     ),
+                                //     color: Colors.white,
+                                //   ),
+                                //   child: Text(
+                                //     'Askldjskldjsqkdjqw',
+                                //     style: style.boldBody,
+                                //   ),
+                                // ),
                                 WidgetButton(
                                   onPressed: () {
                                     c.paidDisclaimer.value = false;
@@ -913,23 +930,24 @@ class _ChatViewState extends State<ChatView>
                                       18,
                                     ),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: style.cardRadius.bottomLeft,
-                                        bottomRight:
-                                            style.cardRadius.bottomRight,
-                                      ),
+                                      borderRadius: style.cardRadius,
+                                      // borderRadius: BorderRadius.only(
+                                      //   bottomLeft: style.cardRadius.bottomLeft,
+                                      //   bottomRight:
+                                      //       style.cardRadius.bottomRight,
+                                      // ),
                                       border: style.systemMessageBorder,
                                       color: style.systemMessageColor,
                                     ),
                                     child: Column(
                                       children: [
+                                        // Text(
+                                        //   'Платный чат',
+                                        //   style: style.systemMessageStyle,
+                                        // ),
+                                        // const SizedBox(height: 8),
                                         Text(
-                                          'Платный чат',
-                                          style: style.systemMessageStyle,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'kirey установил плату за: отправку сообщения - \$5, совершение звонка - \$5/min',
+                                          'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
                                           style: style.systemMessageStyle,
                                         ),
                                         const SizedBox(height: 8),
