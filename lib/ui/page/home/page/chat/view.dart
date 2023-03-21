@@ -376,54 +376,60 @@ class _ChatViewState extends State<ChatView>
                                 );
                               }
                             },
+                            onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                            onPointerCancel: (_) =>
+                                c.scrollOffset = Offset.zero,
                             child: RawGestureDetector(
                               behavior: HitTestBehavior.translucent,
                               gestures: {
-                                AllowMultipleHorizontalDragGestureRecognizer:
-                                    GestureRecognizerFactoryWithHandlers<
-                                        AllowMultipleHorizontalDragGestureRecognizer>(
-                                  () =>
-                                      AllowMultipleHorizontalDragGestureRecognizer(),
-                                  (AllowMultipleHorizontalDragGestureRecognizer
-                                      instance) {
-                                    if (c.settings.value?.timelineEnabled ==
-                                        true) {
-                                      instance.onUpdate = (d) {
-                                        if (!c.isItemDragged.value &&
-                                            c.scrollOffset.dy.abs() < 7 &&
-                                            c.scrollOffset.dx.abs() > 7) {
-                                          double value = (_animation.value -
-                                                  d.delta.dx / 100)
-                                              .clamp(0, 1);
+                                if (c.isSelecting.isFalse)
+                                  AllowMultipleHorizontalDragGestureRecognizer:
+                                      GestureRecognizerFactoryWithHandlers<
+                                          AllowMultipleHorizontalDragGestureRecognizer>(
+                                    () =>
+                                        AllowMultipleHorizontalDragGestureRecognizer(),
+                                    (AllowMultipleHorizontalDragGestureRecognizer
+                                        instance) {
+                                      if (c.settings.value?.timelineEnabled ==
+                                          true) {
+                                        instance.onUpdate = (d) {
+                                          if (!c.isItemDragged.value &&
+                                              c.scrollOffset.dy.abs() < 7 &&
+                                              c.scrollOffset.dx.abs() > 7 &&
+                                              c.isSelecting.isFalse) {
+                                            double value = (_animation.value -
+                                                    d.delta.dx / 100)
+                                                .clamp(0, 1);
 
-                                          if (_animation.value != 1 &&
-                                                  value == 1 ||
-                                              _animation.value != 0 &&
-                                                  value == 0) {
-                                            HapticFeedback.selectionClick();
+                                            if (_animation.value != 1 &&
+                                                    value == 1 ||
+                                                _animation.value != 0 &&
+                                                    value == 0) {
+                                              HapticFeedback.selectionClick();
+                                            }
+
+                                            _animation.value =
+                                                value.clamp(0, 1);
                                           }
+                                        };
 
-                                          _animation.value = value.clamp(0, 1);
-                                        }
-                                      };
-
-                                      instance.onEnd = (d) async {
-                                        c.scrollOffset = Offset.zero;
-                                        if (!c.isItemDragged.value &&
-                                            _animation.value != 1 &&
-                                            _animation.value != 0) {
-                                          if (_animation.value >= 0.5) {
-                                            await _animation.forward();
-                                            HapticFeedback.selectionClick();
-                                          } else {
-                                            await _animation.reverse();
-                                            HapticFeedback.selectionClick();
+                                        instance.onEnd = (d) async {
+                                          c.scrollOffset = Offset.zero;
+                                          if (!c.isItemDragged.value &&
+                                              _animation.value != 1 &&
+                                              _animation.value != 0) {
+                                            if (_animation.value >= 0.5) {
+                                              await _animation.forward();
+                                              HapticFeedback.selectionClick();
+                                            } else {
+                                              await _animation.reverse();
+                                              HapticFeedback.selectionClick();
+                                            }
                                           }
-                                        }
-                                      };
-                                    }
-                                  },
-                                )
+                                        };
+                                      }
+                                    },
+                                  )
                               },
                               child: Column(
                                 children: [
@@ -438,6 +444,20 @@ class _ChatViewState extends State<ChatView>
                                           c.paidDisclaimerDismissed.value =
                                               false;
                                           c.paidDisclaimer.value = true;
+
+                                          if (c.feeElement != null) {
+                                            c.elements.remove(c.feeElement!.id);
+                                            c.feeElement = null;
+                                          }
+
+                                          c.feeElement = FeeElement(false);
+                                          c.elements[c.feeElement!.id] =
+                                              c.feeElement!;
+                                          c.listController.animateTo(
+                                            c.listController.offset + 100,
+                                            duration: 200.milliseconds,
+                                            curve: Curves.ease,
+                                          );
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(8),
@@ -475,10 +495,10 @@ class _ChatViewState extends State<ChatView>
                                           child: ContextMenuInterceptor(
                                               child: Container()),
                                         ),
-                                        Scrollbar(
-                                          controller: c.listController,
-                                          child: Obx(() {
-                                            return FlutterListView(
+                                        Obx(() {
+                                          final Widget child = Scrollbar(
+                                            controller: c.listController,
+                                            child: FlutterListView(
                                               key: const Key('MessagesList'),
                                               controller: c.listController,
                                               physics: c.isHorizontalScroll
@@ -509,9 +529,25 @@ class _ChatViewState extends State<ChatView>
                                                 initOffset: c.initOffset,
                                                 initOffsetBasedOnBottom: false,
                                               ),
-                                            );
-                                          }),
-                                        ),
+                                            ),
+                                          );
+
+                                          if (PlatformUtils.isMobile) {
+                                            return child;
+                                          }
+
+                                          return SelectionArea(
+                                            onSelectionChanged: (a) =>
+                                                c.selection.value = a,
+                                            contextMenuBuilder: (_, __) =>
+                                                const SizedBox(),
+                                            selectionControls:
+                                                EmptyTextSelectionControls(),
+                                            child: ContextMenuInterceptor(
+                                              child: child,
+                                            ),
+                                          );
+                                        }),
                                         Obx(() {
                                           if ((c.chat!.status.value.isSuccess ||
                                                   c.chat!.status.value
@@ -904,6 +940,11 @@ class _ChatViewState extends State<ChatView>
                                     //   );
                                     // });
 
+                                    if (c.feeElement != null) {
+                                      c.elements.remove(c.feeElement!.id);
+                                      c.feeElement = null;
+                                    }
+
                                     switch (c.confirmAction) {
                                       case ConfirmAction.audioCall:
                                         c.call(false);
@@ -1145,7 +1186,13 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: c.copyText,
+            onCopy: (s) {
+              if (c.selection.value == null) {
+                c.copyText(s);
+              } else {
+                c.copyText(c.selection.value!.plainText);
+              }
+            },
             onRepliedTap: (q) async {
               if (q.original != null) {
                 await c.animateTo(q.original!.id);
@@ -1160,6 +1207,7 @@ class _ChatViewState extends State<ChatView>
               await c.chat?.updateAttachments(e.value);
               await Future.delayed(Duration.zero);
             },
+            onSelecting: (s) => c.isSelecting.value = s,
           ),
         ),
       );
@@ -1266,9 +1314,11 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val, c, i);
+      return SelectionContainer.disabled(
+        child: _timeLabel(element.id.at.val, c, i),
+      );
     } else if (element is UnreadMessagesElement) {
-      return _unreadLabel(context, c);
+      return SelectionContainer.disabled(child: _unreadLabel(context, c));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
@@ -1306,7 +1356,7 @@ class _ChatViewState extends State<ChatView>
       return _paidElement(c, element.messages, element.calls);
     } else if (element is FeeElement) {
       if (!element.fromMe) {
-        return SizedBox(height: 100);
+        return const SizedBox(height: 100);
       }
 
       final bool fromMe = element.fromMe;
@@ -1833,6 +1883,11 @@ class _ChatViewState extends State<ChatView>
                           onPressed: () {
                             c.paidDisclaimer.value = false;
                             c.paidDisclaimerDismissed.value = true;
+
+                            if (c.feeElement != null) {
+                              c.elements.remove(c.feeElement!.id);
+                              c.feeElement = null;
+                            }
 
                             switch (c.confirmAction) {
                               case ConfirmAction.audioCall:

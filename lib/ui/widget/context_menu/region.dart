@@ -123,6 +123,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
+  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  OverlayEntry? _entry;
+
   @override
   Widget build(BuildContext context) {
     Widget builder() {
@@ -191,7 +194,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   onLongPressStart: widget.enableLongTap
                       ? (d) => _show(context, d.globalPosition)
                       : null,
-                  child: child,
+                  child: widget.builder == null
+                      ? child
+                      : Builder(builder: (_) => widget.builder!(_displayed)),
                 ),
         ),
       );
@@ -205,15 +210,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     if (widget.actions.isEmpty) {
       return;
     }
-
-    ContextMenuRegion.displayed.value = widget.id;
-
-    _displayed = true;
-    if (widget.indicateOpenedMenu) {
-      _darkened = true;
-    }
-
-    setState(() {});
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -259,18 +255,37 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
-      await showDialog(
-        barrierColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return LayoutBuilder(builder: (context, constraints) {
-            double qx = 1, qy = 1;
-            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-            Alignment alignment = Alignment(qx, qy);
+      ContextMenuRegion.displayed.value = widget.id;
 
-            return Listener(
-              onPointerUp: (d) => Navigator.of(context).pop(),
+      _displayed = true;
+      if (widget.indicateOpenedMenu) {
+        _darkened = true;
+      }
+
+      setState(() {});
+
+      _entry = OverlayEntry(builder: (_) {
+        return LayoutBuilder(builder: (_, constraints) {
+          double qx = 1, qy = 1;
+          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+          final Alignment alignment = Alignment(qx, qy);
+
+          return Listener(
+            onPointerUp: (d) {
+              _entry?.remove();
+
+              _displayed = false;
+              if (widget.indicateOpenedMenu) {
+                _darkened = false;
+              }
+
+              ContextMenuRegion.displayed.value = null;
+
+              setState(() {});
+            },
+            child: Container(
+              color: Colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -287,18 +302,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   )
                 ],
               ),
-            );
-          });
-        },
-      );
+            ),
+          );
+        });
+      });
+
+      Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
 
-    _displayed = false;
-    if (widget.indicateOpenedMenu) {
-      _darkened = false;
-    }
-
-    ContextMenuRegion.displayed.value = null;
     setState(() {});
   }
 }
