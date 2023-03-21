@@ -31,17 +31,20 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
+        - Incoming ringtone fading in. ([#375], [#367])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
+[#367]: /../../issues/367
 [#270]: /../../pull/270
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
+[#375]: /../../pull/375
 
 
 

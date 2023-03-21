@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
@@ -50,7 +52,12 @@ final StepDefinitionGeneric tapUserInSearchResults =
                 .findByKeySkipOffstage('SearchContact_$id');
 
             if (await context.world.appDriver.isPresent(finder)) {
-              await context.world.appDriver.scrollIntoView(finder);
+              // await context.world.appDriver.scrollIntoView(finder);
+              await context.world.appDriver.scrollUntilVisible(
+                finder,
+                scrollable: find.byKey(const Key('SearchScrollable')),
+                dy: 100,
+              );
               await context.world.appDriver.tap(
                 finder,
                 timeout: context.configuration.timeout,
