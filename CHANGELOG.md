@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
         - Multiple chats selection. ([#361], [#348])
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+- Push notifications. ([#202], [#201])
 
 ### Changed
 
@@ -32,6 +33,8 @@ All user visible changes to this project will be documented in this file. This p
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
 
+[#201]: /../../issues/201
+[#202]: /../../pull/202
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#367]: /../../issues/367
