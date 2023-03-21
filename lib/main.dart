@@ -277,12 +277,13 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
             backgroundMode: true,
           );
 
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.remove('answeredCall');
+
           callKeep.on(
             CallKeepPerformAnswerCallAction(),
             (CallKeepPerformAnswerCallAction event) async {
-              final SharedPreferences prefs =
-                  await SharedPreferences.getInstance();
-              await prefs.setString('answeredCall', event.callUUID!);
+              await prefs.setString('answeredCall', message.data['chatId']);
               await callKeep.rejectCall(event.callUUID!);
               await callKeep.backToForeground();
             },
@@ -291,8 +292,6 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
           callKeep.on(
             CallKeepPerformEndCallAction(),
             (CallKeepPerformEndCallAction event) async {
-              final SharedPreferences prefs =
-                  await SharedPreferences.getInstance();
               if (prefs.getString('answeredCall') != event.callUUID!) {
                 await provider!.declineChatCall(ChatId(event.callUUID!));
               }
@@ -313,6 +312,7 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
       } finally {
         provider?.disconnect();
         chatEventsSubscription?.cancel(immediate: true);
+        callKeep.rejectCall(message.data['chatId']);
         await sessionProvider?.close();
         await Hive.close();
       }

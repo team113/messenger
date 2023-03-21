@@ -409,8 +409,10 @@ class CallRepository extends DisposableInterface
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
-  Stream<IncomingChatCallsTopEvent> incomingEvents(int count) =>
-      _graphQlProvider.incomingCallsTopEvents(count).asyncExpand((event) async* {
+  Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) =>
+      _graphQlProvider
+          .incomingCallsTopEvents(count)
+          .asyncExpand((event) async* {
         var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
 
@@ -604,7 +606,7 @@ class CallRepository extends DisposableInterface
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) {
     _events?.cancel();
-    _events = incomingEvents(count).listen(
+    _events = _incomingEvents(count).listen(
       (e) async {
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:

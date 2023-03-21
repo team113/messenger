@@ -231,8 +231,9 @@ class ChatRepository implements AbstractChatRepository {
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      final ChatData chat =
-          _chat(await _graphQlProvider.createDialogChat(chatId.userId));
+      final ChatData chat = _chat(
+        await _graphQlProvider.createDialogChat(chatId.userId),
+      );
 
       return _putEntry(chat);
     }
