@@ -23,8 +23,8 @@ library main;
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:callkeep/callkeep.dart';
-import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -42,8 +42,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'api/backend/schema.dart';
 import 'config.dart';
 import 'domain/model/chat.dart';
+import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
@@ -54,13 +56,14 @@ import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
-import 'store/call.dart';
-import 'store/event/incoming_chat_call.dart';
+import 'store/chat.dart';
+import 'store/event/chat.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
+import 'util/stream_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
@@ -106,7 +109,10 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
+    if ((PlatformUtils.isWeb ||
+            PlatformUtils.isMobile ||
+            PlatformUtils.isMacOS) &&
+        !WebUtils.isPopup) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -187,96 +193,129 @@ void _handleMessage(RemoteMessage message) {
 /// Must be a top level function.
 @pragma('vm:entry-point')
 Future<void> _backgroundHandler(RemoteMessage message) async {
-  if (message.notification?.android?.tag?.endsWith('_call') == true) {
+  if (message.notification?.android?.tag?.endsWith('_call') == true &&
+      message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
 
     if (await callKeep.hasPhoneAccount()) {
       await Config.init();
 
-      await Hive.initFlutter('hive');
-      var sessionProvider = SessionDataHiveProvider();
-      await sessionProvider.init();
+      SessionDataHiveProvider? sessionProvider;
+      GraphQlProvider? provider;
+      StreamQueue<ChatEventsEvent>? chatEventsSubscription;
 
-      final GraphQlProvider provider = GraphQlProvider();
-      provider.token = sessionProvider.getCredentials()?.session.token;
-      provider.reconnect();
+      try {
+        await Hive.initFlutter('hive');
+        sessionProvider = SessionDataHiveProvider();
+        await sessionProvider.init();
 
-      await sessionProvider.close();
+        Credentials? credentials = sessionProvider.getCredentials();
+        await sessionProvider.close();
 
-      StreamSubscription callsTopEventSubscriptions =
-          CallRepository.incomingEvents(3, provider, null).listen((e) {
-        switch (e.kind) {
-          case IncomingChatCallsTopEventKind.initialized:
-            // No-op.
-            break;
+        if (credentials != null) {
+          provider = GraphQlProvider();
+          provider.token = credentials.session.token;
+          provider.reconnect();
 
-          case IncomingChatCallsTopEventKind.list:
-            e as IncomingChatCallsTop;
-            if (e.list.none((c) => c.chatId.val == message.data['chatId'])) {
-              callKeep.rejectCall(message.data['chatId']);
-            }
-            break;
-
-          case IncomingChatCallsTopEventKind.added:
-            // No-op.
-            break;
-
-          case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            if (e.call.chatId.val == message.data['chatId']) {
-              callKeep.endCall(message.data['chatId']);
-            }
-            break;
-        }
-      });
-
-      await callKeep.setup(
-        null,
-        {
-          'ios': {'appName': 'Gapopa'},
-          'android': {
-            'alertTitle': 'label_call_permissions_title'.l10n,
-            'alertDescription': 'label_call_permissions_description'.l10n,
-            'cancelButton': 'btn_dismiss'.l10n,
-            'okButton': 'btn_allow'.l10n,
-            'foregroundService': {
-              'channelId': 'com.team113.messenger',
-              'channelName': 'Foreground calls service',
-              'notificationTitle': 'My app is running on background',
-              'notificationIcon': 'mipmap/ic_notification_launcher',
+          chatEventsSubscription = StreamQueue(provider
+              .chatEvents(ChatId(message.data['chatId']), () => null)
+              .asyncExpand(
+            (event) async* {
+              var events =
+                  ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+              if (events.$$typename == 'ChatEventsVersioned') {
+                var mixin = events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+                yield ChatEventsEvent(
+                  ChatEventsVersioned(
+                    mixin.events
+                        .map((e) => ChatRepository.chatEvent(e, null))
+                        .toList(),
+                    mixin.ver,
+                  ),
+                );
+              }
             },
-            'additionalPermissions': <String>[],
-          },
-        },
-        backgroundMode: true,
-      );
+          ));
+          chatEventsSubscription.execute((event) {
+            for (var e in event.event.events) {
+              if (e.kind == ChatEventKind.callDeclined) {
+                e as EventChatCallDeclined;
+                if (e.user.id == credentials.userId) {
+                  callKeep.rejectCall(message.data['chatId']);
+                }
+              } else if (e.kind == ChatEventKind.callFinished) {
+                e as EventChatCallFinished;
+                callKeep.rejectCall(message.data['chatId']);
+              } else if (e.kind == ChatEventKind.callMemberJoined) {
+                e as EventChatCallMemberJoined;
+                if (e.user.id == credentials.userId) {
+                  callKeep.rejectCall(message.data['chatId']);
+                }
+              }
+            }
+          });
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await callKeep.setup(
+            null,
+            {
+              'ios': {'appName': 'Gapopa'},
+              'android': {
+                'alertTitle': 'label_call_permissions_title'.l10n,
+                'alertDescription': 'label_call_permissions_description'.l10n,
+                'cancelButton': 'btn_dismiss'.l10n,
+                'okButton': 'btn_allow'.l10n,
+                'foregroundService': {
+                  'channelId': 'com.team113.messenger',
+                  'channelName': 'Foreground calls service',
+                  'notificationTitle': 'My app is running on background',
+                  'notificationIcon': 'mipmap/ic_notification_launcher',
+                },
+                'additionalPermissions': <String>[],
+              },
+            },
+            backgroundMode: true,
+          );
 
-      callKeep.on(CallKeepPerformAnswerCallAction(),
-          (CallKeepPerformAnswerCallAction event) async {
-        await prefs.setString('answeredCall', event.callUUID!);
-        await callKeep.rejectCall(event.callUUID!);
-        await callKeep.backToForeground();
-      });
+          callKeep.on(
+            CallKeepPerformAnswerCallAction(),
+            (CallKeepPerformAnswerCallAction event) async {
+              final SharedPreferences prefs =
+                  await SharedPreferences.getInstance();
+              await prefs.setString('answeredCall', event.callUUID!);
+              await callKeep.rejectCall(event.callUUID!);
+              await callKeep.backToForeground();
+            },
+          );
 
-      callKeep.on(CallKeepPerformEndCallAction(),
-          (CallKeepPerformEndCallAction event) async {
-        if (prefs.getString('answeredCall') != event.callUUID!) {
-          await provider.declineChatCall(ChatId(event.callUUID!));
+          callKeep.on(
+            CallKeepPerformEndCallAction(),
+            (CallKeepPerformEndCallAction event) async {
+              final SharedPreferences prefs =
+                  await SharedPreferences.getInstance();
+              if (prefs.getString('answeredCall') != event.callUUID!) {
+                await provider!.declineChatCall(ChatId(event.callUUID!));
+              }
+
+              chatEventsSubscription!.cancel();
+              provider!.disconnect();
+              await Hive.close();
+            },
+          );
+
+          callKeep.displayIncomingCall(
+            message.data['chatId'],
+            message.notification?.title ?? 'gapopa',
+            localizedCallerName: message.notification?.title ?? 'gapopa',
+            handleType: 'generic',
+          );
         }
-
-        callsTopEventSubscriptions.cancel();
-        provider.disconnect();
+      } finally {
+        provider?.disconnect();
+        chatEventsSubscription?.cancel(immediate: true);
+        await sessionProvider?.close();
         await Hive.close();
-      });
-
-      callKeep.displayIncomingCall(
-        message.data['chatId'],
-        message.notification?.title ?? 'gapopa',
-        localizedCallerName: message.notification?.title ?? 'gapopa',
-        handleType: 'generic',
-      );
+      }
     }
   }
 }

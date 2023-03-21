@@ -1156,6 +1156,16 @@ abstract class UserGraphQlMixin {
   /// See Firebase Cloud Messaging documentation for how to generate
   /// `FcmRegistrationToken`s for Flutter and for JavaScript.
   ///
+  /// ### Localization
+  ///
+  /// You may provide the device's preferred locale via the Accept-Language HTTP
+  /// header, which will localize notifications to that device using the best
+  /// match of the supported locales.
+  ///
+  /// In order to change the locale of the device, you should re-register it
+  /// supplying the desired locale (use [unregisterFcmDevice], and then
+  /// [registerFcmDevice] once again).
+  ///
   /// ### Authentication
   ///
   /// Mandatory.
@@ -1167,13 +1177,30 @@ abstract class UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is registered already.
-  Future<void> registerFcmDevice(FcmRegistrationToken token) async {
+  Future<void> registerFcmDevice(
+      FcmRegistrationToken token, String? locale) async {
     final variables = RegisterFcmDeviceArguments(token: token);
-    await client.mutate(
-      MutationOptions(
-        operationName: 'RegisterFcmDevice',
-        document: RegisterFcmDeviceMutation(variables: variables).document,
-        variables: variables.toJson(),
+    final query = MutationOptions(
+      operationName: 'RegisterFcmDevice',
+      document: RegisterFcmDeviceMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': token,
+      }),
+      options: dio.Options(
+        contentType: 'multipart/form-data',
+        headers: {
+          if (locale != null) 'Accept-Language': locale,
+        },
       ),
       onException: (data) => RegisterFcmDeviceException(
           RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice

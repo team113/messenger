@@ -231,9 +231,8 @@ class ChatRepository implements AbstractChatRepository {
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      final ChatData chat = _chat(
-        await _graphQlProvider.createDialogChat(chatId.userId),
-      );
+      final ChatData chat =
+          _chat(await _graphQlProvider.createDialogChat(chatId.userId));
 
       return _putEntry(chat);
     }
@@ -783,7 +782,7 @@ class ChatRepository implements AbstractChatRepository {
               events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
           yield ChatEventsEvent(
             ChatEventsVersioned(
-              mixin.events.map((e) => chatEvent(e)).toList(),
+              mixin.events.map((e) => chatEvent(e, _userRepo)).toList(),
               mixin.ver,
             ),
           );
@@ -896,7 +895,10 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
-  ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
+  static ChatEvent chatEvent(
+    ChatEventsVersionedMixin$Events e,
+    UserRepository? userRepo,
+  ) {
     if (e.$$typename == 'EventChatCleared') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
       return EventChatCleared(e.chatId, node.at);
@@ -933,13 +935,13 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatTypingStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatTypingStarted(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatUnmuted') {
       return EventChatUnmuted(e.chatId);
     } else if (e.$$typename == 'EventChatTypingStopped') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatTypingStopped(
         e.chatId,
         node.user.toModel(),
@@ -982,7 +984,7 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatCallMemberLeft(
         e.chatId,
         node.user.toModel(),
@@ -990,7 +992,7 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatCallMemberJoined(
         e.chatId,
         node.user.toModel(),
@@ -999,7 +1001,7 @@ class ChatRepository implements AbstractChatRepository {
     } else if (e.$$typename == 'EventChatCallMemberRedialed') {
       var node =
           e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatCallMemberRedialed(
         e.chatId,
         node.at,
@@ -1016,7 +1018,7 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
-      _userRepo.put(node.byUser.toHive());
+      userRepo?.put(node.byUser.toHive());
       return EventChatRead(
         e.chatId,
         node.byUser.toModel(),
@@ -1024,7 +1026,7 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatCallDeclined(
         e.chatId,
         node.callId,
@@ -1050,7 +1052,7 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
-      _userRepo.put(node.user.toHive());
+      userRepo?.put(node.user.toHive());
       return EventChatCallMoved(
         e.chatId,
         node.callId,

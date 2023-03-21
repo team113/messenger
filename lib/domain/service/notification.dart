@@ -23,8 +23,10 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart' hide Response;
 
 import '/domain/model/fcm_registration_token.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -54,6 +56,9 @@ class NotificationService extends DisposableService {
 
   /// [StreamSubscription] on the [FirebaseMessaging.onMessage] stream.
   StreamSubscription? _foregroundSubscription;
+
+  /// [Worker] reacting on the [L10n.chosen] changes.
+  Worker? _localeWorker;
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
@@ -104,6 +109,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
+    _localeWorker?.dispose();
     _audioPlayer?.dispose();
     AudioCache.instance.clear('audio/notification.mp3');
   }
@@ -198,7 +204,10 @@ class NotificationService extends DisposableService {
 
   /// Initializes the [FirebaseMessaging] to receive push notifications.
   Future<void> _initPushNotifications() async {
-    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
+    if ((PlatformUtils.isWeb ||
+            PlatformUtils.isMobile ||
+            PlatformUtils.isMacOS) &&
+        !WebUtils.isPopup) {
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
         if (event.notification != null && event.notification?.title != null) {
           show(
@@ -213,14 +222,38 @@ class NotificationService extends DisposableService {
       NotificationSettings notificationSettings =
           await FirebaseMessaging.instance.requestPermission();
 
-      if (notificationSettings.alert == AppleNotificationSetting.enabled) {
+      if (notificationSettings.authorizationStatus ==
+          AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
           vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
         );
+        String? locale = L10n.chosen.value?.locale.toString();
 
         if (token != null) {
-          _graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
+          _graphQlProvider.registerFcmDevice(
+            FcmRegistrationToken(token),
+            locale,
+          );
         }
+
+        _localeWorker = ever(
+          L10n.chosen,
+          (chosen) async {
+            if (locale != chosen?.locale.toString()) {
+              locale = chosen?.locale.toString();
+
+              if (token != null) {
+                await _graphQlProvider
+                    .unregisterFcmDevice(FcmRegistrationToken(token!));
+
+                _graphQlProvider.registerFcmDevice(
+                  FcmRegistrationToken(token!),
+                  locale,
+                );
+              }
+            }
+          },
+        );
 
         _onTokenRefresh =
             FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
@@ -230,7 +263,10 @@ class NotificationService extends DisposableService {
           }
 
           token = fcmToken;
-          _graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+          _graphQlProvider.registerFcmDevice(
+            FcmRegistrationToken(token!),
+            locale,
+          );
         });
       }
     }

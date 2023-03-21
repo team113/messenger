@@ -1523,7 +1523,7 @@ class RegisterFcmDeviceException
   final RegisterFcmDeviceErrorCode code;
 
   @override
-  String toString() => 'UpdateChatAvatarException($code)';
+  String toString() => 'RegisterFcmDeviceException($code)';
 
   @override
   String toMessage() {
