@@ -1017,10 +1017,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     children: [
                       TextSpan(text: text),
-                      if (widget.displayTime && !timeInBubble)
-                        const WidgetSpan(
-                          child: SizedBox(width: 30, height: 20),
-                        ),
+                      if (widget.displayTime && !timeInBubble) ...[
+                        if (_fromMe)
+                          const WidgetSpan(
+                            child: SizedBox(width: 42, height: 20),
+                          )
+                        else
+                          const WidgetSpan(
+                            child: SizedBox(width: 30, height: 20),
+                          ),
+                      ],
                       // if (widget.displayTime && !timeInBubble)
                       //   WidgetSpan(
                       //     child: Opacity(

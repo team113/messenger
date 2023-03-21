@@ -202,6 +202,7 @@ class ChatController extends GetxController {
 
   late final RxBool paidDisclaimer;
   final RxBool paidDisclaimerDismissed = RxBool(false);
+  final RxBool paidBorder = RxBool(false);
 
   ConfirmAction? confirmAction;
 
@@ -331,6 +332,10 @@ class ChatController extends GetxController {
       onChanged: updateDraft,
       onSubmit: () async {
         if (paid && !paidDisclaimerDismissed.value) {
+          if (paidDisclaimer.value) {
+            paidBorder.value = true;
+          }
+
           paidDisclaimer.value = true;
           confirmAction = ConfirmAction.sendMessage;
           return;
@@ -446,6 +451,10 @@ class ChatController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     if (paid && !paidDisclaimerDismissed.value) {
+      if (paidDisclaimer.value) {
+        paidBorder.value = true;
+      }
+
       paidDisclaimer.value = true;
       confirmAction =
           withVideo ? ConfirmAction.videoCall : ConfirmAction.audioCall;
@@ -727,8 +736,8 @@ class ChatController extends GetxController {
         // final oursFee = FeeElement(true);
         // elements[oursFee.id] = oursFee;
 
-        feeElement = FeeElement(false);
-        elements[feeElement!.id] = feeElement!;
+        // feeElement = FeeElement(false);
+        // elements[feeElement!.id] = feeElement!;
       }
 
       // if (chat?.messageCost != 0 || chat?.callCost != 0) {

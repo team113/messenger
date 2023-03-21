@@ -250,9 +250,9 @@ class _ChatViewState extends State<ChatView>
                               child: Transform.translate(
                                 offset: const Offset(0, 0),
                                 child: SvgLoader.asset(
-                                  'assets/icons/savings.svg',
-                                  width: 24,
-                                  height: 24,
+                                  'assets/icons/get_paid5.svg',
+                                  width: 21.8,
+                                  height: 21.8,
                                 ),
                               ),
                             ),
@@ -260,33 +260,25 @@ class _ChatViewState extends State<ChatView>
                           ],
                           if (c.chat!.chat.value.ongoingCall == null) ...[
                             if (!c.paid || constraints.maxWidth > 400) ...[
-                              Obx(() {
-                                return WidgetButton(
-                                  onPressed: c.paidDisclaimer.value && c.paid
-                                      ? null
-                                      : () => c.call(true),
-                                  child: SvgLoader.asset(
-                                    // 'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
-                                    'assets/icons/chat_video_call.svg',
-                                    height: 17,
-                                  ),
-                                );
-                              }),
+                              WidgetButton(
+                                onPressed: () => c.call(true),
+                                child: SvgLoader.asset(
+                                  // 'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
+                                ),
+                              ),
                               const SizedBox(width: 28),
                             ],
-                            Obx(() {
-                              return WidgetButton(
-                                key: const Key('AudioCall'),
-                                onPressed: c.paidDisclaimer.value && c.paid
-                                    ? null
-                                    : () => c.call(false),
-                                child: SvgLoader.asset(
-                                  // 'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
-                                  'assets/icons/chat_audio_call.svg',
-                                  height: 19,
-                                ),
-                              );
-                            }),
+                            WidgetButton(
+                              key: const Key('AudioCall'),
+                              onPressed: () => c.call(false),
+                              child: SvgLoader.asset(
+                                // 'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
+                                'assets/icons/chat_audio_call.svg',
+                                height: 19,
+                              ),
+                            ),
                           ] else ...[
                             AnimatedSwitcher(
                               key: const Key('ActiveCallButton'),
@@ -436,29 +428,165 @@ class _ChatViewState extends State<ChatView>
                                   Obx(() {
                                     final Style style =
                                         Theme.of(context).extension<Style>()!;
+
+                                    void onPressed() {
+                                      c.paidDisclaimerDismissed.value = false;
+                                      c.paidDisclaimer.value = true;
+
+                                      // if (c.feeElement != null) {
+                                      //   c.elements.remove(c.feeElement!.id);
+                                      //   c.feeElement = null;
+                                      // }
+
+                                      // c.feeElement = FeeElement(false);
+                                      // c.elements[c.feeElement!.id] =
+                                      //     c.feeElement!;
+                                      // c.listController.animateTo(
+                                      //   c.listController.offset + 100,
+                                      //   duration: 200.milliseconds,
+                                      //   curve: Curves.ease,
+                                      // );
+                                    }
+
+                                    bool dummy =
+                                        c.paidDisclaimerDismissed.value;
+
+                                    if (true) {
+                                      return Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              margin: const EdgeInsets.only(
+                                                left: 6,
+                                                right: 6,
+                                                top: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                boxShadow: const [
+                                                  CustomBoxShadow(
+                                                    blurRadius: 8,
+                                                    color: Color(0x22000000),
+                                                  ),
+                                                ],
+                                                borderRadius: style.cardRadius,
+                                                border:
+                                                    style.systemMessageBorder,
+                                                color: style.systemMessageColor,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  'Закреплено сообщений: 1/3',
+                                                  style: style
+                                                      .systemMessageStyle
+                                                      .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          AnimatedSize(
+                                            duration: 200.milliseconds,
+                                            child: WidgetButton(
+                                              onPressed: onPressed,
+                                              child: c.paidDisclaimerDismissed
+                                                          .value &&
+                                                      c.paid
+                                                  ? Container(
+                                                      padding: const EdgeInsets
+                                                          .fromLTRB(
+                                                        12,
+                                                        8,
+                                                        12,
+                                                        8,
+                                                      ),
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                        left: 0,
+                                                        right: 6,
+                                                        top: 6,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            style.cardRadius,
+                                                        border: style
+                                                            .systemMessageBorder,
+                                                        color: style
+                                                            .systemMessageColor,
+                                                        boxShadow: const [
+                                                          CustomBoxShadow(
+                                                            blurRadius: 8,
+                                                            color: Color(
+                                                                0x22000000),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          '\$',
+                                                          style: style
+                                                              .systemMessageStyle
+                                                              .copyWith(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : const SizedBox(),
+                                            ),
+                                          ),
+                                          // AnimatedSizeAndFade.showHide(
+                                          //   show: c.paidDisclaimerDismissed
+                                          //           .value &&
+                                          //       c.paid,
+                                          //   child: WidgetButton(
+                                          //     onPressed: onPressed,
+                                          //     child: Container(
+                                          //       padding:
+                                          //           const EdgeInsets.all(8),
+                                          //       margin: const EdgeInsets.only(
+                                          //         left: 6,
+                                          //         right: 6,
+                                          //         top: 6,
+                                          //       ),
+                                          //       decoration: BoxDecoration(
+                                          //         borderRadius:
+                                          //             style.cardRadius,
+                                          //         border:
+                                          //             style.systemMessageBorder,
+                                          //         color:
+                                          //             style.systemMessageColor,
+                                          //       ),
+                                          //       child: Center(
+                                          //         child: Text(
+                                          //           '\$',
+                                          //           style: style
+                                          //               .systemMessageStyle
+                                          //               .copyWith(
+                                          //             color: Theme.of(context)
+                                          //                 .colorScheme
+                                          //                 .secondary,
+                                          //           ),
+                                          //         ),
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                        ],
+                                      );
+                                    }
+
                                     return AnimatedSizeAndFade.showHide(
                                       show: c.paidDisclaimerDismissed.value &&
                                           c.paid,
                                       child: WidgetButton(
-                                        onPressed: () {
-                                          c.paidDisclaimerDismissed.value =
-                                              false;
-                                          c.paidDisclaimer.value = true;
-
-                                          if (c.feeElement != null) {
-                                            c.elements.remove(c.feeElement!.id);
-                                            c.feeElement = null;
-                                          }
-
-                                          c.feeElement = FeeElement(false);
-                                          c.elements[c.feeElement!.id] =
-                                              c.feeElement!;
-                                          c.listController.animateTo(
-                                            c.listController.offset + 100,
-                                            duration: 200.milliseconds,
-                                            curve: Curves.ease,
-                                          );
-                                        },
+                                        onPressed: onPressed,
                                         child: Container(
                                           padding: const EdgeInsets.all(8),
                                           margin: const EdgeInsets.only(
@@ -825,7 +953,7 @@ class _ChatViewState extends State<ChatView>
                         );
                       }),
                       bottomNavigationBar: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
                         child:
                             NotificationListener<SizeChangedLayoutNotification>(
                           onNotification: (l) {
@@ -858,160 +986,171 @@ class _ChatViewState extends State<ChatView>
                       ),
                     );
                   }),
-                  Obx(() {
-                    final Style style = Theme.of(context).extension<Style>()!;
+                  if (false)
+                    Obx(() {
+                      final Style style = Theme.of(context).extension<Style>()!;
 
-                    return Align(
-                      alignment: Alignment.bottomCenter,
-                      child: AnimatedSlider(
-                        isOpen: c.paidDisclaimer.value,
-                        duration: 300.milliseconds,
-                        translate: true,
-                        beginOffset: const Offset(0, 200),
-                        endOffset: const Offset(0, -60),
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            top: 8,
-                            bottom: 8,
-                            left: 8,
-                            right: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            boxShadow: const [
-                              CustomBoxShadow(
-                                blurRadius: 8,
-                                color: Color(0x22000000),
-                              ),
-                            ],
-                          ),
-                          child: IntrinsicWidth(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Container(
-                                //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                //   padding:
-                                //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                                //   decoration: BoxDecoration(
-                                //     borderRadius: BorderRadius.only(
-                                //       topLeft: style.cardRadius.topLeft,
-                                //       topRight: style.cardRadius.topRight,
-                                //     ),
-                                //     color: style.readMessageColor,
-                                //   ),
-                                //   child: Text(
-                                //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
-                                //     // style: style.boldBody,
-                                //     style: style.systemMessageStyle,
-                                //   ),
-                                // ),
-                                // Container(
-                                //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                //   padding:
-                                //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                                //   decoration: BoxDecoration(
-                                //     borderRadius: BorderRadius.only(
-                                //       topLeft: style.cardRadius.topLeft,
-                                //       topRight: style.cardRadius.topRight,
-                                //     ),
-                                //     color: Colors.white,
-                                //   ),
-                                //   child: Text(
-                                //     'Askldjskldjsqkdjqw',
-                                //     style: style.boldBody,
-                                //   ),
-                                // ),
-                                WidgetButton(
-                                  onPressed: () {
-                                    c.paidDisclaimer.value = false;
-                                    c.paidDisclaimerDismissed.value = true;
-
-                                    // final theirFee = FeeElement(false);
-                                    // c.elements[theirFee.id] = theirFee;
-
-                                    // SchedulerBinding.instance
-                                    //     .addPostFrameCallback((_) {
-                                    //   c.listController.animateTo(
-                                    //     c.listController.offset + 150,
-                                    //     duration: 200.milliseconds,
-                                    //     curve: Curves.ease,
-                                    //   );
-                                    // });
-
-                                    if (c.feeElement != null) {
-                                      c.elements.remove(c.feeElement!.id);
-                                      c.feeElement = null;
-                                    }
-
-                                    switch (c.confirmAction) {
-                                      case ConfirmAction.audioCall:
-                                        c.call(false);
-                                        break;
-
-                                      case ConfirmAction.videoCall:
-                                        c.call(true);
-                                        break;
-
-                                      case ConfirmAction.sendMessage:
-                                        c.send.onSubmit?.call();
-                                        break;
-
-                                      case null:
-                                        // No-op.
-                                        break;
-                                    }
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      18,
-                                      18,
-                                      18,
-                                      18,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: style.cardRadius,
-                                      // borderRadius: BorderRadius.only(
-                                      //   bottomLeft: style.cardRadius.bottomLeft,
-                                      //   bottomRight:
-                                      //       style.cardRadius.bottomRight,
-                                      // ),
-                                      border: style.systemMessageBorder,
-                                      color: style.systemMessageColor,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        // Text(
-                                        //   'Платный чат',
-                                        //   style: style.systemMessageStyle,
-                                        // ),
-                                        // const SizedBox(height: 8),
-                                        Text(
-                                          'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
-                                          style: style.systemMessageStyle,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Принять и продолжить',
-                                          style:
-                                              style.systemMessageStyle.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                      return Align(
+                        alignment: Alignment.bottomCenter,
+                        child: AnimatedSlider(
+                          isOpen: c.paidDisclaimer.value,
+                          duration: 300.milliseconds,
+                          translate: true,
+                          beginOffset: const Offset(0, 200),
+                          endOffset: const Offset(0, -60),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.only(
+                              top: 8,
+                              bottom: 8,
+                              left: 8,
+                              right: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: style.cardRadius,
+                              border: c.paidBorder.value
+                                  ? Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      width: 2,
+                                    )
+                                  : null,
+                              boxShadow: const [
+                                CustomBoxShadow(
+                                  blurRadius: 8,
+                                  color: Color(0x22000000),
                                 ),
                               ],
                             ),
+                            child: IntrinsicWidth(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Container(
+                                  //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                  //   padding:
+                                  //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                                  //   decoration: BoxDecoration(
+                                  //     borderRadius: BorderRadius.only(
+                                  //       topLeft: style.cardRadius.topLeft,
+                                  //       topRight: style.cardRadius.topRight,
+                                  //     ),
+                                  //     color: style.readMessageColor,
+                                  //   ),
+                                  //   child: Text(
+                                  //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
+                                  //     // style: style.boldBody,
+                                  //     style: style.systemMessageStyle,
+                                  //   ),
+                                  // ),
+                                  // Container(
+                                  //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                  //   padding:
+                                  //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                                  //   decoration: BoxDecoration(
+                                  //     borderRadius: BorderRadius.only(
+                                  //       topLeft: style.cardRadius.topLeft,
+                                  //       topRight: style.cardRadius.topRight,
+                                  //     ),
+                                  //     color: Colors.white,
+                                  //   ),
+                                  //   child: Text(
+                                  //     'Askldjskldjsqkdjqw',
+                                  //     style: style.boldBody,
+                                  //   ),
+                                  // ),
+                                  WidgetButton(
+                                    onPressed: () {
+                                      c.paidDisclaimer.value = false;
+                                      c.paidDisclaimerDismissed.value = true;
+                                      c.paidBorder.value = false;
+
+                                      // final theirFee = FeeElement(false);
+                                      // c.elements[theirFee.id] = theirFee;
+
+                                      // SchedulerBinding.instance
+                                      //     .addPostFrameCallback((_) {
+                                      //   c.listController.animateTo(
+                                      //     c.listController.offset + 150,
+                                      //     duration: 200.milliseconds,
+                                      //     curve: Curves.ease,
+                                      //   );
+                                      // });
+
+                                      // if (c.feeElement != null) {
+                                      //   c.elements.remove(c.feeElement!.id);
+                                      //   c.feeElement = null;
+                                      // }
+
+                                      switch (c.confirmAction) {
+                                        case ConfirmAction.audioCall:
+                                          c.call(false);
+                                          break;
+
+                                        case ConfirmAction.videoCall:
+                                          c.call(true);
+                                          break;
+
+                                        case ConfirmAction.sendMessage:
+                                          c.send.onSubmit?.call();
+                                          break;
+
+                                        case null:
+                                          // No-op.
+                                          break;
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        18,
+                                        18,
+                                        18,
+                                        18,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: style.cardRadius,
+                                        // borderRadius: BorderRadius.only(
+                                        //   bottomLeft: style.cardRadius.bottomLeft,
+                                        //   bottomRight:
+                                        //       style.cardRadius.bottomRight,
+                                        // ),
+                                        border: style.systemMessageBorder,
+                                        color: style.systemMessageColor,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          // Text(
+                                          //   'Платный чат',
+                                          //   style: style.systemMessageStyle,
+                                          // ),
+                                          // const SizedBox(height: 8),
+                                          Text(
+                                            'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                                            style: style.systemMessageStyle,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Принять и продолжить',
+                                            style: style.systemMessageStyle
+                                                .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
                   // Obx(() {
                   //   final Style style = Theme.of(context).extension<Style>()!;
 
@@ -1821,12 +1960,15 @@ class _ChatViewState extends State<ChatView>
 
     return Obx(() {
       if (c.edit.value != null) {
-        return MessageFieldView(
-          key: const Key('EditField'),
-          controller: c.edit.value,
-          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-          canAttach: false,
-          background: const Color(0xFFfff7ea),
+        return Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8),
+          child: MessageFieldView(
+            key: const Key('EditField'),
+            controller: c.edit.value,
+            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            canAttach: false,
+            background: const Color(0xFFfff7ea),
+          ),
         );
       }
 
@@ -1839,118 +1981,269 @@ class _ChatViewState extends State<ChatView>
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (false)
-            Obx(() {
-              return AnimatedSizeAndFade.showHide(
-                show: c.paidDisclaimer.value,
-                child: Container(
-                  margin: const EdgeInsets.only(
-                    top: 8,
-                    bottom: 8,
-                    left: 8,
-                    right: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius,
-                    boxShadow: const [
-                      CustomBoxShadow(
-                        blurRadius: 8,
-                        color: Color(0x22000000),
+          Obx(() {
+            return AnimatedSizeAndFade.showHide(
+              show: c.paidDisclaimer.value,
+              child: Container(
+                margin:
+                    const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  boxShadow: const [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: Color(0x22000000),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Container(
+                    //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    //   padding:
+                    //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.only(
+                    //       topLeft: style.cardRadius.topLeft,
+                    //       topRight: style.cardRadius.topRight,
+                    //     ),
+                    //     color: style.readMessageColor,
+                    //   ),
+                    //   child: Text(
+                    //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
+                    //     // style: style.boldBody,
+                    //     style: style.systemMessageStyle,
+                    //   ),
+                    // ),
+                    // Container(
+                    //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    //   padding:
+                    //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.only(
+                    //       topLeft: style.cardRadius.topLeft,
+                    //       topRight: style.cardRadius.topRight,
+                    //     ),
+                    //     color: Colors.white,
+                    //   ),
+                    //   child: Text(
+                    //     'Askldjskldjsqkdjqw',
+                    //     style: style.boldBody,
+                    //   ),
+                    // ),
+                    WidgetButton(
+                      onPressed: () {
+                        c.paidDisclaimer.value = false;
+                        c.paidDisclaimerDismissed.value = true;
+                        c.paidBorder.value = false;
+
+                        // final theirFee = FeeElement(false);
+                        // c.elements[theirFee.id] = theirFee;
+
+                        // SchedulerBinding.instance
+                        //     .addPostFrameCallback((_) {
+                        //   c.listController.animateTo(
+                        //     c.listController.offset + 150,
+                        //     duration: 200.milliseconds,
+                        //     curve: Curves.ease,
+                        //   );
+                        // });
+
+                        // if (c.feeElement != null) {
+                        //   c.elements.remove(c.feeElement!.id);
+                        //   c.feeElement = null;
+                        // }
+
+                        switch (c.confirmAction) {
+                          case ConfirmAction.audioCall:
+                            c.call(false);
+                            break;
+
+                          case ConfirmAction.videoCall:
+                            c.call(true);
+                            break;
+
+                          case ConfirmAction.sendMessage:
+                            c.send.onSubmit?.call();
+                            break;
+
+                          case null:
+                            // No-op.
+                            break;
+                        }
+
+                        c.confirmAction = null;
+                      },
+                      child: AnimatedContainer(
+                        duration: 250.milliseconds,
+                        padding: const EdgeInsets.fromLTRB(
+                          18,
+                          18,
+                          18,
+                          18,
+                        ),
+                        decoration: BoxDecoration(
+                          border: c.paidBorder.value
+                              ? Border.all(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  width: 2,
+                                )
+                              : Border.all(
+                                  color: Colors.transparent,
+                                  width: 2,
+                                ),
+                          borderRadius: style.cardRadius,
+                          // borderRadius: BorderRadius.only(
+                          //   bottomLeft: style.cardRadius.bottomLeft,
+                          //   bottomRight:
+                          //       style.cardRadius.bottomRight,
+                          // ),
+                          // border: style.systemMessageBorder,
+                          color: style.systemMessageColor,
+                        ),
+                        child: Column(
+                          children: [
+                            // Text(
+                            //   'Платный чат',
+                            //   style: style.systemMessageStyle,
+                            // ),
+                            // const SizedBox(height: 8),
+                            Text(
+                              'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                              style: style.systemMessageStyle,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Принять и продолжить',
+                              style: style.systemMessageStyle.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                  child: IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    ),
+                  ],
+                ),
+              ),
+            );
+
+            return AnimatedSizeAndFade.showHide(
+              show: c.paidDisclaimer.value,
+              child: Container(
+                margin: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 8,
+                  left: 8,
+                  right: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  boxShadow: const [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: Color(0x22000000),
+                    ),
+                  ],
+                ),
+                child: IntrinsicWidth(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: style.cardRadius.topLeft,
+                            topRight: style.cardRadius.topRight,
+                          ),
+                          color: Colors.white,
+                        ),
+                        child: Text(
+                          'Askldjskldjsqkdjqw',
+                          style: style.boldBody,
+                        ),
+                      ),
+                      WidgetButton(
+                        onPressed: () {
+                          c.paidDisclaimer.value = false;
+                          c.paidDisclaimerDismissed.value = true;
+
+                          // if (c.feeElement != null) {
+                          //   c.elements.remove(c.feeElement!.id);
+                          //   c.feeElement = null;
+                          // }
+
+                          switch (c.confirmAction) {
+                            case ConfirmAction.audioCall:
+                              c.call(false);
+                              break;
+
+                            case ConfirmAction.videoCall:
+                              c.call(true);
+                              break;
+
+                            case ConfirmAction.sendMessage:
+                              c.send.onSubmit?.call();
+                              break;
+
+                            case null:
+                              // No-op.
+                              break;
+                          }
+                        },
+                        child: Container(
                           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
-                              topLeft: style.cardRadius.topLeft,
-                              topRight: style.cardRadius.topRight,
+                              bottomLeft: style.cardRadius.bottomLeft,
+                              bottomRight: style.cardRadius.bottomRight,
                             ),
-                            color: Colors.white,
+                            border: style.systemMessageBorder,
+                            color: style.systemMessageColor,
                           ),
-                          child: Text(
-                            'Askldjskldjsqkdjqw',
-                            style: style.boldBody,
-                          ),
-                        ),
-                        WidgetButton(
-                          onPressed: () {
-                            c.paidDisclaimer.value = false;
-                            c.paidDisclaimerDismissed.value = true;
-
-                            if (c.feeElement != null) {
-                              c.elements.remove(c.feeElement!.id);
-                              c.feeElement = null;
-                            }
-
-                            switch (c.confirmAction) {
-                              case ConfirmAction.audioCall:
-                                c.call(false);
-                                break;
-
-                              case ConfirmAction.videoCall:
-                                c.call(true);
-                                break;
-
-                              case ConfirmAction.sendMessage:
-                                c.send.onSubmit?.call();
-                                break;
-
-                              case null:
-                                // No-op.
-                                break;
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: style.cardRadius.bottomLeft,
-                                bottomRight: style.cardRadius.bottomRight,
+                          child: Column(
+                            children: [
+                              Text(
+                                'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
+                                style: style.systemMessageStyle,
                               ),
-                              border: style.systemMessageBorder,
-                              color: style.systemMessageColor,
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
-                                  style: style.systemMessageStyle,
+                              const SizedBox(height: 5),
+                              Text(
+                                'Принять и продолжить',
+                                style: style.systemMessageStyle.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Принять и продолжить',
-                                  style: style.systemMessageStyle.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              );
-            }),
-          MessageFieldView(
-            key: const Key('SendField'),
-            controller: c.send,
-            onChanged: c.keepTyping,
-            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-            canForward: true,
-            // background: const Color(0xFFfff7ea),
-            // canSend: !disabled,
-            // canAttach: !disabled,
-            // disabled: disabled,
+              ),
+            );
+          }),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: MessageFieldView(
+              key: const Key('SendField'),
+              controller: c.send,
+              onChanged: c.keepTyping,
+              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+              canForward: true,
+              // background: const Color(0xFFfff7ea),
+              // canSend: !disabled,
+              // canAttach: !disabled,
+              // disabled: disabled,
+            ),
           ),
           // LayoutBuilder(
           //   builder: (context, constraints) {
