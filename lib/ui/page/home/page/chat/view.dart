@@ -2056,23 +2056,23 @@ class _ChatViewState extends State<ChatView>
                         //   c.feeElement = null;
                         // }
 
-                        switch (c.confirmAction) {
-                          case ConfirmAction.audioCall:
-                            c.call(false);
-                            break;
+                        // switch (c.confirmAction) {
+                        //   case ConfirmAction.audioCall:
+                        //     c.call(false);
+                        //     break;
 
-                          case ConfirmAction.videoCall:
-                            c.call(true);
-                            break;
+                        //   case ConfirmAction.videoCall:
+                        //     c.call(true);
+                        //     break;
 
-                          case ConfirmAction.sendMessage:
-                            c.send.onSubmit?.call();
-                            break;
+                        //   case ConfirmAction.sendMessage:
+                        //     c.send.onSubmit?.call();
+                        //     break;
 
-                          case null:
-                            // No-op.
-                            break;
-                        }
+                        //   case null:
+                        //     // No-op.
+                        //     break;
+                        // }
 
                         c.confirmAction = null;
                       },
