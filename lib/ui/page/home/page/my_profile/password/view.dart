@@ -106,8 +106,6 @@ class ChangePasswordView extends StatelessWidget {
                         ),
                       )
                     else
-                      const SizedBox(),
-                    if (c.hasPassword)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ReactiveTextField(
@@ -121,9 +119,7 @@ class ChangePasswordView extends StatelessWidget {
                             width: 17.07,
                           ),
                         ),
-                      )
-                    else
-                      const SizedBox(),
+                      ),
                     ReactiveTextField(
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
