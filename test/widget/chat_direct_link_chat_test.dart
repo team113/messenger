@@ -345,7 +345,7 @@ void main() async {
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);
     await tester.dragUntilVisible(
       link,
-      find.byKey(const Key('ChatInfoListView')),
+      find.byKey(const Key('ChatInfoScrollable')),
       const Offset(1, 0),
     );
 

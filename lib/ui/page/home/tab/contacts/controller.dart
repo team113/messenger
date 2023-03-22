@@ -81,6 +81,12 @@ class ContactsTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether multiple [ChatContact]s selection is active.
+  final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
+  final RxList<ChatContactId> selectedContacts = RxList();
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
@@ -210,6 +216,24 @@ class ContactsTabController extends GetxController {
     await _contactService.deleteContact(contact.id);
   }
 
+  /// Deletes the [selectedContacts] from the authenticated [MyUser]'s address
+  /// book.
+  Future<void> deleteContacts() async {
+    selecting.value = false;
+    router.navigation.value = !selecting.value;
+
+    try {
+      final Iterable<Future> futures =
+          selectedContacts.map((e) => _contactService.deleteContact(e));
+      await Future.wait(futures);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedContacts.clear();
+    }
+  }
+
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
   Future<void> favoriteContact(
     ChatContactId id, [
@@ -311,6 +335,23 @@ class ContactsTabController extends GetxController {
     } else {
       search.value = null;
       elements.clear();
+    }
+  }
+
+  /// Toggles the [ChatContact]s selection.
+  void toggleSelecting() {
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+    selectedContacts.clear();
+  }
+
+  /// Selects or unselects the provided [contact], meaning adding or removing it
+  /// from the [selectedContacts].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact.id)) {
+      selectedContacts.remove(contact.id);
+    } else {
+      selectedContacts.add(contact.id);
     }
   }
 

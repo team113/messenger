@@ -39,7 +39,8 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatContactException,
         HideChatException,
         ToggleChatMuteException,
-        UnfavoriteChatContactException;
+        UnfavoriteChatContactException,
+        ClearChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -347,6 +348,22 @@ class UserController extends GetxController {
       try {
         await _chatService.hideChat(dialog);
       } on HideChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Clears a [Chat]-dialog history with the [user].
+  Future<void> clearChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+
+    if (dialog != null) {
+      try {
+        await _chatService.clearChat(dialog);
+      } on ClearChatException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
         MessagePopup.error(e);

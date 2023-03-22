@@ -15,27 +15,18 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat members
+Feature: Clear chat
 
-  Background: User is in group chat with Bob
+  Scenario: User clears chat
     Given I am Alice
-    And users Bob and Charlie
-    And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" chat
-    And I open chat's info
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
+    And I see some messages in chat
 
-  Scenario: User removes a member
-    When I wait until text "Bob" is present
-    And I scroll `ChatInfoScrollable` until `DeleteMemberButton` is present
-    And I tap `DeleteMemberButton` button
+    When I open chat's info
+    And I scroll `ChatInfoScrollable` until `ClearHistoryButton` is present
+    And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
-    Then I wait until text "Bob" is absent
-
-  Scenario: User adds a member
-    When I tap `AddMemberButton` button
-    Then I wait until `SearchView` is present
-
-    When I fill `SearchTextField` field with "Charlie"
-    And I tap user Charlie in search results
-    And I tap `SearchSubmitButton` button
-    Then I wait until text "Charlie" is present
+    And I return to previous page
+    Then I see no messages in chat

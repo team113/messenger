@@ -15,27 +15,25 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat members
+Feature: Chats selection
 
-  Background: User is in group chat with Bob
+  Scenario: User selects and deletes chats
     Given I am Alice
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" chat
-    And I open chat's info
+    And I have "Alice and Charlie" group with Charlie
 
-  Scenario: User removes a member
-    When I wait until text "Bob" is present
-    And I scroll `ChatInfoScrollable` until `DeleteMemberButton` is present
-    And I tap `DeleteMemberButton` button
+    When I long press "Alice and Bob" chat
+    And I tap `SelectChatButton` button
+    Then I see "Alice and Bob" chat as unselected
+    And I see "Alice and Charlie" chat as unselected
+
+    When I tap "Alice and Bob" chat
+    Then I see "Alice and Bob" chat as selected
+    When I tap "Alice and Charlie" chat
+    Then I see "Alice and Charlie" chat as selected
+
+    When I tap `DeleteChats` button
     And I tap `Proceed` button
-    Then I wait until text "Bob" is absent
-
-  Scenario: User adds a member
-    When I tap `AddMemberButton` button
-    Then I wait until `SearchView` is present
-
-    When I fill `SearchTextField` field with "Charlie"
-    And I tap user Charlie in search results
-    And I tap `SearchSubmitButton` button
-    Then I wait until text "Charlie" is present
+    Then I wait until "Alice and Bob" chat is absent
+    And I wait until "Alice and Charlie" chat is absent
