@@ -491,9 +491,8 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      if (c.chats.none((e) =>
-                          !e.chat.value.isHidden &&
-                          (!e.id.isLocal || e.chat.value.isMonolog))) {
+                      if (c.chats.none(
+                          (e) => !e.id.isLocal || e.chat.value.isMonolog)) {
                         if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
@@ -521,10 +520,9 @@ class ChatsTabView extends StatelessWidget {
                               final List<RxChat> favorites = [];
                               final List<RxChat> chats = [];
                               for (RxChat e in c.chats) {
-                                if (!e.chat.value.isHidden &&
-                                    (!e.id.isLocal ||
-                                        e.messages.isNotEmpty ||
-                                        e.chat.value.isMonolog)) {
+                                if (!e.id.isLocal ||
+                                    e.messages.isNotEmpty ||
+                                    e.chat.value.isMonolog) {
                                   if (e.chat.value.favoritePosition != null) {
                                     favorites.add(e);
                                   } else {
@@ -544,7 +542,9 @@ class ChatsTabView extends StatelessWidget {
 
                                 return RecentChatTile(
                                   e,
-                                  key: Key('RecentChat_${e.id}'),
+                                  key: e.chat.value.isMonolog
+                                      ? const Key('ChatMonolog')
+                                      : Key('RecentChat_${e.id}'),
                                   me: c.me,
                                   blocked: e.blacklisted,
                                   selected: selected,
