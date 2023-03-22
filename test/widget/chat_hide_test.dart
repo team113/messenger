@@ -109,6 +109,29 @@ void main() async {
     }
   };
 
+  var monologData = {
+    'monolog': {
+      'id': '2673cc09-9823-4cd2-924f-c172a22ebf69',
+      'name': 'null',
+      'members': {'nodes': []},
+      'kind': 'MONOLOG',
+      'isHidden': false,
+      'muted': null,
+      'directLink': null,
+      'createdAt': '2021-12-15T15:11:18.316846+00:00',
+      'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+      'lastReads': [],
+      'lastDelivery': '1970-01-01T00:00:00+00:00',
+      'lastItem': null,
+      'lastReadItem': null,
+      'gallery': {'nodes': []},
+      'unreadCount': 0,
+      'totalCount': 0,
+      'ongoingCall': null,
+      'ver': '0'
+    }
+  };
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -124,6 +147,14 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((realInvocation) => const Stream.empty());
+
+  when(graphQlProvider.getMonolog())
+      .thenAnswer((_) => Future.value(GetMonolog$Query.fromJson(monologData)));
+
+  when(graphQlProvider.chatEvents(
+    const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
@@ -314,7 +345,9 @@ void main() async {
 
     expect(find.text('chatname'), findsOneWidget);
 
-    await tester.longPress(find.byType(ContextMenuRegion));
+    await tester.longPress(
+      find.byKey(const Key('Chat_0d72d245-8425-467a-9ebd-082d4f47850b')),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('ButtonHideChat')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

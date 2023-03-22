@@ -42,6 +42,10 @@ abstract class AbstractChatRepository {
   /// used.
   RxBool get isReady;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser].
+  ChatId? get monologId;
+
   /// Initializes this repository.
   ///
   /// Callback [onMemberRemoved] should be called once an [User] is removed from

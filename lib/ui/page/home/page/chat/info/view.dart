@@ -711,22 +711,21 @@ class ChatInfoView extends StatelessWidget {
             }),
           ),
         if (!c.isMonolog) const SizedBox(height: 10),
-        if (!c.isMonolog)
-          _dense(
-            FieldButton(
-              onPressed: () => _hideChat(c, context),
-              text: 'btn_hide_chat'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-                ),
+        _dense(
+          FieldButton(
+            onPressed: () => _hideChat(c, context),
+            text: 'btn_hide_chat'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        if (!c.isMonolog) const SizedBox(height: 10),
+        ),
+        const SizedBox(height: 10),
         _dense(
           FieldButton(
             key: const Key('ClearHistoryButton'),

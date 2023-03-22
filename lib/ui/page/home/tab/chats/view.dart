@@ -491,7 +491,9 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      if (c.chats.none((e) => !e.id.isLocal)) {
+                      if (c.chats.none((e) =>
+                          !e.chat.value.isHidden &&
+                          (!e.id.isLocal || e.chat.value.isMonolog))) {
                         if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
@@ -518,9 +520,11 @@ class ChatsTabView extends StatelessWidget {
                             child: Obx(() {
                               final List<RxChat> favorites = [];
                               final List<RxChat> chats = [];
-
                               for (RxChat e in c.chats) {
-                                if (!e.id.isLocal || e.messages.isNotEmpty) {
+                                if (!e.chat.value.isHidden &&
+                                    (!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog)) {
                                   if (e.chat.value.favoritePosition != null) {
                                     favorites.add(e);
                                   } else {
@@ -556,9 +560,7 @@ class ChatsTabView extends StatelessWidget {
                                   onLeave: e.chat.value.isMonolog
                                       ? null
                                       : () => c.leaveChat(e.id),
-                                  onHide: e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.hideChat(e.id),
+                                  onHide: () => c.hideChat(e.id),
                                   inCall: () => c.inCall(e.id),
                                   onMute: e.chat.value.isMonolog
                                       ? null

@@ -1072,6 +1072,8 @@ class HiveRxChat extends RxChat {
               event as EventChatItemPosted;
               final HiveChatItem item = event.item;
 
+              chatEntity.value.isHidden = false;
+
               if (item.value is ChatMessage && item.value.authorId == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(

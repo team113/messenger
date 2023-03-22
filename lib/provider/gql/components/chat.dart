@@ -1306,14 +1306,38 @@ abstract class ChatGraphQlMixin {
   ///
   /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
   /// exists already, and returns it.
-  Future<void> createMonologChat(ChatName? name) async {
+  Future<ChatMixin> createMonologChat(ChatName? name) async {
     final variables = CreateMonologChatArguments(name: name);
-    await client.mutate(
+    final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateMonologChat',
         document: CreateMonologChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
+    return CreateMonologChat$Mutation.fromJson(result.data!).createMonologChat;
+  }
+
+  /// Returns the monolog [Chat] of the authenticated [MyUser].
+  ///
+  /// If there is no [Chat]-monolog, the one could be created via
+  /// `Mutation.createMonologChat`.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Query returns `null` when no [Chat]-monolog exists for the authenticated
+  /// [MyUser].
+  Future<GetMonolog$Query> getMonolog() async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMonolog',
+        document: GetMonologQuery().document,
+      ),
+    );
+    return GetMonolog$Query.fromJson(result.data!);
   }
 }

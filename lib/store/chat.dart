@@ -126,11 +126,17 @@ class ChatRepository implements AbstractChatRepository {
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
 
+  /// [Chat]-monolog of the currently authenticated [MyUser].
+  HiveRxChat? _monolog;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
   RxBool get isReady => _isReady;
+
+  @override
+  ChatId? get monologId => _monolog?.id;
 
   @override
   Future<void> init({
@@ -140,7 +146,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        if (!c.value.id.isLocal) {
+        if (!c.value.id.isLocal || c.value.isMonolog) {
           final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
           _chats[c.value.id] = entry;
           entry.init();
@@ -167,12 +173,10 @@ class ChatRepository implements AbstractChatRepository {
         _putEntry(c);
       }
 
+      _initMonolog();
+
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
-
-      if (chats.values.none((e) => e.chat.value.isMonolog)) {
-        createMonologChat();
-      }
 
       _isReady.value = true;
     } on OperationCanceledException catch (_) {
@@ -213,15 +217,19 @@ class ChatRepository implements AbstractChatRepository {
             return _putEntry(_chat(query));
           }
         } else {
-          final HiveChat? hiveChat = _chatLocal.get(id);
-          if (hiveChat != null) {
-            chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
-            chat.init();
+          if (id.userId == me && _monolog != null) {
+            chat = _monolog;
+          } else {
+            final HiveChat? hiveChat = _chatLocal.get(id);
+            if (hiveChat != null) {
+              chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
+              chat.init();
+            }
+
+            chat ??= await _createLocalDialog(id.userId);
+
+            _chats[id] = chat;
           }
-
-          chat ??= await _createLocalDialog(id.userId);
-
-          _chats[id] = chat;
         }
       }
 
@@ -235,11 +243,25 @@ class ChatRepository implements AbstractChatRepository {
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      final ChatData chat = _chat(
-        await _graphQlProvider.createDialogChat(chatId.userId),
-      );
+      final HiveRxChat chat = chats[chatId]!;
 
-      return _putEntry(chat);
+      final ChatData chatData;
+      if (chat.chat.value.isMonolog) {
+        chatData = _chat(
+          await _graphQlProvider.createMonologChat(chat.chat.value.name),
+        );
+        if (chat.chat.value.favoritePosition != null) {
+          await _graphQlProvider.favoriteChat(
+            chatData.chat.value.id,
+            chat.chat.value.favoritePosition!,
+          );
+        }
+      } else {
+        chatData = _chat(
+          await _graphQlProvider.createDialogChat(chatId.userId),
+        );
+      }
+      return _putEntry(chatData);
     }
 
     return await get(chatId);
@@ -278,6 +300,9 @@ class ChatRepository implements AbstractChatRepository {
       );
 
       rxChat = await ensureRemoteDialog(chatId);
+      if (rxChat?.chat.value.isMonolog == true) {
+        _monolog = rxChat;
+      }
     }
 
     await rxChat?.postChatMessage(
@@ -351,6 +376,15 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
+    if (id.isLocal) {
+      final HiveChat? localChat = _chatLocal.get(id);
+      if (localChat != null) {
+        localChat.value.name = name;
+        await _chatLocal.put(localChat);
+      }
+      return;
+    }
+
     HiveRxChat? chat = _chats[id];
     ChatName? previous = chat?.chat.value.name;
 
@@ -392,6 +426,17 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> hideChat(ChatId id) async {
+    if (id.isLocal == true) {
+      final HiveChat? localChat = _chatLocal.get(id);
+      if (localChat != null) {
+        localChat.value.isHidden = true;
+        await _chatLocal.put(localChat);
+        _chats.remove(id);
+      }
+
+      return;
+    }
+
     HiveRxChat? chat = _chats.remove(id);
 
     try {
@@ -651,7 +696,11 @@ class ChatRepository implements AbstractChatRepository {
     List<AttachmentId>? attachments,
   }) async {
     if (to.isLocal) {
-      to = (await ensureRemoteDialog(to))!.id;
+      final HiveRxChat rxChat = (await ensureRemoteDialog(to))!;
+      to = rxChat.id;
+      if (rxChat.chat.value.isMonolog) {
+        _monolog = rxChat;
+      }
     }
 
     await _graphQlProvider.forwardChatItems(
@@ -840,6 +889,16 @@ class ChatRepository implements AbstractChatRepository {
     chat?.chat.update((c) => c?.favoritePosition = newPosition);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
+    if (id.isLocal == true) {
+      final HiveChat? localChat = _chatLocal.get(id);
+      if (localChat != null) {
+        localChat.value.favoritePosition = newPosition;
+        await _chatLocal.put(localChat);
+      }
+
+      return;
+    }
+
     try {
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
@@ -857,6 +916,16 @@ class ChatRepository implements AbstractChatRepository {
     chat?.chat.update((c) => c?.favoritePosition = null);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
+    if (id.isLocal == true) {
+      final HiveChat? localChat = _chatLocal.get(id);
+      if (localChat != null) {
+        localChat.value.favoritePosition = null;
+        await _chatLocal.put(localChat);
+      }
+
+      return;
+    }
+
     try {
       await _graphQlProvider.unfavoriteChat(id);
     } catch (e) {
@@ -868,6 +937,8 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
+    if (id.isLocal) return;
+
     final HiveRxChat? chat = _chats[id];
     final ChatItem? lastItem = chat?.chat.value.lastItem;
     final ChatItemId? until = untilId ?? lastItem?.id;
@@ -1400,6 +1471,23 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     return _putEntry(chatData);
+  }
+
+  /// Initializes the [_monolog].
+  Future<void> _initMonolog() async {
+    _monolog = _chats.values.firstWhereOrNull((e) => e.chat.value.isMonolog) ??
+        await _getMonolog() ??
+        await _createLocalDialog(me!);
+  }
+
+  /// Returns the monolog [Chat] of the authenticated [MyUser].
+  Future<HiveRxChat?> _getMonolog() async {
+    final GetMonolog$Query$Monolog? query =
+        (await _graphQlProvider.getMonolog()).monolog;
+
+    if (query == null) return null;
+
+    return (await _putEntry(_chat(query)));
   }
 }
 
