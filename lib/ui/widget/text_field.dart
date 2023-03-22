@@ -250,7 +250,6 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(() {
       return Theme(
         data: Theme.of(context).copyWith(
-          scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
                 floatingLabelStyle: state.error.value?.isNotEmpty == true
                     ? Theme.of(context)

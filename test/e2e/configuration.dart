@@ -87,6 +87,7 @@ import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_message.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -163,7 +164,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
-        selectText,
+        selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,

@@ -36,8 +36,9 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - When I select "Example" text from 1 to 5 symbols
-final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
-  'I select {string} text from {int} to {int} symbols',
+final StepDefinitionGeneric selectMessageText =
+    when3<String, int, int, CustomWorld>(
+  'I select {string} message from {int} to {int} symbols',
   (text, from, to, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
@@ -48,8 +49,8 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
 
-    final Finder finder = context.world.appDriver
-        .findByKeySkipOffstage('MyMessage_${message.id}');
+    final Finder finder =
+        context.world.appDriver.findByKeySkipOffstage('Text_${message.id}');
     final RenderParagraph paragraph =
         context.world.appDriver.nativeDriver.renderObject<RenderParagraph>(
       find.descendant(
@@ -59,21 +60,29 @@ final StepDefinitionGeneric selectText = when3<String, int, int, CustomWorld>(
       ),
     );
 
+    // Returns an [Offset] of the provided [paragraph].
+    Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
+      const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
+      final Offset localOffset =
+          paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
+      return paragraph.localToGlobal(localOffset);
+    }
+
     final TestGesture gesture =
         await context.world.appDriver.nativeDriver.startGesture(
-      _textOffsetToPosition(paragraph, from),
+      textOffsetToPosition(paragraph, from),
       kind: PointerDeviceKind.mouse,
     );
     await gesture
-        .moveTo(_textOffsetToPosition(paragraph, from).translate(0, 10));
-    await gesture.moveTo(_textOffsetToPosition(paragraph, to));
+        .moveTo(textOffsetToPosition(paragraph, from).translate(0, 10));
+    await gesture.moveTo(textOffsetToPosition(paragraph, to));
     await context.world.appDriver.nativeDriver.pump();
     await gesture.cancel();
     await context.world.appDriver.nativeDriver.pump();
   },
 );
 
-/// Checks that the copied text matches the specified text.
+/// Indicates whether the copied text matches the specified text.
 ///
 /// Examples:
 /// - Then copied text is "Example"
@@ -83,11 +92,3 @@ final StepDefinitionGeneric checkCopyText = then1<String, CustomWorld>(
     expect(text, (PlatformUtils as PlatformUtilsMock).clipboard);
   },
 );
-
-/// Returns texts [Offset] position.
-Offset _textOffsetToPosition(RenderParagraph paragraph, int offset) {
-  const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
-  final Offset localOffset =
-      paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
-  return paragraph.localToGlobal(localOffset);
-}

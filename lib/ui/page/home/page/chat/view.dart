@@ -304,16 +304,12 @@ class _ChatViewState extends State<ChatView>
                           );
                         }
                       },
-                      onPointerUp: (_) {
-                        c.scrollOffset = Offset.zero;
-                      },
-                      onPointerCancel: (_) {
-                        c.scrollOffset = Offset.zero;
-                      },
+                      onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                      onPointerCancel: (_) => c.scrollOffset = Offset.zero,
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isTextCopying.isFalse)
+                          if (c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -325,7 +321,7 @@ class _ChatViewState extends State<ChatView>
                                   if (!c.isItemDragged.value &&
                                       c.scrollOffset.dy.abs() < 7 &&
                                       c.scrollOffset.dx.abs() > 7 &&
-                                      c.isTextCopying.isFalse) {
+                                      c.isSelecting.isFalse) {
                                     double value =
                                         (_animation.value - d.delta.dx / 100)
                                             .clamp(0, 1);
@@ -601,7 +597,6 @@ class _ChatViewState extends State<ChatView>
                     m.memberId != c.me &&
                     m.memberId != e.value.authorId),
             user: u.data,
-            selection: c.selection,
             getUser: c.getUser,
             animation: _animation,
             onHide: () => c.hideChatItem(e.value),
@@ -613,7 +608,9 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: c.copyText,
+            onCopy: c.selection.value?.plainText.isNotEmpty == true
+                ? (_) => c.copyText(c.selection.value!.plainText)
+                : c.copyText,
             onRepliedTap: (q) async {
               if (q.original != null) {
                 await c.animateTo(q.original!.id);
@@ -628,7 +625,7 @@ class _ChatViewState extends State<ChatView>
               await c.chat?.updateAttachments(e.value);
               await Future.delayed(Duration.zero);
             },
-            onTextCopying: (state) => c.isTextCopying.value = state,
+            onSelecting: (s) => c.isSelecting.value = s,
           ),
         ),
       );
@@ -652,7 +649,6 @@ class _ChatViewState extends State<ChatView>
                     m.memberId != c.me &&
                     m.memberId != element.authorId),
             user: u.data,
-            selection: c.selection,
             getUser: c.getUser,
             animation: _animation,
             onHide: () async {
@@ -704,7 +700,9 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
-            onCopy: c.copyText,
+            onCopy: c.selection.value?.plainText.isNotEmpty == true
+                ? (_) => c.copyText(c.selection.value!.plainText)
+                : c.copyText,
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
@@ -732,7 +730,7 @@ class _ChatViewState extends State<ChatView>
 
               await Future.delayed(Duration.zero);
             },
-            onTextCopying: (state) => c.isTextCopying.value = state,
+            onSelecting: (s) => c.isSelecting.value = s,
           ),
         ),
       );

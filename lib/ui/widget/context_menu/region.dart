@@ -190,13 +190,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       return;
     }
 
-    _displayed = true;
-    if (widget.indicateOpenedMenu) {
-      _darkened = true;
-    }
-
-    setState(() {});
-
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
         context: context,
@@ -241,6 +234,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
+      _displayed = true;
+      if (widget.indicateOpenedMenu) {
+        _darkened = true;
+      }
+
+      setState(() {});
+
       _entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
           double qx = 1, qy = 1;

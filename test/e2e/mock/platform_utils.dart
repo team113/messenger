@@ -48,5 +48,5 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   }
 
   @override
-  void copy(String? text) => clipboard = text;
+  void copy({String? text}) => clipboard = text;
 }

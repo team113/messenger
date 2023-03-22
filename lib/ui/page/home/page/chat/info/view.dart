@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -363,7 +362,7 @@ class ChatInfoView extends StatelessWidget {
           onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {
-                  Clipboard.setData(ClipboardData(text: c.name.text));
+                  PlatformUtils.copy(text: c.name.text);
                   MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.name.text.isEmpty
@@ -393,11 +392,9 @@ class ChatInfoView extends StatelessWidget {
             onSuffixPressed: c.link.isEmpty.value
                 ? null
                 : () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text:
-                            '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                      ),
+                    PlatformUtils.copy(
+                      text:
+                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                     );
 
                     MessagePopup.success('label_copied'.l10n);

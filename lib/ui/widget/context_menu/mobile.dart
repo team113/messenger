@@ -209,7 +209,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [Rect] of the [_AnimatedMenu.actions].
   Rect? _actionsBounds;
 
-  /// [Offset] of the pointer down event.
+  /// [Offset] of a [PointerDownEvent] used to [_dismiss] this [_AnimatedMenu]
+  /// when it's low enough.
   Offset? _pointerDown;
 
   @override
@@ -460,9 +461,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           _dismiss();
         }
       },
-      onPointerDown: (d) {
-        _pointerDown = d.position;
-      },
+      onPointerDown: (d) => _pointerDown = d.position,
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(

@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - History clearing. ([#361])
+        - Text selection in messages. ([#118], [#17])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
     - Contacts tab:
@@ -27,7 +28,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
-        - Messages text selection. ([#118], [#17])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])

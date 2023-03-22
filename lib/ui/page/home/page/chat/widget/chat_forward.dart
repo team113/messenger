@@ -19,7 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -47,19 +47,19 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
+import 'selection_text.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
 class ChatForwardWidget extends StatefulWidget {
   const ChatForwardWidget({
-    Key? key,
+    super.key,
     required this.chat,
     required this.forwards,
     required this.note,
@@ -67,7 +67,6 @@ class ChatForwardWidget extends StatefulWidget {
     required this.me,
     this.reads = const [],
     this.loadImages = true,
-    this.selection,
     this.user,
     this.getUser,
     this.animation,
@@ -81,8 +80,8 @@ class ChatForwardWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onFileTap,
     this.onAttachmentError,
-    this.onTextCopying,
-  }) : super(key: key);
+    this.onSelecting,
+  });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
   final Rx<Chat?> chat;
@@ -111,9 +110,6 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
-
-  /// [SelectedContent] of a [SelectionArea] within the [ChatView].
-  final Rx<SelectedContent?>? selection;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -152,8 +148,8 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
-  /// Callback, called when a text copying starts or ends.
-  final void Function(bool state)? onTextCopying;
+  /// Callback, called when a [Text] selection starts or ends.
+  final void Function(bool)? onSelecting;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -186,7 +182,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
 
-  /// [SelectedContent] of a [SelectionArea] within this [ChatForwardWidget].
+  /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
@@ -385,30 +381,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (quote.text != null && quote.text!.val.isNotEmpty) {
-          content = Text(quote.text!.val, style: style.boldBody);
-          if (PlatformUtils.isMobile && menu) {
-            content = SelectionArea(
-              onSelectionChanged: (a) => _selection = a,
-              child: content,
-            );
-            if (PlatformUtils.isWeb) {
-              content = ContextMenuInterceptor(child: content);
-            }
-          } else if (PlatformUtils.isDesktop) {
-            content = Listener(
-              behavior: HitTestBehavior.translucent,
-              onPointerDown: (_) {
-                widget.onTextCopying?.call(true);
-              },
-              onPointerUp: (_) {
-                widget.onTextCopying?.call(false);
-              },
-              onPointerCancel: (_) {
-                widget.onTextCopying?.call(false);
-              },
-              child: content,
-            );
-          }
+          content = SelectionText(
+            quote.text!.val,
+            selectable: PlatformUtils.isDesktop || menu,
+            onChanged: (a) => _selection = a,
+            onSelecting: widget.onSelecting,
+            style: style.boldBody,
+          );
         }
       } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
@@ -592,31 +571,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
 
-      Widget textWidget = Text(item.text!.val, style: style.boldBody);
-      if (PlatformUtils.isMobile && menu) {
-        textWidget = SelectionArea(
-          onSelectionChanged: (a) => _selection = a,
-          child: textWidget,
-        );
-        if (PlatformUtils.isWeb) {
-          textWidget = ContextMenuInterceptor(child: textWidget);
-        }
-      } else if (PlatformUtils.isDesktop) {
-        textWidget = Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (_) {
-            widget.onTextCopying?.call(true);
-          },
-          onPointerUp: (_) {
-            widget.onTextCopying?.call(false);
-          },
-          onPointerCancel: (_) {
-            widget.onTextCopying?.call(false);
-          },
-          child: textWidget,
-        );
-      }
-
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
           Padding(
@@ -630,11 +584,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       ? 0
                       : 4,
             ),
-            child: Text(
+            child: SelectionText(
               widget.user?.user.value.name?.val ??
                   widget.user?.user.value.num.val ??
                   'dot'.l10n * 3,
-              style: style.boldBody.copyWith(color: color),
+              selectable: PlatformUtils.isDesktop || menu,
+              onChanged: (a) => _selection = a,
+              onSelecting: widget.onSelecting,
+              style: style.boldBody,
             ),
           ),
         if (text != null)
@@ -648,7 +605,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: textWidget,
+              child: SelectionText(
+                text,
+                selectable: PlatformUtils.isDesktop || menu,
+                onChanged: (a) => _selection = a,
+                onSelecting: widget.onSelecting,
+                style: style.boldBody,
+              ),
             ),
           ),
         if (files.isNotEmpty)
@@ -925,30 +888,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                // TODO: Copy all text.
-                                // Needs https://github.com/flutter/flutter/issues/119314
-                                onPressed: () {
-                                  if (_selection?.plainText.isNotEmpty ==
-                                      true) {
-                                    widget.onCopy?.call(_selection!.plainText);
-                                  } else {
-                                    widget.onCopy?.call(copyable!);
-                                  }
-                                },
-                              ),
-                            // TODO: Remove when flutter/flutter#117561 is fixed:
-                            //       https://github.com/flutter/flutter/issues/117561
-                            if (widget.selection?.value?.plainText.isNotEmpty ==
-                                true)
-                              ContextMenuButton(
-                                key: const Key('CopySelectedButton'),
-                                label: 'btn_copy_selected'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/copy_small.svg',
-                                  height: 18,
-                                ),
                                 onPressed: () => widget.onCopy
-                                    ?.call(widget.selection!.value!.plainText),
+                                    ?.call(_selection?.plainText ?? copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
