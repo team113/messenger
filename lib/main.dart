@@ -305,7 +305,6 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
           callKeep.displayIncomingCall(
             message.data['chatId'],
             message.notification?.title ?? 'gapopa',
-            localizedCallerName: message.notification?.title ?? 'gapopa',
             handleType: 'generic',
           );
         }
