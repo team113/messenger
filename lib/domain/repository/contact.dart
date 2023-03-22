@@ -32,19 +32,9 @@ abstract class AbstractContactRepository {
   /// Returns reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites;
 
-  /// Indicates whether the [contacts] have next page.
-  RxBool get hasNext;
-
-  /// Status of the [contacts] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
-  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status;
+  /// Indicates whether this repository was initialized and [contacts] can be
+  /// used.
+  RxBool get isReady;
 
   /// Initializes this repository.
   Future<void> init();
@@ -79,9 +69,6 @@ abstract class AbstractContactRepository {
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id);
-
-  /// Fetches the next [contacts] page.
-  Future<void> fetchNext();
 }
 
 /// Unified reactive [ChatContact] entity.

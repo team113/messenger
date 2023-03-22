@@ -306,19 +306,13 @@ class PaginatedFragment<T> {
 
 /// Page fetching result.
 class ItemsPage<T> {
-  ItemsPage(this._items, [this._pageInfo]);
+  ItemsPage(this.items, [this.pageInfo]);
 
   /// Fetched items.
-  final List<T> _items;
+  final List<T> items;
 
   /// Page info of this [ItemsPage].
-  final PageInfo? _pageInfo;
-
-  /// Fetched items.
-  List<T> get items => _items;
-
-  /// Page info of this [ItemsPage].
-  PageInfo? get pageInfo => _pageInfo;
+  final PageInfo? pageInfo;
 }
 
 /// Base class for load items with pagination.

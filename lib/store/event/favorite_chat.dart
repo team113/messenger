@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/chat.dart';
-import '/provider/hive/chat.dart';
+import '/store/chat.dart';
 import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 
@@ -49,7 +49,7 @@ class FavoriteChatsEventsChatsList extends FavoriteChatsEvents {
   const FavoriteChatsEventsChatsList(this.chatList, this.ver);
 
   /// Initial state itself.
-  final List<HiveChat> chatList;
+  final List<ChatData> chatList;
 
   /// Version of the initial favorite [Chat]s list.
   final FavoriteChatsListVersion ver;

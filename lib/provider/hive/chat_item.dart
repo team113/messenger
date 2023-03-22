@@ -17,26 +17,26 @@
 
 import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/domain/model/avatar.dart';
-import 'package:messenger/domain/model/file.dart';
-import 'package:messenger/domain/model/gallery_item.dart';
-import 'package:messenger/domain/model/image_gallery_item.dart';
-import 'package:messenger/domain/model/user_call_cover.dart';
-import 'package:messenger/store/model/user.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/file.dart';
+import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/page_info.dart';
+import '/store/model/user.dart';
 import '/store/pagination.dart';
 import 'base.dart';
 

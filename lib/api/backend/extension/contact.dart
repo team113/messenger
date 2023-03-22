@@ -40,6 +40,5 @@ extension ChatContactConversion on ChatContactMixin {
   List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
-  HiveChatContact toHive([ChatContactsCursor? cursor]) =>
-      HiveChatContact(toModel(), ver, cursor);
+  HiveChatContact toHive() => HiveChatContact(toModel(), ver);
 }

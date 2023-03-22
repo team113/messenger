@@ -21,7 +21,6 @@ import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -136,9 +135,6 @@ class ChatsTabController extends GetxController {
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Worker capturing any [status] changes.
-  Worker? _statusWorker;
-
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
@@ -154,23 +150,11 @@ class ChatsTabController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Status of the [chats] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [chats] were not yet initialized.
-  /// - `status.isLoading`, meaning [chats] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [chats] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [chats] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status => _chatService.status;
-
-  /// Indicates whether the [chats] has a next page.
-  RxBool get hasNext => _chatService.hasNext;
+  /// Indicates whether [ContactService] is ready to be used.
+  RxBool get chatsReady => _chatService.isReady;
 
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
     chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
@@ -244,26 +228,6 @@ class ChatsTabController extends GetxController {
       }
     });
 
-    if (status.value.isSuccess && !status.value.isLoadingMore) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (scrollController.position.maxScrollExtent == 0) {
-          _chatService.fetchNext();
-        }
-      });
-    } else {
-      _statusWorker = ever(status, (e) {
-        if (e.isSuccess && !e.isLoadingMore) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            if (scrollController.position.maxScrollExtent == 0) {
-              _chatService.fetchNext();
-            }
-          });
-          _statusWorker?.dispose();
-          _statusWorker = null;
-        }
-      });
-    }
-
     super.onInit();
   }
 
@@ -278,8 +242,6 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    _statusWorker?.dispose();
-    scrollController.removeListener(_scrollListener);
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -668,18 +630,6 @@ class ChatsTabController extends GetxController {
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
-  }
-
-  /// Uploads next page of [Chat]s based on the [ScrollController.position]
-  /// value.
-  void _scrollListener() {
-    if (scrollController.hasClients &&
-        hasNext.isTrue &&
-        scrollController.position.pixels >
-            scrollController.position.maxScrollExtent -
-                (MediaQuery.of(router.context!).size.height + 200)) {
-      _chatService.fetchNext();
-    }
   }
 
   /// Disables the [search], if its focus is lost or its query is empty.

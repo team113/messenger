@@ -15,25 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
-import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/store/model/page_info.dart';
 
+import '/domain/model_type_id.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/contact.dart';
-import '/store/pagination.dart';
 import 'base.dart';
 
 part 'contact.g.dart';
 
 /// [Hive] storage for [ChatContact]s.
-class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
-    implements PageProvider<HiveChatContact> {
+class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -47,7 +41,6 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
     Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
     Hive.maybeRegisterAdapter(ChatContactVersionAdapter());
-    Hive.maybeRegisterAdapter(ChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
@@ -62,84 +55,17 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact>
   Future<void> put(HiveChatContact contact) =>
       putSafe(contact.value.id.val, contact);
 
-  /// Adds the provided [ChatItem] to [Hive].
-  Future<void> add(HiveChatContact contact) async {
-    if (contacts.isEmpty ||
-        contacts.last.cursor == null ||
-        (contacts.last.value.name.val).compareTo(contact.value.name.val) ==
-            -1) {
-      await put(contact);
-    }
-  }
-
   /// Returns a [ChatContact] from [Hive] by its [id].
   HiveChatContact? get(ChatContactId id) => getSafe(id.val);
 
   /// Removes an [ChatContact] from [Hive] by its [id].
   Future<void> remove(ChatContactId id) => deleteSafe(id.val);
-
-  @override
-  Future<ItemsPage<HiveChatContact>> initial(int count, String? cursor) async {
-    final List<HiveChatContact> items = contacts
-        .sortedBy((e) => e.value.name.val + e.value.id.val)
-        .take(count)
-        .toList();
-    return ItemsPage<HiveChatContact>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNext:
-            box.length > count || items.isEmpty || items.last.cursor != null,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPrevious: false,
-      ),
-    );
-  }
-
-  @override
-  Future<ItemsPage<HiveChatContact>> after(
-    HiveChatContact after,
-    String? cursor,
-    int count,
-  ) async {
-    final sorted = contacts.sortedBy((e) => e.value.name.val + e.value.id.val);
-    int i = sorted.indexWhere((e) => e.value.id == after.value.id);
-    if (i != -1) {
-      final List<HiveChatContact> items =
-          sorted.skip(i + 1).take(count).toList();
-      return ItemsPage<HiveChatContact>(
-        items,
-        PageInfo(
-          endCursor:
-              items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasNext: box.length > count + i + 1 ||
-              sorted.isEmpty ||
-              sorted.last.cursor != null,
-          startCursor:
-              items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-          hasPrevious: true,
-        ),
-      );
-    }
-
-    return ItemsPage<HiveChatContact>([]);
-  }
-
-  @override
-  Future<ItemsPage<HiveChatContact>> before(
-    HiveChatContact before,
-    String? cursor,
-    int count,
-  ) {
-    throw Exception('Unreachable');
-  }
 }
 
 /// Persisted in [Hive] storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatContact)
 class HiveChatContact extends HiveObject {
-  HiveChatContact(this.value, this.ver, this.cursor);
+  HiveChatContact(this.value, this.ver);
 
   /// Persisted [ChatContact].
   @HiveField(0)
@@ -151,8 +77,4 @@ class HiveChatContact extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   ChatContactVersion ver;
-
-  /// Cursor of the [value].
-  @HiveField(2)
-  ChatContactsCursor? cursor;
 }

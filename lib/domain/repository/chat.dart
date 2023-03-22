@@ -38,19 +38,9 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Status of the [chats] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [chats] were not yet initialized.
-  /// - `status.isLoading`, meaning [chats] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [chats] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [chats] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status;
-
-  /// Indicates whether the [chats] have next page.
-  RxBool get hasNext;
+  /// Indicates whether this repository was initialized and [chats] can be
+  /// used.
+  RxBool get isReady;
 
   /// Initializes this repository.
   ///
@@ -197,9 +187,6 @@ abstract class AbstractChatRepository {
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
-
-  /// Fetches the next [chats] page.
-  Future<void> fetchNext();
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

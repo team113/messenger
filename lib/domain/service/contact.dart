@@ -30,16 +30,9 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Status of the [contacts] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
-  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status => _contactRepository.status;
+  /// Changes to `true` once the underlying data storage is initialized and
+  /// [contacts] value is fetched.
+  RxBool get isReady => _contactRepository.isReady;
 
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -48,9 +41,6 @@ class ContactService extends DisposableService {
   /// Returns the current reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
-
-  /// Indicates whether the [contacts] have next page.
-  RxBool get hasNext => _contactRepository.hasNext;
 
   @override
   void onInit() {
@@ -90,7 +80,4 @@ class ContactService extends DisposableService {
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) =>
       _contactRepository.unfavoriteChatContact(id);
-
-  /// Fetches the next [contacts] page.
-  Future<void> fetchNext() => _contactRepository.fetchNext();
 }

@@ -23,12 +23,9 @@ subscription ContactsEvents($ver: ChatContactsListVersion) {
         }
         ... on ChatContactsList {
             chatContacts {
-                edges {
-                    node {
-                        __typename
-                        ...ChatContact
-                    }
-                    cursor
+                nodes {
+                    __typename
+                    ...ChatContact
                 }
                 ver
             }

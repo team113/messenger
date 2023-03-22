@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -108,9 +107,6 @@ class ContactsTabController extends GetxController {
   /// [Worker]s to [RxUser.user] reacting on its changes.
   final Map<UserId, Worker> _userWorkers = {};
 
-  /// Worker capturing any [status] changes.
-  Worker? _statusWorker;
-
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
@@ -121,29 +117,16 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Status of the [contacts] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [contacts] were not yet initialized.
-  /// - `status.isLoading`, meaning [contacts] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [contacts] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [contacts] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status => _contactService.status;
+  /// Indicates whether [ContactService] is ready to be used.
+  RxBool get contactsReady => _contactService.isReady;
 
   /// Indicates whether [contacts] should be sorted by their names or otherwise
   /// by their [User.lastSeenAt] dates.
   bool get sortByName =>
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
-  /// Indicates whether the [contacts] has a next page.
-  RxBool get hasNext => _contactService.hasNext;
-
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
-
     contacts.value = _contactService.contacts.values.toList();
     favorites.value = _contactService.favorites.values.toList();
     _sortContacts();
@@ -154,26 +137,6 @@ class ContactsTabController extends GetxController {
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
-    }
-
-    if (status.value.isSuccess && !status.value.isLoadingMore) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (scrollController.position.maxScrollExtent == 0) {
-          _contactService.fetchNext();
-        }
-      });
-    } else {
-      _statusWorker = ever(status, (e) {
-        if (e.isSuccess && !e.isLoadingMore) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            if (scrollController.position.maxScrollExtent == 0) {
-              _contactService.fetchNext();
-            }
-          });
-          _statusWorker?.dispose();
-          _statusWorker = null;
-        }
-      });
     }
 
     super.onInit();
@@ -189,8 +152,6 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
-    _statusWorker?.dispose();
-    scrollController.removeListener(_scrollListener);
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -439,18 +400,6 @@ class ContactsTabController extends GetxController {
           break;
       }
     });
-  }
-
-  /// Uploads next page of [ChatContact]s based on the
-  /// [ScrollController.position] value.
-  void _scrollListener() {
-    if (scrollController.hasClients &&
-        hasNext.isTrue &&
-        scrollController.position.pixels >
-            scrollController.position.maxScrollExtent -
-                (MediaQuery.of(router.context!).size.height + 200)) {
-      _contactService.fetchNext();
-    }
   }
 
   /// Populates a [Worker] sorting the [contacts] on the [User.online] and

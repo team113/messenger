@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -45,25 +43,15 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Status of the [chats] fetching.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning [chats] were not yet initialized.
-  /// - `status.isLoading`, meaning [chats] are being fetched from the local
-  ///   storage.
-  /// - `status.isSuccess`, meaning [chats] are successfully fetched.
-  /// - `status.isLoadingMore`, meaning [chats] are being fetched from the
-  ///   remote.
-  Rx<RxStatus> get status => _chatRepository.status;
+  /// Changes to `true` once the underlying data storage is initialized and
+  /// [chats] value is fetched.
+  RxBool get isReady => _chatRepository.isReady;
 
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
-
-  /// Indicates whether the [chats] have next page.
-  RxBool get hasNext => _chatRepository.hasNext;
 
   @override
   void onInit() {
@@ -336,9 +324,6 @@ class ChatService extends DisposableService {
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
       _chatRepository.clearChat(id, untilId);
-
-  /// Fetches the next [chats] page.
-  FutureOr<void> fetchNext() => _chatRepository.fetchNext();
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].

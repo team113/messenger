@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatKind;
 import 'package:messenger/provider/gql/graphql.dart';
@@ -38,7 +37,7 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
         provider.token = context.world.sessions[user.name]?.session.token;
         final dialog = (await provider.recentChats(first: 120))
             .recentChats
-            .edges
+            .nodes
             .firstWhereOrNull((e) =>
                 e.node.kind == ChatKind.dialog &&
                 e.node.members.nodes.any((m) => m.user.id == context.world.me));
@@ -64,7 +63,7 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
     provider.token = context.world.sessions[user.name]?.session.token;
     final dialog = (await provider.recentChats(first: 120))
         .recentChats
-        .edges
+        .nodes
         .firstWhereOrNull((e) =>
             e.node.kind == ChatKind.dialog &&
             e.node.members.nodes.any((m) => m.user.id == context.world.me));

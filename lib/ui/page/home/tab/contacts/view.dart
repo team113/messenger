@@ -172,7 +172,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
-            if (c.status.value.isLoading) {
+            if (!c.contactsReady.value) {
               return const Center(child: CustomProgressIndicator());
             }
 
@@ -396,29 +396,18 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              [
-                                ...c.contacts.mapIndexed((i, e) {
-                                  return AnimationConfiguration.staggeredList(
-                                    position: i,
-                                    duration: const Duration(milliseconds: 375),
-                                    child: SlideAnimation(
-                                      horizontalOffset: 50,
-                                      child: FadeInAnimation(
-                                        child: _contact(context, e, c),
-                                      ),
+                              c.contacts.mapIndexed((i, e) {
+                                return AnimationConfiguration.staggeredList(
+                                  position: i,
+                                  duration: const Duration(milliseconds: 375),
+                                  child: SlideAnimation(
+                                    horizontalOffset: 50,
+                                    child: FadeInAnimation(
+                                      child: _contact(context, e, c),
                                     ),
-                                  );
-                                }),
-                                Obx(() {
-                                  if (c.hasNext.isTrue) {
-                                    return const Center(
-                                      child: CustomProgressIndicator(),
-                                    );
-                                  } else {
-                                    return const SizedBox();
-                                  }
-                                }),
-                              ],
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),

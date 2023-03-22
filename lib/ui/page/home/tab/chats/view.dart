@@ -219,7 +219,7 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
-                  if (c.status.value.isSuccess) {
+                  if (c.chatsReady.value) {
                     final Widget? child;
 
                     if (c.groupCreating.value) {
@@ -492,7 +492,7 @@ class ChatsTabView extends StatelessWidget {
                       }
                     } else {
                       if (c.chats.none((e) => !e.id.isLocal)) {
-                        if (c.status.value.isLoading) {
+                        if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
                             child: const ColoredBox(
@@ -703,7 +703,7 @@ class ChatsTabView extends StatelessWidget {
                                     sliver: SliverList(
                                       delegate: SliverChildListDelegate.fixed(
                                         chats.mapIndexed((i, e) {
-                                          final widget = AnimationConfiguration
+                                          return AnimationConfiguration
                                               .staggeredList(
                                             position: i,
                                             duration: const Duration(
@@ -716,23 +716,6 @@ class ChatsTabView extends StatelessWidget {
                                               ),
                                             ),
                                           );
-
-                                          if (chats.length - 1 == i) {
-                                            return Obx(() {
-                                              if (c.hasNext.isTrue) {
-                                                return Column(
-                                                  children: [
-                                                    widget,
-                                                    const CustomProgressIndicator(),
-                                                  ],
-                                                );
-                                              } else {
-                                                return widget;
-                                              }
-                                            });
-                                          } else {
-                                            return widget;
-                                          }
                                         }).toList(),
                                       ),
                                     ),
