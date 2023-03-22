@@ -774,7 +774,7 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
 btn_delete_contact = Удалить контакт
-label_get_paid_for_incoming = Get-Paid for Incoming
+label_get_paid_for_incoming = Принимать оплату за входящие
 label_do_not_show_for_this_chat = Не показывать для этого чата
 label_make_call = Совершить звонок
 label_send_message = Отправить сообщение
@@ -802,5 +802,9 @@ label_messages_displaying = Стиль метки времени
 label_compact_timeline = Как таймлайн
 label_detailed_timeline = В сообщении
 label_timeline_displaying = Отображать метки времени
-
-
+label_message_and_call_cost = Cтоимость сообщений и звонков
+label_fee_per_incoming_call_minute = Входящий звонок
+label_fee_per_incoming_message = Входящее сообщение
+label_comment = Комментарий
+label_welcome_message = Приветственное сообщение
+label_public_description = Публичное описание

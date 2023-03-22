@@ -144,8 +144,8 @@ class User extends HiveObject {
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
 
-  late double messageCost;
-  late double callCost;
+  late int messageCost;
+  late int callCost;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);

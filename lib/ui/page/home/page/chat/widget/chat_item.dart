@@ -1820,7 +1820,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
-                              onPressed: () => widget.onCopy?.call(copyable!),
+                              onPressed: () => widget.onCopy
+                                  ?.call(_selection?.plainText ?? copyable!),
                             ),
                           if (item.status.value == SendingStatus.sent) ...[
                             ContextMenuButton(

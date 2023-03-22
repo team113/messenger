@@ -94,7 +94,10 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(_CustomPage(
           key: ValueKey('UserPage$id'),
           name: '${Routes.user}/$id',
-          child: UserView(UserId(id)),
+          child: UserView(
+            UserId(id),
+            scrollToPaid: router.arguments?.containsKey('scrollToPaid') == true,
+          ),
         ));
       } else if (route.startsWith('${Routes.public}/')) {
         String id = route.replaceFirst('${Routes.public}/', '');

@@ -1772,6 +1772,7 @@ class Track {
     if (track is RemoteMediaTrack) {
       isMuted = RxBool((track as RemoteMediaTrack).muted());
     } else {
+      (track as LocalMediaTrack);
       isMuted = RxBool(false);
     }
   }

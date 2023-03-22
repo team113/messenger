@@ -26,6 +26,7 @@ import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
@@ -54,15 +55,24 @@ import 'get_paid/view.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
-  const UserView(this.id, {Key? key}) : super(key: key);
+  const UserView(this.id, {super.key, this.scrollToPaid = false});
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
 
+  final bool scrollToPaid;
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
+      init: UserController(
+        id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        scrollToPaid: scrollToPaid,
+      ),
       tag: id.val,
       builder: (UserController c) {
         return Obx(() {
@@ -180,65 +190,73 @@ class UserView extends StatelessWidget {
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
-                  return ListView(
-                    key: const Key('UserScrollable'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (c.isBlacklisted != null)
-                        Block(
-                          title: 'label_user_is_blocked'.l10n,
-                          children: [_blocked(c, context)],
-                        ),
+                  final List<Widget> blocks = [
+                    if (c.isBlacklisted != null)
                       Block(
-                        title: 'label_public_information'.l10n,
-                        children: [
-                          WidgetButton(
-                            onPressed: c.user?.user.value.avatar == null
-                                ? null
-                                : () async {
-                                    await GalleryPopup.show(
-                                      context: context,
-                                      gallery: GalleryPopup(
-                                        initialKey: c.avatarKey,
-                                        children: [
-                                          GalleryItem.image(
-                                            c.user!.user.value.avatar!.original
-                                                .url,
-                                            c.user!.id.val,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                            child: AvatarWidget.fromRxUser(
-                              c.user,
-                              key: c.avatarKey,
-                              radius: 100,
-                              badge: false,
-                              quality: AvatarQuality.original,
-                            ),
+                        title: 'label_user_is_blocked'.l10n,
+                        children: [_blocked(c, context)],
+                      ),
+                    Block(
+                      title: 'label_public_information'.l10n,
+                      children: [
+                        WidgetButton(
+                          onPressed: c.user?.user.value.avatar == null
+                              ? null
+                              : () async {
+                                  await GalleryPopup.show(
+                                    context: context,
+                                    gallery: GalleryPopup(
+                                      initialKey: c.avatarKey,
+                                      children: [
+                                        GalleryItem.image(
+                                          c.user!.user.value.avatar!.original
+                                              .url,
+                                          c.user!.id.val,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                          child: AvatarWidget.fromRxUser(
+                            c.user,
+                            key: c.avatarKey,
+                            radius: 100,
+                            badge: false,
+                            quality: AvatarQuality.original,
                           ),
-                          const SizedBox(height: 15),
-                          _name(c, context),
-                          _status(c, context),
-                          _presence(c, context),
-                        ],
-                      ),
-                      Block(
-                        title: 'label_contact_information'.l10n,
-                        children: [_num(c, context)],
-                      ),
-                      Block(
-                        title: 'label_get_paid_for_incoming'.l10n,
-                        children: [_paid(c, context)],
-                      ),
-                      Block(
-                        title: 'label_actions'.l10n,
-                        children: [_actions(c, context)],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+                        ),
+                        const SizedBox(height: 15),
+                        _name(c, context),
+                        _status(c, context),
+                        _presence(c, context),
+                      ],
+                    ),
+                    Block(
+                      title: 'label_contact_information'.l10n,
+                      children: [_num(c, context)],
+                    ),
+                    // Block(
+                    //   title: 'label_welcome_message'.l10n,
+                    //   children: [_welcome(c, context)],
+                    // ),
+                    Block(
+                      title: 'label_get_paid_for_incoming'.l10n,
+                      children: [_paid(c, context)],
+                    ),
+                    Block(
+                      title: 'label_actions'.l10n,
+                      children: [_actions(c, context)],
+                    ),
+                  ];
+
+                  return ScrollablePositionedList.builder(
+                    key: const Key('UserScrollable'),
+                    itemCount: blocks.length,
+                    itemBuilder: (_, i) => blocks[i],
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    initialScrollIndex: c.initialScrollIndex,
                   );
                 }),
               ),
@@ -558,38 +576,64 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.name] copyable field.
+  Widget _welcome(UserController c, BuildContext context) {
+    return Column(
+      children: [
+        _padding(
+          ReactiveTextField(
+            state: TextFieldState(),
+            label: 'label_comment'.l10n,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [User.name] copyable field.
   Widget _paid(UserController c, BuildContext context) {
     return Column(
       children: [
         _padding(
           ReactiveTextField(
             state: c.messageCost,
-            label: 'Fee per incoming message'.l10n,
-            prefixText: '\$',
-            // suffixText: 'per message',
-            prefixStyle: const TextStyle(color: Colors.black, fontSize: 15),
+            label: 'label_fee_per_incoming_message'.l10n,
+            hint: '0',
+            prefixText: '¤     ',
+            prefixStyle: TextStyle(
+              height: 0.8,
+              fontFamily: 'InterRoboto',
+              fontWeight: FontWeight.w300,
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 15,
+            ),
             type: TextInputType.number,
             formatters: [
-              FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-              FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+              FilteringTextInputFormatter.digitsOnly,
+              // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+              // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
             ],
           ),
         ),
         _padding(
           ReactiveTextField(
             state: c.callsCost,
-            label: 'Fee per incoming call minute'.l10n,
-            prefixText: '\$',
-            prefixStyle: const TextStyle(color: Colors.black, fontSize: 15),
+            hint: '0',
+            label: 'label_fee_per_incoming_call_minute'.l10n,
+            prefixText: '¤     ',
+            prefixStyle: TextStyle(
+              height: 0.8,
+              fontFamily: 'InterRoboto',
+              fontWeight: FontWeight.w300,
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 15,
+            ),
             type: TextInputType.number,
             formatters: [
-              FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-              FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+              FilteringTextInputFormatter.digitsOnly,
+              // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+              // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
             ],
           ),
-        ),
-        _padding(
-          ReactiveTextField(state: TextFieldState(), label: 'Comment'.l10n),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),

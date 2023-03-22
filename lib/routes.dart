@@ -110,6 +110,8 @@ enum ProfileTab {
   chats,
   calls,
   media,
+  welcome,
+  getPaid,
   notifications,
   storage,
   language,
@@ -780,8 +782,17 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.user] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void user(UserId id, {bool push = false}) =>
-      push ? this.push('${Routes.user}/$id') : go('${Routes.user}/$id');
+  void user(UserId id, {bool push = false, bool scrollToPaid = false}) {
+    if (push) {
+      this.push('${Routes.user}/$id');
+    } else {
+      go('${Routes.user}/$id');
+    }
+
+    if (scrollToPaid) {
+      arguments = {'scrollToPaid': scrollToPaid};
+    }
+  }
 
   /// Changes router location to the [Routes.chat] page.
   ///

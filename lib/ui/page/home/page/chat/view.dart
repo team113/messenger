@@ -54,6 +54,7 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
+import 'widget/paid_notification.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -112,7 +113,7 @@ class _ChatViewState extends State<ChatView>
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
         void onDetailsTap() {
-          Chat? chat = c.chat?.chat.value;
+          final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup) {
               router.chatInfo(widget.id, push: true);
@@ -245,14 +246,29 @@ class _ChatViewState extends State<ChatView>
                                   ? () {
                                       // c.paidDisclaimer.value = true;
                                       // c.confirmAction = null;
+
+                                      final Chat? chat = c.chat?.chat.value;
+                                      if (chat?.isDialog == true &&
+                                          chat?.members.isNotEmpty == true) {
+                                        router.user(
+                                          chat!.members
+                                                  .firstWhereOrNull(
+                                                      (e) => e.user.id != c.me)
+                                                  ?.user
+                                                  .id ??
+                                              chat.members.first.user.id,
+                                          push: true,
+                                          scrollToPaid: true,
+                                        );
+                                      }
                                     }
                                   : null,
                               child: Transform.translate(
-                                offset: const Offset(0, 0),
+                                offset: const Offset(0, 1),
                                 child: SvgLoader.asset(
-                                  'assets/icons/get_paid5.svg',
-                                  width: 21.8,
-                                  height: 21.8,
+                                  'assets/icons/get_paid6.svg',
+                                  width: 20.8,
+                                  height: 21.75,
                                 ),
                               ),
                             ),
@@ -451,136 +467,98 @@ class _ChatViewState extends State<ChatView>
                                     bool dummy =
                                         c.paidDisclaimerDismissed.value;
 
-                                    if (true) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              padding: const EdgeInsets.all(8),
-                                              margin: const EdgeInsets.only(
-                                                left: 6,
-                                                right: 6,
-                                                top: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                boxShadow: const [
-                                                  CustomBoxShadow(
-                                                    blurRadius: 8,
-                                                    color: Color(0x22000000),
-                                                  ),
-                                                ],
-                                                borderRadius: style.cardRadius,
-                                                border:
-                                                    style.systemMessageBorder,
-                                                color: style.systemMessageColor,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  'Закреплено сообщений: 1/3',
-                                                  style: style
-                                                      .systemMessageStyle
-                                                      .copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
-                                                  ),
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            height: 40,
+                                            padding: const EdgeInsets.all(8),
+                                            margin: const EdgeInsets.only(
+                                              left: 6,
+                                              right: 6,
+                                              top: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              boxShadow: const [
+                                                CustomBoxShadow(
+                                                  blurRadius: 8,
+                                                  color: Color(0x22000000),
+                                                ),
+                                              ],
+                                              borderRadius: style.cardRadius,
+                                              border: style.systemMessageBorder,
+                                              color: style.systemMessageColor,
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                'Закреплено сообщений: 1/3',
+                                                style: style.systemMessageStyle
+                                                    .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
                                                 ),
                                               ),
                                             ),
                                           ),
-                                          AnimatedSize(
-                                            duration: 200.milliseconds,
-                                            child: WidgetButton(
-                                              onPressed: onPressed,
-                                              child: c.paidDisclaimerDismissed
-                                                          .value &&
-                                                      c.paid
-                                                  ? Container(
-                                                      padding: const EdgeInsets
-                                                          .fromLTRB(
-                                                        12,
-                                                        8,
-                                                        12,
-                                                        8,
-                                                      ),
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                        left: 0,
-                                                        right: 6,
-                                                        top: 6,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            style.cardRadius,
-                                                        border: style
-                                                            .systemMessageBorder,
-                                                        color: style
-                                                            .systemMessageColor,
-                                                        boxShadow: const [
-                                                          CustomBoxShadow(
-                                                            blurRadius: 8,
-                                                            color: Color(
-                                                                0x22000000),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          '\$',
-                                                          style: style
-                                                              .systemMessageStyle
-                                                              .copyWith(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .secondary,
+                                        ),
+                                        AnimatedSize(
+                                          duration: 200.milliseconds,
+                                          child: WidgetButton(
+                                            onPressed: onPressed,
+                                            child: c.paidDisclaimerDismissed
+                                                        .value &&
+                                                    c.paid
+                                                ? Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(
+                                                      12,
+                                                      8,
+                                                      12,
+                                                      8,
+                                                    ),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                      left: 0,
+                                                      right: 6,
+                                                      top: 6,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: style
+                                                          .systemMessageBorder,
+                                                      color: style
+                                                          .systemMessageColor,
+                                                      boxShadow: const [
+                                                        CustomBoxShadow(
+                                                          blurRadius: 8,
+                                                          color: Color(
+                                                            0x22000000,
                                                           ),
                                                         ),
+                                                      ],
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        '\$',
+                                                        style: style
+                                                            .systemMessageStyle
+                                                            .copyWith(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                        ),
                                                       ),
-                                                    )
-                                                  : const SizedBox(),
-                                            ),
+                                                    ),
+                                                  )
+                                                : const SizedBox(),
                                           ),
-                                          // AnimatedSizeAndFade.showHide(
-                                          //   show: c.paidDisclaimerDismissed
-                                          //           .value &&
-                                          //       c.paid,
-                                          //   child: WidgetButton(
-                                          //     onPressed: onPressed,
-                                          //     child: Container(
-                                          //       padding:
-                                          //           const EdgeInsets.all(8),
-                                          //       margin: const EdgeInsets.only(
-                                          //         left: 6,
-                                          //         right: 6,
-                                          //         top: 6,
-                                          //       ),
-                                          //       decoration: BoxDecoration(
-                                          //         borderRadius:
-                                          //             style.cardRadius,
-                                          //         border:
-                                          //             style.systemMessageBorder,
-                                          //         color:
-                                          //             style.systemMessageColor,
-                                          //       ),
-                                          //       child: Center(
-                                          //         child: Text(
-                                          //           '\$',
-                                          //           style: style
-                                          //               .systemMessageStyle
-                                          //               .copyWith(
-                                          //             color: Theme.of(context)
-                                          //                 .colorScheme
-                                          //                 .secondary,
-                                          //           ),
-                                          //         ),
-                                          //       ),
-                                          //     ),
-                                          //   ),
-                                          // ),
-                                        ],
-                                      );
-                                    }
+                                        ),
+                                      ],
+                                    );
 
                                     return AnimatedSizeAndFade.showHide(
                                       show: c.paidDisclaimerDismissed.value &&
@@ -986,6 +964,31 @@ class _ChatViewState extends State<ChatView>
                       ),
                     );
                   }),
+                  // Obx(() {
+                  //   return Align(
+                  //     alignment: Alignment.bottomCenter,
+                  //     child: AnimatedSizeAndFade.showHide(
+                  //       show: c.paidDisclaimer.value,
+                  //       child: PaidNotification(
+                  //         border: c.paidBorder.value
+                  //             ? Border.all(
+                  //                 color:
+                  //                     Theme.of(context).colorScheme.secondary,
+                  //                 width: 2,
+                  //               )
+                  //             : Border.all(
+                  //                 color: Colors.transparent,
+                  //                 width: 2,
+                  //               ),
+                  //         onPressed: () {
+                  //           c.paidDisclaimer.value = false;
+                  //           c.paidDisclaimerDismissed.value = true;
+                  //           c.paidBorder.value = false;
+                  //         },
+                  //       ),
+                  //     ),
+                  //   );
+                  // }),
                   if (false)
                     Obx(() {
                       final Style style = Theme.of(context).extension<Style>()!;
@@ -1127,7 +1130,7 @@ class _ChatViewState extends State<ChatView>
                                           // ),
                                           // const SizedBox(height: 8),
                                           Text(
-                                            'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                                            'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
                                             style: style.systemMessageStyle,
                                           ),
                                           const SizedBox(height: 8),
@@ -1972,11 +1975,7 @@ class _ChatViewState extends State<ChatView>
         );
       }
 
-      final bool disabled = c.paid && c.paidDisclaimer.value;
-
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? thin =
-          Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -1984,9 +1983,29 @@ class _ChatViewState extends State<ChatView>
           Obx(() {
             return AnimatedSizeAndFade.showHide(
               show: c.paidDisclaimer.value,
+              child: PaidNotification(
+                border: c.paidBorder.value
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 2,
+                      )
+                    : Border.all(
+                        color: Colors.transparent,
+                        width: 2,
+                      ),
+                onPressed: () {
+                  c.paidDisclaimer.value = false;
+                  c.paidDisclaimerDismissed.value = true;
+                  c.paidBorder.value = false;
+                },
+              ),
+            );
+
+            return AnimatedSizeAndFade.showHide(
+              show: c.paidDisclaimer.value,
               child: Container(
                 margin:
-                    const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 8),
+                    const EdgeInsets.only(top: 0, bottom: 8, left: 8, right: 8),
                 decoration: BoxDecoration(
                   borderRadius: style.cardRadius,
                   boxShadow: const [
@@ -2112,7 +2131,7 @@ class _ChatViewState extends State<ChatView>
                             // ),
                             // const SizedBox(height: 8),
                             Text(
-                              'Платный чат. Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                              'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
                               style: style.systemMessageStyle,
                             ),
                             const SizedBox(height: 8),

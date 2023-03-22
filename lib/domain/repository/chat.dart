@@ -256,7 +256,7 @@ abstract class RxChat {
               .isBlacklisted !=
           null;
 
-  double get messageCost {
+  int get messageCost {
     if (chat.value.isDialog) {
       return members.values
               .firstWhereOrNull((e) => e.id != me)
@@ -269,7 +269,7 @@ abstract class RxChat {
     return 0;
   }
 
-  double get callCost {
+  int get callCost {
     if (chat.value.isDialog) {
       return members.values
               .firstWhereOrNull((e) => e.id != me)

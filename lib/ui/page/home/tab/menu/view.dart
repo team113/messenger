@@ -327,6 +327,22 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.welcome:
+                    child = card(
+                      icon: Icons.message,
+                      title: 'label_welcome_message'.l10n,
+                      subtitle: 'label_public_description'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.getPaid:
+                    child = card(
+                      icon: Icons.paid,
+                      title: 'label_get_paid_for_incoming'.l10n,
+                      subtitle: 'label_message_and_call_cost'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.notifications:
                     child = card(
                       icon: Icons.notifications,

@@ -59,7 +59,7 @@ import 'swipeable_status.dart';
 /// [ChatForward] visual representation.
 class ChatForwardWidget extends StatefulWidget {
   const ChatForwardWidget({
-    Key? key,
+    super.key,
     required this.chat,
     required this.forwards,
     required this.note,
@@ -81,7 +81,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
-  }) : super(key: key);
+  });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
   final Rx<Chat?> chat;
@@ -594,7 +594,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               selectable: PlatformUtils.isDesktop || menu,
               onChanged: (a) => _selection = a,
               onSelecting: widget.onSelecting,
-              style: style.boldBody,
+              style: style.boldBody.copyWith(color: color),
             ),
           ),
         if (text != null)
@@ -893,7 +893,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                                onPressed: () => widget.onCopy
+                                    ?.call(_selection?.plainText ?? copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),

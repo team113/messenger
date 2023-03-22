@@ -19,7 +19,9 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -55,8 +57,9 @@ class UserController extends GetxController {
     this._userService,
     this._contactService,
     this._chatService,
-    this._callService,
-  );
+    this._callService, {
+    this.scrollToPaid = false,
+  });
 
   /// ID of the [User] this [UserController] represents.
   final UserId id;
@@ -75,6 +78,15 @@ class UserController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  final bool scrollToPaid;
 
   /// Temporary indicator whether the [user] is favorite.
   late final RxBool inFavorites;
@@ -186,8 +198,16 @@ class UserController extends GetxController {
       }
     });
 
+    if (scrollToPaid) {
+      initialScrollIndex = isBlacklisted == null ? 2 : 3;
+    } else {
+      initialScrollIndex = 0;
+    }
+
     super.onInit();
   }
+
+  late final int initialScrollIndex;
 
   @override
   void onClose() {
@@ -388,18 +408,18 @@ class UserController extends GetxController {
               : user!.user.value.messageCost.toString(),
           approvable: true,
           onChanged: (s) async {
-            if (s.text.isNotEmpty) {
-              if (!s.text.contains('.')) {
-                s.text = '${s.text}.00';
-              } else if (s.text.endsWith('.0')) {
-                s.text = '${s.text}0';
-              } else if (s.text.endsWith('.')) {
-                s.text = '${s.text}00';
-              }
-            }
+            // if (s.text.isNotEmpty) {
+            //   if (!s.text.contains('.')) {
+            //     s.text = '${s.text}.00';
+            //   } else if (s.text.endsWith('.0')) {
+            //     s.text = '${s.text}0';
+            //   } else if (s.text.endsWith('.')) {
+            //     s.text = '${s.text}00';
+            //   }
+            // }
           },
           onSubmitted: (s) {
-            user?.user.value.messageCost = double.tryParse(s.text) ?? 0;
+            user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
         );
@@ -410,18 +430,18 @@ class UserController extends GetxController {
               : user!.user.value.callCost.toString(),
           approvable: true,
           onChanged: (s) async {
-            if (s.text.isNotEmpty) {
-              if (!s.text.contains('.')) {
-                s.text = '${s.text}.00';
-              } else if (s.text.endsWith('.0')) {
-                s.text = '${s.text}0';
-              } else if (s.text.endsWith('.')) {
-                s.text = '${s.text}00';
-              }
-            }
+            // if (s.text.isNotEmpty) {
+            //   if (!s.text.contains('.')) {
+            //     s.text = '${s.text}.00';
+            //   } else if (s.text.endsWith('.0')) {
+            //     s.text = '${s.text}0';
+            //   } else if (s.text.endsWith('.')) {
+            //     s.text = '${s.text}00';
+            //   }
+            // }
           },
           onSubmitted: (s) {
-            user?.user.value.callCost = double.tryParse(s.text) ?? 0;
+            user?.user.value.callCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
         );

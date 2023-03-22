@@ -20,6 +20,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/user/get_paid/view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -258,6 +259,18 @@ class MyProfileView extends StatelessWidget {
                         }
 
                         return const SizedBox();
+
+                      case ProfileTab.welcome:
+                        return Block(
+                          title: 'label_welcome_message'.l10n,
+                          children: [_welcome(context, c)],
+                        );
+
+                      case ProfileTab.getPaid:
+                        return Block(
+                          title: 'label_get_paid_for_incoming'.l10n,
+                          children: [_getPaid(context, c)],
+                        );
 
                       case ProfileTab.notifications:
                         return Block(
@@ -1237,6 +1250,83 @@ Widget _media(BuildContext context, MyProfileController c) {
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
+      ),
+    ],
+  );
+}
+
+Widget _welcome(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _padding(
+        ReactiveTextField(state: TextFieldState(), label: 'label_comment'.l10n),
+      ),
+    ],
+  );
+}
+
+Widget _getPaid(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _padding(
+        ReactiveTextField(
+          state: c.messageCost,
+          label: 'label_fee_per_incoming_message'.l10n,
+          prefixText: '\$',
+          // suffixText: 'per message',
+          prefixStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontSize: 15,
+          ),
+          type: TextInputType.number,
+          formatters: [
+            FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+            FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+          ],
+        ),
+      ),
+      _padding(
+        ReactiveTextField(
+          state: c.callsCost,
+          label: 'label_fee_per_incoming_call_minute'.l10n,
+          prefixText: '\$',
+          prefixStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontSize: 15,
+          ),
+          type: TextInputType.number,
+          formatters: [
+            FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+            FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+        child: Row(
+          children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.normal,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'label_details'.l10n,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () async {
+                        await GetPaidView.show(context);
+                      },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ],
   );
