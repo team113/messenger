@@ -158,7 +158,6 @@ btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
 btn_copy = Copy
-btn_copy_selected = Copy selected text
 btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete

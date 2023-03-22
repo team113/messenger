@@ -32,10 +32,10 @@ import '../configuration.dart';
 import '../mock/platform_utils.dart';
 import '../world/custom_world.dart';
 
-/// Selects specified symbols in the text message.
+/// Selects the specified range of symbols in the provided [ChatMessage].
 ///
 /// Examples:
-/// - When I select "Example" text from 1 to 5 symbols
+/// - When I select "Example" message from 1 to 5 symbols
 final StepDefinitionGeneric selectMessageText =
     when3<String, int, int, CustomWorld>(
   'I select {string} message from {int} to {int} symbols',

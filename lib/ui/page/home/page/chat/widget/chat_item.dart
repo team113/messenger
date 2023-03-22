@@ -1491,8 +1491,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   }
 
                   if (_dragging) {
-                    // Distance [_totalOffset] should exceed in order for dragging to
-                    // start.
+                    // Distance [_totalOffset] should exceed in order for
+                    // dragging to start.
                     const int delta = 10;
 
                     if (_totalOffset.dx > delta) {

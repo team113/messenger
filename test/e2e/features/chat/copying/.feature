@@ -33,7 +33,7 @@ Feature: Text messages selection and copying
 
     When I select "For selection" message from 2 to 10 symbols
     And I long press "For selection" message
-    And I tap `CopySelectedButton` button
+    And I tap `CopyButton` button
     Then copied text is "r select"
 
     When I tap "For selection" message
