@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -25,6 +24,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 /// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
@@ -107,7 +107,7 @@ class SharableTextField extends StatelessWidget {
 
   /// Puts the [share] into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: share ?? state.text));
+    PlatformUtils.copy(text: share ?? state.text);
     MessagePopup.success('label_copied'.l10n);
   }
 
