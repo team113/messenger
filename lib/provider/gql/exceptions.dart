@@ -1552,9 +1552,9 @@ class RegisterFcmDeviceException
   String toMessage() {
     switch (code) {
       case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
-        return 'err_dimensions_too_big'.l10n;
+        return 'err_invalid_registration_token'.l10n;
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
-        return 'err_dimensions_too_big'.l10n;
+        return 'err_unknown_registration_token'.l10n;
       case RegisterFcmDeviceErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }

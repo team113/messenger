@@ -500,7 +500,7 @@ class HiveRxChat extends RxChat {
       );
 
       var event = response?.events
-              .map((e) => ChatRepository.chatEvent(e, null))
+              .map((e) => _chatRepository.chatEvent(e))
               .firstWhereOrNull((e) => e is EventChatItemPosted)
           as EventChatItemPosted?;
 

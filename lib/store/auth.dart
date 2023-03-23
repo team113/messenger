@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -26,7 +24,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/util/platform_utils.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -96,24 +93,10 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> logout() async {
-    if (PlatformUtils.isWeb ||
-        PlatformUtils.isMobile ||
-        PlatformUtils.isMacOS) {
-      NotificationSettings notificationSettings =
-          await FirebaseMessaging.instance.getNotificationSettings();
-
-      if (notificationSettings.authorizationStatus ==
-          AuthorizationStatus.authorized) {
-        String? token = await FirebaseMessaging.instance.getToken(
-          vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
-        );
-        if (token != null) {
-          _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(token));
-        }
-      }
+  Future<void> logout({FcmRegistrationToken? fcmRegistrationToken}) async {
+    if (fcmRegistrationToken != null) {
+      await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
     }
-
     await _graphQlProvider.deleteSession();
   }
 

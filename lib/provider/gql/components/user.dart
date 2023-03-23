@@ -1153,14 +1153,11 @@ abstract class UserGraphQlMixin {
   /// Registers a device (Android, iOS, or Web) for receiving notifications via
   /// Firebase Cloud Messaging.
   ///
-  /// See Firebase Cloud Messaging documentation for how to generate
-  /// `FcmRegistrationToken`s for Flutter and for JavaScript.
-  ///
   /// ### Localization
   ///
-  /// You may provide the device's preferred locale via the Accept-Language HTTP
-  /// header, which will localize notifications to that device using the best
-  /// match of the supported locales.
+  /// You may provide the device's preferred locale via the `Accept-Language`
+  /// HTTP header, which will localize notifications to that device using the
+  /// best match of the supported locales.
   ///
   /// In order to change the locale of the device, you should re-register it
   /// supplying the desired locale (use [unregisterFcmDevice], and then
@@ -1178,7 +1175,7 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds if the specified [token] is registered already.
   Future<void> registerFcmDevice(
-      FcmRegistrationToken token, String? locale) async {
+      FcmRegistrationToken token, String? locale,) async {
     final variables = RegisterFcmDeviceArguments(token: token);
     final query = MutationOptions(
       operationName: 'RegisterFcmDevice',

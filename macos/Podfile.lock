@@ -6,20 +6,80 @@ PODS:
     - ReachabilitySwift
   - desktop_drop (0.0.1):
     - FlutterMacOS
+  - Firebase/CoreOnly (10.3.0):
+    - FirebaseCore (= 10.3.0)
+  - Firebase/Messaging (10.3.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 10.3.0)
+  - firebase_core (2.7.1):
+    - Firebase/CoreOnly (~> 10.3.0)
+    - FlutterMacOS
+  - firebase_messaging (14.2.6):
+    - Firebase/CoreOnly (~> 10.3.0)
+    - Firebase/Messaging (~> 10.3.0)
+    - firebase_core
+    - FlutterMacOS
+  - FirebaseCore (10.3.0):
+    - FirebaseCoreInternal (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Logger (~> 7.8)
+  - FirebaseCoreInternal (10.4.0):
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseInstallations (10.4.0):
+    - FirebaseCore (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.3.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
   - flutter_app_badger (1.3.0):
     - FlutterMacOS
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - GoogleDataTransport (9.2.1):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/AppDelegateSwizzler (7.11.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (7.11.0):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.11.0):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/Network (7.11.0):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (7.11.0)"
+  - GoogleUtilities/Reachability (7.11.0):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/UserDefaults (7.11.0):
+    - GoogleUtilities/Logger
   - medea_flutter_webrtc (0.8.0-dev):
     - FlutterMacOS
   - medea_jason (0.3.0-dev):
     - FlutterMacOS
+  - nanopb (2.30909.0):
+    - nanopb/decode (= 2.30909.0)
+    - nanopb/encode (= 2.30909.0)
+  - nanopb/decode (2.30909.0)
+  - nanopb/encode (2.30909.0)
   - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - PromisesObjC (2.1.1)
   - ReachabilitySwift (5.0.0)
   - rive_common (0.0.1):
     - FlutterMacOS
@@ -32,6 +92,9 @@ PODS:
     - Sentry/HybridSDK (= 7.31.5)
   - share_plus (0.0.1):
     - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
   - window_manager (0.2.0):
@@ -41,6 +104,8 @@ DEPENDENCIES:
   - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
+  - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
+  - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_app_badger (from `Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
@@ -52,11 +117,21 @@ DEPENDENCIES:
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 SPEC REPOS:
   trunk:
+    - Firebase
+    - FirebaseCore
+    - FirebaseCoreInternal
+    - FirebaseInstallations
+    - FirebaseMessaging
+    - GoogleDataTransport
+    - GoogleUtilities
+    - nanopb
+    - PromisesObjC
     - ReachabilitySwift
     - Sentry
 
@@ -67,6 +142,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
+  firebase_core:
+    :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
+  firebase_messaging:
+    :path: Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos
   flutter_app_badger:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos
   flutter_local_notifications:
@@ -89,6 +168,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos
   wakelock_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos
   window_manager:
@@ -98,19 +179,31 @@ SPEC CHECKSUMS:
   audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
+  Firebase: f92fc551ead69c94168d36c2b26188263860acd9
+  firebase_core: 82d0bad907d4128050efaaaa978f9d313b2ef167
+  firebase_messaging: e3a99b4c6fb6f593c6f21d959f9b998967d3367c
+  FirebaseCore: 988754646ab3bd4bdcb740f1bfe26b9f6c0d5f2a
+  FirebaseCoreInternal: e301297f4c15a17489e48ed722d733b1578e0c02
+  FirebaseInstallations: 36b38c733fd37e50857e5e8d74138648f466f18c
+  FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
+  GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   medea_flutter_webrtc: 028a81d72434f27a0004d2847055dfbb3be11d19
   medea_jason: 2ce5ea82a8352f8de793306d7e2df15f9c06588c
+  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   rive_common: 643f5c20ccd60c53136ab5c970eccf0d17e010fe
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   sentry_flutter: b10ae7a5ddcbc7f04648eeb2672b5747230172f1
   share_plus: 76dd39142738f7a68dd57b05093b5e8193f220f7
+  shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 

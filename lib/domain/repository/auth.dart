@@ -15,10 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../model/chat.dart';
-import '../model/my_user.dart';
-import '../model/session.dart';
-import '../model/user.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/provider/gql/exceptions.dart';
 
 /// Authentication repository interface.
@@ -59,7 +60,10 @@ abstract class AbstractAuthRepository {
 
   /// Deletes a [Session] of the [MyUser] identified by the [token] of this
   /// repository.
-  Future<void> logout();
+  ///
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
+  Future<void> logout({FcmRegistrationToken? fcmRegistrationToken});
 
   /// Validates the current [AccessToken].
   Future<void> validateToken();

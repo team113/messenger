@@ -17,7 +17,9 @@
 
 import '/util/new_type.dart';
 
-/// Firebase Cloud Messaging registration token.
+/// [Firebase Cloud Messaging][1] registration token.
+///
+/// [1]: https://firebase.google.com/docs/cloud-messaging
 class FcmRegistrationToken extends NewType<String> {
-  const FcmRegistrationToken(String val) : super(val);
+  const FcmRegistrationToken(super.val);
 }
