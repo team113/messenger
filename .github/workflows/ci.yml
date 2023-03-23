@@ -346,6 +346,10 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
 
+      # Clear the cache since `hashFile` may fail due to permissions missing:
+      # https://github.com/actions/runner/issues/449
+      - run: rm -rf .cache
+
   test-unit:
     name: Unit tests
     runs-on: ubuntu-latest
