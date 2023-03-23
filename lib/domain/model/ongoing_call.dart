@@ -1411,7 +1411,7 @@ class OngoingCall {
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.dispose(); s
+        t.dispose();
         return true;
       }
       return false;
