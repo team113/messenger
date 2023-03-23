@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -100,6 +101,11 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
+  /// Indicator whether any [Text] is being selected right now.
+  ///
+  /// Used to discard [SwipeableStatus] gestures when [Text] is being selected.
+  final RxBool isSelecting = RxBool(false);
+
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -123,6 +129,9 @@ class ChatController extends GetxController {
 
   /// [MessageFieldController] for editing a [ChatMessage].
   final Rx<MessageFieldController?> edit = Rx(null);
+
+  /// [SelectedContent] of a [SelectionArea] within this [ChatView].
+  final Rx<SelectedContent?> selection = Rx(null);
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -1065,7 +1074,7 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
-    Clipboard.setData(ClipboardData(text: text));
+    PlatformUtils.copy(text: text);
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 

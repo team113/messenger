@@ -54,6 +54,7 @@ enum WidgetKey {
   ConfirmedPhone,
   ContactsButton,
   ContactsTab,
+  CopyButton,
   CurrentPasswordField,
   DangerZone,
   Delete,

@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - History clearing. ([#361])
+        - Text selection in messages. ([#118], [#17])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#333], [#326])    
@@ -33,6 +34,8 @@ All user visible changes to this project will be documented in this file. This p
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
 
+[#17]: /../../issues/17
+[#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#367]: /../../issues/367
