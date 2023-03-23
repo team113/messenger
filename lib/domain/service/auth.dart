@@ -307,9 +307,7 @@ class AuthService extends GetxService {
     try {
       FcmRegistrationToken? fcmRegistrationToken;
 
-      if (PlatformUtils.isWeb ||
-          PlatformUtils.isMobile ||
-          PlatformUtils.isMacOS) {
+      if (PlatformUtils.pushNotifications) {
         final NotificationSettings settings =
             await FirebaseMessaging.instance.getNotificationSettings();
 
