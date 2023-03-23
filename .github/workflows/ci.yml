@@ -348,7 +348,7 @@ jobs:
 
       # Grant permissions to `.cache` created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
-      - run: chmod -R 755 .cache
+      - run: sudo chmod -R 755 .cache
 
   test-unit:
     name: Unit tests
