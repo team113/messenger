@@ -1313,7 +1313,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                 style: TextStyle(
                   height: 0.8,
                   fontFamily: 'InterRoboto',
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.primary,
                   // color: Color(0xFFC6C6C6),
                   fontSize: 21,
@@ -1353,7 +1353,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                 style: TextStyle(
                   height: 0.8,
                   fontFamily: 'InterRoboto',
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.w400,
                   // color: Color(0xFFC6C6C6),
                   color: Theme.of(context).colorScheme.primary,
                   fontSize: 21,
