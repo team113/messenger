@@ -405,46 +405,55 @@ class UserController extends GetxController {
         messageCost = TextFieldState(
           text: user!.user.value.messageCost == 0
               ? null
-              : user!.user.value.messageCost.toString(),
+              : '${user!.user.value.messageCost.toString()}.00',
           approvable: true,
-          onChanged: (s) async {
-            // if (s.text.isNotEmpty) {
-            //   if (!s.text.contains('.')) {
-            //     s.text = '${s.text}.00';
-            //   } else if (s.text.endsWith('.0')) {
-            //     s.text = '${s.text}0';
-            //   } else if (s.text.endsWith('.')) {
-            //     s.text = '${s.text}00';
-            //   }
-            // }
-          },
           onSubmitted: (s) {
             user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
         );
 
+        messageCost.isFocused.listen((b) {
+          if (b) {
+            messageCost.unchecked = messageCost.text.replaceAll('.00', '');
+          } else if (messageCost.text.isNotEmpty) {
+            if (!messageCost.text.contains('.')) {
+              messageCost.text = '${messageCost.text}.00';
+            }
+          }
+        });
+
         callsCost = TextFieldState(
           text: user!.user.value.callCost == 0
               ? null
-              : user!.user.value.callCost.toString(),
+              : '${user!.user.value.callCost.toString()}.00',
           approvable: true,
-          onChanged: (s) async {
-            // if (s.text.isNotEmpty) {
-            //   if (!s.text.contains('.')) {
-            //     s.text = '${s.text}.00';
-            //   } else if (s.text.endsWith('.0')) {
-            //     s.text = '${s.text}0';
-            //   } else if (s.text.endsWith('.')) {
-            //     s.text = '${s.text}00';
-            //   }
-            // }
-          },
+          // onChanged: (s) async {
+          //   if (s.text.isNotEmpty) {
+          //     if (!s.text.contains('.')) {
+          //       s.text = '${s.text}.00';
+          //     } else if (s.text.endsWith('.0')) {
+          //       s.text = '${s.text}0';
+          //     } else if (s.text.endsWith('.')) {
+          //       s.text = '${s.text}00';
+          //     }
+          //   }
+          // },
           onSubmitted: (s) {
             user?.user.value.callCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
         );
+
+        callsCost.isFocused.listen((b) {
+          if (b) {
+            callsCost.unchecked = callsCost.text.replaceAll('.00', '');
+          } else if (callsCost.text.isNotEmpty) {
+            if (!callsCost.text.contains('.')) {
+              callsCost.text = '${callsCost.text}.00';
+            }
+          }
+        });
       }
 
       status.value = user == null ? RxStatus.empty() : RxStatus.success();

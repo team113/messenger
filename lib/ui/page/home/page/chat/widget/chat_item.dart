@@ -1016,6 +1016,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   // text,
                   TextSpan(
                     children: [
+                      // text.linkify(),
                       TextSpan(text: text),
                       if (widget.displayTime && !timeInBubble) ...[
                         if (_fromMe)
@@ -2135,6 +2136,20 @@ class FoldedWidget extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+extension TextLinkify on String {
+  TextSpan linkify() {
+    final matcher = RegExp(
+      r'(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)',
+    );
+
+    matcher.allMatches(this);
+
+    return TextSpan(
+      children: [],
     );
   }
 }

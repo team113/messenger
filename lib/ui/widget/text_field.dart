@@ -65,6 +65,7 @@ class ReactiveTextField extends StatelessWidget {
     this.fillColor = Colors.white,
     this.maxLength,
     this.readOnly = false,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -166,6 +167,8 @@ class ReactiveTextField extends StatelessWidget {
   final int? maxLength;
 
   final bool readOnly;
+
+  final FloatingLabelBehavior floatingLabelBehavior;
 
   @override
   Widget build(BuildContext context) {
@@ -304,6 +307,7 @@ class ReactiveTextField extends StatelessWidget {
               readOnly: readOnly || (!enabled || !state.editable.value),
               enabled: enabled && state.editable.value,
               decoration: InputDecoration(
+                floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 suffixText: suffixText,
@@ -328,6 +332,11 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
+                // hintStyle: style?.copyWith(color: Color(0xFFC6C6C6)),
+                hintStyle: style?.copyWith(
+                  // color: Theme.of(context).colorScheme.primary,
+                  color: const Color(0xFFC6C6C6),
+                ),
                 hintText: hint,
                 hintMaxLines: 1,
 

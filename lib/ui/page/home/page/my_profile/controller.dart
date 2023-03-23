@@ -409,6 +409,26 @@ class MyProfileController extends GetxController {
       },
     );
 
+    messageCost.isFocused.listen((b) {
+      if (b) {
+        messageCost.unchecked = messageCost.text.replaceAll('.00', '');
+      } else if (messageCost.text.isNotEmpty) {
+        if (!messageCost.text.contains('.')) {
+          messageCost.text = '${messageCost.text}.00';
+        }
+      }
+    });
+
+    callsCost.isFocused.listen((b) {
+      if (b) {
+        callsCost.unchecked = callsCost.text.replaceAll('.00', '');
+      } else if (callsCost.text.isNotEmpty) {
+        if (!callsCost.text.contains('.')) {
+          callsCost.text = '${callsCost.text}.00';
+        }
+      }
+    });
+
     super.onInit();
   }
 

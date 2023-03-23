@@ -494,6 +494,7 @@ class _ChatViewState extends State<ChatView>
                                                 'Закреплено сообщений: 1/3',
                                                 style: style.systemMessageStyle
                                                     .copyWith(
+                                                  fontSize: 15,
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .secondary,
@@ -546,6 +547,7 @@ class _ChatViewState extends State<ChatView>
                                                         style: style
                                                             .systemMessageStyle
                                                             .copyWith(
+                                                          fontSize: 15,
                                                           color:
                                                               Theme.of(context)
                                                                   .colorScheme

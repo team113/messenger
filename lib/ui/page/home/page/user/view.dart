@@ -594,44 +594,120 @@ class UserView extends StatelessWidget {
     return Column(
       children: [
         _padding(
-          ReactiveTextField(
-            state: c.messageCost,
-            label: 'label_fee_per_incoming_message'.l10n,
-            hint: '0',
-            prefixText: '¤     ',
-            prefixStyle: TextStyle(
-              height: 0.8,
-              fontFamily: 'InterRoboto',
-              fontWeight: FontWeight.w300,
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 15,
-            ),
-            type: TextInputType.number,
-            formatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-              // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+          Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              ReactiveTextField(
+                state: c.messageCost,
+                hint: '0.00',
+                prefixText: '     ',
+                prefixStyle: const TextStyle(fontSize: 13),
+                label: 'label_fee_per_incoming_message'.l10n,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                type: TextInputType.number,
+                style: TextStyle(fontSize: 21),
+                formatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+                  // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 21,
+                  top: 1,
+                  bottom: PlatformUtils.isWeb ? 8.5 : 0,
+                ),
+                child: Text(
+                  '¤',
+                  style: TextStyle(
+                    height: 0.8,
+                    fontFamily: 'InterRoboto',
+                    fontWeight: FontWeight.w300,
+                    color: Theme.of(context).colorScheme.primary,
+                    // color: Color(0xFFC6C6C6),
+                    fontSize: 21,
+                  ),
+                ),
+              ),
+              // IgnorePointer(
+              //   child: Padding(
+              //     padding: const EdgeInsets.only(left: 22, bottom: 1),
+              //     child: Row(
+              //       children: [
+              //         Opacity(
+              //           opacity: 0,
+              //           child: Text(
+              //             c.messageCost.text.isEmpty
+              //                 ? '000'
+              //                 : c.messageCost.text,
+              //             style: TextStyle(fontSize: 15),
+              //           ),
+              //         ),
+              //         Text(
+              //           '¤',
+              //           style: TextStyle(
+              //             height: 0.8,
+              //             fontFamily: 'InterRoboto',
+              //             fontWeight: FontWeight.w300,
+              //             color: Theme.of(context).colorScheme.primary,
+              //             fontSize: 15,
+              //           ),
+              //         ),
+              //         Padding(
+              //           padding: const EdgeInsets.only(bottom: 2),
+              //           child: Text(
+              //             ' за сообщение',
+              //             style: TextStyle(
+              //               color: Theme.of(context).colorScheme.primary,
+              //               fontSize: 15,
+              //             ),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
         _padding(
-          ReactiveTextField(
-            state: c.callsCost,
-            hint: '0',
-            label: 'label_fee_per_incoming_call_minute'.l10n,
-            prefixText: '¤     ',
-            prefixStyle: TextStyle(
-              height: 0.8,
-              fontFamily: 'InterRoboto',
-              fontWeight: FontWeight.w300,
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 15,
-            ),
-            type: TextInputType.number,
-            formatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-              // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+          Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              ReactiveTextField(
+                state: c.callsCost,
+                hint: '0.00',
+                prefixText: '     ',
+                prefixStyle: const TextStyle(fontSize: 13),
+                style: TextStyle(fontSize: 21),
+                label: 'label_fee_per_incoming_call_minute'.l10n,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                type: TextInputType.number,
+                formatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+                  // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 21,
+                  top: 1,
+                  bottom: PlatformUtils.isWeb ? 8.5 : 0,
+                ),
+                child: Text(
+                  '¤',
+                  style: TextStyle(
+                    height: 0.8,
+                    fontFamily: 'InterRoboto',
+                    fontWeight: FontWeight.w300,
+                    // color: Color(0xFFC6C6C6),
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 21,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
