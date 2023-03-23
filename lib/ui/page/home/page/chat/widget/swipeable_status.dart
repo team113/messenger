@@ -126,10 +126,10 @@ class SwipeableStatus extends StatelessWidget {
                             ? Icons.error_outline
                             : Icons.done,
                 color: isRead
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).extension<Style>()!.secondary
                     : isError
                         ? Colors.red
-                        : Theme.of(context).colorScheme.primary,
+                        : Theme.of(context).extension<Style>()!.primary,
                 size: 12,
               ),
             const SizedBox(width: 3),

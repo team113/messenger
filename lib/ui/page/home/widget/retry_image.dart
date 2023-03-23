@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../themes.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -269,7 +270,7 @@ class _RetryImageState extends State<RetryImage> {
                     blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)

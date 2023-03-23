@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '../../../../themes.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -245,7 +246,7 @@ class SearchView extends StatelessWidget {
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).extension<Style>()!.secondary,
                     );
                   }),
                 ),

@@ -792,7 +792,7 @@ class _ChatViewState extends State<ChatView>
               Text(
                 'label_typing'.l10n,
                 style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
               const SizedBox(width: 3),
@@ -818,7 +818,7 @@ class _ChatViewState extends State<ChatView>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
             ),
@@ -1054,7 +1054,9 @@ class _ChatViewState extends State<ChatView>
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .secondary,
                               ),
                             ),
                           ),

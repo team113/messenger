@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -66,7 +67,7 @@ class LoginView extends StatelessWidget {
                 ),
               ),
               onPressed: onPressed,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).extension<Style>()!.secondary,
             );
           }
 
@@ -88,7 +89,7 @@ class LoginView extends StatelessWidget {
                   'label_recover_account_description'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).extension<Style>()!.primary,
                   ),
                 ),
                 const SizedBox(height: 25),

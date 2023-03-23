@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -238,7 +239,7 @@ class RecentChatTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               color: inCall?.call() == true
                   ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
+                  : Theme.of(context).extension<Style>()!.secondary,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               return Row(
@@ -375,7 +376,7 @@ class RecentChatTile extends StatelessWidget {
                 Text(
                   'label_typing'.l10n,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                 ),
                 const SizedBox(width: 3),
@@ -398,7 +399,7 @@ class RecentChatTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       ),
                     ),
                   ),
@@ -773,10 +774,10 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? Theme.of(context).colorScheme.secondary
+                ? Theme.of(context).extension<Style>()!.secondary
                 : isError
                     ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
+                    : Theme.of(context).extension<Style>()!.primary,
             size: 16,
           ),
         );

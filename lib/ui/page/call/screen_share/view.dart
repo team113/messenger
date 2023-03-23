@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '../../../../themes.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/video_view.dart';
@@ -140,7 +141,7 @@ class ScreenShareView extends StatelessWidget {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
               const SizedBox(height: 12),

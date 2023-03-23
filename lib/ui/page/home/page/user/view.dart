@@ -269,7 +269,8 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),
@@ -523,7 +524,9 @@ class UserView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .secondary,
                               ),
                               type: TextInputType.multiline,
                               textInputAction: TextInputAction.newline,

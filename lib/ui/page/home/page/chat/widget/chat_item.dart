@@ -503,12 +503,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
                       style: style.systemMessageStyle.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).extension<Style>()!.primary,
                       ),
                     ),
                   ],
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                 ),
               );
@@ -545,7 +545,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).extension<Style>()!.primary,
                     ),
                   ),
                   TextSpan(
@@ -555,7 +555,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
             );
@@ -576,12 +576,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).extension<Style>()!.primary,
                   ),
                 ),
               ],
               style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).extension<Style>()!.secondary,
               ),
             ),
           );
@@ -612,7 +612,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).extension<Style>()!.primary,
                     ),
                   ),
                   TextSpan(
@@ -622,7 +622,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
             );
@@ -643,12 +643,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).extension<Style>()!.primary,
                   ),
                 ),
               ],
               style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).extension<Style>()!.secondary,
               ),
             ),
           );
@@ -683,12 +683,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase2.l10nfmt(args),
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).extension<Style>()!.primary,
                 ),
               ),
             ],
             style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).extension<Style>()!.secondary,
             ),
           ),
         );
@@ -723,12 +723,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase2.l10nfmt(args),
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).extension<Style>()!.primary,
                 ),
               ),
             ],
             style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).extension<Style>()!.secondary,
             ),
           ),
         );
@@ -793,7 +793,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }).toList();
 
     Color color = _fromMe
-        ? Theme.of(context).colorScheme.secondary
+        ? Theme.of(context).extension<Style>()!.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
@@ -1062,7 +1062,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = _fromMe
-        ? Theme.of(context).colorScheme.secondary
+        ? Theme.of(context).extension<Style>()!.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
@@ -1242,7 +1242,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     '${'plus'.l10n}$count',
                     style: TextStyle(
                       fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).extension<Style>()!.primary,
                     ),
                   ),
                 ),
@@ -1327,7 +1327,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
         Color color = snapshot.data?.user.value.id == widget.me
-            ? Theme.of(context).colorScheme.secondary
+            ? Theme.of(context).extension<Style>()!.secondary
             : AvatarWidget.colors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     AvatarWidget.colors.length];

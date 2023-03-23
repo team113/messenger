@@ -67,7 +67,7 @@ class ContactsTabView extends StatelessWidget {
             border: c.search.value == null
                 ? null
                 : Border.all(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                     width: 2,
                   ),
             title: Obx(() {
@@ -481,7 +481,8 @@ class ContactsTabView extends StatelessWidget {
             if (subtitle != null) {
               return Text(
                 subtitle,
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                style: TextStyle(
+                    color: Theme.of(context).extension<Style>()!.primary),
               );
             }
 

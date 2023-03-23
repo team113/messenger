@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -93,7 +94,9 @@ class BlacklistView extends StatelessWidget {
                             Text(
                               '28.12.2022',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .primary,
                                 fontSize: 13,
                               ),
                             ),
@@ -104,8 +107,9 @@ class BlacklistView extends StatelessWidget {
                               child: Text(
                                 'btn_unblock_short'.l10n,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context)
+                                      .extension<Style>()!
+                                      .secondary,
                                   fontSize: 13,
                                 ),
                               ),

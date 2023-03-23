@@ -81,7 +81,8 @@ class ChatsTabView extends StatelessWidget {
                   border: c.search.value == null && !c.searching.value
                       ? null
                       : Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).extension<Style>()!.secondary,
                           width: 2,
                         ),
                   title: Obx(() {
@@ -790,7 +791,7 @@ class ChatsTabView extends StatelessWidget {
                   style: const TextStyle(color: Colors.white),
                 ),
                 onPressed: c.createGroup,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).extension<Style>()!.secondary,
               ),
             ],
           ),

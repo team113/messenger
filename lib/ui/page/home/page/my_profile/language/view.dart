@@ -158,7 +158,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
               const SizedBox(height: 16),

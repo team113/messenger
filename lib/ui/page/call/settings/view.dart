@@ -113,7 +113,9 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .secondary,
                             ),
                           );
                         }),
@@ -148,7 +150,9 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .secondary,
                             ),
                           );
                         }),
@@ -183,7 +187,9 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .secondary,
                             ),
                           );
                         }),
@@ -205,7 +211,8 @@ class CallSettingsView extends StatelessWidget {
                           ),
                           maxLines: null,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color:
+                                Theme.of(context).extension<Style>()!.secondary,
                           ),
                         ),
                       ),

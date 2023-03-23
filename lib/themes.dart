@@ -56,6 +56,12 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            primary: const Color(0xFF888888),
+            onPrimary: Colors.white,
+            secondary: const Color(0xFF63B4FF),
+            onSecondary: Colors.white,
+            background: const Color(0xFFF5F8FA),
+            onBackground: Colors.black,
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
@@ -336,6 +342,12 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.primary,
+    required this.onPrimary,
+    required this.secondary,
+    required this.onSecondary,
+    required this.background,
+    required this.onBackground,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -358,6 +370,19 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageStyle,
     required this.unreadMessageColor,
   });
+
+  /// TODO: DOCS
+  final Color primary;
+
+  final Color onPrimary;
+
+  final Color secondary;
+
+  final Color onSecondary;
+
+  final Color background;
+
+  final Color onBackground;
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
@@ -426,6 +451,12 @@ class Style extends ThemeExtension<Style> {
 
   @override
   ThemeExtension<Style> copyWith({
+    Color? primary,
+    Color? onPrimary,
+    Color? secondary,
+    Color? onSecondary,
+    Color? background,
+    Color? onBackground,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -449,6 +480,12 @@ class Style extends ThemeExtension<Style> {
     Color? unreadMessageColor,
   }) {
     return Style(
+      primary: primary ?? this.primary,
+      onPrimary: onPrimary ?? this.onPrimary,
+      secondary: secondary ?? this.secondary,
+      onSecondary: onSecondary ?? this.onSecondary,
+      background: background ?? this.background,
+      onBackground: onBackground ?? this.onBackground,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -482,6 +519,12 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      primary: Color.lerp(primary, other.primary, t)!,
+      onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
+      secondary: Color.lerp(secondary, other.secondary, t)!,
+      onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
+      background: Color.lerp(background, other.background, t)!,
+      onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
@@ -523,34 +566,6 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
-    );
-  }
-}
-
-class AppColors extends ThemeExtension<AppColors> {
-  AppColors({required this.cardSelectedColor});
-
-  /// [Color] of the modal background barrier color.
-  final Color cardSelectedColor;
-
-  @override
-  ThemeExtension<AppColors> copyWith({
-    Color? cardSelectedColor,
-  }) {
-    return AppColors(
-      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
-    );
-  }
-
-  @override
-  ThemeExtension<AppColors> lerp(ThemeExtension<AppColors>? other, double t) {
-    if (other is! AppColors) {
-      return this;
-    }
-
-    return AppColors(
-      cardSelectedColor:
-          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
     );
   }
 }

@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/sharable.dart';
@@ -105,7 +106,7 @@ class IntroductionView extends StatelessWidget {
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ];
               break;
@@ -129,7 +130,7 @@ class IntroductionView extends StatelessWidget {
                       style: thin?.copyWith(color: Colors.white),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                 ),
               ];
@@ -148,7 +149,7 @@ class IntroductionView extends StatelessWidget {
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ];
               break;

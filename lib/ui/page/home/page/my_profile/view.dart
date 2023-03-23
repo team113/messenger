@@ -375,7 +375,8 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        style:
+            TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
       ),
     );
   });
@@ -448,13 +449,13 @@ Widget _link(BuildContext context, MyProfileController c) {
                           }) +
                           'dot_space'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).extension<Style>()!.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
@@ -514,13 +515,13 @@ Widget _login(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                  style: TextStyle(
+                      color: Theme.of(context).extension<Style>()!.primary),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
@@ -533,7 +534,9 @@ Widget _login(MyProfileController c, BuildContext context) {
                               'label_login_visibility_hint'.l10n,
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .primary,
                               ),
                             ),
                           ),
@@ -621,13 +624,13 @@ Widget _emails(MyProfileController c, BuildContext context) {
                     TextSpan(
                       text: 'label_email_visible'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).extension<Style>()!.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
@@ -682,8 +685,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: TextStyle(
+                      color: Theme.of(context).extension<Style>()!.secondary),
                 ),
           ),
           child: FieldButton(
@@ -709,7 +712,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style:
+                TextStyle(color: Theme.of(context).extension<Style>()!.primary),
           ),
         ),
       ]);
@@ -726,7 +730,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style:
+              TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -784,13 +789,13 @@ Widget _phones(MyProfileController c, BuildContext context) {
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).extension<Style>()!.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
@@ -845,8 +850,8 @@ Widget _phones(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: TextStyle(
+                      color: Theme.of(context).extension<Style>()!.secondary),
                 ),
           ),
           child: FieldButton(
@@ -869,7 +874,8 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style:
+                TextStyle(color: Theme.of(context).extension<Style>()!.primary),
           ),
         ),
       ]);
@@ -886,7 +892,8 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style:
+              TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -918,7 +925,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
                 ? Colors.red
-                : Theme.of(context).colorScheme.secondary,
+                : Theme.of(context).extension<Style>()!.secondary,
           ),
         ),
       ),
@@ -943,7 +950,8 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style:
+              TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
         ),
       ),
     ],
@@ -1069,7 +1077,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                         fontSize: 11,
                       ),
                     ),
@@ -1097,7 +1105,8 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           );
         }),
       ),
@@ -1129,7 +1138,8 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           );
         }),
       ),
@@ -1153,7 +1163,8 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           );
         }),
       ),
@@ -1177,7 +1188,8 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           );
         }),
       ),
@@ -1215,7 +1227,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor:
+                        Theme.of(context).extension<Style>()!.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -1292,7 +1305,7 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      style: TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
     ),
   );
 }
@@ -1309,7 +1322,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           style: TextStyle(
               color: c.blacklist.isEmpty
                   ? Colors.black
-                  : Theme.of(context).colorScheme.secondary),
+                  : Theme.of(context).extension<Style>()!.secondary),
         ),
       ),
     ],
@@ -1341,7 +1354,8 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 child: Theme(
                   data: ThemeData(platform: TargetPlatform.macOS),
                   child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor:
+                        Theme.of(context).extension<Style>()!.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.settings.value?.loadImages == true,
                     onChanged:

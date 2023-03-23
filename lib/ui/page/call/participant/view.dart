@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../themes.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -151,7 +152,7 @@ class ParticipantView extends StatelessWidget {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -197,7 +198,7 @@ class ParticipantView extends StatelessWidget {
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
                   color: inCall
                       ? Colors.red
-                      : Theme.of(context).colorScheme.secondary,
+                      : Theme.of(context).extension<Style>()!.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap:
@@ -249,7 +250,7 @@ class ParticipantView extends StatelessWidget {
                 ? Text(
                     'btn_leave'.l10n,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).extension<Style>()!.secondary,
                       fontSize: 15,
                     ),
                   )

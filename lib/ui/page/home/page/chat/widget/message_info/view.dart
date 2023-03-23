@@ -115,7 +115,8 @@ class MessageInfo extends StatelessWidget {
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
                         ? Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color:
+                                Theme.of(context).extension<Style>()!.secondary,
                             width: 2,
                           )
                         : null,
@@ -225,8 +226,9 @@ class MessageInfo extends StatelessWidget {
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
                                     style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(context)
+                                          .extension<Style>()!
+                                          .primary,
                                     ),
                                   ),
                                 ],

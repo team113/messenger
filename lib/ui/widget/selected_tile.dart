@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../themes.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -119,7 +120,8 @@ class SelectedTile extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             child: selected
                 ? CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor:
+                        Theme.of(context).extension<Style>()!.secondary,
                     radius: 12,
                     child: const Icon(
                       Icons.check,

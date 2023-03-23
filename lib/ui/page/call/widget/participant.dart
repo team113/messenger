@@ -335,9 +335,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                                     .resolve({
                                                   MaterialState.disabled
                                                 })!.copyWith(
-                                                  fontSize: 15,
                                                   color:
                                                       const Color(0xFFFFFFFF),
+                                                  fontSize: 15,
                                                 ),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,

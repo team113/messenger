@@ -138,7 +138,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     ? Theme.of(context)
                         .extension<Style>()!
                         .contextMenuHoveredColor
-                    : Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).extension<Style>()!.secondary
                 : Colors.transparent,
           ),
           child: Row(

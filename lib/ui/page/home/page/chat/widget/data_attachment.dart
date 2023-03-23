@@ -65,15 +65,15 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).extension<Style>()!.secondary,
+                      Theme.of(context).extension<Style>()!.secondary,
                       const Color(0xFFD1E1F0),
                     ],
                     stops: [
@@ -101,7 +101,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).extension<Style>()!.secondary,
               ),
               child: const Center(
                 child: Icon(
@@ -126,7 +126,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                     : const Color(0x00D1E1F0),
                 border: Border.all(
                   width: 2,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
               child: Center(
@@ -226,7 +226,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                           overflow: TextOverflow.ellipsis,
                           style: style.boldBody.copyWith(
                             fontSize: 13,
-                            color: Theme.of(context).colorScheme.primary,
+                            color:
+                                Theme.of(context).extension<Style>()!.primary,
                           ),
                         ),
                       ],

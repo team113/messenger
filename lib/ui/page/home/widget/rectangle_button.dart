@@ -77,7 +77,7 @@ class RectangleButton extends StatelessWidget {
                     child: selected
                         ? CircleAvatar(
                             backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                                Theme.of(context).extension<Style>()!.secondary,
                             radius: 12,
                             child: const Icon(
                               Icons.check,

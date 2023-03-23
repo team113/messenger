@@ -26,6 +26,7 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../../../themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -343,10 +344,12 @@ class _MobileControlsState extends State<MobileControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
+              playedColor: Theme.of(context).extension<Style>()!.secondary,
+              handleColor: Theme.of(context).extension<Style>()!.secondary,
+              bufferedColor: Theme.of(context)
+                  .extension<Style>()!
+                  .background
+                  .withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

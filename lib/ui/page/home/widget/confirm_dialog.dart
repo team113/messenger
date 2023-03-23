@@ -188,7 +188,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 widget.description!,
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).extension<Style>()!.primary,
                 ),
               ),
             ),
@@ -223,7 +223,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
             },
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).extension<Style>()!.secondary,
           ),
         ),
         const SizedBox(height: 12),

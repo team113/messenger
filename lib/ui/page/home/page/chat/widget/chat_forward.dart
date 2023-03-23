@@ -208,7 +208,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     Style style = Theme.of(context).extension<Style>()!;
 
     Color color = widget.user?.user.value.id == widget.me
-        ? Theme.of(context).colorScheme.secondary
+        ? Theme.of(context).extension<Style>()!.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
@@ -456,7 +456,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
                 Color color = snapshot.data?.user.value.id == widget.me
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).extension<Style>()!.secondary
                     : AvatarWidget.colors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
                             AvatarWidget.colors.length];
@@ -552,7 +552,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       }).toList();
 
       Color color = widget.user?.user.value.id == widget.me
-          ? Theme.of(context).colorScheme.secondary
+          ? Theme.of(context).extension<Style>()!.secondary
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
 

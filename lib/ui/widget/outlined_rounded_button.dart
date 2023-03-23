@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../themes.dart';
+
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
@@ -101,7 +103,8 @@ class OutlinedRoundedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
+          hoverColor:
+              Theme.of(context).extension<Style>()!.primary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,

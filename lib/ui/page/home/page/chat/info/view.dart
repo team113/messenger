@@ -184,7 +184,9 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .secondary,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -321,7 +323,7 @@ class ChatInfoView extends StatelessWidget {
               child: Text(
                 'btn_upload'.l10n,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                   fontSize: 11,
                 ),
               ),
@@ -337,7 +339,7 @@ class ChatInfoView extends StatelessWidget {
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                     fontSize: 11,
                   ),
                 ),
@@ -434,7 +436,7 @@ class ChatInfoView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).extension<Style>()!.primary,
                         ),
                       ),
                       TextSpan(
@@ -509,7 +511,8 @@ class ChatInfoView extends StatelessWidget {
                           maxLines: 1,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color:
+                                Theme.of(context).extension<Style>()!.secondary,
                             fontWeight: FontWeight.w300,
                           ),
                           child: title,
@@ -536,7 +539,7 @@ class ChatInfoView extends StatelessWidget {
             key: const Key('AddMemberButton'),
             leading: Icon(
               Icons.people,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).extension<Style>()!.secondary,
             ),
             title: Text('btn_add_member'.l10n),
             onTap: () => AddChatMemberView.show(context, chatId: id),
@@ -576,7 +579,7 @@ class ChatInfoView extends StatelessWidget {
                     )
                   else
                     Material(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).extension<Style>()!.secondary,
                       type: MaterialType.circle,
                       child: InkWell(
                         onTap: () => c.redialChatCallMember(e.id),
@@ -602,7 +605,7 @@ class ChatInfoView extends StatelessWidget {
                     child: Text(
                       'btn_leave'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                         fontSize: 15,
                       ),
                     ),
@@ -645,7 +648,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -665,7 +669,8 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              style: TextStyle(
+                  color: Theme.of(context).extension<Style>()!.secondary),
             );
           }),
         ),
@@ -694,7 +699,8 @@ class ChatInfoView extends StatelessWidget {
                         ),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              style: TextStyle(
+                  color: Theme.of(context).extension<Style>()!.secondary),
             );
           }),
         ),
@@ -710,7 +716,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -725,7 +732,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -740,7 +748,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -755,7 +764,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -770,7 +780,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.secondary),
           ),
         ),
       ],

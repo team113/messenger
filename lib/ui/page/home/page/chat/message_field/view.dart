@@ -654,7 +654,7 @@ class MessageFieldView extends StatelessWidget {
                 }),
                 style: TextStyle(
                   fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).extension<Style>()!.primary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -871,7 +871,7 @@ class MessageFieldView extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: style.boldBody.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).extension<Style>()!.primary,
                   fontSize: 13,
                 ),
               ),
@@ -903,7 +903,7 @@ class MessageFieldView extends StatelessWidget {
                 border: Border(
                   left: BorderSide(
                     width: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).extension<Style>()!.secondary,
                   ),
                 ),
               ),
@@ -916,7 +916,7 @@ class MessageFieldView extends StatelessWidget {
                   Text(
                     'label_edit'.l10n,
                     style: style.boldBody.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).extension<Style>()!.secondary,
                     ),
                   ),
                   if (content != null) ...[
@@ -938,7 +938,7 @@ class MessageFieldView extends StatelessWidget {
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
-              ? Theme.of(context).colorScheme.secondary
+              ? Theme.of(context).extension<Style>()!.secondary
               : AvatarWidget.colors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
                       AvatarWidget.colors.length];
@@ -965,7 +965,8 @@ class MessageFieldView extends StatelessWidget {
                     : Text(
                         'dot'.l10n * 3,
                         style: style.boldBody.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).extension<Style>()!.secondary,
                         ),
                       ),
                 if (content != null) ...[

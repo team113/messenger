@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -86,7 +87,9 @@ class MessagePopup {
                               children: description,
                               style: thin?.copyWith(
                                 fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .primary,
                               ),
                             ),
                           ),
@@ -112,7 +115,7 @@ class MessagePopup {
                     style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).extension<Style>()!.secondary,
                 ),
               ),
               const SizedBox(height: 16),

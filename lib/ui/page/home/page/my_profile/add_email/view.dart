@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -73,7 +74,8 @@ class AddEmailView extends StatelessWidget {
                               : 'label_add_email_confirmation_sent'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
+                            color:
+                                Theme.of(context).extension<Style>()!.primary,
                           ),
                         );
                       }),
@@ -108,7 +110,9 @@ class AddEmailView extends StatelessWidget {
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
                                   : null,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .secondary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -127,7 +131,9 @@ class AddEmailView extends StatelessWidget {
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
                                   : c.emailCode.submit,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .secondary,
                             ),
                           ),
                         ],
@@ -151,7 +157,7 @@ class AddEmailView extends StatelessWidget {
                         'label_add_email_description'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).extension<Style>()!.primary,
                         ),
                       ),
                     ),
@@ -177,7 +183,7 @@ class AddEmailView extends StatelessWidget {
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       );
                     }),
                   ],

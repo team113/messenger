@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -67,7 +68,7 @@ class ChangePasswordView extends StatelessWidget {
                             : 'label_password_changed'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).extension<Style>()!.primary,
                         ),
                       ),
                     ),
@@ -80,7 +81,7 @@ class ChangePasswordView extends StatelessWidget {
                         style: thin?.copyWith(color: Colors.white),
                       ),
                       onPressed: Navigator.of(context).pop,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).extension<Style>()!.secondary,
                     ),
                   ],
                 ),
@@ -102,7 +103,8 @@ class ChangePasswordView extends StatelessWidget {
                             'label_password_not_set_info'.l10n,
                             style: thin?.copyWith(
                               fontSize: 15,
-                              color: Theme.of(context).colorScheme.primary,
+                              color:
+                                  Theme.of(context).extension<Style>()!.primary,
                             ),
                           ),
                         );
@@ -177,7 +179,7 @@ class ChangePasswordView extends StatelessWidget {
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).extension<Style>()!.secondary,
                       );
                     }),
                   ],

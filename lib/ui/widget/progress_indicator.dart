@@ -20,6 +20,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
@@ -282,7 +283,7 @@ class _CircularProgressIndicatorState
         widget.color ??
         ProgressIndicatorTheme.of(context).color ??
         defaultColor ??
-        Theme.of(context).colorScheme.primary;
+        Theme.of(context).extension<Style>()!.primary;
   }
 
   /// Draws a determinate progress indicator.

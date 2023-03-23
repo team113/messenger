@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../../themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
@@ -88,7 +89,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      style: TextStyle(color: Theme.of(context).extension<Style>()!.secondary),
     );
   }
 }

@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -51,7 +52,7 @@ class AuthView extends StatelessWidget {
 
         final TextStyle? thin =
             context.textTheme.bodySmall?.copyWith(color: Colors.black);
-        final Color primary = Theme.of(context).colorScheme.primary;
+        final Color primary = Theme.of(context).extension<Style>()!.primary;
 
         // Header part of the page.
         //
@@ -166,7 +167,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).extension<Style>()!.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
