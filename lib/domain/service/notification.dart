@@ -69,39 +69,15 @@ class NotificationService extends DisposableService {
   ///
   /// Optional [onNotificationResponse] callback is called when user taps on a
   /// notification.
-  Future<void> init({
+  void init({
     void Function(NotificationResponse)? onNotificationResponse,
-  }) async {
+  }) {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
     _initPushNotifications();
-    if (PlatformUtils.isWeb) {
-      // Permission request is happening in `index.html` via a script tag due to
-      // a browser's policy to ask for notifications permission only after
-      // user's interaction.
-      WebUtils.onSelectNotification = onNotificationResponse;
-    } else {
-      if (_plugin == null) {
-        _plugin = FlutterLocalNotificationsPlugin();
-
-        try {
-          await _plugin!.initialize(
-            const InitializationSettings(
-              android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-              iOS: DarwinInitializationSettings(),
-              macOS: DarwinInitializationSettings(),
-              linux: LinuxInitializationSettings(defaultActionName: 'click'),
-            ),
-            onDidReceiveNotificationResponse: onNotificationResponse,
-            onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
-          );
-        } on MissingPluginException {
-          _plugin = null;
-        }
-      }
-    }
+    _initLocalNotifications(onNotificationResponse);
   }
 
   @override
@@ -185,7 +161,7 @@ class NotificationService extends DisposableService {
             largeIcon:
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
           ),
-          // TODO: Setup custom notification sound for IOS.
+          // TODO: Setup custom notification sound for iOS.
         ),
         payload: payload,
       );
@@ -202,12 +178,39 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Initializes the [FirebaseMessaging] to receive push notifications.
+  Future<void> _initLocalNotifications(
+    void Function(NotificationResponse)? onNotificationResponse,
+  ) async {
+    if (PlatformUtils.isWeb) {
+      // Permission request is happening in `index.html` via a script tag due to
+      // a browser's policy to ask for notifications permission only after
+      // user's interaction.
+      WebUtils.onSelectNotification = onNotificationResponse;
+    } else {
+      if (_plugin == null) {
+        _plugin = FlutterLocalNotificationsPlugin();
+
+        try {
+          await _plugin!.initialize(
+            const InitializationSettings(
+              android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+              iOS: DarwinInitializationSettings(),
+              macOS: DarwinInitializationSettings(),
+              linux: LinuxInitializationSettings(defaultActionName: 'click'),
+            ),
+            onDidReceiveNotificationResponse: onNotificationResponse,
+            onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
+          );
+        } on MissingPluginException {
+          _plugin = null;
+        }
+      }
+    }
+  }
+
+  /// Initializes the [FirebaseMessaging] receiving push notifications.
   Future<void> _initPushNotifications() async {
-    if ((PlatformUtils.isWeb ||
-            PlatformUtils.isMobile ||
-            PlatformUtils.isMacOS) &&
-        !WebUtils.isPopup) {
+    if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
         if (event.notification != null && event.notification?.title != null) {
           show(
@@ -219,11 +222,10 @@ class NotificationService extends DisposableService {
         }
       });
 
-      NotificationSettings notificationSettings =
+      final NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
 
-      if (notificationSettings.authorizationStatus ==
-          AuthorizationStatus.authorized) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
           vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
         );
