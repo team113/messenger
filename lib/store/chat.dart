@@ -273,10 +273,6 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> createMonologChat({ChatName? name}) =>
-      _graphQlProvider.createMonologChat(name);
-
-  @override
   Future<void> sendChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
@@ -423,10 +419,10 @@ class ChatRepository implements AbstractChatRepository {
       if (id.isLocal && _chatLocal.get(id)?.value.isMonolog == true) {
         final HiveRxChat? monolog = await ensureRemoteDialog(id);
         if (monolog != null) {
-          _chats.remove(id);
           _monolog = monolog;
           chat = monolog;
           id = monolog.id;
+          _chats.remove(id);
         }
       }
 
@@ -1456,19 +1452,18 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Initializes the [_monolog].
   Future<void> _initMonolog() async {
-    _monolog = _chats.values.firstWhereOrNull((e) => e.chat.value.isMonolog) ??
-        await _getMonolog() ??
-        await _createLocalDialog(me!);
-  }
+    _monolog = _chats.values.firstWhereOrNull((e) => e.chat.value.isMonolog);
 
-  /// Returns the monolog [Chat] of the authenticated [MyUser].
-  Future<HiveRxChat?> _getMonolog() async {
-    final GetMonolog$Query$Monolog? query =
-        (await _graphQlProvider.getMonolog()).monolog;
+    if (_monolog == null) {
+      final GetMonolog$Query$Monolog? query =
+          (await _graphQlProvider.getMonolog()).monolog;
 
-    if (query == null) return null;
-
-    return (await _putEntry(_chat(query)));
+      if (query == null) {
+        _monolog ??= await _createLocalDialog(me!);
+      } else if (query.isHidden) {
+        _monolog = HiveRxChat(this, _chatLocal, _draftLocal, _chat(query).chat);
+      }
+    }
   }
 }
 

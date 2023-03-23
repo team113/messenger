@@ -38,6 +38,7 @@ import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
+import 'parameters/monolog_status.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
@@ -69,6 +70,7 @@ import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_messages.dart';
+import 'steps/see_chat_monolog.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
@@ -151,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatMessages,
+        seeChatMonolog,
         seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
@@ -212,6 +215,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         IterableAmountParameter(),
+        MonologStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),

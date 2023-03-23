@@ -664,6 +664,8 @@ class ChatInfoView extends StatelessWidget {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
 
             return FieldButton(
+              key: Key(
+                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton'),
               onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
               text: favorited
                   ? 'btn_delete_from_favorites'.l10n
@@ -713,6 +715,7 @@ class ChatInfoView extends StatelessWidget {
         if (!c.isMonolog) const SizedBox(height: 10),
         _dense(
           FieldButton(
+            key: const Key('HideChatButton'),
             onPressed: () => _hideChat(c, context),
             text: 'btn_hide_chat'.l10n,
             trailing: Transform.translate(
