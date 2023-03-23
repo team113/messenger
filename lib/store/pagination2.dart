@@ -19,6 +19,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/store/chat_rx.dart';
+import '/util/obs/rxlist.dart';
 import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
@@ -27,23 +29,55 @@ class Pagination<T, K> {
   Pagination({
     this.perPage = 10,
     required this.provider,
+    required this.compare,
   });
 
+  /// Size of a page to fetch.
   final int perPage;
 
-  final RxList<Page<T, K>> pages = RxList();
+  /// List of the elements fetched from the [provider].
+  final RxObsList<T> elements = RxObsList();
 
-  /// [PageProvider] providing the [pages].
+  /// [PageProvider] providing the [elements].
   final PageProvider<T, K> provider;
 
+  /// Indicator whether [elements] has next page.
   final RxBool hasNext = RxBool(true);
+
+  /// Indicator whether [elements] has previous page.
   final RxBool hasPrevious = RxBool(true);
+
+  /// Callback, called to compare items.
+  final int Function(T a, T b) compare;
+
+  /// Cursor pointing the first item in the [elements].
+  K? _startCursor;
+
+  /// Cursor pointing the last item in the [elements].
+  K? _endCursor;
+
+  /// [List] of the [StreamSubscription] for the [Page.edges].
+  List<StreamSubscription> pageSubscriptions = [];
 
   /// Resets this [Pagination] to its initial state.
   void clear() {
-    pages.clear();
+    elements.clear();
     hasNext.value = true;
     hasPrevious.value = true;
+    _startCursor = null;
+    _endCursor = null;
+    for (var e in pageSubscriptions) {
+      e.cancel();
+    }
+    pageSubscriptions.clear();
+  }
+
+  /// Disposes this [Pagination].
+  void dispose() {
+    for (var e in pageSubscriptions) {
+      e.cancel();
+    }
+    pageSubscriptions.clear();
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
@@ -53,10 +87,25 @@ class Pagination<T, K> {
     clear();
 
     final Page<T, K> page = await provider.around(item, cursor, perPage);
+
+    StreamSubscription? subscription;
+    subscription = page.edges.listen((edges) {
+      for (var e in edges) {
+        _add(e);
+      }
+      subscription?.cancel();
+      pageSubscriptions.remove(subscription);
+    });
+    pageSubscriptions.add(subscription);
+
     if (page.info != null) {
-      pages.add(page);
+      for (var e in page.edges) {
+        _add(e);
+      }
       hasNext.value = page.info!.hasNext;
       hasPrevious.value = page.info!.hasPrevious;
+      _startCursor = page.info!.startCursor;
+      _endCursor = page.info!.endCursor;
     } else {
       hasNext.value = false;
       hasPrevious.value = false;
@@ -64,15 +113,19 @@ class Pagination<T, K> {
   }
 
   FutureOr<void> next() async {
-    if (pages.isEmpty) {
+    if (elements.isEmpty) {
       return around();
     }
 
-    if (pages.last.info?.hasNext != false) {
-      final Page<T, K> page = await provider.after(pages.last, perPage);
-      if (page.info?.startCursor != null) {
-        pages.add(page);
+    if (hasNext.isTrue) {
+      final Page<T, K>? page =
+          await provider.after(elements.last, _endCursor, perPage);
+      if (page != null) {
+        for (var e in page.edges) {
+          _add(e);
+        }
         hasNext.value = page.info!.hasNext;
+        _endCursor = page.info!.endCursor;
       } else {
         hasNext.value = false;
       }
@@ -80,18 +133,44 @@ class Pagination<T, K> {
   }
 
   FutureOr<void> previous() async {
-    if (pages.isEmpty) {
+    if (elements.isEmpty) {
       return around();
     }
 
-    if (pages.first.info?.hasPrevious != false) {
-      final Page<T, K> page = await provider.before(pages.first, perPage);
-      if (page.info?.endCursor != null) {
-        pages.insert(0, page);
+    if (hasPrevious.isTrue) {
+      final Page<T, K>? page =
+          await provider.before(elements.first, _startCursor, perPage);
+      if (page != null) {
+        for (var e in page.edges) {
+          _add(e);
+        }
         hasPrevious.value = page.info!.hasPrevious;
+        _startCursor = page.info!.startCursor;
       } else {
         hasPrevious.value = false;
       }
+    }
+  }
+
+  /// Adds the provided [item] to the [elements].
+  void add(T item) {
+    if (elements.isNotEmpty) {
+      if ((compare(item, elements.first) == 1 || hasPrevious.isFalse) &&
+          (compare(item, elements.last) == -1 || hasNext.isFalse)) {
+        _add(item);
+      }
+    } else if (hasNext.isFalse && hasPrevious.isFalse) {
+      _add(item);
+    }
+  }
+
+  /// Adds the provided [item] to the [elements].
+  void _add(T item) {
+    int i = elements.indexWhere((e) => e == item);
+    if (i == -1) {
+      elements.insertAfter(item, (e) => compare(item, e) == 1);
+    } else {
+      elements[i] = item;
     }
   }
 }
@@ -107,7 +186,7 @@ class Page<T, K> {
 abstract class PageProvider<T, K> {
   FutureOr<Page<T, K>> around(T? item, K? cursor, int count);
 
-  FutureOr<Page<T, K>> after(Page<T, K> page, int count);
+  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
 
-  FutureOr<Page<T, K>> before(Page<T, K> page, int count);
+  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
 }

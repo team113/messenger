@@ -80,7 +80,7 @@ void main() async {
 
     void console() {
       print(
-        pagination.pages.map(
+        pagination.element.map(
           (e) => '[${e.edges.map((m) {
             if (m is HiveChatMessage) {
               return '${(m.value as ChatMessage).text}';

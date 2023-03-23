@@ -31,7 +31,7 @@ void main() async {
 
     void console() {
       print(
-        pagination.pages.map((e) =>
+        pagination.element.map((e) =>
             '[${e.edges}] (${e.info?.startCursor} to ${e.info?.endCursor})'),
       );
     }

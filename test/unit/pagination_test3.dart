@@ -106,7 +106,7 @@ void main() async {
     void console() {
       print('\n');
       print(
-        pagination.pages.map(
+        pagination.element.map(
           (e) =>
               '[${consoleList(e.edges)}] (${e.info?.startCursor} to ${e.info?.endCursor})',
         ),

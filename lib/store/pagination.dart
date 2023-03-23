@@ -130,6 +130,7 @@ class PaginatedFragment<T> {
   /// Clears the [elements] and related resources.
   void clear() {
     elements.clear();
+    _synced.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     _startCursor = null;

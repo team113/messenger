@@ -52,7 +52,6 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
-import '/store/pagination.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/new_type.dart';
@@ -62,6 +61,7 @@ import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
+import 'pagination2.dart';
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository implements AbstractChatRepository {
@@ -744,7 +744,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
   /// posting time with pagination.
-  Future<ItemsPage<HiveChatItem>> messages(
+  Future<Page<HiveChatItem, ChatItemsCursor>> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -759,9 +759,10 @@ class ChatRepository implements AbstractChatRepository {
       before: before,
     );
 
-    return ItemsPage<HiveChatItem>(
-      query.chat?.items.edges.map((e) => e.toHive()).toList() ?? [],
-      query.chat?.items.pageInfo.toModel(),
+    return Page(
+      RxList(query.chat?.items.edges.map((e) => e.toHive()).toList() ?? []),
+      query.chat?.items.pageInfo
+          .toModel((cursor) => cursor == null ? null : ChatItemsCursor(cursor)),
     );
   }
 

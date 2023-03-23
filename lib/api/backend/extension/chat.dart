@@ -631,11 +631,11 @@ extension EventChatMuted$DurationConversion
 /// Extension adding models construction from [PageInfoMixin].
 extension PageInfoConversion on PageInfoMixin {
   /// Constructs a new [PageInfo] from this [PageInfoMixin].
-  PageInfo<String> toModel() => PageInfo<String>(
+  PageInfo<T> toModel<T>(T? Function(String? cursor) cursor) => PageInfo<T>(
         hasPrevious: hasPreviousPage,
         hasNext: hasNextPage,
-        startCursor: startCursor,
-        endCursor: endCursor,
+        startCursor: cursor(startCursor),
+        endCursor: cursor(endCursor),
       );
 }
 

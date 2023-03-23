@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
@@ -37,15 +36,13 @@ import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
-import '/store/pagination.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
 part 'chat.g.dart';
 
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat>
-    implements PageProvider<HiveChat> {
+class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -117,46 +114,6 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
 
   /// Removes a [Chat] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) => deleteSafe(id.val);
-
-  @override
-  Future<ItemsPage<HiveChat>> initial(int count, String? cursor) async {
-    final List<HiveChat> sorted = chats
-        .where((e) => !e.value.id.isLocal)
-        .sortedBy((e) => e.value.updatedAt)
-        .reversed
-        .toList();
-    final List<HiveChat> items = sorted.take(count).toList();
-    return ItemsPage<HiveChat>(items);
-  }
-
-  @override
-  Future<ItemsPage<HiveChat>> after(
-    HiveChat after,
-    String? cursor,
-    int count,
-  ) async {
-    final sorted = chats
-        .where((e) => !e.value.id.isLocal)
-        .sortedBy((e) => e.value.updatedAt)
-        .reversed
-        .toList();
-    int i = sorted.indexWhere((e) => e.value.id == after.value.id);
-    if (i != -1) {
-      final List<HiveChat> items = sorted.skip(i + 1).take(count).toList();
-      return ItemsPage<HiveChat>(items);
-    }
-
-    return ItemsPage<HiveChat>([]);
-  }
-
-  @override
-  Future<ItemsPage<HiveChat>> before(
-    HiveChat before,
-    String? cursor,
-    int count,
-  ) {
-    throw Exception('Unreachable');
-  }
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].

@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
@@ -35,16 +34,13 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
-import '/store/model/page_info.dart';
 import '/store/model/user.dart';
-import '/store/pagination.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
-    implements PageProvider<HiveChatItem> {
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
   ChatItemHiveProvider(this.id, {this.initialKey});
 
   /// ID of a [Chat] this provider is bound to.
@@ -58,6 +54,9 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   @override
   String get boxName => 'messages_$id';
+
+  @override
+  Iterable<dynamic> get keys => super.keys.toList().reversed;
 
   @override
   void registerAdapters() {
@@ -133,96 +132,6 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
   Future<void> remove(String timestamp) => deleteSafe(timestamp);
-
-  @override
-  Future<ItemsPage<HiveChatItem>> initial(int count, String? cursor) async {
-    Iterable<dynamic> keys = box.keys.toList().reversed;
-    if (initialKey != null) {
-      final int initialIndex = keys.toList().indexOf(initialKey);
-      if (initialIndex != -1) {
-        if (initialIndex < (count ~/ 2)) {
-          keys = keys.take(count - ((count ~/ 2) - initialIndex));
-        } else {
-          keys = keys.skip(initialIndex - (count ~/ 2)).take(count);
-        }
-      }
-    }
-
-    keys = keys.take(count);
-
-    final List<HiveChatItem> items =
-        (await Future.wait(keys.map((e) => box.get(e))))
-            .whereNotNull()
-            .toList();
-
-    return ItemsPage<HiveChatItem>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNext: id.isLocal ? false : true,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPrevious: id.isLocal ? false : true,
-      ),
-    );
-  }
-
-  @override
-  Future<ItemsPage<HiveChatItem>> after(
-    HiveChatItem after,
-    String? cursor,
-    int count,
-  ) async {
-    final List<dynamic> keys = box.keys.toList().reversed.toList();
-    final int index = keys.indexOf(after.value.timestamp);
-    final List<Future<HiveChatItem?>> futures = [];
-
-    if (index != -1) {
-      futures.addAll(keys.skip(index + 1).map((e) => getSafe(e)));
-    }
-
-    final List<HiveChatItem> items =
-        (await Future.wait(futures)).whereNotNull().toList();
-
-    return ItemsPage<HiveChatItem>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNext: true,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPrevious: true,
-      ),
-    );
-  }
-
-  @override
-  Future<ItemsPage<HiveChatItem>> before(
-    HiveChatItem before,
-    String? cursor,
-    int count,
-  ) async {
-    final int index = box.keys.toList().indexOf(before.value.timestamp);
-    final List<Future<HiveChatItem?>> futures = [];
-
-    if (index != -1) {
-      futures.addAll(box.keys.skip(index + 1).map((e) => getSafe(e)).toList());
-    }
-
-    final List<HiveChatItem> items =
-        (await Future.wait(futures)).whereNotNull().toList();
-
-    return ItemsPage<HiveChatItem>(
-      items,
-      PageInfo(
-        endCursor: items.lastWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasNext: true,
-        startCursor:
-            items.firstWhereOrNull((e) => e.cursor != null)?.cursor?.val,
-        hasPrevious: true,
-      ),
-    );
-  }
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].
@@ -243,6 +152,13 @@ abstract class HiveChatItem extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   final ChatItemVersion ver;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is HiveChatItem && value.id == other.value.id;
 }
 
 /// Persisted in [Hive] storage [ChatInfo]'s [value].
