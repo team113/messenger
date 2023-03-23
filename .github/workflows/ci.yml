@@ -346,9 +346,9 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
 
-      # Grant permissions to `.cache` created in the previous step, since
+      # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
-      - run: sudo chmod -R 755 .cache
+      - run: sudo chmod -R 755 .cache/
 
   test-unit:
     name: Unit tests
