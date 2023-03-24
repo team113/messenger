@@ -39,7 +39,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, PostChatMessageException;
+    show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -55,7 +55,6 @@ import 'event/chat.dart';
 import 'pagination/graphql.dart';
 import 'pagination/hive.dart';
 import 'pagination/hive_graphql.dart';
-import 'pagination2.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
@@ -256,16 +255,22 @@ class HiveRxChat extends RxChat {
           getKey: (item) => item.value.timestamp,
         ),
         GraphQlPageProvider(
-            fetch: ({after, before, first, last}) => _chatRepository.messages(
-                  chat.value.id,
-                  after: after,
-                  first: first,
-                  before: before,
-                  last: last,
-                )),
+          fetch: ({after, before, first, last}) => _chatRepository.messages(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          ),
+        ),
       ),
       compare: (a, b) => -a.value.at.compareTo(b.value.at),
     );
+
+    if (id.isLocal) {
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+    }
 
     _paginationSubscription = _pagination.elements.changes.listen((event) {
       switch (event.op) {
@@ -290,18 +295,18 @@ class HiveRxChat extends RxChat {
 
       _initLocalSubscription();
 
-      HiveChatItem? item;
-      if (chat.value.lastReadItem != null) {
-        item = await _local.get(chat.value.lastReadItem!.timestamp);
+      if (!id.isLocal) {
+        HiveChatItem? item;
+        if (chat.value.lastReadItem != null) {
+          item = await _local.get(chat.value.lastReadItem!.timestamp);
+        }
+
+        await _pagination.around(item: item, cursor: lastReadItemCursor);
+
+        await Future.delayed(Duration.zero, updateReads);
       }
 
-      await _pagination.around(item: item, cursor: lastReadItemCursor);
-
-      await Future.delayed(Duration.zero, updateReads);
-
-      if (messages.isNotEmpty) {
-        status.value = RxStatus.success();
-      }
+      status.value = RxStatus.success();
     });
   }
 
@@ -372,10 +377,6 @@ class HiveRxChat extends RxChat {
         _draftLocal.put(id, draft);
       }
     }
-  }
-
-  @override
-  Future<void> fetchInitial() async {
   }
 
   @override
@@ -935,10 +936,12 @@ class HiveRxChat extends RxChat {
     );
     await _remoteSubscription!.execute(
       _chatEvent,
-      onStaleVersion: () async {
-        await _local.clear();
-        _pagination.clear();
-        await _pagination.around(cursor: lastReadItemCursor);
+      onError: (e) async {
+        if (e is StaleVersionException) {
+          await _local.clear();
+          _pagination.clear();
+          await _pagination.around(cursor: lastReadItemCursor);
+        }
       },
     );
 

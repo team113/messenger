@@ -61,7 +61,7 @@ import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
-import 'pagination2.dart';
+import 'pagination.dart';
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository implements AbstractChatRepository {

@@ -27,7 +27,7 @@ extension StreamQueueExtension on StreamQueue {
   /// [onEvent] on every [T] event happening.
   Future<void> execute<T>(
     FutureOr<void> Function(T) onEvent, {
-    Future<void> Function()? onStaleVersion,
+    Future<void> Function(Object e)? onError,
   }) async {
     try {
       while (await hasNext) {
@@ -36,9 +36,7 @@ extension StreamQueueExtension on StreamQueue {
         try {
           event = await next;
         } catch (e) {
-          if (e is StaleVersionException) {
-            await onStaleVersion?.call();
-          }
+          await onError?.call(e);
         }
 
         if (event != null) {

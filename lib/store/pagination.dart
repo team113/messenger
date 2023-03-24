@@ -23,96 +23,149 @@ import '/store/chat_rx.dart';
 import '/util/obs/rxlist.dart';
 import 'model/page_info.dart';
 
-/// Helper to fetches items with pagination.
-class PaginatedFragment<T> {
-  PaginatedFragment({
-    this.pageSize = 10,
-    this.initialCursor,
-    this.shouldSynced = false,
+/// [Page]s maintainer utility of the provided [T] values with the specified [K]
+/// cursor identifying those items.
+class Pagination<T, K> {
+  Pagination({
+    this.perPage = 10,
+    required this.provider,
     required this.compare,
-    required this.equal,
-    required this.onDelete,
-    required this.cacheProvider,
-    required this.remoteProvider,
-    this.ignore,
   });
 
   /// Size of a page to fetch.
-  final int pageSize;
+  final int perPage;
 
-  /// Cursor to fetch initial items around.
-  final String? initialCursor;
+  /// List of the elements fetched from the [provider].
+  final RxObsList<T> elements = RxObsList();
 
-  /// Indicator whether the [cacheProvider] should be synced with the
-  /// [remoteProvider].
-  final bool shouldSynced;
+  /// [PageProvider] providing the [elements].
+  final PageProvider<T, K> provider;
+
+  /// Indicator whether [elements] has next page.
+  final RxBool hasNext = RxBool(true);
+
+  /// Indicator whether [elements] has previous page.
+  final RxBool hasPrevious = RxBool(true);
 
   /// Callback, called to compare items.
   final int Function(T a, T b) compare;
 
-  /// Indicated whether items are equal.
-  final bool Function(T a, T b) equal;
+  /// Cursor pointing the first item in the [elements].
+  K? _startCursor;
 
-  /// Callback, called when an item deleted from the [cacheProvider].
-  final void Function(T item) onDelete;
+  /// Cursor pointing the last item in the [elements].
+  K? _endCursor;
 
-  /// [PageProvider] loading items from cache.
-  PageProvider<T> cacheProvider;
+  /// [List] of the [StreamSubscription] for the [Page.edges].
+  List<StreamSubscription> pageSubscriptions = [];
 
-  /// [PageProvider] loading items from the remote.
-  PageProvider<T> remoteProvider;
+  /// Resets this [Pagination] to its initial state.
+  void clear() {
+    elements.clear();
+    hasNext.value = true;
+    hasPrevious.value = true;
+    _startCursor = null;
+    _endCursor = null;
+    for (var e in pageSubscriptions) {
+      e.cancel();
+    }
+    pageSubscriptions.clear();
+  }
 
-  /// Indicates whether item should not be deleted from the [cacheProvider] if
-  /// not exists on the remote.
-  final bool Function(T)? ignore;
+  /// Disposes this [Pagination].
+  void dispose() {
+    for (var e in pageSubscriptions) {
+      e.cancel();
+    }
+    pageSubscriptions.clear();
+  }
 
-  /// List of the elements fetched from the [cacheProvider] and the
-  /// [remoteProvider].
-  final RxObsList<T> elements = RxObsList<T>();
-
-  /// Indicator whether next page is exist.
-  final RxBool hasNext = RxBool(true);
-
-  /// Indicator whether previous page is exist.
-  final RxBool hasPrevious = RxBool(true);
-
-  /// Indicator whether this [PaginatedFragment] is initialized.
-  bool initialized = false;
-
-  /// Elements synced with the [remoteProvider].
+  /// Fetches the [Page] around the provided [item] or [cursor].
   ///
-  /// Empty if the [shouldSynced] is `false`.
-  final List<T> _synced = [];
+  /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
+  FutureOr<void> around({T? item, K? cursor}) async {
+    clear();
 
-  /// Indicator whether next page is loading from the [remoteProvider].
-  bool _isNextPageFetching = false;
+    final Rx<Page<T, K>> page = await provider.around(item, cursor, perPage);
 
-  /// Indicator whether next page is loading from the [cacheProvider].
-  bool _isNextPageCacheFetching = false;
+    PageInfo<K>? storedInfo = page.value.info;
+    StreamSubscription? subscription;
+    subscription = page.listen((page) {
+      for (var e in page.edges) {
+        _add(e);
+      }
 
-  /// Indicator whether previous page is loading.
-  bool _isPrevPageFetching = false;
+      if (_startCursor == storedInfo?.startCursor) {
+        _startCursor = page.info?.startCursor;
+      }
+      if (_endCursor == storedInfo?.endCursor) {
+        _endCursor = page.info?.endCursor;
+      }
 
-  /// Cursor of the first item in the [elements], used to fetch previous page.
-  String? _startCursor;
+      subscription?.cancel();
+      pageSubscriptions.remove(subscription);
+    });
+    pageSubscriptions.add(subscription);
 
-  /// Cursor of the last item in the [elements], used to fetch next page.
-  String? _endCursor;
+    if (page.value.info != null) {
+      for (var e in page.value.edges) {
+        _add(e);
+      }
+      hasNext.value = page.value.info!.hasNext;
+      hasPrevious.value = page.value.info!.hasPrevious;
+      _startCursor = page.value.info!.startCursor;
+      _endCursor = page.value.info!.endCursor;
+    } else {
+      hasNext.value = false;
+      hasPrevious.value = false;
+    }
+  }
 
-  /// Gets initial page from the [cacheProvider].
-  Future<void> init() async {
-    final ItemsPage<T> cached =
-        await cacheProvider.initial(pageSize, initialCursor);
-    elements.addAll(cached.items);
-
-    if (!shouldSynced) {
-      _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
-      _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
-      hasPrevious.value = cached.pageInfo?.hasPrevious ?? hasPrevious.value;
-      hasNext.value = cached.pageInfo?.hasNext ?? hasNext.value;
+  /// Fetches a next page of the [elements].
+  FutureOr<void> next() async {
+    if (elements.isEmpty) {
+      return around();
     }
 
-    initialized = true;
+    if (hasNext.isTrue) {
+      final Page<T, K>? page =
+          await provider.after(elements.last, _endCursor, perPage);
+      if (page != null) {
+        for (var e in page.edges) {
+          _add(e);
+        }
+        hasNext.value = page.info!.hasNext;
+        _endCursor = page.info!.endCursor ?? _endCursor;
+
+        if (page.edges.length < perPage) {
+          // load next or prev page??
+          // may be jumps in chat
+        }
+      } else {
+        hasNext.value = false;
+      }
+    }
+  }
+
+  /// Fetches a previous page of the [elements].
+  FutureOr<void> previous() async {
+    if (elements.isEmpty) {
+      return around();
+    }
+
+    if (hasPrevious.isTrue) {
+      final Page<T, K>? page =
+          await provider.before(elements.first, _startCursor, perPage);
+      if (page != null) {
+        for (var e in page.edges) {
+          _add(e);
+        }
+        hasPrevious.value = page.info!.hasPrevious;
+        _startCursor = page.info!.startCursor ?? _startCursor;
+      } else {
+        hasPrevious.value = false;
+      }
+    }
   }
 
   /// Adds the provided [item] to the [elements].
@@ -127,245 +180,36 @@ class PaginatedFragment<T> {
     }
   }
 
-  /// Clears the [elements] and related resources.
-  void clear() {
-    elements.clear();
-    _synced.clear();
-    hasNext.value = true;
-    hasPrevious.value = true;
-    _startCursor = null;
-    _endCursor = null;
-  }
-
-  /// Fetches the initial page from the remote.
-  Future<void> fetchInitialPage() async {
-    if (_synced.isNotEmpty ||
-        (elements.length >= pageSize && !shouldSynced) ||
-        (hasNext.isFalse && hasPrevious.isFalse)) {
-      // Return if initial page is already fetched.
-      return;
-    }
-
-    // TODO: Temporary timeout, remove before merging.
-    await Future.delayed(const Duration(seconds: 2));
-
-    final ItemsPage<T> fetched =
-        await remoteProvider.initial(pageSize, initialCursor);
-
-    hasNext.value = fetched.pageInfo?.hasNext ?? hasNext.value;
-    hasPrevious.value = fetched.pageInfo?.hasPrevious ?? hasPrevious.value;
-    _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
-    _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
-
-    if (shouldSynced) {
-      _syncItems(fetched.items);
-    }
-
-    for (T i in fetched.items) {
-      _add(i);
-    }
-  }
-
-  /// Fetches next page of the [elements].
-  Future<void> fetchNextPage() async {
-    if (hasNext.isFalse || _isNextPageCacheFetching) {
-      return;
-    }
-
-    _isNextPageCacheFetching = true;
-    final ItemsPage<T> cached =
-        await cacheProvider.after(elements.last, _endCursor, pageSize);
-    for (T i in cached.items) {
-      elements.insertAfter(i, (e) => compare(i, e) == 1);
-    }
-    _isNextPageCacheFetching = false;
-
-    if (!shouldSynced) {
-      _endCursor = cached.pageInfo?.endCursor ?? _endCursor;
-      hasNext.value = cached.pageInfo?.hasNext ?? hasNext.value;
-    }
-
-    if (cached.items.length < pageSize || shouldSynced) {
-      await _fetchNextPage();
-    }
-  }
-
-  /// Fetches next page of the [elements].
-  Future<void> _fetchNextPage() async {
-    if (!_isNextPageFetching && hasNext.isTrue) {
-      _isNextPageFetching = true;
-
-      // TODO: Temporary timeout, remove before merging.
-      await Future.delayed(const Duration(seconds: 2));
-
-      ItemsPage<T>? fetched = await remoteProvider.after(
-        elements.last,
-        _endCursor,
-        pageSize,
-      );
-
-      hasNext.value = fetched.pageInfo?.hasNext ?? hasNext.value;
-      _endCursor = fetched.pageInfo?.endCursor ?? _endCursor;
-
-      if (shouldSynced) {
-        _syncItems(fetched.items);
-      }
-
-      for (T i in fetched.items) {
-        _add(i);
-      }
-
-      _isNextPageFetching = false;
-      if (shouldSynced && _synced.length < elements.length) {
-        await _fetchNextPage();
-      }
-    }
-  }
-
-  /// Fetches previous page of the [elements].
-  FutureOr<void> fetchPreviousPage() async {
-    if (_isPrevPageFetching || hasPrevious.isFalse) {
-      return;
-    }
-
-    _isPrevPageFetching = true;
-
-    // TODO: Temporary timeout, remove before merging.
-    await Future.delayed(const Duration(seconds: 2));
-
-    ItemsPage<T>? cached;
-    if (!shouldSynced) {
-      cached =
-          (await cacheProvider.before(elements.first, _startCursor, pageSize));
-      for (T i in cached.items) {
-        elements.insertAfter(i, (e) => compare(i, e) == 1);
-      }
-
-      hasPrevious.value = cached.pageInfo?.hasPrevious ?? hasPrevious.value;
-      _startCursor = cached.pageInfo?.startCursor ?? _startCursor;
-    }
-
-    if (shouldSynced || cached!.items.length < pageSize) {
-      ItemsPage<T>? fetched =
-          await remoteProvider.before(elements.first, _startCursor, pageSize);
-
-      hasPrevious.value = fetched.pageInfo?.hasPrevious ?? hasPrevious.value;
-      _startCursor = fetched.pageInfo?.startCursor ?? _startCursor;
-
-      for (T i in fetched.items) {
-        _add(i);
-      }
-    }
-
-    _isPrevPageFetching = false;
-  }
-
-  /// Adds the provided [item] to the [_synced], [elements].
+  /// Adds the provided [item] to the [elements].
   void _add(T item) {
-    if (shouldSynced) {
-      int i = _synced.indexWhere((e) => equal(e, item));
-      if (i == -1) {
-        _synced.insertAfter(item, (e) => compare(item, e) == 1);
-      } else {
-        _synced[i] = item;
-      }
-    }
-
-    int i = elements.indexWhere((e) => equal(e, item));
+    int i = elements.indexWhere((e) => e == item);
     if (i == -1) {
       elements.insertAfter(item, (e) => compare(item, e) == 1);
     } else {
       elements[i] = item;
     }
   }
-
-  /// Synchronizes the provided [fetched] items with the [elements].
-  void _syncItems(List<T> fetched) {
-    List<T> secondary =
-        elements.skip(_synced.length).take(fetched.length).toList();
-
-    if (fetched.isEmpty || secondary.isEmpty) {
-      return;
-    }
-
-    for (T i in secondary) {
-      if (ignore?.call(i) == true) {
-        _synced.insertAfter(i, (e) => compare(i, e) == 1);
-      } else {
-        if (fetched.indexWhere((e) => equal(i, e)) == -1) {
-          if (compare(i, fetched.last) != -1) {
-            onDelete(i);
-            elements.remove(i);
-          } else {
-            elements.remove(i);
-          }
-        }
-      }
-    }
-  }
 }
 
-/// Page fetching result.
-class ItemsPage<T> {
-  ItemsPage(this.items, [this.pageInfo]);
+/// Result of a paginated page fetching.
+class Page<T, K> {
+  Page(this.edges, [this.info]);
 
-  /// Fetched items.
-  final List<T> items;
+  /// List of the fetched items.
+  List<T> edges;
 
-  /// Page info of this [ItemsPage].
-  final PageInfo? pageInfo;
+  /// [PageInfo] of this [Page].
+  PageInfo<K>? info;
 }
 
 /// Base class for load items with pagination.
-abstract class PageProvider<T> {
-  /// Gets initial items.
-  Future<ItemsPage<T>> initial(int count, String? cursor);
+abstract class PageProvider<T, K> {
+  /// Gets items page around the provided [item] or [cursor].
+  FutureOr<Rx<Page<T, K>>> around(T? item, K? cursor, int count);
 
-  /// Gets items [after] the provided item.
-  Future<ItemsPage<T>> after(T after, String? cursor, int count);
+  /// Gets items page after the provided [item] or [cursor].
+  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
 
-  /// Gets items [before] the provided item.
-  Future<ItemsPage<T>> before(T before, String? cursor, int count);
-}
-
-/// [PageProvider] loading items with pagination from the remote.
-class RemotePageProvider<T> implements PageProvider<T> {
-  RemotePageProvider(this.onFetchPage, {this.startFromLastPage = false});
-
-  /// Callback, called to fetch items page.
-  final Future<ItemsPage<T>> Function({
-    int? first,
-    String? after,
-    int? last,
-    String? before,
-  }) onFetchPage;
-
-  /// Indicator whether [initial] items should be loading from the last page.
-  bool startFromLastPage;
-
-  @override
-  Future<ItemsPage<T>> after(T after, String? cursor, int count) {
-    return onFetchPage(first: count, after: cursor);
-  }
-
-  @override
-  Future<ItemsPage<T>> before(T before, String? cursor, int count) {
-    return onFetchPage(last: count, before: cursor);
-  }
-
-  @override
-  Future<ItemsPage<T>> initial(int count, String? cursor) {
-    if (cursor != null) {
-      return onFetchPage(
-        first: count ~/ 2 - 1,
-        after: cursor,
-        last: count ~/ 2 - 1,
-        before: cursor,
-      );
-    } else if (startFromLastPage) {
-      return onFetchPage(last: count);
-    } else {
-      return onFetchPage(first: count);
-    }
-  }
+  /// Gets items page before the provided [item] or [cursor].
+  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
 }

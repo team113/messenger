@@ -6,11 +6,11 @@ import 'package:hive/hive.dart';
 import '/domain/model/chat_item.dart';
 import '/provider/hive/base.dart';
 import '/provider/hive/chat_item.dart';
-import '/store/pagination2.dart';
+import '/store/pagination.dart';
 import 'graphql.dart';
 import 'hive.dart';
 
-String consoleList<U>(RxList<U>? items) {
+String consoleList<U>(Iterable<U>? items) {
   return '${items?.map((m) {
     if (m is HiveChatMessage) {
       return '${(m.value as ChatMessage).text}';
@@ -19,6 +19,8 @@ String consoleList<U>(RxList<U>? items) {
   })}';
 }
 
+/// Combined [PageProvider] from the [HivePageProvider] and
+/// [GraphQlPageProvider].
 class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
   HiveGraphQlPageProvider(this._hiveProvider, this._graphQlProvider);
 
@@ -28,37 +30,36 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<U, T> _graphQlProvider;
 
+  /// Indicator whether [after] is executing.
   bool _afterFetching = false;
+
+  /// Indicator whether [before] is executing.
   bool _beforeFetching = false;
-  bool _aroundFetching = false;
 
   @override
-  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
+  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
     print('\n[AROUND] Request begun');
-    _aroundFetching = true;
     final cached = await _hiveProvider.around(item, cursor, count);
     print(
-      '[AROUND] Cached page: [${consoleList(cached.edges)}], ${cached.info?.startCursor} to ${cached.info?.endCursor}, hasPrevious: ${cached.info?.hasPrevious}, hasNext: ${cached.info?.hasNext}',
+      '[AROUND] Cached page: [${consoleList(cached.value.edges)}], ${cached.value.info?.startCursor} to ${cached.value.info?.endCursor}, hasPrevious: ${cached.value.info?.hasPrevious}, hasNext: ${cached.value.info?.hasNext}',
     );
-    if (cached.info != null) {
-      if (cached.info!.startCursor == null && cached.info!.endCursor == null) {
+    if (cached.value.info != null) {
+      if (cached.value.edges.length < count) {
         print('[AROUND] Request ongoing with CACHED response');
 
         Future(() async {
           final remote = await _graphQlProvider.around(item, cursor, count);
-          cached.edges.value = remote.edges;
-          cached.info = remote.info;
-
-          _aroundFetching = false;
+          cached.value.edges = remote.value.edges;
+          cached.value.info = remote.value.info;
+          cached.refresh();
           print(
-            '[AROUND] OFFLOADED Remote page: [${consoleList(remote.edges)}], ${remote.info?.startCursor} to ${remote.info?.endCursor}, hasPrevious: ${remote.info?.hasPrevious}, hasNext: ${remote.info?.hasNext}',
+            '[AROUND] OFFLOADED Remote page: [${consoleList(remote.value.edges)}], ${remote.value.info?.startCursor} to ${remote.value.info?.endCursor}, hasPrevious: ${remote.value.info?.hasPrevious}, hasNext: ${remote.value.info?.hasNext}',
           );
         });
 
         return cached;
       } else {
         print('[AROUND] Request done with CACHED response');
-        _aroundFetching = false;
         return cached;
       }
     }
@@ -66,17 +67,16 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
     print('[AROUND] Requesting REMOTE...');
     final remote = await _graphQlProvider.around(item, cursor, count);
     print(
-      '[AROUND] Remote page: [${consoleList(remote.edges)}], ${remote.info?.startCursor} to ${remote.info?.endCursor}, hasPrevious: ${remote.info?.hasPrevious}, hasNext: ${remote.info?.hasNext}',
+      '[AROUND] Remote page: [${consoleList(remote.value.edges)}], ${remote.value.info?.startCursor} to ${remote.value.info?.endCursor}, hasPrevious: ${remote.value.info?.hasPrevious}, hasNext: ${remote.value.info?.hasNext}',
     );
 
     print('[AROUND] Request done with REMOTE response');
-    _aroundFetching = false;
     return remote;
   }
 
   @override
   FutureOr<Page<U, T>?> after(U? item, T? cursor, int count) async {
-    if (_afterFetching || _aroundFetching) {
+    if (_afterFetching) {
       return null;
     }
     print('\n[AFTER] Request begun');
@@ -104,7 +104,7 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
 
   @override
   FutureOr<Page<U, T>?> before(U? item, T? cursor, int count) async {
-    if (_beforeFetching || _aroundFetching) {
+    if (_beforeFetching) {
       return null;
     }
     print('\n[BEFORE] Request begun');

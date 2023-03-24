@@ -1,22 +1,34 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 import '/provider/hive/base.dart';
 import '/store/model/page_info.dart';
-import '/store/pagination2.dart';
+import '/store/pagination.dart';
 
+/// [PageProvider] fetching items from the [Hive].
 class HivePageProvider<U, T> implements PageProvider<U, T> {
-  HivePageProvider(this._hiveProvider, {this.getCursor, required this.getKey});
+  HivePageProvider(
+    this._hiveProvider, {
+    required this.getCursor,
+    required this.getKey,
+  });
 
+  /// Callback returning key of an item.
   final dynamic Function(U item) getKey;
-  final T? Function(U? item)? getCursor;
+
+  /// Callback returning cursor of an item.
+  final T? Function(U? item) getCursor;
+
+  /// [HiveLazyProvider] items fetching from.
   HiveLazyProvider _hiveProvider;
 
   @override
-  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
+  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
     if (_hiveProvider.keys.isEmpty) {
-      return Page(RxList());
+      return Page<U, T>(RxList()).obs;
     }
 
     Iterable<dynamic> keys = _hiveProvider.keys.take(count);
@@ -46,12 +58,13 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       RxList(items.toList()),
       PageInfo(
         startCursor:
-            items.length == count ? getCursor?.call(items.first) : null,
-        endCursor: items.length == count ? getCursor?.call(items.last) : null,
+            getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
+        endCursor:
+            getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
         hasPrevious: true,
         hasNext: true,
       ),
-    );
+    ).obs;
   }
 
   @override
@@ -76,8 +89,10 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       return Page(
         RxList(items.toList()),
         PageInfo(
-          startCursor: getCursor?.call(items.first),
-          endCursor: getCursor?.call(items.last),
+          startCursor:
+              getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
+          endCursor:
+              getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
           hasPrevious: true,
           hasNext: true,
         ),
@@ -113,8 +128,10 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       return Page(
         RxList(items.toList()),
         PageInfo(
-          startCursor: getCursor?.call(items.first),
-          endCursor: getCursor?.call(items.last),
+          startCursor:
+              getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
+          endCursor:
+              getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
           hasPrevious: true,
           hasNext: true,
         ),
@@ -122,12 +139,6 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     }
 
     return Page(RxList());
-  }
-
-  Future<void> put(Page<U, T> page) async {
-    for (var item in page.edges) {
-      await _hiveProvider.putSafe(getKey(item), item!);
-    }
   }
 
   /// Updates the [_hiveProvider] with the provided [provider].

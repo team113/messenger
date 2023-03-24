@@ -261,9 +261,6 @@ abstract class RxChat {
   /// First [ChatItem] unread by the authenticated [MyUser].
   Rx<ChatItem>? get firstUnreadItem;
 
-  /// Fetches the initial [messages] page.
-  Future<void> fetchInitial();
-
   /// Fetches the next [messages] page.
   Future<void> fetchNext();
 

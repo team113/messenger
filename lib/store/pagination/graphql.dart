@@ -1,12 +1,16 @@
 import 'dart:async';
 
-import '/store/pagination2.dart';
+import 'package:get/get.dart';
 
+import '/store/pagination.dart';
+
+/// [PageProvider] fetching items from the remote.
 class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   GraphQlPageProvider({
     required this.fetch,
   });
 
+  /// Callback fetching items from the remote.
   final Future<Page<U, T>> Function({
     int? first,
     int? last,
@@ -15,15 +19,16 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }) fetch;
 
   @override
-  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
+  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
     final int half = count ~/ 2;
 
-    return await fetch(
+    return (await fetch(
       after: cursor,
       first: cursor == null ? count : half,
       before: cursor,
       last: cursor == null ? null : half,
-    );
+    ))
+        .obs;
   }
 
   @override
