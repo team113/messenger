@@ -1172,10 +1172,7 @@ class ChatRepository implements AbstractChatRepository {
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
-          await _putEntry(event.chat);
-        }
-        if (event.lastItem != null) {
-          chats[event.chat.chat.value.id]?.add(event.lastItem!);
+          _putEntry(event.chat);
         }
         break;
 
@@ -1202,8 +1199,7 @@ class ChatRepository implements AbstractChatRepository {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
           yield EventRecentChatsUpdated(
-            _chat(mixin.chat),
-            mixin.chat.lastItem?.toHive(),
+            _chat(mixin.chat)
           );
         } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
           var mixin = events

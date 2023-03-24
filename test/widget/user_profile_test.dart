@@ -70,12 +70,6 @@ void main() async {
   var recentChats = {
     'recentChats': {
       'nodes': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
     }
   };
 
@@ -120,12 +114,6 @@ void main() async {
   var chatContactsData = {
     'chatContacts': {
       'nodes': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
       'ver': '0'
     }
   };

@@ -83,12 +83,6 @@ void main() async {
   var recentChats = {
     'recentChats': {
       'nodes': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
     }
   };
 

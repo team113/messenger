@@ -90,12 +90,6 @@ var chatData = {
 var chatsQuery = {
   'recentChats': {
     'nodes': [chatData],
-    'pageInfo': {
-      'endCursor': 'endCursor',
-      'hasNextPage': false,
-      'startCursor': 'endCursor',
-      'hasPreviousPage': false,
-    },
   }
 };
 

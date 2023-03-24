@@ -8,6 +8,7 @@ import '/store/pagination.dart';
 class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   GraphQlPageProvider({
     required this.fetch,
+    this.startFromEnd = false,
   });
 
   /// Callback fetching items from the remote.
@@ -18,15 +19,26 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
     T? after,
   }) fetch;
 
+  /// Indicator whether items should be started fetching from the end.
+  bool startFromEnd;
+
   @override
   FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
     final int half = count ~/ 2;
 
     return (await fetch(
       after: cursor,
-      first: cursor == null ? count : half,
+      first: cursor == null
+          ? startFromEnd
+              ? null
+              : count
+          : half,
       before: cursor,
-      last: cursor == null ? null : half,
+      last: cursor == null
+          ? startFromEnd
+              ? count
+              : null
+          : half,
     ))
         .obs;
   }

@@ -124,12 +124,6 @@ void main() async {
   var recentChats = {
     'recentChats': {
       'nodes': [chatData],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
     }
   };
 

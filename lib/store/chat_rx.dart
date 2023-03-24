@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -46,6 +47,7 @@ import '/provider/hive/draft.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -65,10 +67,7 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         lastReadItemCursor = hiveChat.lastReadItemCursor,
-        _local = ChatItemHiveProvider(
-          hiveChat.value.id,
-          initialKey: hiveChat.value.lastReadItem?.timestamp,
-        ),
+        _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount);
 
@@ -158,6 +157,9 @@ class HiveRxChat extends RxChat {
 
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
+
+  /// [CancelToken] for cancelling the [Pagination.around] query.
+  final CancelToken _cancelToken = CancelToken();
 
   @override
   UserId? get me => _chatRepository.me;
@@ -262,6 +264,7 @@ class HiveRxChat extends RxChat {
             before: before,
             last: last,
           ),
+          startFromEnd: true,
         ),
       ),
       compare: (a, b) => -a.value.at.compareTo(b.value.at),
@@ -301,7 +304,10 @@ class HiveRxChat extends RxChat {
           item = await _local.get(chat.value.lastReadItem!.timestamp);
         }
 
-        await _pagination.around(item: item, cursor: lastReadItemCursor);
+        await Backoff.run(
+          () => _pagination.around(item: item, cursor: lastReadItemCursor),
+          _cancelToken,
+        );
 
         await Future.delayed(Duration.zero, updateReads);
       }
@@ -316,6 +322,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loading();
       messages.clear();
       reads.clear();
+      _cancelToken.cancel();
       _muteTimer?.cancel();
       _readTimer?.cancel();
       _localSubscription?.cancel();
@@ -764,10 +771,8 @@ class HiveRxChat extends RxChat {
         }
       }
 
-      if (_pagination.provider is HiveGraphQlPageProvider) {
-        (_pagination.provider as HiveGraphQlPageProvider)
-            .updateHiveProvider(_local);
-      }
+      (_pagination.provider as HiveGraphQlPageProvider)
+          .updateHiveProvider(_local);
 
       _initLocalSubscription();
     }
@@ -1168,6 +1173,7 @@ class HiveRxChat extends RxChat {
                   if (item != null) {
                     chatEntity.lastReadItemCursor = item.cursor!;
                     chatEntity.value.lastReadItem = item.value;
+                    lastReadItemCursor = item.cursor!;
                   }
                 }
               }

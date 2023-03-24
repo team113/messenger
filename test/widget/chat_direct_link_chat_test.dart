@@ -94,32 +94,12 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
+      'nodes': [chatData],
     }
   };
 
   var chatContacts = {
-    'chatContacts': {
-      'nodes': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0'
-    }
+    'chatContacts': {'nodes': [], 'ver': '0'}
   };
 
   var graphQlProvider = Get.put(MockGraphQlProvider());

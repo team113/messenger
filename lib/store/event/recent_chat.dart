@@ -57,13 +57,10 @@ class RecentChatsTop extends RecentChatsEvent {
 
 /// Event of a [Chat] position being updated in a recent [Chat]s list.
 class EventRecentChatsUpdated extends RecentChatsEvent {
-  const EventRecentChatsUpdated(this.chat, this.lastItem);
+  const EventRecentChatsUpdated(this.chat);
 
   /// [Chat] which position was updated.
   final ChatData chat;
-
-  /// [HiveChatItem] of a [Chat.lastItem].
-  final HiveChatItem? lastItem;
 
   @override
   RecentChatsEventKind get kind => RecentChatsEventKind.updated;

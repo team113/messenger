@@ -143,10 +143,10 @@ class HiveChat extends HiveObject {
   ChatItemsCursor? lastItemCursor;
 
   /// Cursor of a [Chat.lastReadItem].
-  @HiveField(4)
+  @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
 
   /// Cursor of the [value].
-  @HiveField(5)
+  @HiveField(4)
   RecentChatsCursor? cursor;
 }

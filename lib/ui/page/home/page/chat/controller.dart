@@ -912,25 +912,28 @@ class ChatController extends GetxController {
         readChat(_lastSeenItem.value);
       }
 
-      loadNextPage() {
+      ensureScrollable() {
         SchedulerBinding.instance.addPostFrameCallback((_) async {
           for (int i = 0; i < 10 && !listController.hasClients; i++) {
             await Future.delayed(10.milliseconds);
           }
 
           if (listController.hasClients &&
-              listController.position.maxScrollExtent == 0) {
-            _loadNextPage();
+              listController.position.maxScrollExtent == 0 &&
+              (hasNext.isTrue || hasPrevious.isTrue)) {
+            await _loadNextPage();
+            await _loadPreviousPage();
+            ensureScrollable();
           }
         });
       }
 
       if (status.value.isSuccess && !status.value.isLoadingMore) {
-        loadNextPage();
+        ensureScrollable();
       } else {
         _statusWorker = ever(status, (e) {
           if (e.isSuccess && !e.isLoadingMore) {
-            loadNextPage();
+            ensureScrollable();
             _statusWorker?.dispose();
             _statusWorker = null;
           }

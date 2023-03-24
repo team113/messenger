@@ -30,9 +30,9 @@ class PageInfo<K> {
   /// Indicator whether a previous page is exist.
   bool hasPrevious;
 
-  /// Cursor ot the first item in page.
+  /// Cursor of the first item in page this [PageInfo] about.
   K? startCursor;
 
-  /// Cursor ot the last item in page.
+  /// Cursor of the last item in page this [PageInfo] about.
   K? endCursor;
 }

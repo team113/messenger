@@ -41,13 +41,10 @@ part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
 class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
-  ChatItemHiveProvider(this.id, {this.initialKey});
+  ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
   final ChatId id;
-
-  /// Key to get the [initial] items.
-  final String? initialKey;
 
   @override
   Stream<BoxEvent> get boxEvents => box.watch();

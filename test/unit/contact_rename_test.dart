@@ -87,12 +87,6 @@ void main() async {
   var chatContacts = {
     'chatContacts': {
       'nodes': [chatContact],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'endCursor',
-        'hasPreviousPage': false,
-      },
       'ver': '0'
     }
   };

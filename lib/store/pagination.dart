@@ -56,8 +56,8 @@ class Pagination<T, K> {
   /// Cursor pointing the last item in the [elements].
   K? _endCursor;
 
-  /// [List] of the [StreamSubscription] for the [Page.edges].
-  List<StreamSubscription> pageSubscriptions = [];
+  /// [StreamSubscription] for the [Page] fetched in the [around].
+  StreamSubscription? _aroundSubscription;
 
   /// Resets this [Pagination] to its initial state.
   void clear() {
@@ -66,31 +66,22 @@ class Pagination<T, K> {
     hasPrevious.value = true;
     _startCursor = null;
     _endCursor = null;
-    for (var e in pageSubscriptions) {
-      e.cancel();
-    }
-    pageSubscriptions.clear();
+    _aroundSubscription?.cancel();
   }
 
   /// Disposes this [Pagination].
   void dispose() {
-    for (var e in pageSubscriptions) {
-      e.cancel();
-    }
-    pageSubscriptions.clear();
+    _aroundSubscription?.cancel();
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  FutureOr<void> around({T? item, K? cursor}) async {
-    clear();
-
+  Future<void> around({T? item, K? cursor}) async {
     final Rx<Page<T, K>> page = await provider.around(item, cursor, perPage);
 
     PageInfo<K>? storedInfo = page.value.info;
-    StreamSubscription? subscription;
-    subscription = page.listen((page) {
+    _aroundSubscription = page.listen((page) {
       for (var e in page.edges) {
         _add(e);
       }
@@ -102,10 +93,8 @@ class Pagination<T, K> {
         _endCursor = page.info?.endCursor;
       }
 
-      subscription?.cancel();
-      pageSubscriptions.remove(subscription);
+      _aroundSubscription?.cancel();
     });
-    pageSubscriptions.add(subscription);
 
     if (page.value.info != null) {
       for (var e in page.value.edges) {
@@ -136,11 +125,6 @@ class Pagination<T, K> {
         }
         hasNext.value = page.info!.hasNext;
         _endCursor = page.info!.endCursor ?? _endCursor;
-
-        if (page.edges.length < perPage) {
-          // load next or prev page??
-          // may be jumps in chat
-        }
       } else {
         hasNext.value = false;
       }
@@ -202,14 +186,16 @@ class Page<T, K> {
   PageInfo<K>? info;
 }
 
-/// Base class for load items with pagination.
+/// Base class for fetching items with pagination.
 abstract class PageProvider<T, K> {
-  /// Gets items page around the provided [item] or [cursor].
+  /// Fetches the [Page] around the provided [item] or [cursor].
+  ///
+  /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   FutureOr<Rx<Page<T, K>>> around(T? item, K? cursor, int count);
 
-  /// Gets items page after the provided [item] or [cursor].
+  /// Fetches the [Page] after the provided [item] or [cursor].
   FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
 
-  /// Gets items page before the provided [item] or [cursor].
+  /// Fetches the [Page] before the provided [item] or [cursor].
   FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
 }
