@@ -129,6 +129,18 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]-monolog of the currently authenticated [MyUser].
   HiveRxChat? _monolog;
 
+  /// Indicator whether the local chat-monolog has been hidden.
+  ///
+  /// Used to prevent the [Chat]-monolog from flickering if the local
+  /// [Chat]-monolog was hidden.
+  bool _isHideLocalMonolog = false;
+
+  /// [ChatFavoritePosition] of the local [Chat]-monolog.
+  ///
+  /// Used to prevent the [Chat]-monolog from flickering if the local
+  /// [Chat]-monolog is added to favorites.
+  ChatFavoritePosition? _monologFavoritePosition;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -414,24 +426,25 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> hideChat(ChatId id) async {
     HiveRxChat? chat = _chats.remove(id);
-
+    ChatData? chatData;
     try {
       if (id.isLocal && _chatLocal.get(id)?.value.isMonolog == true) {
-        final HiveRxChat? monolog = await ensureRemoteDialog(id);
-        if (monolog != null) {
-          _monolog = monolog;
-          chat = monolog;
-          id = monolog.id;
-          _chats.remove(id);
-        }
-      }
+        _isHideLocalMonolog = true;
+        chatData = _chat(
+          await _graphQlProvider.createMonologChat(null),
+        );
 
+        id = chatData.chat.value.id;
+        _monolog = HiveRxChat(this, _chatLocal, _draftLocal, chatData.chat);
+      }
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      if (chat != null) {
+      if (id == chatData?.chat.value.id) {
+        _putEntry(chatData!);
+      } else if (chat != null) {
         _chats[id] = chat;
       }
-
+      _isHideLocalMonolog = false;
       rethrow;
     }
   }
@@ -877,13 +890,13 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       if (id.isLocal && _chatLocal.get(id)?.value.isMonolog == true) {
+        _monologFavoritePosition = newPosition;
+
         final HiveRxChat? monolog = await ensureRemoteDialog(id);
         if (monolog != null) {
           _monolog = monolog;
           chat = monolog;
           id = monolog.id;
-          chat.chat.update((c) => c?.favoritePosition = newPosition);
-          chats.emit(MapChangeNotification.updated(chat.id, chat.id, chat));
         }
       }
 
@@ -891,6 +904,7 @@ class ChatRepository implements AbstractChatRepository {
     } catch (e) {
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      _monologFavoritePosition = null;
       rethrow;
     }
   }
@@ -1211,6 +1225,14 @@ class ChatRepository implements AbstractChatRepository {
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
+          if (_isHideLocalMonolog) {
+            _isHideLocalMonolog = false;
+            break;
+          } else if (_monologFavoritePosition != null) {
+            event.chat.chat.value.favoritePosition = _monologFavoritePosition;
+            _monologFavoritePosition = null;
+          }
+
           _putEntry(event.chat);
         }
         break;
