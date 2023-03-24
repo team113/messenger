@@ -182,7 +182,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
 
-  /// [SelectedContent] of a [SelectionArea] within this [ChatForwardWidget].
+  /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
@@ -546,10 +546,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Builds a visual representation of the [ChatForwardWidget.note].
   List<Widget> _note(bool menu) {
-    ChatItem item = widget.note.value!.value;
+    final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       String? text = item.text?.val.trim();
       if (text?.isEmpty == true) {
@@ -558,18 +558,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         text = item.text?.val;
       }
 
-      List<Attachment> attachments = item.attachments.where((e) {
+      final List<Attachment> attachments = item.attachments.where((e) {
         return ((e is ImageAttachment) ||
             (e is FileAttachment && e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      List<Attachment> files = item.attachments.where((e) {
+      final List<Attachment> files = item.attachments.where((e) {
         return ((e is FileAttachment && !e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      Color color = widget.user?.user.value.id == widget.me
+      final Color color = widget.user?.user.value.id == widget.me
           ? Theme.of(context).colorScheme.secondary
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
@@ -799,8 +799,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   }
 
                   if (_dragging) {
-                    // Distance [_totalOffset] should exceed in order for dragging to
-                    // start.
+                    // Distance [_totalOffset] should exceed in order for
+                    // dragging to start.
                     const int delta = 10;
 
                     if (_totalOffset.dx > delta) {

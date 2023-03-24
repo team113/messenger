@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -323,7 +324,7 @@ class CallRepository extends DisposableInterface
     final CallMemberId id = CallMemberId(memberId, null);
 
     if (ongoing != null) {
-      if (!ongoing.value.members.containsKey(id)) {
+      if (ongoing.value.members.keys.none((e) => e.userId == memberId)) {
         ongoing.value.members[id] =
             CallMember(id, null, isConnected: false, isRedialing: true);
       }
@@ -332,10 +333,14 @@ class CallRepository extends DisposableInterface
     try {
       await _graphQlProvider.redialChatCallMember(chatId, memberId);
     } catch (_) {
-      if (ongoing != null) {
-        ongoing.value.members.remove(id);
-      }
+      ongoing?.value.members.remove(id);
     }
+  }
+
+  @override
+  Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    // TODO: Implement optimism, if possible.
+    await _graphQlProvider.removeChatCallMember(chatId, userId);
   }
 
   @override

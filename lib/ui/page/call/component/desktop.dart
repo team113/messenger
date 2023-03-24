@@ -1408,13 +1408,13 @@ Widget _primaryView(CallController c) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () {},
-                                  // onPressed: () => c.removeChatMember(
-                                  //   participant.member.id.userId,
-                                  // ),
-                                ),
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
+                                  ),
                               ] else ...[
                                 ContextMenuButton(
                                   label: c.videoState.value.isEnabled
@@ -1960,13 +1960,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () {},
-                                  // onPressed: () => c.removeChatMember(
-                                  //   participant.member.id.userId,
-                                  // ),
-                                ),
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
+                                  ),
                               ] else ...[
                                 ContextMenuButton(
                                   label: c.videoState.value.isEnabled

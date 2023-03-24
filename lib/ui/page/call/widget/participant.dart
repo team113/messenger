@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
@@ -266,6 +266,22 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
+      final Widget name = Container(
+        padding: const EdgeInsets.only(left: 3, right: 3),
+        child: Text(
+          participant.user.value?.user.value.name?.val ??
+              participant.user.value?.user.value.num.val ??
+              'dot'.l10n * 3,
+          style: context.theme.outlinedButtonTheme.style!.textStyle!
+              .resolve({MaterialState.disabled})!.copyWith(
+            fontSize: 15,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+
       return Center(
         child: Stack(
           alignment: Alignment.center,
@@ -316,35 +332,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   Flexible(
                                     child: AnimatedSize(
                                       duration: 150.milliseconds,
-                                      child: hovered
-                                          ? Container(
-                                              padding: const EdgeInsets.only(
-                                                left: 3,
-                                                right: 3,
-                                              ),
-                                              child: Text(
-                                                participant.user.value?.user
-                                                        .value.name?.val ??
-                                                    participant.user.value?.user
-                                                        .value.num.val ??
-                                                    'dot'.l10n * 3,
-                                                style: context
-                                                    .theme
-                                                    .outlinedButtonTheme
-                                                    .style!
-                                                    .textStyle!
-                                                    .resolve({
-                                                  MaterialState.disabled
-                                                })!.copyWith(
-                                                  fontSize: 15,
-                                                  color:
-                                                      const Color(0xFFFFFFFF),
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            )
-                                          : const SizedBox(),
+                                      child: hovered ? name : const SizedBox(),
                                     ),
                                   ),
                                 ],

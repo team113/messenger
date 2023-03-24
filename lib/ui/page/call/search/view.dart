@@ -156,6 +156,7 @@ class SearchView extends StatelessWidget {
                   return Scrollbar(
                     controller: c.controller,
                     child: FlutterListView(
+                      key: const Key('SearchScrollable'),
                       controller: c.controller,
                       delegate: FlutterListViewDelegate(
                         (context, i) {

@@ -401,7 +401,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
 
-  /// [SelectedContent] of a [SelectionArea] within this [ChatItemWidget].
+  /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
   SelectedContent? _selection;
 
   /// Indicates whether this [ChatItem] was read by any [User].
@@ -511,8 +511,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 'author': user.name?.val ?? user.num.val,
               };
 
-              return RichText(
-                text: TextSpan(
+              return Text.rich(
+                TextSpan(
                   children: [
                     TextSpan(
                       text: 'label_group_created_by1'.l10nfmt(args),
@@ -553,8 +553,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               'user': user.name?.val ?? user.num.val,
             };
 
-            return RichText(
-              text: TextSpan(
+            return Text.rich(
+              TextSpan(
                 children: [
                   TextSpan(
                     text: 'label_user_added_user1'.l10nfmt(args),
@@ -584,8 +584,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             'author': action.user.name?.val ?? action.user.num.val,
           };
 
-          content = RichText(
-            text: TextSpan(
+          content = Text.rich(
+            TextSpan(
               children: [
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
@@ -620,8 +620,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               'user': user.name?.val ?? user.num.val,
             };
 
-            return RichText(
-              text: TextSpan(
+            return Text.rich(
+              TextSpan(
                 children: [
                   TextSpan(
                     text: 'label_user_removed_user1'.l10nfmt(args),
@@ -651,8 +651,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             'author': action.user.name?.val ?? action.user.num.val,
           };
 
-          content = RichText(
-            text: TextSpan(
+          content = Text.rich(
+            TextSpan(
               children: [
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
@@ -691,8 +691,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           phrase2 = 'label_avatar_updated2';
         }
 
-        content = RichText(
-          text: TextSpan(
+        content = Text.rich(
+          TextSpan(
             children: [
               TextSpan(
                 text: phrase1.l10nfmt(args),
@@ -731,8 +731,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           phrase2 = 'label_name_updated2';
         }
 
-        content = RichText(
-          text: TextSpan(
+        content = Text.rich(
+          TextSpan(
             children: [
               TextSpan(
                 text: phrase1.l10nfmt(args),
@@ -1677,14 +1677,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         curve: Curves.ease,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onHorizontalDragStart: PlatformUtils.isMobile
-              ? (d) {
+          onHorizontalDragStart: PlatformUtils.isDesktop
+              ? null
+              : (d) {
                   _draggingStarted = true;
                   setState(() => _offsetDuration = Duration.zero);
-                }
-              : null,
-          onHorizontalDragUpdate: PlatformUtils.isMobile
-              ? (d) {
+                },
+          onHorizontalDragUpdate: PlatformUtils.isDesktop
+              ? null
+              : (d) {
                   if (_draggingStarted && !_dragging) {
                     if (widget.animation?.value == 0 &&
                         _offset.dx == 0 &&
@@ -1697,8 +1698,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   }
 
                   if (_dragging) {
-                    // Distance [_totalOffset] should exceed in order for dragging to
-                    // start.
+                    // Distance [_totalOffset] should exceed in order for
+                    // dragging to start.
                     const int delta = 10;
 
                     if (_totalOffset.dx > delta) {
@@ -1719,10 +1720,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       }
                     }
                   }
-                }
-              : null,
-          onHorizontalDragEnd: PlatformUtils.isMobile
-              ? (d) {
+                },
+          onHorizontalDragEnd: PlatformUtils.isDesktop
+              ? null
+              : (d) {
                   if (_dragging) {
                     _dragging = false;
                     _draggingStarted = false;
@@ -1732,8 +1733,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     widget.onDrag?.call(_dragging);
                     setState(() {});
                   }
-                }
-              : null,
+                },
           child: Row(
             crossAxisAlignment:
                 _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,

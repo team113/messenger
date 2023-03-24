@@ -394,6 +394,18 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _callService.removeChatCallMember(chatId, userId);
+    } on RemoveChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Fetches the [chat].
   void _fetchChat() async {
     status.value = RxStatus.loading();
