@@ -433,7 +433,7 @@ class ChatRepository implements AbstractChatRepository {
         chatData = _chat(
           await _graphQlProvider.createMonologChat(null),
         );
-
+        remove(id);
         id = chatData.chat.value.id;
         _monolog = HiveRxChat(this, _chatLocal, _draftLocal, chatData.chat);
       }

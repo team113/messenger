@@ -10,14 +10,14 @@
 # Unused for web, browser location is used instead.
 #
 # Default:
-#   url = "http://localhost"
+  url = "https://messenger.soc.stg.t11913.org"
 
 # Port of HTTP backend server.
 #
 # Unused for web, browser location is used instead.
 #
 # Default:
-#   port = 80
+  port = 443
 
 # GraphQL API endpoint of HTTP backend server.
 #
@@ -30,26 +30,26 @@
 # Unused for web, browser location is used instead.
 #
 # Default:
-#   url = "ws://localhost"
+  url = "wss://messenger.soc.stg.t11913.org"
 
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
 #
 # Default:
-#   port = 80
+  port = 443
 
 [files]
 # URL address of file storage server.
 #
 # Default:
-#   url = "http://localhost/files"
+#  url = "http://localhost/files"
 
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
 # Default:
-#   dsn = ""
+  dsn = ""
 
 [downloads]
 # Directory to download files to.
@@ -59,4 +59,4 @@
 # Unused for Web, as browser picks the directory itself.
 #
 # Default:
-#   directory = ""
+  directory = ""
