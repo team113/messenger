@@ -252,7 +252,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0xFFFFFFFF),
+                              Colors.white,
                               Color(0x00FFFFFF),
                             ],
                           ),
@@ -270,7 +270,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                             end: Alignment.bottomCenter,
                             colors: [
                               Color(0x00FFFFFF),
-                              Color(0xFFFFFFFF),
+                              Colors.white,
                             ],
                           ),
                         ),
@@ -369,7 +369,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             color: Colors.white,
             child: InkWell(
               hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
+              highlightColor: const Color(0x11FFFFFF),
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -427,7 +427,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0xFFFFFFFF),
+                                  Colors.white,
                                   Color(0x00FFFFFF),
                                 ],
                               ),
@@ -448,7 +448,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
+                                  Colors.white,
                                 ],
                               ),
                             ),

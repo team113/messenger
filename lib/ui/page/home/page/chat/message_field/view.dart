@@ -356,7 +356,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: Colors.white.withOpacity(0.4),
+            color: const Color(0x66FFFFFF),
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -796,7 +796,7 @@ class MessageFieldView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.2)
+                    ? const Color(0x40FFFFFF)
                     : Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity98,

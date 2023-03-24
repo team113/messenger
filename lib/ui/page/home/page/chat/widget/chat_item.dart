@@ -871,7 +871,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 : const Color(0xFFE6F1FE)
                             : _isRead || !_fromMe
                                 ? const Color(0xFFF9F9F9)
-                                : const Color(0xFFFFFFFF),
+                                : Colors.white,
                         borderRadius: i == 0
                             ? const BorderRadius.only(
                                 topLeft: Radius.circular(15),
@@ -1197,7 +1197,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
                   color: fromMe
-                      ? Colors.white.withOpacity(0.25)
+                      ? const Color(0x40FFFFFF)
                       : Theme.of(context)
                           .extension<Style>()!
                           .transparentOpacity98,
@@ -1235,7 +1235,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.25)
+                    ? const Color(0x40FFFFFF)
                     : Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity98,

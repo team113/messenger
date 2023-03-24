@@ -697,7 +697,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         'label_call_title'.l10nfmt(c.titleArguments),
                         style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
-                          color: const Color(0xFFFFFFFF),
+                          color: const Colors.white,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1161,7 +1161,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: const Color(0xFFFFFFFF),
+                            color: const Colors.white,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

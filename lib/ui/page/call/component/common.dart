@@ -288,7 +288,7 @@ class AcceptAudioButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          ? Border.all(color: const Color(0xFFEEEEEE), width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: false),
     );

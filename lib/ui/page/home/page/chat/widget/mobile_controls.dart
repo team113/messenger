@@ -314,9 +314,9 @@ class _MobileControlsState extends State<MobileControls>
         children: <InlineSpan>[
           TextSpan(
             text: '/ ${formatDuration(duration)}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: Color(0xCCFFFFFF),
               fontWeight: FontWeight.normal,
             ),
           )

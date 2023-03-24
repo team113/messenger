@@ -95,7 +95,7 @@ class Themes {
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
-            sidebarColor: Colors.white.withOpacity(0.4),
+            sidebarColor: const Color(0x66FFFFFF),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
