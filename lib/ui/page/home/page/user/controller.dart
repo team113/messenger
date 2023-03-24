@@ -406,8 +406,7 @@ class UserController extends GetxController {
           text: user!.user.value.messageCost == 0
               ? null
               : '${user!.user.value.messageCost.toString()}.00',
-          approvable: true,
-          onSubmitted: (s) {
+          onChanged: (s) {
             user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
@@ -427,7 +426,6 @@ class UserController extends GetxController {
           text: user!.user.value.callCost == 0
               ? null
               : '${user!.user.value.callCost.toString()}.00',
-          approvable: true,
           // onChanged: (s) async {
           //   if (s.text.isNotEmpty) {
           //     if (!s.text.contains('.')) {
@@ -439,7 +437,7 @@ class UserController extends GetxController {
           //     }
           //   }
           // },
-          onSubmitted: (s) {
+          onChanged: (s) {
             user?.user.value.callCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },

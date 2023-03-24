@@ -600,12 +600,11 @@ class UserView extends StatelessWidget {
               ReactiveTextField(
                 state: c.messageCost,
                 hint: '0.00',
-                prefixText: '     ',
+                prefixText: '    ',
                 prefixStyle: const TextStyle(fontSize: 13),
                 label: 'label_fee_per_incoming_message'.l10n,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 type: TextInputType.number,
-                style: TextStyle(fontSize: 21),
                 formatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
@@ -615,8 +614,7 @@ class UserView extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(
                   left: 21,
-                  top: 1,
-                  bottom: PlatformUtils.isWeb ? 8.5 : 0,
+                  bottom: PlatformUtils.isWeb ? 6 : 0,
                 ),
                 child: Text(
                   '¤',
@@ -626,7 +624,7 @@ class UserView extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     color: Theme.of(context).colorScheme.primary,
                     // color: Color(0xFFC6C6C6),
-                    fontSize: 21,
+                    fontSize: 15,
                   ),
                 ),
               ),
@@ -678,9 +676,8 @@ class UserView extends StatelessWidget {
               ReactiveTextField(
                 state: c.callsCost,
                 hint: '0.00',
-                prefixText: '     ',
+                prefixText: '    ',
                 prefixStyle: const TextStyle(fontSize: 13),
-                style: TextStyle(fontSize: 21),
                 label: 'label_fee_per_incoming_call_minute'.l10n,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 type: TextInputType.number,
@@ -693,8 +690,7 @@ class UserView extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(
                   left: 21,
-                  top: 1,
-                  bottom: PlatformUtils.isWeb ? 8.5 : 0,
+                  bottom: PlatformUtils.isWeb ? 6 : 0,
                 ),
                 child: Text(
                   '¤',
@@ -704,7 +700,7 @@ class UserView extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     // color: Color(0xFFC6C6C6),
                     color: Theme.of(context).colorScheme.primary,
-                    fontSize: 21,
+                    fontSize: 15,
                   ),
                 ),
               ),

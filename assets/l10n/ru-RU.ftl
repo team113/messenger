@@ -808,3 +808,9 @@ label_fee_per_incoming_message = Входящее сообщение
 label_comment = Комментарий
 label_welcome_message = Приветственное сообщение
 label_public_description = Публичное описание
+label_get_paid_details = To restrict the number of unwanted messages and calls, you can set a fee for reading received messages and accepting calls from the selected contacts.
+
+   Добавление (удаление) пользователя с индивидуальными настройками стоимости за прием звонков и прочтение входящих сообщений в (из) Ваши списки "Контакты" и "Избранные" не меняет индивидуальных настроек стоимости.
+
+   Невозможно установить цену за прием звонков и прочтение входящих сообщений для групп
+label_individual = Индивидуально: {$count}

@@ -209,8 +209,11 @@ class Themes {
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide:
-                    const BorderSide(width: 2, color: Color(0xFFD0D0D0)),
+                borderSide: BorderSide(
+                  width: 1,
+                  color: colors.secondary,
+                  // color: Color(0xFFD0D0D0),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),

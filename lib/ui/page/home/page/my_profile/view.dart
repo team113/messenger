@@ -1266,146 +1266,172 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 }
 
 Widget _getPaid(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  Widget title(String label) {
+    // return _dense(
+    //   Row(
+    //     children: [
+    //       // Expanded(
+    //       //   child: ,
+    //       // ),
+    //       Container(
+    //         height: 1,
+    //         width: 15,
+    //         color: Colors.grey,
+    //       ),
+    //       const SizedBox(width: 4),
+    //       Text(
+    //         label,
+    //         style: style.systemMessageStyle.copyWith(
+    //           // color: Theme.of(context).colorScheme.primary,
+    //           color: Colors.black,
+    //           fontSize: 15,
+    //           fontWeight: FontWeight.w400,
+    //         ),
+    //       ),
+    //       const SizedBox(width: 4),
+    //       Expanded(
+    //         child: Container(
+    //           height: 1,
+    //           width: double.infinity,
+    //           color: Colors.grey,
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+
+    return _dense(
+      Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 0.0),
+          child: Text(
+            label,
+            style: style.systemMessageStyle.copyWith(
+              // color: Theme.of(context).colorScheme.primary,
+              color: Colors.black,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget field({
+    required TextFieldState state,
+    required String label,
+  }) {
+    return _padding(
+      Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          ReactiveTextField(
+            state: state,
+            hint: '0.00',
+            prefixText: '    ',
+            prefixStyle: const TextStyle(fontSize: 13),
+            label: label,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            type: TextInputType.number,
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              left: 21,
+              bottom: PlatformUtils.isWeb ? 6 : 0,
+            ),
+            child: Text(
+              '¤',
+              style: TextStyle(
+                height: 0.8,
+                fontFamily: 'InterRoboto',
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   return Column(
     children: [
-      // _padding(
-      //   ReactiveTextField(
-      //     state: c.messageCost,
-      //     label: 'label_fee_per_incoming_message'.l10n,
-      //     prefixText: '\$',
-      //     // suffixText: 'per message',
-      //     prefixStyle: TextStyle(
-      //       color: Theme.of(context).colorScheme.primary,
-      //       fontSize: 15,
-      //     ),
-      //     type: TextInputType.number,
-      //     formatters: [
-      //       FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-      //       FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+      title('От избранных'),
+      const SizedBox(height: 4),
+      field(
+        label: 'label_fee_per_incoming_message'.l10n,
+        state: c.messageCost,
+      ),
+      field(
+        label: 'label_fee_per_incoming_call_minute'.l10n,
+        state: c.callsCost,
+      ),
+      const SizedBox(height: 12 * 2),
+      title('От контактов'),
+      const SizedBox(height: 6),
+      field(
+        label: 'label_fee_per_incoming_message'.l10n,
+        state: c.messageCost,
+      ),
+      field(
+        label: 'label_fee_per_incoming_call_minute'.l10n,
+        state: c.callsCost,
+      ),
+      const SizedBox(height: 12 * 2),
+      title('От остальных'),
+      const SizedBox(height: 6),
+      field(
+        label: 'label_fee_per_incoming_message'.l10n,
+        state: c.messageCost,
+      ),
+      field(
+        label: 'label_fee_per_incoming_call_minute'.l10n,
+        state: c.callsCost,
+      ),
+      const SizedBox(height: 12 * 2),
+      _dense(
+        FieldButton(
+          text: 'label_individual'.l10nfmt({'count': c.blacklist.length}),
+          onPressed: () {},
+          // style: TextStyle(
+          //     color: c.blacklist.isEmpty
+          //         ? Colors.black
+          //         : Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+      // Padding(
+      //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+      //   child: Row(
+      //     children: [
+      //       RichText(
+      //         text: TextSpan(
+      //           style: const TextStyle(
+      //             fontSize: 11,
+      //             fontWeight: FontWeight.normal,
+      //           ),
+      //           children: [
+      //             TextSpan(
+      //               text: 'label_details'.l10n,
+      //               style: TextStyle(
+      //                 color: Theme.of(context).colorScheme.secondary,
+      //               ),
+      //               recognizer: TapGestureRecognizer()
+      //                 ..onTap = () async {
+      //                   await GetPaidView.show(context);
+      //                 },
+      //             ),
+      //           ],
+      //         ),
+      //       ),
       //     ],
       //   ),
       // ),
-      _padding(
-        Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            ReactiveTextField(
-              state: c.messageCost,
-              hint: '0.00',
-              prefixText: '     ',
-              prefixStyle: const TextStyle(fontSize: 13),
-              label: 'label_fee_per_incoming_message'.l10n,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              type: TextInputType.number,
-              style: TextStyle(fontSize: 21),
-              formatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: 21,
-                top: 1,
-                bottom: PlatformUtils.isWeb ? 8.5 : 0,
-              ),
-              child: Text(
-                '¤',
-                style: TextStyle(
-                  height: 0.8,
-                  fontFamily: 'InterRoboto',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.primary,
-                  // color: Color(0xFFC6C6C6),
-                  fontSize: 21,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      _padding(
-        Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            ReactiveTextField(
-              state: c.callsCost,
-              hint: '0.00',
-              prefixText: '     ',
-              prefixStyle: const TextStyle(fontSize: 13),
-              style: TextStyle(fontSize: 21),
-              label: 'label_fee_per_incoming_call_minute'.l10n,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              type: TextInputType.number,
-              formatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-                // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: 21,
-                top: 1,
-                bottom: PlatformUtils.isWeb ? 8.5 : 0,
-              ),
-              child: Text(
-                '¤',
-                style: TextStyle(
-                  height: 0.8,
-                  fontFamily: 'InterRoboto',
-                  fontWeight: FontWeight.w400,
-                  // color: Color(0xFFC6C6C6),
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 21,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      // _padding(
-      //   ReactiveTextField(
-      //     state: c.callsCost,
-      //     label: 'label_fee_per_incoming_call_minute'.l10n,
-      //     prefixText: '\$',
-      //     prefixStyle: TextStyle(
-      //       color: Theme.of(context).colorScheme.primary,
-      //       fontSize: 15,
-      //     ),
-      //     type: TextInputType.number,
-      //     formatters: [
-      //       FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-      //       FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-      //     ],
-      //   ),
-      // ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-        child: Row(
-          children: [
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.normal,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'label_details'.l10n,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        await GetPaidView.show(context);
-                      },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     ],
   );
 }

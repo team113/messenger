@@ -785,3 +785,4 @@ label_fee_per_incoming_message = Incoming message
 label_comment = Comment
 label_welcome_message = Welcome message
 label_public_description = Public description
+label_individual = Individually: {$count}

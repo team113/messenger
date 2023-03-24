@@ -125,13 +125,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                     child: Stack(
                       children: [
                         Obx(() {
-                          bool isIncoming =
+                          final bool isOutgoing = (c.outgoing ||
+                                  c.state.value == OngoingCallState.local) &&
+                              !c.started;
+                          final bool isIncoming =
                               c.state.value != OngoingCallState.active &&
                                   c.state.value != OngoingCallState.joining &&
-                                  !(c.outgoing ||
-                                      c.state.value == OngoingCallState.local);
+                                  !isOutgoing;
 
-                          bool isDialog =
+                          final bool isDialog =
                               c.chat.value?.chat.value.isDialog == true;
 
                           final Widget child;
