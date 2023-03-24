@@ -139,6 +139,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
       },
+      onTapCancel: () => setState(() => isMouseOver = false),
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),

@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -317,7 +316,7 @@ Widget _name(MyProfileController c) {
       onSuffixPressed: c.login.text.isEmpty
           ? null
           : () {
-              Clipboard.setData(ClipboardData(text: c.name.text));
+              PlatformUtils.copy(text: c.name.text);
               MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.login.text.isEmpty
@@ -345,7 +344,7 @@ Widget _status(MyProfileController c) {
       onSuffixPressed: c.status.text.isEmpty
           ? null
           : () {
-              Clipboard.setData(ClipboardData(text: c.status.text));
+              PlatformUtils.copy(text: c.status.text);
               MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.status.text.isEmpty
@@ -411,11 +410,9 @@ Widget _link(BuildContext context, MyProfileController c) {
           onSuffixPressed: c.link.isEmpty.value
               ? null
               : () {
-                  Clipboard.setData(
-                    ClipboardData(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                    ),
+                  PlatformUtils.copy(
+                    text:
+                        '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                   );
 
                   MessagePopup.success('label_copied'.l10n);
@@ -486,7 +483,7 @@ Widget _login(MyProfileController c, BuildContext context) {
           onSuffixPressed: c.login.text.isEmpty
               ? null
               : () {
-                  Clipboard.setData(ClipboardData(text: c.login.text));
+                  PlatformUtils.copy(text: c.login.text);
                   MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.login.text.isEmpty
@@ -594,7 +591,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               text: e.val,
               hint: 'label_email'.l10n,
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: e.val));
+                PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deleteEmail(c, context, e),
@@ -768,7 +765,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 ),
               ),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: e.val));
+                PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
