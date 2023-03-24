@@ -262,7 +262,8 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
-  /// Subscription to the [RxChat.members] changes.
+  /// Subscription to the [RxChat.members] changes adding and removing the
+  /// redialed [members].
   StreamSubscription? _membersSubscription;
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
@@ -304,6 +305,10 @@ class OngoingCall {
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive => (state.value == OngoingCallState.active ||
       state.value == OngoingCallState.joining);
+
+  /// Indicator whether this [OngoingCall] has any remote connection active.
+  bool get hasRemote =>
+      isActive && members.values.where((e) => e.isConnected.isTrue).length > 1;
 
   /// Initializes the media client resources.
   ///
@@ -369,7 +374,9 @@ class OngoingCall {
       return;
     }
 
-    addMember(UserId userId) {
+    // Adds a [CallMember] identified by its [userId], if none is in the
+    // [members] already.
+    void addRedialing(UserId userId) {
       final CallMemberId id = CallMemberId(userId, null);
 
       if (members.values.none((e) => e.id.userId == id.userId)) {
@@ -422,18 +429,22 @@ class OngoingCall {
                 state.value = OngoingCallState.active;
               }
 
-              ChatMembersDialed? dialed = node.call.dialed;
+              final ChatMembersDialed? dialed = node.call.dialed;
+              if (dialed is ChatMembersDialedConcrete) {
+                for (var m in dialed.members) {
+                  addRedialing(m.user.id);
+                }
+              }
+
+              // Get a [RxChat] this [OngoingCall] is happening in to query its
+              // [RxChat.members] list.
               calls.getChat(chatId.value).then((v) {
-                if (dialed is ChatMembersDialedConcrete) {
-                  for (var m in dialed.members) {
-                    addMember(m.user.id);
-                  }
-                } else if (dialed is ChatMembersDialedAll) {
+                if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
                       dialed.answeredMembers
                           .none((a) => a.user.id == e.user.id))) {
-                    addMember(m.user.id);
+                    addRedialing(m.user.id);
                   }
                 }
 
@@ -441,11 +452,11 @@ class OngoingCall {
                 _membersSubscription = v?.members.changes.listen((event) {
                   switch (event.op) {
                     case OperationKind.added:
-                      addMember(event.key!);
+                      addRedialing(event.key!);
                       break;
 
                     case OperationKind.removed:
-                      members.remove(CallMemberId(event.key!, null));
+                      members.remove(CallMemberId(event.key!, null))?.dispose();
                       break;
 
                     case OperationKind.updated:
@@ -499,7 +510,7 @@ class OngoingCall {
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
                   if (members[id]?.isConnected.value == false) {
-                    members.remove(id);
+                    members.remove(id)?.dispose();
                   }
 
                   if (members.keys.none((e) => e.userId == node.user.id)) {
@@ -517,9 +528,9 @@ class OngoingCall {
                       CallMemberId(node.user.id, node.deviceId);
 
                   final CallMember? redialed = members[redialedId];
-                  if (redialed?.isRedialing.value == true) {
-                    redialed!.isRedialing.value = false;
+                  if (redialed != null) {
                     redialed.id = id;
+                    redialed.isRedialing.value = false;
                     members.move(redialedId, id);
                   }
 
@@ -582,7 +593,7 @@ class OngoingCall {
                   var node = event as EventChatCallDeclined;
                   final CallMemberId id = CallMemberId(node.user.id, null);
                   if (members[id]?.isConnected.value == false) {
-                    members.remove(id);
+                    members.remove(id)?.dispose();
                   }
                   break;
 
@@ -604,11 +615,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   var node = event as EventChatCallMemberRedialed;
-
-                  final CallMemberId id = CallMemberId(node.user.id, null);
-                  if (!members.containsKey(id)) {
-                    members[id] = CallMember(id, null, isRedialing: true);
-                  }
+                  addRedialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
@@ -617,13 +624,17 @@ class OngoingCall {
                   if (node.user?.id != null) {
                     final CallMemberId id = CallMemberId(node.user!.id, null);
                     if (members[id]?.isConnected.value == false) {
-                      members.remove(id);
+                      members.remove(id)?.dispose();
                     }
                   } else {
-                    members.removeWhere(
-                      (key, value) =>
-                          key.deviceId == null && value.isConnected.isFalse,
-                    );
+                    members.removeWhere((k, v) {
+                      if (k.deviceId == null && v.isConnected.isFalse) {
+                        v.dispose();
+                        return true;
+                      }
+
+                      return false;
+                    });
                   }
                   break;
               }
@@ -688,8 +699,7 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive ||
-                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
+            if (!hasRemote) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -747,8 +757,7 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
-            if (!isActive ||
-                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
+            if (!hasRemote) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -796,8 +805,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive ||
-                members.values.where((e) => e.isConnected.isTrue).length <= 1) {
+            if (!hasRemote) {
               await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -1112,7 +1120,7 @@ class OngoingCall {
         );
       }
 
-      conn.onClose(() => members.remove(id));
+      conn.onClose(() => members.remove(id)?.dispose());
       conn.onRemoteTrackAdded((track) async {
         final Track t = Track(track);
         final CallMember? member = members[id]?..tracks.add(t);
@@ -1425,8 +1433,7 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          if (!isActive ||
-              members.values.where((e) => e.isConnected.isTrue).length <= 1) {
+          if (!hasRemote) {
             await _updateTracks();
           }
         } catch (_) {
@@ -1724,6 +1731,13 @@ class CallMember {
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
+
+  /// Disposes the [tracks] of this [CallMember].
+  void dispose() {
+    for (var t in tracks) {
+      t.dispose();
+    }
+  }
 
   /// Sets the inbound video of this [CallMember] as [enabled].
   Future<void> setVideoEnabled(

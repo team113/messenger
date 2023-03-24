@@ -492,8 +492,10 @@ class CallController extends GetxController {
         break;
 
       case OngoingCallState.active:
-        final Set<UserId> actualMembers =
-            members.keys.map((k) => k.userId).toSet();
+        final Set<UserId> actualMembers = members.keys
+            .where((e) => e.deviceId != null)
+            .map((k) => k.userId)
+            .toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.members.length ?? 1}';
         args['duration'] = duration.value.hhMmSs();

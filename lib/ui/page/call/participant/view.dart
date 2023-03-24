@@ -104,8 +104,10 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final Set<UserId> ids =
-                  call.value.members.keys.map((k) => k.userId).toSet();
+              final Set<UserId> ids = call.value.members.keys
+                  .where((e) => e.deviceId != null)
+                  .map((k) => k.userId)
+                  .toSet();
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -180,8 +182,10 @@ class ParticipantView extends StatelessWidget {
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
+
       CallMember? member = call.value.members.values
           .firstWhereOrNull((e) => e.id.userId == user.id);
+
       if (member != null) {
         inCall = true;
         isRedialed = member.isRedialing.isTrue;
@@ -212,7 +216,7 @@ class ParticipantView extends StatelessWidget {
                     onTap: inCall
                         ? isRedialed
                             ? null
-                            : () {}
+                            : () => c.removeChatCallMember(user.id)
                         : () => c.redialChatCallMember(user.id),
                     borderRadius: BorderRadius.circular(60),
                     child: SizedBox(

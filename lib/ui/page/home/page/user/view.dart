@@ -149,7 +149,7 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                   if (constraints.maxWidth > 400) ...[
-                    const SizedBox(width: 17),
+                    const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
                       child: SvgLoader.asset(
@@ -158,7 +158,7 @@ class UserView extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(width: 17),
+                  const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(false),
                     child: SvgLoader.asset(

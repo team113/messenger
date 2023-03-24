@@ -266,6 +266,22 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
+      final Widget name = Container(
+        padding: const EdgeInsets.only(left: 3, right: 3),
+        child: Text(
+          participant.user.value?.user.value.name?.val ??
+              participant.user.value?.user.value.num.val ??
+              'dot'.l10n * 3,
+          style: context.theme.outlinedButtonTheme.style!.textStyle!
+              .resolve({MaterialState.disabled})!.copyWith(
+            fontSize: 15,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+
       return Center(
         child: Stack(
           alignment: Alignment.center,
@@ -313,39 +329,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
                             if (additionally.isNotEmpty && hovered)
                               const SizedBox(width: 3),
                             Flexible(
-                              child: Builder(builder: (context) {
-                                Widget widget = Container(
-                                  padding: const EdgeInsets.only(
-                                    left: 3,
-                                    right: 3,
-                                  ),
-                                  child: Text(
-                                    participant
-                                            .user.value?.user.value.name?.val ??
-                                        participant
-                                            .user.value?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                    style: context.theme.outlinedButtonTheme
-                                        .style!.textStyle!
-                                        .resolve(
-                                            {MaterialState.disabled})!.copyWith(
-                                      fontSize: 15,
-                                      color: const Color(0xFFFFFFFF),
+                              child: additionally.isEmpty
+                                  ? name
+                                  : AnimatedSize(
+                                      duration: 150.milliseconds,
+                                      child: hovered ? name : const SizedBox(),
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-
-                                if (additionally.isEmpty) {
-                                  return widget;
-                                } else {
-                                  return AnimatedSize(
-                                    duration: 150.milliseconds,
-                                    child: hovered ? widget : const SizedBox(),
-                                  );
-                                }
-                              }),
                             ),
                           ],
                         ),
