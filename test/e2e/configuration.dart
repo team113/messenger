@@ -80,12 +80,14 @@ import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
+import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_message.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -116,6 +118,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
+        checkCopyText,
         contact,
         contactIsFavorite,
         copyFromField,
@@ -161,6 +164,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,
@@ -168,6 +172,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapChat,
         tapContact,
         tapDropdownItem,
+        tapMessage,
         tapText,
         tapUserInSearchResults,
         tapWidget,

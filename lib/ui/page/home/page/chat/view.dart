@@ -316,49 +316,53 @@ class _ChatViewState extends State<ChatView>
                           );
                         }
                       },
+                      onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                      onPointerCancel: (_) => c.scrollOffset = Offset.zero,
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          AllowMultipleHorizontalDragGestureRecognizer:
-                              GestureRecognizerFactoryWithHandlers<
-                                  AllowMultipleHorizontalDragGestureRecognizer>(
-                            () =>
-                                AllowMultipleHorizontalDragGestureRecognizer(),
-                            (AllowMultipleHorizontalDragGestureRecognizer
-                                instance) {
-                              instance.onUpdate = (d) {
-                                if (!c.isItemDragged.value &&
-                                    c.scrollOffset.dy.abs() < 7 &&
-                                    c.scrollOffset.dx.abs() > 7) {
-                                  double value =
-                                      (_animation.value - d.delta.dx / 100)
-                                          .clamp(0, 1);
+                          if (c.isSelecting.isFalse)
+                            AllowMultipleHorizontalDragGestureRecognizer:
+                                GestureRecognizerFactoryWithHandlers<
+                                    AllowMultipleHorizontalDragGestureRecognizer>(
+                              () =>
+                                  AllowMultipleHorizontalDragGestureRecognizer(),
+                              (AllowMultipleHorizontalDragGestureRecognizer
+                                  instance) {
+                                instance.onUpdate = (d) {
+                                  if (!c.isItemDragged.value &&
+                                      c.scrollOffset.dy.abs() < 7 &&
+                                      c.scrollOffset.dx.abs() > 7 &&
+                                      c.isSelecting.isFalse) {
+                                    double value =
+                                        (_animation.value - d.delta.dx / 100)
+                                            .clamp(0, 1);
 
-                                  if (_animation.value != 1 && value == 1 ||
-                                      _animation.value != 0 && value == 0) {
-                                    HapticFeedback.selectionClick();
+                                    if (_animation.value != 1 && value == 1 ||
+                                        _animation.value != 0 && value == 0) {
+                                      HapticFeedback.selectionClick();
+                                    }
+
+                                    _animation.value = value.clamp(0, 1);
                                   }
+                                };
 
-                                  _animation.value = value.clamp(0, 1);
-                                }
-                              };
-
-                              instance.onEnd = (d) async {
-                                c.scrollOffset = Offset.zero;
-                                if (!c.isItemDragged.value &&
-                                    _animation.value != 1 &&
-                                    _animation.value != 0) {
-                                  if (_animation.value >= 0.5) {
-                                    await _animation.forward();
-                                    HapticFeedback.selectionClick();
-                                  } else {
-                                    await _animation.reverse();
-                                    HapticFeedback.selectionClick();
+                                instance.onEnd = (d) async {
+                                  c.scrollOffset = Offset.zero;
+                                  if (!c.isItemDragged.value &&
+                                      _animation.value != 1 &&
+                                      _animation.value != 0) {
+                                    if (_animation.value >= 0.5) {
+                                      await _animation.forward();
+                                      HapticFeedback.selectionClick();
+                                    } else {
+                                      await _animation.reverse();
+                                      HapticFeedback.selectionClick();
+                                    }
                                   }
-                                }
-                              };
-                            },
-                          )
+                                };
+                              },
+                            )
                         },
                         child: Stack(
                           children: [
@@ -367,10 +371,10 @@ class _ChatViewState extends State<ChatView>
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
-                            Scrollbar(
-                              controller: c.listController,
-                              child: Obx(() {
-                                return FlutterListView(
+                            Obx(() {
+                              final Widget child = Scrollbar(
+                                controller: c.listController,
+                                child: FlutterListView(
                                   key: const Key('MessagesList'),
                                   controller: c.listController,
                                   physics: c.isHorizontalScroll.isTrue ||
@@ -398,9 +402,21 @@ class _ChatViewState extends State<ChatView>
                                     initOffsetBasedOnBottom: false,
                                     disableCacheItems: true,
                                   ),
-                                );
-                              }),
-                            ),
+                                ),
+                              );
+
+                              if (PlatformUtils.isMobile) {
+                                return child;
+                              }
+
+                              return SelectionArea(
+                                onSelectionChanged: (a) =>
+                                    c.selection.value = a,
+                                contextMenuBuilder: (_, __) => const SizedBox(),
+                                selectionControls: EmptyTextSelectionControls(),
+                                child: ContextMenuInterceptor(child: child),
+                              );
+                            }),
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
@@ -625,6 +641,7 @@ class _ChatViewState extends State<ChatView>
                 await c.chat?.updateAttachments(e.value);
                 await Future.delayed(Duration.zero);
               },
+              onSelecting: (s) => c.isSelecting.value = s,
             );
           }),
         ),
@@ -729,14 +746,17 @@ class _ChatViewState extends State<ChatView>
 
                 await Future.delayed(Duration.zero);
               },
+              onSelecting: (s) => c.isSelecting.value = s,
             );
           }),
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val, c, i);
+      return SelectionContainer.disabled(
+        child: _timeLabel(element.id.at.val, c, i),
+      );
     } else if (element is UnreadMessagesElement) {
-      return _unreadLabel(context, c);
+      return SelectionContainer.disabled(child: _unreadLabel(context, c));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
