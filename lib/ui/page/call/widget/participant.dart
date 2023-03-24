@@ -134,9 +134,7 @@ class ParticipantWidget extends StatelessWidget {
               child = Container();
             } else if (participant.member.isRedialing.isTrue) {
               child = Container(
-                key: Key(
-                  'ParticipantRedialing_${participant.member.id}',
-                ),
+                key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
                 color: Colors.black.withOpacity(0.4),
@@ -195,11 +193,11 @@ class ParticipantWidget extends StatelessWidget {
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
   final Participant participant;
@@ -236,7 +234,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      List<Widget> additionally = [];
+      final List<Widget> additionally = [];
 
       if (isAudioDisabled) {
         additionally.add(
@@ -320,6 +318,61 @@ class ParticipantOverlayWidget extends StatelessWidget {
         ),
       );
 
+      final Widget child;
+
+      if (hovered || additionally.isNotEmpty) {
+        child = Container(
+          key: const Key('Tooltip'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              CustomBoxShadow(
+                color: Color(0x22000000),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: preferBackdrop,
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: preferBackdrop
+                    ? const Color(0x4D165084)
+                    : const Color(0xBB1F3C5D),
+              ),
+              padding: EdgeInsets.only(
+                left: 6,
+                right: additionally.length >= 2 ? 6 : 6,
+                top: 4,
+                bottom: 4,
+              ),
+              height: 32,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...additionally,
+                  if (additionally.isNotEmpty && hovered)
+                    const SizedBox(width: 3),
+                  Flexible(
+                    child: additionally.isEmpty
+                        ? name
+                        : AnimatedSize(
+                            duration: 150.milliseconds,
+                            child: hovered ? name : const SizedBox(),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        child = const SizedBox();
+      }
+
       return Center(
         child: Stack(
           alignment: Alignment.center,
@@ -329,56 +382,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: AnimatedOpacity(
+                child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
-                  opacity: hovered || additionally.isNotEmpty ? 1 : 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: const [
-                        CustomBoxShadow(
-                          color: Color(0x22000000),
-                          blurRadius: 8,
-                          blurStyle: BlurStyle.outer,
-                        )
-                      ],
-                    ),
-                    child: ConditionalBackdropFilter(
-                      condition: preferBackdrop,
-                      borderRadius: BorderRadius.circular(30),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: preferBackdrop
-                              ? const Color(0x4D165084)
-                              : const Color(0xBB1F3C5D),
-                        ),
-                        padding: EdgeInsets.only(
-                          left: 6,
-                          right: additionally.length >= 2 ? 6 : 6,
-                          top: 4,
-                          bottom: 4,
-                        ),
-                        height: 32,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...additionally,
-                            if (additionally.isNotEmpty && hovered)
-                              const SizedBox(width: 3),
-                            Flexible(
-                              child: additionally.isEmpty
-                                  ? name
-                                  : AnimatedSize(
-                                      duration: 150.milliseconds,
-                                      child: hovered ? name : const SizedBox(),
-                                    ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: child,
                 ),
               ),
             ),
