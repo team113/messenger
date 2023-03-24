@@ -127,6 +127,44 @@ class ParticipantWidget extends StatelessWidget {
                     ),
                   ),
           ),
+          Obx(() {
+            final Widget child;
+
+            if (participant.member.isConnected.value) {
+              child = Container();
+            } else if (participant.member.isRedialing.isTrue) {
+              child = Container(
+                key: Key(
+                  'ParticipantRedialing_${participant.member.id}',
+                ),
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.4),
+                child: const Padding(
+                  padding: EdgeInsets.all(21.0),
+                  child: Center(
+                    child: SpinKitDoubleBounce(
+                      color: Color(0xFFEEEEEE),
+                      size: 100 / 1.5,
+                      duration: Duration(milliseconds: 4500),
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              child = Container(
+                key: Key('ParticipantConnecting_${participant.member.id}'),
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.2),
+                child: const Center(
+                  child: CustomProgressIndicator(size: 64),
+                ),
+              );
+            }
+
+            return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+          }),
           Positioned.fill(
             child: _handRaisedIcon(participant.member.isHandRaised.value),
           ),
@@ -344,44 +382,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 ),
               ),
             ),
-            Obx(() {
-              final Widget child;
-
-              if (participant.member.isConnected.value) {
-                child = Container();
-              } else if (participant.member.isRedialing.isTrue) {
-                child = Container(
-                  key: Key(
-                    'ParticipantRedialing_${participant.member.id}',
-                  ),
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black.withOpacity(0.4),
-                  child: const Padding(
-                    padding: EdgeInsets.all(21.0),
-                    child: Center(
-                      child: SpinKitDoubleBounce(
-                        color: Color(0xFFEEEEEE),
-                        size: 100 / 1.5,
-                        duration: Duration(milliseconds: 4500),
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                child = Container(
-                  key: Key('ParticipantConnecting_${participant.member.id}'),
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black.withOpacity(0.2),
-                  child: const Center(
-                    child: CustomProgressIndicator(size: 64),
-                  ),
-                );
-              }
-
-              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
-            }),
           ],
         ),
       );

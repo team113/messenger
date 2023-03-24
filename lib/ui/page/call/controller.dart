@@ -40,7 +40,8 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
+import '/provider/gql/exceptions.dart'
+    show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -1237,6 +1238,19 @@ class CallController extends GetxController {
     try {
       await _chatService.removeChatMember(chatId.value, userId);
     } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes [User] identified by the provided [userId] from the
+  /// [_currentCall].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _calls.removeChatCallMember(chatId.value, userId);
+    } on RemoveChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

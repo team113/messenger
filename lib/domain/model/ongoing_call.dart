@@ -326,7 +326,7 @@ class OngoingCall {
         return;
       }
 
-      members[_me] = CallMember.me(_me);
+      members[_me] = CallMember.me(_me, isConnected: true);
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {

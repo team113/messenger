@@ -1537,7 +1537,9 @@ class ClearChatException with LocalizedExceptionMixin implements Exception {
 }
 
 /// Exception of `Mutation.removeChatCallMember` described in the [code].
-class RemoveChatCallMemberException with LocalizedExceptionMixin implements Exception {
+class RemoveChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
   const RemoveChatCallMemberException(this.code);
 
   /// Reason of why the mutation has failed.
