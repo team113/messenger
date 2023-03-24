@@ -112,10 +112,7 @@ void main() async {
   };
 
   var chatContactsData = {
-    'chatContacts': {
-      'nodes': [],
-      'ver': '0'
-    }
+    'chatContacts': {'nodes': [], 'ver': '0'}
   };
 
   var blacklist = {

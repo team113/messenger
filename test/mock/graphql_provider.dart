@@ -64,10 +64,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     bool noFavorite = false,
   }) async =>
       Contacts$Query.fromJson({
-        'chatContacts': {
-          'nodes': [],
-          'ver': '0'
-        }
+        'chatContacts': {'nodes': [], 'ver': '0'}
       }).chatContacts;
 
   @override

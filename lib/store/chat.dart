@@ -1198,9 +1198,7 @@ class ChatRepository implements AbstractChatRepository {
         } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-          yield EventRecentChatsUpdated(
-            _chat(mixin.chat)
-          );
+          yield EventRecentChatsUpdated(_chat(mixin.chat));
         } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
           var mixin = events
               as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
