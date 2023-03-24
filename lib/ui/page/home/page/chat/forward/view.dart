@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -143,7 +144,9 @@ class ChatForwardView extends StatelessWidget {
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(
-                            color: const Color(0x40000000),
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparentOpacity74,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(milliseconds: 300),
@@ -154,7 +157,9 @@ class ChatForwardView extends StatelessWidget {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
-                                      color: const Color(0x40000000),
+                                      color: Theme.of(context)
+                                          .extension<Style>()!
+                                          .transparentOpacity74,
                                     ),
                                     child: const Padding(
                                       padding: EdgeInsets.all(16),

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
@@ -40,7 +41,8 @@ class AddContactListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
+        .resolve({MaterialState.disabled})!.copyWith(
+            color: Theme.of(context).extension<Style>()!.onBackground);
 
     return ListTile(
       leading: AnimatedSwitcher(
@@ -53,7 +55,8 @@ class AddContactListTile extends StatelessWidget {
             : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
-      selectedTileColor: const Color(0x11000000),
+      selectedTileColor:
+          Theme.of(context).extension<Style>()!.transparentOpacity94,
       title: Text('${contact.contact.value.name}', style: font17),
       onTap: onTap,
     );

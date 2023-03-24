@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
@@ -42,7 +43,7 @@ class HintWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shadowColor: const Color(0x40000000),
+      shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity74,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),

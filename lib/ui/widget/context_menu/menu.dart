@@ -40,7 +40,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: const Color(0x11000000),
+            color: Theme.of(context).extension<Style>()!.transparentOpacity94,
             height: 1,
             width: double.infinity,
           ),
@@ -54,10 +54,10 @@ class ContextMenu extends StatelessWidget {
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
         border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: Color(0x33000000),
+            color: Theme.of(context).extension<Style>()!.transparentOpacity81,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -139,7 +139,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                         .extension<Style>()!
                         .contextMenuHoveredColor
                     : Theme.of(context).extension<Style>()!.secondary
-                : Colors.transparent,
+                : Theme.of(context).extension<Style>()!.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -158,7 +158,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 style: style.boldBody.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? Colors.white
-                      : Colors.black,
+                      : Theme.of(context).extension<Style>()!.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,
                 ),

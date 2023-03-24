@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/widget/text_field.dart';
 
@@ -80,8 +81,8 @@ class ReactiveDropdown<T> extends StatelessWidget {
                     : null,
                 borderRadius: BorderRadius.circular(18),
                 isExpanded: true,
-                style: context.textTheme.titleMedium
-                    ?.copyWith(color: Colors.black),
+                style: context.textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).extension<Style>()!.onBackground),
                 icon: const SizedBox(),
                 underline: const SizedBox(),
               ),

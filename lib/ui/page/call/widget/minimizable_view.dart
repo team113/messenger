@@ -99,7 +99,7 @@ class _MinimizableViewState extends State<MinimizableView>
       borderRadius: BorderRadius.circular(10.0),
       boxShadow: const <BoxShadow>[
         CustomBoxShadow(
-          color: Color(0x66666666),
+          color: Color(0x11FFFFFF),
           blurRadius: 10.0,
           offset: Offset(0, 0),
         )

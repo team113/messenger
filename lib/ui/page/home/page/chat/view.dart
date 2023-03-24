@@ -157,7 +157,9 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: const Color(0x55000000),
+                            shadowColor: Theme.of(context)
+                                .extension<Style>()!
+                                .transparentOpacity67,
                             color: Colors.white,
                             child: InkWell(
                               customBorder: const CircleBorder(),
@@ -174,8 +176,12 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
+                              hoverColor: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
+                              highlightColor: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -462,7 +468,9 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: const Color(0x40000000),
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .transparentOpacity74,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -474,7 +482,9 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: const Color(0x40000000),
+                                          color: Theme.of(context)
+                                              .extension<Style>()!
+                                              .transparentOpacity74,
                                         ),
                                         child: const Padding(
                                           padding: EdgeInsets.all(16),
@@ -724,10 +734,10 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(
+                child: Center(
                   child: ColoredBox(
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                    color: Theme.of(context).extension<Style>()!.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 ),
               ),
@@ -1016,8 +1026,12 @@ class _ChatViewState extends State<ChatView>
           key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            boxShadow: [
+              CustomBoxShadow(
+                  blurRadius: 8,
+                  color: Theme.of(context)
+                      .extension<Style>()!
+                      .transparentOpacity88),
             ],
           ),
           child: ConditionalBackdropFilter(

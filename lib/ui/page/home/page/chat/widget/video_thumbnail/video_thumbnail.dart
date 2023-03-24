@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:messenger/themes.dart';
 import 'package:video_player/video_player.dart';
 
 import '/ui/page/home/widget/retry_image.dart';
@@ -151,7 +152,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   // [Container] for receiving pointer events over this
                   // [VideoThumbnail], since the [ContextMenuInterceptor] above
                   // intercepts them.
-                  Container(color: Colors.transparent),
+                  Container(
+                      color: Theme.of(context).extension<Style>()!.transparent),
                 ],
               ),
             )

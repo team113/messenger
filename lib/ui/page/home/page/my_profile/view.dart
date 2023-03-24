@@ -132,9 +132,11 @@ class MyProfileView extends StatelessWidget {
                                           ? Container(
                                               width: 200,
                                               height: 200,
-                                              decoration: const BoxDecoration(
+                                              decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Color(0x22000000),
+                                                color: Theme.of(context)
+                                                    .extension<Style>()!
+                                                    .transparentOpacity88,
                                               ),
                                               child: const Center(
                                                 child:
@@ -168,8 +170,10 @@ class MyProfileView extends StatelessWidget {
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: const TextStyle(
-                                        color: Colors.black,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onBackground,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -545,9 +549,11 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.black,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onBackground,
                               ),
                             ),
                           ),
@@ -642,9 +648,11 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black,
+                                    color: Theme.of(context)
+                                        .extension<Style>()!
+                                        .onBackground,
                                   ),
                                 ),
                               ),
@@ -807,9 +815,11 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black,
+                                    color: Theme.of(context)
+                                        .extension<Style>()!
+                                        .onBackground,
                                   ),
                                 ),
                               ),
@@ -1321,7 +1331,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
           style: TextStyle(
               color: c.blacklist.isEmpty
-                  ? Colors.black
+                  ? Theme.of(context).extension<Style>()!.onBackground
                   : Theme.of(context).extension<Style>()!.secondary),
         ),
       ),
@@ -1384,7 +1394,8 @@ Future<void> _deleteEmail(
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(
+            color: Theme.of(context).extension<Style>()!.onBackground),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
@@ -1408,7 +1419,8 @@ Future<void> _deletePhone(
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
       TextSpan(
         text: phone.val,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(
+            color: Theme.of(context).extension<Style>()!.onBackground),
       ),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
@@ -1430,7 +1442,8 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(
+            color: Theme.of(context).extension<Style>()!.onBackground),
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

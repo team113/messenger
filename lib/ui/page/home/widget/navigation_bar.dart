@@ -53,10 +53,10 @@ class CustomNavigationBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Color(0x22000000),
+            color: Theme.of(context).extension<Style>()!.transparentOpacity88,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -91,13 +91,21 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             InkResponse(
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
+                              hoverColor: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
+                              highlightColor: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
+                              splashColor: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
                               onTap: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
-                                color: Colors.transparent,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .transparent,
                                 child: Center(
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(

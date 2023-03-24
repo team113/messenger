@@ -832,7 +832,8 @@ class RecentChatTile extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+              color: Theme.of(context).extension<Style>()!.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],

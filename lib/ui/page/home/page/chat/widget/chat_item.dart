@@ -197,9 +197,10 @@ class ChatItemWidget extends StatefulWidget {
             child: Container(
               width: 60,
               height: 60,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x80000000),
+                color:
+                    Theme.of(context).extension<Style>()!.transparentOpacity50,
               ),
               child:
                   const Icon(Icons.play_arrow, color: Colors.white, size: 48),
@@ -990,7 +991,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               width: media.length * 120,
                               height: max(media.length * 60, 300),
                               child: FitView(
-                                dividerColor: Colors.transparent,
+                                dividerColor: Theme.of(context)
+                                    .extension<Style>()!
+                                    .transparent,
                                 children: media
                                     .mapIndexed(
                                       (i, e) => ChatItemWidget.mediaAttachment(
@@ -1088,7 +1091,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
+                color:
+                    Theme.of(context).extension<Style>()!.transparentOpacity98,
               ),
               padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
               child: Row(
@@ -1194,7 +1198,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 decoration: BoxDecoration(
                   color: fromMe
                       ? Colors.white.withOpacity(0.25)
-                      : Colors.black.withOpacity(0.03),
+                      : Theme.of(context)
+                          .extension<Style>()!
+                          .transparentOpacity98,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
@@ -1230,7 +1236,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               decoration: BoxDecoration(
                 color: fromMe
                     ? Colors.white.withOpacity(0.25)
-                    : Colors.black.withOpacity(0.03),
+                    : Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity98,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,

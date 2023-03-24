@@ -55,10 +55,9 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.black, fontSize: 18),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).extension<Style>()!.onBackground,
+                      fontSize: 18),
                 ),
               ),
             ),
@@ -95,7 +94,9 @@ class ChatsMoreView extends StatelessWidget {
             style: Theme.of(context)
                 .extension<Style>()!
                 .systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
+                .copyWith(
+                    color: Theme.of(context).extension<Style>()!.onBackground,
+                    fontSize: 18),
           ),
         ),
       ),

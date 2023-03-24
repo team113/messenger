@@ -44,8 +44,10 @@ class AddEmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       init: AddEmailController(
@@ -104,7 +106,9 @@ class AddEmailView extends StatelessWidget {
                                 style: thin?.copyWith(
                                   color: c.resendEmailTimeout.value == 0
                                       ? Colors.white
-                                      : Colors.black,
+                                      : Theme.of(context)
+                                          .extension<Style>()!
+                                          .onBackground,
                                 ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
@@ -124,7 +128,9 @@ class AddEmailView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.emailCode.isEmpty.value
-                                      ? Colors.black
+                                      ? Theme.of(context)
+                                          .extension<Style>()!
+                                          .onBackground
                                       : Colors.white,
                                 ),
                               ),
@@ -177,7 +183,9 @@ class AddEmailView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.email.isEmpty.value
-                                ? Colors.black
+                                ? Theme.of(context)
+                                    .extension<Style>()!
+                                    .onBackground
                                 : Colors.white,
                           ),
                         ),

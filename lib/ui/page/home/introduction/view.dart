@@ -44,8 +44,10 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -99,7 +101,7 @@ class IntroductionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
+                          ? Theme.of(context).extension<Style>()!.onBackground
                           : Colors.white,
                     ),
                   ),

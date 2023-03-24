@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
@@ -52,8 +53,10 @@ class MicrophoneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),

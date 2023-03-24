@@ -53,8 +53,10 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,

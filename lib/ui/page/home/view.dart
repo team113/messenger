@@ -388,8 +388,11 @@ class _HomeViewState extends State<HomeView> {
                   child: image,
                 ),
               ),
-              const Positioned.fill(
-                child: ColoredBox(color: Color(0x0D000000)),
+              Positioned.fill(
+                child: ColoredBox(
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity94),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -406,7 +409,11 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
-                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                    Expanded(
+                        child: ColoredBox(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparentOpacity98)),
                   ],
                 ),
               ],

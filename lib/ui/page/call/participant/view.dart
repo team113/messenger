@@ -65,8 +65,10 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       init: ParticipantController(
@@ -235,7 +237,10 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: const TextStyle(color: Colors.black),
+                      style: TextStyle(
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .onBackground),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],

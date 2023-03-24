@@ -211,7 +211,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           final TextStyle? thin = Theme.of(context)
               .textTheme
               .bodySmall
-              ?.copyWith(color: Colors.black);
+              ?.copyWith(
+                  color: Theme.of(context).extension<Style>()!.onBackground);
           return Row(
             children: [
               if (b.leading != null) ...[b.leading!, const SizedBox(width: 12)],
@@ -229,7 +230,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       );
     } else {
       await showDialog(
-        barrierColor: Colors.transparent,
+        barrierColor: Theme.of(context).extension<Style>()!.transparent,
         context: context,
         builder: (context) {
           return LayoutBuilder(builder: (context, constraints) {

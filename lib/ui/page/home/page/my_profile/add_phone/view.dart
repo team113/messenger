@@ -44,8 +44,10 @@ class AddPhoneView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       init: AddPhoneController(
@@ -104,7 +106,9 @@ class AddPhoneView extends StatelessWidget {
                                 style: thin?.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
                                       ? Colors.white
-                                      : Colors.black,
+                                      : Theme.of(context)
+                                          .extension<Style>()!
+                                          .onBackground,
                                 ),
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
@@ -124,7 +128,9 @@ class AddPhoneView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.phoneCode.isEmpty.value
-                                      ? Colors.black
+                                      ? Theme.of(context)
+                                          .extension<Style>()!
+                                          .onBackground
                                       : Colors.white,
                                 ),
                               ),
@@ -181,7 +187,9 @@ class AddPhoneView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.phone.isEmpty.value
-                                ? Colors.black
+                                ? Theme.of(context)
+                                    .extension<Style>()!
+                                    .onBackground
                                 : Colors.white,
                           ),
                         ),

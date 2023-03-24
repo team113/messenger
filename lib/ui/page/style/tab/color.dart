@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '../widget/caption.dart';
 
@@ -39,11 +40,15 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           children: [
             Caption(
               '${color.toHex()}, $desc',
-              color: isDarkMode ? Colors.white : Colors.black,
+              color: isDarkMode
+                  ? Colors.white
+                  : Theme.of(context).extension<Style>()!.onBackground,
             ),
             _Colored(
               color: color,
-              outline: isDarkMode ? Colors.white : Colors.black,
+              outline: isDarkMode
+                  ? Colors.white
+                  : Theme.of(context).extension<Style>()!.onBackground,
             )
           ],
         );
@@ -52,17 +57,23 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           children: [
             Caption(
               '${gradient.colors.map((e) => e.toHex())}, $desc',
-              color: isDarkMode ? Colors.white : Colors.black,
+              color: isDarkMode
+                  ? Colors.white
+                  : Theme.of(context).extension<Style>()!.onBackground,
             ),
             _Colored(
               gradient: gradient,
-              outline: isDarkMode ? Colors.white : Colors.black,
+              outline: isDarkMode
+                  ? Colors.white
+                  : Theme.of(context).extension<Style>()!.onBackground,
             )
           ],
         );
 
     return Scaffold(
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      backgroundColor: isDarkMode
+          ? Theme.of(context).extension<Style>()!.onBackground
+          : Colors.white,
       body: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(8),
@@ -98,18 +109,18 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ),
           color('Цвет заднего фона звонка.', const Color(0xFF444444)),
           color('Цвет затемнения заднего фона в звонке.',
-              const Color(0x40000000)),
+              Theme.of(context).extension<Style>()!.transparentOpacity74),
           color('Цвет надписей и иконок над задним фоном звонка.',
               const Color(0xFFBBBBBB)),
           color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
           color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
           color('Цвет кнопок в звонке.', const Color(0xA6818181)),
           color('Цвет разделителей в панели ПКМ и в панели настроек.',
-              const Color(0x99000000)),
+              Theme.of(context).extension<Style>()!.transparentOpacity44),
           color('Задний фон панели настроек.', const Color(0xCCFFFFFF)),
           color('Задний фон панели ПКМ.', const Color(0xE6FFFFFF)),
           color('Цвет нижней панели с кнопками в звонке.',
-              const Color(0x66000000)),
+              Theme.of(context).extension<Style>()!.transparentOpacity60),
           color('Цвет разделителей в нижней панели с кнопками в звонке.',
               const Color(0x99FFFFFF)),
           const SizedBox(height: 60),
@@ -142,7 +153,9 @@ class _Colored extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           gradient: gradient,
-          border: Border.all(color: outline ?? Colors.black),
+          border: Border.all(
+              color: outline ??
+                  Theme.of(context).extension<Style>()!.onBackground),
         ),
         height: 50,
       );

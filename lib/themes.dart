@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -56,6 +57,19 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            transparent: const Color(0x00000000),
+            transparentOpacity98: const Color(0x04000000),
+            transparentOpacity94: const Color(0x11000000),
+            transparentOpacity88: const Color(0x22000000),
+            transparentOpacity85: const Color(0x25000000), //Later
+            transparentOpacity81: const Color(0x33000000),
+            transparentOpacity74: const Color(0x44000000),
+            transparentOpacity67: const Color(0x55000000),
+            transparentOpacity60: const Color(0x66000000),
+            transparentOpacity50: const Color(0x80000000),
+            transparentOpacity44: const Color(0x90000000),
+            transparentOpacity25: const Color(0xA0000000),
+            transparentOpacity10: const Color(0xE6000000),
             primary: const Color(0xFF888888),
             onPrimary: Colors.white,
             secondary: const Color(0xFF63B4FF),
@@ -348,6 +362,19 @@ class Style extends ThemeExtension<Style> {
     required this.onSecondary,
     required this.background,
     required this.onBackground,
+    required this.transparent,
+    required this.transparentOpacity98,
+    required this.transparentOpacity94,
+    required this.transparentOpacity88,
+    required this.transparentOpacity85,
+    required this.transparentOpacity81,
+    required this.transparentOpacity74,
+    required this.transparentOpacity67,
+    required this.transparentOpacity60,
+    required this.transparentOpacity50,
+    required this.transparentOpacity44,
+    required this.transparentOpacity25,
+    required this.transparentOpacity10,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -383,6 +410,44 @@ class Style extends ThemeExtension<Style> {
   final Color background;
 
   final Color onBackground;
+
+  final Color transparent;
+
+  /// Same as Color(0x04000000)
+  final Color transparentOpacity98;
+
+  /// Same as Color(0x11000000) and 0x0D000000
+  final Color transparentOpacity94;
+
+  /// Same as Color(0x22000000)
+  final Color transparentOpacity88;
+
+  /// Same as Color(0x25000000)
+  final Color transparentOpacity85;
+
+  /// Same as Color(0x33000000)
+  final Color transparentOpacity81;
+
+  /// Same as Color(0x44000000)
+  final Color transparentOpacity74;
+
+  /// Same as Color(0x55000000)
+  final Color transparentOpacity67;
+
+  /// Same as Color(0x66000000)
+  final Color transparentOpacity60;
+
+  /// Same as Color(0x80000000)
+  final Color transparentOpacity50;
+
+  /// Same as Color(0x90000000) and black54
+  final Color transparentOpacity44;
+
+  /// Color(0xA0000000)
+  final Color transparentOpacity25;
+
+  /// Colors.black.with(0.9)
+  final Color transparentOpacity10;
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
@@ -457,6 +522,19 @@ class Style extends ThemeExtension<Style> {
     Color? onSecondary,
     Color? background,
     Color? onBackground,
+    Color? transparent,
+    Color? transparentOpacity98,
+    Color? transparentOpacity94,
+    Color? transparentOpacity88,
+    Color? transparentOpacity85,
+    Color? transparentOpacity81,
+    Color? transparentOpacity74,
+    Color? transparentOpacity67,
+    Color? transparentOpacity60,
+    Color? transparentOpacity50,
+    Color? transparentOpacity44,
+    Color? transparentOpacity25,
+    Color? transparentOpacity10,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -486,6 +564,19 @@ class Style extends ThemeExtension<Style> {
       onSecondary: onSecondary ?? this.onSecondary,
       background: background ?? this.background,
       onBackground: onBackground ?? this.onBackground,
+      transparent: transparent ?? this.transparent,
+      transparentOpacity98: transparentOpacity98 ?? this.transparentOpacity98,
+      transparentOpacity94: transparentOpacity94 ?? this.transparentOpacity94,
+      transparentOpacity88: transparentOpacity88 ?? this.transparentOpacity88,
+      transparentOpacity85: transparentOpacity85 ?? this.transparentOpacity85,
+      transparentOpacity81: transparentOpacity81 ?? this.transparentOpacity81,
+      transparentOpacity74: transparentOpacity74 ?? this.transparentOpacity74,
+      transparentOpacity67: transparentOpacity67 ?? this.transparentOpacity67,
+      transparentOpacity60: transparentOpacity60 ?? this.transparentOpacity60,
+      transparentOpacity50: transparentOpacity50 ?? this.transparentOpacity50,
+      transparentOpacity44: transparentOpacity44 ?? this.transparentOpacity44,
+      transparentOpacity25: transparentOpacity25 ?? this.transparentOpacity25,
+      transparentOpacity10: transparentOpacity10 ?? this.transparentOpacity10,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -525,6 +616,31 @@ class Style extends ThemeExtension<Style> {
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       background: Color.lerp(background, other.background, t)!,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
+      transparent: Color.lerp(transparent, other.transparent, t)!,
+      transparentOpacity98:
+          Color.lerp(transparentOpacity98, other.transparentOpacity98, t)!,
+      transparentOpacity94:
+          Color.lerp(transparentOpacity94, other.transparentOpacity94, t)!,
+      transparentOpacity88:
+          Color.lerp(transparentOpacity88, other.transparentOpacity88, t)!,
+      transparentOpacity85:
+          Color.lerp(transparentOpacity85, other.transparentOpacity85, t)!,
+      transparentOpacity81:
+          Color.lerp(transparentOpacity81, other.transparentOpacity81, t)!,
+      transparentOpacity74:
+          Color.lerp(transparentOpacity74, other.transparentOpacity74, t)!,
+      transparentOpacity67:
+          Color.lerp(transparentOpacity67, other.transparentOpacity67, t)!,
+      transparentOpacity60:
+          Color.lerp(transparentOpacity60, other.transparentOpacity60, t)!,
+      transparentOpacity50:
+          Color.lerp(transparentOpacity50, other.transparentOpacity50, t)!,
+      transparentOpacity44:
+          Color.lerp(transparentOpacity44, other.transparentOpacity44, t)!,
+      transparentOpacity25:
+          Color.lerp(transparentOpacity25, other.transparentOpacity25, t)!,
+      transparentOpacity10:
+          Color.lerp(transparentOpacity10, other.transparentOpacity10, t)!,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,

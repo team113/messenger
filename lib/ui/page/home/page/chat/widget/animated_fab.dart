@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
@@ -166,7 +167,10 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: Colors.black.withOpacity(0.25 * _controller.value),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .onBackground
+                          .withOpacity(0.25 * _controller.value),
                     );
                   },
                 ),
@@ -241,7 +245,9 @@ class _AnimatedFabState extends State<AnimatedFab>
                               Material(
                                 borderRadius: BorderRadius.circular(10),
                                 color: Colors.white,
-                                shadowColor: const Color(0x33000000),
+                                shadowColor: Theme.of(context)
+                                    .extension<Style>()!
+                                    .transparentOpacity81,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,
@@ -296,7 +302,7 @@ class _AnimatedFabState extends State<AnimatedFab>
       Material(
         type: MaterialType.circle,
         color: Colors.white,
-        shadowColor: const Color(0x55000000),
+        shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity67,
         elevation: 6,
         child: InkWell(
           customBorder: const CircleBorder(),

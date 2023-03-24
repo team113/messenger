@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
@@ -51,7 +52,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor = Colors.transparent,
     this.axis,
     this.left,
     this.right,
@@ -411,7 +412,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor = Colors.transparent,
     this.wrapSize,
     this.axis,
     this.width,
@@ -657,7 +658,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
+                            ? Theme.of(context).extension<Style>()!.transparent
                             : widget.hoverColor,
                       ),
                     );
@@ -685,7 +686,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
+                            ? Theme.of(context).extension<Style>()!.transparent
                             : widget.hoverColor,
                       ),
                     );
@@ -1146,7 +1147,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: Theme.of(context).extension<Style>()!.transparent,
               ),
             ),
             child: KeyedSubtree(

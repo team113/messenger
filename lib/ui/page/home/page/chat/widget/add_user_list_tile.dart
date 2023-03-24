@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/user.dart';
 
@@ -34,7 +35,8 @@ class AddUserListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
+        .resolve({MaterialState.disabled})!.copyWith(
+            color: Theme.of(context).extension<Style>()!.onBackground);
 
     return ListTile(
       leading: const CircleAvatar(
@@ -42,7 +44,8 @@ class AddUserListTile extends StatelessWidget {
         child: Icon(Icons.check, color: Colors.white),
       ),
       selected: true,
-      selectedTileColor: const Color(0x11000000),
+      selectedTileColor:
+          Theme.of(context).extension<Style>()!.transparentOpacity94,
       title: Text(user.name?.val ?? user.num.val, style: font17),
       onTap: onTap,
     );

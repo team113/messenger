@@ -50,8 +50,10 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
@@ -112,8 +114,11 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: style.systemMessageStyle
-                                .copyWith(color: Colors.black, fontSize: 18),
+                            style: style.systemMessageStyle.copyWith(
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onBackground,
+                                fontSize: 18),
                           ),
                         ),
                       ),

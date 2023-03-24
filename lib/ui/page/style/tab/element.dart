@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '../widget/caption.dart';
 import '/domain/model/chat.dart';
@@ -527,9 +528,12 @@ class ElementStyleTabView extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: InkWell(
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
+                    hoverColor:
+                        Theme.of(context).extension<Style>()!.transparent,
+                    splashColor:
+                        Theme.of(context).extension<Style>()!.transparent,
+                    highlightColor:
+                        Theme.of(context).extension<Style>()!.transparent,
                     onTap: () {},
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
@@ -587,9 +591,12 @@ class ElementStyleTabView extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: InkWell(
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
+                    hoverColor:
+                        Theme.of(context).extension<Style>()!.transparent,
+                    splashColor:
+                        Theme.of(context).extension<Style>()!.transparent,
+                    highlightColor:
+                        Theme.of(context).extension<Style>()!.transparent,
                     onTap: () {},
                     child: Row(
                       mainAxisSize: MainAxisSize.max,

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
@@ -43,7 +44,7 @@ class WidgetButton extends StatelessWidget {
         onTap: onPressed,
         behavior: behavior,
         child: Container(
-          color: Colors.transparent,
+          color: Theme.of(context).extension<Style>()!.transparent,
           child: child,
         ),
       ),

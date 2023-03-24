@@ -42,8 +42,10 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -175,7 +177,11 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
-                            color: enabled ? Colors.white : Colors.black,
+                            color: enabled
+                                ? Colors.white
+                                : Theme.of(context)
+                                    .extension<Style>()!
+                                    .onBackground,
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,

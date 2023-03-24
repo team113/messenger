@@ -227,9 +227,11 @@ class ChatsTabView extends StatelessWidget {
                         } else {
                           center = Center(
                             key: UniqueKey(),
-                            child: const ColoredBox(
-                              color: Colors.transparent,
-                              child: CustomProgressIndicator(),
+                            child: ColoredBox(
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
+                              child: const CustomProgressIndicator(),
                             ),
                           );
                         }
@@ -348,7 +350,9 @@ class ChatsTabView extends StatelessWidget {
                                         text,
                                         style:
                                             style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
+                                          color: Theme.of(context)
+                                              .extension<Style>()!
+                                              .onBackground,
                                           fontSize: 15,
                                         ),
                                       ),
@@ -370,10 +374,12 @@ class ChatsTabView extends StatelessWidget {
                           c.elements.isEmpty) {
                         child = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            key: Key('Loading'),
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            key: const Key('Loading'),
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       } else if (c.elements.isNotEmpty) {
@@ -436,7 +442,9 @@ class ChatsTabView extends StatelessWidget {
                                               .category.name.capitalizeFirst!,
                                           style:
                                               style.systemMessageStyle.copyWith(
-                                            color: Colors.black,
+                                            color: Theme.of(context)
+                                                .extension<Style>()!
+                                                .onBackground,
                                             fontSize: 15,
                                           ),
                                         ),
@@ -483,10 +491,12 @@ class ChatsTabView extends StatelessWidget {
                         if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
-                            child: const ColoredBox(
-                              key: Key('Loading'),
-                              color: Colors.transparent,
-                              child: CustomProgressIndicator(),
+                            child: ColoredBox(
+                              key: const Key('Loading'),
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .transparent,
+                              child: const CustomProgressIndicator(),
                             ),
                           );
                         } else {
@@ -563,8 +573,12 @@ class ChatsTabView extends StatelessWidget {
                                             final double elevation =
                                                 lerpDouble(0, 6, t)!;
                                             final Color color = Color.lerp(
-                                              const Color(0x00000000),
-                                              const Color(0x33000000),
+                                              Theme.of(context)
+                                                  .extension<Style>()!
+                                                  .transparent,
+                                              Theme.of(context)
+                                                  .extension<Style>()!
+                                                  .transparentOpacity81,
                                               t,
                                             )!;
 
@@ -715,7 +729,9 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: const Color(0x33000000),
+                  color: Theme.of(context)
+                      .extension<Style>()!
+                      .transparentOpacity81,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
@@ -750,10 +766,12 @@ class ChatsTabView extends StatelessWidget {
               title: child,
               onPressed: onPressed,
               color: color,
-              shadows: const [
+              shadows: [
                 CustomBoxShadow(
                   blurRadius: 8,
-                  color: Color(0x22000000),
+                  color: Theme.of(context)
+                      .extension<Style>()!
+                      .transparentOpacity88,
                   blurStyle: BlurStyle.outer,
                 ),
               ],
@@ -777,7 +795,9 @@ class ChatsTabView extends StatelessWidget {
                   'btn_close'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const TextStyle(color: Colors.black),
+                  style: TextStyle(
+                      color:
+                          Theme.of(context).extension<Style>()!.onBackground),
                 ),
                 onPressed: c.closeGroupCreating,
                 color: Colors.white,

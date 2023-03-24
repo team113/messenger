@@ -21,6 +21,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
@@ -139,7 +140,8 @@ class _VideoState extends State<Video> {
                       width: MediaQuery.of(context).size.width * 0.99,
                       height: MediaQuery.of(context).size.height * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0x00000000),
+                        color:
+                            Theme.of(context).extension<Style>()!.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: _loading != null
@@ -189,7 +191,7 @@ class _VideoState extends State<Video> {
                   resizeToAvoidBottomInset: false,
                   body: Container(
                     alignment: Alignment.center,
-                    color: Colors.black,
+                    color: Theme.of(context).extension<Style>()!.onBackground,
                     child: provider,
                   ),
                 );

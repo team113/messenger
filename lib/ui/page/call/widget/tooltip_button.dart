@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 /// [InkWell] button with a [Tooltip] of a [hint].
 class TooltipButton extends StatelessWidget {
@@ -43,9 +44,9 @@ class TooltipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget button = InkWell(
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
+      hoverColor: Theme.of(context).extension<Style>()!.transparent,
+      highlightColor: Theme.of(context).extension<Style>()!.transparent,
+      splashColor: Theme.of(context).extension<Style>()!.transparent,
       onTap: onTap,
       child: child,
     );

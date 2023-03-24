@@ -281,9 +281,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
                           key: const Key('AnimatedSwitcherLabel'),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            boxShadow: const [
+                            boxShadow: [
                               CustomBoxShadow(
-                                color: Color(0x22000000),
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .transparentOpacity88,
                                 blurRadius: 8,
                                 blurStyle: BlurStyle.outer,
                               )
@@ -365,7 +367,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   key: Key('ParticipantConnecting_${participant.member.id}'),
                   width: double.infinity,
                   height: double.infinity,
-                  color: Colors.black.withOpacity(0.2),
+                  color: Theme.of(context)
+                      .extension<Style>()!
+                      .transparentOpacity98,
                   child: const Center(
                     child: CustomProgressIndicator(size: 64),
                   ),
@@ -396,7 +400,11 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0x30000000), width: 0.5),
+                border: Border.all(
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity81,
+                    width: 0.5),
               ),
               child: const IgnorePointer(),
             ),

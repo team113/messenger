@@ -298,7 +298,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: const Color(0x70000000),
+                    color: const Color(0x00D1E1F0),
                   ),
                 );
               }
@@ -316,7 +316,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: const Color(0xA0000000),
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparentOpacity25,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -353,7 +355,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                                   Text(
                                     state,
                                     style: context.textTheme.bodySmall
-                                        ?.copyWith(color: Colors.white),
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .extension<Style>()!
+                                                .transparentOpacity98),
                                   ),
                                   if (withDots) const AnimatedDots(),
                                 ],
@@ -436,7 +441,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: const Color(0x55000000))
+                ? Container(
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity67)
                 : null,
           ),
         );
@@ -833,7 +841,7 @@ Widget _chat(BuildContext context, CallController c) {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
-          color: Colors.transparent,
+          color: Theme.of(context).extension<Style>()!.transparent,
         ),
         child: Material(
           type: MaterialType.card,

@@ -77,7 +77,9 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
+                    shadowColor: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity67,
                     color: Colors.white,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
@@ -301,9 +303,11 @@ class ChatInfoView extends StatelessWidget {
                       ? Container(
                           width: 200,
                           height: 200,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0x22000000),
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparentOpacity88,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )
@@ -331,7 +335,9 @@ class ChatInfoView extends StatelessWidget {
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
+                style: TextStyle(
+                    color: Theme.of(context).extension<Style>()!.onBackground,
+                    fontSize: 11),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
@@ -488,7 +494,7 @@ class ChatInfoView extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
               border: style.cardBorder,
-              color: Colors.transparent,
+              color: Theme.of(context).extension<Style>()!.transparent,
             ),
             child: Material(
               type: MaterialType.card,
@@ -803,7 +809,8 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(
+                color: Theme.of(context).extension<Style>()!.onBackground),
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -835,7 +842,8 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+              color: Theme.of(context).extension<Style>()!.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
@@ -854,7 +862,8 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+              color: Theme.of(context).extension<Style>()!.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
@@ -876,7 +885,8 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+              color: Theme.of(context).extension<Style>()!.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],

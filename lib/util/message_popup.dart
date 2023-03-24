@@ -59,7 +59,8 @@ class MessagePopup {
           final TextStyle? thin = Theme.of(context)
               .textTheme
               .bodyLarge
-              ?.copyWith(color: Colors.black);
+              ?.copyWith(
+                  color: Theme.of(context).extension<Style>()!.onBackground);
 
           return Column(
             mainAxisSize: MainAxisSize.min,

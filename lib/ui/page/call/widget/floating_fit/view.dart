@@ -191,9 +191,11 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 height: height,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
+                  boxShadow: [
                     CustomBoxShadow(
-                      color: Color(0x44000000),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .transparentOpacity74,
                       blurRadius: 9,
                       blurStyle: BlurStyle.outer,
                     )
@@ -311,7 +313,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 child: Container(
                   width: width,
                   height: height,
-                  color: Colors.transparent,
+                  color: Theme.of(context).extension<Style>()!.transparent,
                 ),
               ),
             ),

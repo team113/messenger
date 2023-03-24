@@ -63,7 +63,9 @@ class LoginView extends StatelessWidget {
               title: Text(
                 title ?? '',
                 style: TextStyle(
-                  color: onPressed == null ? Colors.black : Colors.white,
+                  color: onPressed == null
+                      ? Theme.of(context).extension<Style>()!.onBackground
+                      : Colors.white,
                 ),
               ),
               onPressed: onPressed,

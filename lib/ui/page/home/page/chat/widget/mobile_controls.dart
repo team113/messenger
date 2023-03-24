@@ -144,7 +144,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: Theme.of(context).extension<Style>()!.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -166,7 +166,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: Theme.of(context).extension<Style>()!.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -210,11 +210,14 @@ class _MobileControlsState extends State<MobileControls>
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0x00000000), Color(0x66000000)],
+            colors: [
+              Theme.of(context).extension<Style>()!.transparent,
+              Theme.of(context).extension<Style>()!.transparentOpacity60
+            ],
           ),
         ),
         child: SafeArea(
@@ -255,7 +258,8 @@ class _MobileControlsState extends State<MobileControls>
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: Colors.black54,
+      backgroundColor:
+          Theme.of(context).extension<Style>()!.transparentOpacity88,
       iconColor: Colors.white,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,

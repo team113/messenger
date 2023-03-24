@@ -96,7 +96,7 @@ class OutlinedRoundedButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
-        color: Colors.transparent,
+        color: Theme.of(context).extension<Style>()!.transparent,
         elevation: elevation,
         borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
@@ -125,7 +125,8 @@ class OutlinedRoundedButton extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black,
+                        color:
+                            Theme.of(context).extension<Style>()!.onBackground,
                         fontSize: 24 * 0.7,
                       ),
                   child: Center(

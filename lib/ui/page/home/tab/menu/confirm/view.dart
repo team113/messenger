@@ -41,8 +41,8 @@ class ConfirmLogoutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    final TextStyle? thin =
-        theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = theme.textTheme.bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -99,7 +99,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
+                          ? Theme.of(context).extension<Style>()!.onBackground
                           : Colors.white,
                     ),
                   ),
@@ -168,7 +168,10 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: const TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onBackground),
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',

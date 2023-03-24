@@ -61,8 +61,9 @@ class CallSettingsView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
               text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
+              style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).extension<Style>()!.onBackground,
+                  fontSize: 18),
             ),
           ),
         ),

@@ -86,8 +86,10 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -241,7 +243,11 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
-                          color: enabled ? Colors.white : Colors.black,
+                          color: enabled
+                              ? Colors.white
+                              : Theme.of(context)
+                                  .extension<Style>()!
+                                  .onBackground,
                         ),
                       ),
                       onPressed:

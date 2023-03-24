@@ -95,7 +95,7 @@ class MessageFieldView extends StatelessWidget {
     );
 
     return Theme.of(context).copyWith(
-      shadowColor: const Color(0x55000000),
+      shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity67,
       iconTheme: const IconThemeData(color: Colors.blue),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
@@ -106,7 +106,7 @@ class MessageFieldView extends StatelessWidget {
         focusedErrorBorder: border,
         focusColor: Colors.white,
         fillColor: Colors.white,
-        hoverColor: Colors.transparent,
+        hoverColor: Theme.of(context).extension<Style>()!.transparent,
         filled: true,
         isDense: true,
         contentPadding: EdgeInsets.fromLTRB(
@@ -134,8 +134,12 @@ class MessageFieldView extends StatelessWidget {
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                boxShadow: [
+                  CustomBoxShadow(
+                      blurRadius: 8,
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .transparentOpacity88),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -215,8 +219,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    Theme.of(context).extension<Style>()!.transparent,
+                    Theme.of(context).extension<Style>()!.transparentOpacity81,
                     t,
                   )!;
 
@@ -295,8 +299,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    Theme.of(context).extension<Style>()!.transparent,
+                    Theme.of(context).extension<Style>()!.transparentOpacity81,
                     t,
                   )!;
 
@@ -598,9 +602,11 @@ class MessageFieldView extends StatelessWidget {
                       Container(
                         width: 60,
                         height: 60,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0x80000000),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .transparentOpacity50,
                         ),
                         child: const Icon(
                           Icons.play_arrow,
@@ -791,7 +797,9 @@ class MessageFieldView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: fromMe
                     ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
+                    : Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity98,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,

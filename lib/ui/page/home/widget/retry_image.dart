@@ -281,7 +281,9 @@ class _RetryImageState extends State<RetryImage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Theme.of(context)
+                                      .extension<Style>()!
+                                      .transparentOpacity98,
                                   blurRadius: 8,
                                   blurStyle: BlurStyle.outer,
                                 ),

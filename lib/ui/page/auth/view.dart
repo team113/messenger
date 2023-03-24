@@ -50,8 +50,8 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: Colors.black);
+        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).extension<Style>()!.onBackground);
         final Color primary = Theme.of(context).extension<Style>()!.primary;
 
         // Header part of the page.
@@ -250,7 +250,8 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor: Colors.transparent,
+                backgroundColor:
+                    Theme.of(context).extension<Style>()!.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -293,10 +294,9 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).extension<Style>()!.onBackground,
+                    fontSize: 18),
               ),
             ),
           ),

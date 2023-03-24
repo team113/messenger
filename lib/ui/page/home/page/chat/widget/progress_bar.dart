@@ -17,7 +17,10 @@
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../../../../../routes.dart';
 
 /// Draggable video volume bar.
 ///
@@ -106,7 +109,7 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
           child: Container(
             height: constraints.biggest.height,
             width: constraints.biggest.width,
-            color: Colors.transparent,
+            color: Theme.of(context).extension<Style>()!.transparent,
             child: CustomPaint(
               painter: _ProgressBarPainter(
                 value: controller.value,
@@ -222,7 +225,11 @@ class _ProgressBarPainter extends CustomPainter {
           ),
         );
 
-      canvas.drawShadow(shadowPath, Colors.black, 0.2, false);
+      canvas.drawShadow(
+          shadowPath,
+          Theme.of(router.context!).extension<Style>()!.onBackground,
+          0.2,
+          false);
     }
 
     canvas.drawCircle(

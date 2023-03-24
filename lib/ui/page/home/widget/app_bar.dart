@@ -70,7 +70,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.transparent,
+            color: Theme.of(context).extension<Style>()!.transparent,
           ),
         Expanded(
           child: Padding(
@@ -79,10 +79,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
+                boxShadow: [
                   CustomBoxShadow(
                     blurRadius: 8,
-                    color: Color(0x22000000),
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity88,
                     blurStyle: BlurStyle.outer,
                   ),
                 ],

@@ -173,10 +173,10 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = Center(
                   key: UniqueKey(),
-                  child: const ColoredBox(
-                    key: Key('Loading'),
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                  child: ColoredBox(
+                    key: const Key('Loading'),
+                    color: Theme.of(context).extension<Style>()!.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 );
               } else if (c.elements.isNotEmpty) {
@@ -214,7 +214,9 @@ class ContactsTabView extends StatelessWidget {
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
                                   style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
+                                    color: Theme.of(context)
+                                        .extension<Style>()!
+                                        .onBackground,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -278,8 +280,12 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
+                                    Theme.of(context)
+                                        .extension<Style>()!
+                                        .transparent,
+                                    Theme.of(context)
+                                        .extension<Style>()!
+                                        .transparentOpacity81,
                                     t,
                                   )!;
 
@@ -539,7 +545,8 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(
+              color: Theme.of(context).extension<Style>()!.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

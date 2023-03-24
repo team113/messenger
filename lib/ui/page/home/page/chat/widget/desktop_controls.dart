@@ -266,7 +266,8 @@ class _DesktopControlsState extends State<DesktopControls>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: const Color(0x66000000),
+                color:
+                    Theme.of(context).extension<Style>()!.transparentOpacity60,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -328,8 +329,10 @@ class _DesktopControlsState extends State<DesktopControls>
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity88,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
@@ -356,7 +359,7 @@ class _DesktopControlsState extends State<DesktopControls>
         onTap: _playPause,
         child: Container(
           height: _barHeight,
-          color: Colors.transparent,
+          color: Theme.of(context).extension<Style>()!.transparent,
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
@@ -439,7 +442,9 @@ class _DesktopControlsState extends State<DesktopControls>
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0x66000000),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .transparentOpacity60,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(

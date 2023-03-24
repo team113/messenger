@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
@@ -155,7 +156,7 @@ class GalleryPopup extends StatefulWidget {
         return themes.wrap(gallery);
       },
       barrierDismissible: false,
-      barrierColor: Colors.transparent,
+      barrierColor: Theme.of(context).extension<Style>()!.transparent,
       transitionDuration: Duration.zero,
       useRootNavigator: PlatformUtils.isMobile ? false : true,
     );
@@ -348,7 +349,10 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color: Colors.black.withOpacity(0.9 * _fading.value),
+                color: Theme.of(context)
+                    .extension<Style>()!
+                    .onBackground
+                    .withOpacity(0.9 * _fading.value),
               ),
             ),
             AnimatedBuilder(
@@ -511,7 +515,8 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          backgroundDecoration: BoxDecoration(
+              color: Theme.of(context).extension<Style>()!.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
             _isInitialPage = false;

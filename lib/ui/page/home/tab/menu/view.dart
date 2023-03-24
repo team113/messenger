@@ -52,7 +52,9 @@ class MenuTabView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
+                    shadowColor: Theme.of(context)
+                        .extension<Style>()!
+                        .transparentOpacity67,
                     color: Colors.white,
                     child: Center(
                       child: Obx(() {
@@ -77,7 +79,10 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: const TextStyle(color: Colors.black),
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<Style>()!
+                                      .onBackground),
                             ),
                             Obx(() {
                               return Text(
@@ -133,7 +138,9 @@ class MenuTabView extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: style.cardRadius,
                             border: style.cardBorder,
-                            color: Colors.transparent,
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparent,
                           ),
                           child: Material(
                             type: MaterialType.card,
