@@ -483,7 +483,7 @@ abstract class CallGraphQlMixin {
   ///
   /// Each time tries to move the ongoing [ChatCall] into a new unique
   /// [Chat]-group.
-  Future<ChatCallEventsVersionedMixin?> transformDialogCallIntoGroupCall(
+  Future<ChatEventsVersionedMixin?> transformDialogCallIntoGroupCall(
     ChatId chatId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
@@ -507,7 +507,7 @@ abstract class CallGraphQlMixin {
               .code),
     );
     return (TransformDialogCallIntoGroupCall$Mutation.fromJson(result.data!)
-        .transformDialogCallIntoGroupCall as ChatCallEventsVersionedMixin?);
+        .transformDialogCallIntoGroupCall as ChatEventsVersionedMixin?);
   }
 
   /// Removes the specified [User] from the [ChatCall] of the specified
