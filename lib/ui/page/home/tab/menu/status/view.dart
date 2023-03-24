@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -28,6 +27,7 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for changing [MyUser.status] and/or [MyUser.presence].
@@ -87,9 +87,7 @@ class StatusView extends StatelessWidget {
                           onSuffixPressed: c.status.text.isEmpty
                               ? null
                               : () {
-                                  Clipboard.setData(
-                                    ClipboardData(text: c.status.text),
-                                  );
+                                  PlatformUtils.copy(text: c.status.text);
                                   MessagePopup.success('label_copied'.l10n);
                                 },
                           trailing: c.status.text.isEmpty
