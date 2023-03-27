@@ -1443,7 +1443,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         //   state: c.callsCost,
         // ),
         // const SizedBox(height: 12 * 2),
-        title('От контактов', c.verified.value),
+        title('От пользователей из Вашего списка контактов', c.verified.value),
         const SizedBox(height: 6),
         field(
           label: 'label_fee_per_incoming_message'.l10n,
@@ -1485,7 +1485,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           ),
         ),
         const SizedBox(height: 12 * 2),
-        title('От остальных', c.verified.value),
+        title('От всех пользователей', c.verified.value),
         const SizedBox(height: 6),
         field(
           label: 'label_fee_per_incoming_message'.l10n,
@@ -1527,7 +1527,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           ),
         ),
         const SizedBox(height: 12 * 2),
-        title('От индивидуальных', c.verified.value),
+        title('От индивидуальных пользователей', c.verified.value),
         const SizedBox(height: 6),
         _dense(
           FieldButton(
