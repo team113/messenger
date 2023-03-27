@@ -76,7 +76,7 @@ class HiveRxChat extends RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
+  final RxObsMap<UserId, RxUser> members = RxObsMap<UserId, RxUser>();
 
   @override
   final RxString title = RxString('');
@@ -888,6 +888,10 @@ class HiveRxChat extends RxChat {
               break;
 
             case ChatEventKind.cleared:
+              chatEntity.value.lastItem = null;
+              chatEntity.value.lastReadItem = null;
+              chatEntity.lastItemCursor = null;
+              chatEntity.lastReadItemCursor = null;
               await _guard.protect(_local.clear);
               break;
 

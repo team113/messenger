@@ -359,6 +359,18 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Clears all the [ChatItem]s of the [chat].
+  Future<void> clearChat() async {
+    try {
+      await _chatService.clearChat(chatId);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Joins an [OngoingCall] happening in the [chat].
   Future<void> joinCall() => _callService.join(chatId, withVideo: false);
 
@@ -375,6 +387,18 @@ class ChatInfoController extends GetxController {
     try {
       await _callService.redialChatCallMember(chatId, userId);
     } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _callService.removeChatCallMember(chatId, userId);
+    } on RemoveChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

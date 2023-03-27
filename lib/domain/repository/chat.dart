@@ -180,6 +180,13 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -211,7 +218,7 @@ abstract class RxChat {
   RxList<User> get typingUsers;
 
   /// Reactive list of [User]s being members of this [chat].
-  RxMap<UserId, RxUser> get members;
+  RxObsMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;

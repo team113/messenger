@@ -29,7 +29,8 @@ Feature: Account creation
     And I fill `NameField` field with "Alice"
     And I tap `Approve` button
 
-    When I tap `SetPassword` button
+    When I scroll `MyProfileScrollable` until `SetPassword` is present
+    And I tap `SetPassword` button
     And I fill `NewPasswordField` field with "123"
     And I fill `RepeatPasswordField` field with "123"
     And I tap `Proceed` button
@@ -37,6 +38,7 @@ Feature: Account creation
     Then I wait until `ChangePassword` is present
 
     When I tap `DangerZone` button
+    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
     And I tap `DeleteAccount` button
     And I tap `Proceed` button
     Then I wait until `AuthView` is present
