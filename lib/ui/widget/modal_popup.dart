@@ -54,7 +54,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).extension<Style>()!.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -112,7 +112,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).extension<Style>()!.onPrimary,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(

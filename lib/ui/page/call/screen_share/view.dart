@@ -137,7 +137,8 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(
+                        color: Theme.of(context).extension<Style>()!.onPrimary),
                   ),
                   onPressed: () {
                     c.freeTracks();

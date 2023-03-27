@@ -157,7 +157,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 widget.label,
                 style: style.boldBody.copyWith(
                   color: (isMouseOver && !context.isMobile)
-                      ? Colors.white
+                      ? Theme.of(context).extension<Style>()!.onPrimary
                       : Theme.of(context).extension<Style>()!.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,

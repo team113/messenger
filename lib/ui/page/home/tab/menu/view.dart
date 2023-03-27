@@ -55,7 +55,7 @@ class MenuTabView extends StatelessWidget {
                     shadowColor: Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity67,
-                    color: Colors.white,
+                    color: Theme.of(context).extension<Style>()!.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(

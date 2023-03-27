@@ -664,7 +664,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                               padding: const EdgeInsets.only(right: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_left_rounded,
-                                color: left ? Colors.white : Colors.grey,
+                                color: left
+                                    ? Theme.of(context)
+                                        .extension<Style>()!
+                                        .onPrimary
+                                    : Colors.grey,
                                 size: 36,
                               ),
                             ),
@@ -715,7 +719,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                               padding: const EdgeInsets.only(left: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_right_rounded,
-                                color: right ? Colors.white : Colors.grey,
+                                color: right
+                                    ? Theme.of(context)
+                                        .extension<Style>()!
+                                        .onPrimary
+                                    : Colors.grey,
                                 size: 36,
                               ),
                             ),
@@ -745,9 +753,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                     color: const Color(0x794E5A78),
                     onPressed: _dismiss,
                     withBlur: true,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close_rounded,
-                      color: Colors.white,
+                      color: Theme.of(context).extension<Style>()!.onPrimary,
                       size: 28,
                     ),
                   ),

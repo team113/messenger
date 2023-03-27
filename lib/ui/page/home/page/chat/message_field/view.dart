@@ -104,8 +104,8 @@ class MessageFieldView extends StatelessWidget {
         focusedBorder: border,
         disabledBorder: border,
         focusedErrorBorder: border,
-        focusColor: Colors.white,
-        fillColor: Colors.white,
+        focusColor: Theme.of(context).extension<Style>()!.onPrimary,
+        fillColor: Theme.of(context).extension<Style>()!.onPrimary,
         hoverColor: Theme.of(context).extension<Style>()!.transparent,
         filled: true,
         isDense: true,
@@ -608,9 +608,10 @@ class MessageFieldView extends StatelessWidget {
                               .extension<Style>()!
                               .transparentOpacity50,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color:
+                              Theme.of(context).extension<Style>()!.onPrimary,
                           size: 48,
                         ),
                       ),
@@ -702,9 +703,11 @@ class MessageFieldView extends StatelessWidget {
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
                             ? Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  color: Theme.of(context)
+                                      .extension<Style>()!
+                                      .onPrimary,
                                 ),
                                 child: const Center(
                                   child: Icon(Icons.error, color: Colors.red),
@@ -807,7 +810,9 @@ class MessageFieldView extends StatelessWidget {
               child: image == null
                   ? Icon(
                       Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      color: fromMe
+                          ? Theme.of(context).extension<Style>()!.onPrimary
+                          : const Color(0xFFDDDDDD),
                       size: 16,
                     )
                   : RetryImage(

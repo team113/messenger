@@ -41,13 +41,13 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             Caption(
               '${color.toHex()}, $desc',
               color: isDarkMode
-                  ? Colors.white
+                  ? Theme.of(context).extension<Style>()!.onPrimary
                   : Theme.of(context).extension<Style>()!.onBackground,
             ),
             _Colored(
               color: color,
               outline: isDarkMode
-                  ? Colors.white
+                  ? Theme.of(context).extension<Style>()!.onPrimary
                   : Theme.of(context).extension<Style>()!.onBackground,
             )
           ],
@@ -58,13 +58,13 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             Caption(
               '${gradient.colors.map((e) => e.toHex())}, $desc',
               color: isDarkMode
-                  ? Colors.white
+                  ? Theme.of(context).extension<Style>()!.onPrimary
                   : Theme.of(context).extension<Style>()!.onBackground,
             ),
             _Colored(
               gradient: gradient,
               outline: isDarkMode
-                  ? Colors.white
+                  ? Theme.of(context).extension<Style>()!.onPrimary
                   : Theme.of(context).extension<Style>()!.onBackground,
             )
           ],
@@ -73,7 +73,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
     return Scaffold(
       backgroundColor: isDarkMode
           ? Theme.of(context).extension<Style>()!.onBackground
-          : Colors.white,
+          : Theme.of(context).extension<Style>()!.onPrimary,
       body: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(8),

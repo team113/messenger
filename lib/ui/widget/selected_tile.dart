@@ -123,9 +123,9 @@ class SelectedTile extends StatelessWidget {
                     backgroundColor:
                         Theme.of(context).extension<Style>()!.secondary,
                     radius: 12,
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
-                      color: Colors.white,
+                      color: Theme.of(context).extension<Style>()!.onPrimary,
                       size: 14,
                     ),
                   )

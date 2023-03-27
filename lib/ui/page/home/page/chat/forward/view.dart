@@ -161,12 +161,14 @@ class ChatForwardView extends StatelessWidget {
                                           .extension<Style>()!
                                           .transparentOpacity74,
                                     ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: Colors.white,
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary,
                                       ),
                                     ),
                                   ),

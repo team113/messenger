@@ -21,6 +21,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
@@ -368,7 +369,7 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: Colors.white,
+          badgeColor: Theme.of(context).extension<Style>()!.onPrimary,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
@@ -406,7 +407,7 @@ class AvatarWidget extends StatelessWidget {
                   (title ?? '??').initials(),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 15 * (maxWidth / 40.0),
-                        color: Colors.white,
+                        color: Theme.of(context).extension<Style>()!.onPrimary,
                         fontWeight: FontWeight.w700,
                       ),
 

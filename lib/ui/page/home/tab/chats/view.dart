@@ -800,7 +800,7 @@ class ChatsTabView extends StatelessWidget {
                           Theme.of(context).extension<Style>()!.onBackground),
                 ),
                 onPressed: c.closeGroupCreating,
-                color: Colors.white,
+                color: Theme.of(context).extension<Style>()!.onPrimary,
               ),
               const SizedBox(width: 10),
               button(
@@ -808,7 +808,8 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                      color: Theme.of(context).extension<Style>()!.onPrimary),
                 ),
                 onPressed: c.createGroup,
                 color: Theme.of(context).extension<Style>()!.secondary,

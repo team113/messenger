@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -83,7 +84,7 @@ class CallCoverWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),
-                        color: Colors.white,
+                        color: Theme.of(context).extension<Style>()!.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
 

@@ -148,7 +148,10 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onPrimary),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();

@@ -146,7 +146,10 @@ class _DesktopControlsState extends State<DesktopControls>
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+              child: Icon(Icons.error,
+                  color: Theme.of(context).extension<Style>()!.onPrimary,
+                  size: 42));
     }
 
     return MouseRegion(
@@ -304,7 +307,7 @@ class _DesktopControlsState extends State<DesktopControls>
               widget.isFullscreen?.value == true
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-              color: Colors.white,
+              color: Theme.of(context).extension<Style>()!.onPrimary,
               size: 21,
             ),
           ),
@@ -338,9 +341,12 @@ class _DesktopControlsState extends State<DesktopControls>
                   child: IconButton(
                     iconSize: 32,
                     icon: isFinished
-                        ? const Icon(Icons.replay, color: Colors.white)
+                        ? Icon(Icons.replay,
+                            color:
+                                Theme.of(context).extension<Style>()!.onPrimary)
                         : AnimatedPlayPause(
-                            color: Colors.white,
+                            color:
+                                Theme.of(context).extension<Style>()!.onPrimary,
                             playing: _controller.value.isPlaying,
                           ),
                     onPressed: _playPause,
@@ -363,7 +369,7 @@ class _DesktopControlsState extends State<DesktopControls>
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
-            color: Colors.white,
+            color: Theme.of(context).extension<Style>()!.onPrimary,
           ),
         ),
       ),
@@ -403,7 +409,7 @@ class _DesktopControlsState extends State<DesktopControls>
             height: _barHeight,
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Colors.white,
+              color: Theme.of(context).extension<Style>()!.onPrimary,
               size: 18,
             ),
           ),
@@ -479,7 +485,9 @@ class _DesktopControlsState extends State<DesktopControls>
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: const TextStyle(fontSize: 14.0, color: Colors.white),
+      style: TextStyle(
+          fontSize: 14.0,
+          color: Theme.of(context).extension<Style>()!.onPrimary),
     );
   }
 

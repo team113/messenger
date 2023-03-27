@@ -20,6 +20,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -315,7 +316,9 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                           MaterialState.disabled
                                         })!.copyWith(
                                           fontSize: 13,
-                                          color: Colors.white,
+                                          color: Theme.of(context)
+                                              .extension<Style>()!
+                                              .onPrimary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,

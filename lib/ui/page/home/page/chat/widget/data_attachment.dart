@@ -103,10 +103,10 @@ class _DataAttachmentState extends State<DataAttachment> {
                 shape: BoxShape.circle,
                 color: Theme.of(context).extension<Style>()!.secondary,
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(
                   Icons.insert_drive_file,
-                  color: Colors.white,
+                  color: Theme.of(context).extension<Style>()!.onPrimary,
                   size: 16,
                 ),
               ),
@@ -147,7 +147,8 @@ class _DataAttachmentState extends State<DataAttachment> {
               dimension: 18,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor: Colors.white,
+                backgroundColor:
+                    Theme.of(context).extension<Style>()!.onPrimary,
                 strokeWidth: 5,
               ),
             );

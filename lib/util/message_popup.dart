@@ -113,7 +113,8 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(
+                        color: Theme.of(context).extension<Style>()!.onPrimary),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   color: Theme.of(context).extension<Style>()!.secondary,

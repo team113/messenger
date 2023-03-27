@@ -202,8 +202,9 @@ class ChatItemWidget extends StatefulWidget {
                 color:
                     Theme.of(context).extension<Style>()!.transparentOpacity50,
               ),
-              child:
-                  const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+              child: Icon(Icons.play_arrow,
+                  color: Theme.of(context).extension<Style>()!.onPrimary,
+                  size: 48),
             ),
           ),
         ],
@@ -319,7 +320,9 @@ class ChatItemWidget extends StatefulWidget {
                                       child: CircularProgressIndicator(
                                         key: const Key('Sending'),
                                         value: e.progress.value,
-                                        backgroundColor: Colors.white,
+                                        backgroundColor: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary,
                                         strokeWidth: 10,
                                       ),
                                     ),
@@ -871,7 +874,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 : const Color(0xFFE6F1FE)
                             : _isRead || !_fromMe
                                 ? const Color(0xFFF9F9F9)
-                                : Colors.white,
+                                : Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary,
                         borderRadius: i == 0
                             ? const BorderRadius.only(
                                 topLeft: Radius.circular(15),
@@ -1208,7 +1213,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: image == null
                     ? Icon(
                         Icons.file_copy,
-                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                        color: fromMe
+                            ? Theme.of(context).extension<Style>()!.onPrimary
+                            : const Color(0xFFDDDDDD),
                         size: 28,
                       )
                     : RetryImage(

@@ -481,9 +481,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.white,
+                                          color: Theme.of(context)
+                                              .extension<Style>()!
+                                              .onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
                                       )
@@ -697,7 +699,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                         'label_call_title'.l10nfmt(c.titleArguments),
                         style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
-                          color: const Colors.white,
+                          color:
+                              Theme.of(context).extension<Style>()!.onPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1161,7 +1164,9 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: const Colors.white,
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .transparent,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1454,12 +1459,14 @@ Widget _primaryView(CallController c) {
                                         .transparentOpacity74
                                     : const Color(0x90000000),
                               ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
                                 child: Icon(
                                   Icons.add_rounded,
                                   size: 50,
-                                  color: Colors.white,
+                                  color: Theme.of(router.context!)
+                                      .extension<Style>()!
+                                      .onPrimary,
                                 ),
                               ),
                             ),
@@ -2078,10 +2085,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),
-                                    const Expanded(
+                                    Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .extension<Style>()!
+                                                .onPrimary),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -2172,12 +2182,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                               .transparentOpacity74
                                           : const Color(0x90000000),
                                     ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: Colors.white,
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary,
                                       ),
                                     ),
                                   ),
@@ -2384,7 +2396,9 @@ Widget _secondaryTarget(CallController c) {
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
                                           ? const Color(0x10FFFFFF)
-                                          : const Color(0x00FFFFFF),
+                                          : Theme.of(context)
+                                              .extension<Style>()!
+                                              .transparent,
                                       child: Center(
                                         child: SizedBox(
                                           width:
@@ -2418,12 +2432,16 @@ Widget _secondaryTarget(CallController c) {
                                                         BorderRadius.circular(
                                                             16),
                                                   ),
-                                                  child: const Padding(
-                                                    padding: EdgeInsets.all(10),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
                                                     child: Icon(
                                                       Icons.add_rounded,
                                                       size: 35,
-                                                      color: Colors.white,
+                                                      color: Theme.of(context)
+                                                          .extension<Style>()!
+                                                          .onPrimary,
                                                     ),
                                                   ),
                                                 ),

@@ -94,9 +94,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     if (_deps == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CustomProgressIndicator()),
+      return Scaffold(
+        backgroundColor: Theme.of(context).extension<Style>()!.onPrimary,
+        body: const Center(child: CustomProgressIndicator()),
       );
     }
 
@@ -326,7 +326,7 @@ class _HomeViewState extends State<HomeView> {
               key: const Key('HomeView'),
               children: [
                 Container(
-                  color: Colors.white,
+                  color: Theme.of(context).extension<Style>()!.onPrimary,
                   width: double.infinity,
                   height: double.infinity,
                 ),

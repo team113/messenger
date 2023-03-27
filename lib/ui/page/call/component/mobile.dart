@@ -870,7 +870,10 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
-                                    ?.copyWith(color: Colors.white),
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary),
                               ),
                             ),
                             Text(
@@ -878,7 +881,10 @@ Widget _chat(BuildContext context, CallController c) {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
-                                  ?.copyWith(color: Colors.white),
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary),
                             ),
                           ],
                         ),
@@ -899,7 +905,10 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(color: Colors.white),
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary),
                               ),
                               const Spacer(),
                               Text(
@@ -910,7 +919,10 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(color: Colors.white),
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary),
                               ),
                             ],
                           ),

@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/image_gallery_item.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -125,7 +126,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ),
                   ),
                 )
-              : Container(color: Colors.white),
+              : Container(
+                  color: Theme.of(context).extension<Style>()!.onPrimary),
           ScrollConfiguration(
             behavior: _MyCustomScrollBehavior(),
             child: CarouselSlider(
@@ -178,7 +180,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                               shape: BoxShape.circle,
                               boxShadow: const [BoxShadow(blurRadius: 1)],
                               color: widget.index == i
-                                  ? Colors.white
+                                  ? Theme.of(context)
+                                      .extension<Style>()!
+                                      .onPrimary
                                   : Colors.grey,
                             ),
                           ),

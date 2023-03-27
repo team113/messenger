@@ -101,7 +101,10 @@ class _MobileControlsState extends State<MobileControls>
             context,
             _chewieController.videoPlayerController.value.errorDescription!,
           ) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+              child: Icon(Icons.error,
+                  color: Theme.of(context).extension<Style>()!.onPrimary,
+                  size: 42));
     }
 
     return MouseRegion(
@@ -260,7 +263,7 @@ class _MobileControlsState extends State<MobileControls>
     return CenterPlayButton(
       backgroundColor:
           Theme.of(context).extension<Style>()!.transparentOpacity88,
-      iconColor: Colors.white,
+      iconColor: Theme.of(context).extension<Style>()!.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,
       show: !_dragging && !_hideStuff,
@@ -294,7 +297,7 @@ class _MobileControlsState extends State<MobileControls>
           child: Center(
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Colors.white,
+              color: Theme.of(context).extension<Style>()!.onPrimary,
               size: 18,
             ),
           ),
@@ -321,9 +324,9 @@ class _MobileControlsState extends State<MobileControls>
             ),
           )
         ],
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14.0,
-          color: Colors.white,
+          color: Theme.of(context).extension<Style>()!.onPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),

@@ -105,7 +105,9 @@ class AddEmailView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendEmailTimeout.value == 0
-                                      ? Colors.white
+                                      ? Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary
                                       : Theme.of(context)
                                           .extension<Style>()!
                                           .onBackground,
@@ -131,7 +133,9 @@ class AddEmailView extends StatelessWidget {
                                       ? Theme.of(context)
                                           .extension<Style>()!
                                           .onBackground
-                                      : Colors.white,
+                                      : Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary,
                                 ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
@@ -186,7 +190,9 @@ class AddEmailView extends StatelessWidget {
                                 ? Theme.of(context)
                                     .extension<Style>()!
                                     .onBackground
-                                : Colors.white,
+                                : Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary,
                           ),
                         ),
                         onPressed:

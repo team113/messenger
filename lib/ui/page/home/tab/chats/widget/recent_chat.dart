@@ -249,7 +249,7 @@ class RecentChatTile extends StatelessWidget {
                   Icon(
                     inCall?.call() == true ? Icons.call_end : Icons.call,
                     size: 16,
-                    color: Colors.white,
+                    color: Theme.of(context).extension<Style>()!.onPrimary,
                   ),
                   const SizedBox(width: 8),
                   if (constraints.maxWidth > 110)
@@ -258,10 +258,10 @@ class RecentChatTile extends StatelessWidget {
                         inCall?.call() == true
                             ? 'btn_call_end'.l10n
                             : 'btn_join_call'.l10n,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -274,10 +274,10 @@ class RecentChatTile extends StatelessWidget {
                         DateTime.now()
                             .difference(chat.ongoingCall!.at.val)
                             .hhMmSs(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onPrimary),
                       );
                     },
                   ),
@@ -664,10 +664,10 @@ class RecentChatTile extends StatelessWidget {
         } else {
           content = Container(
             color: Colors.grey,
-            child: const Icon(
+            child: Icon(
               Icons.video_file,
               size: 18,
-              color: Colors.white,
+              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
             ),
           );
         }
@@ -711,10 +711,10 @@ class RecentChatTile extends StatelessWidget {
         } else {
           content = Container(
             color: Colors.grey,
-            child: const Icon(
+            child: Icon(
               Icons.video_file,
               size: 18,
-              color: Colors.white,
+              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
             ),
           );
         }
@@ -808,8 +808,8 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),

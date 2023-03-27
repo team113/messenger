@@ -59,7 +59,7 @@ class TooltipButton extends StatelessWidget {
             textStyle: context.theme.outlinedButtonTheme.style!.textStyle!
                 .resolve({MaterialState.disabled})!.copyWith(
               fontSize: 13,
-              color: Colors.white,
+              color: Theme.of(context).extension<Style>()!.onPrimary,
               shadows: const [
                 Shadow(blurRadius: 6, color: Color(0xFF000000)),
                 Shadow(blurRadius: 6, color: Color(0xFF000000)),

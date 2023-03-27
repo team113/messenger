@@ -65,7 +65,7 @@ class LoginView extends StatelessWidget {
                 style: TextStyle(
                   color: onPressed == null
                       ? Theme.of(context).extension<Style>()!.onBackground
-                      : Colors.white,
+                      : Theme.of(context).extension<Style>()!.onPrimary,
                 ),
               ),
               onPressed: onPressed,

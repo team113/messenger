@@ -244,7 +244,9 @@ class _AnimatedFabState extends State<AnimatedFab>
                               const SizedBox(width: 5),
                               Material(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary,
                                 shadowColor: Theme.of(context)
                                     .extension<Style>()!
                                     .transparentOpacity81,
@@ -301,7 +303,7 @@ class _AnimatedFabState extends State<AnimatedFab>
   }) =>
       Material(
         type: MaterialType.circle,
-        color: Colors.white,
+        color: Theme.of(context).extension<Style>()!.onPrimary,
         shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity67,
         elevation: 6,
         child: InkWell(

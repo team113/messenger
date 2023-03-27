@@ -90,11 +90,13 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: Text(
                     'Start chatting'.l10n,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                        color: Theme.of(context).extension<Style>()!.onPrimary),
                   ),
                   subtitle: Text(
                     'no registration'.l10n,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                        color: Theme.of(context).extension<Style>()!.onPrimary),
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
                   onPressed: () {},
@@ -562,7 +564,10 @@ class ElementStyleTabView extends StatelessWidget {
                                 'Иван Иванович',
                                 style: context.textTheme.headlineMedium
                                     ?.copyWith(
-                                        color: Colors.white, fontSize: 20),
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary,
+                                        fontSize: 20),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -571,7 +576,10 @@ class ElementStyleTabView extends StatelessWidget {
                                 '10:04',
                                 style: context.textTheme.headlineMedium
                                     ?.copyWith(
-                                        color: Colors.white, fontSize: 15),
+                                        color: Theme.of(context)
+                                            .extension<Style>()!
+                                            .onPrimary,
+                                        fontSize: 15),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -614,8 +622,11 @@ class ElementStyleTabView extends StatelessWidget {
                             'Добавить участника',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.headlineMedium
-                                ?.copyWith(color: Colors.white, fontSize: 17),
+                            style: context.textTheme.headlineMedium?.copyWith(
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary,
+                                fontSize: 17),
                           ),
                         ),
                       ],
@@ -630,7 +641,7 @@ class ElementStyleTabView extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
+                    color: Theme.of(context).extension<Style>()!.onPrimary,
                   ),
                   child: const Text(
                     '11:04',

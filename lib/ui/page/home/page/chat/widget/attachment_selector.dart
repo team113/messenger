@@ -95,7 +95,10 @@ class AttachmentSourceSelector extends StatelessWidget {
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
+            child: child ??
+                Icon(icon,
+                    color: Theme.of(context).extension<Style>()!.onPrimary,
+                    size: 30),
           ),
         ),
       );

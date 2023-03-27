@@ -116,7 +116,7 @@ class Selector<T> extends StatefulWidget {
       return showModalBottomSheet(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).extension<Style>()!.onPrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -247,13 +247,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                       child: Container(
                         height: 15,
                         width: double.infinity,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.white,
-                              Color(0x00FFFFFF),
+                              Theme.of(context).extension<Style>()!.onPrimary,
+                              Theme.of(context).extension<Style>()!.transparent,
                             ],
                           ),
                         ),
@@ -264,13 +264,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                       child: Container(
                         height: 15,
                         width: double.infinity,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0x00FFFFFF),
-                              Colors.white,
+                              Theme.of(context).extension<Style>()!.transparent,
+                              Theme.of(context).extension<Style>()!.onPrimary,
                             ],
                           ),
                         ),
@@ -366,7 +366,7 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: Theme.of(context).extension<Style>()!.onPrimary,
             child: InkWell(
               hoverColor: const Color(0x3363B4FF),
               highlightColor: const Color(0x11FFFFFF),
@@ -422,13 +422,17 @@ class _SelectorState<T> extends State<Selector<T>> {
                           child: Container(
                             height: 15,
                             margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.white,
-                                  Color(0x00FFFFFF),
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .onPrimary,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .transparent,
                                 ],
                               ),
                             ),
@@ -442,13 +446,17 @@ class _SelectorState<T> extends State<Selector<T>> {
                           child: Container(
                             height: 15,
                             margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0x00FFFFFF),
-                                  Colors.white,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .transparent,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .onPrimary,
                                 ],
                               ),
                             ),

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -83,7 +84,7 @@ class CallTitle extends StatelessWidget {
           Text(
             title ?? ('dot'.l10n * 3),
             style: context.textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
+              color: Theme.of(context).extension<Style>()!.onPrimary,
               fontSize: 27,
               fontWeight: FontWeight.bold,
             ),
@@ -97,8 +98,8 @@ class CallTitle extends StatelessWidget {
                 if (withDots) const SizedBox(width: 13),
                 Text(
                   state!,
-                  style: context.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white),
+                  style: context.textTheme.headlineMedium?.copyWith(
+                      color: Theme.of(context).extension<Style>()!.onPrimary),
                 ),
                 if (withDots) const AnimatedDots(),
               ],

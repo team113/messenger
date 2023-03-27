@@ -72,6 +72,13 @@ class Themes {
             transparentOpacity10: const Color(0xE6000000),
             primary: const Color(0xFF888888),
             onPrimary: Colors.white,
+            onPrimaryOpacity90: const Color(0x11FFFFFF),
+            onPrimaryOpacity75: const Color(0x40FFFFFF),
+            onPrimaryOpacity60: const Color(0x66FFFFFF),
+            onPrimaryOpacity50: const Color(0x80FFFFFF),
+            onPrimaryOpacity40: const Color(0x99FFFFFF),
+            onPrimaryOpacity20: const Color(0xCCFFFFFF),
+            onPrimaryOpacity10: const Color(0xE6FFFFFF),
             secondary: const Color(0xFF63B4FF),
             onSecondary: Colors.white,
             background: const Color(0xFFF5F8FA),
@@ -358,6 +365,13 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.primary,
     required this.onPrimary,
+    required this.onPrimaryOpacity90,
+    required this.onPrimaryOpacity75,
+    required this.onPrimaryOpacity60,
+    required this.onPrimaryOpacity50,
+    required this.onPrimaryOpacity40,
+    required this.onPrimaryOpacity20,
+    required this.onPrimaryOpacity10,
     required this.secondary,
     required this.onSecondary,
     required this.background,
@@ -402,6 +416,27 @@ class Style extends ThemeExtension<Style> {
   final Color primary;
 
   final Color onPrimary;
+
+  /// Color(0x11FFFFFF)(93%)
+  final Color onPrimaryOpacity90;
+
+  /// Color(0x40FFFFFF)
+  final Color onPrimaryOpacity75;
+
+  /// Color(0x66FFFFFF)
+  final Color onPrimaryOpacity60;
+
+  /// Color(0x80FFFFFF)
+  final Color onPrimaryOpacity50;
+
+  /// Color(0x99FFFFFF)
+  final Color onPrimaryOpacity40;
+
+  /// Color(0xCCFFFFFF)
+  final Color onPrimaryOpacity20;
+
+  /// Color(0xE6FFFFFF)
+  final Color onPrimaryOpacity10;
 
   final Color secondary;
 
@@ -518,6 +553,13 @@ class Style extends ThemeExtension<Style> {
   ThemeExtension<Style> copyWith({
     Color? primary,
     Color? onPrimary,
+    Color? onPrimaryOpacity90,
+    Color? onPrimaryOpacity75,
+    Color? onPrimaryOpacity60,
+    Color? onPrimaryOpacity50,
+    Color? onPrimaryOpacity40,
+    Color? onPrimaryOpacity20,
+    Color? onPrimaryOpacity10,
     Color? secondary,
     Color? onSecondary,
     Color? background,
@@ -560,6 +602,13 @@ class Style extends ThemeExtension<Style> {
     return Style(
       primary: primary ?? this.primary,
       onPrimary: onPrimary ?? this.onPrimary,
+      onPrimaryOpacity90: onPrimaryOpacity90 ?? this.onPrimaryOpacity90,
+      onPrimaryOpacity75: onPrimaryOpacity75 ?? this.onPrimaryOpacity75,
+      onPrimaryOpacity60: onPrimaryOpacity60 ?? this.onPrimaryOpacity60,
+      onPrimaryOpacity50: onPrimaryOpacity50 ?? this.onPrimaryOpacity50,
+      onPrimaryOpacity40: onPrimaryOpacity40 ?? this.onPrimaryOpacity40,
+      onPrimaryOpacity20: onPrimaryOpacity20 ?? this.onPrimaryOpacity20,
+      onPrimaryOpacity10: onPrimaryOpacity10 ?? this.onPrimaryOpacity10,
       secondary: secondary ?? this.secondary,
       onSecondary: onSecondary ?? this.onSecondary,
       background: background ?? this.background,
@@ -612,6 +661,23 @@ class Style extends ThemeExtension<Style> {
     return Style(
       primary: Color.lerp(primary, other.primary, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
+      onPrimaryOpacity90: Color.lerp(
+        onPrimaryOpacity90,
+        other.onPrimaryOpacity90,
+        t,
+      )!,
+      onPrimaryOpacity75:
+          Color.lerp(onPrimaryOpacity75, other.onPrimaryOpacity75, t)!,
+      onPrimaryOpacity60:
+          Color.lerp(onPrimaryOpacity60, other.onPrimaryOpacity60, t)!,
+      onPrimaryOpacity50:
+          Color.lerp(onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
+      onPrimaryOpacity40:
+          Color.lerp(onPrimaryOpacity40, other.onPrimaryOpacity40, t)!,
+      onPrimaryOpacity20:
+          Color.lerp(onPrimaryOpacity20, other.onPrimaryOpacity20, t)!,
+      onPrimaryOpacity10:
+          Color.lerp(onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       background: Color.lerp(background, other.background, t)!,

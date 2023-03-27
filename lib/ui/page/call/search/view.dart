@@ -244,7 +244,7 @@ class SearchView extends StatelessWidget {
                         maxLines: 1,
                         style: TextStyle(
                           color: enabled
-                              ? Colors.white
+                              ? Theme.of(context).extension<Style>()!.onPrimary
                               : Theme.of(context)
                                   .extension<Style>()!
                                   .onBackground,

@@ -105,7 +105,9 @@ class AddPhoneView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
-                                      ? Colors.white
+                                      ? Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary
                                       : Theme.of(context)
                                           .extension<Style>()!
                                           .onBackground,
@@ -131,7 +133,9 @@ class AddPhoneView extends StatelessWidget {
                                       ? Theme.of(context)
                                           .extension<Style>()!
                                           .onBackground
-                                      : Colors.white,
+                                      : Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary,
                                 ),
                               ),
                               onPressed: c.phoneCode.isEmpty.value
@@ -190,7 +194,9 @@ class AddPhoneView extends StatelessWidget {
                                 ? Theme.of(context)
                                     .extension<Style>()!
                                     .onBackground
-                                : Colors.white,
+                                : Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary,
                           ),
                         ),
                         onPressed:

@@ -39,9 +39,10 @@ class AddUserListTile extends StatelessWidget {
             color: Theme.of(context).extension<Style>()!.onBackground);
 
     return ListTile(
-      leading: const CircleAvatar(
+      leading: CircleAvatar(
         backgroundColor: Colors.green,
-        child: Icon(Icons.check, color: Colors.white),
+        child: Icon(Icons.check,
+            color: Theme.of(context).extension<Style>()!.onPrimary),
       ),
       selected: true,
       selectedTileColor:

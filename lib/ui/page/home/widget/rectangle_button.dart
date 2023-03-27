@@ -51,7 +51,7 @@ class RectangleButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       color: selected
           ? style.cardSelectedColor.withOpacity(0.8)
-          : Colors.white.darken(0.05),
+          : style.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -79,9 +79,11 @@ class RectangleButton extends StatelessWidget {
                             backgroundColor:
                                 Theme.of(context).extension<Style>()!.secondary,
                             radius: 12,
-                            child: const Icon(
+                            child: Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onPrimary,
                               size: 12,
                             ),
                           )
@@ -98,9 +100,11 @@ class RectangleButton extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
-                          ? const Icon(
+                          ? Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onPrimary,
                               size: 12,
                             )
                           : const SizedBox(key: Key('None')),

@@ -121,12 +121,15 @@ class _VideoState extends State<Video> {
                   key: const Key('Error'),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.error, size: 48, color: Colors.red),
-                      SizedBox(height: 10),
+                    children: [
+                      const Icon(Icons.error, size: 48, color: Colors.red),
+                      const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onPrimary),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -170,7 +173,7 @@ class _VideoState extends State<Video> {
         materialProgressColors: ChewieProgressColors(
           playedColor: Colors.blue,
           handleColor: Colors.blue,
-          bufferedColor: Colors.white,
+          bufferedColor: Theme.of(context).extension<Style>()!.onPrimary,
           backgroundColor: const Color(0x80FFFFFF),
         ),
         customControls: PlatformUtils.isMobile

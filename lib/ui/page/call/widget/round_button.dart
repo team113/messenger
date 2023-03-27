@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
@@ -163,7 +164,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).extension<Style>()!.onPrimary,
                       fontSize: 13,
                     ),
                 maxLines: 2,
@@ -218,7 +219,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     style: context.theme.outlinedButtonTheme.style!.textStyle!
                         .resolve({MaterialState.disabled})!.copyWith(
                       fontSize: 13,
-                      color: Colors.white,
+                      color: Theme.of(context).extension<Style>()!.onPrimary,
                       shadows: const [
                         Shadow(blurRadius: 6, color: Color(0xFF000000)),
                         Shadow(blurRadius: 6, color: Color(0xFF000000)),

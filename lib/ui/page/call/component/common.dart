@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '../controller.dart';
 import '../widget/call_title.dart';
@@ -449,9 +450,9 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
-          color: Colors.white,
+          color: Theme.of(router.context!).extension<Style>()!.onPrimary,
         ),
         textAlign: TextAlign.center,
         maxLines: 2,

@@ -100,7 +100,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? Theme.of(context).extension<Style>()!.onBackground
-                          : Colors.white,
+                          : Theme.of(context).extension<Style>()!.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
@@ -136,7 +136,9 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
+                      style: thin?.copyWith(
+                          color:
+                              Theme.of(context).extension<Style>()!.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: Theme.of(context).extension<Style>()!.secondary,
@@ -190,7 +192,9 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).extension<Style>()!.onPrimary),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
                     color: Theme.of(context).extension<Style>()!.secondary,
@@ -215,7 +219,10 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimary),
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,

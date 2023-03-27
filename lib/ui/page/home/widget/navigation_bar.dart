@@ -116,8 +116,10 @@ class CustomNavigationBar extends StatelessWidget {
                                         : Text(
                                             b.badge!,
                                             textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .extension<Style>()!
+                                                  .onPrimary,
                                               fontSize: 11,
                                             ),
                                           ),
