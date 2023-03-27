@@ -158,8 +158,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                       duration: 200.milliseconds,
                       decoration: BoxDecoration(
                         color: animated
-                            ? const Color(0xFF132131)
-                            : const Color(0x00132131),
+                            ? Theme.of(context)
+                                .extension<Style>()!
+                                .backgroundCobaltLight
+                            : Theme.of(context).extension<Style>()!.transparent,
                       ),
                       width: animated
                           ? MediaQuery.of(context).size.width - 20

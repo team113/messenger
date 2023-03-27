@@ -870,8 +870,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       decoration: BoxDecoration(
                         color: e.author == widget.me
                             ? _isRead || !_fromMe
-                                ? const Color(0xFFDBEAFD)
-                                : const Color(0xFFE6F1FE)
+                                ? Theme.of(context)
+                                    .extension<Style>()!
+                                    .secondaryAzureLightest
+                                : Theme.of(context)
+                                    .extension<Style>()!
+                                    .backgroundCobaltLighter
                             : _isRead || !_fromMe
                                 ? Theme.of(context)
                                     .extension<Style>()!

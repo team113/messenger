@@ -88,8 +88,25 @@ class Themes {
             onPrimaryOpacity20: const Color(0xCCFFFFFF),
             onPrimaryOpacity10: const Color(0xE6FFFFFF),
             secondary: const Color(0xFF63B4FF),
+            secondaryAzure: Colors.blue,
+            secondaryAzureLight: const Color(0xFF00A3FF),
+            //тернарка с backgroundCobaltLighter
+            secondaryAzureLighter: const Color(0xFFB6DCFF),
+            secondaryAzureLightest: const Color(0xFFDBEAFD),
             onSecondary: Colors.white,
+
+            /// onSecondaryOpacity:
+            /// onSecondaryOpacity2:
             background: const Color(0xFFF5F8FA),
+            backgroundCobalt: const Color(0xFF0A1724),
+            backgroundCobaltLight: const Color(0xFF132131),
+            backgroundCobaltLighter: const Color(0xFFE6F1FE),
+            backgroundCobaltLightest: const Color(0xFFF4F9FF),
+            // СВЕТЛЕЕ
+            /// backgroundAzureOpacity:
+            /// Применять к ним различные нейминги цветов.
+            // ТЕМНЕЕ
+            /// backgroundCobaltOpacity
             onBackground: Colors.black,
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
@@ -389,6 +406,14 @@ class Style extends ThemeExtension<Style> {
     required this.onPrimaryOpacity20,
     required this.onPrimaryOpacity10,
     required this.secondary,
+    required this.secondaryAzure,
+    required this.secondaryAzureLight,
+    required this.secondaryAzureLighter,
+    required this.secondaryAzureLightest,
+    required this.backgroundCobalt,
+    required this.backgroundCobaltLight,
+    required this.backgroundCobaltLighter,
+    required this.backgroundCobaltLightest,
     required this.onSecondary,
     required this.background,
     required this.onBackground,
@@ -471,6 +496,22 @@ class Style extends ThemeExtension<Style> {
   final Color onPrimaryOpacity10;
 
   final Color secondary;
+
+  final Color secondaryAzure;
+
+  final Color secondaryAzureLight;
+
+  final Color secondaryAzureLighter;
+
+  final Color secondaryAzureLightest;
+
+  final Color backgroundCobalt;
+
+  final Color backgroundCobaltLight;
+
+  final Color backgroundCobaltLighter;
+
+  final Color backgroundCobaltLightest;
 
   final Color onSecondary;
 
@@ -602,6 +643,15 @@ class Style extends ThemeExtension<Style> {
     Color? onPrimaryOpacity20,
     Color? onPrimaryOpacity10,
     Color? secondary,
+    Color? secondaryNative,
+    Color? secondaryAzure,
+    Color? secondaryAzureLight,
+    Color? secondaryAzureLighter,
+    Color? secondaryAzureLightest,
+    Color? backgroundCobalt,
+    Color? backgroundCobaltLight,
+    Color? backgroundCobaltLighter,
+    Color? backgroundCobaltLightest,
     Color? onSecondary,
     Color? background,
     Color? onBackground,
@@ -660,6 +710,14 @@ class Style extends ThemeExtension<Style> {
       onPrimaryOpacity20: onPrimaryOpacity20 ?? this.onPrimaryOpacity20,
       onPrimaryOpacity10: onPrimaryOpacity10 ?? this.onPrimaryOpacity10,
       secondary: secondary ?? this.secondary,
+      secondaryAzure: secondaryAzure ?? this.secondaryAzure,
+      secondaryAzureLight: secondaryAzure ?? this.secondaryAzure,
+      secondaryAzureLighter: secondaryAzure ?? this.secondaryAzure,
+      secondaryAzureLightest: secondaryAzure ?? this.secondaryAzure,
+      backgroundCobalt: secondaryAzure ?? this.secondaryAzure,
+      backgroundCobaltLight: secondaryAzure ?? this.secondaryAzure,
+      backgroundCobaltLighter: secondaryAzure ?? this.secondaryAzure,
+      backgroundCobaltLightest: secondaryAzure ?? this.secondaryAzure,
       onSecondary: onSecondary ?? this.onSecondary,
       background: background ?? this.background,
       onBackground: onBackground ?? this.onBackground,
@@ -743,6 +801,21 @@ class Style extends ThemeExtension<Style> {
       onPrimaryOpacity10:
           Color.lerp(onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
+      secondaryAzure: Color.lerp(secondaryAzure, other.secondaryAzure, t)!,
+      secondaryAzureLight:
+          Color.lerp(secondaryAzureLight, other.secondaryAzureLight, t)!,
+      secondaryAzureLighter:
+          Color.lerp(secondaryAzureLighter, other.secondaryAzureLighter, t)!,
+      secondaryAzureLightest:
+          Color.lerp(secondaryAzureLightest, other.secondaryAzureLightest, t)!,
+      backgroundCobalt:
+          Color.lerp(backgroundCobalt, other.backgroundCobalt, t)!,
+      backgroundCobaltLight:
+          Color.lerp(backgroundCobaltLight, other.backgroundCobaltLight, t)!,
+      backgroundCobaltLighter: Color.lerp(
+          backgroundCobaltLighter, other.backgroundCobaltLighter, t)!,
+      backgroundCobaltLightest: Color.lerp(
+          backgroundCobaltLightest, other.backgroundCobaltLightest, t)!,
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       background: Color.lerp(background, other.background, t)!,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,

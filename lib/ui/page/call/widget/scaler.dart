@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 /// Draggable widget reporting delta of a dragging through [onDragUpdate]
 /// callback.
@@ -87,7 +88,7 @@ class _ScalerState extends State<Scaler> {
         child: Container(
           width: widget.width,
           height: widget.height,
-          color: Colors.blue,
+          color: Theme.of(context).extension<Style>()!.secondaryAzure,
         ),
       ),
     );

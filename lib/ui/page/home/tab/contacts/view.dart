@@ -520,7 +520,7 @@ class ContactsTabView extends StatelessWidget {
           }
 
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Icon(
               Icons.block,
               color: Theme.of(context).extension<Style>()!.primarySlateDarkest,

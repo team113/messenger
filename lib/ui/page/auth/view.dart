@@ -237,7 +237,7 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: const Color(0xFFF6F8F9),
+                color: Theme.of(context).extension<Style>()!.background,
               ),
             ),
             IgnorePointer(

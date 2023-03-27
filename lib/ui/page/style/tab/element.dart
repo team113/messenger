@@ -680,46 +680,64 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
                   labelStyle: const TextStyle(fontSize: 17),
-                  closedIcon: const Icon(
+                  closedIcon: Icon(
                     Icons.more_horiz,
-                    color: Colors.blue,
+                    color: Theme.of(context).extension<Style>()!.secondaryAzure,
                     size: 30,
                   ),
-                  openedIcon: const Icon(
+                  openedIcon: Icon(
                     Icons.close,
-                    color: Colors.blue,
+                    color: Theme.of(context).extension<Style>()!.secondaryAzure,
                     size: 30,
                   ),
                   actions: [
                     AnimatedFabAction(
-                      icon: const Icon(Icons.call, color: Colors.blue),
+                      icon: Icon(Icons.call,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
-                      icon: const Icon(Icons.video_call, color: Colors.blue),
+                      icon: Icon(Icons.video_call,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_video_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
-                      icon: const Icon(Icons.person, color: Colors.blue),
+                      icon: Icon(Icons.person,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: const Icon(Icons.attachment, color: Colors.blue),
+                      icon: Icon(Icons.attachment,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_file'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: const Icon(Icons.photo, color: Colors.blue),
+                      icon: Icon(Icons.photo,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: const Icon(Icons.camera, color: Colors.blue),
+                      icon: Icon(Icons.camera,
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .secondaryAzure),
                       label: 'label_camera'.l10n,
                       onTap: () {},
                     ),

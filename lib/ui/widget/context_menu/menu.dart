@@ -149,7 +149,10 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               if (widget.leading != null) ...[
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme: IconThemeData(
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .secondaryAzure),
                   ),
                   child: widget.leading!,
                 ),
@@ -170,7 +173,10 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 const Spacer(),
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme: IconThemeData(
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .secondaryAzure),
                   ),
                   child: widget.trailing!,
                 ),

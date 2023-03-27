@@ -447,7 +447,10 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: const TextStyle(color: Color(0xFF00A3FF)),
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .secondaryAzureLight),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -505,7 +508,9 @@ class ChatInfoView extends StatelessWidget {
               child: InkWell(
                 borderRadius: style.cardRadius,
                 onTap: onTap,
-                hoverColor: const Color(0xFFF4F9FF),
+                hoverColor: Theme.of(context)
+                    .extension<Style>()!
+                    .backgroundCobaltLightest,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Row(

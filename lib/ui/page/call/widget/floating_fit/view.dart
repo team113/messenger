@@ -218,7 +218,10 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   children: [
-                    Container(color: const Color(0xFF0A1724)),
+                    Container(
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .backgroundCobalt),
                     SvgLoader.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,

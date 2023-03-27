@@ -47,16 +47,17 @@ class HintWidget extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      color: const Color(0xFFF4F9FD),
+      color: Theme.of(context).extension<Style>()!.backgroundCobaltLightest,
       margin: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 35,
-            decoration: const BoxDecoration(
-              color: Color(0xFFDFEDF9),
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color:
+                  Theme.of(context).extension<Style>()!.backgroundCobaltLighter,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),

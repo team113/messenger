@@ -62,7 +62,8 @@ class _AnimatedTypingState extends State<AnimatedTyping>
       animation: _controller,
       builder: (BuildContext context, _) {
         final Color begin = Theme.of(context).extension<Style>()!.secondary;
-        const Color end = Color(0xFFB6DCFF);
+        final Color end =
+            Theme.of(context).extension<Style>()!.secondaryAzureLighter;
 
         const double size = 4;
         const double spacing = 1.6;

@@ -1127,7 +1127,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       return Container(
         key: const ValueKey('TitleBar'),
-        color: const Color(0xFF162636),
+        color: Theme.of(context).extension<Style>()!.backgroundCobaltLight,
         height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -1746,7 +1746,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         borderRadius: borderRadius,
                         child: Stack(
                           children: [
-                            Container(color: const Color(0xFF0A1724)),
+                            Container(
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .backgroundCobalt),
                             SvgLoader.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,

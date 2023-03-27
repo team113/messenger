@@ -442,8 +442,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
-                  ? const Color(0xFFDBEAFD)
-                  : const Color(0xFFE6F1FE)
+                  ? Theme.of(context).extension<Style>()!.secondaryAzureLightest
+                  : Theme.of(context)
+                      .extension<Style>()!
+                      .backgroundCobaltLighter
               : _isRead || !_fromMe
                   ? Theme.of(context).extension<Style>()!.primarySlate
                   : Theme.of(context).extension<Style>()!.onPrimary,

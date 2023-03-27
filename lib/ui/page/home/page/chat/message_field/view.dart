@@ -96,7 +96,8 @@ class MessageFieldView extends StatelessWidget {
 
     return Theme.of(context).copyWith(
       shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity67,
-      iconTheme: const IconThemeData(color: Colors.blue),
+      iconTheme: IconThemeData(
+          color: Theme.of(context).extension<Style>()!.secondaryAzure),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
