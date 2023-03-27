@@ -1311,12 +1311,14 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           padding: const EdgeInsets.only(left: 0.0),
           child: Text(
             label,
+            textAlign: TextAlign.center,
             style: style.systemMessageStyle.copyWith(
               // color: Theme.of(context).colorScheme.primary,
               color: enabled
                   ? Colors.black
                   : Theme.of(context).colorScheme.primary,
               fontSize: 15,
+
               fontWeight: FontWeight.w400,
             ),
           ),
