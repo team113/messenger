@@ -814,7 +814,7 @@ class MessageFieldView extends StatelessWidget {
                           ? Theme.of(context).extension<Style>()!.onPrimary
                           : Theme.of(context)
                               .extension<Style>()!
-                              .primarySlateDark,
+                              .primarySlateDarkest,
                       size: 16,
                     )
                   : RetryImage(

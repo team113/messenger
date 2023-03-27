@@ -1219,7 +1219,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Theme.of(context).extension<Style>()!.onPrimary
                             : Theme.of(context)
                                 .extension<Style>()!
-                                .primarySlateDark,
+                                .primarySlateDarkest,
                         size: 28,
                       )
                     : RetryImage(

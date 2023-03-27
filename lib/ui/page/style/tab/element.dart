@@ -215,7 +215,7 @@ class ElementStyleTabView extends StatelessWidget {
                                           fontSize: 17,
                                           color: Theme.of(context)
                                               .extension<Style>()!
-                                              .primarySlateDark,
+                                              .primarySlateDarkest,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -271,7 +271,7 @@ class ElementStyleTabView extends StatelessWidget {
                                   style: context.textTheme.bodyLarge?.copyWith(
                                       color: Theme.of(context)
                                           .extension<Style>()!
-                                          .primarySlateDark),
+                                          .primarySlateDarkest),
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -525,7 +525,7 @@ class ElementStyleTabView extends StatelessWidget {
                         style: context.textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context)
                               .extension<Style>()!
-                              .primarySlateDark,
+                              .primarySlateDarkest,
                         ),
                         textAlign: TextAlign.center,
                       ),

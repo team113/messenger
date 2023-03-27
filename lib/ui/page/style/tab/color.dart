@@ -113,7 +113,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           color('Цвет затемнения заднего фона в звонке.',
               Theme.of(context).extension<Style>()!.transparentOpacity74),
           color('Цвет надписей и иконок над задним фоном звонка.',
-              Theme.of(context).extension<Style>()!.primarySlateDark),
+              Theme.of(context).extension<Style>()!.primarySlateDarkest),
           color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
           color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
           color(

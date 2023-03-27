@@ -75,7 +75,8 @@ class Themes {
             primaryCharcoalLight: const Color(0xFF444444),
             primaryCharcoalLightest: const Color(0xFF666666),
             primarySlate: const Color(0xFFF5F5F5),
-            primarySlateDark: const Color(0xFFC0C0C0),
+            primarySlateDark: const Color(0xFFDEDEDE),
+            primarySlateDarkest: const Color(0xFFC0C0C0),
             primaryOpacity20: const Color(0xDD818181),
             primaryOpacity15: const Color(0xBB818181),
             onPrimary: Colors.white,
@@ -376,6 +377,7 @@ class Style extends ThemeExtension<Style> {
     required this.primaryCharcoalLightest,
     required this.primarySlate,
     required this.primarySlateDark,
+    required this.primarySlateDarkest,
     required this.primaryOpacity20,
     required this.primaryOpacity15,
     required this.onPrimary,
@@ -438,6 +440,8 @@ class Style extends ThemeExtension<Style> {
   final Color primarySlate;
 
   final Color primarySlateDark;
+
+  final Color primarySlateDarkest;
 
   final Color primaryOpacity20;
 
@@ -586,6 +590,7 @@ class Style extends ThemeExtension<Style> {
     Color? primaryCharcoalLightest,
     Color? primarySlate,
     Color? primarySlateDark,
+    Color? primarySlateDarkest,
     Color? primaryOpacity20,
     Color? primaryOpacity15,
     Color? onPrimary,
@@ -642,7 +647,8 @@ class Style extends ThemeExtension<Style> {
       primaryCharcoalLightest:
           primaryCharcoalLightest ?? this.primaryCharcoalLightest,
       primarySlate: primarySlate ?? this.primarySlate,
-      primarySlateDark: primary ?? this.primary,
+      primarySlateDark: primarySlateDark ?? this.primarySlateDark,
+      primarySlateDarkest: primarySlateDarkest ?? this.primarySlateDarkest,
       primaryOpacity20: primaryOpacity20 ?? this.primaryOpacity20,
       primaryOpacity15: primaryOpacity15 ?? this.primaryOpacity15,
       onPrimary: onPrimary ?? this.onPrimary,
@@ -712,6 +718,8 @@ class Style extends ThemeExtension<Style> {
       primarySlate: Color.lerp(primarySlate, other.primarySlate, t)!,
       primarySlateDark:
           Color.lerp(primarySlateDark, other.primarySlateDark, t)!,
+      primarySlateDarkest:
+          Color.lerp(primarySlateDarkest, other.primarySlateDarkest, t)!,
       primaryOpacity20:
           Color.lerp(primaryOpacity20, other.primaryOpacity20, t)!,
       primaryOpacity15:

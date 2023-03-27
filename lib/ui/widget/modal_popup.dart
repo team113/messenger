@@ -79,7 +79,7 @@ abstract class ModalPopup {
                       decoration: BoxDecoration(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .primarySlateDark,
+                            .primarySlateDarkest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),

@@ -194,7 +194,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).extension<Style>()!.primarySlateDark,
+                  color:
+                      Theme.of(context).extension<Style>()!.primarySlateDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
