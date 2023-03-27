@@ -503,10 +503,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
-                                  child: Text(
+                                  child: SelectionText(
                                     snapshot.data?.user.value.name?.val ??
                                         snapshot.data?.user.value.num.val ??
                                         'dot'.l10n * 3,
+                                    selectable: PlatformUtils.isDesktop || menu,
+                                    onChanged: (a) => _selection = a,
+                                    onSelecting: widget.onSelecting,
                                     style:
                                         style.boldBody.copyWith(color: color),
                                   ),

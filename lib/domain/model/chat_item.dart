@@ -60,9 +60,8 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Returns number of microseconds since the "Unix epoch" till
-  /// [PreciseDateTime] when this [ChatItem] was posted.
-  String get timestamp => at.microsecondsSinceEpoch.toString();
+  /// Key by what this [ChatItem] stored in the [Hive].
+  String get key => '${at.microsecondsSinceEpoch}_$id';
 }
 
 /// Message in a [Chat].

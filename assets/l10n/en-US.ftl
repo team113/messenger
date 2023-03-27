@@ -231,6 +231,7 @@ err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
+err_call_forward = Can't forward call messages
 err_call_is_in_popup = Call is used in a separate popup
 err_call_monolog = You can\t call yourself
 err_call_not_found = Call not found
