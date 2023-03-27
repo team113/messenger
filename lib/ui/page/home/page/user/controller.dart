@@ -112,6 +112,9 @@ class UserController extends GetxController {
   late final TextFieldState messageCost;
   late final TextFieldState callsCost;
 
+  final RxBool verified = RxBool(false);
+  final RxBool hintVerified = RxBool(false);
+
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 

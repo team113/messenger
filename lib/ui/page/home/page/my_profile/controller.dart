@@ -101,6 +101,9 @@ class MyProfileController extends GetxController {
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
+  final RxBool verified = RxBool(false);
+  final RxBool hintVerified = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 

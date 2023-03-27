@@ -17,6 +17,7 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -591,151 +592,221 @@ class UserView extends StatelessWidget {
 
   /// Returns a [User.name] copyable field.
   Widget _paid(UserController c, BuildContext context) {
-    return Column(
-      children: [
-        _padding(
-          Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              ReactiveTextField(
-                state: c.messageCost,
-                hint: '0.00',
-                prefixText: '    ',
-                prefixStyle: const TextStyle(fontSize: 13),
-                label: 'label_fee_per_incoming_message'.l10n,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                type: TextInputType.number,
-                formatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-                  // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 21,
-                  bottom: PlatformUtils.isWeb ? 6 : 0,
-                ),
-                child: Text(
-                  '¤',
-                  style: TextStyle(
-                    height: 0.8,
-                    fontFamily: 'InterRoboto',
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.primary,
-                    // color: Color(0xFFC6C6C6),
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-              // IgnorePointer(
-              //   child: Padding(
-              //     padding: const EdgeInsets.only(left: 22, bottom: 1),
-              //     child: Row(
-              //       children: [
-              //         Opacity(
-              //           opacity: 0,
-              //           child: Text(
-              //             c.messageCost.text.isEmpty
-              //                 ? '000'
-              //                 : c.messageCost.text,
-              //             style: TextStyle(fontSize: 15),
-              //           ),
-              //         ),
-              //         Text(
-              //           '¤',
-              //           style: TextStyle(
-              //             height: 0.8,
-              //             fontFamily: 'InterRoboto',
-              //             fontWeight: FontWeight.w300,
-              //             color: Theme.of(context).colorScheme.primary,
-              //             fontSize: 15,
-              //           ),
-              //         ),
-              //         Padding(
-              //           padding: const EdgeInsets.only(bottom: 2),
-              //           child: Text(
-              //             ' за сообщение',
-              //             style: TextStyle(
-              //               color: Theme.of(context).colorScheme.primary,
-              //               fontSize: 15,
-              //             ),
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
-        ),
-        _padding(
-          Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              ReactiveTextField(
-                state: c.callsCost,
-                hint: '0.00',
-                prefixText: '    ',
-                prefixStyle: const TextStyle(fontSize: 13),
-                label: 'label_fee_per_incoming_call_minute'.l10n,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                type: TextInputType.number,
-                formatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-                  // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 21,
-                  bottom: PlatformUtils.isWeb ? 6 : 0,
-                ),
-                child: Text(
-                  '¤',
-                  style: TextStyle(
-                    height: 0.8,
-                    fontFamily: 'InterRoboto',
-                    fontWeight: FontWeight.w400,
-                    // color: Color(0xFFC6C6C6),
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-          child: Row(
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'label_details'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Obx(() {
+      return Column(
+        children: [
+          AnimatedSizeAndFade(
+            fadeDuration: 300.milliseconds,
+            sizeDuration: 300.milliseconds,
+            child: c.verified.value
+                ? const SizedBox(width: double.infinity)
+                : Column(
+                    key: const Key('123'),
+                    children: [
+                      _dense(
+                        Text(
+                          'label_verify_your_account'.l10n,
+                          style: style.systemMessageStyle.copyWith(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await GetPaidView.show(context);
-                        },
-                    ),
+                      const SizedBox(height: 12),
+                      _dense(
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            inputDecorationTheme:
+                                Theme.of(context).inputDecorationTheme.copyWith(
+                                      border: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .border
+                                          ?.copyWith(
+                                            borderSide: c.hintVerified.value
+                                                ? BorderSide(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                  )
+                                                : Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .border
+                                                    ?.borderSide,
+                                          ),
+                                    ),
+                          ),
+                          child: FieldButton(
+                            text: 'btn_verify_account'.l10n,
+                            // trailing: Transform.translate(
+                            //   offset: const Offset(0, -1),
+                            //   child: Transform.scale(
+                            //     scale: 1.15,
+                            //     child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                            //   ),
+                            // ),
+                            onPressed: () {
+                              c.verified.value = true;
+                            },
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12 * 2),
+                    ],
+                  ),
+          ),
+          _padding(
+            Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                ReactiveTextField(
+                  enabled: c.verified.value,
+                  state: c.messageCost,
+                  hint: '0.00',
+                  prefixText: '    ',
+                  prefixStyle: const TextStyle(fontSize: 13),
+                  label: 'label_fee_per_incoming_message'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  type: TextInputType.number,
+                  formatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+                    // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
                   ],
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 21,
+                    bottom: PlatformUtils.isWeb ? 6 : 0,
+                  ),
+                  child: Text(
+                    '¤',
+                    style: TextStyle(
+                      height: 0.8,
+                      fontFamily: 'InterRoboto',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.primary,
+                      // color: Color(0xFFC6C6C6),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                // IgnorePointer(
+                //   child: Padding(
+                //     padding: const EdgeInsets.only(left: 22, bottom: 1),
+                //     child: Row(
+                //       children: [
+                //         Opacity(
+                //           opacity: 0,
+                //           child: Text(
+                //             c.messageCost.text.isEmpty
+                //                 ? '000'
+                //                 : c.messageCost.text,
+                //             style: TextStyle(fontSize: 15),
+                //           ),
+                //         ),
+                //         Text(
+                //           '¤',
+                //           style: TextStyle(
+                //             height: 0.8,
+                //             fontFamily: 'InterRoboto',
+                //             fontWeight: FontWeight.w300,
+                //             color: Theme.of(context).colorScheme.primary,
+                //             fontSize: 15,
+                //           ),
+                //         ),
+                //         Padding(
+                //           padding: const EdgeInsets.only(bottom: 2),
+                //           child: Text(
+                //             ' за сообщение',
+                //             style: TextStyle(
+                //               color: Theme.of(context).colorScheme.primary,
+                //               fontSize: 15,
+                //             ),
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+          _padding(
+            Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                ReactiveTextField(
+                  enabled: c.verified.value,
+                  state: c.callsCost,
+                  hint: '0.00',
+                  prefixText: '    ',
+                  prefixStyle: const TextStyle(fontSize: 13),
+                  label: 'label_fee_per_incoming_call_minute'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  type: TextInputType.number,
+                  formatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+                    // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 21,
+                    bottom: PlatformUtils.isWeb ? 6 : 0,
+                  ),
+                  child: Text(
+                    '¤',
+                    style: TextStyle(
+                      height: 0.8,
+                      fontFamily: 'InterRoboto',
+                      fontWeight: FontWeight.w400,
+                      // color: Color(0xFFC6C6C6),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+            child: Row(
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'label_details'.l10n,
+                        style: TextStyle(
+                          color: c.verified.value
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await GetPaidView.show(context);
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
 
     return _padding(
       CopyableTextField(

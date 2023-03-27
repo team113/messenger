@@ -208,11 +208,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? const Icon(Icons.volume_up)
                               : const Icon(Icons.volume_off),
                         ),
-                      ContextMenuButton(
-                        label: 'btn_call_remove_participant'.l10n,
-                        onPressed: () {},
-                        trailing: const Icon(Icons.remove_circle),
-                      ),
+                      if (e.member.isRedialing.isFalse)
+                        ContextMenuButton(
+                          label: 'btn_call_remove_participant'.l10n,
+                          trailing: const Icon(Icons.remove_circle),
+                          onPressed: () =>
+                              c.removeChatCallMember(e.member.id.userId),
+                        ),
                     ] else ...[
                       ContextMenuButton(
                         label: c.videoState.value.isEnabled

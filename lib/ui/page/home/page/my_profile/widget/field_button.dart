@@ -26,7 +26,7 @@ import '/ui/widget/widget_button.dart';
 /// [ReactiveTextField]-styled button.
 class FieldButton extends StatefulWidget {
   const FieldButton({
-    Key? key,
+    super.key,
     this.text,
     this.textAlign = TextAlign.start,
     this.hint,
@@ -37,7 +37,8 @@ class FieldButton extends StatefulWidget {
     this.prefix,
     this.style,
     this.fillColor = Colors.white,
-  }) : super(key: key);
+    this.border,
+  });
 
   /// Optional label of this [FieldButton].
   final String? text;
@@ -70,6 +71,8 @@ class FieldButton extends StatefulWidget {
 
   /// Fill color of the [ReactiveTextField].
   final Color fillColor;
+
+  final Border? border;
 
   @override
   State<FieldButton> createState() => _FieldButtonState();

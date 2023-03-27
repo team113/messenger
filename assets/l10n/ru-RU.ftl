@@ -774,7 +774,7 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
 btn_delete_contact = Удалить контакт
-label_get_paid_for_incoming = Принимать оплату за входящие
+label_get_paid_for_incoming = Принимать оплату за входящие сообщения и входящие звонки
 label_do_not_show_for_this_chat = Не показывать для этого чата
 label_make_call = Совершить звонок
 label_send_message = Отправить сообщение
@@ -813,4 +813,7 @@ label_get_paid_details = To restrict the number of unwanted messages and calls, 
    Добавление (удаление) пользователя с индивидуальными настройками стоимости за прием звонков и прочтение входящих сообщений в (из) Ваши списки "Контакты" и "Избранные" не меняет индивидуальных настроек стоимости.
 
    Невозможно установить цену за прием звонков и прочтение входящих сообщений для групп
-label_individual = Индивидуально: {$count}
+label_selected = Выбрано: {$count}
+label_account = Аккаунт
+label_verify_your_account = Пожалуйста, верифицируйте свой аккаунт.
+btn_verify_account = Верифицировать аккаунт
