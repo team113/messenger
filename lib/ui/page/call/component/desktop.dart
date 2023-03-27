@@ -1753,7 +1753,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               height: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                            Container(color: const Color(0x11FFFFFF)),
+                            Container(
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .onPrimaryOpacity90),
                           ],
                         ),
                       ),
@@ -2369,14 +2372,18 @@ Widget _secondaryTarget(CallController c) {
                                   decoration: BoxDecoration(
                                     border: Border(
                                       left: secondaryAxis == Axis.horizontal
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
+                                          ? BorderSide(
+                                              color: Theme.of(context)
+                                                  .extension<Style>()!
+                                                  .primary,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                       bottom: secondaryAxis == Axis.vertical
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
+                                          ? BorderSide(
+                                              color: Theme.of(context)
+                                                  .extension<Style>()!
+                                                  .primary,
                                               width: 1,
                                             )
                                           : BorderSide.none,

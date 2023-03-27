@@ -356,7 +356,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: const Color(0x66FFFFFF),
+            color: Theme.of(context).extension<Style>()!.onPrimaryOpacity60,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -687,7 +687,7 @@ class MessageFieldView extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
+            color: Theme.of(context).extension<Style>()!.primarySlate,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -799,7 +799,7 @@ class MessageFieldView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? const Color(0x40FFFFFF)
+                    ? Theme.of(context).extension<Style>()!.onPrimaryOpacity75
                     : Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity98,
@@ -812,7 +812,9 @@ class MessageFieldView extends StatelessWidget {
                       Icons.file_copy,
                       color: fromMe
                           ? Theme.of(context).extension<Style>()!.onPrimary
-                          : const Color(0xFFDDDDDD),
+                          : Theme.of(context)
+                              .extension<Style>()!
+                              .primarySlateDark,
                       size: 16,
                     )
                   : RetryImage(
@@ -1004,7 +1006,7 @@ class MessageFieldView extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: Theme.of(context).extension<Style>()!.primarySlate,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(

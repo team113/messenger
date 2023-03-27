@@ -183,7 +183,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                                   ? Theme.of(context)
                                       .extension<Style>()!
                                       .onPrimary
-                                  : Colors.grey,
+                                  : Theme.of(context)
+                                      .extension<Style>()!
+                                      .primary,
                             ),
                           ),
                         ),

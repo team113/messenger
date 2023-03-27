@@ -445,7 +445,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? const Color(0xFFDBEAFD)
                   : const Color(0xFFE6F1FE)
               : _isRead || !_fromMe
-                  ? const Color(0xFFF9F9F9)
+                  ? Theme.of(context).extension<Style>()!.primarySlate
                   : Theme.of(context).extension<Style>()!.onPrimary,
         ),
         child: AnimatedOpacity(

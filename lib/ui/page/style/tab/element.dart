@@ -183,10 +183,11 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Перетягиваемая панель окна звонка.',
                 child: Container(
-                  color: const Color(0xFF222222),
+                  color: Theme.of(context).extension<Style>()!.primaryCharcoal,
                   height: 45,
                   child: Material(
-                    color: const Color(0xFF222222),
+                    color:
+                        Theme.of(context).extension<Style>()!.primaryCharcoal,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -212,7 +213,9 @@ class ElementStyleTabView extends StatelessWidget {
                                         style: context.textTheme.bodyLarge
                                             ?.copyWith(
                                           fontSize: 17,
-                                          color: const Color(0xFFBBBBBB),
+                                          color: Theme.of(context)
+                                              .extension<Style>()!
+                                              .primarySlateDark,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -227,18 +230,36 @@ class ElementStyleTabView extends StatelessWidget {
                           child: Container(
                             height: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 90),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0x00222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0xFF222222),
-                                  Color(0x00222222),
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .transparent,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .primaryCharcoal,
+                                  Theme.of(context)
+                                      .extension<Style>()!
+                                      .transparent,
                                 ],
                               ),
                             ),
@@ -248,7 +269,9 @@ class ElementStyleTabView extends StatelessWidget {
                                 Text(
                                   '10:04',
                                   style: context.textTheme.bodyLarge?.copyWith(
-                                      color: const Color(0xFFBBBBBB)),
+                                      color: Theme.of(context)
+                                          .extension<Style>()!
+                                          .primarySlateDark),
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -384,7 +407,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_on',
                   onPressed: () {},
                   hint: 'Turn video off',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -395,7 +418,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_off',
                   onPressed: () {},
                   hint: 'Turn video on',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -406,7 +429,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_on',
                   onPressed: () {},
                   hint: 'Mute',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -417,7 +440,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_off',
                   onPressed: () {},
                   hint: 'Unmute',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -428,7 +451,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_on',
                   onPressed: () {},
                   hint: 'Share screen',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -439,19 +462,19 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_off',
                   onPressed: () {},
                   hint: 'Stop sharing',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
-                background: true,
-                title: 'Выключить динамик в звонке.',
-                asset: 'assets/icons/speaker_on.svg',
-                child: RoundFloatingButton(
-                  asset: 'speaker_on',
-                  onPressed: () {},
-                  color: const Color(0xDD818181),
-                ),
-              ),
+                  background: true,
+                  title: 'Выключить динамик в звонке.',
+                  asset: 'assets/icons/speaker_on.svg',
+                  child: RoundFloatingButton(
+                    asset: 'speaker_on',
+                    onPressed: () {},
+                    color:
+                        Theme.of(context).extension<Style>()!.primaryOpacity20,
+                  )),
               element(
                 background: true,
                 title: 'Включить динамик в звонке.',
@@ -459,7 +482,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'speaker_off',
                   onPressed: () {},
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -469,7 +492,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_front',
                   onPressed: () {},
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -479,7 +502,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_back',
                   onPressed: () {},
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               element(
@@ -500,7 +523,9 @@ class ElementStyleTabView extends StatelessWidget {
                       Text(
                         'Drop any\nvideo here',
                         style: context.textTheme.bodyLarge?.copyWith(
-                          color: const Color(0xFFBBBBBB),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .primarySlateDark,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -643,9 +668,10 @@ class ElementStyleTabView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     color: Theme.of(context).extension<Style>()!.onPrimary,
                   ),
-                  child: const Text(
+                  child: Text(
                     '11:04',
-                    style: TextStyle(color: Color(0xFF888888)),
+                    style: TextStyle(
+                        color: Theme.of(context).extension<Style>()!.primary),
                   ),
                 ),
               ),
@@ -710,7 +736,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'settings',
                   onPressed: () {},
                   hint: 'Settings',
-                  color: const Color(0xDD818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity20,
                 ),
               ),
               const SizedBox(height: 60),

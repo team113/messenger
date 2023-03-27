@@ -211,7 +211,9 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? const Color(0xFFC0C0C0)
+                                    ? Theme.of(context)
+                                        .extension<Style>()!
+                                        .primarySlateDark
                                     : Colors.red,
                                 child: RmbDetector(
                                   onPressed: () => ChatsMoreView.show(context),

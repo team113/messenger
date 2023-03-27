@@ -53,7 +53,9 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
+        border: Border.all(
+            color: Theme.of(context).extension<Style>()!.primarySlateDark,
+            width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,

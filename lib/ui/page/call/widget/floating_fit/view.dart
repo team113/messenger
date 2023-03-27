@@ -225,7 +225,10 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                       height: double.infinity,
                       fit: BoxFit.cover,
                     ),
-                    Container(color: const Color(0x11FFFFFF)),
+                    Container(
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .onPrimaryOpacity90),
                   ],
                 ),
               ),

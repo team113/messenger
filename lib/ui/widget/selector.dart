@@ -194,7 +194,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCCCCCC),
+                  color: Theme.of(context).extension<Style>()!.primarySlateDark,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -369,7 +369,8 @@ class _SelectorState<T> extends State<Selector<T>> {
             color: Theme.of(context).extension<Style>()!.onPrimary,
             child: InkWell(
               hoverColor: const Color(0x3363B4FF),
-              highlightColor: const Color(0x11FFFFFF),
+              highlightColor:
+                  Theme.of(context).extension<Style>()!.onPrimaryOpacity90,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;

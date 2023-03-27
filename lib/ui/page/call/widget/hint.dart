@@ -72,9 +72,11 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xBB818181),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .primaryOpacity15,
                     ),
                   ),
                 ),
@@ -82,10 +84,12 @@ class HintWidget extends StatelessWidget {
                   child: InkResponse(
                     onTap: onTap,
                     radius: 11,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 16,
-                      color: Color(0xBB818181),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .primaryOpacity15,
                     ),
                   ),
                 ),
@@ -98,9 +102,9 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xBB818181),
+                  color: Theme.of(context).extension<Style>()!.primaryOpacity15,
                 ),
               ),
             ),

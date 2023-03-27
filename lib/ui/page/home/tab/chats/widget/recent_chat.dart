@@ -141,9 +141,10 @@ class RecentChatTile extends StatelessWidget {
                 Expanded(child: _subtitle(context, selected)),
                 if (blocked) ...[
                   const SizedBox(width: 5),
-                  const Icon(
+                  Icon(
                     Icons.block,
-                    color: Color(0xFFC0C0C0),
+                    color:
+                        Theme.of(context).extension<Style>()!.primarySlateDark,
                     size: 20,
                   ),
                   if (chat.muted == null) const SizedBox(width: 5),
@@ -415,9 +416,13 @@ class RecentChatTile extends StatelessWidget {
         }
       } else if (item != null) {
         if (item is ChatCall) {
-          const Widget widget = Padding(
-            padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
+          Widget widget = Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(Icons.call,
+                size: 16,
+                color: Theme.of(context)
+                    .extension<Style>()!
+                    .primaryCharcoalLightest),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {
@@ -663,7 +668,7 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Colors.grey,
+            color: Theme.of(router.context!).extension<Style>()!.primary,
             child: Icon(
               Icons.video_file,
               size: 18,
@@ -673,7 +678,7 @@ class RecentChatTile extends StatelessWidget {
         }
       } else {
         content = Container(
-          color: Colors.grey,
+          color: Theme.of(router.context!).extension<Style>()!.primary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -710,7 +715,7 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Colors.grey,
+            color: Theme.of(router.context!).extension<Style>()!.primary,
             child: Icon(
               Icons.video_file,
               size: 18,
@@ -720,7 +725,7 @@ class RecentChatTile extends StatelessWidget {
         }
       } else {
         content = Container(
-          color: Colors.grey,
+          color: Theme.of(router.context!).extension<Style>()!.primary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -800,7 +805,11 @@ class RecentChatTile extends StatelessWidget {
           height: 23,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: chat.muted == null ? Colors.red : const Color(0xFFC0C0C0),
+            color: chat.muted == null
+                ? Colors.red
+                : Theme.of(router.context!)
+                    .extension<Style>()!
+                    .primarySlateDark,
           ),
           alignment: Alignment.center,
           child: Text(

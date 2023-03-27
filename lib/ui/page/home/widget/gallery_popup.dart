@@ -668,7 +668,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                                     ? Theme.of(context)
                                         .extension<Style>()!
                                         .onPrimary
-                                    : Colors.grey,
+                                    : Theme.of(context)
+                                        .extension<Style>()!
+                                        .primary,
                                 size: 36,
                               ),
                             ),
@@ -723,7 +725,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                                     ? Theme.of(context)
                                         .extension<Style>()!
                                         .onPrimary
-                                    : Colors.grey,
+                                    : Theme.of(context)
+                                        .extension<Style>()!
+                                        .primary,
                                 size: 36,
                               ),
                             ),

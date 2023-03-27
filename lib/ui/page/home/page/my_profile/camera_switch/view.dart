@@ -95,7 +95,9 @@ class CameraSwitchView extends StatelessWidget {
                               height: 250,
                               width: 370,
                               decoration: BoxDecoration(
-                                color: Colors.grey,
+                                color: Theme.of(context)
+                                    .extension<Style>()!
+                                    .primary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: local == null

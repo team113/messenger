@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/routes.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
@@ -141,7 +142,9 @@ class ParticipantWidget extends StatelessWidget {
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: const Color(0xD8818181),
+              backgroundColor: Theme.of(router.context!)
+                  .extension<Style>()!
+                  .primaryOpacity20,
               child: SvgLoader.asset(
                 'assets/icons/hand_up.svg',
                 width: 90,

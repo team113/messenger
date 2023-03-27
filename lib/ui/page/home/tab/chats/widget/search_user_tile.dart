@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -74,17 +75,18 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: const TextStyle(color: Color(0xFF888888)),
+              style: TextStyle(
+                  color: Theme.of(context).extension<Style>()!.primary),
             ),
           ],
           trailing: [
             if (user?.user.value.isBlacklisted != null ||
                 contact?.user.value?.user.value.isBlacklisted != null)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: Color(0xFFC0C0C0),
+                  color: Theme.of(context).extension<Style>()!.primarySlateDark,
                   size: 20,
                 ),
               )

@@ -873,7 +873,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ? const Color(0xFFDBEAFD)
                                 : const Color(0xFFE6F1FE)
                             : _isRead || !_fromMe
-                                ? const Color(0xFFF9F9F9)
+                                ? Theme.of(context)
+                                    .extension<Style>()!
+                                    .primarySlate
                                 : Theme.of(context)
                                     .extension<Style>()!
                                     .onPrimary,
@@ -1202,7 +1204,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
                   color: fromMe
-                      ? const Color(0x40FFFFFF)
+                      ? Theme.of(context).extension<Style>()!.onPrimaryOpacity75
                       : Theme.of(context)
                           .extension<Style>()!
                           .transparentOpacity98,
@@ -1215,7 +1217,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         Icons.file_copy,
                         color: fromMe
                             ? Theme.of(context).extension<Style>()!.onPrimary
-                            : const Color(0xFFDDDDDD),
+                            : Theme.of(context)
+                                .extension<Style>()!
+                                .primarySlateDark,
                         size: 28,
                       )
                     : RetryImage(
@@ -1242,7 +1246,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? const Color(0x40FFFFFF)
+                    ? Theme.of(context).extension<Style>()!.onPrimaryOpacity75
                     : Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity98,

@@ -71,6 +71,13 @@ class Themes {
             transparentOpacity25: const Color(0xA0000000),
             transparentOpacity10: const Color(0xE6000000),
             primary: const Color(0xFF888888),
+            primaryCharcoal: const Color(0xFF222222),
+            primaryCharcoalLight: const Color(0xFF444444),
+            primaryCharcoalLightest: const Color(0xFF666666),
+            primarySlate: const Color(0xFFF5F5F5),
+            primarySlateDark: const Color(0xFFC0C0C0),
+            primaryOpacity20: const Color(0xDD818181),
+            primaryOpacity15: const Color(0xBB818181),
             onPrimary: Colors.white,
             onPrimaryOpacity90: const Color(0x11FFFFFF),
             onPrimaryOpacity75: const Color(0x40FFFFFF),
@@ -364,6 +371,13 @@ class CustomBoxShadow extends BoxShadow {
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.primary,
+    required this.primaryCharcoal,
+    required this.primaryCharcoalLight,
+    required this.primaryCharcoalLightest,
+    required this.primarySlate,
+    required this.primarySlateDark,
+    required this.primaryOpacity20,
+    required this.primaryOpacity15,
     required this.onPrimary,
     required this.onPrimaryOpacity90,
     required this.onPrimaryOpacity75,
@@ -414,6 +428,20 @@ class Style extends ThemeExtension<Style> {
 
   /// TODO: DOCS
   final Color primary;
+
+  final Color primaryCharcoal;
+
+  final Color primaryCharcoalLight;
+
+  final Color primaryCharcoalLightest;
+
+  final Color primarySlate;
+
+  final Color primarySlateDark;
+
+  final Color primaryOpacity20;
+
+  final Color primaryOpacity15;
 
   final Color onPrimary;
 
@@ -552,6 +580,14 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Color? primary,
+    Color? primaryCharcoal,
+    Color? primaryCharcoalLight,
+    Color? primaryCharcoalLighter,
+    Color? primaryCharcoalLightest,
+    Color? primarySlate,
+    Color? primarySlateDark,
+    Color? primaryOpacity20,
+    Color? primaryOpacity15,
     Color? onPrimary,
     Color? onPrimaryOpacity90,
     Color? onPrimaryOpacity75,
@@ -601,6 +637,14 @@ class Style extends ThemeExtension<Style> {
   }) {
     return Style(
       primary: primary ?? this.primary,
+      primaryCharcoal: primaryCharcoal ?? this.primaryCharcoal,
+      primaryCharcoalLight: primaryCharcoalLight ?? this.primaryCharcoalLight,
+      primaryCharcoalLightest:
+          primaryCharcoalLightest ?? this.primaryCharcoalLightest,
+      primarySlate: primarySlate ?? this.primarySlate,
+      primarySlateDark: primary ?? this.primary,
+      primaryOpacity20: primaryOpacity20 ?? this.primaryOpacity20,
+      primaryOpacity15: primaryOpacity15 ?? this.primaryOpacity15,
       onPrimary: onPrimary ?? this.onPrimary,
       onPrimaryOpacity90: onPrimaryOpacity90 ?? this.onPrimaryOpacity90,
       onPrimaryOpacity75: onPrimaryOpacity75 ?? this.onPrimaryOpacity75,
@@ -660,6 +704,18 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       primary: Color.lerp(primary, other.primary, t)!,
+      primaryCharcoal: Color.lerp(primaryCharcoal, other.primaryCharcoal, t)!,
+      primaryCharcoalLight:
+          Color.lerp(primaryCharcoalLight, other.primaryCharcoalLight, t)!,
+      primaryCharcoalLightest: Color.lerp(
+          primaryCharcoalLightest, other.primaryCharcoalLightest, t)!,
+      primarySlate: Color.lerp(primarySlate, other.primarySlate, t)!,
+      primarySlateDark:
+          Color.lerp(primarySlateDark, other.primarySlateDark, t)!,
+      primaryOpacity20:
+          Color.lerp(primaryOpacity20, other.primaryOpacity20, t)!,
+      primaryOpacity15:
+          Color.lerp(primaryOpacity15, other.primaryOpacity15, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity90: Color.lerp(
         onPrimaryOpacity90,

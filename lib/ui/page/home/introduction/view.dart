@@ -119,7 +119,7 @@ class IntroductionView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
                     fontSize: 15,
-                    color: const Color(0xFF888888),
+                    color: Theme.of(context).extension<Style>()!.primary,
                   ),
                 ),
                 const SizedBox(height: 25),

@@ -356,7 +356,8 @@ class AvatarWidget extends StatelessWidget {
       } else if (title != null) {
         gradient = colors[(title!.hashCode) % colors.length];
       } else {
-        gradient = const Color(0xFF555555);
+        gradient =
+            Theme.of(context).extension<Style>()!.primaryCharcoalLightest;
       }
 
       double minWidth = min(_minDiameter, constraints.smallest.shortestSide);

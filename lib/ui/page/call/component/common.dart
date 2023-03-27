@@ -289,7 +289,9 @@ class AcceptAudioButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: const Color(0xFFEEEEEE), width: 1.5)
+          ? Border.all(
+              color: Theme.of(router.context!).extension<Style>()!.primarySlate,
+              width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: false),
     );
@@ -315,7 +317,11 @@ class AcceptVideoButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          ? Border.all(
+              color: Theme.of(router.context!)
+                  .extension<Style>()!
+                  .onPrimaryOpacity50,
+              width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: true),
     );

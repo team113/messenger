@@ -410,8 +410,8 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? const Color(0xFFEBEBEB)
-                        : const Color(0x00EBEBEB),
+                        ? Theme.of(context).extension<Style>()!.primarySlate
+                        : Theme.of(context).extension<Style>()!.primarySlate,
                   );
                 }),
                 Padding(
@@ -519,11 +519,11 @@ class ContactsTabView extends StatelessWidget {
             return const SizedBox();
           }
 
-          return const Padding(
+          return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5),
             child: Icon(
               Icons.block,
-              color: Color(0xFFC0C0C0),
+              color: Theme.of(context).extension<Style>()!.primarySlateDark,
               size: 20,
             ),
           );

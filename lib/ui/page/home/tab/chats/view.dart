@@ -69,8 +69,8 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? const Color(0xFFEBEBEB)
-                    : const Color(0x00EBEBEB),
+                    ? Theme.of(context).extension<Style>()!.primarySlate
+                    : Theme.of(context).extension<Style>()!.primarySlate,
               );
             }),
             Obx(() {

@@ -240,7 +240,9 @@ class ConfirmLogoutView extends StatelessWidget {
                             style: const TextStyle(),
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
-                          color: const Color(0xFFEEEEEE),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .primarySlate,
                         ),
                       )
                     ],

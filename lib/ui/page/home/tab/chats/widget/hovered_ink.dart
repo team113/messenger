@@ -122,9 +122,11 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                       borderRadius: const BorderRadius.only(
                         bottomRight: Radius.circular(4),
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         CustomBoxShadow(
-                          color: Color(0xFFC0C0C0),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .primarySlateDark,
                           blurStyle: BlurStyle.outer,
                           blurRadius: 4,
                         ),

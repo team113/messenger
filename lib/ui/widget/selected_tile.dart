@@ -133,7 +133,10 @@ class SelectedTile extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFFD7D7D7).darken(darken),
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .primarySlate
+                            .darken(darken),
                         width: 1,
                       ),
                     ),

@@ -372,13 +372,13 @@ Widget mobileCall(CallController c, BuildContext context) {
             ),
 
             if (isOutgoing)
-              const Padding(
-                padding: EdgeInsets.all(21.0),
+              Padding(
+                padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    color: Color(0xFFEEEEEE),
+                    color: Theme.of(context).extension<Style>()!.primarySlate,
                     size: 66,
-                    duration: Duration(milliseconds: 4500),
+                    duration: const Duration(milliseconds: 4500),
                   ),
                 ),
               ),
@@ -689,7 +689,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: const Color(0x99FFFFFF),
+                                  color: Theme.of(context)
+                                      .extension<Style>()!
+                                      .onPrimaryOpacity40,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -768,7 +770,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Combines all the stackable content into [Scaffold].
     Widget scaffold = Scaffold(
-      backgroundColor: const Color(0xFF444444),
+      backgroundColor:
+          Theme.of(context).extension<Style>()!.primaryCharcoalLight,
       body: Stack(
         children: [
           ...content,
