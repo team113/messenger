@@ -90,7 +90,6 @@ class Themes {
             secondary: const Color(0xFF63B4FF),
             secondaryAzure: Colors.blue,
             secondaryAzureLight: const Color(0xFF00A3FF),
-            //тернарка с backgroundCobaltLighter
             secondaryAzureLighter: const Color(0xFFB6DCFF),
             secondaryAzureLightest: const Color(0xFFDBEAFD),
             onSecondary: Colors.white,
