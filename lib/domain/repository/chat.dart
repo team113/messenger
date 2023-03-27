@@ -218,7 +218,7 @@ abstract class RxChat {
   RxList<User> get typingUsers;
 
   /// Reactive list of [User]s being members of this [chat].
-  RxMap<UserId, RxUser> get members;
+  RxObsMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;
