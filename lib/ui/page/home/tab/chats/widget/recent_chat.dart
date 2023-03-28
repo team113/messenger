@@ -240,7 +240,9 @@ class RecentChatTile extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: inCall?.call() == true ? Colors.red : style.secondary,
+              color: inCall?.call() == true
+                  ? style.declineAuxilaryColor
+                  : style.secondary,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               return Row(
@@ -649,6 +651,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds an [Attachment] visual representation.
   Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     Widget? content;
 
     if (e is LocalAttachment) {
@@ -668,17 +671,17 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Theme.of(router.context!).extension<Style>()!.primary,
+            color: style.primary,
             child: Icon(
               Icons.video_file,
               size: 18,
-              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
+              color: style.onPrimary,
             ),
           );
         }
       } else {
         content = Container(
-          color: Theme.of(router.context!).extension<Style>()!.primary,
+          color: style.primary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -715,17 +718,17 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Theme.of(router.context!).extension<Style>()!.primary,
+            color: style.primary,
             child: Icon(
               Icons.video_file,
               size: 18,
-              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
+              color: style.onPrimary,
             ),
           );
         }
       } else {
         content = Container(
-          color: Theme.of(router.context!).extension<Style>()!.primary,
+          color: style.primary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -782,7 +785,7 @@ class RecentChatTile extends StatelessWidget {
             color: isRead
                 ? style.secondary
                 : isError
-                    ? Colors.red
+                    ? style.declineAuxilaryColor
                     : style.primary,
             size: 16,
           ),
@@ -795,9 +798,9 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter() {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-
       if (rxChat.unreadCount.value > 0) {
         return Container(
           key: const Key('UnreadMessages'),
@@ -807,10 +810,8 @@ class RecentChatTile extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: chat.muted == null
-                ? Colors.red
-                : Theme.of(router.context!)
-                    .extension<Style>()!
-                    .primaryHighlightDarkest,
+                ? style.declineAuxilaryColor
+                : style.primaryHighlightDarkest,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -819,7 +820,7 @@ class RecentChatTile extends StatelessWidget {
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
             style: TextStyle(
-              color: Theme.of(router.context!).extension<Style>()!.onPrimary,
+              color: style.onPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),

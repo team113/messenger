@@ -303,11 +303,11 @@ class ChatItemWidget extends StatefulWidget {
                                 minWidth: 300, minHeight: 300)
                             : null,
                         child: e.status.value == SendingStatus.sent
-                            ? const Icon(
+                            ? Icon(
                                 Icons.check_circle,
-                                key: Key('Sent'),
+                                key: const Key('Sent'),
                                 size: 48,
-                                color: Colors.green,
+                                color: style.acceptAuxilaryColor,
                               )
                             : e.status.value == SendingStatus.sending
                                 ? SizedBox(
@@ -324,11 +324,11 @@ class ChatItemWidget extends StatefulWidget {
                                       ),
                                     ),
                                   )
-                                : const Icon(
+                                : Icon(
                                     Icons.error,
-                                    key: Key('Error'),
+                                    key: const Key('Error'),
                                     size: 48,
-                                    color: Colors.red,
+                                    color: style.declineAuxilaryColor,
                                   ),
                       ),
               )
@@ -1407,6 +1407,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Widget child, {
     double avatarOffset = 0,
   }) {
+    final style = Theme.of(context).extension<Style>()!;
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -1553,13 +1554,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               child: Icon(Icons.access_alarm, size: 15),
                             )
                           : item.status.value == SendingStatus.error
-                              ? const Padding(
-                                  key: Key('Error'),
-                                  padding: EdgeInsets.only(bottom: 8),
+                              ? Padding(
+                                  key: const Key('Error'),
+                                  padding: const EdgeInsets.only(bottom: 8),
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: style.declineAuxilaryColor,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),

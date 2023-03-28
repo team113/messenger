@@ -87,8 +87,9 @@ class MoreButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
-      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+      color: style.onSecondaryOpacity50,
       asset: 'more',
       hinted: hinted,
       onPressed: c.toggleMore,
@@ -109,12 +110,12 @@ class VideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'video_${isVideo ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -137,12 +138,12 @@ class AudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'microphone_${isAudio ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -165,12 +166,12 @@ class ScreenButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
         onPressed: () => c.toggleScreenShare(router.context!),
@@ -190,10 +191,10 @@ class HandButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
         onPressed: c.toggleHand,
@@ -211,8 +212,9 @@ class SettingsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
-      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+      color: style.onSecondaryOpacity50,
       asset: 'settings_small',
       hinted: hinted,
       onPressed: () => c.openSettings(router.context!),
@@ -229,8 +231,9 @@ class ParticipantsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
-      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+      color: style.onSecondaryOpacity50,
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),
@@ -249,10 +252,10 @@ class RemoteVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
         onPressed: c.toggleRemoteVideos,
@@ -272,10 +275,10 @@ class RemoteAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
         onPressed: c.toggleRemoteAudios,
@@ -296,10 +299,11 @@ class AcceptAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
-      color: CallController.acceptColor,
+      color: style.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -327,9 +331,10 @@ class AcceptVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: 'video_on',
-      color: CallController.acceptColor,
+      color: style.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -354,9 +359,10 @@ class DeclineButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.declineColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -374,9 +380,10 @@ class DropButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -392,9 +399,10 @@ class CancelButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.declineColor,
       hinted: hinted,
       withBlur: blur,
       onPressed: c.drop,
@@ -414,9 +422,10 @@ class EndCallButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -432,10 +441,10 @@ class SpeakerButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -454,10 +463,10 @@ class SwitchButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       return _common(
-        color:
-            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
+        color: style.onSecondaryOpacity50,
         asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
         assetWidth: 28,
         hinted: hinted,
@@ -471,6 +480,7 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
+  final style = Theme.of(router.context!).extension<Style>()!;
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -479,7 +489,7 @@ Widget withDescription(Widget child, Widget description) {
       DefaultTextStyle(
         style: TextStyle(
           fontSize: 11,
-          color: Theme.of(router.context!).extension<Style>()!.onPrimary,
+          color: style.onPrimary,
         ),
         textAlign: TextAlign.center,
         maxLines: 2,

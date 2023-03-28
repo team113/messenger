@@ -148,7 +148,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
-    this.badgeColor = Colors.red,
+    required this.badgeColor,
     this.child,
   });
 

@@ -377,7 +377,7 @@ class AvatarWidget extends StatelessWidget {
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isAway ? Colors.orange : Colors.green,
+            color: isAway ? style.doNotDistrubColor : style.acceptAuxilaryColor,
           ),
           padding: EdgeInsets.all(badgeSize),
         ),

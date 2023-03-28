@@ -127,7 +127,7 @@ class SwipeableStatus extends StatelessWidget {
                 color: isRead
                     ? style.secondary
                     : isError
-                        ? Colors.red
+                        ? style.declineAuxilaryColor
                         : style.primary,
                 size: 12,
               ),

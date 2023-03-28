@@ -132,7 +132,7 @@ class _AnimatedFabState extends State<AnimatedFab>
             ? Container(key: _fabKey, child: _fab())
             : _fab(),
       );
-  final style = Theme.of(router.context!).extension<Style>()!;
+  final style = Style;
 
   /// Populates the [_overlayEntry].
   void _populateOverlay() {
@@ -302,23 +302,25 @@ class _AnimatedFabState extends State<AnimatedFab>
   Widget _button({
     void Function()? onTap,
     required Widget icon,
-  }) =>
-      Material(
-        type: MaterialType.circle,
-        color: style.onPrimary,
-        shadowColor: style.transparentOpacity67,
-        elevation: 6,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Container(
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            width: 42,
-            height: 42,
-            child: Center(child: icon),
-          ),
+  }) {
+    final style = Theme.of(router.context!).extension<Style>()!;
+    return Material(
+      type: MaterialType.circle,
+      color: style.onPrimary,
+      shadowColor: style.transparentOpacity67,
+      elevation: 6,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          width: 42,
+          height: 42,
+          child: Center(child: icon),
         ),
-      );
+      ),
+    );
+  }
 
   /// Returns an animated circular button toggling overlay.
   Widget _fab() {

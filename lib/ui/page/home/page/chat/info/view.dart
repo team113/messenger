@@ -167,8 +167,8 @@ class ChatInfoView extends StatelessWidget {
                             child: Container(
                               height: 22,
                               width: 22,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
+                              decoration: BoxDecoration(
+                                color: style.declineAuxilaryColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -579,8 +579,8 @@ class ChatInfoView extends StatelessWidget {
                       child: Container(
                         height: 22,
                         width: 22,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
+                        decoration: BoxDecoration(
+                          color: style.declineAuxilaryColor,
                           shape: BoxShape.circle,
                         ),
                         child: Center(

@@ -439,7 +439,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                   ),
                 ),
           label: '${Config.origin}/',
-          fillColor: Colors.white,
+          fillColor: style.onPrimary,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -943,7 +943,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           fillColor: style.onPrimary,
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
-                ? Colors.red
+                ? style.declineAuxilaryColor
                 : style.secondary,
           ),
         ),

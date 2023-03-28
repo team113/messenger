@@ -64,6 +64,8 @@ class CallController extends GetxController {
     this._chatService,
     this._userService,
     this._settingsRepository,
+    this.acceptColor,
+    this.endColor,
   );
 
   /// Duration of the current ongoing call.
@@ -216,10 +218,10 @@ class CallController extends GetxController {
   static const double buttonSize = 48.0;
 
   /// Color of a call buttons that accept the call.
-  static const Color acceptColor = Color(0x7F34B139);
+  final Color acceptColor;
 
   /// Color of a call buttons that end the call.
-  static const Color endColor = Color(0x7FFF0000);
+  final Color endColor;
 
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);

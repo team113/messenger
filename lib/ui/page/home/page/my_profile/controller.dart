@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/themes.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -584,11 +585,12 @@ extension PresenceL10n on Presence {
 
   /// Returns a [Color] representing this [Presence].
   Color? getColor() {
+    final style = Theme.of(router.context!).extension<Style>()!;
     switch (this) {
       case Presence.present:
-        return Colors.green;
+        return style.acceptAuxilaryColor;
       case Presence.away:
-        return Colors.orange;
+        return style.doNotDistrubColor;
       case Presence.artemisUnknown:
         return null;
     }

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
@@ -171,6 +172,7 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
+      final styleColor = Theme.of(context).extension<Style>()!;
       return Obx(() {
         return WidgetButton(
           onPressed: state.approvable && state.changed.value
@@ -193,25 +195,26 @@ class ReactiveTextField extends StatelessWidget {
                                 height: 17,
                               )
                             : state.status.value.isSuccess
-                                ? const SizedBox(
-                                    key: ValueKey('Success'),
+                                ? SizedBox(
+                                    key: const ValueKey('Success'),
                                     width: 24,
                                     child: Icon(
                                       Icons.check,
                                       size: 18,
-                                      color: Colors.green,
+                                      color: styleColor.acceptAuxilaryColor,
                                     ),
                                   )
                                 : (state.error.value != null &&
                                             treatErrorAsStatus) ||
                                         state.status.value.isError
-                                    ? const SizedBox(
-                                        key: ValueKey('Error'),
+                                    ? SizedBox(
+                                        key: const ValueKey('Error'),
                                         width: 24,
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: Colors.red,
+                                          color:
+                                              styleColor.declineAuxilaryColor,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -247,6 +250,7 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
+      final styleColor = Theme.of(context).extension<Style>()!;
       return Theme(
         data: Theme.of(context).copyWith(
           platform: TargetPlatform.macOS,
@@ -256,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: Colors.red)
+                        ?.copyWith(color: styleColor.declineAuxilaryColor)
                     : null,
               ),
         ),
@@ -322,7 +326,7 @@ class ReactiveTextField extends StatelessWidget {
                           child: Text(
                             state.error.value!,
                             style: (style ?? const TextStyle()).copyWith(
-                              color: Colors.red,
+                              color: styleColor.declineAuxilaryColor,
                               fontSize: 13,
                             ),
                           ),

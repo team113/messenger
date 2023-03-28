@@ -172,6 +172,7 @@ class _ProgressBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     final baseOffset = size.height / 2 - barHeight / 2;
 
     canvas.drawRRect(
@@ -226,11 +227,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
         );
 
-      canvas.drawShadow(
-          shadowPath,
-          Theme.of(router.context!).extension<Style>()!.onBackground,
-          0.2,
-          false);
+      canvas.drawShadow(shadowPath, style.onBackground, 0.2, false);
     }
 
     canvas.drawCircle(

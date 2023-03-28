@@ -49,7 +49,7 @@ class AddContactListTile extends StatelessWidget {
         duration: const Duration(milliseconds: 100),
         child: selected
             ? CircleAvatar(
-                backgroundColor: Colors.green,
+                backgroundColor: style.acceptAuxilaryColor,
                 child: Icon(Icons.check, color: style.onPrimary),
               )
             : AvatarWidget.fromRxContact(contact),

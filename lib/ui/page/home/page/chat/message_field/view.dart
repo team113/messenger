@@ -710,8 +710,9 @@ class MessageFieldView extends StatelessWidget {
                                       .extension<Style>()!
                                       .onPrimary,
                                 ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
+                                child: Center(
+                                  child: Icon(Icons.error,
+                                      color: style.declineAuxilaryColor),
                                 ),
                               )
                             : const SizedBox()

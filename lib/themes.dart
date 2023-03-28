@@ -61,7 +61,7 @@ class Themes {
             transparentOpacity98: const Color(0x04000000),
             transparentOpacity94: const Color(0x11000000),
             transparentOpacity88: const Color(0x22000000),
-            transparentOpacity85: const Color(0x25000000), //Later
+            transparentOpacity85: const Color(0x25000000),
             transparentOpacity81: const Color(0x33000000),
             transparentOpacity74: const Color(0x44000000),
             transparentOpacity67: const Color(0x55000000),
@@ -104,6 +104,22 @@ class Themes {
             backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
             backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
             onBackground: Colors.black,
+            acceptColor: const Color(0x7F34B139),
+            acceptAuxilaryColor: Colors.green,
+            declineColor: const Color(0x7FFF0000),
+            declineAuxilaryColor: Colors.red,
+            doNotDistrubColor: Colors.orange,
+
+            /// avatarColor1: Colors.purple,
+            /// avatarColor2: Colors.deepPurple,
+            /// avatarColor3: Colors.indigo,
+            /// avatarColor4: Colors.blue,
+            /// avatarColor5: Colors.cyan,
+            /// avatarColor6: Colors.lightGreen,
+            /// avatarColor7: Colors.lime,
+            /// avatarColor8: Colors.amber,
+            /// avatarColor9: Colors.orange,
+            /// avatarColor10: Colors.deepOrange,
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
@@ -406,10 +422,6 @@ class Style extends ThemeExtension<Style> {
     required this.secondaryHighlightShiny,
     required this.secondaryHighlightShinier,
     required this.secondaryHighlightShiniest,
-    required this.backgroundAuxiliary,
-    required this.backgroundAuxiliaryLight,
-    required this.backgroundAuxiliaryLighter,
-    required this.backgroundAuxiliaryLightest,
     required this.onSecondary,
     required this.onSecondaryOpacity90,
     required this.onSecondaryOpacity60,
@@ -417,6 +429,10 @@ class Style extends ThemeExtension<Style> {
     required this.onSecondaryOpacity30,
     required this.onSecondaryOpacity20,
     required this.background,
+    required this.backgroundAuxiliary,
+    required this.backgroundAuxiliaryLight,
+    required this.backgroundAuxiliaryLighter,
+    required this.backgroundAuxiliaryLightest,
     required this.onBackground,
     required this.transparent,
     required this.transparentOpacity98,
@@ -431,6 +447,11 @@ class Style extends ThemeExtension<Style> {
     required this.transparentOpacity44,
     required this.transparentOpacity25,
     required this.transparentOpacity10,
+    required this.acceptColor,
+    required this.acceptAuxilaryColor,
+    required this.declineColor,
+    required this.declineAuxilaryColor,
+    required this.doNotDistrubColor,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -506,14 +527,6 @@ class Style extends ThemeExtension<Style> {
 
   final Color secondaryHighlightShiniest;
 
-  final Color backgroundAuxiliary;
-
-  final Color backgroundAuxiliaryLight;
-
-  final Color backgroundAuxiliaryLighter;
-
-  final Color backgroundAuxiliaryLightest;
-
   final Color onSecondary;
 
   final Color onSecondaryOpacity90;
@@ -527,6 +540,14 @@ class Style extends ThemeExtension<Style> {
   final Color onSecondaryOpacity20;
 
   final Color background;
+
+  final Color backgroundAuxiliary;
+
+  final Color backgroundAuxiliaryLight;
+
+  final Color backgroundAuxiliaryLighter;
+
+  final Color backgroundAuxiliaryLightest;
 
   final Color onBackground;
 
@@ -567,6 +588,16 @@ class Style extends ThemeExtension<Style> {
 
   /// Colors.black.with(0.9)
   final Color transparentOpacity10;
+
+  final Color acceptColor;
+
+  final Color acceptAuxilaryColor;
+
+  final Color declineColor;
+
+  final Color declineAuxilaryColor;
+
+  final Color doNotDistrubColor;
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
@@ -659,10 +690,6 @@ class Style extends ThemeExtension<Style> {
     Color? secondaryHighlightShiny,
     Color? secondaryHighlightShinier,
     Color? secondaryHighlightShiniest,
-    Color? backgroundAuxiliary,
-    Color? backgroundAuxiliaryLight,
-    Color? backgroundAuxiliaryLighter,
-    Color? backgroundAuxiliaryLightest,
     Color? onSecondary,
     Color? onSecondaryOpacity90,
     Color? onSecondaryOpacity60,
@@ -670,6 +697,10 @@ class Style extends ThemeExtension<Style> {
     Color? onSecondaryOpacity30,
     Color? onSecondaryOpacity20,
     Color? background,
+    Color? backgroundAuxiliary,
+    Color? backgroundAuxiliaryLight,
+    Color? backgroundAuxiliaryLighter,
+    Color? backgroundAuxiliaryLightest,
     Color? onBackground,
     Color? transparent,
     Color? transparentOpacity98,
@@ -684,6 +715,11 @@ class Style extends ThemeExtension<Style> {
     Color? transparentOpacity44,
     Color? transparentOpacity25,
     Color? transparentOpacity10,
+    Color? acceptColor,
+    Color? acceptAuxilaryColor,
+    Color? declineColor,
+    Color? declineAuxilaryColor,
+    Color? doNotDistrubColor,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -732,11 +768,6 @@ class Style extends ThemeExtension<Style> {
       secondaryHighlightShiny: secondaryHighlight ?? this.secondaryHighlight,
       secondaryHighlightShinier: secondaryHighlight ?? this.secondaryHighlight,
       secondaryHighlightShiniest: secondaryHighlight ?? this.secondaryHighlight,
-      backgroundAuxiliary: secondaryHighlight ?? this.secondaryHighlight,
-      backgroundAuxiliaryLight: secondaryHighlight ?? this.secondaryHighlight,
-      backgroundAuxiliaryLighter: secondaryHighlight ?? this.secondaryHighlight,
-      backgroundAuxiliaryLightest:
-          secondaryHighlight ?? this.secondaryHighlight,
       onSecondary: onSecondary ?? this.onSecondary,
       onSecondaryOpacity90: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
       onSecondaryOpacity60: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
@@ -744,6 +775,11 @@ class Style extends ThemeExtension<Style> {
       onSecondaryOpacity30: onSecondaryOpacity30 ?? this.onSecondaryOpacity30,
       onSecondaryOpacity20: onSecondaryOpacity20 ?? this.onSecondaryOpacity20,
       background: background ?? this.background,
+      backgroundAuxiliary: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLight: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLighter: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLightest:
+          secondaryHighlight ?? this.secondaryHighlight,
       onBackground: onBackground ?? this.onBackground,
       transparent: transparent ?? this.transparent,
       transparentOpacity98: transparentOpacity98 ?? this.transparentOpacity98,
@@ -758,6 +794,11 @@ class Style extends ThemeExtension<Style> {
       transparentOpacity44: transparentOpacity44 ?? this.transparentOpacity44,
       transparentOpacity25: transparentOpacity25 ?? this.transparentOpacity25,
       transparentOpacity10: transparentOpacity10 ?? this.transparentOpacity10,
+      acceptColor: acceptColor ?? this.acceptColor,
+      acceptAuxilaryColor: acceptAuxilaryColor ?? this.acceptAuxilaryColor,
+      declineColor: declineColor ?? this.declineColor,
+      declineAuxilaryColor: declineAuxilaryColor ?? this.declineAuxilaryColor,
+      doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -809,11 +850,8 @@ class Style extends ThemeExtension<Style> {
       primaryOpacity15:
           Color.lerp(primaryOpacity15, other.primaryOpacity15, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
-      onPrimaryOpacity90: Color.lerp(
-        onPrimaryOpacity90,
-        other.onPrimaryOpacity90,
-        t,
-      )!,
+      onPrimaryOpacity90:
+          Color.lerp(onPrimaryOpacity90, other.onPrimaryOpacity90, t)!,
       onPrimaryOpacity75:
           Color.lerp(onPrimaryOpacity75, other.onPrimaryOpacity75, t)!,
       onPrimaryOpacity60:
@@ -835,14 +873,6 @@ class Style extends ThemeExtension<Style> {
           secondaryHighlightShinier, other.secondaryHighlightShinier, t)!,
       secondaryHighlightShiniest: Color.lerp(
           secondaryHighlightShiniest, other.secondaryHighlightShiniest, t)!,
-      backgroundAuxiliary:
-          Color.lerp(backgroundAuxiliary, other.backgroundAuxiliary, t)!,
-      backgroundAuxiliaryLight: Color.lerp(
-          backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t)!,
-      backgroundAuxiliaryLighter: Color.lerp(
-          backgroundAuxiliaryLighter, other.backgroundAuxiliaryLighter, t)!,
-      backgroundAuxiliaryLightest: Color.lerp(
-          backgroundAuxiliaryLightest, other.backgroundAuxiliaryLightest, t)!,
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       onSecondaryOpacity90:
           Color.lerp(onSecondaryOpacity90, other.onSecondaryOpacity90, t)!,
@@ -855,6 +885,14 @@ class Style extends ThemeExtension<Style> {
       onSecondaryOpacity20:
           Color.lerp(onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,
       background: Color.lerp(background, other.background, t)!,
+      backgroundAuxiliary:
+          Color.lerp(backgroundAuxiliary, other.backgroundAuxiliary, t)!,
+      backgroundAuxiliaryLight: Color.lerp(
+          backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t)!,
+      backgroundAuxiliaryLighter: Color.lerp(
+          backgroundAuxiliaryLighter, other.backgroundAuxiliaryLighter, t)!,
+      backgroundAuxiliaryLightest: Color.lerp(
+          backgroundAuxiliaryLightest, other.backgroundAuxiliaryLightest, t)!,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
       transparentOpacity98:
@@ -881,6 +919,14 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(transparentOpacity25, other.transparentOpacity25, t)!,
       transparentOpacity10:
           Color.lerp(transparentOpacity10, other.transparentOpacity10, t)!,
+      acceptColor: Color.lerp(acceptColor, other.acceptColor, t)!,
+      acceptAuxilaryColor:
+          Color.lerp(acceptAuxilaryColor, other.acceptAuxilaryColor, t)!,
+      declineColor: Color.lerp(declineColor, other.declineColor, t)!,
+      declineAuxilaryColor:
+          Color.lerp(declineAuxilaryColor, other.declineAuxilaryColor, t)!,
+      doNotDistrubColor:
+          Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,

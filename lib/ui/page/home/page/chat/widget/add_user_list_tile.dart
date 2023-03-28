@@ -40,7 +40,7 @@ class AddUserListTile extends StatelessWidget {
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Colors.green,
+        backgroundColor: style.acceptAuxilaryColor,
         child: Icon(Icons.check, color: style.onPrimary),
       ),
       selected: true,

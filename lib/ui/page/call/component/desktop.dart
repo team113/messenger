@@ -1216,6 +1216,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
+  final style = Theme.of(router.context!).extension<Style>()!;
   return Obx(() {
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
@@ -1229,6 +1230,7 @@ Widget _primaryView(CallController c) {
     return Stack(
       children: [
         ReorderableFit<_DragData>(
+          hoverColor: style.transparent,
           key: const Key('PrimaryFitView'),
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
@@ -1705,6 +1707,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         c.isCursorHidden.value = false;
       }
 
+      final style = Theme.of(context).extension<Style>()!;
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -1723,9 +1726,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     decoration: BoxDecoration(
                       boxShadow: [
                         CustomBoxShadow(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .transparentOpacity74,
+                          color: style.transparentOpacity74,
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -1757,20 +1758,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         borderRadius: borderRadius,
                         child: Stack(
                           children: [
-                            Container(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .backgroundAuxiliary),
+                            Container(color: style.backgroundAuxiliary),
                             SvgLoader.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                            Container(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimaryOpacity90),
+                            Container(color: style.onPrimaryOpacity90),
                           ],
                         ),
                       ),
@@ -1833,6 +1828,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           // Secondary panel itself.
           ReorderableFit<_DragData>(
+            hoverColor: style.transparent,
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {

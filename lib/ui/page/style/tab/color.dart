@@ -74,7 +74,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.light_mode, color: Colors.orange),
+              Icon(Icons.light_mode, color: style.doNotDistrubColor),
               Switch(
                 value: isDarkMode,
                 onChanged: (b) => setState(() => isDarkMode = b),

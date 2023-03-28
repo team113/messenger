@@ -158,20 +158,20 @@ class _DataAttachmentState extends State<DataAttachment> {
             break;
 
           case SendingStatus.sent:
-            leading = const Icon(
+            leading = Icon(
               Icons.check_circle,
-              key: Key('Sent'),
+              key: const Key('Sent'),
               size: 18,
-              color: Colors.green,
+              color: style.acceptAuxilaryColor,
             );
             break;
 
           case SendingStatus.error:
-            leading = const Icon(
+            leading = Icon(
               Icons.error_outline,
-              key: Key('Error'),
+              key: const Key('Error'),
               size: 18,
-              color: Colors.red,
+              color: style.declineAuxilaryColor,
             );
             break;
         }
