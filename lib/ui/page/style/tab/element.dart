@@ -73,21 +73,21 @@ class ElementStyleTabView extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
                 child: SvgLoader.asset('assets/images/logo/logo0000.svg',
                     height: 350),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
                 child: SvgLoader.asset('assets/images/logo/head0000.svg',
                     height: 160),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка начать общение.',
                 asset: 'assets/icons/start.svg',
@@ -109,7 +109,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка войти.',
                 asset: 'assets/icons/sign_in.svg',
@@ -123,7 +123,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка загрузки App Store.',
                 asset: 'assets/icons/apple.svg',
@@ -139,7 +139,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка загрузки Google Play.',
                 asset: 'assets/icons/google.svg',
@@ -156,7 +156,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка загрузки Linux.',
                 asset: 'assets/icons/linux.svg',
@@ -169,7 +169,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Кнопка загрузки Windows.',
                 asset: 'assets/icons/windows.svg',
@@ -183,7 +183,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 title: 'Аватары.',
                 child: Wrap(
                   spacing: 2,
@@ -195,13 +195,13 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 title: 'Перетягиваемая панель окна звонка.',
                 child: Container(
-                  color: style.primaryCharcoal,
+                  color: style.primaryBackground,
                   height: 45,
                   child: Material(
-                    color: style.primaryCharcoal,
+                    color: style.primaryBackground,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -227,7 +227,7 @@ class ElementStyleTabView extends StatelessWidget {
                                         style: context.textTheme.bodyLarge
                                             ?.copyWith(
                                           fontSize: 17,
-                                          color: style.primarySlateDarkest,
+                                          color: style.primaryHighlightDarkest,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -246,13 +246,13 @@ class ElementStyleTabView extends StatelessWidget {
                               gradient: LinearGradient(
                                 colors: [
                                   style.transparent,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
-                                  style.primaryCharcoal,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
+                                  style.primaryBackground,
                                   style.transparent,
                                 ],
                               ),
@@ -263,7 +263,7 @@ class ElementStyleTabView extends StatelessWidget {
                                 Text(
                                   '10:04',
                                   style: context.textTheme.bodyLarge?.copyWith(
-                                      color: style.primarySlateDarkest),
+                                      color: style.primaryHighlightDarkest),
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -329,7 +329,7 @@ class ElementStyleTabView extends StatelessWidget {
               const SizedBox(height: 20),
               const Text('(иконки скачиваются по клику по иконкам)'),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Меню ПКМ над видео в звонке.',
                 child: ConstrainedBox(
@@ -349,7 +349,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Принять звонок с аудио.',
                 asset: 'assets/icons/audio_call_start.svg',
@@ -361,7 +361,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Принять звонок с видео.',
                 asset: 'assets/icons/video_on.svg',
@@ -373,7 +373,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Отклонить звонок.',
                 asset: 'assets/icons/call_end.svg',
@@ -385,7 +385,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Положить/отменить звонок.',
                 asset: 'assets/icons/call_end.svg',
@@ -397,7 +397,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Выключить камеру в звонке.',
                 asset: 'assets/icons/video_on.svg',
@@ -409,7 +409,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Включить камеру в звонке.',
                 asset: 'assets/icons/video_off.svg',
@@ -421,7 +421,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Выключить микрофон в звонке.',
                 asset: 'assets/icons/microphone_on.svg',
@@ -433,7 +433,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Включить микрофон в звонке.',
                 asset: 'assets/icons/microphone_off.svg',
@@ -445,7 +445,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Выключить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_on.svg',
@@ -457,7 +457,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Включить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_off.svg',
@@ -469,7 +469,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                  backgroundColor: style.primaryCharcoalLight,
+                  backgroundColor: style.primaryBackgroundLight,
                   background: true,
                   title: 'Выключить динамик в звонке.',
                   asset: 'assets/icons/speaker_on.svg',
@@ -479,7 +479,7 @@ class ElementStyleTabView extends StatelessWidget {
                     color: style.primaryOpacity20,
                   )),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Включить динамик в звонке.',
                 asset: 'assets/icons/speaker_off.svg',
@@ -490,7 +490,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Переключить камеру на заднюю в звонке.',
                 asset: 'assets/icons/camera_front.svg',
@@ -501,7 +501,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Переключить камеру на переднюю в звонке.',
                 asset: 'assets/icons/camera_back.svg',
@@ -512,7 +512,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Область Drag-n-drop в боковой панели звонка.',
                 asset: 'assets/icons/drag-n-drop.svg',
@@ -530,7 +530,7 @@ class ElementStyleTabView extends StatelessWidget {
                       Text(
                         'Drop any\nvideo here',
                         style: context.textTheme.bodyLarge?.copyWith(
-                          color: style.primarySlateDarkest,
+                          color: style.primaryHighlightDarkest,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -539,7 +539,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Титульная информация звонка.',
                 child: CallTitle(
@@ -555,7 +555,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Информация о звонке в панели на мобильном устройстве.',
                 asset: 'assets/icons/add_user.svg',
@@ -615,7 +615,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title:
                     'Добавить участника в звонок в панели на мобильном устройстве.',
@@ -654,7 +654,7 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Временная метка в чате.',
                 child: Container(
@@ -670,51 +670,53 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
                   labelStyle: const TextStyle(fontSize: 17),
                   closedIcon: Icon(
                     Icons.more_horiz,
-                    color: style.secondaryAzure,
+                    color: style.secondaryHighlight,
                     size: 30,
                   ),
                   openedIcon: Icon(
                     Icons.close,
-                    color: style.secondaryAzure,
+                    color: style.secondaryHighlight,
                     size: 30,
                   ),
                   actions: [
                     AnimatedFabAction(
-                      icon: Icon(Icons.call, color: style.secondaryAzure),
+                      icon: Icon(Icons.call, color: style.secondaryHighlight),
                       label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.video_call, color: style.secondaryAzure),
+                      icon: Icon(Icons.video_call,
+                          color: style.secondaryHighlight),
                       label: 'label_video_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.person, color: style.secondaryAzure),
+                      icon: Icon(Icons.person, color: style.secondaryHighlight),
                       label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.attachment, color: style.secondaryAzure),
+                      icon: Icon(Icons.attachment,
+                          color: style.secondaryHighlight),
                       label: 'label_file'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.photo, color: style.secondaryAzure),
+                      icon: Icon(Icons.photo, color: style.secondaryHighlight),
                       label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.camera, color: style.secondaryAzure),
+                      icon: Icon(Icons.camera, color: style.secondaryHighlight),
                       label: 'label_camera'.l10n,
                       onTap: () {},
                     ),
@@ -724,7 +726,7 @@ class ElementStyleTabView extends StatelessWidget {
               const SizedBox(height: 200),
               const Caption('Не используется'),
               element(
-                backgroundColor: style.primaryCharcoalLight,
+                backgroundColor: style.primaryBackgroundLight,
                 background: true,
                 title: 'Открыть настройки в звонке.',
                 asset: 'assets/icons/settings.svg',

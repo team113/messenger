@@ -854,7 +854,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       : Border.all(
                           color: Theme.of(context)
                               .extension<Style>()!
-                              .backgroundCobaltLighter,
+                              .backgroundAuxiliaryLighter,
                           width: 0.5,
                         )
                   : style.primaryBorder,
@@ -871,14 +871,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? _isRead || !_fromMe
                                 ? Theme.of(context)
                                     .extension<Style>()!
-                                    .secondaryAzureLightest
+                                    .secondaryHighlightShiniest
                                 : Theme.of(context)
                                     .extension<Style>()!
-                                    .backgroundCobaltLighter
+                                    .backgroundAuxiliaryLighter
                             : _isRead || !_fromMe
                                 ? Theme.of(context)
                                     .extension<Style>()!
-                                    .primarySlate
+                                    .primaryHighlight
                                 : Theme.of(context)
                                     .extension<Style>()!
                                     .onPrimary,
@@ -1169,7 +1169,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Border.all(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .backgroundCobaltLighter,
+                            .backgroundAuxiliaryLighter,
                         width: 0.5)
                 : style.primaryBorder,
             color: _fromMe
@@ -1225,7 +1225,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? style.onPrimary
                             : Theme.of(context)
                                 .extension<Style>()!
-                                .primarySlateDarkest,
+                                .primaryHighlightDarkest,
                         size: 28,
                       )
                     : RetryImage(

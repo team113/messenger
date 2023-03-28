@@ -96,7 +96,7 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).extension<Style>()!;
     return Theme.of(context).copyWith(
       shadowColor: style.transparentOpacity67,
-      iconTheme: IconThemeData(color: style.secondaryAzure),
+      iconTheme: IconThemeData(color: style.secondaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -688,7 +688,7 @@ class MessageFieldView extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: style.primarySlate,
+            color: style.primaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -815,7 +815,7 @@ class MessageFieldView extends StatelessWidget {
                           ? style.onPrimary
                           : Theme.of(context)
                               .extension<Style>()!
-                              .primarySlateDarkest,
+                              .primaryHighlightDarkest,
                       size: 16,
                     )
                   : RetryImage(
@@ -1006,7 +1006,7 @@ class MessageFieldView extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
-          color: style.primarySlate,
+          color: style.primaryHighlight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(

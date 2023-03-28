@@ -275,7 +275,7 @@ class LoginView extends StatelessWidget {
                           style: TextStyle(
                               color: Theme.of(context)
                                   .extension<Style>()!
-                                  .secondaryAzureLight),
+                                  .secondaryHighlightShiny),
                         ),
                       ),
                     ),

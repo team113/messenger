@@ -135,7 +135,7 @@ class SelectedTile extends StatelessWidget {
                       border: Border.all(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .primarySlate
+                            .primaryHighlight
                             .darken(darken),
                         width: 1,
                       ),

@@ -196,7 +196,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: style.primarySlateDarkest,
+                  color: style.primaryHighlightDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),

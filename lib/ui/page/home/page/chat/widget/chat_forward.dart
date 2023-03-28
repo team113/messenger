@@ -238,7 +238,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             : Border.all(
                                 color: Theme.of(context)
                                     .extension<Style>()!
-                                    .backgroundCobaltLighter,
+                                    .backgroundAuxiliaryLighter,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -443,12 +443,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
-                  ? style.secondaryAzureLightest
+                  ? style.secondaryHighlightShiniest
                   : Theme.of(context)
                       .extension<Style>()!
-                      .backgroundCobaltLighter
+                      .backgroundAuxiliaryLighter
               : _isRead || !_fromMe
-                  ? style.primarySlate
+                  ? style.primaryHighlight
                   : style.onPrimary,
         ),
         child: AnimatedOpacity(

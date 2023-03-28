@@ -222,7 +222,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                     Container(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .backgroundCobalt),
+                            .backgroundAuxiliary),
                     SvgLoader.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,

@@ -86,7 +86,7 @@ class SearchUserTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: style.primarySlateDarkest,
+                  color: style.primaryHighlightDarkest,
                   size: 20,
                 ),
               )

@@ -455,7 +455,7 @@ class ChatInfoView extends StatelessWidget {
                         style: TextStyle(
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .secondaryAzureLight),
+                                .secondaryHighlightShiny),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -515,7 +515,7 @@ class ChatInfoView extends StatelessWidget {
                 onTap: onTap,
                 hoverColor: Theme.of(context)
                     .extension<Style>()!
-                    .backgroundCobaltLightest,
+                    .backgroundAuxiliaryLightest,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Row(

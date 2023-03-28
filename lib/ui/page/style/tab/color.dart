@@ -98,11 +98,11 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               colors: [Color(0xFF03A803), Color(0xFF20CD66)],
             ),
           ),
-          color('Цвет заднего фона звонка.', style.primaryCharcoalLight),
+          color('Цвет заднего фона звонка.', style.primaryBackgroundLight),
           color('Цвет затемнения заднего фона в звонке.',
               style.transparentOpacity74),
           color('Цвет надписей и иконок над задним фоном звонка.',
-              style.primarySlateDarkest),
+              style.primaryHighlightDarkest),
           color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
           color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
           color(

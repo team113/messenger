@@ -53,7 +53,7 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(color: style.primarySlateDarkest, width: 0.5),
+        border: Border.all(color: style.primaryHighlightDarkest, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
@@ -150,7 +150,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     iconTheme: IconThemeData(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .secondaryAzure),
+                            .secondaryHighlight),
                   ),
                   child: widget.leading!,
                 ),
@@ -174,7 +174,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     iconTheme: IconThemeData(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .secondaryAzure),
+                            .secondaryHighlight),
                   ),
                   child: widget.trailing!,
                 ),

@@ -1005,7 +1005,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                     : Border.all(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .backgroundCobaltLighter,
+                            .backgroundAuxiliaryLighter,
                         width: 0.5)
                 : style.primaryBorder,
           ),

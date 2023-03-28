@@ -1136,7 +1136,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       final style = Theme.of(context).extension<Style>()!;
       return Container(
         key: const ValueKey('TitleBar'),
-        color: style.backgroundCobaltLight,
+        color: style.backgroundAuxiliaryLight,
         height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -1760,7 +1760,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             Container(
                                 color: Theme.of(context)
                                     .extension<Style>()!
-                                    .backgroundCobalt),
+                                    .backgroundAuxiliary),
                             SvgLoader.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,

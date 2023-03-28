@@ -305,7 +305,9 @@ class AcceptAudioButton extends CallButton {
       withBlur: expanded,
       border: highlight
           ? Border.all(
-              color: Theme.of(router.context!).extension<Style>()!.primarySlate,
+              color: Theme.of(router.context!)
+                  .extension<Style>()!
+                  .primaryHighlight,
               width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: false),

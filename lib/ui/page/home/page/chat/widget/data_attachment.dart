@@ -76,7 +76,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                       style.secondary,
                       Theme.of(context)
                           .extension<Style>()!
-                          .backgroundCobaltLighter,
+                          .backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
@@ -126,7 +126,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 color: _hovered
                     ? Theme.of(context)
                         .extension<Style>()!
-                        .backgroundCobaltLighter
+                        .backgroundAuxiliaryLighter
                     : style.transparent,
                 border: Border.all(
                   width: 2,

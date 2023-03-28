@@ -71,12 +71,12 @@ class Themes {
             transparentOpacity25: const Color(0xA0000000),
             transparentOpacity10: const Color(0xE6000000),
             primary: const Color(0xFF888888),
-            primaryCharcoal: const Color(0xFF222222),
-            primaryCharcoalLight: const Color(0xFF444444),
-            primaryCharcoalLightest: const Color(0xFF666666),
-            primarySlate: const Color(0xFFF5F5F5),
-            primarySlateDark: const Color(0xFFDEDEDE),
-            primarySlateDarkest: const Color(0xFFC0C0C0),
+            primaryBackground: const Color(0xFF222222),
+            primaryBackgroundLight: const Color(0xFF444444),
+            primaryBackgroundLightest: const Color(0xFF666666),
+            primaryHighlight: const Color(0xFFF5F5F5),
+            primaryHighlightDark: const Color(0xFFDEDEDE),
+            primaryHighlightDarkest: const Color(0xFFC0C0C0),
             primaryOpacity20: const Color(0xDD818181),
             primaryOpacity15: const Color(0xBB818181),
             onPrimary: Colors.white,
@@ -88,10 +88,10 @@ class Themes {
             onPrimaryOpacity20: const Color(0xCCFFFFFF),
             onPrimaryOpacity10: const Color(0xE6FFFFFF),
             secondary: const Color(0xFF63B4FF),
-            secondaryAzure: Colors.blue,
-            secondaryAzureLight: const Color(0xFF00A3FF),
-            secondaryAzureLighter: const Color(0xFFB6DCFF),
-            secondaryAzureLightest: const Color(0xFFDBEAFD),
+            secondaryHighlight: Colors.blue,
+            secondaryHighlightShiny: const Color(0xFF00A3FF),
+            secondaryHighlightShinier: const Color(0xFFB6DCFF),
+            secondaryHighlightShiniest: const Color(0xFFDBEAFD),
             onSecondary: const Color(0xBB1F3C5D),
             onSecondaryOpacity90: const Color(0xE0165084),
             onSecondaryOpacity60: const Color(0x9D165084),
@@ -99,10 +99,10 @@ class Themes {
             onSecondaryOpacity30: const Color(0x4D165084),
             onSecondaryOpacity20: const Color(0x301D6AAE),
             background: const Color(0xFFF5F8FA),
-            backgroundCobalt: const Color(0xFF0A1724),
-            backgroundCobaltLight: const Color(0xFF132131),
-            backgroundCobaltLighter: const Color(0xFFE6F1FE),
-            backgroundCobaltLightest: const Color(0xFFF4F9FF),
+            backgroundAuxiliary: const Color(0xFF0A1724),
+            backgroundAuxiliaryLight: const Color(0xFF132131),
+            backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
+            backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
             onBackground: Colors.black,
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
@@ -385,12 +385,12 @@ class CustomBoxShadow extends BoxShadow {
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.primary,
-    required this.primaryCharcoal,
-    required this.primaryCharcoalLight,
-    required this.primaryCharcoalLightest,
-    required this.primarySlate,
-    required this.primarySlateDark,
-    required this.primarySlateDarkest,
+    required this.primaryBackground,
+    required this.primaryBackgroundLight,
+    required this.primaryBackgroundLightest,
+    required this.primaryHighlight,
+    required this.primaryHighlightDark,
+    required this.primaryHighlightDarkest,
     required this.primaryOpacity20,
     required this.primaryOpacity15,
     required this.onPrimary,
@@ -402,14 +402,14 @@ class Style extends ThemeExtension<Style> {
     required this.onPrimaryOpacity20,
     required this.onPrimaryOpacity10,
     required this.secondary,
-    required this.secondaryAzure,
-    required this.secondaryAzureLight,
-    required this.secondaryAzureLighter,
-    required this.secondaryAzureLightest,
-    required this.backgroundCobalt,
-    required this.backgroundCobaltLight,
-    required this.backgroundCobaltLighter,
-    required this.backgroundCobaltLightest,
+    required this.secondaryHighlight,
+    required this.secondaryHighlightShiny,
+    required this.secondaryHighlightShinier,
+    required this.secondaryHighlightShiniest,
+    required this.backgroundAuxiliary,
+    required this.backgroundAuxiliaryLight,
+    required this.backgroundAuxiliaryLighter,
+    required this.backgroundAuxiliaryLightest,
     required this.onSecondary,
     required this.onSecondaryOpacity90,
     required this.onSecondaryOpacity60,
@@ -457,17 +457,17 @@ class Style extends ThemeExtension<Style> {
   /// TODO: DOCS
   final Color primary;
 
-  final Color primaryCharcoal;
+  final Color primaryBackground;
 
-  final Color primaryCharcoalLight;
+  final Color primaryBackgroundLight;
 
-  final Color primaryCharcoalLightest;
+  final Color primaryBackgroundLightest;
 
-  final Color primarySlate;
+  final Color primaryHighlight;
 
-  final Color primarySlateDark;
+  final Color primaryHighlightDark;
 
-  final Color primarySlateDarkest;
+  final Color primaryHighlightDarkest;
 
   final Color primaryOpacity20;
 
@@ -498,21 +498,21 @@ class Style extends ThemeExtension<Style> {
 
   final Color secondary;
 
-  final Color secondaryAzure;
+  final Color secondaryHighlight;
 
-  final Color secondaryAzureLight;
+  final Color secondaryHighlightShiny;
 
-  final Color secondaryAzureLighter;
+  final Color secondaryHighlightShinier;
 
-  final Color secondaryAzureLightest;
+  final Color secondaryHighlightShiniest;
 
-  final Color backgroundCobalt;
+  final Color backgroundAuxiliary;
 
-  final Color backgroundCobaltLight;
+  final Color backgroundAuxiliaryLight;
 
-  final Color backgroundCobaltLighter;
+  final Color backgroundAuxiliaryLighter;
 
-  final Color backgroundCobaltLightest;
+  final Color backgroundAuxiliaryLightest;
 
   final Color onSecondary;
 
@@ -636,13 +636,13 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Color? primary,
-    Color? primaryCharcoal,
-    Color? primaryCharcoalLight,
-    Color? primaryCharcoalLighter,
-    Color? primaryCharcoalLightest,
-    Color? primarySlate,
-    Color? primarySlateDark,
-    Color? primarySlateDarkest,
+    Color? primaryBackground,
+    Color? primaryBackgroundLight,
+    Color? primaryBackgroundLighter,
+    Color? primaryBackgroundLightest,
+    Color? primaryHighlight,
+    Color? primaryHighlightDark,
+    Color? primaryHighlightDarkest,
     Color? primaryOpacity20,
     Color? primaryOpacity15,
     Color? onPrimary,
@@ -655,14 +655,14 @@ class Style extends ThemeExtension<Style> {
     Color? onPrimaryOpacity10,
     Color? secondary,
     Color? secondaryNative,
-    Color? secondaryAzure,
-    Color? secondaryAzureLight,
-    Color? secondaryAzureLighter,
-    Color? secondaryAzureLightest,
-    Color? backgroundCobalt,
-    Color? backgroundCobaltLight,
-    Color? backgroundCobaltLighter,
-    Color? backgroundCobaltLightest,
+    Color? secondaryHighlight,
+    Color? secondaryHighlightShiny,
+    Color? secondaryHighlightShinier,
+    Color? secondaryHighlightShiniest,
+    Color? backgroundAuxiliary,
+    Color? backgroundAuxiliaryLight,
+    Color? backgroundAuxiliaryLighter,
+    Color? backgroundAuxiliaryLightest,
     Color? onSecondary,
     Color? onSecondaryOpacity90,
     Color? onSecondaryOpacity60,
@@ -708,13 +708,15 @@ class Style extends ThemeExtension<Style> {
   }) {
     return Style(
       primary: primary ?? this.primary,
-      primaryCharcoal: primaryCharcoal ?? this.primaryCharcoal,
-      primaryCharcoalLight: primaryCharcoalLight ?? this.primaryCharcoalLight,
-      primaryCharcoalLightest:
-          primaryCharcoalLightest ?? this.primaryCharcoalLightest,
-      primarySlate: primarySlate ?? this.primarySlate,
-      primarySlateDark: primarySlateDark ?? this.primarySlateDark,
-      primarySlateDarkest: primarySlateDarkest ?? this.primarySlateDarkest,
+      primaryBackground: primaryBackground ?? this.primaryBackground,
+      primaryBackgroundLight:
+          primaryBackgroundLight ?? this.primaryBackgroundLight,
+      primaryBackgroundLightest:
+          primaryBackgroundLightest ?? this.primaryBackgroundLightest,
+      primaryHighlight: primaryHighlight ?? this.primaryHighlight,
+      primaryHighlightDark: primaryHighlightDark ?? this.primaryHighlightDark,
+      primaryHighlightDarkest:
+          primaryHighlightDarkest ?? this.primaryHighlightDarkest,
       primaryOpacity20: primaryOpacity20 ?? this.primaryOpacity20,
       primaryOpacity15: primaryOpacity15 ?? this.primaryOpacity15,
       onPrimary: onPrimary ?? this.onPrimary,
@@ -726,14 +728,15 @@ class Style extends ThemeExtension<Style> {
       onPrimaryOpacity20: onPrimaryOpacity20 ?? this.onPrimaryOpacity20,
       onPrimaryOpacity10: onPrimaryOpacity10 ?? this.onPrimaryOpacity10,
       secondary: secondary ?? this.secondary,
-      secondaryAzure: secondaryAzure ?? this.secondaryAzure,
-      secondaryAzureLight: secondaryAzure ?? this.secondaryAzure,
-      secondaryAzureLighter: secondaryAzure ?? this.secondaryAzure,
-      secondaryAzureLightest: secondaryAzure ?? this.secondaryAzure,
-      backgroundCobalt: secondaryAzure ?? this.secondaryAzure,
-      backgroundCobaltLight: secondaryAzure ?? this.secondaryAzure,
-      backgroundCobaltLighter: secondaryAzure ?? this.secondaryAzure,
-      backgroundCobaltLightest: secondaryAzure ?? this.secondaryAzure,
+      secondaryHighlight: secondaryHighlight ?? this.secondaryHighlight,
+      secondaryHighlightShiny: secondaryHighlight ?? this.secondaryHighlight,
+      secondaryHighlightShinier: secondaryHighlight ?? this.secondaryHighlight,
+      secondaryHighlightShiniest: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliary: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLight: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLighter: secondaryHighlight ?? this.secondaryHighlight,
+      backgroundAuxiliaryLightest:
+          secondaryHighlight ?? this.secondaryHighlight,
       onSecondary: onSecondary ?? this.onSecondary,
       onSecondaryOpacity90: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
       onSecondaryOpacity60: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
@@ -789,16 +792,18 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       primary: Color.lerp(primary, other.primary, t)!,
-      primaryCharcoal: Color.lerp(primaryCharcoal, other.primaryCharcoal, t)!,
-      primaryCharcoalLight:
-          Color.lerp(primaryCharcoalLight, other.primaryCharcoalLight, t)!,
-      primaryCharcoalLightest: Color.lerp(
-          primaryCharcoalLightest, other.primaryCharcoalLightest, t)!,
-      primarySlate: Color.lerp(primarySlate, other.primarySlate, t)!,
-      primarySlateDark:
-          Color.lerp(primarySlateDark, other.primarySlateDark, t)!,
-      primarySlateDarkest:
-          Color.lerp(primarySlateDarkest, other.primarySlateDarkest, t)!,
+      primaryBackground:
+          Color.lerp(primaryBackground, other.primaryBackground, t)!,
+      primaryBackgroundLight:
+          Color.lerp(primaryBackgroundLight, other.primaryBackgroundLight, t)!,
+      primaryBackgroundLightest: Color.lerp(
+          primaryBackgroundLightest, other.primaryBackgroundLightest, t)!,
+      primaryHighlight:
+          Color.lerp(primaryHighlight, other.primaryHighlight, t)!,
+      primaryHighlightDark:
+          Color.lerp(primaryHighlightDark, other.primaryHighlightDark, t)!,
+      primaryHighlightDarkest: Color.lerp(
+          primaryHighlightDarkest, other.primaryHighlightDarkest, t)!,
       primaryOpacity20:
           Color.lerp(primaryOpacity20, other.primaryOpacity20, t)!,
       primaryOpacity15:
@@ -822,21 +827,22 @@ class Style extends ThemeExtension<Style> {
       onPrimaryOpacity10:
           Color.lerp(onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
-      secondaryAzure: Color.lerp(secondaryAzure, other.secondaryAzure, t)!,
-      secondaryAzureLight:
-          Color.lerp(secondaryAzureLight, other.secondaryAzureLight, t)!,
-      secondaryAzureLighter:
-          Color.lerp(secondaryAzureLighter, other.secondaryAzureLighter, t)!,
-      secondaryAzureLightest:
-          Color.lerp(secondaryAzureLightest, other.secondaryAzureLightest, t)!,
-      backgroundCobalt:
-          Color.lerp(backgroundCobalt, other.backgroundCobalt, t)!,
-      backgroundCobaltLight:
-          Color.lerp(backgroundCobaltLight, other.backgroundCobaltLight, t)!,
-      backgroundCobaltLighter: Color.lerp(
-          backgroundCobaltLighter, other.backgroundCobaltLighter, t)!,
-      backgroundCobaltLightest: Color.lerp(
-          backgroundCobaltLightest, other.backgroundCobaltLightest, t)!,
+      secondaryHighlight:
+          Color.lerp(secondaryHighlight, other.secondaryHighlight, t)!,
+      secondaryHighlightShiny: Color.lerp(
+          secondaryHighlightShiny, other.secondaryHighlightShiny, t)!,
+      secondaryHighlightShinier: Color.lerp(
+          secondaryHighlightShinier, other.secondaryHighlightShinier, t)!,
+      secondaryHighlightShiniest: Color.lerp(
+          secondaryHighlightShiniest, other.secondaryHighlightShiniest, t)!,
+      backgroundAuxiliary:
+          Color.lerp(backgroundAuxiliary, other.backgroundAuxiliary, t)!,
+      backgroundAuxiliaryLight: Color.lerp(
+          backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t)!,
+      backgroundAuxiliaryLighter: Color.lerp(
+          backgroundAuxiliaryLighter, other.backgroundAuxiliaryLighter, t)!,
+      backgroundAuxiliaryLightest: Color.lerp(
+          backgroundAuxiliaryLightest, other.backgroundAuxiliaryLightest, t)!,
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       onSecondaryOpacity90:
           Color.lerp(onSecondaryOpacity90, other.onSecondaryOpacity90, t)!,

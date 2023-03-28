@@ -213,7 +213,7 @@ class _HomeViewState extends State<HomeView> {
                                 badgeColor: c.myUser.value?.muted != null
                                     ? Theme.of(context)
                                         .extension<Style>()!
-                                        .primarySlateDarkest
+                                        .primaryHighlightDarkest
                                     : Colors.red,
                                 child: RmbDetector(
                                   onPressed: () => ChatsMoreView.show(context),

@@ -145,7 +145,7 @@ class RecentChatTile extends StatelessWidget {
                     Icons.block,
                     color: Theme.of(context)
                         .extension<Style>()!
-                        .primarySlateDarkest,
+                        .primaryHighlightDarkest,
                     size: 20,
                   ),
                   if (chat.muted == null) const SizedBox(width: 5),
@@ -422,7 +422,7 @@ class RecentChatTile extends StatelessWidget {
                 size: 16,
                 color: Theme.of(context)
                     .extension<Style>()!
-                    .primaryCharcoalLightest),
+                    .primaryBackgroundLightest),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {
@@ -810,7 +810,7 @@ class RecentChatTile extends StatelessWidget {
                 ? Colors.red
                 : Theme.of(router.context!)
                     .extension<Style>()!
-                    .primarySlateDarkest,
+                    .primaryHighlightDarkest,
           ),
           alignment: Alignment.center,
           child: Text(
