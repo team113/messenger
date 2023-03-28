@@ -60,7 +60,7 @@ class ChangePasswordController extends GetxController {
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
 
-  /// Indicator whether the [MyUser] has a password.
+  /// Indicator whether [MyUser] has a password set.
   late bool hasPassword;
 
   /// [MyUserService] updating the [MyUser]'s password.
