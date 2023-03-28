@@ -34,6 +34,12 @@ All user visible changes to this project will be documented in this file. This p
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
 
+### Fixed
+
+- UI:
+    - Profile page:
+        - Change password modal flickering. ([#380], [#377])
+
 [#17]: /../../issues/17
 [#118]: /../../pull/118
 [#258]: /../../issues/258
@@ -48,6 +54,8 @@ All user visible changes to this project will be documented in this file. This p
 [#362]: /../../pull/362
 [#356]: /../../pull/356
 [#375]: /../../pull/375
+[#377]: /../../issues/377
+[#380]: /../../pull/380
 
 
 
