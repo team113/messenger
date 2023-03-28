@@ -57,30 +57,49 @@ abstract class ChatGraphQlMixin {
   }
 
   /// Returns non-hidden [Chat]s of the authenticated [MyUser] ordered
-  /// descending by the last updating time.
+  /// descending by their last updating [DateTime].
   ///
-  /// It's allowed to specify both [first] and [last] at the same time, provided
-  /// that [after] and [before] are equal. In such case the returned page will
-  /// include the [Chat] pointed by the cursor and the requested number of
-  /// [Chat]s preceding and following it.
+  /// Use the [noFavorite] argument to exclude favorited [Chat]s from the
+  /// returned result.
   ///
-  /// If it's desired to receive the [Chat] pointed by the cursor without
-  /// querying in both directions, one can specify [first] or [last] as `0`.
+  /// Use the [withOngoingCalls] argument to only include [Chat]s with ongoing
+  /// [ChatCall]s into the returned result (`true`), or to exclude them
+  /// (`false`).
   ///
   /// ### Authentication
   ///
   /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [Chat]s are sorted primarily by their last updating [DateTime],
+  /// and secondary by their IDs (if the last updating [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [Chat] pointed by the cursor and the
+  /// requested count of [Chat]s preceding and following it.
+  ///
+  /// If it's desired to receive the [Chat], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
   Future<RecentChats$Query> recentChats({
     int? first,
     RecentChatsCursor? after,
     int? last,
     RecentChatsCursor? before,
+    bool noFavorite = false,
+    bool? withOngoingCalls,
   }) async {
     final variables = RecentChatsArguments(
       first: first,
       after: after,
       last: last,
       before: before,
+      noFavorite: noFavorite,
+      withOngoingCalls: withOngoingCalls,
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -467,8 +486,16 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> recentChatsTopEvents(int count) {
-    final variables = RecentChatsTopEventsArguments(count: count);
+  Stream<QueryResult> recentChatsTopEvents(
+    int count, {
+    bool noFavorite = false,
+    bool? withOngoingCalls,
+  }) {
+    final variables = RecentChatsTopEventsArguments(
+      count: count,
+      noFavorite: noFavorite,
+      withOngoingCalls: withOngoingCalls,
+    );
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'RecentChatsTopEvents',
