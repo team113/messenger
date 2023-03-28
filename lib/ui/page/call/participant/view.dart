@@ -203,7 +203,7 @@ class ParticipantView extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 child: Material(
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
-                  color: inCall ? style.declineAuxilaryColor : style.secondary,
+                  color: inCall ? style.warningColor : style.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap:

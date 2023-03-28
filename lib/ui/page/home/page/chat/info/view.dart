@@ -168,7 +168,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: style.declineAuxilaryColor,
+                                color: style.warningColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -452,10 +452,7 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: TextStyle(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .secondaryHighlightShiny),
+                        style: TextStyle(color: style.secondaryHighlightShiny),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -580,7 +577,7 @@ class ChatInfoView extends StatelessWidget {
                         height: 22,
                         width: 22,
                         decoration: BoxDecoration(
-                          color: style.declineAuxilaryColor,
+                          color: style.warningColor,
                           shape: BoxShape.circle,
                         ),
                         child: Center(

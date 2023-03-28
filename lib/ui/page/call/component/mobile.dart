@@ -159,9 +159,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       duration: 200.milliseconds,
                       decoration: BoxDecoration(
                         color: animated
-                            ? Theme.of(context)
-                                .extension<Style>()!
-                                .backgroundAuxiliaryLight
+                            ? styleColor.backgroundAuxiliaryLight
                             : styleColor.transparent,
                       ),
                       width: animated
@@ -301,9 +299,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .secondaryHighlightShinier,
+                    color: styleColor.secondaryHighlightShinier,
                   ),
                 );
               }

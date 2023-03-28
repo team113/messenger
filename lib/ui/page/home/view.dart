@@ -196,7 +196,7 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                badgeColor: style.declineAuxilaryColor,
+                                badgeColor: style.warningColor,
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
@@ -212,10 +212,8 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? Theme.of(context)
-                                        .extension<Style>()!
-                                        .primaryHighlightDarkest
-                                    : style.declineAuxilaryColor,
+                                    ? style.primaryHighlightDarkest
+                                    : style.warningColor,
                                 child: RmbDetector(
                                   onPressed: () => ChatsMoreView.show(context),
                                   child: tab(
@@ -249,7 +247,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                badgeColor: style.declineAuxilaryColor,
+                                badgeColor: style.warningColor,
                                 child: RmbDetector(
                                   onPressed: () => StatusView.show(context),
                                   child: Padding(

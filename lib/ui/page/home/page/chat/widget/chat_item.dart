@@ -328,7 +328,7 @@ class ChatItemWidget extends StatefulWidget {
                                     Icons.error,
                                     key: const Key('Error'),
                                     size: 48,
-                                    color: style.declineAuxilaryColor,
+                                    color: style.warningColor,
                                   ),
                       ),
               )
@@ -871,19 +871,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       decoration: BoxDecoration(
                         color: e.author == widget.me
                             ? _isRead || !_fromMe
-                                ? Theme.of(context)
-                                    .extension<Style>()!
-                                    .secondaryHighlightShiniest
-                                : Theme.of(context)
-                                    .extension<Style>()!
-                                    .backgroundAuxiliaryLighter
+                                ? style.secondaryHighlightShiniest
+                                : style.backgroundAuxiliaryLighter
                             : _isRead || !_fromMe
-                                ? Theme.of(context)
-                                    .extension<Style>()!
-                                    .primaryHighlight
-                                : Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary,
+                                ? style.primaryHighlight
+                                : style.onPrimary,
                         borderRadius: i == 0
                             ? const BorderRadius.only(
                                 topLeft: Radius.circular(15),
@@ -1564,7 +1556,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: style.declineAuxilaryColor,
+                                    color: style.warningColor,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),

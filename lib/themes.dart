@@ -107,7 +107,7 @@ class Themes {
             acceptColor: const Color(0x7F34B139),
             acceptAuxilaryColor: Colors.green,
             declineColor: const Color(0x7FFF0000),
-            declineAuxilaryColor: Colors.red,
+            warningColor: Colors.red,
             doNotDistrubColor: Colors.orange,
             avatarColor1: Colors.purple,
             avatarColor2: Colors.deepPurple,
@@ -449,7 +449,7 @@ class Style extends ThemeExtension<Style> {
     required this.acceptColor,
     required this.acceptAuxilaryColor,
     required this.declineColor,
-    required this.declineAuxilaryColor,
+    required this.warningColor,
     required this.doNotDistrubColor,
     required this.avatarColor1,
     required this.avatarColor2,
@@ -484,148 +484,190 @@ class Style extends ThemeExtension<Style> {
     required this.unreadMessageColor,
   });
 
-  /// TODO: DOCS
+  /// The primary [Color] of Gapopa.
   final Color primary;
 
+  /// [Color] of the dragged panel of the call window and Scaffold.
   final Color primaryBackground;
 
+  /// The background [Color] of the call.
   final Color primaryBackgroundLight;
 
+  /// The background [Color] of the avatar, call button, etc.
   final Color primaryBackgroundLightest;
 
+  /// [Color] of the [SpinKit] and few buttons.
   final Color primaryHighlight;
 
+  /// [Color] of the [CircularProgressIndicator]
   final Color primaryHighlightDark;
 
+  /// [Color] of the chats button, copy icon, etc.
   final Color primaryHighlightDarkest;
 
+  /// primary [Color] with the 20% opacity.
   final Color primaryOpacity20;
 
+  /// primary [Color] with the 15% opacity.
   final Color primaryOpacity15;
 
+  /// The onPrimary [Color] of Gapopa.
   final Color onPrimary;
 
-  /// Color(0x11FFFFFF)(93%)
+  /// onPrimary [Color] with the 90% opacity.
   final Color onPrimaryOpacity90;
 
-  /// Color(0x40FFFFFF)
+  /// onPrimary [Color] with the 75% opacity.
   final Color onPrimaryOpacity75;
 
-  /// Color(0x66FFFFFF)
+  /// onPrimary [Color] with the 60% opacity.
   final Color onPrimaryOpacity60;
 
-  /// Color(0x80FFFFFF)
+  /// onPrimary [Color] with the 50% opacity.
   final Color onPrimaryOpacity50;
 
-  /// Color(0x99FFFFFF)
+  /// onPrimary [Color] with the 40% opacity.
   final Color onPrimaryOpacity40;
 
-  /// Color(0xCCFFFFFF)
+  /// onPrimary [Color] with the 20% opacity.
   final Color onPrimaryOpacity20;
 
-  /// Color(0xE6FFFFFF)
+  /// onPrimary [Color] with the 10% opacity.
   final Color onPrimaryOpacity10;
 
+  /// The secondary [Color] of Gapopa.
   final Color secondary;
 
+  /// [Color] of the DropDown menu with chat buttons.
   final Color secondaryHighlight;
 
+  /// [Color] of the forgot password button, details button.
   final Color secondaryHighlightShiny;
 
+  /// [Color] of the dim the primary view in a non-active call.
   final Color secondaryHighlightShinier;
 
+  /// [Color] of the chat message.
   final Color secondaryHighlightShiniest;
 
+  /// The onSecondary [Color] of Gapopa.
   final Color onSecondary;
 
+  /// onSecondary [Color] with the 90% opacity.
   final Color onSecondaryOpacity90;
 
+  /// onSecondary [Color] with the 60% opacity.
   final Color onSecondaryOpacity60;
 
+  /// onSecondary [Color] with the 50% opacity.
   final Color onSecondaryOpacity50;
 
+  /// onSecondary [Color] with the 30% opacity.
   final Color onSecondaryOpacity30;
 
+  /// onSecondary [Color] with the 20% opacity.
   final Color onSecondaryOpacity20;
 
+  /// The background [Color] of Gapopa.
   final Color background;
 
+  /// [Color] of the Secondary panel.
   final Color backgroundAuxiliary;
 
+  /// [Color] of the title bar.
   final Color backgroundAuxiliaryLight;
 
+  /// [Color] of the hovered indicator, [ChatForwardWidget], etc.
   final Color backgroundAuxiliaryLighter;
 
+  /// [Color] of the List [Chat.members]
   final Color backgroundAuxiliaryLightest;
 
+  /// [Color] of the text, BoxShadow's, etc.
   final Color onBackground;
 
+  /// Transparent [Color] of Gapopa.
   final Color transparent;
 
-  /// Same as Color(0x04000000)
+  /// Transparent [Color] with 98% opacity.
   final Color transparentOpacity98;
 
-  /// Same as Color(0x11000000) and 0x0D000000
+  /// Transparent [Color] with 94% opacity.
   final Color transparentOpacity94;
 
-  /// Same as Color(0x22000000)
+  /// Transparent [Color] with 88% opacity.
   final Color transparentOpacity88;
 
-  /// Same as Color(0x25000000)
+  /// Transparent [Color] with 85% opacity.
   final Color transparentOpacity85;
 
-  /// Same as Color(0x33000000)
+  /// Transparent [Color] with 81% opacity.
   final Color transparentOpacity81;
 
-  /// Same as Color(0x44000000)
+  /// Transparent [Color] with 74% opacity.
   final Color transparentOpacity74;
 
-  /// Same as Color(0x55000000)
+  /// Transparent [Color] with 67% opacity.
   final Color transparentOpacity67;
 
-  /// Same as Color(0x66000000)
+  /// Transparent [Color] with 60% opacity.
   final Color transparentOpacity60;
 
-  /// Same as Color(0x80000000)
+  /// Transparent [Color] with 50% opacity.
   final Color transparentOpacity50;
 
-  /// Same as Color(0x90000000) and black54
+  /// Transparent [Color] with 44% opacity.
   final Color transparentOpacity44;
 
-  /// Color(0xA0000000)
+  /// Transparent [Color] with 25% opacity.
   final Color transparentOpacity25;
 
-  /// Colors.black.with(0.9)
+  /// Transparent [Color] with 10% opacity.
   final Color transparentOpacity10;
 
+  /// [Color] of the call acceptance.
   final Color acceptColor;
 
+  /// [Color] of the some successful work.
   final Color acceptAuxilaryColor;
 
+  /// [Color] of the call cancellation.
   final Color declineColor;
 
-  final Color declineAuxilaryColor;
+  /// [Color] of the warning icons, text, etc.
+  final Color warningColor;
 
+  /// [Color] of the "Do not disturb" mode
   final Color doNotDistrubColor;
 
+  /// [Color] of the first avatar color in [AvatarWidget] List.
   final Color avatarColor1;
 
+  /// [Color] of the second avatar color in [AvatarWidget] List.
   final Color avatarColor2;
 
+  /// [Color] of the third avatar color in [AvatarWidget] List.
   final Color avatarColor3;
 
+  /// [Color] of the fourth avatar color in [AvatarWidget] List.
   final Color avatarColor4;
 
+  /// [Color] of the fifth avatar color in [AvatarWidget] List.
   final Color avatarColor5;
 
+  /// [Color] of the sixth avatar color in [AvatarWidget] List.
   final Color avatarColor6;
 
+  /// [Color] of the seventh avatar color in [AvatarWidget] List.
   final Color avatarColor7;
 
+  /// [Color] of the eighth avatar color in [AvatarWidget] List.
   final Color avatarColor8;
 
+  /// [Color] of the ninth avatar color in [AvatarWidget] List.
   final Color avatarColor9;
 
+  /// [Color] of the tenth avatar color in [AvatarWidget] List.
   final Color avatarColor10;
 
   /// [Color] of the modal background barrier color.
@@ -747,7 +789,7 @@ class Style extends ThemeExtension<Style> {
     Color? acceptColor,
     Color? acceptAuxilaryColor,
     Color? declineColor,
-    Color? declineAuxilaryColor,
+    Color? warningColor,
     Color? doNotDistrubColor,
     Color? avatarColor1,
     Color? avatarColor2,
@@ -836,7 +878,7 @@ class Style extends ThemeExtension<Style> {
       acceptColor: acceptColor ?? this.acceptColor,
       acceptAuxilaryColor: acceptAuxilaryColor ?? this.acceptAuxilaryColor,
       declineColor: declineColor ?? this.declineColor,
-      declineAuxilaryColor: declineAuxilaryColor ?? this.declineAuxilaryColor,
+      warningColor: warningColor ?? this.warningColor,
       doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
       avatarColor1: avatarColor1 ?? this.avatarColor1,
       avatarColor2: avatarColor2 ?? this.avatarColor2,
@@ -972,8 +1014,7 @@ class Style extends ThemeExtension<Style> {
       acceptAuxilaryColor:
           Color.lerp(acceptAuxilaryColor, other.acceptAuxilaryColor, t)!,
       declineColor: Color.lerp(declineColor, other.declineColor, t)!,
-      declineAuxilaryColor:
-          Color.lerp(declineAuxilaryColor, other.declineAuxilaryColor, t)!,
+      warningColor: Color.lerp(warningColor, other.warningColor, t)!,
       doNotDistrubColor:
           Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
       avatarColor1: Color.lerp(avatarColor1, other.avatarColor1, t)!,

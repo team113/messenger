@@ -171,7 +171,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 18,
-              color: style.declineAuxilaryColor,
+              color: style.warningColor,
             );
             break;
         }

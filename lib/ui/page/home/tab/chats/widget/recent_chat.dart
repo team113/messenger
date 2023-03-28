@@ -240,9 +240,8 @@ class RecentChatTile extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: inCall?.call() == true
-                  ? style.declineAuxilaryColor
-                  : style.secondary,
+              color:
+                  inCall?.call() == true ? style.warningColor : style.secondary,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               return Row(
@@ -785,7 +784,7 @@ class RecentChatTile extends StatelessWidget {
             color: isRead
                 ? style.secondary
                 : isError
-                    ? style.declineAuxilaryColor
+                    ? style.warningColor
                     : style.primary,
             size: 16,
           ),
@@ -810,7 +809,7 @@ class RecentChatTile extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: chat.muted == null
-                ? style.declineAuxilaryColor
+                ? style.warningColor
                 : style.primaryHighlightDarkest,
           ),
           alignment: Alignment.center,

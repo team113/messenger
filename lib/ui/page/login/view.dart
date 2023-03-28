@@ -272,10 +272,8 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .secondaryHighlightShiny),
+                          style:
+                              TextStyle(color: style.secondaryHighlightShiny),
                         ),
                       ),
                     ),

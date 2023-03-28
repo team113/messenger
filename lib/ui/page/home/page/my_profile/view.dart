@@ -943,7 +943,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           fillColor: style.onPrimary,
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
-                ? style.declineAuxilaryColor
+                ? style.warningColor
                 : style.secondary,
           ),
         ),
