@@ -25,6 +25,7 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -394,6 +395,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
   SelectedContent? _selection;
 
+  /// List of [TapGestureRecognizer] used to provide the ability to click on
+  /// links or emails.
+  final List<TapGestureRecognizer> _linkGestureRecognizers = [];
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -422,6 +427,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void dispose() {
     _ongoingCallTimer?.cancel();
     _ongoingCallTimer = null;
+
+    for (TapGestureRecognizer gestureRecognizer in _linkGestureRecognizers) {
+      gestureRecognizer.dispose();
+    }
+
     super.dispose();
   }
 
@@ -782,12 +792,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMessage(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final ChatMessage msg = widget.item.value as ChatMessage;
+    TextSpan? rich;
 
     String? text = msg.text?.val.trim();
     if (text?.isEmpty == true) {
       text = null;
     } else {
       text = msg.text?.val;
+      rich = detectLinksAndEmails(text, _linkGestureRecognizers);
     }
 
     List<Attachment> media = msg.attachments.where((e) {
@@ -912,14 +924,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   9,
                   files.isEmpty ? 10 : 0,
                 ),
-                child: SelectionText(
-                  text,
-                  key: Key('Text_${widget.item.value.id}'),
-                  selectable: PlatformUtils.isDesktop || menu,
-                  onSelecting: widget.onSelecting,
-                  onChanged: (a) => _selection = a,
-                  style: style.boldBody,
-                ),
+                child: rich != null
+                    ? SelectionText.rich(
+                        rich,
+                        key: Key('Text_${widget.item.value.id}'),
+                        selectable: PlatformUtils.isDesktop || menu,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody,
+                      )
+                    : SelectionText(
+                        text,
+                        key: Key('Text_${widget.item.value.id}'),
+                        selectable: PlatformUtils.isDesktop || menu,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody,
+                      ),
               ),
             ),
           if (files.isNotEmpty)
@@ -1804,6 +1825,80 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
   }
+}
+
+/// Returns [TextSpan]s, separating plain text from links and emails.
+TextSpan? detectLinksAndEmails(
+  String? text,
+  List<TapGestureRecognizer> gestureRecognizers,
+) {
+  if (text == null || text.isEmpty) return null;
+
+  final RegExp regex = RegExp(
+      r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)');
+
+  final Iterable<RegExpMatch> matches = regex.allMatches(text);
+
+  if (matches.isEmpty) return null;
+
+  TextStyle linkStyle = const TextStyle(
+    color: Colors.blue,
+    decoration: TextDecoration.underline,
+    decorationThickness: 2,
+  );
+
+  final List<TextSpan> textSpans = [];
+
+  final List<String> links = [];
+
+  for (RegExpMatch match in matches) {
+    links.add(text.substring(match.start, match.end));
+  }
+
+  for (String link in links) {
+    final List<String> parts = text!.split(link.trim());
+
+    if (parts[0] != '') {
+      textSpans.add(TextSpan(text: parts[0]));
+    }
+
+    gestureRecognizers.add(TapGestureRecognizer());
+    textSpans.add(
+      TextSpan(
+        text: link,
+        style: linkStyle,
+        recognizer: gestureRecognizers.last
+          ..onTap = () async {
+            final Uri uri;
+
+            if (link.isEmail) {
+              uri = Uri(
+                scheme: 'mailto',
+                path: link,
+              );
+            } else {
+              uri = Uri.parse(
+                !link.startsWith('http') ? 'http://$link' : link,
+              );
+            }
+
+            if (await canLaunchUrl(uri)) {
+              launchUrl(uri);
+            }
+          },
+      ),
+    );
+
+    if (parts[1] != '') {
+      if (link == links.last) {
+        textSpans.add(TextSpan(text: parts[1]));
+      } else {
+        text = parts[1];
+      }
+    }
+  }
+
+  return TextSpan(children: textSpans);
 }
 
 /// Extension adding a string representation of a [Duration] in

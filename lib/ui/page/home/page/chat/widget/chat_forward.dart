@@ -18,6 +18,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
@@ -185,6 +186,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
 
+  /// List of [TapGestureRecognizer] used to provide the ability to click on
+  /// links or emails.
+  final List<TapGestureRecognizer> _linkGestureRecognizers = [];
+
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
   bool get _isRead {
@@ -210,6 +215,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     _populateGlobalKeys();
     super.initState();
+  }
+
+  @override
+  dispose() {
+    for (TapGestureRecognizer gestureRecognizer in _linkGestureRecognizers) {
+      gestureRecognizer.dispose();
+    }
+
+    super.dispose();
   }
 
   @override
@@ -381,13 +395,24 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (quote.text != null && quote.text!.val.isNotEmpty) {
-          content = SelectionText(
-            quote.text!.val,
-            selectable: PlatformUtils.isDesktop || menu,
-            onChanged: (a) => _selection = a,
-            onSelecting: widget.onSelecting,
-            style: style.boldBody,
-          );
+          final TextSpan? rich =
+              detectLinksAndEmails(quote.text!.val, _linkGestureRecognizers);
+
+          content = rich != null
+              ? SelectionText.rich(
+                  rich,
+                  selectable: PlatformUtils.isDesktop || menu,
+                  onChanged: (a) => _selection = a,
+                  onSelecting: widget.onSelecting,
+                  style: style.boldBody,
+                )
+              : SelectionText(
+                  quote.text!.val,
+                  selectable: PlatformUtils.isDesktop || menu,
+                  onChanged: (a) => _selection = a,
+                  onSelecting: widget.onSelecting,
+                  style: style.boldBody,
+                );
         }
       } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
@@ -549,10 +574,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final Style style = Theme.of(context).extension<Style>()!;
 
       String? text = item.text?.val.trim();
+      TextSpan? rich;
       if (text?.isEmpty == true) {
         text = null;
       } else {
         text = item.text?.val;
+        rich = detectLinksAndEmails(text, _linkGestureRecognizers);
       }
 
       final List<Attachment> attachments = item.attachments.where((e) {
@@ -605,13 +632,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: SelectionText(
-                text,
-                selectable: PlatformUtils.isDesktop || menu,
-                onChanged: (a) => _selection = a,
-                onSelecting: widget.onSelecting,
-                style: style.boldBody,
-              ),
+              child: rich != null
+                  ? SelectionText.rich(
+                      rich,
+                      selectable: PlatformUtils.isDesktop || menu,
+                      onChanged: (a) => _selection = a,
+                      onSelecting: widget.onSelecting,
+                      style: style.boldBody,
+                    )
+                  : SelectionText(
+                      text,
+                      selectable: PlatformUtils.isDesktop || menu,
+                      onChanged: (a) => _selection = a,
+                      onSelecting: widget.onSelecting,
+                      style: style.boldBody,
+                    ),
             ),
           ),
         if (files.isNotEmpty)
