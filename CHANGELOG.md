@@ -20,13 +20,16 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
+    - Refactor all colors. ([#381], [#365])
 
 [#258]: /../../issues/258
 [#264]: /../../issues/264
+[#365]: /../../issues/365
 [#270]: /../../pull/270
 [#357]: /../../pull/357
 [#362]: /../../pull/362
 [#356]: /../../pull/356
+[#381]: /../../pull/381
 
 
 
