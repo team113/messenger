@@ -163,9 +163,11 @@ class RecentChatTile extends StatelessWidget {
                 if (trailing == null) ...[
                   if (blocked) ...[
                     const SizedBox(width: 5),
-                    const Icon(
+                    Icon(
                       Icons.block,
-                      color: Color(0xFFC0C0C0),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .primaryHighlightDarkest,
                       size: 20,
                     ),
                     if (chat.muted == null) const SizedBox(width: 5),
