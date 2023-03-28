@@ -240,9 +240,71 @@ class UserView extends StatelessWidget {
                     //   title: 'label_welcome_message'.l10n,
                     //   children: [_welcome(c, context)],
                     // ),
-                    Block(
-                      title: 'label_get_paid_for_incoming'.l10n,
-                      children: [_paid(c, context)],
+                    Stack(
+                      children: [
+                        Block(
+                          title: 'label_get_paid_for_incoming_from'.l10nfmt({
+                            'user': c.user!.user.value.name?.val ??
+                                c.user!.user.value.num.val,
+                          }),
+                          children: [_paid(c, context)],
+                        ),
+                        Positioned.fill(
+                          child: Obx(() {
+                            return IgnorePointer(
+                              ignoring: c.verified.value,
+                              child: Center(
+                                child: AnimatedContainer(
+                                  margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                  duration: 200.milliseconds,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: c.verified.value
+                                        ? const Color(0x00000000)
+                                        : const Color(0x0A000000),
+                                  ),
+                                  constraints: context.isNarrow
+                                      ? null
+                                      : const BoxConstraints(maxWidth: 400),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                        Positioned.fill(
+                          child: Center(
+                            child: Obx(() {
+                              return AnimatedSwitcher(
+                                duration: 200.milliseconds,
+                                child: c.verified.value
+                                    ? const SizedBox()
+                                    : Container(
+                                        key: Key('123'),
+                                        alignment: Alignment.bottomCenter,
+                                        padding: const EdgeInsets.fromLTRB(
+                                          32,
+                                          16,
+                                          32,
+                                          16,
+                                        ),
+                                        margin: const EdgeInsets.fromLTRB(
+                                            8, 4, 8, 4),
+                                        constraints: context.isNarrow
+                                            ? null
+                                            : const BoxConstraints(
+                                                maxWidth: 400),
+                                        child: Column(
+                                          children: [
+                                            const Spacer(),
+                                            _verification(context, c),
+                                          ],
+                                        ),
+                                      ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
                     ),
                     Block(
                       title: 'label_actions'.l10n,
@@ -590,6 +652,77 @@ class UserView extends StatelessWidget {
     );
   }
 
+  Widget _verification(BuildContext context, UserController c) {
+    return Obx(() {
+      return AnimatedSizeAndFade(
+        fadeDuration: 300.milliseconds,
+        sizeDuration: 300.milliseconds,
+        child: c.verified.value
+            ? const SizedBox(width: double.infinity)
+            : Column(
+                key: const Key('123'),
+                children: [
+                  const SizedBox(height: 12 * 2),
+                  _dense(
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        inputDecorationTheme:
+                            Theme.of(context).inputDecorationTheme.copyWith(
+                                  border: Theme.of(context)
+                                      .inputDecorationTheme
+                                      .border
+                                      ?.copyWith(
+                                        borderSide: c.hintVerified.value
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              )
+                                            : Theme.of(context)
+                                                .inputDecorationTheme
+                                                .border
+                                                ?.borderSide,
+                                      ),
+                                ),
+                      ),
+                      child: FieldButton(
+                        text: 'btn_verify_account'.l10n,
+                        onPressed: () => c.verified.value = true,
+                        trailing: Icon(
+                          Icons.verified_outlined,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+                    child: RichText(
+                      text: TextSpan(
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                                'Данная опция доступна верифицированным аккаунтам'
+                                    .l10n,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      );
+    });
+  }
+
   /// Returns a [User.name] copyable field.
   Widget _paid(UserController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -597,68 +730,68 @@ class UserView extends StatelessWidget {
     return Obx(() {
       return Column(
         children: [
-          AnimatedSizeAndFade(
-            fadeDuration: 300.milliseconds,
-            sizeDuration: 300.milliseconds,
-            child: c.verified.value
-                ? const SizedBox(width: double.infinity)
-                : Column(
-                    key: const Key('123'),
-                    children: [
-                      _dense(
-                        Text(
-                          'label_verify_your_account'.l10n,
-                          style: style.systemMessageStyle.copyWith(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _dense(
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                            inputDecorationTheme:
-                                Theme.of(context).inputDecorationTheme.copyWith(
-                                      border: Theme.of(context)
-                                          .inputDecorationTheme
-                                          .border
-                                          ?.copyWith(
-                                            borderSide: c.hintVerified.value
-                                                ? BorderSide(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                  )
-                                                : Theme.of(context)
-                                                    .inputDecorationTheme
-                                                    .border
-                                                    ?.borderSide,
-                                          ),
-                                    ),
-                          ),
-                          child: FieldButton(
-                            text: 'btn_verify_account'.l10n,
-                            // trailing: Transform.translate(
-                            //   offset: const Offset(0, -1),
-                            //   child: Transform.scale(
-                            //     scale: 1.15,
-                            //     child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-                            //   ),
-                            // ),
-                            onPressed: () {
-                              c.verified.value = true;
-                            },
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12 * 2),
-                    ],
-                  ),
-          ),
+          // AnimatedSizeAndFade(
+          //   fadeDuration: 300.milliseconds,
+          //   sizeDuration: 300.milliseconds,
+          //   child: c.verified.value
+          //       ? const SizedBox(width: double.infinity)
+          //       : Column(
+          //           key: const Key('123'),
+          //           children: [
+          //             _dense(
+          //               Text(
+          //                 'label_verify_your_account'.l10n,
+          //                 style: style.systemMessageStyle.copyWith(
+          //                   color: Colors.black,
+          //                   fontSize: 15,
+          //                   fontWeight: FontWeight.w400,
+          //                 ),
+          //               ),
+          //             ),
+          //             const SizedBox(height: 12),
+          //             _dense(
+          //               Theme(
+          //                 data: Theme.of(context).copyWith(
+          //                   inputDecorationTheme:
+          //                       Theme.of(context).inputDecorationTheme.copyWith(
+          //                             border: Theme.of(context)
+          //                                 .inputDecorationTheme
+          //                                 .border
+          //                                 ?.copyWith(
+          //                                   borderSide: c.hintVerified.value
+          //                                       ? BorderSide(
+          //                                           color: Theme.of(context)
+          //                                               .colorScheme
+          //                                               .primary,
+          //                                         )
+          //                                       : Theme.of(context)
+          //                                           .inputDecorationTheme
+          //                                           .border
+          //                                           ?.borderSide,
+          //                                 ),
+          //                           ),
+          //                 ),
+          //                 child: FieldButton(
+          //                   text: 'btn_verify_account'.l10n,
+          //                   // trailing: Transform.translate(
+          //                   //   offset: const Offset(0, -1),
+          //                   //   child: Transform.scale(
+          //                   //     scale: 1.15,
+          //                   //     child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          //                   //   ),
+          //                   // ),
+          //                   onPressed: () {
+          //                     c.verified.value = true;
+          //                   },
+          //                   style: TextStyle(
+          //                       color: Theme.of(context).colorScheme.secondary),
+          //                 ),
+          //               ),
+          //             ),
+          //             const SizedBox(height: 12 * 2),
+          //           ],
+          //         ),
+          // ),
           _padding(
             Stack(
               alignment: Alignment.centerLeft,
@@ -775,35 +908,36 @@ class UserView extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-            child: Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: TextStyle(
-                          color: c.verified.value
-                              ? Theme.of(context).colorScheme.secondary
-                              : Theme.of(context).colorScheme.primary,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            await GetPaidView.show(context);
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
+          //   child: Row(
+          //     children: [
+          //       RichText(
+          //         text: TextSpan(
+          //           style: const TextStyle(
+          //             fontSize: 11,
+          //             fontWeight: FontWeight.normal,
+          //           ),
+          //           children: [
+          //             TextSpan(
+          //               text: 'label_details'.l10n,
+          //               style: TextStyle(
+          //                 color: c.verified.value
+          //                     ? Theme.of(context).colorScheme.secondary
+          //                     : Theme.of(context).colorScheme.primary,
+          //               ),
+          //               recognizer: TapGestureRecognizer()
+          //                 ..onTap = () async {
+          //                   await GetPaidView.show(context);
+          //                 },
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          Opacity(opacity: 0, child: _verification(context, c)),
         ],
       );
     });

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -57,8 +58,7 @@ class BlacklistView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_blocked_count'
-                        .l10nfmt({'count': c.blacklist.length}),
+                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
                     style: thin?.copyWith(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
@@ -91,7 +91,19 @@ class BlacklistView extends StatelessWidget {
                           subtitle: [
                             const SizedBox(height: 5),
                             Text(
-                              '28.12.2022',
+                              'label_date_ymd'.l10nfmt({
+                                'year': user
+                                    .user.value.isBlacklisted!.at.val.year
+                                    .toString()
+                                    .padLeft(4, '0'),
+                                'month': user
+                                    .user.value.isBlacklisted!.at.val.month
+                                    .toString()
+                                    .padLeft(2, '0'),
+                                'day': user.user.value.isBlacklisted!.at.val.day
+                                    .toString()
+                                    .padLeft(2, '0'),
+                              }),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 13,

@@ -40,7 +40,6 @@ class Block extends StatelessWidget {
 
     return Center(
       child: Container(
-        width: double.infinity,
         margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         decoration: BoxDecoration(
           border: style.primaryBorder,

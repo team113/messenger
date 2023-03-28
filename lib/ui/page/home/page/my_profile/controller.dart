@@ -87,8 +87,11 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
-  final TextFieldState messageCost = TextFieldState();
-  final TextFieldState callsCost = TextFieldState();
+  final TextFieldState allMessageCost = TextFieldState();
+  final TextFieldState allCallCost = TextFieldState();
+
+  final TextFieldState contactMessageCost = TextFieldState();
+  final TextFieldState contactCallCost = TextFieldState();
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
@@ -412,22 +415,43 @@ class MyProfileController extends GetxController {
       },
     );
 
-    messageCost.isFocused.listen((b) {
+    allMessageCost.isFocused.listen((b) {
       if (b) {
-        messageCost.unchecked = messageCost.text.replaceAll('.00', '');
-      } else if (messageCost.text.isNotEmpty) {
-        if (!messageCost.text.contains('.')) {
-          messageCost.text = '${messageCost.text}.00';
+        allMessageCost.unchecked = allMessageCost.text.replaceAll('.00', '');
+      } else if (allMessageCost.text.isNotEmpty) {
+        if (!allMessageCost.text.contains('.')) {
+          allMessageCost.text = '${allMessageCost.text}.00';
         }
       }
     });
 
-    callsCost.isFocused.listen((b) {
+    allCallCost.isFocused.listen((b) {
       if (b) {
-        callsCost.unchecked = callsCost.text.replaceAll('.00', '');
-      } else if (callsCost.text.isNotEmpty) {
-        if (!callsCost.text.contains('.')) {
-          callsCost.text = '${callsCost.text}.00';
+        allCallCost.unchecked = allCallCost.text.replaceAll('.00', '');
+      } else if (allCallCost.text.isNotEmpty) {
+        if (!allCallCost.text.contains('.')) {
+          allCallCost.text = '${allCallCost.text}.00';
+        }
+      }
+    });
+
+    contactMessageCost.isFocused.listen((b) {
+      if (b) {
+        contactMessageCost.unchecked =
+            contactMessageCost.text.replaceAll('.00', '');
+      } else if (contactMessageCost.text.isNotEmpty) {
+        if (!contactMessageCost.text.contains('.')) {
+          contactMessageCost.text = '${contactMessageCost.text}.00';
+        }
+      }
+    });
+
+    contactCallCost.isFocused.listen((b) {
+      if (b) {
+        contactCallCost.unchecked = contactCallCost.text.replaceAll('.00', '');
+      } else if (contactCallCost.text.isNotEmpty) {
+        if (!contactCallCost.text.contains('.')) {
+          contactCallCost.text = '${contactCallCost.text}.00';
         }
       }
     });
