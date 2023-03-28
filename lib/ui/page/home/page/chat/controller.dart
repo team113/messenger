@@ -239,6 +239,9 @@ class ChatController extends GetxController {
   /// Height of a [LoaderElement] displayed in the message list.
   static const double loadingHeight = 70;
 
+  /// Bottom offset of the last item displayed in the message list.
+  static const double lastItemBottomOffset = 10;
+
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
@@ -1249,6 +1252,10 @@ class ChatController extends GetxController {
       keepPositionOffset.value = 0;
       _isPrevPageLoading = true;
 
+      if (_bottomLoader != null) {
+        elements.remove(_bottomLoader!.id);
+      }
+
       _bottomLoader =
           LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
       elements[_bottomLoader!.id] = _bottomLoader!;
@@ -1257,14 +1264,18 @@ class ChatController extends GetxController {
 
       final double offset = listController.position.pixels;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        keepPositionOffset.value = 50;
         if (offset < loadingHeight) {
           listController.jumpTo(
-            listController.position.pixels - (loadingHeight + 42 - offset),
+            listController.position.pixels -
+                (loadingHeight + lastItemBottomOffset),
           );
         }
-        elements.remove(_bottomLoader?.id);
+        elements.remove(_bottomLoader!.id);
         _isPrevPageLoading = false;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          keepPositionOffset.value = 50;
+        });
       });
     }
   }

@@ -542,7 +542,7 @@ class _ChatViewState extends State<ChatView>
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
     ListElement element = c.elements.values.elementAt(i);
-    bool isLast = i == c.elements.length - 1;
+    bool isLast = i == 0;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
@@ -564,9 +564,8 @@ class _ChatViewState extends State<ChatView>
         previous = c.elements.values.elementAt(i + 1);
       }
 
-      ListElement? next;
-      if (i > 0) {
-        next = c.elements.values.elementAt(i - 1);
+      if (previous is LoaderElement && i < c.elements.length - 2) {
+        previous = c.elements.values.elementAt(i + 2);
       }
 
       bool previousSame = false;
@@ -574,27 +573,20 @@ class _ChatViewState extends State<ChatView>
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30));
-      }
-
-      bool nextSame = false;
-      if (next != null) {
-        nextSame = (next is ChatMessageElement &&
-                next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
-            (next is ChatCallElement &&
-                next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       return Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        padding: EdgeInsets.fromLTRB(
+          8,
+          0,
+          8,
+          isLast ? ChatController.lastItemBottomOffset : 0,
+        ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
           builder: (_, u) => Obx(() {
@@ -604,8 +596,7 @@ class _ChatViewState extends State<ChatView>
               me: c.me!,
               avatar: !previousSame,
               margin: EdgeInsets.only(
-                top: previousSame ? 1.5 : 6,
-                bottom: nextSame ? 1.5 : 6,
+                top: previousSame ? 3 : 12,
               ),
               loadImages: c.settings.value?.loadImages != false,
               reads: c.chat!.members.length > 10
@@ -648,7 +639,12 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is ChatForwardElement) {
       return Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        padding: EdgeInsets.fromLTRB(
+          8,
+          0,
+          8,
+          isLast ? ChatController.lastItemBottomOffset : 0,
+        ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {

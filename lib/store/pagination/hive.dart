@@ -14,6 +14,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     this._hiveProvider, {
     required this.getCursor,
     required this.getKey,
+    this.startFromEnd = false,
   });
 
   /// Callback returning key of an item.
@@ -22,16 +23,21 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
   /// Callback returning cursor of an item.
   final T? Function(U? item) getCursor;
 
+  /// Indicator whether fetching should be started from the end if no item
+  /// provided.
+  bool startFromEnd;
+
   /// [HiveLazyProvider] items fetching from.
   HiveLazyProvider _hiveProvider;
 
   @override
   FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
-    if (_hiveProvider.keys.isEmpty) {
+    if (_hiveProvider.keys.isEmpty || (item == null && cursor != null)) {
       return Page<U, T>(RxList()).obs;
     }
 
-    Iterable<dynamic> keys = _hiveProvider.keys.take(count);
+    Iterable<dynamic>? keys;
+
     if (item != null) {
       final key = getKey(item);
       final int initialIndex = _hiveProvider.keys.toList().indexOf(key);
@@ -43,6 +49,12 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
               _hiveProvider.keys.skip(initialIndex - (count ~/ 2)).take(count);
         }
       }
+    }
+
+    if (startFromEnd) {
+      keys ??= _hiveProvider.keys.toList().reversed.take(count);
+    } else {
+      keys ??= _hiveProvider.keys.take(count);
     }
 
     List<U> items = [];

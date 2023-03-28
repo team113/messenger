@@ -259,6 +259,7 @@ class HiveRxChat extends RxChat {
           _local,
           getCursor: (item) => item?.cursor,
           getKey: (item) => item.value.key,
+          startFromEnd: true,
         ),
         GraphQlPageProvider(
           fetch: ({after, before, first, last}) => _chatRepository.messages(
@@ -709,17 +710,19 @@ class HiveRxChat extends RxChat {
 
   /// Recalculates the [reads] to represent the actual [messages].
   void updateReads() {
-    for (LastChatRead e in chat.value.lastReads) {
-      final PreciseDateTime? at = _lastReadAt(e.at);
+    if (hasPrevious.isFalse) {
+      for (LastChatRead e in chat.value.lastReads) {
+        final PreciseDateTime? at = _lastReadAt(e.at);
 
-      if (at != null) {
-        final LastChatRead? read =
-            reads.firstWhereOrNull((m) => m.memberId == e.memberId);
+        if (at != null) {
+          final LastChatRead? read =
+              reads.firstWhereOrNull((m) => m.memberId == e.memberId);
 
-        if (read != null) {
-          read.at = at;
-        } else {
-          reads.add(LastChatRead(e.memberId, at));
+          if (read != null) {
+            read.at = at;
+          } else {
+            reads.add(LastChatRead(e.memberId, at));
+          }
         }
       }
     }

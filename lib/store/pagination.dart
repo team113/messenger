@@ -66,6 +66,11 @@ class Pagination<T, K> {
   /// [StreamSubscription] for the [Page] fetched in the [around].
   StreamSubscription? _aroundSubscription;
 
+  /// Disposes this [Pagination].
+  void dispose() {
+    _aroundSubscription?.cancel();
+  }
+
   /// Resets this [Pagination] to its initial state.
   void clear() {
     elements.clear();
@@ -73,11 +78,6 @@ class Pagination<T, K> {
     hasPrevious.value = true;
     _startCursor = null;
     _endCursor = null;
-    _aroundSubscription?.cancel();
-  }
-
-  /// Disposes this [Pagination].
-  void dispose() {
     _aroundSubscription?.cancel();
   }
 

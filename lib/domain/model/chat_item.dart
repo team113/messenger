@@ -60,7 +60,7 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Key by what this [ChatItem] stored in the [Hive].
+  /// Combined key from the [at] and the [id] of this [ChatItem].
   String get key => '${at.microsecondsSinceEpoch}_$id';
 }
 

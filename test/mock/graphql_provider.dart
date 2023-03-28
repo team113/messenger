@@ -75,9 +75,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     RecentChatsCursor? before,
   }) async =>
       RecentChats$Query.fromJson({
-        'recentChats': {
-          'nodes': [],
-        }
+        'recentChats': {'nodes': []}
       });
 
   @override

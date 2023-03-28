@@ -869,7 +869,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   duration: const Duration(milliseconds: 500),
                   opacity: _isRead || !_fromMe ? 1 : 0.55,
                   child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
+                    onPressed: menu ? null : () => widget.onRepliedTap?.call(e),
                     child: _repliedMessage(e),
                   ),
                 ),
