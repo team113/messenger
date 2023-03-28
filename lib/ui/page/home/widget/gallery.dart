@@ -84,6 +84,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GestureDetector(
       onTap: widget.items?.isNotEmpty == true
           ? () {
@@ -126,8 +127,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ),
                   ),
                 )
-              : Container(
-                  color: Theme.of(context).extension<Style>()!.onPrimary),
+              : Container(color: style.onPrimary),
           ScrollConfiguration(
             behavior: _MyCustomScrollBehavior(),
             child: CarouselSlider(

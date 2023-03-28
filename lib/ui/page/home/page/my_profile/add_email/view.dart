@@ -77,8 +77,7 @@ class AddEmailView extends StatelessWidget {
                               : 'label_add_email_confirmation_sent'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color:
-                                Theme.of(context).extension<Style>()!.primary,
+                            color: style.primary,
                           ),
                         );
                       }),
@@ -169,7 +168,7 @@ class AddEmailView extends StatelessWidget {
                         'label_add_email_description'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).extension<Style>()!.primary,
+                          color: style.primary,
                         ),
                       ),
                     ),
@@ -200,7 +199,7 @@ class AddEmailView extends StatelessWidget {
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,
-                        color: Theme.of(context).extension<Style>()!.secondary,
+                        color: style.secondary,
                       );
                     }),
                   ],

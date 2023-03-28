@@ -55,6 +55,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
+  final styleColor = Theme.of(context).extension<Style>()!;
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
         (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
@@ -161,7 +162,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ? Theme.of(context)
                                 .extension<Style>()!
                                 .backgroundCobaltLight
-                            : Theme.of(context).extension<Style>()!.transparent,
+                            : styleColor.transparent,
                       ),
                       width: animated
                           ? MediaQuery.of(context).size.width - 20
@@ -300,7 +301,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: const Color(0x00D1E1F0),
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .secondaryAzureLighter,
                   ),
                 );
               }
@@ -383,7 +386,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    color: Theme.of(context).extension<Style>()!.primarySlate,
+                    color: styleColor.primarySlate,
                     size: 66,
                     duration: const Duration(milliseconds: 4500),
                   ),
@@ -781,8 +784,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Combines all the stackable content into [Scaffold].
     Widget scaffold = Scaffold(
-      backgroundColor:
-          Theme.of(context).extension<Style>()!.primaryCharcoalLight,
+      backgroundColor: styleColor.primaryCharcoalLight,
       body: Stack(
         children: [
           ...content,
@@ -855,12 +857,12 @@ Widget _chat(BuildContext context, CallController c) {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
-          color: Theme.of(context).extension<Style>()!.transparent,
+          color: style.transparent,
         ),
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
-          color: const Color(0x794E5A78),
+          color: style.onSecondaryOpacity50,
           child: InkWell(
             borderRadius: style.cardRadius,
             onTap: () => c.openAddMember(context),

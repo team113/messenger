@@ -65,10 +65,11 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       init: ParticipantController(
@@ -157,7 +158,7 @@ class ParticipantView extends StatelessWidget {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: Theme.of(context).extension<Style>()!.secondary,
+                        color: style.secondary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -182,6 +183,7 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final bool inCall =
           call.value.members.keys.where((e) => e.userId == user.id).isNotEmpty;
@@ -201,9 +203,7 @@ class ParticipantView extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 child: Material(
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
-                  color: inCall
-                      ? Colors.red
-                      : Theme.of(context).extension<Style>()!.secondary,
+                  color: inCall ? Colors.red : style.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap:
@@ -258,7 +258,7 @@ class ParticipantView extends StatelessWidget {
                 ? Text(
                     'btn_leave'.l10n,
                     style: TextStyle(
-                      color: Theme.of(context).extension<Style>()!.secondary,
+                      color: style.secondary,
                       fontSize: 15,
                     ),
                   )

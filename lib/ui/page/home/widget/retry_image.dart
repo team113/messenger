@@ -202,6 +202,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final Widget child;
 
     if (_image != null) {
@@ -270,7 +271,7 @@ class _RetryImageState extends State<RetryImage> {
                     blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)

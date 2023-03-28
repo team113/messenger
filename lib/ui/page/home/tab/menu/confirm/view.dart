@@ -102,14 +102,14 @@ class ConfirmLogoutView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Theme.of(context).extension<Style>()!.onBackground
-                          : Theme.of(context).extension<Style>()!.onPrimary,
+                          ? style.onBackground
+                          : style.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).extension<Style>()!.secondary,
+                  color: style.secondary,
                 ),
               ];
               break;
@@ -129,7 +129,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).extension<Style>()!.primary,
+                    color: style.primary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -139,12 +139,10 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(
-                          color:
-                              Theme.of(context).extension<Style>()!.onPrimary),
+                      style: thin?.copyWith(color: style.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                   ),
                 ),
               ];
@@ -165,7 +163,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   child: RichText(
                     text: TextSpan(
                       style: thin?.copyWith(
-                        color: Theme.of(context).extension<Style>()!.primary,
+                        color: style.primary,
                         fontSize: 16,
                       ),
                       children: [
@@ -195,18 +193,16 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: TextStyle(
-                          color:
-                              Theme.of(context).extension<Style>()!.onPrimary),
+                      style: TextStyle(color: style.onPrimary),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                   ),
                 ] else ...[
                   RichText(
                     text: TextSpan(
                       style: thin?.copyWith(
-                        color: Theme.of(context).extension<Style>()!.primary,
+                        color: style.primary,
                       ),
                       children: [
                         TextSpan(text: 'label_password_not_set'.l10n),
@@ -229,8 +225,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
-                          color:
-                              Theme.of(context).extension<Style>()!.secondary,
+                          color: style.secondary,
                         ),
                       ),
                       const SizedBox(width: 10),

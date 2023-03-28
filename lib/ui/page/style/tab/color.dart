@@ -36,19 +36,16 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     Widget color(String desc, Color color) => Column(
           children: [
             Caption(
               '${color.toHex()}, $desc',
-              color: isDarkMode
-                  ? Theme.of(context).extension<Style>()!.onPrimary
-                  : Theme.of(context).extension<Style>()!.onBackground,
+              color: isDarkMode ? style.onPrimary : style.onBackground,
             ),
             _Colored(
               color: color,
-              outline: isDarkMode
-                  ? Theme.of(context).extension<Style>()!.onPrimary
-                  : Theme.of(context).extension<Style>()!.onBackground,
+              outline: isDarkMode ? style.onPrimary : style.onBackground,
             )
           ],
         );
@@ -57,23 +54,17 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           children: [
             Caption(
               '${gradient.colors.map((e) => e.toHex())}, $desc',
-              color: isDarkMode
-                  ? Theme.of(context).extension<Style>()!.onPrimary
-                  : Theme.of(context).extension<Style>()!.onBackground,
+              color: isDarkMode ? style.onPrimary : style.onBackground,
             ),
             _Colored(
               gradient: gradient,
-              outline: isDarkMode
-                  ? Theme.of(context).extension<Style>()!.onPrimary
-                  : Theme.of(context).extension<Style>()!.onBackground,
+              outline: isDarkMode ? style.onPrimary : style.onBackground,
             )
           ],
         );
 
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? Theme.of(context).extension<Style>()!.onBackground
-          : Theme.of(context).extension<Style>()!.onPrimary,
+      backgroundColor: isDarkMode ? style.onBackground : style.onPrimary,
       body: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(8),
@@ -88,8 +79,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 value: isDarkMode,
                 onChanged: (b) => setState(() => isDarkMode = b),
               ),
-              Icon(Icons.dark_mode,
-                  color: Theme.of(context).extension<Style>()!.primary),
+              Icon(Icons.dark_mode, color: style.primary),
             ],
           ),
           color(
@@ -108,28 +98,25 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               colors: [Color(0xFF03A803), Color(0xFF20CD66)],
             ),
           ),
-          color('Цвет заднего фона звонка.',
-              Theme.of(context).extension<Style>()!.primaryCharcoalLight),
+          color('Цвет заднего фона звонка.', style.primaryCharcoalLight),
           color('Цвет затемнения заднего фона в звонке.',
-              Theme.of(context).extension<Style>()!.transparentOpacity74),
+              style.transparentOpacity74),
           color('Цвет надписей и иконок над задним фоном звонка.',
-              Theme.of(context).extension<Style>()!.primarySlateDarkest),
+              style.primarySlateDarkest),
           color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
           color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
           color(
             'Цвет кнопок в звонке.',
-            Theme.of(context).extension<Style>()!.primaryOpacity20,
+            style.primaryOpacity20,
           ),
           color('Цвет разделителей в панели ПКМ и в панели настроек.',
-              Theme.of(context).extension<Style>()!.transparentOpacity44),
-          color('Задний фон панели настроек.',
-              Theme.of(context).extension<Style>()!.onPrimaryOpacity20),
-          color('Задний фон панели ПКМ.',
-              Theme.of(context).extension<Style>()!.onPrimaryOpacity10),
+              style.transparentOpacity44),
+          color('Задний фон панели настроек.', style.onPrimaryOpacity20),
+          color('Задний фон панели ПКМ.', style.onPrimaryOpacity10),
           color('Цвет нижней панели с кнопками в звонке.',
-              Theme.of(context).extension<Style>()!.transparentOpacity60),
+              style.transparentOpacity60),
           color('Цвет разделителей в нижней панели с кнопками в звонке.',
-              Theme.of(context).extension<Style>()!.onPrimaryOpacity40),
+              style.onPrimaryOpacity40),
           const SizedBox(height: 60),
         ],
       ),
@@ -156,14 +143,15 @@ class _Colored extends StatelessWidget {
   final Color? outline;
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: color,
-          gradient: gradient,
-          border: Border.all(
-              color: outline ??
-                  Theme.of(context).extension<Style>()!.onBackground),
-        ),
-        height: 50,
-      );
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        gradient: gradient,
+        border: Border.all(color: outline ?? style.onBackground),
+      ),
+      height: 50,
+    );
+  }
 }

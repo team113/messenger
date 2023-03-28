@@ -45,7 +45,7 @@ class RectangleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
@@ -76,8 +76,7 @@ class RectangleButton extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).extension<Style>()!.secondary,
+                            backgroundColor: style.secondary,
                             radius: 12,
                             child: Icon(
                               Icons.check,

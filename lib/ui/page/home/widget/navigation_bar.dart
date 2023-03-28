@@ -48,7 +48,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -56,7 +56,7 @@ class CustomNavigationBar extends StatelessWidget {
         boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Theme.of(context).extension<Style>()!.transparentOpacity88,
+            color: style.transparentOpacity88,
             blurStyle: BlurStyle.outer,
           ),
         ],

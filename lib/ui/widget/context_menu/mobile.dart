@@ -419,6 +419,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
     List<Widget> widgets = [];
+    final style = Theme.of(context).extension<Style>()!;
 
     for (int i = 0; i < widget.actions.length; ++i) {
       widgets.add(widget.actions[i]);
@@ -427,15 +428,13 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       if (i < widget.actions.length - 1) {
         widgets.add(
           Container(
-            color: Theme.of(context).extension<Style>()!.transparentOpacity94,
+            color: style.transparentOpacity94,
             height: 1,
             width: double.infinity,
           ),
         );
       }
     }
-
-    final Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) => _dismiss(),

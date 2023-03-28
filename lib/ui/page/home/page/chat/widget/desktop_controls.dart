@@ -143,13 +143,11 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
-          Center(
-              child: Icon(Icons.error,
-                  color: Theme.of(context).extension<Style>()!.onPrimary,
-                  size: 42));
+          Center(child: Icon(Icons.error, color: style.onPrimary, size: 42));
     }
 
     return MouseRegion(
@@ -253,6 +251,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
@@ -269,8 +268,7 @@ class _DesktopControlsState extends State<DesktopControls>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color:
-                    Theme.of(context).extension<Style>()!.transparentOpacity60,
+                color: style.transparentOpacity60,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -297,6 +295,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(
       () => GestureDetector(
         onTap: _onExpandCollapse,
@@ -307,7 +306,7 @@ class _DesktopControlsState extends State<DesktopControls>
               widget.isFullscreen?.value == true
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-              color: Theme.of(context).extension<Style>()!.onPrimary,
+              color: style.onPrimary,
               size: 21,
             ),
           ),
@@ -319,7 +318,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
-
+    final style = Theme.of(context).extension<Style>()!;
     return Center(
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
@@ -341,12 +340,9 @@ class _DesktopControlsState extends State<DesktopControls>
                   child: IconButton(
                     iconSize: 32,
                     icon: isFinished
-                        ? Icon(Icons.replay,
-                            color:
-                                Theme.of(context).extension<Style>()!.onPrimary)
+                        ? Icon(Icons.replay, color: style.onPrimary)
                         : AnimatedPlayPause(
-                            color:
-                                Theme.of(context).extension<Style>()!.onPrimary,
+                            color: style.onPrimary,
                             playing: _controller.value.isPlaying,
                           ),
                     onPressed: _playPause,
@@ -359,17 +355,18 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(VideoPlayerController controller) {
+    final style = Theme.of(context).extension<Style>()!;
     return Transform.translate(
       offset: const Offset(0, 0),
       child: GestureDetector(
         onTap: _playPause,
         child: Container(
           height: _barHeight,
-          color: Theme.of(context).extension<Style>()!.transparent,
+          color: style.transparent,
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
-            color: Theme.of(context).extension<Style>()!.onPrimary,
+            color: style.onPrimary,
           ),
         ),
       ),
@@ -378,6 +375,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(VideoPlayerController controller) {
+    final style = Theme.of(context).extension<Style>()!;
     return MouseRegion(
       onEnter: (_) {
         if (mounted && _volumeEntry == null) {
@@ -409,7 +407,7 @@ class _DesktopControlsState extends State<DesktopControls>
             height: _barHeight,
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Theme.of(context).extension<Style>()!.onPrimary,
+              color: style.onPrimary,
               size: 18,
             ),
           ),
@@ -480,19 +478,19 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
+    final style = Theme.of(context).extension<Style>()!;
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: TextStyle(
-          fontSize: 14.0,
-          color: Theme.of(context).extension<Style>()!.onPrimary),
+      style: TextStyle(fontSize: 14.0, color: style.onPrimary),
     );
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
+    final style = Theme.of(context).extension<Style>()!;
     return Expanded(
       child: VideoProgressBar(
         _controller,
@@ -509,8 +507,8 @@ class _DesktopControlsState extends State<DesktopControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).extension<Style>()!.secondary,
-              handleColor: Theme.of(context).extension<Style>()!.secondary,
+              playedColor: style.secondary,
+              handleColor: style.secondary,
               bufferedColor: Theme.of(context)
                   .extension<Style>()!
                   .background

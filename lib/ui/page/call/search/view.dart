@@ -246,7 +246,7 @@ class SearchView extends StatelessWidget {
                         maxLines: 1,
                         style: TextStyle(
                           color: enabled
-                              ? Theme.of(context).extension<Style>()!.onPrimary
+                              ? style.onPrimary
                               : Theme.of(context)
                                   .extension<Style>()!
                                   .onBackground,
@@ -254,7 +254,7 @@ class SearchView extends StatelessWidget {
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).extension<Style>()!.secondary,
+                      color: style.secondary,
                     );
                   }),
                 ),

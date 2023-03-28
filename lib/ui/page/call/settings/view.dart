@@ -48,7 +48,7 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     Widget header(
       String text, {
@@ -61,9 +61,8 @@ class CallSettingsView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
               text,
-              style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).extension<Style>()!.onBackground,
-                  fontSize: 18),
+              style: style.systemMessageStyle
+                  .copyWith(color: style.onBackground, fontSize: 18),
             ),
           ),
         ),
@@ -216,8 +215,7 @@ class CallSettingsView extends StatelessWidget {
                           maxLines: null,
                           fillColor: style.onPrimary,
                           style: TextStyle(
-                            color:
-                                Theme.of(context).extension<Style>()!.secondary,
+                            color: style.secondary,
                           ),
                         ),
                       ),

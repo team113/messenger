@@ -112,11 +112,12 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
+    final style = Theme.of(context).extension<Style>()!;
     if (isMobile) {
       return showModalBottomSheet(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: Theme.of(context).extension<Style>()!.onPrimary,
+        backgroundColor: style.onPrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -178,6 +179,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns mobile design of this [Selector].
   Widget _mobile(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Container(
       height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
       margin: EdgeInsets.only(
@@ -194,8 +196,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color:
-                      Theme.of(context).extension<Style>()!.primarySlateDarkest,
+                  color: style.primarySlateDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -221,8 +222,10 @@ class _SelectorState<T> extends State<Selector<T>> {
                       selectionOverlay: Container(
                         margin:
                             const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration:
-                            const BoxDecoration(color: Color(0x3363B4FF)),
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onSecondaryOpacity20),
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
@@ -253,8 +256,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Theme.of(context).extension<Style>()!.onPrimary,
-                              Theme.of(context).extension<Style>()!.transparent,
+                              style.onPrimary,
+                              style.transparent,
                             ],
                           ),
                         ),
@@ -270,8 +273,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Theme.of(context).extension<Style>()!.transparent,
-                              Theme.of(context).extension<Style>()!.onPrimary,
+                              style.transparent,
+                              style.onPrimary,
                             ],
                           ),
                         ),
@@ -289,7 +292,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns desktop design of this [Selector].
   Widget _desktop(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
@@ -367,11 +370,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).extension<Style>()!.onPrimary,
+            color: style.onPrimary,
             child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor:
-                  Theme.of(context).extension<Style>()!.onPrimaryOpacity90,
+              hoverColor: style.onSecondaryOpacity20,
+              highlightColor: style.onPrimaryOpacity90,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;

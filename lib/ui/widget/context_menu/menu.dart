@@ -29,7 +29,7 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
     final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
@@ -40,7 +40,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: Theme.of(context).extension<Style>()!.transparentOpacity94,
+            color: style.transparentOpacity94,
             height: 1,
             width: double.infinity,
           ),
@@ -53,13 +53,11 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(
-            color: Theme.of(context).extension<Style>()!.primarySlateDarkest,
-            width: 0.5),
+        border: Border.all(color: style.primarySlateDarkest, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: Theme.of(context).extension<Style>()!.transparentOpacity81,
+            color: style.transparentOpacity81,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -115,7 +113,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -140,8 +138,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     ? Theme.of(context)
                         .extension<Style>()!
                         .contextMenuHoveredColor
-                    : Theme.of(context).extension<Style>()!.secondary
-                : Theme.of(context).extension<Style>()!.transparent,
+                    : style.secondary
+                : style.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -162,8 +160,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 widget.label,
                 style: style.boldBody.copyWith(
                   color: (isMouseOver && !context.isMobile)
-                      ? Theme.of(context).extension<Style>()!.onPrimary
-                      : Theme.of(context).extension<Style>()!.onBackground,
+                      ? style.onPrimary
+                      : style.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,
                 ),

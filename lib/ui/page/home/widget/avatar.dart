@@ -348,6 +348,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
@@ -356,8 +357,7 @@ class AvatarWidget extends StatelessWidget {
       } else if (title != null) {
         gradient = colors[(title!.hashCode) % colors.length];
       } else {
-        gradient =
-            Theme.of(context).extension<Style>()!.primaryCharcoalLightest;
+        gradient = style.primaryCharcoalLightest;
       }
 
       double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
@@ -370,7 +370,7 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: Theme.of(context).extension<Style>()!.onPrimary,
+          badgeColor: style.onPrimary,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
@@ -408,7 +408,7 @@ class AvatarWidget extends StatelessWidget {
                   (title ?? '??').initials(),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 15 * (maxWidth / 40.0),
-                        color: Theme.of(context).extension<Style>()!.onPrimary,
+                        color: style.onPrimary,
                         fontWeight: FontWeight.w700,
                       ),
 

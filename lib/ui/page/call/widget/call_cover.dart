@@ -40,6 +40,7 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Stack(
       children: [
         if (cover == null)
@@ -63,8 +64,7 @@ class CallCoverWidget extends StatelessWidget {
               gradient = AvatarWidget
                   .colors[(title.hashCode) % AvatarWidget.colors.length];
             } else {
-              gradient =
-                  Theme.of(context).extension<Style>()!.primaryCharcoalLightest;
+              gradient = style.primaryCharcoalLightest;
             }
 
             return Container(
@@ -85,7 +85,7 @@ class CallCoverWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),
-                        color: Theme.of(context).extension<Style>()!.onPrimary,
+                        color: style.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
 

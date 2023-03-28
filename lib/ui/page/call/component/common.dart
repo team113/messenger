@@ -58,7 +58,7 @@ abstract class CallButton {
     bool hinted = true,
     bool expanded = false,
     bool withBlur = false,
-    Color color = const Color(0x794E5A78),
+    required Color color,
     double assetWidth = 60,
     BoxBorder? border,
   }) {
@@ -88,6 +88,7 @@ class MoreButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
       asset: 'more',
       hinted: hinted,
       onPressed: c.toggleMore,
@@ -112,6 +113,8 @@ class VideoButton extends CallButton {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'video_${isVideo ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -138,6 +141,8 @@ class AudioButton extends CallButton {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'microphone_${isAudio ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -164,6 +169,8 @@ class ScreenButton extends CallButton {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
         onPressed: () => c.toggleScreenShare(router.context!),
@@ -185,6 +192,8 @@ class HandButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
         onPressed: c.toggleHand,
@@ -203,6 +212,7 @@ class SettingsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
       asset: 'settings_small',
       hinted: hinted,
       onPressed: () => c.openSettings(router.context!),
@@ -220,6 +230,7 @@ class ParticipantsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      color: Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),
@@ -240,6 +251,8 @@ class RemoteVideoButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
         onPressed: c.toggleRemoteVideos,
@@ -261,6 +274,8 @@ class RemoteAudioButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
         onPressed: c.toggleRemoteAudios,
@@ -417,6 +432,8 @@ class SpeakerButton extends CallButton {
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
         hinted: hinted,
         withBlur: blur,
@@ -437,6 +454,8 @@ class SwitchButton extends CallButton {
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
       return _common(
+        color:
+            Theme.of(router.context!).extension<Style>()!.onSecondaryOpacity50,
         asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
         assetWidth: 28,
         hinted: hinted,

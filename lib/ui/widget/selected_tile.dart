@@ -111,6 +111,7 @@ class SelectedTile extends StatelessWidget {
 
   /// Returns an animated [CircleAvatar] representing selection circle.
   List<Widget> _trailing(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return [
       if (myUser == null)
         SizedBox(
@@ -120,12 +121,11 @@ class SelectedTile extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             child: selected
                 ? CircleAvatar(
-                    backgroundColor:
-                        Theme.of(context).extension<Style>()!.secondary,
+                    backgroundColor: style.secondary,
                     radius: 12,
                     child: Icon(
                       Icons.check,
-                      color: Theme.of(context).extension<Style>()!.onPrimary,
+                      color: style.onPrimary,
                       size: 14,
                     ),
                   )

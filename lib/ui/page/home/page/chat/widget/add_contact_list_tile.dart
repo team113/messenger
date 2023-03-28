@@ -40,9 +40,9 @@ class AddContactListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(
-            color: Theme.of(context).extension<Style>()!.onBackground);
+        .resolve({MaterialState.disabled})!.copyWith(color: style.onBackground);
 
     return ListTile(
       leading: AnimatedSwitcher(
@@ -50,14 +50,12 @@ class AddContactListTile extends StatelessWidget {
         child: selected
             ? CircleAvatar(
                 backgroundColor: Colors.green,
-                child: Icon(Icons.check,
-                    color: Theme.of(context).extension<Style>()!.onPrimary),
+                child: Icon(Icons.check, color: style.onPrimary),
               )
             : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
-      selectedTileColor:
-          Theme.of(context).extension<Style>()!.transparentOpacity94,
+      selectedTileColor: style.transparentOpacity94,
       title: Text('${contact.contact.value.name}', style: font17),
       onTap: onTap,
     );

@@ -77,8 +77,7 @@ class AddPhoneView extends StatelessWidget {
                               : 'label_add_phone_confirmation_sent'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color:
-                                Theme.of(context).extension<Style>()!.primary,
+                            color: style.primary,
                           ),
                         );
                       }),
@@ -169,7 +168,7 @@ class AddPhoneView extends StatelessWidget {
                         'label_add_phone_description'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).extension<Style>()!.primary,
+                          color: style.primary,
                         ),
                       ),
                     ),
@@ -204,7 +203,7 @@ class AddPhoneView extends StatelessWidget {
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,
-                        color: Theme.of(context).extension<Style>()!.secondary,
+                        color: style.secondary,
                       );
                     }),
                   ],

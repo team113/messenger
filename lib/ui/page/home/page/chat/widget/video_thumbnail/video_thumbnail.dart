@@ -115,6 +115,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     double width = 0;
     double height = 0;
 
@@ -152,8 +153,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   // [Container] for receiving pointer events over this
                   // [VideoThumbnail], since the [ContextMenuInterceptor] above
                   // intercepts them.
-                  Container(
-                      color: Theme.of(context).extension<Style>()!.transparent),
+                  Container(color: style.transparent),
                 ],
               ),
             )

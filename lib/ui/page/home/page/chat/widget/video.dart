@@ -109,6 +109,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: _controller.value.isInitialized
@@ -143,8 +144,7 @@ class _VideoState extends State<Video> {
                       width: MediaQuery.of(context).size.width * 0.99,
                       height: MediaQuery.of(context).size.height * 0.6,
                       decoration: BoxDecoration(
-                        color:
-                            Theme.of(context).extension<Style>()!.transparent,
+                        color: style.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: _loading != null
@@ -195,7 +195,7 @@ class _VideoState extends State<Video> {
                   resizeToAvoidBottomInset: false,
                   body: Container(
                     alignment: Alignment.center,
-                    color: Theme.of(context).extension<Style>()!.onBackground,
+                    color: style.onBackground,
                     child: provider,
                   ),
                 );

@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 
 /// Animated button with expandable on toggle [actions].
@@ -131,6 +132,7 @@ class _AnimatedFabState extends State<AnimatedFab>
             ? Container(key: _fabKey, child: _fab())
             : _fab(),
       );
+  final style = Theme.of(router.context!).extension<Style>()!;
 
   /// Populates the [_overlayEntry].
   void _populateOverlay() {
@@ -303,8 +305,8 @@ class _AnimatedFabState extends State<AnimatedFab>
   }) =>
       Material(
         type: MaterialType.circle,
-        color: Theme.of(context).extension<Style>()!.onPrimary,
-        shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity67,
+        color: style.onPrimary,
+        shadowColor: style.transparentOpacity67,
         elevation: 6,
         child: InkWell(
           customBorder: const CircleBorder(),

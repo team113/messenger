@@ -51,7 +51,7 @@ class _DataAttachmentState extends State<DataAttachment> {
 
     return Obx(() {
       Widget leading = Container();
-
+      final style = Theme.of(context).extension<Style>()!;
       if (e is FileAttachment) {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
@@ -65,16 +65,18 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Theme.of(context).extension<Style>()!.secondary,
-                      Theme.of(context).extension<Style>()!.secondary,
-                      const Color(0xFFD1E1F0),
+                      style.secondary,
+                      style.secondary,
+                      Theme.of(context)
+                          .extension<Style>()!
+                          .backgroundCobaltLighter,
                     ],
                     stops: [
                       0,
@@ -101,12 +103,12 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).extension<Style>()!.secondary,
+                color: style.secondary,
               ),
               child: Center(
                 child: Icon(
                   Icons.insert_drive_file,
-                  color: Theme.of(context).extension<Style>()!.onPrimary,
+                  color: style.onPrimary,
                   size: 16,
                 ),
               ),
@@ -122,11 +124,13 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? const Color(0xFFD1E1F0)
-                    : const Color(0x00D1E1F0),
+                    ? Theme.of(context)
+                        .extension<Style>()!
+                        .backgroundCobaltLighter
+                    : style.transparent,
                 border: Border.all(
                   width: 2,
-                  color: Theme.of(context).extension<Style>()!.secondary,
+                  color: style.secondary,
                 ),
               ),
               child: Center(
@@ -147,8 +151,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               dimension: 18,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor:
-                    Theme.of(context).extension<Style>()!.onPrimary,
+                backgroundColor: style.onPrimary,
                 strokeWidth: 5,
               ),
             );
@@ -174,8 +177,6 @@ class _DataAttachmentState extends State<DataAttachment> {
         }
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
@@ -187,8 +188,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color:
-                    Theme.of(context).extension<Style>()!.transparentOpacity98,
+                color: style.transparentOpacity98,
               ),
               padding: const EdgeInsets.all(4),
               child: Row(
@@ -228,8 +228,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           overflow: TextOverflow.ellipsis,
                           style: style.boldBody.copyWith(
                             fontSize: 13,
-                            color:
-                                Theme.of(context).extension<Style>()!.primary,
+                            color: style.primary,
                           ),
                         ),
                       ],

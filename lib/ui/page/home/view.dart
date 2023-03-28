@@ -93,9 +93,10 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
+    final style = Theme.of(context).extension<Style>()!;
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: Theme.of(context).extension<Style>()!.onPrimary,
+        backgroundColor: style.onPrimary,
         body: const Center(child: CustomProgressIndicator()),
       );
     }
@@ -133,8 +134,7 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor:
-                        Theme.of(context).extension<Style>()!.sidebarColor,
+                    backgroundColor: style.sidebarColor,
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
@@ -328,7 +328,7 @@ class _HomeViewState extends State<HomeView> {
               key: const Key('HomeView'),
               children: [
                 Container(
-                  color: Theme.of(context).extension<Style>()!.onPrimary,
+                  color: style.onPrimary,
                   width: double.infinity,
                   height: double.infinity,
                 ),

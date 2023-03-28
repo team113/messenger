@@ -35,10 +35,11 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -65,7 +66,7 @@ class LinkDetailsView extends StatelessWidget {
                 ],
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: Theme.of(context).extension<Style>()!.primary,
+                  color: style.primary,
                 ),
               ),
             ),

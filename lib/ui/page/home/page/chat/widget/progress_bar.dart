@@ -86,6 +86,7 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
         if (controller.value.isInitialized) {
@@ -109,7 +110,7 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
           child: Container(
             height: constraints.biggest.height,
             width: constraints.biggest.width,
-            color: Theme.of(context).extension<Style>()!.transparent,
+            color: style.transparent,
             child: CustomPaint(
               painter: _ProgressBarPainter(
                 value: controller.value,

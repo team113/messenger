@@ -50,7 +50,7 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -69,8 +69,8 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? Theme.of(context).extension<Style>()!.primarySlate
-                    : Theme.of(context).extension<Style>()!.primarySlate,
+                    ? style.primarySlate
+                    : style.primarySlate,
               );
             }),
             Obx(() {
@@ -81,8 +81,7 @@ class ChatsTabView extends StatelessWidget {
                   border: c.search.value == null && !c.searching.value
                       ? null
                       : Border.all(
-                          color:
-                              Theme.of(context).extension<Style>()!.secondary,
+                          color: style.secondary,
                           width: 2,
                         ),
                   title: Obx(() {
@@ -749,6 +748,7 @@ class ChatsTabView extends StatelessWidget {
 
   /// Returns an animated [OutlinedRoundedButton]s for creating a group.
   Widget _createGroup(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Widget child;
 
@@ -796,12 +796,10 @@ class ChatsTabView extends StatelessWidget {
                   'btn_close'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(
-                      color:
-                          Theme.of(context).extension<Style>()!.onBackground),
+                  style: TextStyle(color: style.onBackground),
                 ),
                 onPressed: c.closeGroupCreating,
-                color: Theme.of(context).extension<Style>()!.onPrimary,
+                color: style.onPrimary,
               ),
               const SizedBox(width: 10),
               button(
@@ -809,11 +807,10 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(
-                      color: Theme.of(context).extension<Style>()!.onPrimary),
+                  style: TextStyle(color: style.onPrimary),
                 ),
                 onPressed: c.createGroup,
-                color: Theme.of(context).extension<Style>()!.secondary,
+                color: style.secondary,
               ),
             ],
           ),

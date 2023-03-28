@@ -71,7 +71,7 @@ class ChangePasswordView extends StatelessWidget {
                             : 'label_password_changed'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).extension<Style>()!.primary,
+                          color: style.primary,
                         ),
                       ),
                     ),
@@ -87,7 +87,7 @@ class ChangePasswordView extends StatelessWidget {
                                 .onPrimary),
                       ),
                       onPressed: Navigator.of(context).pop,
-                      color: Theme.of(context).extension<Style>()!.secondary,
+                      color: style.secondary,
                     ),
                   ],
                 ),
@@ -193,7 +193,7 @@ class ChangePasswordView extends StatelessWidget {
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,
-                        color: Theme.of(context).extension<Style>()!.secondary,
+                        color: style.secondary,
                       );
                     }),
                   ],

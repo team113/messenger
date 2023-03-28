@@ -60,11 +60,11 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
-    final Style style = Theme.of(context).extension<Style>()!;
+        ?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -117,8 +117,7 @@ class MessageInfo extends StatelessWidget {
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
                         ? Border.all(
-                            color:
-                                Theme.of(context).extension<Style>()!.secondary,
+                            color: style.secondary,
                             width: 2,
                           )
                         : null,

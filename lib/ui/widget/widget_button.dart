@@ -38,13 +38,14 @@ class WidgetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return MouseRegion(
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
         behavior: behavior,
         child: Container(
-          color: Theme.of(context).extension<Style>()!.transparent,
+          color: style.transparent,
           child: child,
         ),
       ),

@@ -83,6 +83,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Container(
       constraints: BoxConstraints(
         maxWidth: maxWidth,
@@ -91,22 +92,19 @@ class OutlinedRoundedButton extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         boxShadow: shadows,
-        color: onPressed == null
-            ? Theme.of(context).extension<Style>()!.primarySlate
-            : color,
+        color: onPressed == null ? style.primarySlate : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
-        color: Theme.of(context).extension<Style>()!.transparent,
+        color: style.transparent,
         elevation: elevation,
         borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor:
-              Theme.of(context).extension<Style>()!.primary.withOpacity(0.02),
+          hoverColor: style.primary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,
@@ -127,8 +125,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color:
-                            Theme.of(context).extension<Style>()!.onBackground,
+                        color: style.onBackground,
                         fontSize: 24 * 0.7,
                       ),
                   child: Center(

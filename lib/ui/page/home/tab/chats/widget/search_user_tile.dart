@@ -49,6 +49,7 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final ChatId? chatId =
           user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
@@ -75,8 +76,7 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: TextStyle(
-                  color: Theme.of(context).extension<Style>()!.primary),
+              style: TextStyle(color: style.primary),
             ),
           ],
           trailing: [
@@ -86,8 +86,7 @@ class SearchUserTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color:
-                      Theme.of(context).extension<Style>()!.primarySlateDarkest,
+                  color: style.primarySlateDarkest,
                   size: 20,
                 ),
               )

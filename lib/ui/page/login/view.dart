@@ -64,13 +64,12 @@ class LoginView extends StatelessWidget {
               title: Text(
                 title ?? '',
                 style: TextStyle(
-                  color: onPressed == null
-                      ? Theme.of(context).extension<Style>()!.onBackground
-                      : Theme.of(context).extension<Style>()!.onPrimary,
+                  color:
+                      onPressed == null ? style.onBackground : style.onPrimary,
                 ),
               ),
               onPressed: onPressed,
-              color: Theme.of(context).extension<Style>()!.secondary,
+              color: style.secondary,
             );
           }
 
@@ -92,7 +91,7 @@ class LoginView extends StatelessWidget {
                   'label_recover_account_description'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).extension<Style>()!.primary,
+                    color: style.primary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -129,7 +128,7 @@ class LoginView extends StatelessWidget {
                   'label_recovery_code_sent'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).extension<Style>()!.primary,
+                    color: style.primary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -168,7 +167,7 @@ class LoginView extends StatelessWidget {
                   'label_recovery_enter_new_password'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).extension<Style>()!.primary,
+                    color: style.primary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -230,7 +229,7 @@ class LoginView extends StatelessWidget {
                       'label_password_changed'.l10n,
                       style: theme.displaySmall?.copyWith(
                         fontSize: 15,
-                        color: Theme.of(context).extension<Style>()!.primary,
+                        color: style.primary,
                       ),
                     ),
                   ),

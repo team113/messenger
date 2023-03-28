@@ -84,6 +84,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return ClipPath(
       clipper:
           widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
@@ -107,7 +108,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
             borderRadius: widget.borderRadius,
             onTap: widget.onTap?.call,
             onHover: (v) => setState(() => hovered = v),
-            hoverColor: Theme.of(context).extension<Style>()!.transparent,
+            hoverColor: style.transparent,
             child: Stack(
               children: [
                 Center(child: widget.child),

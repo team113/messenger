@@ -167,6 +167,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     BuildContext context,
     BoxConstraints constraints,
   ) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       double? left = c.left.value;
       double? top = c.top.value;
@@ -319,7 +320,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 child: Container(
                   width: width,
                   height: height,
-                  color: Theme.of(context).extension<Style>()!.transparent,
+                  color: style.transparent,
                 ),
               ),
             ),

@@ -40,7 +40,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final style = Theme.of(context).extension<Style>()!;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -55,7 +55,7 @@ class MenuTabView extends StatelessWidget {
                     shadowColor: Theme.of(context)
                         .extension<Style>()!
                         .transparentOpacity67,
-                    color: Theme.of(context).extension<Style>()!.onPrimary,
+                    color: style.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(

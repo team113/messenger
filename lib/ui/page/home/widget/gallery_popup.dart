@@ -142,6 +142,7 @@ class GalleryPopup extends StatefulWidget {
     required BuildContext context,
     required GalleryPopup gallery,
   }) {
+    final style = Theme.of(context).extension<Style>()!;
     return showGeneralDialog(
       context: context,
       pageBuilder: (
@@ -156,7 +157,7 @@ class GalleryPopup extends StatefulWidget {
         return themes.wrap(gallery);
       },
       barrierDismissible: false,
-      barrierColor: Theme.of(context).extension<Style>()!.transparent,
+      barrierColor: style.transparent,
       transitionDuration: Duration.zero,
       useRootNavigator: PlatformUtils.isMobile ? false : true,
     );
@@ -410,6 +411,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the gallery view of its items itself.
   Widget _pageView() {
+    final style = Theme.of(context).extension<Style>()!;
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
@@ -515,8 +517,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-          backgroundDecoration: BoxDecoration(
-              color: Theme.of(context).extension<Style>()!.transparent),
+          backgroundDecoration: BoxDecoration(color: style.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
             _isInitialPage = false;
@@ -611,6 +612,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
+    final style = Theme.of(context).extension<Style>()!;
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -657,7 +659,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
@@ -714,7 +718,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: Theme.of(context)
+                                  .extension<Style>()!
+                                  .onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
@@ -754,12 +760,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .onSecondaryOpacity50,
                     onPressed: _dismiss,
                     withBlur: true,
                     child: Icon(
                       Icons.close_rounded,
-                      color: Theme.of(context).extension<Style>()!.onPrimary,
+                      color: style.onPrimary,
                       size: 28,
                     ),
                   ),
@@ -782,7 +790,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                     width: 60,
                     height: 60,
                     child: RoundFloatingButton(
-                      color: const Color(0x794E5A78),
+                      color: Theme.of(context)
+                          .extension<Style>()!
+                          .onSecondaryOpacity50,
                       onPressed: _toggleFullscreen,
                       withBlur: true,
                       assetWidth: 22,
@@ -853,7 +863,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: Theme.of(context)
+                        .extension<Style>()!
+                        .onSecondaryOpacity50,
                     onPressed: () {
                       widget.onTrashPressed?.call(_page);
                       _dismiss();

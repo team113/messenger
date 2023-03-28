@@ -73,6 +73,7 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     Widget button({
       required String text,
       IconData? icon,
@@ -88,17 +89,12 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: TextStyle(
-              fontSize: 15,
-              color: Theme.of(context).extension<Style>()!.onBackground),
-          color: Theme.of(context).extension<Style>()!.secondary,
+          style: TextStyle(fontSize: 15, color: style.onBackground),
+          color: style.secondary,
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ??
-                Icon(icon,
-                    color: Theme.of(context).extension<Style>()!.onPrimary,
-                    size: 30),
+            child: child ?? Icon(icon, color: style.onPrimary, size: 30),
           ),
         ),
       );
@@ -158,7 +154,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           key: const Key('CloseButton'),
           title: Text('btn_close'.l10n),
           onPressed: Navigator.of(context).pop,
-          color: Theme.of(context).extension<Style>()!.primarySlate,
+          color: style.primarySlate,
         ),
         const SizedBox(height: 10),
       ],

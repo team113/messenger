@@ -44,6 +44,7 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GetBuilder(
       key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
@@ -55,9 +56,10 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).extension<Style>()!.onBackground,
-                      fontSize: 18),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(color: style.onBackground, fontSize: 18),
                 ),
               ),
             ),
@@ -84,6 +86,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
+    final style = Theme.of(context).extension<Style>()!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -94,9 +97,7 @@ class ChatsMoreView extends StatelessWidget {
             style: Theme.of(context)
                 .extension<Style>()!
                 .systemMessageStyle
-                .copyWith(
-                    color: Theme.of(context).extension<Style>()!.onBackground,
-                    fontSize: 18),
+                .copyWith(color: style.onBackground, fontSize: 18),
           ),
         ),
       ),
@@ -135,8 +136,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor:
-                        Theme.of(context).extension<Style>()!.secondary,
+                    activeColor: style.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -207,14 +207,13 @@ class ChatsMoreView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).extension<Style>()!.primary,
+                          color: style.primary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                          color:
-                              Theme.of(context).extension<Style>()!.secondary,
+                          color: style.secondary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {

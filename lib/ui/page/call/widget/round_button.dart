@@ -34,7 +34,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.assetWidth = 60,
     this.onPressed,
     this.text,
-    this.color = const Color(0x794E5A78),
+    required this.color,
     this.hint,
     this.withBlur = false,
     this.style,
@@ -105,6 +105,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
       borderRadius: BorderRadius.circular(60),
@@ -164,7 +165,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).extension<Style>()!.onPrimary,
+                      color: style.onPrimary,
                       fontSize: 13,
                     ),
                 maxLines: 2,
@@ -201,7 +202,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       } else {
         firstLayout = false;
       }
-
+      final style = Theme.of(context).extension<Style>()!;
       return IgnorePointer(
         child: Stack(
           children: [
@@ -219,10 +220,18 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     style: context.theme.outlinedButtonTheme.style!.textStyle!
                         .resolve({MaterialState.disabled})!.copyWith(
                       fontSize: 13,
-                      color: Theme.of(context).extension<Style>()!.onPrimary,
-                      shadows: const [
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
+                      color: style.onPrimary,
+                      shadows: [
+                        Shadow(
+                            blurRadius: 6,
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onBackground),
+                        Shadow(
+                            blurRadius: 6,
+                            color: Theme.of(context)
+                                .extension<Style>()!
+                                .onBackground),
                       ],
                     ),
                   ),

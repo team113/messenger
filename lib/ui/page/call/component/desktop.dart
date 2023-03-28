@@ -55,6 +55,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
+  final style = Theme.of(context).extension<Style>()!;
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
@@ -69,6 +70,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Secondary view possible alignment.
       Widget possibleContainer() {
+        final style = Theme.of(context).extension<Style>()!;
         return Obx(() {
           Alignment? alignment = c.possibleSecondaryAlignment.value;
           if (alignment == null) {
@@ -91,8 +93,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color:
-                    Theme.of(context).extension<Style>()!.onSecondaryOpacity30,
+                color: style.onSecondaryOpacity30,
               ),
             ),
           );
@@ -217,8 +218,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color:
-                    Theme.of(context).extension<Style>()!.transparentOpacity60,
+                color: style.transparentOpacity60,
               ),
             );
           }
@@ -297,7 +297,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       : (d) => c.keepUi(),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).extension<Style>()!.transparent,
+                      color: style.transparent,
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         CustomBoxShadow(
@@ -316,7 +316,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0x301D6AAE),
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .onSecondaryOpacity20,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -407,7 +409,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               onExit: enabled ? (d) => c.keepUi() : null,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).extension<Style>()!.transparent,
+                  color: style.transparent,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     CustomBoxShadow(
@@ -693,7 +695,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0x301D6AAE),
+                        color: Theme.of(context)
+                            .extension<Style>()!
+                            .onSecondaryOpacity20,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -704,8 +708,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         'label_call_title'.l10nfmt(c.titleArguments),
                         style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
-                          color:
-                              Theme.of(context).extension<Style>()!.onPrimary,
+                          color: style.onPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -869,7 +872,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Combines all the stackable content into [Scaffold].
       Widget scaffold = Scaffold(
-        backgroundColor: Theme.of(context).extension<Style>()!.onBackground,
+        backgroundColor: style.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -883,7 +886,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).extension<Style>()!.transparent,
+                    color: style.transparent,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
@@ -1130,9 +1133,10 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
+      final style = Theme.of(context).extension<Style>()!;
       return Container(
         key: const ValueKey('TitleBar'),
-        color: Theme.of(context).extension<Style>()!.backgroundCobaltLight,
+        color: style.backgroundCobaltLight,
         height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -1462,7 +1466,9 @@ Widget _primaryView(CallController c) {
                                     ? Theme.of(router.context!)
                                         .extension<Style>()!
                                         .transparentOpacity74
-                                    : const Color(0x90000000),
+                                    : Theme.of(router.context!)
+                                        .extension<Style>()!
+                                        .transparentOpacity44,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -2195,7 +2201,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           ? Theme.of(context)
                                               .extension<Style>()!
                                               .transparentOpacity74
-                                          : const Color(0x90000000),
+                                          : Theme.of(context)
+                                              .extension<Style>()!
+                                              .transparentOpacity44,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
@@ -2414,7 +2422,9 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? const Color(0x10FFFFFF)
+                                          ? Theme.of(context)
+                                              .extension<Style>()!
+                                              .onPrimaryOpacity90
                                           : Theme.of(context)
                                               .extension<Style>()!
                                               .transparent,

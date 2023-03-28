@@ -58,12 +58,12 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin = Theme.of(context).extension<Style>()!.secondary;
-        final Color end =
-            Theme.of(context).extension<Style>()!.secondaryAzureLighter;
+        final Color begin = style.secondary;
+        final Color end = style.secondaryAzureLighter;
 
         const double size = 4;
         const double spacing = 1.6;

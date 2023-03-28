@@ -593,6 +593,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
+      final style = Theme.of(context).extension<Style>()!;
       var item = _items[index];
       return Stack(
         children: [
@@ -658,7 +659,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? Theme.of(context).extension<Style>()!.transparent
+                            ? style.transparent
                             : widget.hoverColor,
                       ),
                     );
@@ -686,7 +687,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? Theme.of(context).extension<Style>()!.transparent
+                            ? style.transparent
                             : widget.hoverColor,
                       ),
                     );
@@ -1061,6 +1062,7 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,
@@ -1147,7 +1149,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Theme.of(context).extension<Style>()!.transparent,
+                color: style.transparent,
               ),
             ),
             child: KeyedSubtree(

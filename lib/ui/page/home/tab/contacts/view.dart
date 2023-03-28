@@ -50,7 +50,7 @@ class ContactsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -67,7 +67,7 @@ class ContactsTabView extends StatelessWidget {
             border: c.search.value == null
                 ? null
                 : Border.all(
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                     width: 2,
                   ),
             title: Obx(() {
@@ -176,7 +176,7 @@ class ContactsTabView extends StatelessWidget {
                   key: UniqueKey(),
                   child: ColoredBox(
                     key: const Key('Loading'),
-                    color: Theme.of(context).extension<Style>()!.transparent,
+                    color: style.transparent,
                     child: const CustomProgressIndicator(),
                   ),
                 );
@@ -411,8 +411,8 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? Theme.of(context).extension<Style>()!.primarySlate
-                        : Theme.of(context).extension<Style>()!.primarySlate,
+                        ? style.primarySlate
+                        : style.primarySlate,
                   );
                 }),
                 Padding(
@@ -445,7 +445,7 @@ class ContactsTabView extends StatelessWidget {
             .lastWhereOrNull((e) => e.startsWith(Routes.user))
             ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
         true;
-
+    final style = Theme.of(context).extension<Style>()!;
     return ContactTile(
       key: Key('Contact_${contact.id}'),
       contact: contact,
@@ -488,8 +488,7 @@ class ContactsTabView extends StatelessWidget {
             if (subtitle != null) {
               return Text(
                 subtitle,
-                style: TextStyle(
-                    color: Theme.of(context).extension<Style>()!.primary),
+                style: TextStyle(color: style.primary),
               );
             }
 
@@ -524,7 +523,7 @@ class ContactsTabView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Icon(
               Icons.block,
-              color: Theme.of(context).extension<Style>()!.primarySlateDarkest,
+              color: style.primarySlateDarkest,
               size: 20,
             ),
           );
@@ -540,14 +539,14 @@ class ContactsTabView extends StatelessWidget {
     BuildContext context,
     RxChatContact contact,
   ) async {
+    final style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: TextStyle(
-              color: Theme.of(context).extension<Style>()!.onBackground),
+          style: TextStyle(color: style.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

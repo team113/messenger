@@ -119,14 +119,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).extension<Style>()!;
 
       return Padding(
         padding: ModalPopup.padding(context),
@@ -191,7 +192,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 widget.description!,
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: Theme.of(context).extension<Style>()!.primary,
+                  color: style.primary,
                 ),
               ),
             ),
@@ -221,13 +222,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: thin?.copyWith(
-                  color: Theme.of(context).extension<Style>()!.onPrimary),
+              style: thin?.copyWith(color: style.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
             },
-            color: Theme.of(context).extension<Style>()!.secondary,
+            color: style.secondary,
           ),
         ),
         const SizedBox(height: 12),

@@ -51,9 +51,9 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).extension<Style>()!.onBackground);
-        final Color primary = Theme.of(context).extension<Style>()!.primary;
+        final TextStyle? thin =
+            context.textTheme.bodySmall?.copyWith(color: style.onBackground);
+        final Color primary = style.primary;
 
         // Header part of the page.
         //
@@ -159,8 +159,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: TextStyle(
-                  color: Theme.of(context).extension<Style>()!.onPrimary),
+              style: TextStyle(color: style.onPrimary),
             ),
             leading: Container(
               child: SvgLoader.asset(
@@ -169,7 +168,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: Theme.of(context).extension<Style>()!.secondary,
+            color: style.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -242,7 +241,7 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Theme.of(context).extension<Style>()!.background,
+                color: style.background,
               ),
             ),
             IgnorePointer(
@@ -256,8 +255,7 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor:
-                    Theme.of(context).extension<Style>()!.transparent,
+                backgroundColor: style.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -291,6 +289,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
+    final style = Theme.of(context).extension<Style>()!;
     await ModalPopup.show(
       context: context,
       child: Column(
@@ -300,9 +299,10 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).extension<Style>()!.onBackground,
-                    fontSize: 18),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: style.onBackground, fontSize: 18),
               ),
             ),
           ),

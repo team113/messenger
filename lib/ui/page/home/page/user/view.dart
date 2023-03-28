@@ -52,6 +52,7 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -82,7 +83,7 @@ class UserView extends StatelessWidget {
                       shadowColor: Theme.of(context)
                           .extension<Style>()!
                           .transparentOpacity67,
-                      color: Theme.of(context).extension<Style>()!.onPrimary,
+                      color: style.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
@@ -273,8 +274,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: TextStyle(
-                color: Theme.of(context).extension<Style>()!.secondary),
+            style: TextStyle(color: style.secondary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),
@@ -482,7 +482,7 @@ class UserView extends StatelessWidget {
 
   /// Returns a [WidgetButton] for removing the [User] from the blacklist.
   Widget _blockedField(BuildContext context, UserController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -494,8 +494,7 @@ class UserView extends StatelessWidget {
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color:
-                    Theme.of(context).extension<Style>()!.transparentOpacity88,
+                color: style.transparentOpacity88,
               ),
             ],
           ),
@@ -561,14 +560,14 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
+    final style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(
-              color: Theme.of(context).extension<Style>()!.onBackground),
+          style: TextStyle(color: style.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -581,14 +580,14 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(
-              color: Theme.of(context).extension<Style>()!.onBackground),
+          style: TextStyle(color: style.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -601,14 +600,14 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(
-              color: Theme.of(context).extension<Style>()!.onBackground),
+          style: TextStyle(color: style.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -628,8 +627,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(
-              color: Theme.of(context).extension<Style>()!.onBackground),
+          style: TextStyle(color: style.onBackground),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

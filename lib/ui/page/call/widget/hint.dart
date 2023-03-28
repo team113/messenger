@@ -41,13 +41,14 @@ class HintWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Card(
       elevation: 8,
-      shadowColor: Theme.of(context).extension<Style>()!.transparentOpacity74,
+      shadowColor: style.transparentOpacity74,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      color: Theme.of(context).extension<Style>()!.backgroundCobaltLightest,
+      color: style.backgroundCobaltLightest,
       margin: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -55,8 +56,7 @@ class HintWidget extends StatelessWidget {
           Container(
             height: 35,
             decoration: BoxDecoration(
-              color:
-                  Theme.of(context).extension<Style>()!.backgroundCobaltLighter,
+              color: style.backgroundCobaltLighter,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
@@ -105,7 +105,7 @@ class HintWidget extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Theme.of(context).extension<Style>()!.primaryOpacity15,
+                  color: style.primaryOpacity15,
                 ),
               ),
             ),

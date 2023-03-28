@@ -93,11 +93,11 @@ class Themes {
             secondaryAzureLighter: const Color(0xFFB6DCFF),
             secondaryAzureLightest: const Color(0xFFDBEAFD),
             onSecondary: const Color(0xBB1F3C5D),
-
             onSecondaryOpacity90: const Color(0xE0165084),
             onSecondaryOpacity60: const Color(0x9D165084),
+            onSecondaryOpacity50: const Color(0x794E5A78),
             onSecondaryOpacity30: const Color(0x4D165084),
-
+            onSecondaryOpacity20: const Color(0x301D6AAE),
             background: const Color(0xFFF5F8FA),
             backgroundCobalt: const Color(0xFF0A1724),
             backgroundCobaltLight: const Color(0xFF132131),
@@ -413,7 +413,9 @@ class Style extends ThemeExtension<Style> {
     required this.onSecondary,
     required this.onSecondaryOpacity90,
     required this.onSecondaryOpacity60,
+    required this.onSecondaryOpacity50,
     required this.onSecondaryOpacity30,
+    required this.onSecondaryOpacity20,
     required this.background,
     required this.onBackground,
     required this.transparent,
@@ -518,7 +520,11 @@ class Style extends ThemeExtension<Style> {
 
   final Color onSecondaryOpacity60;
 
+  final Color onSecondaryOpacity50;
+
   final Color onSecondaryOpacity30;
+
+  final Color onSecondaryOpacity20;
 
   final Color background;
 
@@ -660,7 +666,9 @@ class Style extends ThemeExtension<Style> {
     Color? onSecondary,
     Color? onSecondaryOpacity90,
     Color? onSecondaryOpacity60,
+    Color? onSecondaryOpacity50,
     Color? onSecondaryOpacity30,
+    Color? onSecondaryOpacity20,
     Color? background,
     Color? onBackground,
     Color? transparent,
@@ -729,7 +737,9 @@ class Style extends ThemeExtension<Style> {
       onSecondary: onSecondary ?? this.onSecondary,
       onSecondaryOpacity90: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
       onSecondaryOpacity60: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
-      onSecondaryOpacity30: onSecondaryOpacity90 ?? this.onSecondaryOpacity90,
+      onSecondaryOpacity50: onSecondaryOpacity50 ?? this.onSecondaryOpacity50,
+      onSecondaryOpacity30: onSecondaryOpacity30 ?? this.onSecondaryOpacity30,
+      onSecondaryOpacity20: onSecondaryOpacity20 ?? this.onSecondaryOpacity20,
       background: background ?? this.background,
       onBackground: onBackground ?? this.onBackground,
       transparent: transparent ?? this.transparent,
@@ -832,8 +842,12 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(onSecondaryOpacity90, other.onSecondaryOpacity90, t)!,
       onSecondaryOpacity60:
           Color.lerp(onSecondaryOpacity60, other.onSecondaryOpacity60, t)!,
+      onSecondaryOpacity50:
+          Color.lerp(onSecondaryOpacity50, other.onSecondaryOpacity50, t)!,
       onSecondaryOpacity30:
           Color.lerp(onSecondaryOpacity30, other.onSecondaryOpacity30, t)!,
+      onSecondaryOpacity20:
+          Color.lerp(onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,
       background: Color.lerp(background, other.background, t)!,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,

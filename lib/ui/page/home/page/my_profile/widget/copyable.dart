@@ -61,6 +61,7 @@ class CopyableTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final styleColor = Theme.of(context).extension<Style>()!;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

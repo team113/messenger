@@ -104,14 +104,14 @@ class IntroductionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Theme.of(context).extension<Style>()!.onBackground
-                          : Theme.of(context).extension<Style>()!.onPrimary,
+                          ? style.onBackground
+                          : style.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).extension<Style>()!.secondary,
+                  color: style.secondary,
                 ),
               ];
               break;
@@ -122,7 +122,7 @@ class IntroductionView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
                     fontSize: 15,
-                    color: Theme.of(context).extension<Style>()!.primary,
+                    color: style.primary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -132,12 +132,10 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(
-                          color:
-                              Theme.of(context).extension<Style>()!.onPrimary),
+                      style: thin?.copyWith(color: style.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).extension<Style>()!.secondary,
+                    color: style.secondary,
                   ),
                 ),
               ];
@@ -152,12 +150,11 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: thin?.copyWith(
-                        color: Theme.of(context).extension<Style>()!.onPrimary),
+                    style: thin?.copyWith(color: style.onPrimary),
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: Theme.of(context).extension<Style>()!.secondary,
+                  color: style.secondary,
                 ),
               ];
               break;
