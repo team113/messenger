@@ -63,6 +63,7 @@ class ElementStyleTabView extends StatelessWidget {
           ],
         );
 
+    AvatarWidget? avatarWidget;
     return SingleChildScrollView(
       controller: ScrollController(),
       child: Padding(
@@ -189,7 +190,7 @@ class ElementStyleTabView extends StatelessWidget {
                   spacing: 2,
                   runSpacing: 2,
                   children: List.generate(
-                    AvatarWidget.colors.length,
+                    avatarWidget!.colors.length,
                     (i) => AvatarWidget(title: 'Иван Иванович', color: i),
                   ),
                 ),
@@ -216,7 +217,7 @@ class ElementStyleTabView extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const SizedBox(width: 10),
-                                  const AvatarWidget(radius: 15),
+                                  AvatarWidget(radius: 15),
                                   const SizedBox(width: 8),
                                   Flexible(
                                     child: ConstrainedBox(
@@ -569,7 +570,7 @@ class ElementStyleTabView extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        const Expanded(
+                        Expanded(
                           flex: 1,
                           child: Center(
                             child: SizedBox(

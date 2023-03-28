@@ -41,6 +41,7 @@ class CallCoverWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
+
     return Stack(
       children: [
         if (cover == null)
@@ -55,14 +56,15 @@ class CallCoverWidget extends StatelessWidget {
             final String? title = user?.name?.val ?? user?.num.val;
             final int? color = user?.num.val.sum();
 
-            final Color gradient;
+            final Color? gradient;
+            AvatarWidget? avatarWidget;
 
             if (color != null) {
               gradient =
-                  AvatarWidget.colors[color % AvatarWidget.colors.length];
+                  avatarWidget!.colors[color % avatarWidget.colors.length];
             } else if (title != null) {
-              gradient = AvatarWidget
-                  .colors[(title.hashCode) % AvatarWidget.colors.length];
+              gradient = avatarWidget!
+                  .colors[(title.hashCode) % avatarWidget.colors.length];
             } else {
               gradient = style.primaryBackgroundLightest;
             }
@@ -75,7 +77,7 @@ class CallCoverWidget extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [gradient.lighten(), gradient],
+                  colors: [gradient!.lighten(), gradient],
                 ),
               ),
               child: Center(

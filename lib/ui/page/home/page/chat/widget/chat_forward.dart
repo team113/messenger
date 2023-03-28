@@ -207,10 +207,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
 
-    Color color = widget.user?.user.value.id == widget.me
+    AvatarWidget? avatarWidget;
+    Color? color = widget.user?.user.value.id == widget.me
         ? style.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            avatarWidget.colors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -459,11 +460,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                Color color = snapshot.data?.user.value.id == widget.me
+                AvatarWidget? avatarWidget;
+                Color? color = snapshot.data?.user.value.id == widget.me
                     ? style.secondary
-                    : AvatarWidget.colors[
+                    : avatarWidget!.colors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            AvatarWidget.colors.length];
+                            avatarWidget.colors.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -474,7 +476,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border(
-                            left: BorderSide(width: 2, color: color),
+                            left: BorderSide(width: 2, color: color!),
                           ),
                         ),
                         margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
@@ -555,10 +557,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      Color color = widget.user?.user.value.id == widget.me
+      AvatarWidget? avatarWidget;
+      Color? color = widget.user?.user.value.id == widget.me
           ? style.secondary
-          : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              AvatarWidget.colors.length];
+          : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+              avatarWidget.colors.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)

@@ -21,6 +21,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -40,7 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
-  const AvatarWidget({
+  AvatarWidget({
     Key? key,
     this.avatar,
     this.radius,
@@ -307,17 +308,17 @@ class AvatarWidget extends StatelessWidget {
   final bool isAway;
 
   /// Avatar color swatches.
-  static const List<Color> colors = [
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.cyan,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.amber,
-    Colors.orange,
-    Colors.deepOrange,
+  final List<Color?> colors = [
+    Theme.of(router.context!).extension<Style>()!.avatarColor1,
+    Theme.of(router.context!).extension<Style>()!.avatarColor2,
+    Theme.of(router.context!).extension<Style>()!.avatarColor3,
+    Theme.of(router.context!).extension<Style>()!.avatarColor4,
+    Theme.of(router.context!).extension<Style>()!.avatarColor5,
+    Theme.of(router.context!).extension<Style>()!.avatarColor6,
+    Theme.of(router.context!).extension<Style>()!.avatarColor7,
+    Theme.of(router.context!).extension<Style>()!.avatarColor8,
+    Theme.of(router.context!).extension<Style>()!.avatarColor9,
+    Theme.of(router.context!).extension<Style>()!.avatarColor10,
   ];
 
   /// Returns minimum diameter of the avatar.
@@ -353,9 +354,9 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = colors[color! % colors.length];
+        gradient = colors[color! % colors.length]!;
       } else if (title != null) {
-        gradient = colors[(title!.hashCode) % colors.length];
+        gradient = colors[(title!.hashCode) % colors.length]!;
       } else {
         gradient = style.primaryBackgroundLightest;
       }

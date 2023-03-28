@@ -109,17 +109,16 @@ class Themes {
             declineColor: const Color(0x7FFF0000),
             declineAuxilaryColor: Colors.red,
             doNotDistrubColor: Colors.orange,
-
-            /// avatarColor1: Colors.purple,
-            /// avatarColor2: Colors.deepPurple,
-            /// avatarColor3: Colors.indigo,
-            /// avatarColor4: Colors.blue,
-            /// avatarColor5: Colors.cyan,
-            /// avatarColor6: Colors.lightGreen,
-            /// avatarColor7: Colors.lime,
-            /// avatarColor8: Colors.amber,
-            /// avatarColor9: Colors.orange,
-            /// avatarColor10: Colors.deepOrange,
+            avatarColor1: Colors.purple,
+            avatarColor2: Colors.deepPurple,
+            avatarColor3: Colors.indigo,
+            avatarColor4: Colors.blue,
+            avatarColor5: Colors.cyan,
+            avatarColor6: Colors.lightGreen,
+            avatarColor7: Colors.lime,
+            avatarColor8: Colors.amber,
+            avatarColor9: Colors.orange,
+            avatarColor10: Colors.deepOrange,
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
@@ -452,6 +451,16 @@ class Style extends ThemeExtension<Style> {
     required this.declineColor,
     required this.declineAuxilaryColor,
     required this.doNotDistrubColor,
+    required this.avatarColor1,
+    required this.avatarColor2,
+    required this.avatarColor3,
+    required this.avatarColor4,
+    required this.avatarColor5,
+    required this.avatarColor6,
+    required this.avatarColor7,
+    required this.avatarColor8,
+    required this.avatarColor9,
+    required this.avatarColor10,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -599,6 +608,26 @@ class Style extends ThemeExtension<Style> {
 
   final Color doNotDistrubColor;
 
+  final Color avatarColor1;
+
+  final Color avatarColor2;
+
+  final Color avatarColor3;
+
+  final Color avatarColor4;
+
+  final Color avatarColor5;
+
+  final Color avatarColor6;
+
+  final Color avatarColor7;
+
+  final Color avatarColor8;
+
+  final Color avatarColor9;
+
+  final Color avatarColor10;
+
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
 
@@ -720,6 +749,16 @@ class Style extends ThemeExtension<Style> {
     Color? declineColor,
     Color? declineAuxilaryColor,
     Color? doNotDistrubColor,
+    Color? avatarColor1,
+    Color? avatarColor2,
+    Color? avatarColor3,
+    Color? avatarColor4,
+    Color? avatarColor5,
+    Color? avatarColor6,
+    Color? avatarColor7,
+    Color? avatarColor8,
+    Color? avatarColor9,
+    Color? avatarColor10,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -799,6 +838,16 @@ class Style extends ThemeExtension<Style> {
       declineColor: declineColor ?? this.declineColor,
       declineAuxilaryColor: declineAuxilaryColor ?? this.declineAuxilaryColor,
       doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
+      avatarColor1: avatarColor1 ?? this.avatarColor1,
+      avatarColor2: avatarColor2 ?? this.avatarColor2,
+      avatarColor3: avatarColor3 ?? this.avatarColor3,
+      avatarColor4: avatarColor4 ?? this.avatarColor4,
+      avatarColor5: avatarColor5 ?? this.avatarColor5,
+      avatarColor6: avatarColor6 ?? this.avatarColor6,
+      avatarColor7: avatarColor7 ?? this.avatarColor7,
+      avatarColor8: avatarColor8 ?? this.avatarColor8,
+      avatarColor9: avatarColor9 ?? this.avatarColor9,
+      avatarColor10: avatarColor10 ?? this.avatarColor10,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -927,6 +976,16 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(declineAuxilaryColor, other.declineAuxilaryColor, t)!,
       doNotDistrubColor:
           Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
+      avatarColor1: Color.lerp(avatarColor1, other.avatarColor1, t)!,
+      avatarColor2: Color.lerp(avatarColor2, other.avatarColor2, t)!,
+      avatarColor3: Color.lerp(avatarColor3, other.avatarColor3, t)!,
+      avatarColor4: Color.lerp(avatarColor4, other.avatarColor4, t)!,
+      avatarColor5: Color.lerp(avatarColor5, other.avatarColor5, t)!,
+      avatarColor6: Color.lerp(avatarColor6, other.avatarColor6, t)!,
+      avatarColor7: Color.lerp(avatarColor7, other.avatarColor7, t)!,
+      avatarColor8: Color.lerp(avatarColor8, other.avatarColor8, t)!,
+      avatarColor9: Color.lerp(avatarColor9, other.avatarColor9, t)!,
+      avatarColor10: Color.lerp(avatarColor10, other.avatarColor10, t)!,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,

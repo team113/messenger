@@ -773,6 +773,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
+
     final ChatMessage msg = widget.item.value as ChatMessage;
 
     String? text = msg.text?.val.trim();
@@ -793,10 +794,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    Color color = _fromMe
+    AvatarWidget? avatarWidget;
+    Color? color = _fromMe
         ? style.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            avatarWidget.colors.length];
 
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
@@ -1032,6 +1034,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     var message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
@@ -1072,12 +1075,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    final style = Theme.of(context).extension<Style>()!;
-
-    final Color color = _fromMe
+    AvatarWidget? avatarWidget;
+    final Color? color = _fromMe
         ? style.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            avatarWidget.colors.length];
 
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
@@ -1191,6 +1193,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item) {
     final style = Theme.of(context).extension<Style>()!;
+
     bool fromMe = item.author == widget.me;
 
     Widget? content;
@@ -1351,11 +1354,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        Color color = snapshot.data?.user.value.id == widget.me
+        AvatarWidget? avatarWidget;
+        Color? color = snapshot.data?.user.value.id == widget.me
             ? style.secondary
-            : AvatarWidget.colors[
+            : avatarWidget!.colors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
+                    avatarWidget.colors.length];
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -1365,7 +1369,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
+                  border: Border(left: BorderSide(width: 2, color: color!)),
                 ),
                 margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
                 padding: const EdgeInsets.only(left: 8),
