@@ -15,13 +15,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation RemoveChatMember($userId: UserId!, $chatId: ChatId!) {
-    removeChatMember(userId: $userId, chatId: $chatId) {
+mutation RemoveChatCallMember($userId: UserId!, $chatId: ChatId!) {
+    removeChatCallMember(userId: $userId, chatId: $chatId) {
         __typename
         ... on ChatEventsVersioned {
             ...ChatEventsVersioned
         }
-        ... on RemoveChatMemberError {
+        ... on RemoveChatCallMemberError {
             code
         }
     }

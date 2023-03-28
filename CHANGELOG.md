@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
+        - Participants dialing indication. ([#286], [#281])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
@@ -39,6 +40,8 @@ All user visible changes to this project will be documented in this file. This p
 [#264]: /../../issues/264
 [#367]: /../../issues/367
 [#270]: /../../pull/270
+[#281]: /../../issues/281
+[#286]: /../../pull/286
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
