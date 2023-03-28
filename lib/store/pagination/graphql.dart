@@ -19,7 +19,8 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
     T? after,
   }) fetch;
 
-  /// Indicator whether items should be started fetching from the end.
+  /// Indicator whether fetching should be started from the end if no cursor
+  /// provided.
   bool startFromEnd;
 
   @override

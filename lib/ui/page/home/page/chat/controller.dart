@@ -840,13 +840,10 @@ class ChatController extends GetxController {
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
       // index and offset.
-      if (!chat!.status.value.isSuccess) {
+      if (!chat!.status.value.isSuccess || chat!.status.value.isLoadingMore) {
         _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
           if (_messageInitializedWorker != null) {
             if (status.isSuccess) {
-              _messageInitializedWorker?.dispose();
-              _messageInitializedWorker = null;
-
               await Future.delayed(Duration.zero);
 
               if (!this.status.value.isSuccess) {
@@ -857,6 +854,27 @@ class ChatController extends GetxController {
               var result = _calculateListViewIndex();
               initIndex = result.index;
               initOffset = result.offset;
+
+              if (!status.isLoadingMore) {
+                _messageInitializedWorker?.dispose();
+                _messageInitializedWorker = null;
+
+                if (_bottomLoader != null) {
+                  showLoader.value = false;
+
+                  _bottomLoaderEndTimer =
+                      Timer(const Duration(milliseconds: 300), () {
+                    if (_bottomLoader != null) {
+                      elements.remove(_bottomLoader!.id);
+                      _bottomLoader = null;
+                    }
+                    showLoader.value = true;
+                    this.status.value = RxStatus.success();
+                  });
+                } else {
+                  this.status.value = RxStatus.success();
+                }
+              }
             }
           }
         });
@@ -866,13 +884,14 @@ class ChatController extends GetxController {
         initIndex = result.index;
         initOffset = result.offset;
 
-        status.value = RxStatus.loadingMore();
+        status.value = RxStatus.success();
       }
 
       _bottomLoaderStartTimer = Timer(
         const Duration(seconds: 2),
         () {
-          if (!status.value.isSuccess || status.value.isLoadingMore) {
+          if ((!status.value.isSuccess || status.value.isLoadingMore) &&
+              elements.isNotEmpty) {
             _bottomLoader = LoaderElement.bottom(
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
@@ -897,21 +916,6 @@ class ChatController extends GetxController {
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
           chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
-      }
-
-      if (_bottomLoader != null) {
-        showLoader.value = false;
-
-        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
-          if (_bottomLoader != null) {
-            elements.remove(_bottomLoader!.id);
-            _bottomLoader = null;
-          }
-          showLoader.value = true;
-          status.value = RxStatus.success();
-        });
-      } else {
-        status.value = RxStatus.success();
       }
 
       if (_lastSeenItem.value != null) {
@@ -1208,8 +1212,7 @@ class ChatController extends GetxController {
   void _loadMessages() async {
     if (listController.hasClients &&
         !_ignorePositionChanges &&
-        status.value.isSuccess &&
-        !status.value.isLoadingMore) {
+        status.value.isSuccess) {
       _loadNextPage();
       _loadPreviousPage();
     }

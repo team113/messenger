@@ -151,13 +151,6 @@ abstract class HiveChatItem extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   final ChatItemVersion ver;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is HiveChatItem && value.id == other.value.id;
 }
 
 /// Persisted in [Hive] storage [ChatInfo]'s [value].

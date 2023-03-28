@@ -30,6 +30,7 @@ class Pagination<T, K> {
     this.perPage = 10,
     required this.provider,
     required this.compare,
+    required this.sameItems,
   });
 
   /// Size of a page to fetch.
@@ -47,8 +48,14 @@ class Pagination<T, K> {
   /// Indicator whether [elements] has previous page.
   final RxBool hasPrevious = RxBool(true);
 
+  /// Indicator whether [around] elements was fetched.
+  final RxBool aroundFetched = RxBool(false);
+
   /// Callback, called to compare items.
   final int Function(T a, T b) compare;
+
+  /// Callback, called to compare items.
+  final bool Function(T a, T b) sameItems;
 
   /// Cursor pointing the first item in the [elements].
   K? _startCursor;
@@ -80,21 +87,30 @@ class Pagination<T, K> {
   Future<void> around({T? item, K? cursor}) async {
     final Rx<Page<T, K>> page = await provider.around(item, cursor, perPage);
 
-    PageInfo<K>? storedInfo = page.value.info;
-    _aroundSubscription = page.listen((page) {
-      for (var e in page.edges) {
-        _add(e);
-      }
-
-      if (_startCursor == storedInfo?.startCursor) {
-        _startCursor = page.info?.startCursor;
-      }
-      if (_endCursor == storedInfo?.endCursor) {
-        _endCursor = page.info?.endCursor;
-      }
-
+    if (!page.value.finalResult) {
+      PageInfo<K>? storedInfo = page.value.info;
       _aroundSubscription?.cancel();
-    });
+      _aroundSubscription = page.listen((p) {
+        for (var e in p.edges) {
+          _add(e);
+        }
+
+        if (_startCursor == storedInfo?.startCursor) {
+          _startCursor = p.info?.startCursor;
+        }
+        if (_endCursor == storedInfo?.endCursor) {
+          _endCursor = p.info?.endCursor;
+        }
+
+        hasNext.value = p.info!.hasNext;
+        hasPrevious.value = p.info!.hasPrevious;
+
+        _aroundSubscription?.cancel();
+        aroundFetched.value = true;
+      });
+    } else {
+      aroundFetched.value = true;
+    }
 
     if (page.value.info != null) {
       for (var e in page.value.edges) {
@@ -104,9 +120,6 @@ class Pagination<T, K> {
       hasPrevious.value = page.value.info!.hasPrevious;
       _startCursor = page.value.info!.startCursor;
       _endCursor = page.value.info!.endCursor;
-    } else {
-      hasNext.value = false;
-      hasPrevious.value = false;
     }
   }
 
@@ -125,8 +138,6 @@ class Pagination<T, K> {
         }
         hasNext.value = page.info!.hasNext;
         _endCursor = page.info!.endCursor ?? _endCursor;
-      } else {
-        hasNext.value = false;
       }
     }
   }
@@ -146,13 +157,13 @@ class Pagination<T, K> {
         }
         hasPrevious.value = page.info!.hasPrevious;
         _startCursor = page.info!.startCursor ?? _startCursor;
-      } else {
-        hasPrevious.value = false;
       }
     }
   }
 
   /// Adds the provided [item] to the [elements].
+  ///
+  /// [item] will be added if it is within the bounds of the stored [elements].
   void add(T item) {
     if (elements.isNotEmpty) {
       if ((compare(item, elements.first) == 1 || hasPrevious.isFalse) &&
@@ -166,7 +177,7 @@ class Pagination<T, K> {
 
   /// Adds the provided [item] to the [elements].
   void _add(T item) {
-    int i = elements.indexWhere((e) => e == item);
+    int i = elements.indexWhere((e) => sameItems(e, item));
     if (i == -1) {
       elements.insertAfter(item, (e) => compare(item, e) == 1);
     } else {
@@ -177,13 +188,16 @@ class Pagination<T, K> {
 
 /// Result of a paginated page fetching.
 class Page<T, K> {
-  Page(this.edges, [this.info]);
+  Page(this.edges, {this.info, this.finalResult = true});
 
   /// List of the fetched items.
   List<T> edges;
 
   /// [PageInfo] of this [Page].
   PageInfo<K>? info;
+
+  /// Indicator whether this [Page] will not be updated.
+  bool finalResult;
 }
 
 /// Base class for fetching items with pagination.

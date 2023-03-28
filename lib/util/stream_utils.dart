@@ -19,8 +19,6 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 
-import '/provider/gql/exceptions.dart' show StaleVersionException;
-
 /// Extension adding convenient execution wrapper to [StreamQueue].
 extension StreamQueueExtension on StreamQueue {
   /// Executes this [StreamQueue] in an async loop invoking the provided

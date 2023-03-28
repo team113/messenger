@@ -15,9 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import '../chat.dart';
 import '/domain/model/chat.dart';
-import '/provider/hive/chat_item.dart';
-import '/store/chat.dart';
 
 /// Possible kinds of a [RecentChatsEvent].
 enum RecentChatsEventKind {

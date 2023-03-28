@@ -68,9 +68,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
   var recentChats = {
-    'recentChats': {
-      'nodes': [],
-    }
+    'recentChats': {'nodes': []}
   };
 
   var userData = {

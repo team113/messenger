@@ -128,6 +128,10 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
+  /// [Worker] reacting on the [Pagination.aroundFetched] changes updating the
+  /// [status].
+  Worker? _aroundWorker;
+
   /// Subscription to the [PaginatedFragment.elements] changes.
   StreamSubscription? _paginationSubscription;
 
@@ -267,7 +271,8 @@ class HiveRxChat extends RxChat {
           startFromEnd: true,
         ),
       ),
-      compare: (a, b) => -a.value.at.compareTo(b.value.at),
+      compare: (a, b) => -a.value.key.compareTo(b.value.key),
+      sameItems: (a, b) => a.value.id == b.value.id,
     );
 
     if (id.isLocal) {
@@ -312,7 +317,19 @@ class HiveRxChat extends RxChat {
         await Future.delayed(Duration.zero, updateReads);
       }
 
-      status.value = RxStatus.success();
+      if (_pagination.aroundFetched.isTrue) {
+        status.value = RxStatus.success();
+      } else {
+        status.value = RxStatus.loadingMore();
+      }
+
+      _aroundWorker = ever(_pagination.aroundFetched, (fetched) {
+        if (fetched) {
+          status.value = RxStatus.success();
+          _aroundWorker?.dispose();
+          _aroundWorker = null;
+        }
+      });
     });
   }
 
@@ -334,6 +351,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.empty();
       _worker?.dispose();
       _userWorker?.dispose();
+      _aroundWorker?.dispose();
       for (var e in _userWorkers.values) {
         e.dispose();
       }
@@ -624,11 +642,7 @@ class HiveRxChat extends RxChat {
           }
         } else {
           if (saved.ver < item.ver || ignoreVersion) {
-            if (add) {
-              _local.add(item);
-            } else {
-              _local.put(item);
-            }
+            _local.put(item);
           }
         }
       },
@@ -674,7 +688,7 @@ class HiveRxChat extends RxChat {
   /// Returns a stored [HiveChatItem] identified by the provided [itemId], if any.
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
-  /// from the [messages] list.
+  /// from the [_local] store.
   Future<HiveChatItem?> get(ChatItemId itemId, {String? key}) async {
     return _guard.protect(
       () async {
@@ -687,6 +701,8 @@ class HiveRxChat extends RxChat {
         if (key != null) {
           return await _local.get(key!);
         }
+
+        return null;
       },
     );
   }
@@ -728,6 +744,8 @@ class HiveRxChat extends RxChat {
       for (var e in saved) {
         if (e is HiveChatMessage) {
           await put(
+            // Clone [HiveChatMessage]s because [saved] items is attached to
+            // another [Hive] box.
             HiveChatMessage(
               (e.value as ChatMessage)..status.value = SendingStatus.sending,
               e.cursor,
@@ -933,6 +951,7 @@ class HiveRxChat extends RxChat {
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
           _chatLocal.put(chatEntity);
+          lastReadItemCursor = node.chat.lastReadItemCursor;
         }
         break;
 
@@ -1133,12 +1152,17 @@ class HiveRxChat extends RxChat {
                 }
 
                 if (event.byUser.id == me) {
-                  final HiveChatItem? item =
-                      await _local.get(at.microsecondsSinceEpoch.toString());
-                  if (item != null) {
-                    chatEntity.lastReadItemCursor = item.cursor!;
-                    chatEntity.value.lastReadItem = item.value;
-                    lastReadItemCursor = item.cursor!;
+                  final key = _local.keys.lastWhereOrNull(
+                    (e) => (e as String)
+                        .startsWith(at.microsecondsSinceEpoch.toString()),
+                  );
+                  if (key != null) {
+                    final HiveChatItem? item = await _local.get(key);
+                    if (item != null) {
+                      chatEntity.lastReadItemCursor = item.cursor!;
+                      chatEntity.value.lastReadItem = item.value;
+                      lastReadItemCursor = item.cursor!;
+                    }
                   }
                 }
               }

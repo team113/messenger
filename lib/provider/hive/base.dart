@@ -143,7 +143,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   }
 }
 
-/// Base class for data providers backed by [Hive].
+/// Base class for data providers backed by [Hive] using [LazyBox].
 abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// [LazyBox] that contains all of the data.
   late LazyBox<T> _box;

@@ -761,7 +761,7 @@ class ChatRepository implements AbstractChatRepository {
 
     return Page(
       RxList(query.chat?.items.edges.map((e) => e.toHive()).toList() ?? []),
-      query.chat?.items.pageInfo
+      info: query.chat?.items.pageInfo
           .toModel((cursor) => cursor == null ? null : ChatItemsCursor(cursor)),
     );
   }

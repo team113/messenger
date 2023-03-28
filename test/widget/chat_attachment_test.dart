@@ -103,7 +103,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData],
+      'nodes': [chatData]
     }
   };
 

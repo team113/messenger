@@ -37,9 +37,10 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       final int initialIndex = _hiveProvider.keys.toList().indexOf(key);
       if (initialIndex != -1) {
         if (initialIndex < (count ~/ 2)) {
-          keys = keys.take(count - ((count ~/ 2) - initialIndex));
+          keys = _hiveProvider.keys.take(count - ((count ~/ 2) - initialIndex));
         } else {
-          keys = keys.skip(initialIndex - (count ~/ 2)).take(count);
+          keys =
+              _hiveProvider.keys.skip(initialIndex - (count ~/ 2)).take(count);
         }
       }
     }
@@ -56,7 +57,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     // stored values, thus `hasPrevious` and `hasNext` is always `true`.
     return Page(
       RxList(items.toList()),
-      PageInfo(
+      info: PageInfo(
         startCursor:
             getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
         endCursor:
@@ -64,6 +65,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
         hasPrevious: true,
         hasNext: true,
       ),
+      finalResult: items.length == count,
     ).obs;
   }
 
@@ -88,7 +90,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       // stored values, thus `hasPrevious` and `hasNext` is always `true`.
       return Page(
         RxList(items.toList()),
-        PageInfo(
+        info: PageInfo(
           startCursor:
               getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
           endCursor:
@@ -127,7 +129,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       // stored values, thus `hasPrevious` and `hasNext` is always `true`.
       return Page(
         RxList(items.toList()),
-        PageInfo(
+        info: PageInfo(
           startCursor:
               getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
           endCursor:

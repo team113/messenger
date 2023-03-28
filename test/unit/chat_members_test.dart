@@ -81,9 +81,7 @@ void main() async {
   await callRectProvider.init();
 
   var recentChats = {
-    'recentChats': {
-      'nodes': [],
-    }
+    'recentChats': {'nodes': []}
   };
 
   var chatData = {
