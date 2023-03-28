@@ -20,12 +20,16 @@ query RecentChats(
     $after: RecentChatsCursor
     $last: Int
     $before: RecentChatsCursor
+    $noFavorite: Boolean = false
+    $withOngoingCalls: Boolean = null
 ) {
     recentChats(
         first: $first
         after: $after
         last: $last
         before: $before
+        noFavorite: $noFavorite
+        withOngoingCalls: $withOngoingCalls
     ) {
         nodes {
             __typename

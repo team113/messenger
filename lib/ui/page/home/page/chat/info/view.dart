@@ -554,7 +554,7 @@ class ChatInfoView extends StatelessWidget {
                   if (inCall)
                     WidgetButton(
                       key: const Key('Drop'),
-                      onPressed: c.dropCall,
+                      onPressed: () => c.removeChatCallMember(e.id),
                       child: Container(
                         height: 22,
                         width: 22,

@@ -210,6 +210,17 @@ class CallService extends DisposableService {
     }
   }
 
+  /// Removes the specified [User] from the [ChatCall] of the specified
+  /// [Chat]-group by authority of the authenticated [MyUser].
+  ///
+  /// If the specified [User] participates in the [ChatCall] from multiple
+  /// devices simultaneously, then removes all the devices at once.
+  Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    if (_callsRepo.contains(chatId)) {
+      await _callsRepo.removeChatCallMember(chatId, userId);
+    }
+  }
+
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
@@ -265,4 +276,7 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callsRepo.removeCredentials(id);
+
+  /// Returns a [RxChat] by the provided [id].
+  Future<RxChat?> getChat(ChatId id) => _chatService.get(id);
 }
