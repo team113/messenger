@@ -52,6 +52,8 @@ class RecentChatTile extends StatelessWidget {
     super.key,
     this.me,
     this.blocked = false,
+    this.selected = false,
+    this.trailing,
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -62,7 +64,10 @@ class RecentChatTile extends StatelessWidget {
     this.onUnmute,
     this.onFavorite,
     this.onUnfavorite,
+    this.onSelect,
+    this.onTap,
     Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -74,6 +79,12 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] should display a blocked icon in
   /// its trailing.
   final bool blocked;
+
+  /// Indicator whether this [RecentChatTile] is selected.
+  final bool selected;
+
+  /// [Widget]s to display in the trailing instead of the defaults.
+  final List<Widget>? trailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -110,17 +121,27 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onUnfavorite;
 
+  /// Callback, called when this [rxChat] select action is triggered.
+  final void Function()? onSelect;
+
+  /// Callback, called when this [RecentChatTile] is tapped.
+  final void Function()? onTap;
+
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Indicator whether context menu should be enabled over this
+  /// [RecentChatTile].
+  final bool enableContextMenu;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-      final bool selected = chat.isRoute(router.route, me);
+      final bool isRoute = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,
@@ -139,28 +160,29 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context, selected)),
-                if (blocked) ...[
-                  const SizedBox(width: 5),
-                  Icon(
-                    Icons.block,
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .primaryHighlightDarkest,
-                    size: 20,
-                  ),
-                  if (chat.muted == null) const SizedBox(width: 5),
-                ],
-                if (chat.muted != null) ...[
-                  const SizedBox(width: 5),
-                  SvgLoader.asset(
-                    'assets/icons/muted.svg',
-                    key: Key('MuteIndicator_${chat.id}'),
-                    width: 19.99,
-                    height: 15,
-                  ),
-                  const SizedBox(width: 5),
-                ],
-                _counter(),
+                if (trailing == null) ...[
+                  if (blocked) ...[
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.block,
+                      color: Color(0xFFC0C0C0),
+                      size: 20,
+                    ),
+                    if (chat.muted == null) const SizedBox(width: 5),
+                  ],
+                  if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                    SvgLoader.asset(
+                      'assets/icons/muted.svg',
+                      key: Key('MuteIndicator_${chat.id}'),
+                      width: 19.99,
+                      height: 15,
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  _counter(),
+                ] else
+                  ...trailing!,
               ],
             ),
           ),
@@ -207,18 +229,23 @@ class RecentChatTile extends StatelessWidget {
               onPressed: onUnmute,
               trailing: const Icon(Icons.notifications),
             ),
+          const ContextMenuDivider(),
           ContextMenuButton(
+            key: const Key('SelectChatButton'),
             label: 'btn_select'.l10n,
+            onPressed: onSelect,
             trailing: const Icon(Icons.select_all),
           ),
         ],
-        selected: selected,
+        selected: isRoute || selected,
         avatarBuilder: avatarBuilder,
-        onTap: () {
-          if (!selected) {
-            router.chat(chat.id);
-          }
-        },
+        enableContextMenu: enableContextMenu,
+        onTap: onTap ??
+            () {
+              if (!isRoute) {
+                router.chat(chat.id);
+              }
+            },
       );
     });
   }
@@ -638,6 +665,8 @@ class RecentChatTile extends StatelessWidget {
         } else {
           subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
         }
+      } else {
+        subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
       }
 
       return DefaultTextStyle(

@@ -101,43 +101,34 @@ class ChangePasswordView extends StatelessWidget {
                   controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
-                    Obx(() {
-                      if (c.myUser.value?.hasPassword != true) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 25),
-                          child: Text(
-                            'label_password_not_set_info'.l10n,
-                            style: thin?.copyWith(
-                              fontSize: 15,
-                              color: style.primary,
-                            ),
+                    if (!c.hasPassword)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: Text(
+                          'label_password_not_set_info'.l10n,
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        );
-                      }
-
-                      return const SizedBox();
-                    }),
-                    Obx(() {
-                      if (c.myUser.value?.hasPassword == true) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: ReactiveTextField(
-                            state: c.oldPassword,
-                            label: 'label_current_password'.l10n,
-                            fillColor: style.onPrimary,
-                            obscure: c.obscurePassword.value,
-                            onSuffixPressed: c.obscurePassword.toggle,
-                            treatErrorAsStatus: false,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                              width: 17.07,
-                            ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ReactiveTextField(
+                          fillColor:
+                              Theme.of(context).extension<Style>()!.onPrimary,
+                          state: c.oldPassword,
+                          label: 'label_current_password'.l10n,
+                          obscure: c.obscurePassword.value,
+                          onSuffixPressed: c.obscurePassword.toggle,
+                          treatErrorAsStatus: false,
+                          trailing: SvgLoader.asset(
+                            'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                            width: 17.07,
                           ),
-                        );
-                      }
-
-                      return const SizedBox();
-                    }),
+                        ),
+                      ),
                     ReactiveTextField(
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
@@ -211,7 +202,7 @@ class ChangePasswordView extends StatelessWidget {
                 ModalPopupHeader(
                   header: Center(
                     child: Text(
-                      c.myUser.value?.hasPassword == true &&
+                      c.hasPassword &&
                               c.stage.value != ChangePasswordFlowStage.set
                           ? 'label_change_password'.l10n
                           : 'label_set_password'.l10n,

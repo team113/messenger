@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/routes.dart';
@@ -127,6 +128,42 @@ class ParticipantWidget extends StatelessWidget {
                     ),
                   ),
           ),
+          Obx(() {
+            final Widget child;
+
+            if (participant.member.isConnected.value) {
+              child = Container();
+            } else if (participant.member.isRedialing.isTrue) {
+              child = Container(
+                key: Key('ParticipantRedialing_${participant.member.id}'),
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.4),
+                child: const Padding(
+                  padding: EdgeInsets.all(21.0),
+                  child: Center(
+                    child: SpinKitDoubleBounce(
+                      color: Color(0xFFEEEEEE),
+                      size: 100 / 1.5,
+                      duration: Duration(milliseconds: 4500),
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              child = Container(
+                key: Key('ParticipantConnecting_${participant.member.id}'),
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.2),
+                child: const Center(
+                  child: CustomProgressIndicator(size: 64),
+                ),
+              );
+            }
+
+            return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+          }),
           Positioned.fill(
             child: _handRaisedIcon(participant.member.isHandRaised.value),
           ),
@@ -159,11 +196,11 @@ class ParticipantWidget extends StatelessWidget {
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
   final Participant participant;
@@ -200,7 +237,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      List<Widget> additionally = [];
+      final List<Widget> additionally = [];
 
       if (isAudioDisabled) {
         additionally.add(
@@ -268,6 +305,77 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
+      final Widget name = Container(
+        padding: const EdgeInsets.only(left: 3, right: 3),
+        child: Text(
+          participant.user.value?.user.value.name?.val ??
+              participant.user.value?.user.value.num.val ??
+              'dot'.l10n * 3,
+          style: context.theme.outlinedButtonTheme.style!.textStyle!
+              .resolve({MaterialState.disabled})!.copyWith(
+            fontSize: 15,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+
+      final Widget child;
+
+      if (hovered || additionally.isNotEmpty) {
+        child = Container(
+          key: const Key('Tooltip'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              CustomBoxShadow(
+                color: Color(0x22000000),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: preferBackdrop,
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: preferBackdrop
+                    ? const Color(0x4D165084)
+                    : const Color(0xBB1F3C5D),
+              ),
+              padding: EdgeInsets.only(
+                left: 6,
+                right: additionally.length >= 2 ? 6 : 6,
+                top: 4,
+                bottom: 4,
+              ),
+              height: 32,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...additionally,
+                  if (additionally.isNotEmpty && hovered)
+                    const SizedBox(width: 3),
+                  Flexible(
+                    child: additionally.isEmpty
+                        ? name
+                        : AnimatedSize(
+                            duration: 150.milliseconds,
+                            child: hovered ? name : const SizedBox(),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        child = const SizedBox();
+      }
+
       return Center(
         child: Stack(
           alignment: Alignment.center,
@@ -279,113 +387,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
-                  child: hovered || additionally.isNotEmpty
-                      ? Container(
-                          key: const Key('AnimatedSwitcherLabel'),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              CustomBoxShadow(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .transparentOpacity88,
-                                blurRadius: 8,
-                                blurStyle: BlurStyle.outer,
-                              )
-                            ],
-                          ),
-                          child: ConditionalBackdropFilter(
-                            condition: preferBackdrop,
-                            borderRadius: BorderRadius.circular(30),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: preferBackdrop
-                                    ? Theme.of(context)
-                                        .extension<Style>()!
-                                        .onSecondaryOpacity30
-                                    : Theme.of(context)
-                                        .extension<Style>()!
-                                        .onSecondary,
-                              ),
-                              padding: EdgeInsets.only(
-                                left: 6,
-                                right: additionally.length >= 2 ? 6 : 6,
-                                top: 4,
-                                bottom: 4,
-                              ),
-                              height: 32,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ...additionally,
-                                  if (additionally.isNotEmpty && hovered)
-                                    const SizedBox(width: 3),
-                                  Flexible(
-                                    child: AnimatedSize(
-                                      duration: 150.milliseconds,
-                                      child: hovered
-                                          ? Container(
-                                              padding: const EdgeInsets.only(
-                                                left: 3,
-                                                right: 3,
-                                              ),
-                                              child: Text(
-                                                participant.user.value?.user
-                                                        .value.name?.val ??
-                                                    participant.user.value?.user
-                                                        .value.num.val ??
-                                                    'dot'.l10n * 3,
-                                                style: context
-                                                    .theme
-                                                    .outlinedButtonTheme
-                                                    .style!
-                                                    .textStyle!
-                                                    .resolve({
-                                                  MaterialState.disabled
-                                                })!.copyWith(
-                                                  color: Theme.of(context)
-                                                      .extension<Style>()!
-                                                      .onPrimary,
-                                                  fontSize: 15,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            )
-                                          : const SizedBox(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      : null,
+                  child: child,
                 ),
               ),
             ),
-            Obx(() {
-              final Widget child;
-
-              if (participant.member.isConnected.value) {
-                child = Container();
-              } else {
-                child = Container(
-                  key: Key('ParticipantConnecting_${participant.member.id}'),
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Theme.of(context)
-                      .extension<Style>()!
-                      .transparentOpacity98,
-                  child: const Center(
-                    child: CustomProgressIndicator(size: 64),
-                  ),
-                );
-              }
-
-              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
-            }),
           ],
         ),
       );

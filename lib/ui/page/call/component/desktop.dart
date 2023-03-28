@@ -126,15 +126,21 @@ Widget desktopCall(CallController c, BuildContext context) {
                     child: Stack(
                       children: [
                         Obx(() {
+                          final bool isOutgoing = (c.outgoing ||
+                                  c.state.value == OngoingCallState.local) &&
+                              !c.started;
+
+                          final bool isIncoming =
+                              c.state.value != OngoingCallState.active &&
+                                  c.state.value != OngoingCallState.joining &&
+                                  !isOutgoing;
+
                           final bool isDialog =
                               c.chat.value?.chat.value.isDialog == true;
 
                           final Widget child;
 
-                          // TODO: Replace with `!isIncoming` when this PR is
-                          //       merged:
-                          //       https://github.com/team113/messenger/pull/286
-                          if (c.state.value == OngoingCallState.active) {
+                          if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
                             if (isDialog) {
@@ -1384,12 +1390,13 @@ Widget _primaryView(CallController c) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatMember(
-                                    participant.member.id.userId,
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
                                   ),
-                                ),
                               ] else ...[
                                 ContextMenuButton(
                                   label: c.videoState.value.isEnabled
@@ -1940,12 +1947,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatMember(
-                                    participant.member.id.userId,
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
                                   ),
-                                ),
                               ] else ...[
                                 ContextMenuButton(
                                   label: c.videoState.value.isEnabled

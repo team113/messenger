@@ -98,6 +98,9 @@ class CallWorker extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
+  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
+  Timer? _fadeTimer;
+
   @override
   void onInit() {
     _initAudio();
@@ -136,7 +139,7 @@ class CallWorker extends DisposableService {
             } else if (calling) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
-              play('chinese.mp3');
+              play('chinese.mp3', fade: true);
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -291,15 +294,30 @@ class CallWorker extends DisposableService {
   }
 
   /// Plays the given [asset].
-  Future<void> play(String asset) async {
+  Future<void> play(String asset, {bool fade = false}) async {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
         await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
         await _audioPlayer?.play(
           AssetSource('audio/$asset'),
+          volume: fade ? 0 : 1,
           position: Duration.zero,
           mode: PlayerMode.mediaPlayer,
         );
+
+        if (fade) {
+          _fadeTimer?.cancel();
+          _fadeTimer = Timer.periodic(
+            const Duration(milliseconds: 100),
+            (timer) async {
+              if (timer.tick > 9) {
+                timer.cancel();
+              } else {
+                await _audioPlayer?.setVolume((timer.tick + 1) / 10);
+              }
+            },
+          );
+        }
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {
           throw e;
@@ -315,6 +333,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
+    _fadeTimer?.cancel();
+    _fadeTimer = null;
     await _audioPlayer?.setReleaseMode(ReleaseMode.release);
     await _audioPlayer?.stop();
     await _audioPlayer?.release();

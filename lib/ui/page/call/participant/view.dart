@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -107,8 +108,10 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final Set<UserId> ids =
-                  call.value.members.keys.map((k) => k.userId).toSet();
+              final Set<UserId> ids = call.value.members.keys
+                  .where((e) => e.deviceId != null)
+                  .map((k) => k.userId)
+                  .toSet();
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -185,8 +188,16 @@ class ParticipantView extends StatelessWidget {
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
-      final bool inCall =
-          call.value.members.keys.where((e) => e.userId == user.id).isNotEmpty;
+      bool inCall = false;
+      bool isRedialed = false;
+
+      CallMember? member = call.value.members.values
+          .firstWhereOrNull((e) => e.id.userId == user.id);
+
+      if (member != null) {
+        inCall = true;
+        isRedialed = member.isRedialing.isTrue;
+      }
 
       return ContactTile(
         user: user,
@@ -206,14 +217,17 @@ class ParticipantView extends StatelessWidget {
                   color: inCall ? style.warningColor : style.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
-                    onTap:
-                        inCall ? () {} : () => c.redialChatCallMember(user.id),
+                    onTap: inCall
+                        ? isRedialed
+                            ? null
+                            : () => c.removeChatCallMember(user.id)
+                        : () => c.redialChatCallMember(user.id),
                     borderRadius: BorderRadius.circular(60),
                     child: SizedBox(
                       width: 30,
                       height: 30,
                       child: Center(
-                        child: inCall
+                        child: inCall && !isRedialed
                             ? SvgLoader.asset('assets/icons/call_end.svg')
                             : SvgLoader.asset(
                                 'assets/icons/audio_call_start.svg',

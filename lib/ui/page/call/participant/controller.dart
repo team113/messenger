@@ -32,6 +32,7 @@ import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
         RedialChatCallMemberException,
+        RemoveChatCallMemberException,
         RemoveChatMemberException,
         TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
@@ -160,6 +161,18 @@ class ParticipantController extends GetxController {
     try {
       await _chatService.removeChatMember(chatId.value, userId);
     } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [User] from the [_call].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _callService.removeChatCallMember(chatId.value, userId);
+    } on RemoveChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

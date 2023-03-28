@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -32,6 +31,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View displaying the provided [ChatItem] info.
@@ -88,7 +88,7 @@ class MessageInfo extends StatelessWidget {
                 alignment: Alignment.center,
                 child: WidgetButton(
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: id!.val));
+                    PlatformUtils.copy(text: id!.val);
                     MessagePopup.success('label_copied'.l10n);
                   },
                   child: Row(

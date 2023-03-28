@@ -175,7 +175,7 @@ class UserView extends StatelessWidget {
                 controller: c.scrollController,
                 child: Obx(() {
                   return ListView(
-                    key: const Key('UserColumn'),
+                    key: const Key('UserScrollable'),
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
@@ -341,6 +341,7 @@ class UserView extends StatelessWidget {
             onPressed: () => _hideChat(c, context),
           ),
           action(
+            key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
@@ -614,7 +615,7 @@ class UserView extends StatelessWidget {
     );
 
     if (result == true) {
-      // TODO: Clear the [Chat]-dialog.
+      await c.clearChat();
     }
   }
 

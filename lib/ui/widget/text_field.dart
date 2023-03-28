@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -252,8 +253,6 @@ class ReactiveTextField extends StatelessWidget {
       final styleColor = Theme.of(context).extension<Style>()!;
       return Theme(
         data: Theme.of(context).copyWith(
-          platform: TargetPlatform.macOS,
-          scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
                 floatingLabelStyle: state.error.value?.isNotEmpty == true
                     ? Theme.of(context)
@@ -267,6 +266,11 @@ class ReactiveTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              selectionControls: PlatformUtils.isAndroid
+                  ? MaterialTextSelectionControls()
+                  : PlatformUtils.isIOS
+                      ? CupertinoTextSelectionControls()
+                      : null,
               controller: state.controller,
               style: style,
               focusNode: state.focus,

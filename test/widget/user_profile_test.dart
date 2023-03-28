@@ -408,7 +408,7 @@ void main() async {
     expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
     expect(find.byKey(const Key('Present')), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
-        find.byKey(const Key('UserColumn')), const Offset(1, 1));
+        find.byKey(const Key('UserScrollable')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('5769 2360 9862 1822 '), findsOneWidget);
 

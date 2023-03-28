@@ -80,8 +80,26 @@ class ContextMenu extends StatelessWidget {
   }
 }
 
-/// Styled button used in [ContextMenu].
-class ContextMenuButton extends StatefulWidget {
+/// [Widget] to be displayed in a [ContextMenu].
+mixin ContextMenuItem on Widget {}
+
+/// [ContextMenuItem] representing a divider in [ContextMenu].
+class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
+  const ContextMenuDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+      width: double.infinity,
+      height: 1,
+      color: const Color(0xFFD0D0D0),
+    );
+  }
+}
+
+/// [ContextMenuItem] representing a styled button used in [ContextMenu].
+class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
     Key? key,
     required this.label,
@@ -121,6 +139,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
       },
+      onTapCancel: () => setState(() => isMouseOver = false),
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),

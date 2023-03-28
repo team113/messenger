@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
 
 import '/routes.dart';
@@ -215,7 +216,10 @@ class _HomeViewState extends State<HomeView> {
                                     ? style.primaryHighlightDarkest
                                     : style.warningColor,
                                 child: RmbDetector(
-                                  onPressed: () => ChatsMoreView.show(context),
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    ChatsMoreView.show(context);
+                                  },
                                   child: tab(
                                     tab: HomeTab.chats,
                                     child: Obx(() {
@@ -249,7 +253,10 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('MenuButton'),
                                 badgeColor: style.warningColor,
                                 child: RmbDetector(
-                                  onPressed: () => StatusView.show(context),
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    StatusView.show(context);
+                                  },
                                   child: Padding(
                                     key: c.profileKey,
                                     padding: const EdgeInsets.only(bottom: 2),
