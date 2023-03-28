@@ -42,10 +42,11 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -108,8 +109,7 @@ class ChangePasswordView extends StatelessWidget {
                             'label_password_not_set_info'.l10n,
                             style: thin?.copyWith(
                               fontSize: 15,
-                              color:
-                                  Theme.of(context).extension<Style>()!.primary,
+                              color: style.primary,
                             ),
                           ),
                         );
@@ -124,6 +124,7 @@ class ChangePasswordView extends StatelessWidget {
                           child: ReactiveTextField(
                             state: c.oldPassword,
                             label: 'label_current_password'.l10n,
+                            fillColor: style.onPrimary,
                             obscure: c.obscurePassword.value,
                             onSuffixPressed: c.obscurePassword.toggle,
                             treatErrorAsStatus: false,
@@ -141,6 +142,7 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
+                      fillColor: style.onPrimary,
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: c.obscureNewPassword.toggle,
                       treatErrorAsStatus: false,
@@ -154,6 +156,7 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('RepeatPasswordField'),
                       state: c.repeatPassword,
                       label: 'label_repeat_password'.l10n,
+                      fillColor: style.onPrimary,
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: c.obscureRepeatPassword.toggle,
                       treatErrorAsStatus: false,

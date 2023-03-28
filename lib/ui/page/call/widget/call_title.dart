@@ -101,7 +101,10 @@ class CallTitle extends StatelessWidget {
                   style: context.textTheme.headlineMedium?.copyWith(
                       color: Theme.of(context).extension<Style>()!.onPrimary),
                 ),
-                if (withDots) const AnimatedDots(),
+                if (withDots)
+                  AnimatedDots(
+                    color: Theme.of(context).extension<Style>()!.onPrimary,
+                  ),
               ],
             ),
         ],

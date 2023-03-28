@@ -41,8 +41,9 @@ class ConfirmLogoutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    final TextStyle? thin = theme.textTheme.bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+    final style = Theme.of(context).extension<Style>()!;
+    final TextStyle? thin =
+        theme.textTheme.bodyLarge?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -69,6 +70,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   key: const Key('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
+                  fillColor: style.onPrimary,
                   obscure: c.obscurePassword.value,
                   style: thin,
                   onSuffixPressed: c.obscurePassword.toggle,
@@ -83,6 +85,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   key: const Key('RepeatPasswordField'),
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
+                  fillColor: style.onPrimary,
                   obscure: c.obscureRepeat.value,
                   style: thin,
                   onSuffixPressed: c.obscureRepeat.toggle,

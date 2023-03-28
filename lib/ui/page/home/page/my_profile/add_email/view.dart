@@ -44,10 +44,11 @@ class AddEmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       init: AddEmailController(
@@ -87,6 +88,7 @@ class AddEmailView extends StatelessWidget {
                       key: const Key('ConfirmationCode'),
                       state: c.emailCode,
                       label: 'label_confirmation_code'.l10n,
+                      fillColor: style.onPrimary,
                       formatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     const SizedBox(height: 25),
@@ -176,6 +178,7 @@ class AddEmailView extends StatelessWidget {
                       key: const Key('Email'),
                       state: c.email,
                       label: 'label_email'.l10n,
+                      fillColor: style.onPrimary,
                       hint: 'label_email_example'.l10n,
                     ),
                     const SizedBox(height: 25),

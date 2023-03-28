@@ -301,8 +301,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 color: preferBackdrop
-                                    ? const Color(0x4D165084)
-                                    : const Color(0xBB1F3C5D),
+                                    ? Theme.of(context)
+                                        .extension<Style>()!
+                                        .onSecondaryOpacity30
+                                    : Theme.of(context)
+                                        .extension<Style>()!
+                                        .onSecondary,
                               ),
                               padding: EdgeInsets.only(
                                 left: 6,

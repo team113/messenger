@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
@@ -64,6 +65,7 @@ class SharableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styleColor = Theme.of(context).extension<Style>()!;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -93,6 +95,7 @@ class SharableTextField extends StatelessWidget {
                   prefix: leading,
                   state: state,
                   suffix: trailing == null ? Icons.ios_share : null,
+                  fillColor: styleColor.onPrimary,
                   trailing: trailing,
                   label: label,
                   style: style,

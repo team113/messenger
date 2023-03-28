@@ -105,6 +105,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -118,6 +119,7 @@ class ChatsMoreView extends StatelessWidget {
                     .l10n,
                 editable: false,
               ),
+              fillColor: style.onPrimary,
             ),
           ),
           Align(
@@ -150,6 +152,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,6 +161,7 @@ class ChatsMoreView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('LinkField'),
             state: c.link,
+            fillColor: style.onPrimary,
             onSuffixPressed: c.link.isEmpty.value
                 ? null
                 : () {

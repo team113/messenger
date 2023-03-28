@@ -135,6 +135,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
+                          fillColor: style.onPrimary,
                           style: style.boldBody.copyWith(fontSize: 17),
                           onChanged: () => c.query.value = c.search.text,
                         ),

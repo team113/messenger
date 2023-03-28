@@ -158,6 +158,7 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
+    final style = Theme.of(context).extension<Style>()!;
     try {
       _controller = VideoPlayerController.network(widget.url);
       widget.onController?.call(_controller);
@@ -171,11 +172,10 @@ class _VideoState extends State<Video> {
         autoInitialize: true,
         showControlsOnInitialize: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: Colors.blue,
-          handleColor: Colors.blue,
-          bufferedColor: Colors.white,
-          backgroundColor: const Color(0x80FFFFFF),
-          //Theme.of(context).extension<Style>()!.onPrimaryOpacity50,
+          playedColor: style.secondaryAzure,
+          handleColor: style.secondaryAzure,
+          bufferedColor: style.onPrimary,
+          backgroundColor: style.onPrimaryOpacity50,
         ),
         customControls: PlatformUtils.isMobile
             ? const MobileControls()

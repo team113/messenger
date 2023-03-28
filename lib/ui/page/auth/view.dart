@@ -42,6 +42,7 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -174,6 +175,7 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
+            color: style.onPrimary,
             leading: SvgLoader.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -184,6 +186,7 @@ class AuthView extends StatelessWidget {
           if (isIosWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
+              color: style.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child: SvgLoader.asset(
@@ -196,6 +199,7 @@ class AuthView extends StatelessWidget {
           if (isAndroidWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
+              color: style.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child: SvgLoader.asset(
@@ -208,6 +212,7 @@ class AuthView extends StatelessWidget {
           if (isDesktopWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
+              color: style.onPrimary,
               leading: PlatformUtils.isMacOS
                   ? SvgLoader.asset(
                       'assets/icons/apple.svg',

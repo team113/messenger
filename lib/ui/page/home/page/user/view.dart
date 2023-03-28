@@ -257,6 +257,7 @@ class UserView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     // Builds a stylized button representing a single action.
     Widget action({
       Key? key,
@@ -268,6 +269,7 @@ class UserView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         child: _dense(
           FieldButton(
+            fillColor: style.onPrimary,
             key: key,
             onPressed: onPressed,
             text: text ?? '',
@@ -425,6 +427,7 @@ class UserView extends StatelessWidget {
 
   /// Returns a [User.presence] text.
   Widget _presence(UserController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
       if (presence == null) {
@@ -438,6 +441,7 @@ class UserView extends StatelessWidget {
           key: const Key('Presence'),
           state: TextFieldState(text: subtitle),
           label: 'label_presence'.l10n,
+          fillColor: style.onPrimary,
           enabled: false,
           trailing: CircleAvatar(
             key: Key(presence.name.capitalizeFirst!),
@@ -451,6 +455,7 @@ class UserView extends StatelessWidget {
 
   /// Returns the blacklisted information of this [User].
   Widget _blocked(UserController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Column(
       children: [
         if (c.isBlacklisted?.at != null)
@@ -458,6 +463,7 @@ class UserView extends StatelessWidget {
             ReactiveTextField(
               state: TextFieldState(text: c.isBlacklisted!.at.toString()),
               label: 'label_date'.l10n,
+              fillColor: style.onPrimary,
               enabled: false,
             ),
           ),
@@ -466,6 +472,7 @@ class UserView extends StatelessWidget {
             ReactiveTextField(
               state: TextFieldState(text: c.isBlacklisted!.reason?.val),
               label: 'label_reason'.l10n,
+              fillColor: style.onPrimary,
               enabled: false,
             ),
           ),
@@ -525,6 +532,7 @@ class UserView extends StatelessWidget {
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
+                              fillColor: style.onPrimary,
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
                                 color: Theme.of(context)
@@ -613,6 +621,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
+    final style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
@@ -626,7 +635,11 @@ class UserView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          state: c.reason,
+          label: 'label_reason'.l10n,
+          fillColor: style.onPrimary,
+        ),
       ],
     );
 

@@ -41,6 +41,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
@@ -99,6 +100,7 @@ class LoginView extends StatelessWidget {
                   key: const Key('RecoveryField'),
                   state: c.recovery,
                   label: 'label_sign_in_input'.l10n,
+                  fillColor: style.onPrimary,
                 ),
                 const SizedBox(height: 25),
                 primaryButton(
@@ -135,6 +137,7 @@ class LoginView extends StatelessWidget {
                   key: const Key('RecoveryCodeField'),
                   state: c.recoveryCode,
                   label: 'label_recovery_code'.l10n,
+                  fillColor: style.onPrimary,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -173,6 +176,7 @@ class LoginView extends StatelessWidget {
                   key: const Key('PasswordField'),
                   state: c.newPassword,
                   label: 'label_new_password'.l10n,
+                  fillColor: style.onPrimary,
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
@@ -186,6 +190,7 @@ class LoginView extends StatelessWidget {
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
                   label: 'label_repeat_password'.l10n,
+                  fillColor: style.onPrimary,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
@@ -234,6 +239,7 @@ class LoginView extends StatelessWidget {
                   key: const Key('UsernameField'),
                   state: c.login,
                   label: 'label_sign_in_input'.l10n,
+                  fillColor: style.onPrimary,
                 ),
                 const SizedBox(height: 16),
                 Column(
@@ -244,6 +250,7 @@ class LoginView extends StatelessWidget {
                       key: const ValueKey('PasswordField'),
                       state: c.password,
                       label: 'label_password'.l10n,
+                      fillColor: style.onPrimary,
                       obscure: c.obscurePassword.value,
                       onSuffixPressed: c.obscurePassword.toggle,
                       treatErrorAsStatus: false,

@@ -53,7 +53,7 @@ class ReactiveTextField extends StatelessWidget {
     this.filled,
     this.treatErrorAsStatus = true,
     this.textAlign = TextAlign.start,
-    this.fillColor = Colors.white,
+    required this.fillColor,
     this.maxLength,
   }) : super(key: key);
 

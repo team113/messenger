@@ -45,6 +45,7 @@ class ReactiveDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return StatefulBuilder(
       builder: (context, setState) => Stack(
         children: [
@@ -52,6 +53,7 @@ class ReactiveDropdown<T> extends StatelessWidget {
             state: state,
             enabled: false,
             label: label,
+            fillColor: style.onPrimary,
             hint: label,
             icon: icon,
             suffix: Icons.keyboard_arrow_down,

@@ -84,6 +84,7 @@ class ContactsTabView extends StatelessWidget {
                         key: const Key('SearchField'),
                         state: c.search.value!.search,
                         hint: 'label_search'.l10n,
+                        fillColor: style.onPrimary,
                         maxLines: 1,
                         filled: false,
                         dense: true,

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -59,6 +60,7 @@ class CopyableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final styleColor = Theme.of(context).extension<Style>()!;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -86,6 +88,7 @@ class CopyableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
+                  fillColor: styleColor.onPrimary,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(

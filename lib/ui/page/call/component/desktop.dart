@@ -91,7 +91,8 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: const Color(0x4D165084),
+                color:
+                    Theme.of(context).extension<Style>()!.onSecondaryOpacity30,
               ),
             ),
           );
@@ -427,8 +428,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: candidate.any((e) => e?.c == c)
-                            ? const Color(0xE0165084)
-                            : const Color(0x9D165084),
+                            ? Theme.of(context)
+                                .extension<Style>()!
+                                .onSecondaryOpacity90
+                            : Theme.of(context)
+                                .extension<Style>()!
+                                .onSecondaryOpacity60,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -2086,8 +2091,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
                                 color: PlatformUtils.isWeb
-                                    ? const Color(0x9D165084)
-                                    : const Color(0xE9165084),
+                                    ? Theme.of(context)
+                                        .extension<Style>()!
+                                        .onSecondaryOpacity60
+                                    : Theme.of(context)
+                                        .extension<Style>()!
+                                        .onSecondaryOpacity90,
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),

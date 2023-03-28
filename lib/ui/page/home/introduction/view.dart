@@ -44,10 +44,11 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: Theme.of(context).extension<Style>()!.onBackground);
+        ?.copyWith(color: style.onBackground);
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -72,6 +73,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
+                  fillColor: style.onPrimary,
                   style: thin,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
@@ -85,6 +87,7 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('RepeatPasswordField'),
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
+                  fillColor: style.onPrimary,
                   obscure: c.obscureRepeat.value,
                   style: thin,
                   onSuffixPressed: c.obscureRepeat.toggle,

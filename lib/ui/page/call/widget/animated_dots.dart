@@ -26,7 +26,7 @@ class AnimatedDots extends StatefulWidget {
   const AnimatedDots({
     Key? key,
     this.duration = const Duration(milliseconds: 250),
-    this.color = Colors.white,
+    required this.color,
   }) : super(key: key);
 
   /// [Duration] over which the count of dots is changed.

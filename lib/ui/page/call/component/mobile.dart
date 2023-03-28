@@ -362,7 +362,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                                                 .extension<Style>()!
                                                 .transparentOpacity98),
                                   ),
-                                  if (withDots) const AnimatedDots(),
+                                  if (withDots)
+                                    AnimatedDots(
+                                      color: Theme.of(context)
+                                          .extension<Style>()!
+                                          .onPrimary,
+                                    ),
                                 ],
                               ),
                             );
@@ -666,8 +671,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? const Color(0xDD165084)
-                          : const Color(0x9D165084),
+                          ? Theme.of(context)
+                              .extension<Style>()!
+                              .onSecondaryOpacity90
+                          : Theme.of(context)
+                              .extension<Style>()!
+                              .onSecondaryOpacity60,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),

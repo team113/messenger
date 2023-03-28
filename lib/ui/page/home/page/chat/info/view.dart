@@ -359,6 +359,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       return _padding(
         ReactiveTextField(
@@ -368,6 +369,7 @@ class ChatInfoView extends StatelessWidget {
               ? c.chat?.title.value
               : 'label_name'.l10n,
           hint: 'label_name_hint'.l10n,
+          fillColor: style.onPrimary,
           onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {
@@ -390,6 +392,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,6 +401,7 @@ class ChatInfoView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('LinkField'),
             state: c.link,
+            fillColor: style.onPrimary,
             onSuffixPressed: c.link.isEmpty.value
                 ? null
                 : () {
@@ -645,6 +649,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -652,6 +657,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () {},
             text: 'btn_add_to_contacts'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -673,6 +679,7 @@ class ChatInfoView extends StatelessWidget {
               text: favorited
                   ? 'btn_delete_from_favorites'.l10n
                   : 'btn_add_to_favorites'.l10n,
+              fillColor: style.onPrimary,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: Transform.scale(
@@ -693,6 +700,7 @@ class ChatInfoView extends StatelessWidget {
             return FieldButton(
               onPressed: muted ? c.unmuteChat : c.muteChat,
               text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              fillColor: style.onPrimary,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: Transform.scale(
@@ -720,6 +728,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () => _hideChat(c, context),
             text: 'btn_hide_chat'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -736,6 +745,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () => _clearChat(c, context),
             text: 'btn_clear_history'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -752,6 +762,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -768,6 +779,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () => _blacklistChat(c, context),
             text: 'btn_block'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -784,6 +796,7 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () {},
             text: 'btn_report'.l10n,
+            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(

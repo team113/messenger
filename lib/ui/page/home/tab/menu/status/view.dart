@@ -84,6 +84,7 @@ class StatusView extends StatelessWidget {
                           key: const Key('StatusField'),
                           state: c.status,
                           label: 'label_status'.l10n,
+                          fillColor: style.onPrimary,
                           filled: true,
                           maxLength: 25,
                           onSuffixPressed: c.status.text.isEmpty
