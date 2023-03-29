@@ -801,10 +801,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    AvatarWidget? avatarWidget;
+    AvatarWidget avatarWidget = AvatarWidget();
     Color? color = _fromMe
         ? style.secondary
-        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+        : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             avatarWidget.colors.length];
 
     double avatarOffset = 0;
@@ -1076,10 +1076,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    AvatarWidget? avatarWidget;
+    AvatarWidget avatarWidget = AvatarWidget();
     final Color? color = _fromMe
         ? style.secondary
-        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+        : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             avatarWidget.colors.length];
 
     final Widget child = AnimatedOpacity(
@@ -1346,10 +1346,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        AvatarWidget? avatarWidget;
+        AvatarWidget avatarWidget = AvatarWidget();
         Color? color = snapshot.data?.user.value.id == widget.me
             ? style.secondary
-            : avatarWidget!.colors[
+            : avatarWidget.colors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     avatarWidget.colors.length];
 

@@ -63,7 +63,7 @@ class ElementStyleTabView extends StatelessWidget {
           ],
         );
 
-    AvatarWidget? avatarWidget;
+    AvatarWidget avatarWidget = AvatarWidget();
     return SingleChildScrollView(
       controller: ScrollController(),
       child: Padding(
@@ -190,7 +190,7 @@ class ElementStyleTabView extends StatelessWidget {
                   spacing: 2,
                   runSpacing: 2,
                   children: List.generate(
-                    avatarWidget!.colors.length,
+                    avatarWidget.colors.length,
                     (i) => AvatarWidget(title: 'Иван Иванович', color: i),
                   ),
                 ),

@@ -216,8 +216,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    style.transparent,
-                    style.onBackgroundOpacity81,
+                    const Color(0x00000000),
+                    const Color(0x33000000),
                     t,
                   )!;
 
@@ -943,10 +943,10 @@ class MessageFieldView extends StatelessWidget {
       expanded = FutureBuilder<RxUser?>(
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
-          AvatarWidget? avatarWidget;
+          AvatarWidget avatarWidget = AvatarWidget();
           final Color? color = snapshot.data?.user.value.id == c.me
               ? style.secondary
-              : avatarWidget!.colors[
+              : avatarWidget.colors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
                       avatarWidget.colors.length];
 

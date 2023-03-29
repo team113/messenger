@@ -216,10 +216,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
 
-    AvatarWidget? avatarWidget;
+    AvatarWidget avatarWidget = AvatarWidget();
     Color? color = widget.user?.user.value.id == widget.me
         ? style.secondary
-        : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+        : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             avatarWidget.colors.length];
 
     return DefaultTextStyle(
@@ -471,10 +471,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                AvatarWidget? avatarWidget;
+                AvatarWidget avatarWidget = AvatarWidget();
                 Color? color = snapshot.data?.user.value.id == widget.me
                     ? style.secondary
-                    : avatarWidget!.colors[
+                    : avatarWidget.colors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
                             avatarWidget.colors.length];
 
@@ -568,10 +568,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      AvatarWidget? avatarWidget;
+      AvatarWidget avatarWidget = AvatarWidget();
       Color? color = widget.user?.user.value.id == widget.me
           ? style.secondary
-          : avatarWidget!.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+          : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               avatarWidget.colors.length];
 
       return [
