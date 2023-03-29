@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -108,16 +109,18 @@ class Themes {
             declineColor: const Color(0x7FFF0000),
             warningColor: Colors.red,
             doNotDistrubColor: Colors.orange,
-            avatarColor1: Colors.purple,
-            avatarColor2: Colors.deepPurple,
-            avatarColor3: Colors.indigo,
-            avatarColor4: Colors.blue,
-            avatarColor5: Colors.cyan,
-            avatarColor6: Colors.lightGreen,
-            avatarColor7: Colors.lime,
-            avatarColor8: Colors.amber,
-            avatarColor9: Colors.orange,
-            avatarColor10: Colors.deepOrange,
+            avatarColors: [
+              Colors.purple,
+              Colors.deepPurple,
+              Colors.indigo,
+              Colors.blue,
+              Colors.cyan,
+              Colors.lightGreen,
+              Colors.lime,
+              Colors.amber,
+              Colors.orange,
+              Colors.deepOrange,
+            ],
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
@@ -450,16 +453,7 @@ class Style extends ThemeExtension<Style> {
     required this.declineColor,
     required this.warningColor,
     required this.doNotDistrubColor,
-    required this.avatarColor1,
-    required this.avatarColor2,
-    required this.avatarColor3,
-    required this.avatarColor4,
-    required this.avatarColor5,
-    required this.avatarColor6,
-    required this.avatarColor7,
-    required this.avatarColor8,
-    required this.avatarColor9,
-    required this.avatarColor10,
+    required this.avatarColors,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -483,16 +477,16 @@ class Style extends ThemeExtension<Style> {
     required this.unreadMessageColor,
   });
 
-  /// The primary [Color] of Gapopa.
+  /// Primary [Color] of Gapopa.
   final Color primary;
 
   /// [Color] of the dragged panel of the call window and Scaffold.
   final Color primaryBackground;
 
-  /// The background [Color] of the call.
+  /// Background [Color] of the call.
   final Color primaryBackgroundLight;
 
-  /// The background [Color] of the avatar, call button, etc.
+  /// Background [Color] of the avatar, call button, etc.
   final Color primaryBackgroundLightest;
 
   /// [Color] of the SpinKit [Widget] and few buttons.
@@ -510,7 +504,7 @@ class Style extends ThemeExtension<Style> {
   /// primary [Color] with the 15% opacity.
   final Color primaryOpacity15;
 
-  /// The onPrimary [Color] of Gapopa.
+  /// onPrimary [Color] of Gapopa.
   final Color onPrimary;
 
   /// onPrimary [Color] with the 90% opacity.
@@ -534,7 +528,7 @@ class Style extends ThemeExtension<Style> {
   /// onPrimary [Color] with the 10% opacity.
   final Color onPrimaryOpacity10;
 
-  /// The secondary [Color] of Gapopa.
+  /// secondary [Color] of Gapopa.
   final Color secondary;
 
   /// [Color] of the DropDown menu with chat buttons.
@@ -549,7 +543,7 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the chat message.
   final Color secondaryHighlightShiniest;
 
-  /// The onSecondary [Color] of Gapopa.
+  /// onSecondary [Color] of Gapopa.
   final Color onSecondary;
 
   /// onSecondary [Color] with the 90% opacity.
@@ -567,7 +561,7 @@ class Style extends ThemeExtension<Style> {
   /// onSecondary [Color] with the 20% opacity.
   final Color onSecondaryOpacity20;
 
-  /// The background [Color] of Gapopa.
+  /// background [Color] of Gapopa.
   final Color background;
 
   /// [Color] of the Secondary panel.
@@ -640,34 +634,7 @@ class Style extends ThemeExtension<Style> {
   final Color doNotDistrubColor;
 
   /// [Color] of the first avatar color in Avatar [Widget] List.
-  final Color avatarColor1;
-
-  /// [Color] of the second avatar color in Avatar [Widget] List.
-  final Color avatarColor2;
-
-  /// [Color] of the third avatar color in Avatar [Widget] List.
-  final Color avatarColor3;
-
-  /// [Color] of the fourth avatar color in Avatar [Widget] List.
-  final Color avatarColor4;
-
-  /// [Color] of the fifth avatar color in Avatar [Widget]List.
-  final Color avatarColor5;
-
-  /// [Color] of the sixth avatar color in Avatar [Widget] List.
-  final Color avatarColor6;
-
-  /// [Color] of the seventh avatar color in Avatar [Widget] List.
-  final Color avatarColor7;
-
-  /// [Color] of the eighth avatar color in Avatar [Widget] List.
-  final Color avatarColor8;
-
-  /// [Color] of the ninth avatar color in Avatar [Widget] List.
-  final Color avatarColor9;
-
-  /// [Color] of the tenth avatar color in Avatar [Widget] List.
-  final Color avatarColor10;
+  final List<Color> avatarColors;
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
@@ -790,16 +757,7 @@ class Style extends ThemeExtension<Style> {
     Color? declineColor,
     Color? warningColor,
     Color? doNotDistrubColor,
-    Color? avatarColor1,
-    Color? avatarColor2,
-    Color? avatarColor3,
-    Color? avatarColor4,
-    Color? avatarColor5,
-    Color? avatarColor6,
-    Color? avatarColor7,
-    Color? avatarColor8,
-    Color? avatarColor9,
-    Color? avatarColor10,
+    List<Color>? avatarColors,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -891,16 +849,7 @@ class Style extends ThemeExtension<Style> {
       declineColor: declineColor ?? this.declineColor,
       warningColor: warningColor ?? this.warningColor,
       doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
-      avatarColor1: avatarColor1 ?? this.avatarColor1,
-      avatarColor2: avatarColor2 ?? this.avatarColor2,
-      avatarColor3: avatarColor3 ?? this.avatarColor3,
-      avatarColor4: avatarColor4 ?? this.avatarColor4,
-      avatarColor5: avatarColor5 ?? this.avatarColor5,
-      avatarColor6: avatarColor6 ?? this.avatarColor6,
-      avatarColor7: avatarColor7 ?? this.avatarColor7,
-      avatarColor8: avatarColor8 ?? this.avatarColor8,
-      avatarColor9: avatarColor9 ?? this.avatarColor9,
-      avatarColor10: avatarColor10 ?? this.avatarColor10,
+      avatarColors: [],
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -1028,16 +977,7 @@ class Style extends ThemeExtension<Style> {
       warningColor: Color.lerp(warningColor, other.warningColor, t)!,
       doNotDistrubColor:
           Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
-      avatarColor1: Color.lerp(avatarColor1, other.avatarColor1, t)!,
-      avatarColor2: Color.lerp(avatarColor2, other.avatarColor2, t)!,
-      avatarColor3: Color.lerp(avatarColor3, other.avatarColor3, t)!,
-      avatarColor4: Color.lerp(avatarColor4, other.avatarColor4, t)!,
-      avatarColor5: Color.lerp(avatarColor5, other.avatarColor5, t)!,
-      avatarColor6: Color.lerp(avatarColor6, other.avatarColor6, t)!,
-      avatarColor7: Color.lerp(avatarColor7, other.avatarColor7, t)!,
-      avatarColor8: Color.lerp(avatarColor8, other.avatarColor8, t)!,
-      avatarColor9: Color.lerp(avatarColor9, other.avatarColor9, t)!,
-      avatarColor10: Color.lerp(avatarColor10, other.avatarColor10, t)!,
+      avatarColors: [],
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,

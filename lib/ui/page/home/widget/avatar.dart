@@ -308,18 +308,7 @@ class AvatarWidget extends StatelessWidget {
   final bool isAway;
 
   /// Avatar color swatches.
-  final List<Color?> colors = [
-    Theme.of(router.context!).extension<Style>()!.avatarColor1,
-    Theme.of(router.context!).extension<Style>()!.avatarColor2,
-    Theme.of(router.context!).extension<Style>()!.avatarColor3,
-    Theme.of(router.context!).extension<Style>()!.avatarColor4,
-    Theme.of(router.context!).extension<Style>()!.avatarColor5,
-    Theme.of(router.context!).extension<Style>()!.avatarColor6,
-    Theme.of(router.context!).extension<Style>()!.avatarColor7,
-    Theme.of(router.context!).extension<Style>()!.avatarColor8,
-    Theme.of(router.context!).extension<Style>()!.avatarColor9,
-    Theme.of(router.context!).extension<Style>()!.avatarColor10,
-  ];
+  final List<Color?> colors = [];
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
@@ -337,8 +326,19 @@ class AvatarWidget extends StatelessWidget {
     return 2.0 * (radius ?? maxRadius ?? 40);
   }
 
+  /// Returns [colors] List from [ThemeExtension<Style>].
+  List<Color?> getColors() {
+    final avatarColor =
+        Theme.of(router.context!).extension<Style>()!.avatarColors;
+    for (int i = 1; i < avatarColor.length; i++) {
+      colors.add(avatarColor[i]);
+    }
+    return colors;
+  }
+
   @override
   Widget build(BuildContext context) {
+    getColors();
     return opacity == 1
         ? _avatar(context)
         : Opacity(
