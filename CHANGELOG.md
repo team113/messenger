@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - History clearing. ([#361])
+        - Text selection in messages. ([#118], [#17])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
     - Contacts tab:
@@ -32,19 +33,32 @@ All user visible changes to this project will be documented in this file. This p
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
+        - Participants dialing indication. ([#286], [#281])
 
+### Fixed
+
+- UI:
+    - Profile page:
+        - Change password modal flickering. ([#380], [#377])
+
+[#17]: /../../issues/17
+[#118]: /../../pull/118
 [#201]: /../../issues/201
 [#202]: /../../pull/202
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#367]: /../../issues/367
 [#270]: /../../pull/270
+[#281]: /../../issues/281
+[#286]: /../../pull/286
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
 [#375]: /../../pull/375
+[#377]: /../../issues/377
+[#380]: /../../pull/380
 
 
 

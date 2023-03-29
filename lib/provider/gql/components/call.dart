@@ -483,7 +483,7 @@ abstract class CallGraphQlMixin {
   ///
   /// Each time tries to move the ongoing [ChatCall] into a new unique
   /// [Chat]-group.
-  Future<ChatCallEventsVersionedMixin?> transformDialogCallIntoGroupCall(
+  Future<ChatEventsVersionedMixin?> transformDialogCallIntoGroupCall(
     ChatId chatId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
@@ -506,7 +506,52 @@ abstract class CallGraphQlMixin {
                   as TransformDialogCallIntoGroupCall$Mutation$TransformDialogCallIntoGroupCall$TransformDialogCallIntoGroupCallError)
               .code),
     );
-    return (ToggleCallHand$Mutation.fromJson(result.data!).toggleChatCallHand
-        as ChatCallEventsVersionedMixin?);
+    return (TransformDialogCallIntoGroupCall$Mutation.fromJson(result.data!)
+        .transformDialogCallIntoGroupCall as ChatEventsVersionedMixin?);
+  }
+
+  /// Removes the specified [User] from the [ChatCall] of the specified
+  /// [Chat]-group by authority of the authenticated [MyUser].
+  ///
+  /// If the specified [User] participates in the [ChatCall] from multiple
+  /// devices simultaneously, then removes all the devices at once.
+  ///
+  /// Lowers the specified [User]'s hand raised by [toggleChatCallHand], if any.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// The following [ChatEvent]s may be produced on success:
+  /// - [EventChatCallMemberLeft] (for each device of the [User]);
+  /// - [EventChatCallFinished].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [User] is
+  /// not a [ChatCallMember] of the specified [ChatCall] already.
+  Future<ChatEventsVersionedMixin?> removeChatCallMember(
+    ChatId chatId,
+    UserId userId,
+  ) async {
+    final variables = RemoveChatCallMemberArguments(
+      chatId: chatId,
+      userId: userId,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'RemoveChatCallMember',
+        document: RemoveChatCallMemberMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => RemoveChatCallMemberException(
+          (RemoveChatCallMember$Mutation.fromJson(data).removeChatCallMember
+                  as RemoveChatCallMember$Mutation$RemoveChatCallMember$RemoveChatCallMemberError)
+              .code),
+    );
+    return (RemoveChatCallMember$Mutation.fromJson(result.data!)
+        .removeChatCallMember as ChatEventsVersionedMixin?);
   }
 }

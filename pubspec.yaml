@@ -72,7 +72,7 @@ dependencies:
   permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.10.1
+  rive: ^0.10.3
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list

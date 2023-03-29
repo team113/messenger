@@ -16,12 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'field_button.dart';
 
@@ -62,9 +62,7 @@ class DownloadButton extends StatelessWidget {
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
       onTrailingPressed: () {
         if (link != null) {
-          Clipboard.setData(
-            ClipboardData(text: '${Config.origin}/artifacts/$link'),
-          );
+          PlatformUtils.copy(text: '${Config.origin}/artifacts/$link');
           MessagePopup.success('label_copied'.l10n);
         }
       },

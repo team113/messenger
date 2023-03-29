@@ -1536,6 +1536,33 @@ class ClearChatException with LocalizedExceptionMixin implements Exception {
   }
 }
 
+/// Exception of `Mutation.removeChatCallMember` described in the [code].
+class RemoveChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RemoveChatCallMemberException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RemoveChatCallMemberErrorCode code;
+
+  @override
+  String toString() => 'RemoveChatCallMemberException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RemoveChatCallMemberErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case RemoveChatCallMemberErrorCode.notGroup:
+        return 'err_not_group'.l10n;
+      case RemoveChatCallMemberErrorCode.notMember:
+        return 'err_not_member'.l10n;
+      case RemoveChatCallMemberErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.registerFcmDevice` described in the [code].
 class RegisterFcmDeviceException
     with LocalizedExceptionMixin
@@ -1551,7 +1578,7 @@ class RegisterFcmDeviceException
   @override
   String toMessage() {
     switch (code) {
-      case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
+    case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
         return 'err_invalid_registration_token'.l10n;
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
         return 'err_unknown_registration_token'.l10n;

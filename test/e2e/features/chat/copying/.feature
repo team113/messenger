@@ -15,34 +15,28 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-subscription RecentChatsTopEvents(
-    $count: Int!
-    $noFavorite: Boolean = false
-    $withOngoingCalls: Boolean = null
-) {
-    recentChatsTopEvents(
-        count: $count
-        noFavorite: $noFavorite
-        withOngoingCalls: $withOngoingCalls
-    ) {
-        __typename
-        ... on SubscriptionInitialized {
-            ok
-        }
-        ... on RecentChatsTop {
-            list {
-                __typename
-                ...Chat
-            }
-        }
-        ... on EventRecentChatsTopChatUpdated {
-            chat {
-                __typename
-                ...Chat
-            }
-        }
-        ... on EventRecentChatsTopChatDeleted {
-            chatId
-        }
-    }
-}
+Feature: Text messages selection and copying
+
+  Scenario: User copies text of a message
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
+
+    When I fill `MessageField` field with "For selection"
+    And I tap `Send` button
+    Then I wait until status of "For selection" message is sent
+
+    When I long press "For selection" message
+    And I tap `CopyButton` button
+    Then copied text is "For selection"
+
+    When I select "For selection" message from 2 to 10 symbols
+    And I long press "For selection" message
+    And I tap `CopyButton` button
+    Then copied text is "r select"
+
+    When I tap "For selection" message
+    And I long press "For selection" message
+    And I tap `CopyButton` button
+    Then copied text is "For selection"

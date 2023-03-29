@@ -198,7 +198,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  rive_common: 643f5c20ccd60c53136ab5c970eccf0d17e010fe
+  rive_common: e966d74ca90edb3761cfc559d0f4c884ee947576
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   sentry_flutter: b10ae7a5ddcbc7f04648eeb2672b5747230172f1
