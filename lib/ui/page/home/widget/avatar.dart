@@ -337,19 +337,8 @@ class AvatarWidget extends StatelessWidget {
     return 2.0 * (radius ?? maxRadius ?? 40);
   }
 
-  // /// Returns [colors] List from [ThemeExtension<Style>].
-  // List<Color?> getColors() {
-  //   final avatarColor =
-  //       Theme.of(router.context!).extension<Style>()!.avatarColors;
-  //   for (int i = 1; i < avatarColor.length; i++) {
-  //     colors.add(avatarColor[i]);
-  //   }
-  //   return colors;
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // getColors();
     return opacity == 1
         ? _avatar(context)
         : Opacity(
