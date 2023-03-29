@@ -308,7 +308,18 @@ class AvatarWidget extends StatelessWidget {
   final bool isAway;
 
   /// Avatar color swatches.
-  final List<Color?> colors = [];
+  final List<Color?> colors = [
+    Theme.of(router.context!).extension<Style>()!.avatarColors[0],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[1],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[2],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[3],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[4],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[5],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[6],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[7],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[8],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[9],
+  ];
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
@@ -326,19 +337,19 @@ class AvatarWidget extends StatelessWidget {
     return 2.0 * (radius ?? maxRadius ?? 40);
   }
 
-  /// Returns [colors] List from [ThemeExtension<Style>].
-  List<Color?> getColors() {
-    final avatarColor =
-        Theme.of(router.context!).extension<Style>()!.avatarColors;
-    for (int i = 1; i < avatarColor.length; i++) {
-      colors.add(avatarColor[i]);
-    }
-    return colors;
-  }
+  // /// Returns [colors] List from [ThemeExtension<Style>].
+  // List<Color?> getColors() {
+  //   final avatarColor =
+  //       Theme.of(router.context!).extension<Style>()!.avatarColors;
+  //   for (int i = 1; i < avatarColor.length; i++) {
+  //     colors.add(avatarColor[i]);
+  //   }
+  //   return colors;
+  // }
 
   @override
   Widget build(BuildContext context) {
-    getColors();
+    // getColors();
     return opacity == 1
         ? _avatar(context)
         : Opacity(
