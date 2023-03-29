@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/routes.dart';
 
 /// Application themes constants.
 class Themes {
@@ -57,8 +56,6 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            thinTextStyle:
-                textStyle.copyWith(color: Colors.black, fontSize: 17),
             barrierColor: const Color(0xBB000000),
             boldBody: textStyle.copyWith(color: Colors.black, fontSize: 17),
             cardBlur: 5,
@@ -339,7 +336,6 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.thinTextStyle,
     required this.barrierColor,
     required this.boldBody,
     required this.cardBlur,
@@ -362,9 +358,6 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageStyle,
     required this.unreadMessageColor,
   });
-
-  /// TODO: DOCS
-  final TextStyle thinTextStyle;
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
@@ -457,7 +450,6 @@ class Style extends ThemeExtension<Style> {
     Color? unreadMessageColor,
   }) {
     return Style(
-      thinTextStyle: thinTextStyle ?? this.thinTextStyle,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -491,7 +483,6 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      thinTextStyle: TextStyle.lerp(thinTextStyle, other.thinTextStyle, t)!,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
