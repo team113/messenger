@@ -123,9 +123,7 @@ class LanguageSelectionView extends StatelessWidget {
                                                 radius: 12,
                                                 child: Icon(
                                                   Icons.check,
-                                                  color: Theme.of(context)
-                                                      .extension<Style>()!
-                                                      .onPrimary,
+                                                  color: style.onPrimary,
                                                   size: 12,
                                                 ),
                                               )

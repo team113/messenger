@@ -106,20 +106,14 @@ class AddPhoneView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
-                                      ? Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary
-                                      : Theme.of(context)
-                                          .extension<Style>()!
-                                          .onBackground,
+                                      ? style.onPrimary
+                                      : style.onBackground,
                                 ),
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
                                   : null,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .secondary,
+                              color: style.secondary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -131,20 +125,14 @@ class AddPhoneView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.phoneCode.isEmpty.value
-                                      ? Theme.of(context)
-                                          .extension<Style>()!
-                                          .onBackground
-                                      : Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary,
+                                      ? style.onBackground
+                                      : style.onPrimary,
                                 ),
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
                                   : c.phoneCode.submit,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .secondary,
+                              color: style.secondary,
                             ),
                           ),
                         ],
@@ -193,12 +181,8 @@ class AddPhoneView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.phone.isEmpty.value
-                                ? Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackground
-                                : Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary,
+                                ? style.onBackground
+                                : style.onPrimary,
                           ),
                         ),
                         onPressed:

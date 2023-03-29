@@ -114,10 +114,7 @@ class StatusView extends StatelessWidget {
                           child: Text(
                             'label_presence'.l10n,
                             style: style.systemMessageStyle.copyWith(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackground,
-                                fontSize: 18),
+                                color: style.onBackground, fontSize: 18),
                           ),
                         ),
                       ),

@@ -97,9 +97,7 @@ class BlacklistView extends StatelessWidget {
                             Text(
                               '28.12.2022',
                               style: TextStyle(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .primary,
+                                color: style.primary,
                                 fontSize: 13,
                               ),
                             ),
@@ -110,9 +108,7 @@ class BlacklistView extends StatelessWidget {
                               child: Text(
                                 'btn_unblock_short'.l10n,
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<Style>()!
-                                      .secondary,
+                                  color: style.secondary,
                                   fontSize: 13,
                                 ),
                               ),

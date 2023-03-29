@@ -194,9 +194,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     CustomBoxShadow(
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity74,
+                      color: style.onBackgroundOpacity74,
                       blurRadius: 9,
                       blurStyle: BlurStyle.outer,
                     )
@@ -219,20 +217,14 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   children: [
-                    Container(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .backgroundAuxiliary),
+                    Container(color: style.backgroundAuxiliary),
                     SvgLoader.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
                     ),
-                    Container(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .onPrimaryOpacity90),
+                    Container(color: style.onPrimaryOpacity90),
                   ],
                 ),
               ),

@@ -319,6 +319,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return LayoutBuilder(
       builder: (context, constraints) {
         if (!_firstLayout) {
@@ -350,10 +351,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color: Theme.of(context)
-                    .extension<Style>()!
-                    .onBackground
-                    .withOpacity(0.9 * _fading.value),
+                color: style.onBackground.withOpacity(0.9 * _fading.value),
               ),
             ),
             AnimatedBuilder(
@@ -659,22 +657,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onSecondaryOpacity50,
+                              color: style.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(right: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_left_rounded,
-                                color: left
-                                    ? Theme.of(context)
-                                        .extension<Style>()!
-                                        .onPrimary
-                                    : Theme.of(context)
-                                        .extension<Style>()!
-                                        .primary,
+                                color: left ? style.onPrimary : style.primary,
                                 size: 36,
                               ),
                             ),
@@ -718,22 +708,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onSecondaryOpacity50,
+                              color: style.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(left: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_right_rounded,
-                                color: right
-                                    ? Theme.of(context)
-                                        .extension<Style>()!
-                                        .onPrimary
-                                    : Theme.of(context)
-                                        .extension<Style>()!
-                                        .primary,
+                                color: right ? style.onPrimary : style.primary,
                                 size: 36,
                               ),
                             ),
@@ -760,9 +742,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onSecondaryOpacity50,
+                    color: style.onSecondaryOpacity50,
                     onPressed: _dismiss,
                     withBlur: true,
                     child: Icon(
@@ -790,9 +770,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     width: 60,
                     height: 60,
                     child: RoundFloatingButton(
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onSecondaryOpacity50,
+                      color: style.onSecondaryOpacity50,
                       onPressed: _toggleFullscreen,
                       withBlur: true,
                       assetWidth: 22,
@@ -863,9 +841,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onSecondaryOpacity50,
+                    color: style.onSecondaryOpacity50,
                     onPressed: () {
                       widget.onTrashPressed?.call(_page);
                       _dismiss();

@@ -33,7 +33,7 @@ All user visible changes to this project will be documented in this file. This p
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
-     - Refactor all colors. ([#381], [#365])
+
 
 ### Fixed
 
@@ -45,7 +45,6 @@ All user visible changes to this project will be documented in this file. This p
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
-[#365]: /../../issues/365
 [#367]: /../../issues/367
 [#270]: /../../pull/270
 [#281]: /../../issues/281
@@ -55,7 +54,6 @@ All user visible changes to this project will be documented in this file. This p
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
-[#381]: /../../pull/381
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380

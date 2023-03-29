@@ -88,9 +88,7 @@ class MessagePopup {
                               children: description,
                               style: thin?.copyWith(
                                 fontSize: 15,
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .primary,
+                                color: style.primary,
                               ),
                             ),
                           ),

@@ -81,10 +81,7 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: thin?.copyWith(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onPrimary),
+                        style: thin?.copyWith(color: style.onPrimary),
                       ),
                       onPressed: Navigator.of(context).pop,
                       color: style.secondary,
@@ -173,13 +170,8 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
-                            color: enabled
-                                ? Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary
-                                : Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackground,
+                            color:
+                                enabled ? style.onPrimary : style.onBackground,
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,

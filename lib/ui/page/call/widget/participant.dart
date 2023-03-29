@@ -175,14 +175,13 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Returns a raised hand animated icon.
   Widget _handRaisedIcon(bool isRaised) {
+    final style = Theme.of(router.context!).extension<Style>()!;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: Theme.of(router.context!)
-                  .extension<Style>()!
-                  .primaryOpacity20,
+              backgroundColor: style.primaryOpacity20,
               child: SvgLoader.asset(
                 'assets/icons/hand_up.svg',
                 width: 90,
@@ -406,6 +405,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Center(
       child: Stack(
         alignment: Alignment.center,
@@ -415,11 +415,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity81,
-                    width: 0.5),
+                border:
+                    Border.all(color: style.onBackgroundOpacity81, width: 0.5),
               ),
               child: const IgnorePointer(),
             ),

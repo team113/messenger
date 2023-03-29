@@ -291,9 +291,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                       margin: const EdgeInsets.only(bottom: 7),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .primaryOpacity20,
+                        color: style.primaryOpacity20,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -139,6 +139,7 @@ class RecentChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -165,9 +166,7 @@ class RecentChatTile extends StatelessWidget {
                     const SizedBox(width: 5),
                     Icon(
                       Icons.block,
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .primaryHighlightDarkest,
+                      color: style.primaryHighlightDarkest,
                       size: 20,
                     ),
                     if (chat.muted == null) const SizedBox(width: 5),
@@ -289,10 +288,10 @@ class RecentChatTile extends StatelessWidget {
                         inCall?.call() == true
                             ? 'btn_call_end'.l10n
                             : 'btn_join_call'.l10n,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onPrimary),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(color: style.onPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -305,10 +304,10 @@ class RecentChatTile extends StatelessWidget {
                         DateTime.now()
                             .difference(chat.ongoingCall!.at.val)
                             .hhMmSs(),
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onPrimary),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(color: style.onPrimary),
                       );
                     },
                   ),
@@ -449,10 +448,7 @@ class RecentChatTile extends StatelessWidget {
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
             child: Icon(Icons.call,
-                size: 16,
-                color: Theme.of(context)
-                    .extension<Style>()!
-                    .primaryBackgroundLightest),
+                size: 16, color: style.primaryBackgroundLightest),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {

@@ -77,9 +77,7 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity67,
+                    shadowColor: style.onBackgroundOpacity67,
                     color: style.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
@@ -186,9 +184,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .secondary,
+                                color: style.secondary,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -306,9 +302,7 @@ class ChatInfoView extends StatelessWidget {
                           height: 200,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onBackgroundOpacity88,
+                            color: style.onBackgroundOpacity88,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )
@@ -507,9 +501,7 @@ class ChatInfoView extends StatelessWidget {
               child: InkWell(
                 borderRadius: style.cardRadius,
                 onTap: onTap,
-                hoverColor: Theme.of(context)
-                    .extension<Style>()!
-                    .backgroundAuxiliaryLightest,
+                hoverColor: style.backgroundAuxiliaryLightest,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Row(

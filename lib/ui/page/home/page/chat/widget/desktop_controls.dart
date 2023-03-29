@@ -332,9 +332,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity88,
+                    color: style.onBackgroundOpacity88,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
@@ -418,6 +416,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
+    final style = Theme.of(context).extension<Style>()!;
     return Stack(
       children: [
         Positioned(
@@ -446,9 +445,7 @@ class _DesktopControlsState extends State<DesktopControls>
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onBackgroundOpacity60,
+                          color: style.onBackgroundOpacity60,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(
@@ -509,10 +506,7 @@ class _DesktopControlsState extends State<DesktopControls>
             ChewieProgressColors(
               playedColor: style.secondary,
               handleColor: style.secondary,
-              bufferedColor: Theme.of(context)
-                  .extension<Style>()!
-                  .background
-                  .withOpacity(0.5),
+              bufferedColor: style.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

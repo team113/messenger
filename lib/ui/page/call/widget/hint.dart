@@ -86,9 +86,7 @@ class HintWidget extends StatelessWidget {
                     child: Icon(
                       Icons.close,
                       size: 16,
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .primaryOpacity15,
+                      color: style.primaryOpacity15,
                     ),
                   ),
                 ),

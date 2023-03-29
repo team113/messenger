@@ -106,20 +106,14 @@ class AddEmailView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendEmailTimeout.value == 0
-                                      ? Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary
-                                      : Theme.of(context)
-                                          .extension<Style>()!
-                                          .onBackground,
+                                      ? style.onPrimary
+                                      : style.onBackground,
                                 ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
                                   : null,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .secondary,
+                              color: style.secondary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -131,20 +125,14 @@ class AddEmailView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.emailCode.isEmpty.value
-                                      ? Theme.of(context)
-                                          .extension<Style>()!
-                                          .onBackground
-                                      : Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary,
+                                      ? style.onBackground
+                                      : style.onPrimary,
                                 ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
                                   : c.emailCode.submit,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .secondary,
+                              color: style.secondary,
                             ),
                           ),
                         ],
@@ -189,12 +177,8 @@ class AddEmailView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.email.isEmpty.value
-                                ? Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackground
-                                : Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary,
+                                ? style.onBackground
+                                : style.onPrimary,
                           ),
                         ),
                         onPressed:

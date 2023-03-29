@@ -52,9 +52,7 @@ class MenuTabView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity67,
+                    shadowColor: style.onBackgroundOpacity67,
                     color: style.onPrimary,
                     child: Center(
                       child: Obx(() {
@@ -79,10 +77,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<Style>()!
-                                      .onBackground),
+                              style: TextStyle(color: style.onBackground),
                             ),
                             Obx(() {
                               return Text(
@@ -92,9 +87,7 @@ class MenuTabView extends StatelessWidget {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .extension<Style>()!
-                                          .primary,
+                                      color: style.primary,
                                     ),
                               );
                             }),
@@ -138,9 +131,7 @@ class MenuTabView extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: style.cardRadius,
                             border: style.cardBorder,
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .transparent,
+                            color: style.transparent,
                           ),
                           child: Material(
                             type: MaterialType.card,

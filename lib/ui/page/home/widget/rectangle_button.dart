@@ -80,9 +80,7 @@ class RectangleButton extends StatelessWidget {
                             radius: 12,
                             child: Icon(
                               Icons.check,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onPrimary,
+                              color: style.onPrimary,
                               size: 12,
                             ),
                           )
@@ -101,9 +99,7 @@ class RectangleButton extends StatelessWidget {
                       child: selected
                           ? Icon(
                               Icons.check,
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onPrimary,
+                              color: style.onPrimary,
                               size: 12,
                             )
                           : const SizedBox(key: Key('None')),

@@ -146,11 +146,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onBackground,
-                          fontSize: 18),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: style.onBackground, fontSize: 18),
                       child: variant.child,
                     ),
                   ),

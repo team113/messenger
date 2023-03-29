@@ -180,12 +180,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                               shape: BoxShape.circle,
                               boxShadow: const [BoxShadow(blurRadius: 1)],
                               color: widget.index == i
-                                  ? Theme.of(context)
-                                      .extension<Style>()!
-                                      .onPrimary
-                                  : Theme.of(context)
-                                      .extension<Style>()!
-                                      .primary,
+                                  ? style.onPrimary
+                                  : style.primary,
                             ),
                           ),
                         ),

@@ -541,9 +541,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                               'label_login_visibility_hint'.l10n,
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .primary,
+                                color: style.primary,
                               ),
                             ),
                           ),
@@ -554,9 +552,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                               'label_visible_to'.l10n,
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackground,
+                                color: style.onBackground,
                               ),
                             ),
                           ),
@@ -655,9 +651,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                   'label_visible_to'.l10n,
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: Theme.of(context)
-                                        .extension<Style>()!
-                                        .onBackground,
+                                    color: style.onBackground,
                                   ),
                                 ),
                               ),
@@ -822,9 +816,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                   'label_visible_to'.l10n,
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: Theme.of(context)
-                                        .extension<Style>()!
-                                        .onBackground,
+                                    color: style.onBackground,
                                   ),
                                 ),
                               ),
@@ -999,10 +991,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                 ? isRead
                     ? style.secondaryBorder
                     : Border.all(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .backgroundAuxiliaryLighter,
-                        width: 0.5)
+                        color: style.backgroundAuxiliaryLighter, width: 0.5)
                 : style.primaryBorder,
           ),
           child: Column(

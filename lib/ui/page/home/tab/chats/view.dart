@@ -240,9 +240,7 @@ class ChatsTabView extends StatelessWidget {
                           center = Center(
                             key: UniqueKey(),
                             child: ColoredBox(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .transparent,
+                              color: style.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -313,9 +311,7 @@ class ChatsTabView extends StatelessWidget {
                                       Text(
                                         'label_required'.l10n,
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color: style.primary,
                                         ),
                                       ),
                                     ],
@@ -386,9 +382,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .transparent,
+                            color: style.transparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -453,9 +447,7 @@ class ChatsTabView extends StatelessWidget {
                                               .category.name.capitalizeFirst!,
                                           style:
                                               style.systemMessageStyle.copyWith(
-                                            color: Theme.of(context)
-                                                .extension<Style>()!
-                                                .onBackground,
+                                            color: style.onBackground,
                                             fontSize: 15,
                                           ),
                                         ),
@@ -504,9 +496,7 @@ class ChatsTabView extends StatelessWidget {
                             key: UniqueKey(),
                             child: ColoredBox(
                               key: const Key('Loading'),
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .transparent,
+                              color: style.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -606,12 +596,8 @@ class ChatsTabView extends StatelessWidget {
                                             final double elevation =
                                                 lerpDouble(0, 6, t)!;
                                             final Color color = Color.lerp(
-                                              Theme.of(context)
-                                                  .extension<Style>()!
-                                                  .transparent,
-                                              Theme.of(context)
-                                                  .extension<Style>()!
-                                                  .onBackgroundOpacity81,
+                                              style.transparent,
+                                              style.onBackgroundOpacity81,
                                               t,
                                             )!;
 
@@ -765,9 +751,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: Theme.of(context)
-                      .extension<Style>()!
-                      .onBackgroundOpacity81,
+                  color: style.onBackgroundOpacity81,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
@@ -806,9 +790,7 @@ class ChatsTabView extends StatelessWidget {
               shadows: [
                 CustomBoxShadow(
                   blurRadius: 8,
-                  color: Theme.of(context)
-                      .extension<Style>()!
-                      .onBackgroundOpacity88,
+                  color: style.onBackgroundOpacity88,
                   blurStyle: BlurStyle.outer,
                 ),
               ],

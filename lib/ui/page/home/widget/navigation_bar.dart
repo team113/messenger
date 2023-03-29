@@ -91,21 +91,13 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             InkResponse(
-                              hoverColor: Theme.of(context)
-                                  .extension<Style>()!
-                                  .transparent,
-                              highlightColor: Theme.of(context)
-                                  .extension<Style>()!
-                                  .transparent,
-                              splashColor: Theme.of(context)
-                                  .extension<Style>()!
-                                  .transparent,
+                              hoverColor: style.transparent,
+                              highlightColor: style.transparent,
+                              splashColor: style.transparent,
                               onTap: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .transparent,
+                                color: style.transparent,
                                 child: Center(
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(
@@ -117,9 +109,7 @@ class CustomNavigationBar extends StatelessWidget {
                                             b.badge!,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .extension<Style>()!
-                                                  .onPrimary,
+                                              color: style.onPrimary,
                                               fontSize: 11,
                                             ),
                                           ),

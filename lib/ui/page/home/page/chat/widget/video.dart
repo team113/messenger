@@ -127,10 +127,7 @@ class _VideoState extends State<Video> {
                       const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: TextStyle(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onPrimary),
+                        style: TextStyle(color: style.onPrimary),
                         textAlign: TextAlign.center,
                       ),
                     ],

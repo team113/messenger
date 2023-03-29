@@ -77,9 +77,7 @@ abstract class ModalPopup {
                       width: 60,
                       height: 3,
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .primaryHighlightDarkest,
+                        color: style.primaryHighlightDarkest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),

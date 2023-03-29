@@ -226,9 +226,7 @@ class ContactsTabView extends StatelessWidget {
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
                                   style: style.systemMessageStyle.copyWith(
-                                    color: Theme.of(context)
-                                        .extension<Style>()!
-                                        .onBackground,
+                                    color: style.onBackground,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -292,12 +290,8 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    Theme.of(context)
-                                        .extension<Style>()!
-                                        .transparent,
-                                    Theme.of(context)
-                                        .extension<Style>()!
-                                        .onBackgroundOpacity81,
+                                    style.transparent,
+                                    style.onBackgroundOpacity81,
                                     t,
                                   )!;
 

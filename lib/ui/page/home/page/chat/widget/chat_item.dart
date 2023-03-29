@@ -1170,10 +1170,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ? _isRead
                     ? style.secondaryBorder
                     : Border.all(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .backgroundAuxiliaryLighter,
-                        width: 0.5)
+                        color: style.backgroundAuxiliaryLighter, width: 0.5)
                 : style.primaryBorder,
             color: _fromMe
                 ? _isRead
@@ -1215,9 +1212,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 decoration: BoxDecoration(
                   color: fromMe
                       ? style.onPrimaryOpacity75
-                      : Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity98,
+                      : style.onBackgroundOpacity98,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
@@ -1227,9 +1222,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         Icons.file_copy,
                         color: fromMe
                             ? style.onPrimary
-                            : Theme.of(context)
-                                .extension<Style>()!
-                                .primaryHighlightDarkest,
+                            : style.primaryHighlightDarkest,
                         size: 28,
                       )
                     : RetryImage(
@@ -1257,9 +1250,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               decoration: BoxDecoration(
                 color: fromMe
                     ? style.onPrimaryOpacity75
-                    : Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity98,
+                    : style.onBackgroundOpacity98,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,

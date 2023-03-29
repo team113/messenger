@@ -358,6 +358,7 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
+    final style = Theme.of(context).extension<Style>()!;
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
@@ -398,10 +399,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: ColoredBox(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity94),
+                child: ColoredBox(color: style.onBackgroundOpacity94),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -419,10 +417,7 @@ class _HomeViewState extends State<HomeView> {
                       }),
                     ),
                     Expanded(
-                        child: ColoredBox(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onBackgroundOpacity98)),
+                        child: ColoredBox(color: style.onBackgroundOpacity98)),
                   ],
                 ),
               ],

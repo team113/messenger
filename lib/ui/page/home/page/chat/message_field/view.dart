@@ -136,10 +136,7 @@ class MessageFieldView extends StatelessWidget {
                 borderRadius: style.cardRadius,
                 boxShadow: [
                   CustomBoxShadow(
-                      blurRadius: 8,
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity88),
+                      blurRadius: 8, color: style.onBackgroundOpacity88),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -606,9 +603,7 @@ class MessageFieldView extends StatelessWidget {
                         height: 60,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onBackgroundOpacity50,
+                          color: style.onBackgroundOpacity50,
                         ),
                         child: Icon(
                           Icons.play_arrow,
@@ -706,9 +701,7 @@ class MessageFieldView extends StatelessWidget {
                             ? Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Theme.of(context)
-                                      .extension<Style>()!
-                                      .onPrimary,
+                                  color: style.onPrimary,
                                 ),
                                 child: Center(
                                   child: Icon(Icons.error,
@@ -802,9 +795,7 @@ class MessageFieldView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: fromMe
                     ? style.onPrimaryOpacity75
-                    : Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity98,
+                    : style.onBackgroundOpacity98,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
@@ -814,9 +805,7 @@ class MessageFieldView extends StatelessWidget {
                       Icons.file_copy,
                       color: fromMe
                           ? style.onPrimary
-                          : Theme.of(context)
-                              .extension<Style>()!
-                              .primaryHighlightDarkest,
+                          : style.primaryHighlightDarkest,
                       size: 16,
                     )
                   : RetryImage(

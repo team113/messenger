@@ -222,10 +222,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                       selectionOverlay: Container(
                         margin:
                             const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onSecondaryOpacity20),
+                        decoration:
+                            BoxDecoration(color: style.onSecondaryOpacity20),
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
@@ -431,12 +429,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Theme.of(context)
-                                      .extension<Style>()!
-                                      .onPrimary,
-                                  Theme.of(context)
-                                      .extension<Style>()!
-                                      .transparent,
+                                  style.onPrimary,
+                                  style.transparent,
                                 ],
                               ),
                             ),
@@ -455,12 +449,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Theme.of(context)
-                                      .extension<Style>()!
-                                      .transparent,
-                                  Theme.of(context)
-                                      .extension<Style>()!
-                                      .onPrimary,
+                                  style.transparent,
+                                  style.onPrimary,
                                 ],
                               ),
                             ),

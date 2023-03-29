@@ -319,9 +319,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onBackgroundOpacity25,
+                            color: styleColor.onBackgroundOpacity25,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -359,15 +357,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     state,
                                     style: context.textTheme.bodySmall
                                         ?.copyWith(
-                                            color: Theme.of(context)
-                                                .extension<Style>()!
+                                            color: styleColor
                                                 .onBackgroundOpacity98),
                                   ),
                                   if (withDots)
                                     AnimatedDots(
-                                      color: Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary,
+                                      color: styleColor.onPrimary,
                                     ),
                                 ],
                               ),
@@ -449,10 +444,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(
-                    color: Theme.of(context)
-                        .extension<Style>()!
-                        .onBackgroundOpacity67)
+                ? Container(color: styleColor.onBackgroundOpacity67)
                 : null,
           ),
         );
@@ -672,12 +664,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? Theme.of(context)
-                              .extension<Style>()!
-                              .onSecondaryOpacity90
-                          : Theme.of(context)
-                              .extension<Style>()!
-                              .onSecondaryOpacity60,
+                          ? styleColor.onSecondaryOpacity90
+                          : styleColor.onSecondaryOpacity60,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),
@@ -701,9 +689,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .extension<Style>()!
-                                      .onPrimaryOpacity40,
+                                  color: styleColor.onPrimaryOpacity40,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -892,10 +878,7 @@ Widget _chat(BuildContext context, CallController c) {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .extension<Style>()!
-                                          .onPrimary),
+                                  ?.copyWith(color: style.onPrimary),
                             ),
                           ],
                         ),

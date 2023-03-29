@@ -80,9 +80,7 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity67,
+                      shadowColor: style.onBackgroundOpacity67,
                       color: style.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
@@ -124,9 +122,7 @@ class UserView extends StatelessWidget {
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                        color: style.primary,
                                       ),
                                 )
                             ],
@@ -535,9 +531,7 @@ class UserView extends StatelessWidget {
                               fillColor: style.onPrimary,
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .secondary,
+                                color: style.secondary,
                               ),
                               type: TextInputType.multiline,
                               textInputAction: TextInputAction.newline,

@@ -74,9 +74,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                     colors: [
                       style.secondary,
                       style.secondary,
-                      Theme.of(context)
-                          .extension<Style>()!
-                          .backgroundAuxiliaryLighter,
+                      style.backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
@@ -124,9 +122,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? Theme.of(context)
-                        .extension<Style>()!
-                        .backgroundAuxiliaryLighter
+                    ? style.backgroundAuxiliaryLighter
                     : style.transparent,
                 border: Border.all(
                   width: 2,

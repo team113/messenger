@@ -307,9 +307,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         CustomBoxShadow(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onBackgroundOpacity81,
+                          color: style.onBackgroundOpacity81,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -322,9 +320,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onSecondaryOpacity20,
+                          color: style.onSecondaryOpacity20,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -419,9 +415,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     CustomBoxShadow(
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity81,
+                      color: style.onBackgroundOpacity81,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -436,12 +430,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: candidate.any((e) => e?.c == c)
-                            ? Theme.of(context)
-                                .extension<Style>()!
-                                .onSecondaryOpacity90
-                            : Theme.of(context)
-                                .extension<Style>()!
-                                .onSecondaryOpacity60,
+                            ? style.onSecondaryOpacity90
+                            : style.onSecondaryOpacity60,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -611,10 +601,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackgroundOpacity67)
+                  ? Container(color: style.onBackgroundOpacity67)
                   : null,
             );
           }),
@@ -682,9 +669,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .onBackgroundOpacity81,
+                        color: style.onBackgroundOpacity81,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -699,9 +684,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .onSecondaryOpacity20,
+                        color: style.onSecondaryOpacity20,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -894,9 +877,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: Theme.of(context)
-                            .extension<Style>()!
-                            .onBackgroundOpacity81,
+                        color: style.onBackgroundOpacity81,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1177,9 +1158,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .transparent,
+                            color: style.transparent,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1455,9 +1434,7 @@ Widget _primaryView(CallController c) {
               duration: 200.milliseconds,
               child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
                   ? Container(
-                      color: Theme.of(router.context!)
-                          .extension<Style>()!
-                          .onBackgroundOpacity74,
+                      color: style.onBackgroundOpacity74,
                       child: Center(
                         child: AnimatedDelayedScale(
                           duration: const Duration(milliseconds: 300),
@@ -1470,21 +1447,15 @@ Widget _primaryView(CallController c) {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: !c.minimized.value || c.fullscreen.value
-                                    ? Theme.of(router.context!)
-                                        .extension<Style>()!
-                                        .onBackgroundOpacity74
-                                    : Theme.of(router.context!)
-                                        .extension<Style>()!
-                                        .onBackgroundOpacity44,
+                                    ? style.onBackgroundOpacity74
+                                    : style.onBackgroundOpacity44,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Icon(
                                   Icons.add_rounded,
                                   size: 50,
-                                  color: Theme.of(router.context!)
-                                      .extension<Style>()!
-                                      .onPrimary,
+                                  color: style.onPrimary,
                                 ),
                               ),
                             ),
@@ -2099,12 +2070,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
                                 color: PlatformUtils.isWeb
-                                    ? Theme.of(context)
-                                        .extension<Style>()!
-                                        .onSecondaryOpacity60
-                                    : Theme.of(context)
-                                        .extension<Style>()!
-                                        .onSecondaryOpacity90,
+                                    ? style.onSecondaryOpacity60
+                                    : style.onSecondaryOpacity90,
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),
@@ -2179,9 +2146,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
                         ? Container(
-                            color: Theme.of(context)
-                                .extension<Style>()!
-                                .onBackgroundOpacity74,
+                            color: style.onBackgroundOpacity74,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(
@@ -2439,8 +2404,7 @@ Widget _secondaryTarget(CallController c) {
                                                     : 1,
                                                 child: Container(
                                                   decoration: BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .extension<Style>()!
+                                                    color: style
                                                         .onBackgroundOpacity74,
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -2453,9 +2417,7 @@ Widget _secondaryTarget(CallController c) {
                                                     child: Icon(
                                                       Icons.add_rounded,
                                                       size: 35,
-                                                      color: Theme.of(context)
-                                                          .extension<Style>()!
-                                                          .onPrimary,
+                                                      color: style.onPrimary,
                                                     ),
                                                   ),
                                                 ),

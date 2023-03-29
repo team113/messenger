@@ -171,10 +171,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onBackground),
+                          style: TextStyle(color: style.onBackground),
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -218,10 +215,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary),
+                            style: TextStyle(color: style.onPrimary),
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
@@ -238,9 +232,7 @@ class ConfirmLogoutView extends StatelessWidget {
                             style: const TextStyle(),
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .primaryHighlight,
+                          color: style.primaryHighlight,
                         ),
                       )
                     ],
