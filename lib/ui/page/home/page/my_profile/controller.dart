@@ -201,6 +201,9 @@ class MyProfileController extends GetxController {
       }
     });
 
+    verified.value =
+        _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
+
     _myUserWorker = ever(
       _myUserService.myUser,
       (MyUser? v) {
@@ -219,6 +222,8 @@ class MyProfileController extends GetxController {
             link.editable.value) {
           link.unchecked = v?.chatDirectLink?.slug.val;
         }
+
+        verified.value = v?.emails.confirmed.isNotEmpty == true;
       },
     );
 

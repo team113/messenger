@@ -1361,8 +1361,14 @@ Widget _verification(BuildContext context, MyProfileController c) {
                               ),
                     ),
                     child: FieldButton(
-                      text: 'btn_verify_account'.l10n,
-                      onPressed: () => c.verified.value = true,
+                      text: 'btn_verify_email'.l10n,
+                      // onPressed: () => c.verified.value = true,
+                      onPressed: () async {
+                        await AddEmailView.show(
+                          context,
+                          email: c.myUser.value?.emails.unconfirmed,
+                        );
+                      },
                       trailing: Icon(
                         Icons.verified_outlined,
                         color: Theme.of(context).colorScheme.secondary,
@@ -1384,9 +1390,9 @@ Widget _verification(BuildContext context, MyProfileController c) {
                       children: [
                         TextSpan(
                           text:
-                              'Данная опция доступна верифицированным аккаунтам'
+                              'Данная опция доступна только для аккаунтов с верифицированным E-mail'
                                   .l10n,
-                          style: TextStyle(color: Colors.black),
+                          style: const TextStyle(color: Colors.black),
                         ),
                       ],
                     ),

@@ -21,6 +21,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -55,6 +57,7 @@ class UserController extends GetxController {
   UserController(
     this.id,
     this._userService,
+    this._myUserService,
     this._contactService,
     this._chatService,
     this._callService, {
@@ -121,6 +124,8 @@ class UserController extends GetxController {
   /// [UserService] fetching the [user].
   final UserService _userService;
 
+  final MyUserService _myUserService;
+
   /// [ContactService] maintaining [ChatContact]s of this [user].
   final ContactService _contactService;
 
@@ -138,11 +143,17 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
+  /// Worker to react on [myUser] changes.
+  Worker? _myUserWorker;
+
   /// Indicates whether this [user] is blacklisted.
   BlacklistRecord? get isBlacklisted => user?.user.value.isBlacklisted;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -207,6 +218,16 @@ class UserController extends GetxController {
       initialScrollIndex = 0;
     }
 
+    verified.value =
+        _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
+
+    _myUserWorker = ever(
+      _myUserService.myUser,
+      (MyUser? v) {
+        verified.value = v?.emails.confirmed.isNotEmpty == true;
+      },
+    );
+
     super.onInit();
   }
 
@@ -214,6 +235,7 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
+    _myUserWorker?.dispose();
     user?.stopUpdates();
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();

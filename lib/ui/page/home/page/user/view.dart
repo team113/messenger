@@ -29,6 +29,7 @@ import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../my_profile/add_email/view.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -68,6 +69,7 @@ class UserView extends StatelessWidget {
     return GetBuilder(
       init: UserController(
         id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -686,8 +688,13 @@ class UserView extends StatelessWidget {
                                 ),
                       ),
                       child: FieldButton(
-                        text: 'btn_verify_account'.l10n,
-                        onPressed: () => c.verified.value = true,
+                        text: 'btn_verify_email'.l10n,
+                        onPressed: () async {
+                          await AddEmailView.show(
+                            context,
+                            email: c.myUser.value?.emails.unconfirmed,
+                          );
+                        },
                         trailing: Icon(
                           Icons.verified_outlined,
                           color: Theme.of(context).colorScheme.secondary,
@@ -709,7 +716,7 @@ class UserView extends StatelessWidget {
                         children: [
                           TextSpan(
                             text:
-                                'Данная опция доступна верифицированным аккаунтам'
+                                'Данная опция доступна только для аккаунтов с верифицированным E-mail'
                                     .l10n,
                             style: TextStyle(color: Colors.black),
                           ),

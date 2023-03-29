@@ -914,6 +914,53 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // if (widget.paid) ...[
+        //   RichText(
+        //     text: TextSpan(
+        //       children: [
+        //         if (!_fromMe) ...[
+        //           TextSpan(
+        //             text: '¤',
+        //             style: textStyle.copyWith(
+        //               height: 0.8,
+        //               fontFamily: 'InterRoboto',
+        //               fontWeight: FontWeight.w300,
+        //               color: const Color(0xFF9A5BFF),
+        //               fontSize: 11,
+        //             ),
+        //           ),
+        //           const TextSpan(
+        //             text: '123',
+        //             style: TextStyle(color: Color(0xFF9A5BFF)),
+        //           ),
+        //         ] else ...[
+        //           TextSpan(
+        //             text: '¤',
+        //             style: textStyle.copyWith(
+        //               height: 0.8,
+        //               fontFamily: 'InterRoboto',
+        //               fontWeight: FontWeight.w300,
+        //               color: const Color(0xFF9A5BFF),
+        //               fontSize: 11,
+        //             ),
+        //           ),
+        //           const TextSpan(
+        //             text: '123',
+        //             style: TextStyle(color: Color(0xFF9A5BFF)),
+        //           ),
+        //           // const TextSpan(text: 'Платное сообщение'),
+        //         ],
+        //       ],
+        //       style: style.systemMessageStyle.copyWith(fontSize: 11),
+        //     ),
+        //   ),
+        //   Container(
+        //     margin: const EdgeInsets.symmetric(horizontal: 4),
+        //     color: Theme.of(context).colorScheme.primary,
+        //     height: 10,
+        //     width: 0.5,
+        //   ),
+        // ],
         if (_fromMe) ...[
           if (isSent || isDelivered || isRead || isSending || isError)
             Icon(
@@ -997,6 +1044,63 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.boldBody.copyWith(color: color),
               ),
             ),
+          if (!_fromMe && widget.paid)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                12,
+                msg.attachments.isEmpty && text == null ? 4 : 8,
+                9,
+                files.isEmpty && media.isNotEmpty && text == null
+                    ? 8
+                    : files.isNotEmpty && text == null
+                        ? 0
+                        : 4,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SelectionText(
+                      'Платное сообщение',
+                      selectable: PlatformUtils.isDesktop || menu,
+                      onSelecting: widget.onSelecting,
+                      onChanged: (a) => _selection = a,
+                      style: textStyle.copyWith(
+                        color: Color(0xFF9A5BFF),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SelectionText.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '¤',
+                          style: textStyle.copyWith(
+                            height: 0.8,
+                            fontFamily: 'InterRoboto',
+                            fontWeight: FontWeight.w300,
+                            color: const Color(0xFF9A5BFF),
+                            fontSize: 11,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '123',
+                          style: textStyle.copyWith(
+                            color: Color(0xFF9A5BFF),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                    selectable: PlatformUtils.isDesktop || menu,
+                    onSelecting: widget.onSelecting,
+                    onChanged: (a) => _selection = a,
+                    style: textStyle.copyWith(color: color),
+                  ),
+                ],
+              ),
+            ),
           if (text != null)
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
@@ -1008,7 +1112,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           widget.chat.value?.isGroup == true &&
                           widget.avatar
                       ? 0
-                      : 10,
+                      : !_fromMe && widget.paid
+                          ? 0
+                          : 10,
                   12,
                   files.isEmpty ? 10 : 0,
                 ),
@@ -1018,6 +1124,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     children: [
                       // text.linkify(),
                       TextSpan(text: text),
+                      // if ((widget.displayTime && timeInBubble) || widget.paid)
+                      //   WidgetSpan(child: Opacity(opacity: 0, child: timeline)),
                       if (widget.displayTime && !timeInBubble) ...[
                         if (_fromMe)
                           const WidgetSpan(
@@ -1133,7 +1241,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
           child: FoldedWidget(
-            folded: widget.paid,
+            folded: false && widget.paid,
             child: Stack(
               children: [
                 IntrinsicWidth(
