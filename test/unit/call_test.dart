@@ -335,7 +335,7 @@ void main() async {
     expect(callService.calls.length, 0);
 
     callService.call(
-      const ChatId('outcoming'),
+      const ChatId('outgoing'),
       withAudio: false,
       withVideo: false,
       withScreen: false,
@@ -346,11 +346,11 @@ void main() async {
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
-    expect(callService.calls.values.first.value.chatId.value.val, 'outcoming');
+    expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
 
     callService.leave(
-      const ChatId('outcoming'),
+      const ChatId('outgoing'),
       const ChatCallDeviceId('device'),
     );
 
@@ -542,7 +542,12 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> recentChatsTopEvents(int count) => const Stream.empty();
+  Stream<QueryResult> recentChatsTopEvents(
+    int count, {
+    bool noFavorite = false,
+    bool? withOngoingCalls,
+  }) =>
+      const Stream.empty();
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
@@ -622,6 +627,8 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     RecentChatsCursor? after,
     int? last,
     RecentChatsCursor? before,
+    bool noFavorite = false,
+    bool? withOngoingCalls,
   }) async {
     return RecentChats$Query.fromJson(chatsQuery);
   }
