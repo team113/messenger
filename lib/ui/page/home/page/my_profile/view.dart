@@ -64,6 +64,7 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -134,9 +135,8 @@ class MyProfileView extends StatelessWidget {
                                               height: 200,
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Theme.of(context)
-                                                    .extension<Style>()!
-                                                    .transparentOpacity88,
+                                                color:
+                                                    style.transparentOpacity88,
                                               ),
                                               child: const Center(
                                                 child:
@@ -171,9 +171,7 @@ class MyProfileView extends StatelessWidget {
                                     Text(
                                       'space_or_space'.l10n,
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onBackground,
+                                        color: style.onBackground,
                                         fontSize: 11,
                                       ),
                                     ),

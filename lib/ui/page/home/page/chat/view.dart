@@ -502,9 +502,7 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: Theme.of(context)
-                                              .extension<Style>()!
-                                              .transparentOpacity74,
+                                          color: style.transparentOpacity74,
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),

@@ -323,9 +323,7 @@ class ChatItemWidget extends StatefulWidget {
                                       child: CircularProgressIndicator(
                                         key: const Key('Sending'),
                                         value: e.progress.value,
-                                        backgroundColor: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary,
+                                        backgroundColor: style.onPrimary,
                                         strokeWidth: 10,
                                       ),
                                     ),

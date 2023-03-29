@@ -884,10 +884,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary),
+                                    ?.copyWith(color: style.onPrimary),
                               ),
                             ),
                             Text(
@@ -919,10 +916,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary),
+                                    ?.copyWith(color: style.onPrimary),
                               ),
                               const Spacer(),
                               Text(
@@ -933,10 +927,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary),
+                                    ?.copyWith(color: style.onPrimary),
                               ),
                             ],
                           ),

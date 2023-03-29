@@ -246,11 +246,7 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
-                          color: enabled
-                              ? style.onPrimary
-                              : Theme.of(context)
-                                  .extension<Style>()!
-                                  .onBackground,
+                          color: enabled ? style.onPrimary : style.onBackground,
                         ),
                       ),
                       onPressed:

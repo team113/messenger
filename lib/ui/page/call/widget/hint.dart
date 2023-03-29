@@ -75,9 +75,7 @@ class HintWidget extends StatelessWidget {
                         : 'label_hint_from_gapopa'.l10n,
                     style: TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .primaryOpacity15,
+                      color: style.primaryOpacity15,
                     ),
                   ),
                 ),

@@ -152,10 +152,7 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<Style>()!
-                                  .onPrimary),
+                          style: TextStyle(color: style.onPrimary),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
@@ -254,10 +251,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: TextStyle(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .onBackground),
+                      style: TextStyle(color: style.onBackground),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],

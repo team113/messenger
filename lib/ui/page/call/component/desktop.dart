@@ -496,9 +496,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         e.hint,
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Theme.of(context)
-                                              .extension<Style>()!
-                                              .onPrimary,
+                                          color: style.onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
                                       )
@@ -2113,10 +2111,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .extension<Style>()!
-                                                .onPrimary),
+                                        style:
+                                            TextStyle(color: style.onPrimary),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -2202,21 +2198,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       borderRadius: BorderRadius.circular(16),
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
-                                          ? Theme.of(context)
-                                              .extension<Style>()!
-                                              .transparentOpacity74
-                                          : Theme.of(context)
-                                              .extension<Style>()!
-                                              .transparentOpacity44,
+                                          ? style.transparentOpacity74
+                                          : style.transparentOpacity44,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary,
+                                        color: style.onPrimary,
                                       ),
                                     ),
                                   ),
@@ -2338,6 +2328,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
+  final style = Theme.of(router.context!).extension<Style>()!;
   return Obx(() {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
@@ -2397,26 +2388,20 @@ Widget _secondaryTarget(CallController c) {
                                     border: Border(
                                       left: secondaryAxis == Axis.horizontal
                                           ? BorderSide(
-                                              color: Theme.of(context)
-                                                  .extension<Style>()!
-                                                  .primary,
+                                              color: style.primary,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                       bottom: secondaryAxis == Axis.vertical
                                           ? BorderSide(
-                                              color: Theme.of(context)
-                                                  .extension<Style>()!
-                                                  .primary,
+                                              color: style.primary,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                     ),
                                     boxShadow: [
                                       CustomBoxShadow(
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .transparentOpacity81,
+                                        color: style.transparentOpacity81,
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )
@@ -2426,12 +2411,8 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? Theme.of(context)
-                                              .extension<Style>()!
-                                              .onPrimaryOpacity90
-                                          : Theme.of(context)
-                                              .extension<Style>()!
-                                              .transparent,
+                                          ? style.onPrimaryOpacity90
+                                          : style.transparent,
                                       child: Center(
                                         child: SizedBox(
                                           width:

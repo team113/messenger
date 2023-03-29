@@ -85,6 +85,7 @@ class ChatForwardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return GetBuilder(
       init: ChatForwardController(
         Get.find(),
@@ -166,9 +167,7 @@ class ChatForwardView extends StatelessWidget {
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: Theme.of(context)
-                                            .extension<Style>()!
-                                            .onPrimary,
+                                        color: style.onPrimary,
                                       ),
                                     ),
                                   ),

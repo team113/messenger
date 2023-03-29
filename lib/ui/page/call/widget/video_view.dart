@@ -179,6 +179,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
+
     Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
@@ -318,9 +320,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                           MaterialState.disabled
                                         })!.copyWith(
                                           fontSize: 13,
-                                          color: Theme.of(context)
-                                              .extension<Style>()!
-                                              .onPrimary,
+                                          color: style.onPrimary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
