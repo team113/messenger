@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.

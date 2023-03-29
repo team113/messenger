@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/themes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/desktop.dart';

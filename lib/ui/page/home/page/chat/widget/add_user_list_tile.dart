@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/user.dart';
+import '/themes.dart';
 
 /// [ListTile] with an information of an [User].
 class AddUserListTile extends StatelessWidget {

@@ -20,9 +20,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
+import '/themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';

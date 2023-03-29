@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '../widget/caption.dart';
+import '/themes.dart';
 
 /// Colors tab view of the [Routes.style] page.
 class ColorStyleTabView extends StatefulWidget {

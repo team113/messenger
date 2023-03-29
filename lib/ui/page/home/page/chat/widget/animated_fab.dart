@@ -20,7 +20,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
+
+import '/themes.dart';
 
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {

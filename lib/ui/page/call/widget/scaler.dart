@@ -16,7 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
+
+import '/themes.dart';
 
 /// Draggable widget reporting delta of a dragging through [onDragUpdate]
 /// callback.

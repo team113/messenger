@@ -18,10 +18,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].

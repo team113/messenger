@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../themes.dart';
+import '/themes.dart';
 
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.

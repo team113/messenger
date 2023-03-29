@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../themes.dart';
+import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 
 /// Custom styled [BackButton].

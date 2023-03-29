@@ -20,10 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
-import 'package:messenger/themes.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';

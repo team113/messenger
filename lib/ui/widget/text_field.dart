@@ -19,8 +19,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';

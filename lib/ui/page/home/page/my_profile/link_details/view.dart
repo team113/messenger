@@ -17,8 +17,8 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 

@@ -19,7 +19,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../../../themes.dart';
+import '/themes.dart';
 
 /// Animated over the provided [period] circles representing an ongoing typing.
 class AnimatedTyping extends StatefulWidget {

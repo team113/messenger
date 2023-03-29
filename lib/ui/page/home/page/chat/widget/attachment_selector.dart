@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../themes.dart';
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';

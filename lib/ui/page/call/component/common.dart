@@ -17,12 +17,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '../controller.dart';
 import '../widget/call_title.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 

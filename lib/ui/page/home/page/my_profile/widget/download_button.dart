@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../themes.dart';
+import '/themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';

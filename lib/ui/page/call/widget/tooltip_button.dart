@@ -17,7 +17,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
+
+import '/themes.dart';
 
 /// [InkWell] button with a [Tooltip] of a [hint].
 class TooltipButton extends StatelessWidget {

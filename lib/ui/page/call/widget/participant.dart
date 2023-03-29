@@ -23,8 +23,8 @@ import 'package:messenger/routes.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
-import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/l10n/l10n.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';

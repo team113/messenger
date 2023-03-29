@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/themes.dart';
 import 'package:video_player/video_player.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'src/interface.dart'

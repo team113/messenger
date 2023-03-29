@@ -21,8 +21,8 @@ import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
-import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 

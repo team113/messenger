@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/widget/floating_snack_bar.dart';

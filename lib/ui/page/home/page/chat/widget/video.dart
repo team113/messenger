@@ -21,9 +21,9 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 import 'package:video_player/video_player.dart';
 
+import '/themes.dart';
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
 import '/ui/widget/progress_indicator.dart';

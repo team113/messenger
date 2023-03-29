@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/ui/widget/text_field.dart';
 
 /// Button for selecting from a list of items.

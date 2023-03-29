@@ -24,8 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
 

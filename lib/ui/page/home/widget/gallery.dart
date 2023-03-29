@@ -20,9 +20,9 @@ import 'dart:ui';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/image_gallery_item.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 import 'gallery_popup.dart';
