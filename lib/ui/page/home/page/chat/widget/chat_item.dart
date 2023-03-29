@@ -856,11 +856,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 decoration: BoxDecoration(
                   color: e.author == widget.me
                       ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
+                          ? style.secondaryHighlightShiniest
+                          : style.backgroundAuxiliaryLighter
                       : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
+                          ? style.primaryHighlight
+                          : style.onPrimary,
                   borderRadius: i == 0
                       ? const BorderRadius.only(
                           topLeft: Radius.circular(15),
@@ -1020,7 +1020,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 border: _fromMe
                     ? _isRead
                         ? style.secondaryBorder
-                        : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                        : style.cardHoveredBorder
                     : style.primaryBorder,
               ),
               child: Column(

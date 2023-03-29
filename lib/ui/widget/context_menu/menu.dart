@@ -89,11 +89,12 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       width: double.infinity,
       height: 1,
-      color: const Color(0xFFD0D0D0),
+      color: style.primaryHighlightDark,
     );
   }
 }

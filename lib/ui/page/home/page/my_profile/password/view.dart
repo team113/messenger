@@ -116,8 +116,7 @@ class ChangePasswordView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ReactiveTextField(
-                          fillColor:
-                              Theme.of(context).extension<Style>()!.onPrimary,
+                          fillColor: style.onPrimary,
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
                           obscure: c.obscurePassword.value,

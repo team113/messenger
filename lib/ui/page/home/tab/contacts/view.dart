@@ -461,6 +461,7 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
 
@@ -556,9 +557,10 @@ class ContactsTabView extends StatelessWidget {
               return const SizedBox();
             }
 
-            return const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.block,
+                  color: style.primaryHighlightDarkest, size: 20),
             );
           }),
           Obx(() {
@@ -582,10 +584,11 @@ class ContactsTabView extends StatelessWidget {
   /// Returns the animated [OutlinedRoundedButton]s for multiple selected
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    const List<CustomBoxShadow> shadows = [
+    final style = Theme.of(context).extension<Style>()!;
+    List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: Color(0x22000000),
+        color: style.transparentOpacity88,
         blurStyle: BlurStyle.outer,
       ),
     ];
@@ -607,10 +610,10 @@ class ContactsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: style.onBackground),
               ),
               onPressed: c.toggleSelecting,
-              color: Colors.white,
+              color: style.onPrimary,
               shadows: shadows,
             ),
           ),
@@ -626,8 +629,8 @@ class ContactsTabView extends StatelessWidget {
                   maxLines: 1,
                   style: TextStyle(
                     color: c.selectedContacts.isEmpty
-                        ? Colors.black
-                        : Colors.white,
+                        ? style.onBackground
+                        : style.onPrimary,
                   ),
                 ),
                 onPressed: c.selectedContacts.isEmpty

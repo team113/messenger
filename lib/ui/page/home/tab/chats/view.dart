@@ -864,10 +864,11 @@ class ChatsTabView extends StatelessWidget {
   /// Returns the animated [OutlinedRoundedButton]s for multiple selected
   /// [Chat]s manipulation.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    const List<CustomBoxShadow> shadows = [
+    final style = Theme.of(context).extension<Style>()!;
+    List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: Color(0x22000000),
+        color: style.transparentOpacity88,
         blurStyle: BlurStyle.outer,
       ),
     ];
@@ -889,10 +890,10 @@ class ChatsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: style.onBackground),
               ),
               onPressed: c.toggleSelecting,
-              color: Colors.white,
+              color: style.onPrimary,
               shadows: shadows,
             ),
           ),
@@ -906,8 +907,9 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
-                    color:
-                        c.selectedChats.isEmpty ? Colors.black : Colors.white,
+                    color: c.selectedChats.isEmpty
+                        ? style.onBackground
+                        : style.onPrimary,
                   ),
                 ),
                 onPressed: c.selectedChats.isEmpty

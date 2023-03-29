@@ -104,8 +104,8 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
                   onPressed: () {},
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF03A803), Color(0xFF20CD66)],
+                  gradient: LinearGradient(
+                    colors: [style.acceptColor, style.acceptAuxilaryColor],
                   ),
                 ),
               ),
@@ -358,7 +358,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'audio_call_start',
                   onPressed: () {},
                   text: 'Answer\nwith audio',
-                  color: const Color(0xDD34B139),
+                  color: style.acceptColor,
                 ),
               ),
               element(
@@ -370,7 +370,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_on',
                   onPressed: () {},
                   text: 'Answer\nwith video',
-                  color: const Color(0xDD34B139),
+                  color: style.acceptColor,
                 ),
               ),
               element(
@@ -382,7 +382,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'call_end',
                   onPressed: () {},
                   text: 'Decline',
-                  color: const Color(0xDDFF0000),
+                  color: style.declineColor,
                 ),
               ),
               element(
@@ -394,7 +394,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'call_end',
                   onPressed: () {},
                   hint: 'End call',
-                  color: const Color(0xDDFF0000),
+                  color: style.declineColor,
                 ),
               ),
               element(

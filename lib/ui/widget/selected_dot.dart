@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/page/home/widget/avatar.dart';
 
@@ -39,6 +40,7 @@ class SelectedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return SizedBox(
       width: 30,
       child: AnimatedSwitcher(
@@ -48,14 +50,14 @@ class SelectedDot extends StatelessWidget {
                 key: const Key('Selected'),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 radius: size / 2,
-                child: const Icon(Icons.check, color: Colors.white, size: 14),
+                child: Icon(Icons.check, color: style.onPrimary, size: 14),
               )
             : Container(
                 key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
+                    color: style.primaryHighlightDark.darken(darken),
                     width: 1,
                   ),
                 ),

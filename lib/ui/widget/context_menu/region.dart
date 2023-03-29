@@ -261,7 +261,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               setState(() {});
             },
             child: Container(
-              color: Colors.transparent,
+              color: style.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

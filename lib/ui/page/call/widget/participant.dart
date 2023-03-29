@@ -20,6 +20,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/routes.dart';
+import 'package:path/path.dart' as prefix;
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
@@ -84,6 +85,7 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
@@ -138,14 +140,14 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.4),
-                child: const Padding(
-                  padding: EdgeInsets.all(21.0),
+                color: style.transparentOpacity44,
+                child: Padding(
+                  padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: Color(0xFFEEEEEE),
+                      color: style.primaryHighlight,
                       size: 100 / 1.5,
-                      duration: Duration(milliseconds: 4500),
+                      duration: const Duration(milliseconds: 4500),
                     ),
                   ),
                 ),
@@ -155,7 +157,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.2),
+                color: style.transparentOpacity25,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -219,6 +221,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       bool isMuted;
 
@@ -314,7 +317,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           style: context.theme.outlinedButtonTheme.style!.textStyle!
               .resolve({MaterialState.disabled})!.copyWith(
             fontSize: 15,
-            color: Colors.white,
+            color: style.onPrimary,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -328,9 +331,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
+            boxShadow: [
               CustomBoxShadow(
-                color: Color(0x22000000),
+                color: style.transparentOpacity88,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -343,8 +346,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? const Color(0x4D165084)
-                    : const Color(0xBB1F3C5D),
+                    ? style.onSecondaryOpacity30
+                    : style.onSecondary,
               ),
               padding: EdgeInsets.only(
                 left: 6,
