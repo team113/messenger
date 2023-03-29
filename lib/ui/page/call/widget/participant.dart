@@ -20,7 +20,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/routes.dart';
-import 'package:path/path.dart' as prefix;
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';

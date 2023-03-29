@@ -496,7 +496,7 @@ class Style extends ThemeExtension<Style> {
   /// The background [Color] of the avatar, call button, etc.
   final Color primaryBackgroundLightest;
 
-  /// [Color] of the [SpinKit] and few buttons.
+  /// [Color] of the SpinKit [Widget] and few buttons.
   final Color primaryHighlight;
 
   /// [Color] of the [CircularProgressIndicator]
@@ -577,10 +577,10 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the title bar.
   final Color backgroundAuxiliaryLight;
 
-  /// [Color] of the hovered indicator, [ChatForwardWidget], etc.
+  /// [Color] of the hovered indicator, ChatForwardWidget, etc.
   final Color backgroundAuxiliaryLighter;
 
-  /// [Color] of the List [Chat.members]
+  /// [Color] of the List Chat.members.
   final Color backgroundAuxiliaryLightest;
 
   /// [Color] of the text, BoxShadow's, etc.
@@ -640,34 +640,34 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the "Do not disturb" mode
   final Color doNotDistrubColor;
 
-  /// [Color] of the first avatar color in [AvatarWidget] List.
+  /// [Color] of the first avatar color in Avatar [Widget] List.
   final Color avatarColor1;
 
-  /// [Color] of the second avatar color in [AvatarWidget] List.
+  /// [Color] of the second avatar color in Avatar [Widget] List.
   final Color avatarColor2;
 
-  /// [Color] of the third avatar color in [AvatarWidget] List.
+  /// [Color] of the third avatar color in Avatar [Widget] List.
   final Color avatarColor3;
 
-  /// [Color] of the fourth avatar color in [AvatarWidget] List.
+  /// [Color] of the fourth avatar color in Avatar [Widget] List.
   final Color avatarColor4;
 
-  /// [Color] of the fifth avatar color in [AvatarWidget] List.
+  /// [Color] of the fifth avatar color in Avatar [Widget]List.
   final Color avatarColor5;
 
-  /// [Color] of the sixth avatar color in [AvatarWidget] List.
+  /// [Color] of the sixth avatar color in Avatar [Widget] List.
   final Color avatarColor6;
 
-  /// [Color] of the seventh avatar color in [AvatarWidget] List.
+  /// [Color] of the seventh avatar color in Avatar [Widget] List.
   final Color avatarColor7;
 
-  /// [Color] of the eighth avatar color in [AvatarWidget] List.
+  /// [Color] of the eighth avatar color in Avatar [Widget] List.
   final Color avatarColor8;
 
-  /// [Color] of the ninth avatar color in [AvatarWidget] List.
+  /// [Color] of the ninth avatar color in Avatar [Widget] List.
   final Color avatarColor9;
 
-  /// [Color] of the tenth avatar color in [AvatarWidget] List.
+  /// [Color] of the tenth avatar color in Avatar [Widget] List.
   final Color avatarColor10;
 
   /// [Color] of the modal background barrier color.
