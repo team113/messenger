@@ -309,7 +309,8 @@ class ChatsTabView extends StatelessWidget {
                                       const SizedBox(height: 5),
                                       Text(
                                         'label_required'.l10n,
-                                        style: TextStyle(
+                                        style: context.textTheme.bodyMedium!
+                                            .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
                                               .primary,
@@ -814,7 +815,8 @@ class ChatsTabView extends StatelessWidget {
                   'btn_close'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const TextStyle(color: Colors.black),
+                  style: context.textTheme.bodyMedium!
+                      .copyWith(color: Colors.black),
                 ),
                 onPressed: c.closeGroupCreating,
                 color: Colors.white,
@@ -825,7 +827,8 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const TextStyle(color: Colors.white),
+                  style: context.textTheme.bodyMedium!
+                      .copyWith(color: Colors.white),
                 ),
                 onPressed: c.createGroup,
                 color: Theme.of(context).colorScheme.secondary,
@@ -869,7 +872,8 @@ class ChatsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(color: Colors.black),
+                style:
+                    context.textTheme.bodyMedium!.copyWith(color: Colors.black),
               ),
               onPressed: c.toggleSelecting,
               color: Colors.white,
@@ -885,7 +889,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(
+                  style: context.textTheme.bodyMedium!.copyWith(
                     color:
                         c.selectedChats.isEmpty ? Colors.black : Colors.white,
                   ),

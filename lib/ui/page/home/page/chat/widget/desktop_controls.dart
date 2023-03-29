@@ -473,7 +473,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: const TextStyle(fontSize: 14.0, color: Colors.white),
+      style: context.textTheme.bodyMedium!
+          .copyWith(fontSize: 14.0, color: Colors.white),
     );
   }
 

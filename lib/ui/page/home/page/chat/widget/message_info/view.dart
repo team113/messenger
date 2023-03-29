@@ -224,7 +224,8 @@ class MessageInfo extends StatelessWidget {
                                       'minute':
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
-                                    style: TextStyle(
+                                    style:
+                                        context.textTheme.bodyMedium!.copyWith(
                                       color:
                                           Theme.of(context).colorScheme.primary,
                                     ),

@@ -517,8 +517,8 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                  style: context.textTheme.bodyMedium!
+                      .copyWith(color: Theme.of(context).colorScheme.primary),
                 );
               }
 
@@ -600,7 +600,8 @@ class ContactsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(color: Colors.black),
+                style:
+                    context.textTheme.bodyMedium!.copyWith(color: Colors.black),
               ),
               onPressed: c.toggleSelecting,
               color: Colors.white,
@@ -617,7 +618,7 @@ class ContactsTabView extends StatelessWidget {
                       .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(
+                  style: context.textTheme.bodyMedium!.copyWith(
                     color: c.selectedContacts.isEmpty
                         ? Colors.black
                         : Colors.white,
@@ -649,7 +650,7 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
+          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

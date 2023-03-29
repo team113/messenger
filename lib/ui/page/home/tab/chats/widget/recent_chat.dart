@@ -403,7 +403,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: TextStyle(
+                  style: context.textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
@@ -426,7 +426,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: context.textTheme.bodyMedium!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -838,7 +838,7 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: const TextStyle(
+            style: router.context!.textTheme.bodyMedium!.copyWith(
               color: Colors.white,
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -862,7 +862,7 @@ class RecentChatTile extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],

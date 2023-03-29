@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -87,7 +88,8 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: const TextStyle(fontSize: 15, color: Colors.black),
+          style: context.textTheme.bodyMedium!
+              .copyWith(fontSize: 15, color: Colors.black),
           color: Theme.of(context).colorScheme.secondary,
           child: SizedBox(
             width: 60,

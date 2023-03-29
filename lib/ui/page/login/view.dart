@@ -61,7 +61,7 @@ class LoginView extends StatelessWidget {
               maxWidth: double.infinity,
               title: Text(
                 title ?? '',
-                style: TextStyle(
+                style: context.textTheme.bodyMedium!.copyWith(
                   color: onPressed == null ? Colors.black : Colors.white,
                 ),
               ),
@@ -263,7 +263,8 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: const TextStyle(color: Color(0xFF00A3FF)),
+                          style: context.textTheme.bodyMedium!
+                              .copyWith(color: const Color(0xFF00A3FF)),
                         ),
                       ),
                     ),

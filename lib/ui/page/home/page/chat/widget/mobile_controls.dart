@@ -24,6 +24,7 @@ import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 import '/ui/widget/progress_indicator.dart';
@@ -309,14 +310,14 @@ class _MobileControlsState extends State<MobileControls>
         children: <InlineSpan>[
           TextSpan(
             text: '/ ${formatDuration(duration)}',
-            style: TextStyle(
+            style: context.textTheme.bodyMedium!.copyWith(
               fontSize: 14.0,
               color: Colors.white.withOpacity(.75),
               fontWeight: FontWeight.normal,
             ),
           )
         ],
-        style: const TextStyle(
+        style: context.textTheme.bodyMedium!.copyWith(
           fontSize: 14.0,
           color: Colors.white,
           fontWeight: FontWeight.bold,

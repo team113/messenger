@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
@@ -71,9 +72,9 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: const TextStyle(
+                    style: context.textTheme.bodyMedium!.copyWith(
                       fontSize: 13,
-                      color: Color(0xBB818181),
+                      color: const Color(0xBB818181),
                     ),
                   ),
                 ),
@@ -97,9 +98,9 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: const TextStyle(
+                style: context.textTheme.bodyMedium!.copyWith(
                   fontSize: 13,
-                  color: Color(0xBB818181),
+                  color: const Color(0xBB818181),
                 ),
               ),
             ),

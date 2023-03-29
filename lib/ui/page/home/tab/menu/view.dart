@@ -77,7 +77,8 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: const TextStyle(color: Colors.black),
+                              style: context.textTheme.bodyMedium!
+                                  .copyWith(color: Colors.black),
                             ),
                             Obx(() {
                               return Text(

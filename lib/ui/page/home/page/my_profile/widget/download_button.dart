@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -86,7 +87,8 @@ class DownloadButton extends StatelessWidget {
           child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      style: context.textTheme.bodyMedium!
+          .copyWith(color: Theme.of(context).colorScheme.secondary),
     );
   }
 }

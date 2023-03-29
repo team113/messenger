@@ -157,7 +157,8 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: const TextStyle(color: Colors.white),
+              style:
+                  context.textTheme.bodyMedium!.copyWith(color: Colors.white),
             ),
             leading: Container(
               child: SvgLoader.asset(

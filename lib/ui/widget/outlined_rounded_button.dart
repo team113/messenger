@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.
@@ -138,7 +139,8 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 13 * 0.7),
+                              style: context.textTheme.bodyMedium!
+                                  .copyWith(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],

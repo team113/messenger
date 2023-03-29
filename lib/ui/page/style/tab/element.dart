@@ -89,11 +89,13 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: Text(
                     'Start chatting'.l10n,
-                    style: const TextStyle(color: Colors.white),
+                    style: context.textTheme.bodyMedium!
+                        .copyWith(color: Colors.white),
                   ),
                   subtitle: Text(
                     'no registration'.l10n,
-                    style: const TextStyle(color: Colors.white),
+                    style: context.textTheme.bodyMedium!
+                        .copyWith(color: Colors.white),
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
                   onPressed: () {},
@@ -625,9 +627,10 @@ class ElementStyleTabView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     color: Colors.white,
                   ),
-                  child: const Text(
+                  child: Text(
                     '11:04',
-                    style: TextStyle(color: Color(0xFF888888)),
+                    style: context.textTheme.bodyMedium!
+                        .copyWith(color: const Color(0xFF888888)),
                   ),
                 ),
               ),
@@ -635,7 +638,8 @@ class ElementStyleTabView extends StatelessWidget {
                 background: true,
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
-                  labelStyle: const TextStyle(fontSize: 17),
+                  labelStyle:
+                      context.textTheme.bodyMedium!.copyWith(fontSize: 17),
                   closedIcon: const Icon(
                     Icons.more_horiz,
                     color: Colors.blue,
