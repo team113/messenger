@@ -54,7 +54,7 @@ class MenuTabView extends StatelessWidget {
                     type: MaterialType.circle,
                     shadowColor: Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity67,
+                        .onBackgroundOpacity67,
                     color: style.onPrimary,
                     child: Center(
                       child: Obx(() {

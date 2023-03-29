@@ -136,7 +136,7 @@ class MyProfileView extends StatelessWidget {
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color:
-                                                    style.transparentOpacity88,
+                                                    style.onBackgroundOpacity88,
                                               ),
                                               child: const Center(
                                                 child:

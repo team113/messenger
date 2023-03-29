@@ -79,7 +79,7 @@ class ChatInfoView extends StatelessWidget {
                     type: MaterialType.circle,
                     shadowColor: Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity67,
+                        .onBackgroundOpacity67,
                     color: style.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
@@ -308,7 +308,7 @@ class ChatInfoView extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity88,
+                                .onBackgroundOpacity88,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )

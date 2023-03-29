@@ -147,7 +147,7 @@ class ChatForwardView extends StatelessWidget {
                         ? Container(
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity74,
+                                .onBackgroundOpacity74,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(milliseconds: 300),
@@ -160,7 +160,7 @@ class ChatForwardView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       color: Theme.of(context)
                                           .extension<Style>()!
-                                          .transparentOpacity74,
+                                          .onBackgroundOpacity74,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),

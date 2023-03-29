@@ -56,7 +56,7 @@ class CustomNavigationBar extends StatelessWidget {
         boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: style.transparentOpacity88,
+            color: style.onBackgroundOpacity88,
             blurStyle: BlurStyle.outer,
           ),
         ],

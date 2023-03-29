@@ -55,7 +55,7 @@ class AddContactListTile extends StatelessWidget {
             : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
-      selectedTileColor: style.transparentOpacity94,
+      selectedTileColor: style.onBackgroundOpacity94,
       title: Text('${contact.contact.value.name}', style: font17),
       onTap: onTap,
     );

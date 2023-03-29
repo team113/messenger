@@ -224,7 +224,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: style.transparentOpacity60,
+                color: style.onBackgroundOpacity60,
               ),
             );
           }
@@ -309,7 +309,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         CustomBoxShadow(
                           color: Theme.of(context)
                               .extension<Style>()!
-                              .transparentOpacity81,
+                              .onBackgroundOpacity81,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -421,7 +421,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     CustomBoxShadow(
                       color: Theme.of(context)
                           .extension<Style>()!
-                          .transparentOpacity81,
+                          .onBackgroundOpacity81,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -614,7 +614,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ? Container(
                       color: Theme.of(context)
                           .extension<Style>()!
-                          .transparentOpacity67)
+                          .onBackgroundOpacity67)
                   : null,
             );
           }),
@@ -684,7 +684,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       CustomBoxShadow(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .transparentOpacity81,
+                            .onBackgroundOpacity81,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -896,7 +896,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       CustomBoxShadow(
                         color: Theme.of(context)
                             .extension<Style>()!
-                            .transparentOpacity81,
+                            .onBackgroundOpacity81,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1457,7 +1457,7 @@ Widget _primaryView(CallController c) {
                   ? Container(
                       color: Theme.of(router.context!)
                           .extension<Style>()!
-                          .transparentOpacity74,
+                          .onBackgroundOpacity74,
                       child: Center(
                         child: AnimatedDelayedScale(
                           duration: const Duration(milliseconds: 300),
@@ -1472,10 +1472,10 @@ Widget _primaryView(CallController c) {
                                 color: !c.minimized.value || c.fullscreen.value
                                     ? Theme.of(router.context!)
                                         .extension<Style>()!
-                                        .transparentOpacity74
+                                        .onBackgroundOpacity74
                                     : Theme.of(router.context!)
                                         .extension<Style>()!
-                                        .transparentOpacity44,
+                                        .onBackgroundOpacity44,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -1731,7 +1731,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     decoration: BoxDecoration(
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.transparentOpacity74,
+                          color: style.onBackgroundOpacity74,
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -2181,7 +2181,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         ? Container(
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity74,
+                                .onBackgroundOpacity74,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(
@@ -2198,8 +2198,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       borderRadius: BorderRadius.circular(16),
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
-                                          ? style.transparentOpacity74
-                                          : style.transparentOpacity44,
+                                          ? style.onBackgroundOpacity74
+                                          : style.onBackgroundOpacity44,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
@@ -2401,7 +2401,7 @@ Widget _secondaryTarget(CallController c) {
                                     ),
                                     boxShadow: [
                                       CustomBoxShadow(
-                                        color: style.transparentOpacity81,
+                                        color: style.onBackgroundOpacity81,
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )
@@ -2441,7 +2441,7 @@ Widget _secondaryTarget(CallController c) {
                                                   decoration: BoxDecoration(
                                                     color: Theme.of(context)
                                                         .extension<Style>()!
-                                                        .transparentOpacity74,
+                                                        .onBackgroundOpacity74,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             16),

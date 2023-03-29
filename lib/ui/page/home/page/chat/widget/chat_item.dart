@@ -205,7 +205,7 @@ class ChatItemWidget extends StatefulWidget {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: style.transparentOpacity50,
+                color: style.onBackgroundOpacity50,
               ),
               child: Icon(Icons.play_arrow, color: style.onPrimary, size: 48),
             ),
@@ -1104,7 +1104,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: style.transparentOpacity98,
+                color: style.onBackgroundOpacity98,
               ),
               padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
               child: Row(
@@ -1217,7 +1217,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? style.onPrimaryOpacity75
                       : Theme.of(context)
                           .extension<Style>()!
-                          .transparentOpacity98,
+                          .onBackgroundOpacity98,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
@@ -1259,7 +1259,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? style.onPrimaryOpacity75
                     : Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity98,
+                        .onBackgroundOpacity98,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,

@@ -44,7 +44,7 @@ class HintWidget extends StatelessWidget {
     final style = Theme.of(context).extension<Style>()!;
     return Card(
       elevation: 8,
-      shadowColor: style.transparentOpacity74,
+      shadowColor: style.onBackgroundOpacity74,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),

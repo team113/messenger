@@ -95,7 +95,7 @@ class MessageFieldView extends StatelessWidget {
     );
     final style = Theme.of(context).extension<Style>()!;
     return Theme.of(context).copyWith(
-      shadowColor: style.transparentOpacity67,
+      shadowColor: style.onBackgroundOpacity67,
       iconTheme: IconThemeData(color: style.secondaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
@@ -139,7 +139,7 @@ class MessageFieldView extends StatelessWidget {
                       blurRadius: 8,
                       color: Theme.of(context)
                           .extension<Style>()!
-                          .transparentOpacity88),
+                          .onBackgroundOpacity88),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -220,7 +220,7 @@ class MessageFieldView extends StatelessWidget {
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
                     style.transparent,
-                    style.transparentOpacity81,
+                    style.onBackgroundOpacity81,
                     t,
                   )!;
 
@@ -300,7 +300,7 @@ class MessageFieldView extends StatelessWidget {
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
                     style.transparent,
-                    style.transparentOpacity81,
+                    style.onBackgroundOpacity81,
                     t,
                   )!;
 
@@ -608,7 +608,7 @@ class MessageFieldView extends StatelessWidget {
                           shape: BoxShape.circle,
                           color: Theme.of(context)
                               .extension<Style>()!
-                              .transparentOpacity50,
+                              .onBackgroundOpacity50,
                         ),
                         child: Icon(
                           Icons.play_arrow,
@@ -804,7 +804,7 @@ class MessageFieldView extends StatelessWidget {
                     ? style.onPrimaryOpacity75
                     : Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity98,
+                        .onBackgroundOpacity98,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,

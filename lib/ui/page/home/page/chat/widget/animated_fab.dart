@@ -251,7 +251,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                                     .onPrimary,
                                 shadowColor: Theme.of(context)
                                     .extension<Style>()!
-                                    .transparentOpacity81,
+                                    .onBackgroundOpacity81,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,
@@ -307,7 +307,7 @@ class _AnimatedFabState extends State<AnimatedFab>
     return Material(
       type: MaterialType.circle,
       color: style.onPrimary,
-      shadowColor: style.transparentOpacity67,
+      shadowColor: style.onBackgroundOpacity67,
       elevation: 6,
       child: InkWell(
         customBorder: const CircleBorder(),

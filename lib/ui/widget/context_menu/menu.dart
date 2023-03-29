@@ -40,7 +40,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: style.transparentOpacity94,
+            color: style.onBackgroundOpacity94,
             height: 1,
             width: double.infinity,
           ),
@@ -57,7 +57,7 @@ class ContextMenu extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.transparentOpacity81,
+            color: style.onBackgroundOpacity81,
             blurStyle: BlurStyle.outer,
           )
         ],

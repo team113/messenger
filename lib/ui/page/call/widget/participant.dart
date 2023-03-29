@@ -139,7 +139,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.transparentOpacity44,
+                color: style.onBackgroundOpacity44,
                 child: Padding(
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
@@ -156,7 +156,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.transparentOpacity25,
+                color: style.onBackgroundOpacity25,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -332,7 +332,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               CustomBoxShadow(
-                color: style.transparentOpacity88,
+                color: style.onBackgroundOpacity88,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -418,7 +418,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
                 border: Border.all(
                     color: Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity81,
+                        .onBackgroundOpacity81,
                     width: 0.5),
               ),
               child: const IgnorePointer(),

@@ -160,7 +160,7 @@ class _ChatViewState extends State<ChatView>
                             type: MaterialType.circle,
                             shadowColor: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity67,
+                                .onBackgroundOpacity67,
                             color: style.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
@@ -490,7 +490,7 @@ class _ChatViewState extends State<ChatView>
                             ? Container(
                                 color: Theme.of(context)
                                     .extension<Style>()!
-                                    .transparentOpacity74,
+                                    .onBackgroundOpacity74,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -502,7 +502,7 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: style.transparentOpacity74,
+                                          color: style.onBackgroundOpacity74,
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
@@ -1061,7 +1061,7 @@ class _ChatViewState extends State<ChatView>
                   blurRadius: 8,
                   color: Theme.of(context)
                       .extension<Style>()!
-                      .transparentOpacity88),
+                      .onBackgroundOpacity88),
             ],
           ),
           child: ConditionalBackdropFilter(

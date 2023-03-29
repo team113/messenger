@@ -216,7 +216,7 @@ class _MobileControlsState extends State<MobileControls>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [style.transparent, style.transparentOpacity60],
+            colors: [style.transparent, style.onBackgroundOpacity60],
           ),
         ),
         child: SafeArea(
@@ -258,7 +258,7 @@ class _MobileControlsState extends State<MobileControls>
     final style = Theme.of(context).extension<Style>()!;
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: style.transparentOpacity88,
+      backgroundColor: style.onBackgroundOpacity88,
       iconColor: style.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,

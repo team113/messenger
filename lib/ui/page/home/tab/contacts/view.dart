@@ -297,7 +297,7 @@ class ContactsTabView extends StatelessWidget {
                                         .transparent,
                                     Theme.of(context)
                                         .extension<Style>()!
-                                        .transparentOpacity81,
+                                        .onBackgroundOpacity81,
                                     t,
                                   )!;
 
@@ -588,7 +588,7 @@ class ContactsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.transparentOpacity88,
+        color: style.onBackgroundOpacity88,
         blurStyle: BlurStyle.outer,
       ),
     ];

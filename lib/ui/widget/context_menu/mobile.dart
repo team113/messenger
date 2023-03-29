@@ -444,7 +444,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         if (i < widget.actions.length - 1) {
           widgets.add(
             Container(
-              color: style.transparentOpacity94,
+              color: style.onBackgroundOpacity94,
               height: 1,
               width: double.infinity,
             ),

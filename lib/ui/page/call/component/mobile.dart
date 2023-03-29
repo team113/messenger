@@ -321,7 +321,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             borderRadius: BorderRadius.circular(16),
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity25,
+                                .onBackgroundOpacity25,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -361,7 +361,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                         ?.copyWith(
                                             color: Theme.of(context)
                                                 .extension<Style>()!
-                                                .transparentOpacity98),
+                                                .onBackgroundOpacity98),
                                   ),
                                   if (withDots)
                                     AnimatedDots(
@@ -452,7 +452,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 ? Container(
                     color: Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity67)
+                        .onBackgroundOpacity67)
                 : null,
           ),
         );

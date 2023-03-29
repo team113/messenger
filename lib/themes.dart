@@ -57,19 +57,6 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            transparent: const Color(0x00000000),
-            transparentOpacity98: const Color(0x04000000),
-            transparentOpacity94: const Color(0x11000000),
-            transparentOpacity88: const Color(0x22000000),
-            transparentOpacity85: const Color(0x25000000),
-            transparentOpacity81: const Color(0x33000000),
-            transparentOpacity74: const Color(0x44000000),
-            transparentOpacity67: const Color(0x55000000),
-            transparentOpacity60: const Color(0x66000000),
-            transparentOpacity50: const Color(0x80000000),
-            transparentOpacity44: const Color(0x90000000),
-            transparentOpacity25: const Color(0xA0000000),
-            transparentOpacity10: const Color(0xE6000000),
             primary: const Color(0xFF888888),
             primaryBackground: const Color(0xFF222222),
             primaryBackgroundLight: const Color(0xFF444444),
@@ -104,6 +91,19 @@ class Themes {
             backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
             backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
             onBackground: Colors.black,
+            onBackgroundOpacity98: const Color(0x04000000),
+            onBackgroundOpacity94: const Color(0x11000000),
+            onBackgroundOpacity88: const Color(0x22000000),
+            onBackgroundOpacity85: const Color(0x25000000),
+            onBackgroundOpacity81: const Color(0x33000000),
+            onBackgroundOpacity74: const Color(0x44000000),
+            onBackgroundOpacity67: const Color(0x55000000),
+            onBackgroundOpacity60: const Color(0x66000000),
+            onBackgroundOpacity50: const Color(0x80000000),
+            onBackgroundOpacity44: const Color(0x90000000),
+            onBackgroundOpacity25: const Color(0xA0000000),
+            onBackgroundOpacity10: const Color(0xE6000000),
+            transparent: const Color(0x00000000),
             acceptColor: const Color(0x7F34B139),
             acceptAuxilaryColor: Colors.green,
             declineColor: const Color(0x7FFF0000),
@@ -433,19 +433,19 @@ class Style extends ThemeExtension<Style> {
     required this.backgroundAuxiliaryLighter,
     required this.backgroundAuxiliaryLightest,
     required this.onBackground,
+    required this.onBackgroundOpacity98,
+    required this.onBackgroundOpacity94,
+    required this.onBackgroundOpacity88,
+    required this.onBackgroundOpacity85,
+    required this.onBackgroundOpacity81,
+    required this.onBackgroundOpacity74,
+    required this.onBackgroundOpacity67,
+    required this.onBackgroundOpacity60,
+    required this.onBackgroundOpacity50,
+    required this.onBackgroundOpacity44,
+    required this.onBackgroundOpacity25,
+    required this.onBackgroundOpacity10,
     required this.transparent,
-    required this.transparentOpacity98,
-    required this.transparentOpacity94,
-    required this.transparentOpacity88,
-    required this.transparentOpacity85,
-    required this.transparentOpacity81,
-    required this.transparentOpacity74,
-    required this.transparentOpacity67,
-    required this.transparentOpacity60,
-    required this.transparentOpacity50,
-    required this.transparentOpacity44,
-    required this.transparentOpacity25,
-    required this.transparentOpacity10,
     required this.acceptColor,
     required this.acceptAuxilaryColor,
     required this.declineColor,
@@ -586,44 +586,44 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the text, BoxShadow's, etc.
   final Color onBackground;
 
-  /// Transparent [Color] of Gapopa.
-  final Color transparent;
-
   /// Transparent [Color] with 98% opacity.
-  final Color transparentOpacity98;
+  final Color onBackgroundOpacity98;
 
   /// Transparent [Color] with 94% opacity.
-  final Color transparentOpacity94;
+  final Color onBackgroundOpacity94;
 
   /// Transparent [Color] with 88% opacity.
-  final Color transparentOpacity88;
+  final Color onBackgroundOpacity88;
 
   /// Transparent [Color] with 85% opacity.
-  final Color transparentOpacity85;
+  final Color onBackgroundOpacity85;
 
   /// Transparent [Color] with 81% opacity.
-  final Color transparentOpacity81;
+  final Color onBackgroundOpacity81;
 
   /// Transparent [Color] with 74% opacity.
-  final Color transparentOpacity74;
+  final Color onBackgroundOpacity74;
 
   /// Transparent [Color] with 67% opacity.
-  final Color transparentOpacity67;
+  final Color onBackgroundOpacity67;
 
   /// Transparent [Color] with 60% opacity.
-  final Color transparentOpacity60;
+  final Color onBackgroundOpacity60;
 
   /// Transparent [Color] with 50% opacity.
-  final Color transparentOpacity50;
+  final Color onBackgroundOpacity50;
 
   /// Transparent [Color] with 44% opacity.
-  final Color transparentOpacity44;
+  final Color onBackgroundOpacity44;
 
   /// Transparent [Color] with 25% opacity.
-  final Color transparentOpacity25;
+  final Color onBackgroundOpacity25;
 
   /// Transparent [Color] with 10% opacity.
-  final Color transparentOpacity10;
+  final Color onBackgroundOpacity10;
+
+  /// Transparent [Color] of Gapopa.
+  final Color transparent;
 
   /// [Color] of the call acceptance.
   final Color acceptColor;
@@ -773,19 +773,19 @@ class Style extends ThemeExtension<Style> {
     Color? backgroundAuxiliaryLighter,
     Color? backgroundAuxiliaryLightest,
     Color? onBackground,
+    Color? onBackgroundOpacity98,
+    Color? onBackgroundOpacity94,
+    Color? onBackgroundOpacity88,
+    Color? onBackgroundOpacity85,
+    Color? onBackgroundOpacity81,
+    Color? onBackgroundOpacity74,
+    Color? onBackgroundOpacity67,
+    Color? onBackgroundOpacity60,
+    Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity44,
+    Color? onBackgroundOpacity25,
+    Color? onBackgroundOpacity10,
     Color? transparent,
-    Color? transparentOpacity98,
-    Color? transparentOpacity94,
-    Color? transparentOpacity88,
-    Color? transparentOpacity85,
-    Color? transparentOpacity81,
-    Color? transparentOpacity74,
-    Color? transparentOpacity67,
-    Color? transparentOpacity60,
-    Color? transparentOpacity50,
-    Color? transparentOpacity44,
-    Color? transparentOpacity25,
-    Color? transparentOpacity10,
     Color? acceptColor,
     Color? acceptAuxilaryColor,
     Color? declineColor,
@@ -862,19 +862,31 @@ class Style extends ThemeExtension<Style> {
       backgroundAuxiliaryLightest:
           secondaryHighlight ?? this.secondaryHighlight,
       onBackground: onBackground ?? this.onBackground,
+      onBackgroundOpacity98:
+          onBackgroundOpacity98 ?? this.onBackgroundOpacity98,
+      onBackgroundOpacity94:
+          onBackgroundOpacity94 ?? this.onBackgroundOpacity94,
+      onBackgroundOpacity88:
+          onBackgroundOpacity88 ?? this.onBackgroundOpacity88,
+      onBackgroundOpacity85:
+          onBackgroundOpacity85 ?? this.onBackgroundOpacity85,
+      onBackgroundOpacity81:
+          onBackgroundOpacity81 ?? this.onBackgroundOpacity81,
+      onBackgroundOpacity74:
+          onBackgroundOpacity74 ?? this.onBackgroundOpacity74,
+      onBackgroundOpacity67:
+          onBackgroundOpacity67 ?? this.onBackgroundOpacity67,
+      onBackgroundOpacity60:
+          onBackgroundOpacity60 ?? this.onBackgroundOpacity60,
+      onBackgroundOpacity50:
+          onBackgroundOpacity50 ?? this.onBackgroundOpacity50,
+      onBackgroundOpacity44:
+          onBackgroundOpacity44 ?? this.onBackgroundOpacity44,
+      onBackgroundOpacity25:
+          onBackgroundOpacity25 ?? this.onBackgroundOpacity25,
+      onBackgroundOpacity10:
+          onBackgroundOpacity10 ?? this.onBackgroundOpacity10,
       transparent: transparent ?? this.transparent,
-      transparentOpacity98: transparentOpacity98 ?? this.transparentOpacity98,
-      transparentOpacity94: transparentOpacity94 ?? this.transparentOpacity94,
-      transparentOpacity88: transparentOpacity88 ?? this.transparentOpacity88,
-      transparentOpacity85: transparentOpacity85 ?? this.transparentOpacity85,
-      transparentOpacity81: transparentOpacity81 ?? this.transparentOpacity81,
-      transparentOpacity74: transparentOpacity74 ?? this.transparentOpacity74,
-      transparentOpacity67: transparentOpacity67 ?? this.transparentOpacity67,
-      transparentOpacity60: transparentOpacity60 ?? this.transparentOpacity60,
-      transparentOpacity50: transparentOpacity50 ?? this.transparentOpacity50,
-      transparentOpacity44: transparentOpacity44 ?? this.transparentOpacity44,
-      transparentOpacity25: transparentOpacity25 ?? this.transparentOpacity25,
-      transparentOpacity10: transparentOpacity10 ?? this.transparentOpacity10,
       acceptColor: acceptColor ?? this.acceptColor,
       acceptAuxilaryColor: acceptAuxilaryColor ?? this.acceptAuxilaryColor,
       declineColor: declineColor ?? this.declineColor,
@@ -986,30 +998,30 @@ class Style extends ThemeExtension<Style> {
           backgroundAuxiliaryLightest, other.backgroundAuxiliaryLightest, t)!,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
-      transparentOpacity98:
-          Color.lerp(transparentOpacity98, other.transparentOpacity98, t)!,
-      transparentOpacity94:
-          Color.lerp(transparentOpacity94, other.transparentOpacity94, t)!,
-      transparentOpacity88:
-          Color.lerp(transparentOpacity88, other.transparentOpacity88, t)!,
-      transparentOpacity85:
-          Color.lerp(transparentOpacity85, other.transparentOpacity85, t)!,
-      transparentOpacity81:
-          Color.lerp(transparentOpacity81, other.transparentOpacity81, t)!,
-      transparentOpacity74:
-          Color.lerp(transparentOpacity74, other.transparentOpacity74, t)!,
-      transparentOpacity67:
-          Color.lerp(transparentOpacity67, other.transparentOpacity67, t)!,
-      transparentOpacity60:
-          Color.lerp(transparentOpacity60, other.transparentOpacity60, t)!,
-      transparentOpacity50:
-          Color.lerp(transparentOpacity50, other.transparentOpacity50, t)!,
-      transparentOpacity44:
-          Color.lerp(transparentOpacity44, other.transparentOpacity44, t)!,
-      transparentOpacity25:
-          Color.lerp(transparentOpacity25, other.transparentOpacity25, t)!,
-      transparentOpacity10:
-          Color.lerp(transparentOpacity10, other.transparentOpacity10, t)!,
+      onBackgroundOpacity98:
+          Color.lerp(onBackgroundOpacity98, other.onBackgroundOpacity98, t)!,
+      onBackgroundOpacity94:
+          Color.lerp(onBackgroundOpacity94, other.onBackgroundOpacity94, t)!,
+      onBackgroundOpacity88:
+          Color.lerp(onBackgroundOpacity88, other.onBackgroundOpacity88, t)!,
+      onBackgroundOpacity85:
+          Color.lerp(onBackgroundOpacity85, other.onBackgroundOpacity85, t)!,
+      onBackgroundOpacity81:
+          Color.lerp(onBackgroundOpacity81, other.onBackgroundOpacity81, t)!,
+      onBackgroundOpacity74:
+          Color.lerp(onBackgroundOpacity74, other.onBackgroundOpacity74, t)!,
+      onBackgroundOpacity67:
+          Color.lerp(onBackgroundOpacity67, other.onBackgroundOpacity67, t)!,
+      onBackgroundOpacity60:
+          Color.lerp(onBackgroundOpacity60, other.onBackgroundOpacity60, t)!,
+      onBackgroundOpacity50:
+          Color.lerp(onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
+      onBackgroundOpacity44:
+          Color.lerp(onBackgroundOpacity44, other.onBackgroundOpacity44, t)!,
+      onBackgroundOpacity25:
+          Color.lerp(onBackgroundOpacity25, other.onBackgroundOpacity25, t)!,
+      onBackgroundOpacity10:
+          Color.lerp(onBackgroundOpacity10, other.onBackgroundOpacity10, t)!,
       acceptColor: Color.lerp(acceptColor, other.acceptColor, t)!,
       acceptAuxilaryColor:
           Color.lerp(acceptAuxilaryColor, other.acceptAuxilaryColor, t)!,

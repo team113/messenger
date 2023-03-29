@@ -44,7 +44,7 @@ class AddUserListTile extends StatelessWidget {
         child: Icon(Icons.check, color: style.onPrimary),
       ),
       selected: true,
-      selectedTileColor: style.transparentOpacity94,
+      selectedTileColor: style.onBackgroundOpacity94,
       title: Text(user.name?.val ?? user.num.val, style: font17),
       onTap: onTap,
     );

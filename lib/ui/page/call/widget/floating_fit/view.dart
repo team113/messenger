@@ -196,7 +196,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                     CustomBoxShadow(
                       color: Theme.of(context)
                           .extension<Style>()!
-                          .transparentOpacity74,
+                          .onBackgroundOpacity74,
                       blurRadius: 9,
                       blurStyle: BlurStyle.outer,
                     )

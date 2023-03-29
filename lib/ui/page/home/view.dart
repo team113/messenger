@@ -401,7 +401,7 @@ class _HomeViewState extends State<HomeView> {
                 child: ColoredBox(
                     color: Theme.of(context)
                         .extension<Style>()!
-                        .transparentOpacity94),
+                        .onBackgroundOpacity94),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -422,7 +422,7 @@ class _HomeViewState extends State<HomeView> {
                         child: ColoredBox(
                             color: Theme.of(context)
                                 .extension<Style>()!
-                                .transparentOpacity98)),
+                                .onBackgroundOpacity98)),
                   ],
                 ),
               ],
