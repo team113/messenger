@@ -79,12 +79,15 @@ class Pagination<T, K> {
     _startCursor = null;
     _endCursor = null;
     _aroundSubscription?.cancel();
+    aroundFetched.value = false;
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, K? cursor}) async {
+    clear();
+
     final Rx<Page<T, K>> page = await provider.around(item, cursor, perPage);
 
     if (!page.value.finalResult) {

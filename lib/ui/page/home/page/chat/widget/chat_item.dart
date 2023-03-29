@@ -848,29 +848,31 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final List<Widget> children = [
           if (msg.repliesTo.isNotEmpty)
             ...msg.repliesTo.mapIndexed((i, e) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: e.author == widget.me
-                      ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
-                      : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
-                  borderRadius: i == 0
-                      ? const BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                        )
-                      : BorderRadius.zero,
-                ),
-                child: AnimatedOpacity(
+              return SelectionContainer.disabled(
+                child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
-                  opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  child: WidgetButton(
-                    onPressed: menu ? null : () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
+                  decoration: BoxDecoration(
+                    color: e.author == widget.me
+                        ? _isRead || !_fromMe
+                            ? const Color(0xFFDBEAFD)
+                            : const Color(0xFFE6F1FE)
+                        : _isRead || !_fromMe
+                            ? const Color(0xFFF9F9F9)
+                            : const Color(0xFFFFFFFF),
+                    borderRadius: i == 0
+                        ? const BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15),
+                          )
+                        : BorderRadius.zero,
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.55,
+                    child: WidgetButton(
+                      onPressed: menu ? null : () => widget.onRepliedTap?.call(e),
+                      child: _repliedMessage(e),
+                    ),
                   ),
                 ),
               );
@@ -1572,7 +1574,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           child:
                               AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )
-                      : const SizedBox.square(dimension: 34),
+                      : const SizedBox(width: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {

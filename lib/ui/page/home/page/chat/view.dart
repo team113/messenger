@@ -399,7 +399,7 @@ class _ChatViewState extends State<ChatView>
                                     stickyAtTailer: true,
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
-                                    initOffsetBasedOnBottom: false,
+                                    initOffsetBasedOnBottom: true,
                                     disableCacheItems: true,
                                   ),
                                 ),
@@ -993,7 +993,7 @@ class _ChatViewState extends State<ChatView>
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
-          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
           canAttach: false,
         );
       }
@@ -1002,7 +1002,7 @@ class _ChatViewState extends State<ChatView>
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.keepTyping,
-        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
         canForward: true,
       );
     });

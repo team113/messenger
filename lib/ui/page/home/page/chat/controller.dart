@@ -982,7 +982,7 @@ class ChatController extends GetxController {
   /// Animates [listController] to a [ChatItem] identified by the provided [id].
   Future<void> animateTo(
     ChatItemId id, {
-    bool offsetBasedOnBottom = false,
+    bool offsetBasedOnBottom = true,
     double offset = 0,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
@@ -1020,7 +1020,7 @@ class ChatController extends GetxController {
         await listController.sliverController.animateToIndex(
           0,
           offset: 0,
-          offsetBasedOnBottom: true,
+          offsetBasedOnBottom: false,
           duration: 300.milliseconds,
           curve: Curves.ease,
         );
@@ -1041,7 +1041,7 @@ class ChatController extends GetxController {
         if (listController.hasClients) {
           await listController.sliverController.animateToIndex(
             _itemToReturnTo!.index,
-            offsetBasedOnBottom: false,
+            offsetBasedOnBottom: true,
             offset: _itemToReturnTo!.offset,
             duration: 200.milliseconds,
             curve: Curves.ease,
@@ -1270,11 +1270,11 @@ class ChatController extends GetxController {
                 (loadingHeight + lastItemBottomOffset),
           );
         }
-        elements.remove(_bottomLoader!.id);
-        _isPrevPageLoading = false;
+        elements.remove(_bottomLoader?.id);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           keepPositionOffset.value = 50;
+          _isPrevPageLoading = false;
         });
       });
     }
@@ -1381,7 +1381,7 @@ class ChatController extends GetxController {
             await listController.sliverController.animateToIndex(
               result.index,
               offset: 0,
-              offsetBasedOnBottom: true,
+              offsetBasedOnBottom: false,
               duration: 200.milliseconds,
               curve: Curves.ease,
             );
