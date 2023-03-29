@@ -633,7 +633,7 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the "Do not disturb" mode
   final Color doNotDistrubColor;
 
-  /// [Color] of the first avatar color in Avatar [Widget] List.
+  /// [Color]s in Avatar [Widget] List.
   final List<Color> avatarColors;
 
   /// [Color] of the modal background barrier color.
@@ -849,7 +849,18 @@ class Style extends ThemeExtension<Style> {
       declineColor: declineColor ?? this.declineColor,
       warningColor: warningColor ?? this.warningColor,
       doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
-      avatarColors: [],
+      avatarColors: [
+        avatarColors![0],
+        avatarColors[1],
+        avatarColors[2],
+        avatarColors[3],
+        avatarColors[4],
+        avatarColors[5],
+        avatarColors[6],
+        avatarColors[7],
+        avatarColors[8],
+        avatarColors[9],
+      ],
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -977,7 +988,18 @@ class Style extends ThemeExtension<Style> {
       warningColor: Color.lerp(warningColor, other.warningColor, t)!,
       doNotDistrubColor:
           Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
-      avatarColors: [],
+      avatarColors: [
+        Color.lerp(avatarColors[0], other.avatarColors[0], t)!,
+        Color.lerp(avatarColors[1], other.avatarColors[1], t)!,
+        Color.lerp(avatarColors[2], other.avatarColors[2], t)!,
+        Color.lerp(avatarColors[3], other.avatarColors[3], t)!,
+        Color.lerp(avatarColors[4], other.avatarColors[4], t)!,
+        Color.lerp(avatarColors[5], other.avatarColors[5], t)!,
+        Color.lerp(avatarColors[6], other.avatarColors[6], t)!,
+        Color.lerp(avatarColors[7], other.avatarColors[7], t)!,
+        Color.lerp(avatarColors[8], other.avatarColors[8], t)!,
+        Color.lerp(avatarColors[9], other.avatarColors[9], t)!,
+      ],
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
