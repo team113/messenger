@@ -1841,7 +1841,7 @@ TextSpan? detectLinksAndEmails(
 
   if (matches.isEmpty) return null;
 
-  TextStyle linkStyle = const TextStyle(
+  const TextStyle linkStyle = TextStyle(
     color: Colors.blue,
     decoration: TextDecoration.underline,
     decorationThickness: 2,
@@ -1872,18 +1872,13 @@ TextSpan? detectLinksAndEmails(
             final Uri uri;
 
             if (link.isEmail) {
-              uri = Uri(
-                scheme: 'mailto',
-                path: link,
-              );
+              uri = Uri(scheme: 'mailto', path: link);
             } else {
-              uri = Uri.parse(
-                !link.startsWith('http') ? 'http://$link' : link,
-              );
+              uri = Uri.parse(!link.startsWith('http') ? 'http://$link' : link);
             }
 
             if (await canLaunchUrl(uri)) {
-              launchUrl(uri);
+              await launchUrl(uri);
             }
           },
       ),
