@@ -231,24 +231,25 @@ void main() async {
     );
 
     when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
-        .thenAnswer((_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
-              'createChatDirectLink': {
-                '__typename': 'MyUserEventsVersioned',
-                'events': [
-                  {
-                    '__typename': 'EventUserDirectLinkUpdated',
-                    'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                    'directLink': {
-                      'slug': 'link',
-                      'usageCount': 0,
-                    },
-                  }
-                ],
-                'myUser': myUserData,
-                'ver': '0',
+        .thenAnswer(
+      (_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
+        'createChatDirectLink': {
+          '__typename': 'MyUserEventsVersioned',
+          'events': [
+            {
+              '__typename': 'EventUserDirectLinkUpdated',
+              'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+              'directLink': {
+                'slug': 'link',
+                'usageCount': 0,
               },
-            }).createChatDirectLink as MyUserEventsVersionedMixin?)
-                .then((value) => Future.delayed(Duration(seconds: 5))));
+            }
+          ],
+          'myUser': myUserData,
+          'ver': '0',
+        },
+      }).createChatDirectLink as MyUserEventsVersionedMixin?),
+    );
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

@@ -21,7 +21,6 @@ import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
