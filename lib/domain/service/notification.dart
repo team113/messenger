@@ -20,13 +20,17 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 
+import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
+import '/firebase_options.dart';
 import '/l10n/l10n.dart';
+import '/main.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -201,6 +205,15 @@ class NotificationService extends DisposableService {
             onDidReceiveNotificationResponse: onNotificationResponse,
             onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
           );
+
+          if(!PlatformUtils.isWindows) {
+            final NotificationAppLaunchDetails? details =
+            await _plugin!.getNotificationAppLaunchDetails();
+
+            if (details?.notificationResponse != null) {
+              onNotificationResponse?.call(details!.notificationResponse!);
+            }
+          }
         } on MissingPluginException {
           _plugin = null;
         }
@@ -211,6 +224,20 @@ class NotificationService extends DisposableService {
   /// Initializes the [FirebaseMessaging] receiving push notifications.
   Future<void> _initPushNotifications() async {
     if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
+      FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+      FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      final RemoteMessage? initial =
+          await FirebaseMessaging.instance.getInitialMessage();
+
+      if (initial != null) {
+        handleMessage(initial);
+      }
+
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
         if (event.notification != null && event.notification?.title != null) {
           show(
@@ -227,7 +254,7 @@ class NotificationService extends DisposableService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
-          vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
+          vapidKey: Config.vapidKey,
         );
         String? locale = L10n.chosen.value?.locale.toString();
 

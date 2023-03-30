@@ -58,6 +58,10 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
 
+  /// Key used to get a FCM token on the Web.
+  static String vapidKey =
+      'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;

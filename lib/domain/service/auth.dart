@@ -22,6 +22,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
@@ -313,7 +314,7 @@ class AuthService extends GetxService {
 
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           final String? token = await FirebaseMessaging.instance.getToken(
-            vapidKey: PlatformUtils.isWeb ? PlatformUtils.vapidKey : null,
+            vapidKey: Config.vapidKey,
           );
 
           if (token != null) {

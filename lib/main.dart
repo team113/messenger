@@ -24,14 +24,11 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show
-        FlutterLocalNotificationsPlugin,
-        NotificationAppLaunchDetails,
         NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -47,7 +44,6 @@ import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
-import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
@@ -69,9 +65,6 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-
-    FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
     await _initHive();
 
@@ -104,27 +97,6 @@ Future<void> main() async {
 
     await authService.init();
     await L10n.init();
-
-    if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-
-      final RemoteMessage? initial =
-          await FirebaseMessaging.instance.getInitialMessage();
-
-      if (initial != null) {
-        _handleMessage(initial);
-      }
-
-      final localNotifications = FlutterLocalNotificationsPlugin();
-      final NotificationAppLaunchDetails? details =
-          await localNotifications.getNotificationAppLaunchDetails();
-
-      if (details?.notificationResponse != null) {
-        onNotificationResponse(details!.notificationResponse!);
-      }
-    }
 
     runApp(
       DefaultAssetBundle(
@@ -174,7 +146,7 @@ Future<void> main() async {
 }
 
 /// Callback, triggered when an user taps on a FCM notification.
-void _handleMessage(RemoteMessage message) {
+void handleMessage(RemoteMessage message) {
   if (message.data['chatId'] != null) {
     router.chat(ChatId(message.data['chatId']), push: true);
   }
@@ -184,7 +156,7 @@ void _handleMessage(RemoteMessage message) {
 ///
 /// Must be a top level function.
 @pragma('vm:entry-point')
-Future<void> _backgroundHandler(RemoteMessage message) async {
+Future<void> backgroundHandler(RemoteMessage message) async {
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
@@ -289,7 +261,10 @@ Future<void> _backgroundHandler(RemoteMessage message) async {
           prefs = await SharedPreferences.getInstance();
           await prefs.remove('answeredCall');
         }
-      } finally {
+
+        await Future.delayed(30.seconds);
+        callKeep.rejectCall(message.data['chatId']);
+      } catch(_) {
         provider?.disconnect();
         subscription?.cancel();
         callKeep.rejectCall(message.data['chatId']);

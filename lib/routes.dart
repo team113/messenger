@@ -67,6 +67,7 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
+import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -635,10 +636,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               myUserService,
             ));
 
-            deps.put(ChatWorker(
-              chatService,
-              myUserService,
-            ));
+            if ((PlatformUtils.isWindows && !PlatformUtils.isWeb) ||
+                PlatformUtils.isLinux) {
+              deps.put(ChatWorker(
+                chatService,
+                myUserService,
+                Get.find(),
+              ));
+            }
 
             deps.put(MyUserWorker(myUserService));
 

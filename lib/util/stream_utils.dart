@@ -31,7 +31,7 @@ extension StreamQueueExtension<T> on StreamQueue<T> {
         try {
           event = await next;
         } catch (_) {
-          event = null;
+          // No-op.
         }
 
         if (event != null) {
