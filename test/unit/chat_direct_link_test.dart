@@ -208,8 +208,6 @@ void main() async {
 
   test('ChatService and UserService successfully create ChatDirectLink',
       () async {
-    // just for ci
-
     when(graphQlProvider.createChatDirectLink(
       ChatDirectLinkSlug('link'),
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -229,10 +227,9 @@ void main() async {
           ],
           'ver': '0',
         }
-      }).createChatDirectLink as ChatEventsVersionedMixin?)
-          .then((value) => Future.delayed(Duration(seconds: 5))),
+      }).createChatDirectLink as ChatEventsVersionedMixin?),
     );
-    Future.delayed(Duration(seconds: 5));
+
     when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
         .thenAnswer((_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
               'createChatDirectLink': {
