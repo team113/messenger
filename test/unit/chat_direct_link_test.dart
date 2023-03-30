@@ -208,6 +208,8 @@ void main() async {
 
   test('ChatService and UserService successfully create ChatDirectLink',
       () async {
+    // just for ci
+
     when(graphQlProvider.createChatDirectLink(
       ChatDirectLinkSlug('link'),
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -227,29 +229,29 @@ void main() async {
           ],
           'ver': '0',
         }
-      }).createChatDirectLink as ChatEventsVersionedMixin?),
+      }).createChatDirectLink as ChatEventsVersionedMixin?)
+          .then((value) => Future.delayed(Duration(seconds: 5))),
     );
-
+    Future.delayed(Duration(seconds: 5));
     when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
-        .thenAnswer(
-      (_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
-        'createChatDirectLink': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventUserDirectLinkUpdated',
-              'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'directLink': {
-                'slug': 'link',
-                'usageCount': 0,
+        .thenAnswer((_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
+              'createChatDirectLink': {
+                '__typename': 'MyUserEventsVersioned',
+                'events': [
+                  {
+                    '__typename': 'EventUserDirectLinkUpdated',
+                    'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                    'directLink': {
+                      'slug': 'link',
+                      'usageCount': 0,
+                    },
+                  }
+                ],
+                'myUser': myUserData,
+                'ver': '0',
               },
-            }
-          ],
-          'myUser': myUserData,
-          'ver': '0',
-        }
-      }).createChatDirectLink as MyUserEventsVersionedMixin?),
-    );
+            }).createChatDirectLink as MyUserEventsVersionedMixin?)
+                .then((value) => Future.delayed(Duration(seconds: 5))));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
