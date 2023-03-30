@@ -631,14 +631,15 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: const TextStyle(fontSize: 13),
+                      style:
+                          context.textTheme.bodyMedium!.copyWith(fontSize: 13),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     p.extension(e.filename),
-                    style: const TextStyle(fontSize: 13),
+                    style: context.textTheme.bodyMedium!.copyWith(fontSize: 13),
                   )
                 ],
               ),
@@ -652,7 +653,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(
+                style: context.textTheme.bodyMedium!.copyWith(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.primary,
                 ),

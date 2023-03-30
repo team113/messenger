@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/routes.dart';
 
 /// Application themes constants.
 class Themes {

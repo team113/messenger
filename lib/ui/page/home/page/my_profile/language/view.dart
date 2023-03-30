@@ -104,7 +104,8 @@ class LanguageSelectionView extends StatelessWidget {
                                             e.locale.languageCode.toUpperCase(),
                                         'name': e.name,
                                       }),
-                                      style: const TextStyle(fontSize: 17),
+                                      style: context.textTheme.bodyMedium!
+                                          .copyWith(fontSize: 17),
                                     ),
                                     const Spacer(),
                                     SizedBox(

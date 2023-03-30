@@ -120,12 +120,13 @@ class _VideoState extends State<Video> {
                   key: const Key('Error'),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.error, size: 48, color: Colors.red),
-                      SizedBox(height: 10),
+                    children: [
+                      const Icon(Icons.error, size: 48, color: Colors.red),
+                      const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: TextStyle(color: Colors.white),
+                        style: context.textTheme.bodyMedium!
+                            .copyWith(color: Colors.white),
                         textAlign: TextAlign.center,
                       ),
                     ],

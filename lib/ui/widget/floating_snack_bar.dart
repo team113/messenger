@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -59,7 +60,8 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: const TextStyle(color: Colors.black, fontSize: 15),
+          style: router.context!.textTheme.bodyMedium!
+              .copyWith(color: Colors.black, fontSize: 15),
         ),
       ),
     );

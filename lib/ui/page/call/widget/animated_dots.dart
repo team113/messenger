@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 
@@ -71,7 +72,7 @@ class _AnimatedDotsState extends State<AnimatedDots> {
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: TextStyle(color: widget.color),
+        style: context.textTheme.bodyMedium!.copyWith(color: widget.color),
       ),
     );
   }

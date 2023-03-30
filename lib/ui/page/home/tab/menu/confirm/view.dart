@@ -167,7 +167,8 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: const TextStyle(color: Colors.black),
+                          style: context.textTheme.bodyMedium!
+                              .copyWith(color: Colors.black),
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -186,7 +187,8 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: const TextStyle(color: Colors.white),
+                      style: context.textTheme.bodyMedium!
+                          .copyWith(color: Colors.white),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
                     color: Theme.of(context).colorScheme.secondary,
@@ -211,7 +213,8 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: const TextStyle(color: Colors.white),
+                            style: context.textTheme.bodyMedium!
+                                .copyWith(color: Colors.white),
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
@@ -225,7 +228,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: const TextStyle(),
+                            style: context.textTheme.bodyMedium!.copyWith(),
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: const Color(0xFFEEEEEE),
