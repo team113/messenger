@@ -309,16 +309,26 @@ class AvatarWidget extends StatelessWidget {
 
   /// Avatar color swatches.
   final List<Color?> colors = [
-    Theme.of(router.context!).extension<Style>()!.avatarColors[0],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[1],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[2],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[3],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[4],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[5],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[6],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[7],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[8],
-    Theme.of(router.context!).extension<Style>()!.avatarColors[9],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[0],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[1],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[2],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[3],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[4],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[5],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[6],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[7],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[8],
+    // Theme.of(router.context!).extension<Style>()!.avatarColors[9],
+    Colors.purple,
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.cyan,
+    Colors.lightGreen,
+    Colors.lime,
+    Colors.amber,
+    Colors.orange,
+    Colors.deepOrange,
   ];
 
   /// Returns minimum diameter of the avatar.
