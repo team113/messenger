@@ -28,8 +28,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show
-        NotificationResponse;
+    show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -264,7 +263,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 
         await Future.delayed(30.seconds);
         callKeep.rejectCall(message.data['chatId']);
-      } catch(_) {
+      } catch (_) {
         provider?.disconnect();
         subscription?.cancel();
         callKeep.rejectCall(message.data['chatId']);

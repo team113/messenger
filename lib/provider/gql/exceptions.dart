@@ -1578,7 +1578,7 @@ class RegisterFcmDeviceException
   @override
   String toMessage() {
     switch (code) {
-    case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
+      case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
         return 'err_invalid_registration_token'.l10n;
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
         return 'err_unknown_registration_token'.l10n;

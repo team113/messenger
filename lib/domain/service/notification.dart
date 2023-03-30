@@ -206,9 +206,9 @@ class NotificationService extends DisposableService {
             onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
           );
 
-          if(!PlatformUtils.isWindows) {
+          if (!PlatformUtils.isWindows) {
             final NotificationAppLaunchDetails? details =
-            await _plugin!.getNotificationAppLaunchDetails();
+                await _plugin!.getNotificationAppLaunchDetails();
 
             if (details?.notificationResponse != null) {
               onNotificationResponse?.call(details!.notificationResponse!);

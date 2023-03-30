@@ -1175,7 +1175,9 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds if the specified [token] is registered already.
   Future<void> registerFcmDevice(
-      FcmRegistrationToken token, String? locale,) async {
+    FcmRegistrationToken token,
+    String? locale,
+  ) async {
     final variables = RegisterFcmDeviceArguments(token: token);
     final query = MutationOptions(
       operationName: 'RegisterFcmDevice',
