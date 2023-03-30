@@ -633,11 +633,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             deps.put(CallWorker(
               callService,
+              chatService,
               myUserService,
+              Get.find(),
             ));
 
-            if ((PlatformUtils.isWindows && !PlatformUtils.isWeb) ||
-                PlatformUtils.isLinux) {
+            if (!PlatformUtils.pushNotifications) {
               deps.put(ChatWorker(
                 chatService,
                 myUserService,
