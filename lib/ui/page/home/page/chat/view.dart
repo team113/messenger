@@ -266,7 +266,7 @@ class _ChatViewState extends State<ChatView>
                               child: Transform.translate(
                                 offset: const Offset(0, 1),
                                 child: SvgLoader.asset(
-                                  'assets/icons/get_paid6.svg',
+                                  'assets/icons/get_paid7.svg',
                                   width: 20.8,
                                   height: 21.75,
                                 ),
@@ -487,7 +487,8 @@ class _ChatViewState extends State<ChatView>
                                               ],
                                               borderRadius: style.cardRadius,
                                               border: style.systemMessageBorder,
-                                              color: style.systemMessageColor,
+                                              // color: style.systemMessageColor,
+                                              color: Colors.white,
                                             ),
                                             child: Center(
                                               child: Text(
@@ -530,8 +531,9 @@ class _ChatViewState extends State<ChatView>
                                                       shape: BoxShape.circle,
                                                       border: style
                                                           .systemMessageBorder,
-                                                      color: style
-                                                          .systemMessageColor,
+                                                      // color: style
+                                                      //     .systemMessageColor,
+                                                      color: Colors.white,
                                                       boxShadow: const [
                                                         CustomBoxShadow(
                                                           blurRadius: 8,
@@ -542,16 +544,44 @@ class _ChatViewState extends State<ChatView>
                                                       ],
                                                     ),
                                                     child: Center(
-                                                      child: Text(
-                                                        '\$',
-                                                        style: style
-                                                            .systemMessageStyle
-                                                            .copyWith(
-                                                          fontSize: 15,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .secondary,
+                                                      child:
+                                                          Transform.translate(
+                                                        offset: Offset(
+                                                          0,
+                                                          PlatformUtils.isWeb
+                                                              ? -3
+                                                              : 0,
+                                                        ),
+                                                        child: Text(
+                                                          '¤',
+                                                          style: style
+                                                              .systemMessageStyle
+                                                              .copyWith(
+                                                            height: 0.9,
+                                                            fontFamily:
+                                                                'InterRoboto',
+                                                            fontWeight:
+                                                                FontWeight.w300,
+                                                            color: const Color(
+                                                                0xFF30d5c8),
+                                                            // color:
+                                                            //     Theme.of(context)
+                                                            //         .colorScheme
+                                                            //         .secondary,
+                                                            // color: const Color(
+                                                            //     0xFF8383FF),
+                                                            fontSize: 21,
+                                                          ),
+                                                          // '\$',
+                                                          // style: style
+                                                          //     .systemMessageStyle
+                                                          //     .copyWith(
+                                                          //   fontSize: 15,
+                                                          //   color:
+                                                          //       Theme.of(context)
+                                                          //           .colorScheme
+                                                          //           .secondary,
+                                                          // ),
                                                         ),
                                                       ),
                                                     ),

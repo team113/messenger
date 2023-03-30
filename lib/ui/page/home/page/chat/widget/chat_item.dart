@@ -911,81 +911,73 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final bool timeInBubble = msg.attachments.isNotEmpty;
 
+    // const Color paidColor = Color(0xFFF19CBB);
+    const Color paidColor = Color(0xFF8383ff);
+    // const Color paidColor = Color(0xFF30d5c8);
+
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // if (widget.paid) ...[
-        //   RichText(
-        //     text: TextSpan(
-        //       children: [
-        //         if (!_fromMe) ...[
-        //           TextSpan(
-        //             text: '¤',
-        //             style: textStyle.copyWith(
-        //               height: 0.8,
-        //               fontFamily: 'InterRoboto',
-        //               fontWeight: FontWeight.w300,
-        //               color: const Color(0xFF9A5BFF),
-        //               fontSize: 11,
-        //             ),
-        //           ),
-        //           const TextSpan(
-        //             text: '123',
-        //             style: TextStyle(color: Color(0xFF9A5BFF)),
-        //           ),
-        //         ] else ...[
-        //           TextSpan(
-        //             text: '¤',
-        //             style: textStyle.copyWith(
-        //               height: 0.8,
-        //               fontFamily: 'InterRoboto',
-        //               fontWeight: FontWeight.w300,
-        //               color: const Color(0xFF9A5BFF),
-        //               fontSize: 11,
-        //             ),
-        //           ),
-        //           const TextSpan(
-        //             text: '123',
-        //             style: TextStyle(color: Color(0xFF9A5BFF)),
-        //           ),
-        //           // const TextSpan(text: 'Платное сообщение'),
-        //         ],
-        //       ],
-        //       style: style.systemMessageStyle.copyWith(fontSize: 11),
-        //     ),
-        //   ),
-        //   Container(
-        //     margin: const EdgeInsets.symmetric(horizontal: 4),
-        //     color: Theme.of(context).colorScheme.primary,
-        //     height: 10,
-        //     width: 0.5,
-        //   ),
-        // ],
-        if (_fromMe) ...[
-          if (isSent || isDelivered || isRead || isSending || isError)
-            Icon(
-              (isRead || isDelivered)
-                  ? Icons.done_all
-                  : isSending
-                      ? Icons.access_alarm
-                      : isError
-                          ? Icons.error_outline
-                          : Icons.done,
-              color: isRead
-                  ? Theme.of(context).colorScheme.secondary
-                  : isError
-                      ? Colors.red
-                      : Theme.of(context).colorScheme.primary,
-              size: 12,
+        if (widget.paid && !_fromMe) ...[
+          RichText(
+            text: TextSpan(
+              children: [
+                if (!_fromMe) ...[
+                  TextSpan(
+                    text: '¤',
+                    style: textStyle.copyWith(
+                      height: 0.8,
+                      fontFamily: 'InterRoboto',
+                      fontWeight: FontWeight.w300,
+                      color: paidColor,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const TextSpan(
+                    text: '123',
+                    style: TextStyle(color: paidColor),
+                  ),
+                ]
+              ],
+              style: style.systemMessageStyle.copyWith(fontSize: 11),
             ),
-          const SizedBox(width: 3),
-        ],
-        SelectionContainer.disabled(
-          child: Text(
-            DateFormat.Hm().format(msg.at.val.toLocal()),
-            style: style.systemMessageStyle.copyWith(fontSize: 11),
           ),
-        ),
+        ],
+        if (widget.paid && !_fromMe && widget.displayTime) ...[
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            color: Theme.of(context).colorScheme.primary,
+            height: 10,
+            width: 0.5,
+          ),
+        ],
+        if (widget.displayTime) ...[
+          if (_fromMe) ...[
+            if (isSent || isDelivered || isRead || isSending || isError)
+              Icon(
+                (isRead || isDelivered)
+                    ? Icons.done_all
+                    : isSending
+                        ? Icons.access_alarm
+                        : isError
+                            ? Icons.error_outline
+                            : Icons.done,
+                color: isRead
+                    ? Theme.of(context).colorScheme.secondary
+                    : isError
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.primary,
+                size: 12,
+              ),
+            const SizedBox(width: 3),
+          ],
+          SelectionContainer.disabled(
+            child: Text(
+              DateFormat.Hm().format(msg.at.val.toLocal()),
+              style: style.systemMessageStyle.copyWith(fontSize: 11),
+            ),
+          ),
+        ],
       ],
     );
 
@@ -1044,7 +1036,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.boldBody.copyWith(color: color),
               ),
             ),
-          if (!_fromMe && widget.paid)
+          if (false && !_fromMe && widget.paid)
             Padding(
               padding: EdgeInsets.fromLTRB(
                 12,
@@ -1065,7 +1057,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       onSelecting: widget.onSelecting,
                       onChanged: (a) => _selection = a,
                       style: textStyle.copyWith(
-                        color: Color(0xFF9A5BFF),
+                        color: paidColor,
                         fontSize: 11,
                       ),
                     ),
@@ -1080,14 +1072,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             height: 0.8,
                             fontFamily: 'InterRoboto',
                             fontWeight: FontWeight.w300,
-                            color: const Color(0xFF9A5BFF),
+                            color: paidColor,
                             fontSize: 11,
                           ),
                         ),
                         TextSpan(
                           text: '123',
                           style: textStyle.copyWith(
-                            color: Color(0xFF9A5BFF),
+                            color: paidColor,
                             fontSize: 11,
                           ),
                         ),
@@ -1112,9 +1104,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           widget.chat.value?.isGroup == true &&
                           widget.avatar
                       ? 0
-                      : !_fromMe && widget.paid
-                          ? 0
-                          : 10,
+                      : 10,
                   12,
                   files.isEmpty ? 10 : 0,
                 ),
@@ -1124,18 +1114,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     children: [
                       // text.linkify(),
                       TextSpan(text: text),
-                      // if ((widget.displayTime && timeInBubble) || widget.paid)
-                      //   WidgetSpan(child: Opacity(opacity: 0, child: timeline)),
-                      if (widget.displayTime && !timeInBubble) ...[
-                        if (_fromMe)
-                          const WidgetSpan(
-                            child: SizedBox(width: 42, height: 20),
-                          )
-                        else
-                          const WidgetSpan(
-                            child: SizedBox(width: 30, height: 20),
-                          ),
-                      ],
+                      if ((widget.displayTime && !timeInBubble) || widget.paid)
+                        WidgetSpan(child: Opacity(opacity: 0, child: timeline)),
+                      // if (widget.displayTime && !timeInBubble) ...[
+                      //   if (_fromMe)
+                      //     const WidgetSpan(
+                      //       child: SizedBox(width: 42, height: 20),
+                      //     )
+                      //   else
+                      //     const WidgetSpan(
+                      //       child: SizedBox(width: 30, height: 20),
+                      //     ),
+                      // ],
                       // if (widget.displayTime && !timeInBubble)
                       //   WidgetSpan(
                       //     child: Opacity(
@@ -1258,7 +1248,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   ),
                 ),
-                if (widget.displayTime)
+                if (widget.displayTime || widget.paid)
                   Positioned(
                     right: timeInBubble ? 4 : 8,
                     bottom: 4,

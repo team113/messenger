@@ -41,14 +41,53 @@ class PaidNotification extends StatelessWidget {
               decoration: BoxDecoration(
                 border: border,
                 borderRadius: style.cardRadius,
-                color: style.systemMessageColor,
+                color: Colors.white,
+                // color: style.systemMessageColor,
               ),
               child: Column(
                 children: [
-                  Text(
-                    'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(text: 'Kirey установил '),
+                        TextSpan(
+                          text: '¤',
+                          style: style.systemMessageStyle.copyWith(
+                            height: 0.8,
+                            fontFamily: 'InterRoboto',
+                            fontWeight: FontWeight.w300,
+                            // color: const Color(0xFF8383FF),
+                            fontSize: 13,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: '50',
+                          // style: TextStyle(color: Color(0xFF8383FF)),
+                        ),
+                        const TextSpan(text: ' за отправку сообщения и '),
+                        TextSpan(
+                          text: '¤',
+                          style: style.systemMessageStyle.copyWith(
+                            height: 0.8,
+                            fontFamily: 'InterRoboto',
+                            fontWeight: FontWeight.w300,
+                            // color: const Color(0xFF8383FF),
+                            fontSize: 13,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: '150',
+                          // style: TextStyle(color: Color(0xFF8383FF)),
+                        ),
+                        const TextSpan(text: '/мин за за совершение звонка.'),
+                      ],
+                    ),
                     style: style.systemMessageStyle,
                   ),
+                  // Text(
+                  //   'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
+                  //   style: style.systemMessageStyle,
+                  // ),
                   const SizedBox(height: 8),
                   Text(
                     'Принять и продолжить',

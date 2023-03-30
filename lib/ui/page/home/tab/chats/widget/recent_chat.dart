@@ -542,8 +542,65 @@ class RecentChatTile extends StatelessWidget {
               )
             else
               ...images,
-            if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
+            if (desc.isNotEmpty)
+              Flexible(
+                child: Text(
+                  desc.toString(),
+                  style: item.authorId == me
+                      ? null
+                      : TextStyle(
+                          color: rxChat.messageCost != 0
+                              ? const Color(0xFF8383ff)
+                              : null,
+                        ),
+                ),
+              ),
           ];
+
+          if (rxChat.messageCost != 0 && item.authorId != me) {
+            subtitle = [
+              Flexible(
+                child: RichText(
+                  text: TextSpan(
+                    children: const [
+                      TextSpan(
+                        text: 'Платное сообщение, ',
+                        style: TextStyle(color: Color(0xFF8383FF)),
+                      ),
+                      TextSpan(
+                        text: '¤',
+                        style: TextStyle(
+                          height: 0.8,
+                          fontFamily: 'InterRoboto',
+                          fontWeight: FontWeight.w300,
+                          color: Color(0xFF8383FF),
+                          fontSize: 15,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '123',
+                        style: TextStyle(color: Color(0xFF8383FF)),
+                      ),
+                    ],
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall!
+                        .copyWith(color: Color(0xFF8383FF)),
+                  ),
+                ),
+                // child: Text(
+                //   desc.toString(),
+                //   style: item.authorId == me
+                //       ? null
+                //       : TextStyle(
+                //           color: rxChat.messageCost != 0
+                //               ? const Color(0xFF8383FF)
+                //               : null,
+                //         ),
+                // ),
+              ),
+            ];
+          }
         } else if (item is ChatForward) {
           subtitle = [
             if (chat.isGroup)
