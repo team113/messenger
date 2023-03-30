@@ -198,7 +198,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.forwards.first.value, widget.me);
+      return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
     }

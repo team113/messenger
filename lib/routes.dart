@@ -589,6 +589,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             userRepository.getChat = chatRepository.get;
             callRepository.ensureRemoteDialog =
                 chatRepository.ensureRemoteDialog;
+            callRepository.ensureRemoteMonolog =
+                chatRepository.ensureRemoteMonolog;
 
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(

@@ -36,6 +36,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
+import '/store/chat.dart';
 import '/store/user.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
@@ -53,8 +54,13 @@ class CallRepository extends DisposableInterface
     required this.me,
   });
 
-  /// Callback, called when the provided [Chat] should be remotely accessible.
+  /// Callback, called when the provided [Chat]-dialog should be remotely
+  /// accessible.
   Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
+
+  /// Callback, called when the provided [Chat]-monolog should be remotely
+  /// accessible.
+  Future<ChatData> Function()? ensureRemoteMonolog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -197,8 +203,12 @@ class CallRepository extends DisposableInterface
     bool withScreen = false,
   }) async {
     // TODO: Call should be displayed right away.
-    if (chatId.isLocal && ensureRemoteDialog != null) {
-      chatId = (await ensureRemoteDialog!.call(chatId))!.id;
+    if (chatId.isLocal) {
+      if (chatId.userId == me && ensureRemoteMonolog != null) {
+        chatId = (await ensureRemoteMonolog!.call()).chat.value.id;
+      } else if (ensureRemoteDialog != null) {
+        chatId = (await ensureRemoteDialog!.call(chatId))!.id;
+      }
     }
 
     if (calls[chatId] != null) {

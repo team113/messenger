@@ -270,26 +270,22 @@ class ChatInfoView extends StatelessWidget {
           children: [
             WidgetButton(
               key: Key('ChatAvatar_${c.chat!.id}'),
-              // TODO: Remove the "c.isMonolog" check when the backend supports
-              //       removing the avatar from the chat-monolog.
-              onPressed: c.isMonolog
-                  ? null
-                  : c.chat?.chat.value.avatar == null
-                      ? c.pickAvatar
-                      : () async {
-                          await GalleryPopup.show(
-                            context: context,
-                            gallery: GalleryPopup(
-                              initialKey: c.avatarKey,
-                              children: [
-                                GalleryItem.image(
-                                  c.chat!.chat.value.avatar!.original.url,
-                                  c.chat!.chat.value.id.val,
-                                ),
-                              ],
+              onPressed: c.chat?.chat.value.avatar == null
+                  ? c.pickAvatar
+                  : () async {
+                      await GalleryPopup.show(
+                        context: context,
+                        gallery: GalleryPopup(
+                          initialKey: c.avatarKey,
+                          children: [
+                            GalleryItem.image(
+                              c.chat!.chat.value.avatar!.original.url,
+                              c.chat!.chat.value.id.val,
                             ),
-                          );
-                        },
+                          ],
+                        ),
+                      );
+                    },
               child: AvatarWidget.fromRxChat(
                 c.chat,
                 key: c.avatarKey,
@@ -317,42 +313,39 @@ class ChatInfoView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
-        // TODO: Remove the "c.isMonolog" check when the backend supports
-        //       removing the avatar from the chat-monolog.
-        if (!c.isMonolog)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            WidgetButton(
+              key: const Key('UploadAvatar'),
+              onPressed: c.pickAvatar,
+              child: Text(
+                'btn_upload'.l10n,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+            if (c.chat?.chat.value.avatar != null) ...[
+              Text(
+                'space_or_space'.l10n,
+                style: const TextStyle(color: Colors.black, fontSize: 11),
+              ),
               WidgetButton(
-                key: const Key('UploadAvatar'),
-                onPressed: c.pickAvatar,
+                key: const Key('DeleteAvatar'),
+                onPressed: c.deleteAvatar,
                 child: Text(
-                  'btn_upload'.l10n,
+                  'btn_delete'.l10n.toLowerCase(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 11,
                   ),
                 ),
               ),
-              if (c.chat?.chat.value.avatar != null) ...[
-                Text(
-                  'space_or_space'.l10n,
-                  style: const TextStyle(color: Colors.black, fontSize: 11),
-                ),
-                WidgetButton(
-                  key: const Key('DeleteAvatar'),
-                  onPressed: c.deleteAvatar,
-                  child: Text(
-                    'btn_delete'.l10n.toLowerCase(),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
             ],
-          ),
+          ],
+        ),
       ],
     );
   }
@@ -640,7 +633,7 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!c.isMonolog)
+        if (!c.isMonolog) ...[
           _dense(
             FieldButton(
               onPressed: () {},
@@ -655,7 +648,8 @@ class ChatInfoView extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
-        if (!c.isMonolog) const SizedBox(height: 10),
+          const SizedBox(height: 10),
+        ],
         _dense(
           Obx(() {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
@@ -679,7 +673,7 @@ class ChatInfoView extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 10),
-        if (!c.isMonolog)
+        if (!c.isMonolog) ...[
           _dense(
             Obx(() {
               final bool muted = c.chat?.chat.value.muted != null;
@@ -709,7 +703,8 @@ class ChatInfoView extends StatelessWidget {
               );
             }),
           ),
-        if (!c.isMonolog) const SizedBox(height: 10),
+          const SizedBox(height: 10),
+        ],
         _dense(
           FieldButton(
             key: const Key('HideChatButton'),
@@ -741,8 +736,8 @@ class ChatInfoView extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
-        const SizedBox(height: 10),
-        if (!c.isMonolog)
+        if (!c.isMonolog) ...[
+          const SizedBox(height: 10),
           _dense(
             FieldButton(
               onPressed: () => _leaveGroup(c, context),
@@ -757,8 +752,7 @@ class ChatInfoView extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
-        if (!c.isMonolog) const SizedBox(height: 10),
-        if (!c.isMonolog)
+          const SizedBox(height: 10),
           _dense(
             FieldButton(
               onPressed: () => _blacklistChat(c, context),
@@ -773,8 +767,7 @@ class ChatInfoView extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
-        if (!c.isMonolog) const SizedBox(height: 10),
-        if (!c.isMonolog)
+          const SizedBox(height: 10),
           _dense(
             FieldButton(
               onPressed: () {},
@@ -789,6 +782,7 @@ class ChatInfoView extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
+        ],
       ],
     );
   }

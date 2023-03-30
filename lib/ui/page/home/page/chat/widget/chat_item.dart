@@ -406,7 +406,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me);
+      return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }

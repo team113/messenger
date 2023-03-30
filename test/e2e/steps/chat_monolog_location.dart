@@ -20,17 +20,17 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/monolog_status.dart';
+import '../parameters/resource_location.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a chat-monolog is displayed at the specified
-/// [MonologStatus].
+/// Indicates whether a [Chat]-monolog has the specified [ResourceLocation].
 ///
 /// Examples:
-/// - And I see chat monolog as local
-/// - Then I see chat monolog as remote
-final StepDefinitionGeneric seeChatMonolog = then1<MonologStatus, CustomWorld>(
-  RegExp('I see chat monolog as {monolog}'),
+/// - And chat monolog is indeed local
+/// - Then chat monolog is indeed remote
+final StepDefinitionGeneric chatMonologLocation =
+    then1<ResourceLocation, CustomWorld>(
+  RegExp('chat monolog is indeed {resource_location}'),
   (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
@@ -40,13 +40,13 @@ final StepDefinitionGeneric seeChatMonolog = then1<MonologStatus, CustomWorld>(
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.session.token;
 
-        final isLocal = (await provider.getMonolog()).monolog == null;
+        final isLocal = (await provider.getMonolog()) == null;
 
         switch (status) {
-          case MonologStatus.local:
+          case ResourceLocation.local:
             return isLocal;
 
-          case MonologStatus.remote:
+          case ResourceLocation.remote:
             return !isLocal;
         }
       },

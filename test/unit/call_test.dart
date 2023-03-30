@@ -773,7 +773,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Future<GetMonolog$Query> getMonolog() async {
-    return GetMonolog$Query.fromJson(monologData);
+  Future<ChatMixin?> getMonolog() async {
+    return GetMonolog$Query.fromJson(monologData).monolog;
   }
 }

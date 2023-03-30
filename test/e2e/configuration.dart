@@ -38,10 +38,10 @@ import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
-import 'parameters/monolog_status.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
+import 'parameters/resource_location.dart';
 import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
@@ -50,6 +50,7 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/chat_monolog_location.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
@@ -59,6 +60,7 @@ import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
+import 'steps/in_monolog_chat.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
@@ -70,13 +72,13 @@ import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_messages.dart';
-import 'steps/see_chat_monolog.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
+import 'steps/see_favorite_chat_monolog.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
@@ -120,6 +122,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
+        chatMonologLocation,
         checkCopyText,
         contact,
         contactIsFavorite,
@@ -135,6 +138,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
+        iAmInChatMonolog,
         iAmInChatNamed,
         iAmInChatWith,
         iTapChatWith,
@@ -156,7 +160,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatMessages,
-        seeChatMonolog,
+        seeChatMonologAsFavorite,
         seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
@@ -220,10 +224,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         IterableAmountParameter(),
-        MonologStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
+        ResourceLocationParameter(),
         SearchCategoryParameter(),
         SelectionStatusParameter(),
         SendingStatusParameter(),

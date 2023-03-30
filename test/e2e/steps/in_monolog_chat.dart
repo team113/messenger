@@ -15,20 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
-/// [Chat]-monolog statuses available in an [MonologStatusParameter].
-enum MonologStatus { local, remote }
+import '../world/custom_world.dart';
 
-/// [CustomParameter] representing a [MonologStatus].
-class MonologStatusParameter extends CustomParameter<MonologStatus> {
-  MonologStatusParameter()
-      : super(
-          'monolog',
-          RegExp(
-            '(${MonologStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => MonologStatus.values.firstWhere((e) => e.name == c),
+/// Routes the [router] to the [Chat]-monolog page.
+///
+/// Examples:
+/// - I am in monolog chat
+final StepDefinitionGeneric iAmInChatMonolog = given<CustomWorld>(
+  'I am in monolog chat',
+  (context) async {
+    final ChatService chatService = Get.find<ChatService>();
+    router.chat(chatService.monologId!);
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
         );
-}
+      },
+    );
+  },
+);

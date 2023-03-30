@@ -20,35 +20,36 @@ Feature: Chat monolog
   Background: User has a local chat monolog
     Given I am Alice
     And I wait until `ChatMonolog` is present
-    And I see chat monolog as local
-    And I am in chat with Alice
+    And chat monolog is indeed local
+    And I am in monolog chat
 
   Scenario: Message can be posted in local chat monolog
     When I fill `MessageField` field with "Hello, my chat monolog"
     And I tap `Send` button
     Then I wait until status of "Hello, my chat monolog" message is sent
-    And I see chat monolog as remote
+    And chat monolog is indeed remote
 
   Scenario: Call can be made in local chat monolog
     When I tap `AudioCall` button
-    Then I see chat monolog as remote
+    Then chat monolog is indeed remote
 
   Scenario: User adds local chat monolog to favorites
     When I open chat's info
     And I tap `FavoriteChatButton` button
-    Then I see chat monolog as remote
+    Then chat monolog is indeed remote
+    And I see chat monolog as favorite
 
   Scenario: User renames local chat monolog
     When I open chat's info
     And I fill `RenameChatField` field with "My chat monolog"
     And I tap `Approve` button
-    Then I see chat monolog as remote
+    Then chat monolog is indeed remote
 
   Scenario: User hides local chat monolog
     When I open chat's info
     And I tap `HideChatButton` button
     And I tap `Proceed` button
-    Then I see chat monolog as remote
+    Then chat monolog is indeed remote
     And I wait until `ChatMonolog` is absent
 
     When I tap `MenuButton` button

@@ -1358,13 +1358,13 @@ abstract class ChatGraphQlMixin {
   ///
   /// Query returns `null` when no [Chat]-monolog exists for the authenticated
   /// [MyUser].
-  Future<GetMonolog$Query> getMonolog() async {
+  Future<ChatMixin?> getMonolog() async {
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetMonolog',
         document: GetMonologQuery().document,
       ),
     );
-    return GetMonolog$Query.fromJson(result.data!);
+    return GetMonolog$Query.fromJson(result.data!).monolog;
   }
 }

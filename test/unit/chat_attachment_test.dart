@@ -145,8 +145,9 @@ void main() async {
     any,
   )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getMonolog())
-      .thenAnswer((_) => Future.value(GetMonolog$Query.fromJson(monologData)));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson(monologData).monolog),
+  );
 
   when(graphQlProvider.chatEvents(
     const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
