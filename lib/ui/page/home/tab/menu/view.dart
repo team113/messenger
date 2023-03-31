@@ -77,7 +77,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: context.textTheme.bodyMedium!
+                              style: context.textTheme.displaySmall!
                                   .copyWith(color: Colors.black),
                             ),
                             Obx(() {
@@ -86,7 +86,7 @@ class MenuTabView extends StatelessWidget {
                                     'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodySmall
+                                    .bodyLarge
                                     ?.copyWith(
                                       color:
                                           Theme.of(context).colorScheme.primary,

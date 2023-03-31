@@ -204,7 +204,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: context.textTheme.bodyMedium!.copyWith(
+                          style: context.textTheme.titleLarge!.copyWith(
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),

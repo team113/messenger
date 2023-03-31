@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/l10n/l10n.dart';
 
 import '../widget/caption.dart';
 
@@ -24,12 +25,12 @@ import '../widget/caption.dart';
 class FontStyleTabView extends StatelessWidget {
   const FontStyleTabView({Key? key}) : super(key: key);
 
-  Widget _font(String desc, String sample, TextStyle style) => Column(
+  Widget _font(String desc, String sample, TextStyle? style) => Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Caption(
-              '$desc - шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}'),
+              '$desc - шрифт: ${style!.fontSize} пт, цвет: ${style.color?.toHex()}'),
           Text(sample, style: style),
         ],
       );
@@ -43,21 +44,31 @@ class FontStyleTabView extends StatelessWidget {
           children: [
             _font('Заголовок 3', 'Messenger',
                 context.theme.textTheme.displaySmall!),
-            _font('Заголовок 4', 'Universal Messenger',
-                context.theme.textTheme.headlineMedium!),
-            _font('Заголовок 5', 'by Gapopa',
+            _font('Заголовок 4', 'by Gapopa',
                 context.theme.textTheme.headlineSmall!),
             _font(
-              'Кнопка',
-              'Start chatting',
-              context.theme.outlinedButtonTheme.style!.textStyle!
-                  .resolve({MaterialState.disabled})!,
+              'Кнопка "Начать"',
+              'btn_start'.l10n,
+              context.textTheme.displaySmall,
             ),
             _font(
-              'Подпись к кнопке',
-              'no registration',
-              context.theme.outlinedButtonTheme.style!.textStyle!
-                  .resolve({MaterialState.disabled})!.copyWith(fontSize: 13),
+              'Кнопка "Войти"',
+              'btn_login'.l10n,
+              context.textTheme.displaySmall,
+            ),
+            _font(
+              'Опциональная кнопка "Скачать"',
+              'btn_download'.l10n,
+              context.textTheme.displaySmall,
+            ),
+            _font(
+              'Всплывающее окно выбора языка.',
+              'label_language_entry'.l10nfmt({
+                'code': L10n.chosen.value!.locale.countryCode,
+                'name': L10n.chosen.value!.name,
+              }),
+              context.textTheme.bodySmall!
+                  .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
             const SizedBox(height: 60),
           ],

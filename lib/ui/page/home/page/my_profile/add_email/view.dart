@@ -198,7 +198,7 @@ class AddEmailView extends StatelessWidget {
                   header: Center(
                     child: Text(
                       'label_add_email'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
+                      style: context.textTheme.bodyLarge,
                     ),
                   ),
                 ),

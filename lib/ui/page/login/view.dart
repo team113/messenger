@@ -61,7 +61,7 @@ class LoginView extends StatelessWidget {
               maxWidth: double.infinity,
               title: Text(
                 title ?? '',
-                style: context.textTheme.bodyMedium!.copyWith(
+                style: TextStyle(
                   color: onPressed == null ? Colors.black : Colors.white,
                 ),
               ),
@@ -77,7 +77,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
+                    style: theme.displaySmall,
                   ),
                 ),
               );
@@ -86,8 +86,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: theme.displaySmall?.copyWith(
-                    fontSize: 15,
+                  style: theme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -114,7 +113,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
+                    style: theme.displaySmall?.copyWith(fontSize: 58),
                   ),
                 ),
               );
@@ -209,7 +208,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_entrance'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
+                    style: theme.displaySmall,
                   ),
                 ),
               );

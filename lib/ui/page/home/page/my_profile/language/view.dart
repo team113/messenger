@@ -67,7 +67,7 @@ class LanguageSelectionView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_language'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: context.textTheme.bodyLarge,
                   ),
                 ),
               ),
@@ -104,8 +104,7 @@ class LanguageSelectionView extends StatelessWidget {
                                             e.locale.languageCode.toUpperCase(),
                                         'name': e.name,
                                       }),
-                                      style: context.textTheme.bodyMedium!
-                                          .copyWith(fontSize: 17),
+                                      style: context.textTheme.bodyLarge!,
                                     ),
                                     const Spacer(),
                                     SizedBox(

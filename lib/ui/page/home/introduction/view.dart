@@ -114,10 +114,8 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: thin?.copyWith(
-                    fontSize: 15,
-                    color: const Color(0xFF888888),
-                  ),
+                  style: context.textTheme.bodyLarge!
+                      .copyWith(color: const Color(0xFF888888)),
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -172,7 +170,7 @@ class IntroductionView extends StatelessWidget {
                     header: Center(
                       child: Text(
                         'label_account_created'.l10n,
-                        style: thin?.copyWith(fontSize: 18),
+                        style: context.textTheme.displaySmall,
                       ),
                     ),
                   ),
@@ -196,7 +194,7 @@ class IntroductionView extends StatelessWidget {
                             state: c.num,
                             label: 'label_num'.l10n,
                             copy: c.myUser.value?.num.val,
-                            style: thin?.copyWith(fontSize: 18),
+                            style: context.textTheme.displaySmall,
                           ),
                   ),
                   const SizedBox(height: 25),

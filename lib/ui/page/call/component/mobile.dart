@@ -892,7 +892,7 @@ Widget _chat(BuildContext context, CallController c) {
                                     'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .titleSmall
+                                    .bodyLarge
                                     ?.copyWith(color: Colors.white),
                               ),
                               const Spacer(),

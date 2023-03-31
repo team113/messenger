@@ -202,7 +202,7 @@ class AddPhoneView extends StatelessWidget {
                   header: Center(
                     child: Text(
                       'label_add_phone'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
+                      style: context.textTheme.titleLarge,
                     ),
                   ),
                 ),

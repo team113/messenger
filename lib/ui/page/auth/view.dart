@@ -68,7 +68,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: primary),
+            style: context.textTheme.displayLarge!.copyWith(color: primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -76,7 +76,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            style: context.textTheme.bodyLarge!.copyWith(color: primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -145,7 +145,7 @@ class AuthView extends StatelessWidget {
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,
             }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
+            style: context.textTheme.bodySmall!.copyWith(color: primary),
           ),
           onPressed: () => LanguageSelectionView.show(context, null),
         );
@@ -158,7 +158,7 @@ class AuthView extends StatelessWidget {
             title: Text(
               'btn_start'.l10n,
               style:
-                  context.textTheme.bodyMedium!.copyWith(color: Colors.white),
+                  context.textTheme.displaySmall!.copyWith(color: Colors.white),
             ),
             leading: Container(
               child: SvgLoader.asset(
@@ -172,7 +172,10 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n),
+            title: Text(
+              'btn_login'.l10n,
+              style: context.textTheme.displaySmall,
+            ),
             leading: SvgLoader.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -293,10 +296,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
+                style: Theme.of(context).textTheme.displaySmall,
               ),
             ),
           ),
