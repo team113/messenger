@@ -15,42 +15,42 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat monolog
+Feature: Monolog
 
-  Background: User has a local chat monolog
+  Background: User has a local monolog
     Given I am Alice
     And I wait until `ChatMonolog` is present
-    And chat monolog is indeed local
-    And I am in monolog chat
+    And I am in monolog
+    And monolog is indeed local
 
-  Scenario: Message can be posted in local chat monolog
-    When I fill `MessageField` field with "Hello, my chat monolog"
+  Scenario: Message can be posted in local monolog
+    When I fill `MessageField` field with "Hello, my monolog"
     And I tap `Send` button
-    Then I wait until status of "Hello, my chat monolog" message is sent
-    And chat monolog is indeed remote
+    Then I wait until status of "Hello, my monolog" message is sent
+    And monolog is indeed remote
 
-  Scenario: Call can be made in local chat monolog
+  Scenario: Call can be made in local monolog
     When I tap `AudioCall` button
-    Then chat monolog is indeed remote
+    Then monolog is indeed remote
 
-  Scenario: User adds local chat monolog to favorites
+  Scenario: User adds local monolog to favorites
     When I open chat's info
     And I tap `FavoriteChatButton` button
-    Then chat monolog is indeed remote
-    And I see chat monolog as favorite
+    Then monolog is indeed remote
+    And I see monolog as favorite
 
-  Scenario: User renames local chat monolog
+  Scenario: User renames local monolog
     When I open chat's info
-    And I fill `RenameChatField` field with "My chat monolog"
+    And I fill `RenameChatField` field with "My monolog"
     And I tap `Approve` button
-    Then chat monolog is indeed remote
+    Then monolog is indeed remote
 
-  Scenario: User hides local chat monolog
+  Scenario: User hides local monolog
     When I open chat's info
     And I tap `HideChatButton` button
     And I tap `Proceed` button
-    Then chat monolog is indeed remote
-    And I wait until `ChatMonolog` is absent
+    Then I wait until `ChatMonolog` is absent
+    And monolog is indeed remote
 
     When I tap `MenuButton` button
     And I tap `PublicInformation` button

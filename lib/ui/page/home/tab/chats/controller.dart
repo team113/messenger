@@ -125,7 +125,7 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
-  /// [MyUserService] used to get [MyUser].
+  /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
   /// Subscription for [ChatService.chats] changes.
@@ -270,8 +270,8 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        if (user.id == me && _chatService.monologId != null) {
-          router.chat(_chatService.monologId!, push: true);
+        if (user.id == me && _chatService.monolog != null) {
+          router.chat(_chatService.monolog!, push: true);
         } else {
           router.chat(user.user.value.dialog);
         }

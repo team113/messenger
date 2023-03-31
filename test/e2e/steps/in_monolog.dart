@@ -16,39 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
-import '../parameters/resource_location.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat]-monolog has the specified [ResourceLocation].
+/// Routes the [router] to the [Chat]-monolog page.
 ///
 /// Examples:
-/// - And chat monolog is indeed local
-/// - Then chat monolog is indeed remote
-final StepDefinitionGeneric chatMonologLocation =
-    then1<ResourceLocation, CustomWorld>(
-  RegExp('chat monolog is indeed {resource_location}'),
-  (status, context) async {
+/// - I am in monolog
+final StepDefinitionGeneric iAmInChatMonolog = given<CustomWorld>(
+  'I am in monolog',
+  (context) async {
+    final ChatService chatService = Get.find<ChatService>();
+    router.chat(chatService.monolog!);
+
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        final provider = GraphQlProvider();
-        final AuthService authService = Get.find();
-        provider.token = authService.credentials.value!.session.token;
-
-        final isLocal = (await provider.getMonolog()) == null;
-
-        switch (status) {
-          case ResourceLocation.local:
-            return isLocal;
-
-          case ResourceLocation.remote:
-            return !isLocal;
-        }
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
       },
     );
   },

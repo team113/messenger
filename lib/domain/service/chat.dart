@@ -54,8 +54,8 @@ class ChatService extends DisposableService {
   UserId? get me => _authService.userId;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
-  /// [MyUser].
-  ChatId? get monologId => _chatRepository.monologId;
+  /// [MyUser], if any.
+  ChatId? get monolog => _chatRepository.monolog;
 
   @override
   void onInit() {

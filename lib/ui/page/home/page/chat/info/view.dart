@@ -214,16 +214,16 @@ class ChatInfoView extends StatelessWidget {
                       _name(c, context),
                     ],
                   ),
-                  if (!c.isMonolog)
+                  if (!c.isMonolog) ...[
                     Block(
                       title: 'label_chat_members'.l10n,
                       children: [_members(c, context)],
                     ),
-                  if (!c.isMonolog)
                     Block(
                       title: 'label_direct_chat_link'.l10n,
                       children: [_link(c, context)],
                     ),
+                  ],
                   Block(
                     title: 'label_actions'.l10n,
                     children: [_actions(c, context)],
@@ -656,7 +656,8 @@ class ChatInfoView extends StatelessWidget {
 
             return FieldButton(
               key: Key(
-                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton'),
+                favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+              ),
               onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
               text: favorited
                   ? 'btn_delete_from_favorites'.l10n

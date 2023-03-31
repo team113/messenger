@@ -492,7 +492,8 @@ class ChatsTabView extends StatelessWidget {
                       }
                     } else {
                       if (c.chats.none(
-                          (e) => !e.id.isLocal || e.chat.value.isMonolog)) {
+                        (e) => !e.id.isLocal || e.chat.value.isMonolog,
+                      )) {
                         if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
@@ -519,6 +520,7 @@ class ChatsTabView extends StatelessWidget {
                             child: Obx(() {
                               final List<RxChat> favorites = [];
                               final List<RxChat> chats = [];
+
                               for (RxChat e in c.chats) {
                                 if (!e.id.isLocal ||
                                     e.messages.isNotEmpty ||

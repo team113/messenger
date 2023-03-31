@@ -43,8 +43,8 @@ abstract class AbstractChatRepository {
   RxBool get isReady;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
-  /// [MyUser].
-  ChatId? get monologId;
+  /// [MyUser], if any.
+  ChatId? get monolog;
 
   /// Initializes this repository.
   ///

@@ -196,8 +196,19 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId? me, [List<ChatMember>? members]) {
-    if (members != null) {
+  ///
+  /// If [members] are provided, then accounts its [ChatMember.joinedAt] for a
+  /// more precise read indication.
+  bool isRead(
+    ChatItem item,
+    UserId? me, [
+    List<ChatMember> members = const [],
+  ]) {
+    if (members.isNotEmpty) {
+      if (members.length <= 1) {
+        return true;
+      }
+
       final Iterable<ChatMember> membersWithoutMe =
           members.where((e) => e.user.id != me);
 

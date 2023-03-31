@@ -1348,7 +1348,7 @@ abstract class ChatGraphQlMixin {
   /// Returns the monolog [Chat] of the authenticated [MyUser].
   ///
   /// If there is no [Chat]-monolog, the one could be created via
-  /// `Mutation.createMonologChat`.
+  /// [createMonologChat].
   ///
   /// ### Authentication
   ///

@@ -32,6 +32,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/availability_status.dart';
 import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
@@ -41,7 +42,6 @@ import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
-import 'parameters/resource_location.dart';
 import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
@@ -50,7 +50,6 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
-import 'steps/chat_monolog_location.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
@@ -60,12 +59,13 @@ import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
-import 'steps/in_monolog_chat.dart';
+import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
@@ -78,8 +78,8 @@ import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
-import 'steps/see_favorite_chat_monolog.dart';
 import 'steps/see_favorite_contact.dart';
+import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
@@ -122,7 +122,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
-        chatMonologLocation,
         checkCopyText,
         contact,
         contactIsFavorite,
@@ -147,6 +146,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
+        monologAvailability,
         noInternetConnection,
         openChatInfo,
         pasteToField,
@@ -160,13 +160,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatMessages,
-        seeChatMonologAsFavorite,
         seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
-        seeFavoriteChatPosition,
         seeDraftInDialog,
+        seeFavoriteChatPosition,
+        seeMonologAsFavorite,
         seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
@@ -219,6 +219,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        AvailabilityStatusParameter(),
         DownloadStatusParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
@@ -227,7 +228,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
-        ResourceLocationParameter(),
         SearchCategoryParameter(),
         SelectionStatusParameter(),
         SendingStatusParameter(),

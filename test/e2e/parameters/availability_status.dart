@@ -15,30 +15,20 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/routes.dart';
 
-import '../world/custom_world.dart';
+/// Available resource locations of the [AvailabilityStatusParameter].
+enum AvailabilityStatus { local, remote }
 
-/// Routes the [router] to the [Chat]-monolog page.
-///
-/// Examples:
-/// - I am in monolog chat
-final StepDefinitionGeneric iAmInChatMonolog = given<CustomWorld>(
-  'I am in monolog chat',
-  (context) async {
-    final ChatService chatService = Get.find<ChatService>();
-    router.chat(chatService.monologId!);
-
-    await context.world.appDriver.waitUntil(
-      () async {
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
+/// [CustomParameter] representing a [AvailabilityStatus].
+class AvailabilityStatusParameter extends CustomParameter<AvailabilityStatus> {
+  AvailabilityStatusParameter()
+      : super(
+          'availability',
+          RegExp(
+            '(${AvailabilityStatus.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => AvailabilityStatus.values.firstWhere((e) => e.name == c),
         );
-      },
-    );
-  },
-);
+}

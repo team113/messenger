@@ -401,10 +401,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       return false;
     }
 
-    if (chat.members.length <= 1) {
-      return true;
-    }
-
     if (_fromMe) {
       return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
@@ -1689,8 +1685,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
-                                bool deletable = !isMonolog &&
-                                    _fromMe &&
+                                bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&
                                     (widget.item.value is ChatMessage);
@@ -1703,13 +1698,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

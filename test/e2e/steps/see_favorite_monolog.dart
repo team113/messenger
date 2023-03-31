@@ -28,16 +28,16 @@ import '../world/custom_world.dart';
 /// [FavoriteStatus].
 ///
 /// Examples:
-/// - Then I see chat monolog as {favorite}
-final StepDefinitionGeneric seeChatMonologAsFavorite =
+/// - Then I see monolog as {favorite}
+final StepDefinitionGeneric seeMonologAsFavorite =
     then1<FavoriteStatus, CustomWorld>(
-  'I see chat monolog as {favorite}',
+  'I see monolog as {favorite}',
   (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId? monologId = Get.find<ChatService>().monologId;
+        final ChatId? monologId = Get.find<ChatService>().monolog;
 
         switch (status) {
           case FavoriteStatus.favorite:
