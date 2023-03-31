@@ -28,23 +28,26 @@ void main() async {
 
       const String text1 =
           'The first set of Holmes stories was published between 1887 and 1893';
-      final TextSpan? textSpan1 =
-          detectLinksAndEmails(text1, linkGestureRecognizers);
-      expect(textSpan1, null);
+      final TextSpan textSpan1 =
+          text1.detectLinksAndEmails(linkGestureRecognizers);
+      expect(
+        textSpan1.toPlainText(),
+        'The first set of Holmes stories was published between 1887 and 1893',
+      );
 
       const String text2 = 'I visited the site https://www.google.ru.';
-      final TextSpan? textSpan2 =
-          detectLinksAndEmails(text2, linkGestureRecognizers);
-      expect(textSpan2!.children!.length, 3);
+      final TextSpan textSpan2 =
+          text2.detectLinksAndEmails(linkGestureRecognizers);
+      expect(textSpan2.children!.length, 3);
       expect(textSpan2.children![0].toPlainText(), 'I visited the site ');
       expect(textSpan2.children![1].toPlainText(), 'https://www.google.ru');
       expect(textSpan2.children![2].toPlainText(), '.');
 
       const String text3 =
           'Then clicked on the link www.yandex.com, looked into bing.com';
-      final TextSpan? textSpan3 =
-          detectLinksAndEmails(text3, linkGestureRecognizers);
-      expect(textSpan3!.children!.length, 4);
+      final TextSpan textSpan3 =
+          text3.detectLinksAndEmails(linkGestureRecognizers);
+      expect(textSpan3.children!.length, 4);
       expect(textSpan3.children![0].toPlainText(), 'Then clicked on the link ');
       expect(textSpan3.children![1].toPlainText(), 'www.yandex.com');
       expect(textSpan3.children![2].toPlainText(), ', looked into ');
@@ -52,9 +55,9 @@ void main() async {
 
       const String text4 =
           'I decided to go to api.flutter.dev/flutter/painting/TextSpan/recognizer.html, and went to bed.';
-      final TextSpan? textSpan4 =
-          detectLinksAndEmails(text4, linkGestureRecognizers);
-      expect(textSpan4!.children!.length, 3);
+      final TextSpan textSpan4 =
+          text4.detectLinksAndEmails(linkGestureRecognizers);
+      expect(textSpan4.children!.length, 3);
       expect(textSpan4.children![0].toPlainText(), 'I decided to go to ');
       expect(
         textSpan4.children![1].toPlainText(),
@@ -64,9 +67,9 @@ void main() async {
 
       const String text5 =
           'I sent an email to lajive9827@fectode.com, and received a letter from the address cat.dog@gmail.com';
-      final TextSpan? textSpan5 =
-          detectLinksAndEmails(text5, linkGestureRecognizers);
-      expect(textSpan5!.children!.length, 4);
+      final TextSpan textSpan5 =
+          text5.detectLinksAndEmails(linkGestureRecognizers);
+      expect(textSpan5.children!.length, 4);
       expect(textSpan5.children![0].toPlainText(), 'I sent an email to ');
       expect(textSpan5.children![1].toPlainText(), 'lajive9827@fectode.com');
       expect(

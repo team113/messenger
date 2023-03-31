@@ -799,7 +799,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       text = null;
     } else {
       text = msg.text?.val;
-      rich = detectLinksAndEmails(text, _linkGestureRecognizers);
+      rich = text?.detectLinksAndEmails(_linkGestureRecognizers);
     }
 
     List<Attachment> media = msg.attachments.where((e) {
@@ -924,23 +924,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   9,
                   files.isEmpty ? 10 : 0,
                 ),
-                child: rich != null
-                    ? SelectionText.rich(
-                        rich,
-                        key: Key('Text_${widget.item.value.id}'),
-                        selectable: PlatformUtils.isDesktop || menu,
-                        onSelecting: widget.onSelecting,
-                        onChanged: (a) => _selection = a,
-                        style: style.boldBody,
-                      )
-                    : SelectionText(
-                        text,
-                        key: Key('Text_${widget.item.value.id}'),
-                        selectable: PlatformUtils.isDesktop || menu,
-                        onSelecting: widget.onSelecting,
-                        onChanged: (a) => _selection = a,
-                        style: style.boldBody,
-                      ),
+                child: SelectionText.rich(
+                  rich!,
+                  key: Key('Text_${widget.item.value.id}'),
+                  selectable: PlatformUtils.isDesktop || menu,
+                  onSelecting: widget.onSelecting,
+                  onChanged: (a) => _selection = a,
+                  style: style.boldBody,
+                ),
               ),
             ),
           if (files.isNotEmpty)
@@ -1827,75 +1818,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 }
 
-/// Returns [TextSpan]s, separating plain text from links and emails.
-TextSpan? detectLinksAndEmails(
-  String? text,
-  List<TapGestureRecognizer> gestureRecognizers,
-) {
-  if (text == null || text.isEmpty) return null;
-
-  final RegExp regex = RegExp(
-      r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)');
-
-  final Iterable<RegExpMatch> matches = regex.allMatches(text);
-
-  if (matches.isEmpty) return null;
-
-  const TextStyle linkStyle = TextStyle(
-    color: Colors.blue,
-    decoration: TextDecoration.underline,
-    decorationThickness: 2,
-  );
-
-  final List<TextSpan> textSpans = [];
-
-  final List<String> links = [];
-
-  for (RegExpMatch match in matches) {
-    links.add(text.substring(match.start, match.end));
-  }
-
-  for (String link in links) {
-    final List<String> parts = text!.split(link.trim());
-
-    if (parts[0] != '') {
-      textSpans.add(TextSpan(text: parts[0]));
-    }
-
-    gestureRecognizers.add(TapGestureRecognizer());
-    textSpans.add(
-      TextSpan(
-        text: link,
-        style: linkStyle,
-        recognizer: gestureRecognizers.last
-          ..onTap = () async {
-            final Uri uri;
-
-            if (link.isEmail) {
-              uri = Uri(scheme: 'mailto', path: link);
-            } else {
-              uri = Uri.parse(!link.startsWith('http') ? 'http://$link' : link);
-            }
-
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri);
-            }
-          },
-      ),
-    );
-
-    if (parts[1] != '') {
-      if (link == links.last) {
-        textSpans.add(TextSpan(text: parts[1]));
-      } else {
-        text = parts[1];
-      }
-    }
-  }
-
-  return TextSpan(children: textSpans);
-}
-
 /// Extension adding a string representation of a [Duration] in
 /// `HH h, MM m, SS s` format.
 extension LocalizedDurationExtension on Duration {
@@ -1956,5 +1878,78 @@ extension LocalizedDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+/// Extension adding an ability to detect links and emails in a [String].
+extension DetectionLinksAndEmailsExtension on String {
+  /// Regular expression for detecting links and emails in a [String].
+  static final RegExp _regex = RegExp(
+      r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)');
+
+  /// Returns [TextSpan]s, separating plain text from links and emails.
+  TextSpan detectLinksAndEmails(
+    List<TapGestureRecognizer> gestureRecognizers,
+  ) {
+    final Iterable<RegExpMatch> matches = _regex.allMatches(this);
+
+    if (matches.isEmpty) return TextSpan(text: this);
+
+    const TextStyle linkStyle = TextStyle(
+      color: Colors.blue,
+      decoration: TextDecoration.underline,
+      decorationThickness: 2,
+    );
+
+    String text = this;
+
+    final List<TextSpan> textSpans = [];
+
+    final List<String> links = [];
+
+    for (RegExpMatch match in matches) {
+      links.add(text.substring(match.start, match.end));
+    }
+
+    for (String link in links) {
+      final List<String> parts = text.split(link.trim());
+
+      if (parts[0] != '') {
+        textSpans.add(TextSpan(text: parts[0]));
+      }
+
+      gestureRecognizers.add(TapGestureRecognizer());
+      textSpans.add(
+        TextSpan(
+          text: link,
+          style: linkStyle,
+          recognizer: gestureRecognizers.last
+            ..onTap = () async {
+              final Uri uri;
+
+              if (link.isEmail) {
+                uri = Uri(scheme: 'mailto', path: link);
+              } else {
+                uri = Uri.parse(
+                    !link.startsWith('http') ? 'https://$link' : link);
+              }
+
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            },
+        ),
+      );
+
+      if (parts[1] != '') {
+        if (link == links.last) {
+          textSpans.add(TextSpan(text: parts[1]));
+        } else {
+          text = parts[1];
+        }
+      }
+    }
+
+    return TextSpan(children: textSpans);
   }
 }

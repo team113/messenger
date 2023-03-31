@@ -395,24 +395,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (quote.text != null && quote.text!.val.isNotEmpty) {
-          final TextSpan? rich =
-              detectLinksAndEmails(quote.text!.val, _linkGestureRecognizers);
+          final TextSpan rich =
+              quote.text!.val.detectLinksAndEmails(_linkGestureRecognizers);
 
-          content = rich != null
-              ? SelectionText.rich(
-                  rich,
-                  selectable: PlatformUtils.isDesktop || menu,
-                  onChanged: (a) => _selection = a,
-                  onSelecting: widget.onSelecting,
-                  style: style.boldBody,
-                )
-              : SelectionText(
-                  quote.text!.val,
-                  selectable: PlatformUtils.isDesktop || menu,
-                  onChanged: (a) => _selection = a,
-                  onSelecting: widget.onSelecting,
-                  style: style.boldBody,
-                );
+          content = SelectionText.rich(
+            rich,
+            selectable: PlatformUtils.isDesktop || menu,
+            onChanged: (a) => _selection = a,
+            onSelecting: widget.onSelecting,
+            style: style.boldBody,
+          );
         }
       } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
@@ -579,7 +571,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         text = null;
       } else {
         text = item.text?.val;
-        rich = detectLinksAndEmails(text, _linkGestureRecognizers);
+        rich = text?.detectLinksAndEmails(_linkGestureRecognizers);
       }
 
       final List<Attachment> attachments = item.attachments.where((e) {
@@ -632,21 +624,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: rich != null
-                  ? SelectionText.rich(
-                      rich,
-                      selectable: PlatformUtils.isDesktop || menu,
-                      onChanged: (a) => _selection = a,
-                      onSelecting: widget.onSelecting,
-                      style: style.boldBody,
-                    )
-                  : SelectionText(
-                      text,
-                      selectable: PlatformUtils.isDesktop || menu,
-                      onChanged: (a) => _selection = a,
-                      onSelecting: widget.onSelecting,
-                      style: style.boldBody,
-                    ),
+              child: SelectionText.rich(
+                rich!,
+                selectable: PlatformUtils.isDesktop || menu,
+                onChanged: (a) => _selection = a,
+                onSelecting: widget.onSelecting,
+                style: style.boldBody,
+              ),
             ),
           ),
         if (files.isNotEmpty)
