@@ -186,10 +186,7 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodyLarge!.copyWith(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
+                    style: context.textTheme.bodySmall,
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({

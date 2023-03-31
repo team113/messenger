@@ -319,26 +319,24 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: context.textTheme.bodyLarge!.copyWith(
+                style: context.textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
                 ),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: context.textTheme.bodyLarge!
-                    .copyWith(color: Colors.black, fontSize: 11),
+                style:
+                    context.textTheme.bodySmall!.copyWith(color: Colors.black),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: context.textTheme.bodyLarge!.copyWith(
+                  style: context.textTheme.bodySmall!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
                   ),
                 ),
               ),
@@ -420,9 +418,8 @@ class ChatInfoView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodyLarge!.copyWith(
+                    style: context.textTheme.bodySmall!.copyWith(
                       color: Colors.black,
-                      fontSize: 11,
                       fontWeight: FontWeight.normal,
                     ),
                     children: [
@@ -432,9 +429,8 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
+                        style: context.textTheme.bodySmall!.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 11,
                         ),
                       ),
                       TextSpan(

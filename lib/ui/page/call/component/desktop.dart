@@ -482,9 +482,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: context.textTheme.bodyLarge!
+                                        style: context.textTheme.bodySmall!
                                             .copyWith(
-                                          fontSize: 11,
                                           color: Colors.white,
                                         ),
                                         textAlign: TextAlign.center,

@@ -838,9 +838,8 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: router.context!.textTheme.bodyLarge!.copyWith(
+            style: router.context!.textTheme.bodySmall!.copyWith(
               color: Colors.white,
-              fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
             maxLines: 1,

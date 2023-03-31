@@ -158,11 +158,10 @@ class MyProfileView extends StatelessWidget {
                                     child: Text(
                                       'btn_upload'.l10n,
                                       style:
-                                          context.textTheme.bodyLarge!.copyWith(
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
-                                        fontSize: 11,
                                       ),
                                     ),
                                   ),
@@ -170,9 +169,8 @@ class MyProfileView extends StatelessWidget {
                                     Text(
                                       'space_or_space'.l10n,
                                       style:
-                                          context.textTheme.bodyLarge!.copyWith(
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Colors.black,
-                                        fontSize: 11,
                                       ),
                                     ),
                                     WidgetButton(
@@ -180,12 +178,11 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: context.textTheme.bodyLarge!
+                                        style: context.textTheme.bodySmall!
                                             .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          fontSize: 11,
                                         ),
                                       ),
                                     ),
@@ -438,10 +435,7 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyLarge!.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: context.textTheme.bodySmall!,
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
@@ -511,8 +505,7 @@ Widget _login(MyProfileController c, BuildContext context) {
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
           child: RichText(
             text: TextSpan(
-              style: context.textTheme.bodyLarge!
-                  .copyWith(fontSize: 11, fontWeight: FontWeight.normal),
+              style: context.textTheme.bodySmall,
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
@@ -615,10 +608,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyLarge!.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: context.textTheme.bodySmall,
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
@@ -780,10 +770,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyLarge!.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: context.textTheme.bodySmall,
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
@@ -1075,9 +1062,8 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
+                      style: context.textTheme.bodySmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
                       ),
                     ),
                   ),
