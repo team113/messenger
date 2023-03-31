@@ -1,25 +1,9 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
-//                       <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
+import 'package:firebase_core/firebase_core.dart'
+    show Firebase, FirebaseOptions;
 
-import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'util/platform_utils.dart';
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
+/// Default [FirebaseOptions] used to initialize the [Firebase].
 ///
 /// Example:
 /// ```dart
@@ -30,71 +14,156 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
+  /// Key used to get a FCM token on the Web.
+  late String vapidKey;
+
+  /// API key used for authenticating requests to Google servers on Android.
+  late String androidApiKey;
+
+  /// API key used for authenticating requests to Google servers on iOS and
+  /// macOS.
+  late String appleApiKey;
+
+  /// API key used for authenticating requests to Google servers on Web.
+  late String webApiKey;
+
+  /// Google unique Android App ID.
+  late String androidAppId;
+
+  /// Google unique Apple App ID.
+  late String appleAppId;
+
+  /// Google unique Web App ID.
+  late String webAppId;
+
+  /// Auth domain used to handle redirects from OAuth on Web.
+  late String authDomain;
+
+  /// Project measurement ID on Web.
+  late String measurementId;
+
+  /// The unique sender ID value used to identify the app.
+  late String messagingSenderId;
+
+  /// The Project ID from the Firebase console.
+  late String projectId;
+
+  /// The Google Cloud Storage bucket name.
+  late String storageBucket;
+
+  /// The iOS client ID.
+  late String appleClientId;
+
+  /// The iOS bundle ID.
+  late String appleBundleId;
+
+  /// Returns [FirebaseOptions] for the Web platform.
+  FirebaseOptions get web => FirebaseOptions(
+        apiKey: webApiKey,
+        appId: webAppId,
+        messagingSenderId: messagingSenderId,
+        projectId: projectId,
+        authDomain: authDomain,
+        storageBucket: storageBucket,
+        measurementId: measurementId,
+      );
+
+  /// Returns [FirebaseOptions] for the Android platform.
+  FirebaseOptions get android => FirebaseOptions(
+        apiKey: androidApiKey,
+        appId: androidAppId,
+        messagingSenderId: messagingSenderId,
+        projectId: projectId,
+        storageBucket: storageBucket,
+      );
+
+  /// Returns [FirebaseOptions] for the iOS or macOS platform.
+  FirebaseOptions get apple => FirebaseOptions(
+        apiKey: appleApiKey,
+        appId: appleAppId,
+        messagingSenderId: messagingSenderId,
+        projectId: projectId,
+        storageBucket: storageBucket,
+        iosClientId: appleClientId,
+        iosBundleId: appleBundleId,
+      );
+
+  /// Returns [FirebaseOptions] for the current platform.
+  FirebaseOptions get currentPlatform {
+    if (PlatformUtils.isWeb) {
       return web;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+    } else if(PlatformUtils.isAndroid) {
+      return android;
+    } else if(PlatformUtils.isIOS || PlatformUtils.isMacOS) {
+      return apple;
+    } else {
+      throw UnsupportedError(
+        'DefaultFirebaseOptions are not supported for this platform.',
+      );
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc',
-    appId: '1:985927661367:web:f74cc9e76046c1c55c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    authDomain: 'messenger-3872c.firebaseapp.com',
-    storageBucket: 'messenger-3872c.appspot.com',
-    measurementId: 'G-8WK80QEL35',
-  );
+  /// Initializes this [DefaultFirebaseOptions] by applying values from the
+  /// following sources (in the following order):
+  /// - compile-time environment variables;
+  /// - provided [configuration];
+  /// - default values.
+  void init(Map<String, dynamic> configuration) {
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+        : (configuration['vapidKey'] ?? '');
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBkNVpSsgni558eAtkMtmB6NVqJW8zFgJg',
-    appId: '1:985927661367:android:2f4015706b53ae9f5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-  );
+    androidApiKey = const bool.hasEnvironment('SOCAPP_FCM_ANDROID_API_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_ANDROID_API_KEY')
+        : (configuration['androidApiKey'] ?? '');
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBYimRBTaBbC1YjRmgyJC8r00RK-rkWYFg',
-    appId: '1:985927661367:ios:7eebd61d36a1318a5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId:
-        '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
-    iosBundleId: 'com.team113.messenger',
-  );
+    appleApiKey = const bool.hasEnvironment('SOCAPP_FCM_APPLE_API_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_APPLE_API_KEY')
+        : (configuration['appleApiKey'] ?? '');
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBYimRBTaBbC1YjRmgyJC8r00RK-rkWYFg',
-    appId: '1:985927661367:ios:7eebd61d36a1318a5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId:
-        '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
-    iosBundleId: 'com.team113.messenger',
-  );
+    webApiKey = const bool.hasEnvironment('SOCAPP_FCM_WEB_API_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_WEB_API_KEY')
+        : (configuration['webApiKey'] ?? '');
+
+    androidAppId = const bool.hasEnvironment('SOCAPP_FCM_ANDROID_APP_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_ANDROID_APP_ID')
+        : (configuration['androidAppId'] ?? '');
+
+    appleAppId = const bool.hasEnvironment('SOCAPP_FCM_APPLE_APP_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_APPLE_APP_ID')
+        : (configuration['appleAppId'] ?? '');
+
+    webAppId = const bool.hasEnvironment('SOCAPP_FCM_WEB_APP_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_WEB_APP_ID')
+        : (configuration['webAppId'] ?? '');
+
+    authDomain = const bool.hasEnvironment('SOCAPP_FCM_AUTH_DOMAIN')
+        ? const String.fromEnvironment('SOCAPP_FCM_AUTH_DOMAIN')
+        : (configuration['authDomain'] ?? '');
+
+    measurementId = const bool.hasEnvironment('SOCAPP_FCM_MEASUREMENT_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_MEASUREMENT_ID')
+        : (configuration['measurementId'] ?? '');
+
+    messagingSenderId =
+        const bool.hasEnvironment('SOCAPP_FCM_MESSAGING_SENDER_ID')
+            ? const String.fromEnvironment('SOCAPP_FCM_MESSAGING_SENDER_ID')
+            : (configuration['messagingSenderId'] ?? '');
+
+    projectId = const bool.hasEnvironment('SOCAPP_FCM_PROJECT_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_PROJECT_ID')
+        : (configuration['projectId'] ?? '');
+
+    storageBucket = const bool.hasEnvironment('SOCAPP_FCM_STORAGE_BUCKET')
+        ? const String.fromEnvironment('SOCAPP_FCM_STORAGE_BUCKET')
+        : (configuration['storageBucket'] ?? '');
+
+    appleClientId = const bool.hasEnvironment('SOCAPP_FCM_APPLE_CLIENT_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_APPLE_CLIENT_ID')
+        : (configuration['appleClientId'] ?? '');
+
+    appleBundleId = const bool.hasEnvironment('SOCAPP_FCM_APPLE_BUNDLE_ID')
+        ? const String.fromEnvironment('SOCAPP_FCM_APPLE_BUNDLE_ID')
+        : (configuration['appleBundleId'] ?? '');
+  }
 }

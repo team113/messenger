@@ -22,6 +22,7 @@ import 'package:toml/toml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import 'firebase_options.dart';
 
 /// Configuration of this application.
 class Config {
@@ -53,25 +54,26 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// [DefaultFirebaseOptions] user to configure FCM.
+  static DefaultFirebaseOptions firebaseOptions = DefaultFirebaseOptions();
+
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
 
-  /// Key used to get a FCM token on the Web.
-  static String vapidKey =
-      'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
-
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
-  /// - default values;
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`).
+  /// - bundled configuration file (`conf.toml`);
+  /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     Map<String, dynamic> document =
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
             .toMap();
+
+    firebaseOptions.init(document['fcm'] ?? {});
 
     graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
         ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')

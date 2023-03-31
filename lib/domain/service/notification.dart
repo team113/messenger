@@ -28,11 +28,11 @@ import 'package:get/get.dart' hide Response;
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
-import '/firebase_options.dart';
 import '/l10n/l10n.dart';
 import '/main.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -75,13 +75,18 @@ class NotificationService extends DisposableService {
   /// notification.
   void init({
     void Function(NotificationResponse)? onNotificationResponse,
-  }) {
+  }) async {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
-    _initPushNotifications();
     _initLocalNotifications(onNotificationResponse);
+    try {
+      await _initPushNotifications();
+    } catch (e, stack) {
+      Log.error(e);
+      Log.error(stack);
+    }
   }
 
   @override
@@ -228,7 +233,7 @@ class NotificationService extends DisposableService {
       FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
 
       await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
+        options: Config.firebaseOptions.currentPlatform,
       );
 
       final RemoteMessage? initial =
@@ -254,7 +259,7 @@ class NotificationService extends DisposableService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
-          vapidKey: Config.vapidKey,
+          vapidKey: Config.firebaseOptions.vapidKey,
         );
         String? locale = L10n.chosen.value?.locale.toString();
 

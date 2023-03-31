@@ -314,7 +314,7 @@ class AuthService extends GetxService {
 
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           final String? token = await FirebaseMessaging.instance.getToken(
-            vapidKey: Config.vapidKey,
+            vapidKey: Config.firebaseOptions.vapidKey,
           );
 
           if (token != null) {
