@@ -626,12 +626,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                 )),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
               child: _chat(context, c),
             ),
-            const SizedBox(height: 15),
           ];
         }
 
@@ -892,7 +891,7 @@ Widget _chat(BuildContext context, CallController c) {
                                     'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodyLarge
+                                    .titleSmall
                                     ?.copyWith(color: Colors.white),
                               ),
                               const Spacer(),

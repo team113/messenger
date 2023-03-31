@@ -449,8 +449,9 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: router.context!.textTheme.bodyLarge!
-            .copyWith(color: Colors.white, fontSize: 11),
+        style: router.context!.textTheme.bodySmall!.copyWith(
+          color: Colors.white,
+        ),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,

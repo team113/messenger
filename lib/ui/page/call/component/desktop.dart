@@ -691,8 +691,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
+                        style: context.textTheme.bodySmall!.copyWith(
                           color: const Color(0xFFFFFFFF),
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1153,8 +1152,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
+                          style: context.textTheme.bodySmall!.copyWith(
                             color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -2073,7 +2071,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                         'Draggable',
                                         style: router
                                             .context!.textTheme.bodyLarge!
-                                            .copyWith(color: Colors.white),
+                                            .copyWith(
+                                          color: Colors.white,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
