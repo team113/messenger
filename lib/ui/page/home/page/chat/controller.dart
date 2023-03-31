@@ -541,7 +541,10 @@ class ChatController extends GetxController {
 
       send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
-      send.replied.value = List.from(draft?.repliesTo ?? []);
+      send.replied.value = List.from(
+        draft?.repliesTo.map((e) => e.original).where((e) => e != null) ??
+            <ChatItem>[],
+      );
 
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
