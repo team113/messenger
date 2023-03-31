@@ -157,8 +157,8 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style: context.textTheme.bodyMedium!
-                                          .copyWith(
+                                      style:
+                                          context.textTheme.bodyLarge!.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
@@ -169,8 +169,8 @@ class MyProfileView extends StatelessWidget {
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: context.textTheme.bodyMedium!
-                                          .copyWith(
+                                      style:
+                                          context.textTheme.bodyLarge!.copyWith(
                                         color: Colors.black,
                                         fontSize: 11,
                                       ),
@@ -180,7 +180,7 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: context.textTheme.bodyMedium!
+                                        style: context.textTheme.bodyLarge!
                                             .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -438,7 +438,7 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.normal,
                   ),
@@ -449,13 +449,13 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -511,17 +511,17 @@ Widget _login(MyProfileController c, BuildContext context) {
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
           child: RichText(
             text: TextSpan(
-              style: context.textTheme.bodyMedium!
+              style: context.textTheme.bodyLarge!
                   .copyWith(fontSize: 11, fontWeight: FontWeight.normal),
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: context.textTheme.bodyMedium!
+                  style: context.textTheme.bodyLarge!
                       .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   recognizer: TapGestureRecognizer()
@@ -533,7 +533,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                           Center(
                             child: Text(
                               'label_login_visibility_hint'.l10n,
-                              style: context.textTheme.bodyMedium!.copyWith(
+                              style: context.textTheme.bodyLarge!.copyWith(
                                 fontSize: 15,
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -544,7 +544,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: context.textTheme.bodyMedium!.copyWith(
+                              style: context.textTheme.bodyLarge!.copyWith(
                                 fontSize: 18,
                                 color: Colors.black,
                               ),
@@ -615,20 +615,20 @@ Widget _emails(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -641,7 +641,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: context.textTheme.bodyMedium!.copyWith(
+                                  style: context.textTheme.bodyLarge!.copyWith(
                                     fontSize: 18,
                                     color: Colors.black,
                                   ),
@@ -684,7 +684,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!
+                  floatingLabelStyle: context.textTheme.bodyLarge!
                       .copyWith(color: Theme.of(context).colorScheme.secondary),
                 ),
           ),
@@ -711,7 +711,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: context.textTheme.bodyMedium!
+            style: context.textTheme.bodyLarge!
                 .copyWith(color: Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -780,20 +780,20 @@ Widget _phones(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -806,7 +806,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: context.textTheme.bodyMedium!.copyWith(
+                                  style: context.textTheme.bodyLarge!.copyWith(
                                     fontSize: 18,
                                     color: Colors.black,
                                   ),
@@ -849,7 +849,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!
+                  floatingLabelStyle: context.textTheme.bodyLarge!
                       .copyWith(color: Theme.of(context).colorScheme.secondary),
                 ),
           ),
@@ -873,7 +873,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: context.textTheme.bodyMedium!
+            style: context.textTheme.bodyLarge!
                 .copyWith(color: Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -949,7 +949,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: context.textTheme.bodyMedium!
+          style: context.textTheme.bodyLarge!
               .copyWith(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
@@ -1382,7 +1382,7 @@ Future<void> _deleteEmail(
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
@@ -1406,7 +1406,7 @@ Future<void> _deletePhone(
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
       TextSpan(
         text: phone.val,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
       ),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
@@ -1428,7 +1428,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

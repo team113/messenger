@@ -167,7 +167,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: context.textTheme.bodyMedium!
+                          style: context.textTheme.bodyLarge!
                               .copyWith(color: Colors.black),
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
@@ -187,7 +187,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: context.textTheme.bodyMedium!
+                      style: context.textTheme.bodyLarge!
                           .copyWith(color: Colors.white),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
@@ -213,7 +213,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: context.textTheme.bodyMedium!
+                            style: context.textTheme.bodyLarge!
                                 .copyWith(color: Colors.white),
                           ),
                           onPressed: () =>
@@ -228,7 +228,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: context.textTheme.bodyMedium!.copyWith(),
+                            style: context.textTheme.bodyLarge!.copyWith(),
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: const Color(0xFFEEEEEE),

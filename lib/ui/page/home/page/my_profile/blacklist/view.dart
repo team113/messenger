@@ -92,7 +92,7 @@ class BlacklistView extends StatelessWidget {
                             const SizedBox(height: 5),
                             Text(
                               '28.12.2022',
-                              style: context.textTheme.bodyMedium!.copyWith(
+                              style: context.textTheme.bodyLarge!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 13,
                               ),
@@ -103,7 +103,7 @@ class BlacklistView extends StatelessWidget {
                               onPressed: () => c.unblacklist(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
-                                style: context.textTheme.bodyMedium!.copyWith(
+                                style: context.textTheme.bodyLarge!.copyWith(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                   fontSize: 13,

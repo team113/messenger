@@ -269,7 +269,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: context.textTheme.bodyMedium!
+            style: context.textTheme.bodyLarge!
                 .copyWith(color: Theme.of(context).colorScheme.secondary),
             trailing: trailing != null
                 ? Transform.translate(
@@ -555,7 +555,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -574,7 +574,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -593,7 +593,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -612,7 +612,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

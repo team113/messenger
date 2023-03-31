@@ -60,7 +60,7 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: router.context!.textTheme.bodyMedium!
+          style: router.context!.textTheme.bodyLarge!
               .copyWith(color: Colors.black, fontSize: 15),
         ),
       ),

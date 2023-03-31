@@ -186,7 +186,7 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodyMedium!.copyWith(
+                    style: context.textTheme.bodyLarge!.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.normal,
                     ),
@@ -198,13 +198,13 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: context.textTheme.bodyMedium!.copyWith(
+                        style: context.textTheme.bodyLarge!.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: context.textTheme.bodyMedium!.copyWith(
+                        style: context.textTheme.bodyLarge!.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         recognizer: TapGestureRecognizer()

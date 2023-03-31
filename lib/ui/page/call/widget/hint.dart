@@ -72,7 +72,7 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: context.textTheme.bodyMedium!.copyWith(
+                    style: context.textTheme.bodyLarge!.copyWith(
                       fontSize: 13,
                       color: const Color(0xBB818181),
                     ),
@@ -98,7 +98,7 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: context.textTheme.bodyMedium!.copyWith(
+                style: context.textTheme.bodyLarge!.copyWith(
                   fontSize: 13,
                   color: const Color(0xBB818181),
                 ),

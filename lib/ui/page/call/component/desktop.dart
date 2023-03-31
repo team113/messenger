@@ -482,7 +482,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: context.textTheme.bodyMedium!
+                                        style: context.textTheme.bodyLarge!
                                             .copyWith(
                                           fontSize: 11,
                                           color: Colors.white,
@@ -2073,7 +2073,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       child: Text(
                                         'Draggable',
                                         style: router
-                                            .context!.textTheme.bodyMedium!
+                                            .context!.textTheme.bodyLarge!
                                             .copyWith(color: Colors.white),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

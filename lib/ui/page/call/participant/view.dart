@@ -148,7 +148,7 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: context.textTheme.bodyMedium!
+                          style: context.textTheme.bodyLarge!
                               .copyWith(color: Colors.white),
                         ),
                         onPressed: () {
@@ -251,7 +251,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: context.textTheme.bodyMedium,
+                      style: context.textTheme.bodyLarge,
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -265,7 +265,7 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: context.textTheme.bodyMedium!.copyWith(
+                    style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 15),
                   )

@@ -101,7 +101,7 @@ class CallWindowSwitchView extends StatelessWidget {
                                         : 'label_open_calls_in_app'.l10n,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.bodyMedium!
+                                    style: context.textTheme.bodyLarge!
                                         .copyWith(fontSize: 15),
                                   ),
                                 ),

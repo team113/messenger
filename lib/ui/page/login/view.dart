@@ -262,7 +262,7 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: context.textTheme.bodyMedium!
+                          style: context.textTheme.bodyLarge!
                               .copyWith(color: const Color(0xFF00A3FF)),
                         ),
                       ),

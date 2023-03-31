@@ -88,7 +88,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: context.textTheme.bodyMedium!
+          style: context.textTheme.bodyLarge!
               .copyWith(fontSize: 15, color: Colors.black),
           color: Theme.of(context).colorScheme.secondary,
           child: SizedBox(

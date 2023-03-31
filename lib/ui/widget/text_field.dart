@@ -221,7 +221,7 @@ class ReactiveTextField extends StatelessWidget {
                                             child: Text(
                                               'btn_save'.l10n,
                                               style: context
-                                                  .textTheme.bodyMedium!
+                                                  .textTheme.bodyLarge!
                                                   .copyWith(
                                                 fontSize: 11,
                                                 color: Theme.of(context)
@@ -303,7 +303,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: context.textTheme.bodyMedium!.copyWith(fontSize: 0),
+                errorStyle: context.textTheme.bodyLarge!.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -328,7 +328,7 @@ class ReactiveTextField extends StatelessWidget {
                           child: Text(
                             state.error.value!,
                             style: (style ??
-                                    context.textTheme.bodyMedium!.copyWith())
+                                    context.textTheme.bodyLarge!.copyWith())
                                 .copyWith(
                               color: Colors.red,
                               fontSize: 13,

@@ -1255,7 +1255,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: context.textTheme.bodyMedium!.copyWith(
+                    style: context.textTheme.bodyLarge!.copyWith(
                       fontSize: 15,
                       color: Theme.of(context).colorScheme.primary,
                     ),
