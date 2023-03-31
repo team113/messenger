@@ -2205,7 +2205,8 @@ class FoldedWidget extends StatelessWidget {
               decoration: const BoxDecoration(
                 // color: Color(0xFF72B060)
                 // color: Color(0xFF8383ff),
-                color: Color(0xFFfff7ea),
+                // color: Color(0xFFfff7ea),
+                color: Color(0xFF8383ff),
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4)),
                 boxShadow: [
                   CustomBoxShadow(

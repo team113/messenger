@@ -796,3 +796,4 @@ btn_verify_account = Verify your account
 label_get_paid_for_incoming_from = Get-Paid for incoming messages and incoming calls from {$user}
 label_individual_users = Individual users: {$count}
 btn_verify_email = Verify E-mail
+btn_set_price = Get-Paid for incoming

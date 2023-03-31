@@ -38,6 +38,10 @@ class FieldButton extends StatefulWidget {
     this.style,
     this.fillColor = Colors.white,
     this.border,
+    this.prefixText,
+    this.prefixStyle,
+    this.label,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
   });
 
   /// Optional label of this [FieldButton].
@@ -74,6 +78,11 @@ class FieldButton extends StatefulWidget {
 
   final Border? border;
 
+  final String? prefixText;
+  final TextStyle? prefixStyle;
+  final String? label;
+  final FloatingLabelBehavior floatingLabelBehavior;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -101,9 +110,13 @@ class _FieldButtonState extends State<FieldButton> {
           child: ReactiveTextField(
             textAlign: widget.textAlign,
             state: TextFieldState(text: widget.text, editable: false),
-            label: widget.hint,
+            label: widget.label,
             maxLines: widget.maxLines,
             trailing: widget.trailing,
+            prefixStyle: widget.prefixStyle,
+            prefixText: widget.prefixText,
+            floatingLabelBehavior: widget.floatingLabelBehavior,
+            hint: widget.hint,
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null

@@ -87,11 +87,11 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
-  final TextFieldState allMessageCost = TextFieldState();
-  final TextFieldState allCallCost = TextFieldState();
+  final TextFieldState allMessageCost = TextFieldState(text: '0.00');
+  final TextFieldState allCallCost = TextFieldState(text: '0.00');
 
-  final TextFieldState contactMessageCost = TextFieldState();
-  final TextFieldState contactCallCost = TextFieldState();
+  final TextFieldState contactMessageCost = TextFieldState(text: '0.00');
+  final TextFieldState contactCallCost = TextFieldState(text: '0.00');
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///

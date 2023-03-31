@@ -24,6 +24,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -803,20 +805,37 @@ class UserView extends StatelessWidget {
             Stack(
               alignment: Alignment.centerLeft,
               children: [
-                ReactiveTextField(
-                  enabled: c.verified.value,
-                  state: c.messageCost,
-                  hint: '0.00',
+                // ReactiveTextField(
+                //   enabled: c.verified.value,
+                //   state: c.messageCost,
+                //   hint: '0.00',
+                //   prefixText: '    ',
+                //   prefixStyle: const TextStyle(fontSize: 13),
+                //   label: 'label_fee_per_incoming_message'.l10n,
+                //   floatingLabelBehavior: FloatingLabelBehavior.always,
+                //   type: TextInputType.number,
+                //   formatters: [
+                //     FilteringTextInputFormatter.digitsOnly,
+                //   ],
+                // ),
+                FieldButton(
+                  text: c.messageCost.text,
                   prefixText: '    ',
                   prefixStyle: const TextStyle(fontSize: 13),
                   label: 'label_fee_per_incoming_message'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
-                  type: TextInputType.number,
-                  formatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-                    // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-                  ],
+                  onPressed: () async {
+                    await GetPaidView.show(
+                      context,
+                      mode: GetPaidMode.user,
+                      user: c.user,
+                    );
+                  },
+                  style: TextStyle(
+                    color: c.verified.value
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -829,50 +848,12 @@ class UserView extends StatelessWidget {
                       height: 0.8,
                       fontFamily: 'InterRoboto',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       // color: Color(0xFFC6C6C6),
                       fontSize: 15,
                     ),
                   ),
                 ),
-                // IgnorePointer(
-                //   child: Padding(
-                //     padding: const EdgeInsets.only(left: 22, bottom: 1),
-                //     child: Row(
-                //       children: [
-                //         Opacity(
-                //           opacity: 0,
-                //           child: Text(
-                //             c.messageCost.text.isEmpty
-                //                 ? '000'
-                //                 : c.messageCost.text,
-                //             style: TextStyle(fontSize: 15),
-                //           ),
-                //         ),
-                //         Text(
-                //           '¤',
-                //           style: TextStyle(
-                //             height: 0.8,
-                //             fontFamily: 'InterRoboto',
-                //             fontWeight: FontWeight.w300,
-                //             color: Theme.of(context).colorScheme.primary,
-                //             fontSize: 15,
-                //           ),
-                //         ),
-                //         Padding(
-                //           padding: const EdgeInsets.only(bottom: 2),
-                //           child: Text(
-                //             ' за сообщение',
-                //             style: TextStyle(
-                //               color: Theme.of(context).colorScheme.primary,
-                //               fontSize: 15,
-                //             ),
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -880,20 +861,39 @@ class UserView extends StatelessWidget {
             Stack(
               alignment: Alignment.centerLeft,
               children: [
-                ReactiveTextField(
-                  enabled: c.verified.value,
-                  state: c.callsCost,
-                  hint: '0.00',
+                // ReactiveTextField(
+                //   enabled: c.verified.value,
+                //   state: c.callsCost,
+                //   hint: '0.00',
+                //   prefixText: '    ',
+                //   prefixStyle: const TextStyle(fontSize: 13),
+                //   label: 'label_fee_per_incoming_call_minute'.l10n,
+                //   floatingLabelBehavior: FloatingLabelBehavior.always,
+                //   type: TextInputType.number,
+                //   formatters: [
+                //     FilteringTextInputFormatter.digitsOnly,
+                //     // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
+                //     // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
+                //   ],
+                // ),
+                FieldButton(
+                  text: c.callsCost.text,
                   prefixText: '    ',
                   prefixStyle: const TextStyle(fontSize: 13),
                   label: 'label_fee_per_incoming_call_minute'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
-                  type: TextInputType.number,
-                  formatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    // FilteringTextInputFormatter.deny(RegExp(r'[a-z]')),
-                    // FilteringTextInputFormatter.deny(RegExp(r'[A-Z]')),
-                  ],
+                  onPressed: () async {
+                    await GetPaidView.show(
+                      context,
+                      mode: GetPaidMode.user,
+                      user: c.user,
+                    );
+                  },
+                  style: TextStyle(
+                    color: c.verified.value
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -907,7 +907,7 @@ class UserView extends StatelessWidget {
                       fontFamily: 'InterRoboto',
                       fontWeight: FontWeight.w400,
                       // color: Color(0xFFC6C6C6),
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 15,
                     ),
                   ),

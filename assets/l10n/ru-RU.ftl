@@ -824,3 +824,4 @@ btn_verify_account = Верифицировать аккаунт
 label_get_paid_for_incoming_from = Принимать оплату за входящие сообщения и входящие звонки от {$user}
 label_individual_users = Индивидуальные пользователи: {$count}
 btn_verify_email = Верифицировать E-mail
+btn_set_price = Принимать оплату за входящие

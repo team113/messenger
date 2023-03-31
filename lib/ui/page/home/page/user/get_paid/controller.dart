@@ -15,27 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
-
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
-  code,
-}
+
 
 /// Controller of a [ChatForwardView].
 class GetPaidController extends GetxController {

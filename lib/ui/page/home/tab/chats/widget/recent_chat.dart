@@ -20,6 +20,8 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/util/message_popup.dart';
 
@@ -155,7 +157,9 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        folded: rxChat.messageCost != 0,
+        folded: rxChat.chat.value.isDialog &&
+            (myUser?.name?.val == 'alex2' ||
+                myUser?.name?.val == 'kirey'), // rxChat.messageCost != 0,
         avatarBuilder: chat.isMonolog
             ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
             : avatarBuilder,
@@ -202,6 +206,16 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
+          if (chat.isDialog)
+            ContextMenuButton(
+              label: 'btn_set_price'.l10n,
+              onPressed: () => GetPaidView.show(
+                context,
+                mode: GetPaidMode.user,
+                user: rxChat.members.values.firstWhere((e) => e.id != me),
+              ),
+              trailing: const Icon(Icons.paid_outlined),
+            ),
           if (chat.favoritePosition != null && onUnfavorite != null)
             ContextMenuButton(
               key: const Key('UnfavoriteChatButton'),

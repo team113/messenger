@@ -21,6 +21,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/user/get_paid/view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -1467,8 +1469,53 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
   Widget field({
     required TextFieldState state,
     required String label,
+    bool contacts = false,
     bool enabled = true,
   }) {
+    return _padding(
+      Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          FieldButton(
+            text: state.text,
+            prefixText: '    ',
+            prefixStyle: const TextStyle(fontSize: 13),
+            label: label,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            onPressed: () async {
+              await GetPaidView.show(
+                context,
+                mode: contacts ? GetPaidMode.contacts : GetPaidMode.users,
+              );
+            },
+            style: TextStyle(
+              color: enabled
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              left: 21,
+              bottom: PlatformUtils.isWeb && !PlatformUtils.isAndroid ? 6 : 0,
+            ),
+            child: Text(
+              '¤',
+              style: TextStyle(
+                height: 0.8,
+                fontFamily: 'InterRoboto',
+                fontWeight: FontWeight.w400,
+                color: enabled
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
     return _padding(
       Stack(
         alignment: Alignment.centerLeft,
@@ -1592,11 +1639,13 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           label: 'label_fee_per_incoming_message'.l10n,
           state: c.allMessageCost,
           enabled: c.verified.value,
+          contacts: false,
         ),
         field(
           label: 'label_fee_per_incoming_call_minute'.l10n,
           state: c.allCallCost,
           enabled: c.verified.value,
+          contacts: false,
         ),
         // Padding(
         //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
@@ -1634,11 +1683,13 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           label: 'label_fee_per_incoming_message'.l10n,
           state: c.contactMessageCost,
           enabled: c.verified.value,
+          contacts: true,
         ),
         field(
           label: 'label_fee_per_incoming_call_minute'.l10n,
           state: c.contactCallCost,
           enabled: c.verified.value,
+          contacts: true,
         ),
         // Padding(
         //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),

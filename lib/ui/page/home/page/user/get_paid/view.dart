@@ -18,18 +18,20 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
+import 'controller.dart';
 
 /// View showing details about a [MyUser.chatDirectLink].
 ///
 /// Intended to be displayed with the [show] method.
-class GetPaidView extends StatelessWidget {
-  const GetPaidView({super.key});
+class GetPaidView2 extends StatelessWidget {
+  const GetPaidView2({super.key});
 
   /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const GetPaidView());
+    return ModalPopup.show(context: context, child: const GetPaidView2());
   }
 
   @override
