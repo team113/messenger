@@ -34,7 +34,6 @@ All user visible changes to this project will be documented in this file. This p
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
 
-
 ### Fixed
 
 - UI:
