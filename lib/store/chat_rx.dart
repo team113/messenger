@@ -1194,16 +1194,16 @@ class HiveRxChat extends RxChat {
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
-    bool done = false;
-    for (var i = length - 1; i > -1 && !done; --i) {
-      if (test(this[i])) {
-        insert(i + 1, element);
-        done = true;
-      }
+    if (isEmpty || !test(this[0])) {
+      insert(0, element);
+      return;
     }
 
-    if (!done) {
-      insert(0, element);
+    for (var i = length - 1; i > -1; --i) {
+      if (test(this[i])) {
+        insert(i + 1, element);
+        return;
+      }
     }
   }
 }

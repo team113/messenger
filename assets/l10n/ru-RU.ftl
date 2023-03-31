@@ -231,6 +231,7 @@ err_account_not_found = Указанный аккаунт не найден
 err_blacklisted = Пользователь в чёрном списке
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
+err_call_forwarding = Нельзя пересылать сообщения о звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
 err_call_monolog = Вы не можете позвонить себе
 err_call_not_found = Данный звонок не найден
