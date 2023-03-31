@@ -168,7 +168,12 @@ void main() async {
     FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
       theme: Themes.light(),
-      home: Scaffold(body: child),
+      home: Builder(
+        builder: (context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
     );
   }
 

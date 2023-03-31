@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -308,26 +309,16 @@ class AvatarWidget extends StatelessWidget {
 
   /// Avatar color swatches.
   final List<Color?> colors = [
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[0],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[1],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[2],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[3],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[4],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[5],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[6],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[7],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[8],
-    // Theme.of(router.context!).extension<Style>()!.avatarColors[9],
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.cyan,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.amber,
-    Colors.orange,
-    Colors.deepOrange,
+    Theme.of(router.context!).extension<Style>()!.avatarColors[0],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[1],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[2],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[3],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[4],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[5],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[6],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[7],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[8],
+    Theme.of(router.context!).extension<Style>()!.avatarColors[9],
   ];
 
   /// Returns minimum diameter of the avatar.
