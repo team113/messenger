@@ -312,7 +312,7 @@ class OngoingCall {
           ?.tracks
           .where((t) =>
               t.kind == MediaKind.Audio && t.source == MediaSourceKind.Device)
-          .isEmpty ??
+          .isNotEmpty ??
       false;
 
   /// Initializes the media client resources.
@@ -348,6 +348,8 @@ class OngoingCall {
 
         _pickAudioDevice(previous, added, removed);
         _pickOutputDevice(previous, added, removed);
+
+        print('\n[onDeviceChange]: ${logDevices()}');
       });
 
       _initRoom();
@@ -692,7 +694,9 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            await _updateTracks();
+            if (!hasRemote) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -739,7 +743,9 @@ class OngoingCall {
           try {
             if (!hasAudio) {
               await _room?.enableAudio();
-              await _updateTracks();
+              if (!hasRemote) {
+                await _updateTracks();
+              }
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
@@ -748,7 +754,7 @@ class OngoingCall {
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              _errors.add('unmuteAudio() call failed with $e, ${e.message()}');
+              _errors.add('unmuteAudio() call failed due to ${e.message()}');
               rethrow;
             }
           } catch (e) {
@@ -788,7 +794,9 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            await _updateTracks();
+            if (!hasRemote) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -1238,16 +1246,20 @@ class OngoingCall {
       // Initializes the local tracks recursively.
       Future<void> initLocalTracks() async {
         try {
-          tracks = await MediaUtils.mediaManager!.initLocalTracks(
-            _mediaStreamSettings(
-              audio: audioState.value == LocalTrackState.enabling,
-              video: videoState.value == LocalTrackState.enabling,
-              screen: screenShareState.value == LocalTrackState.enabling,
-              audioDevice: audioDevice.value,
-              videoDevice: videoDevice.value,
-              screenDevice: screenDevice.value,
-              facingMode: videoDevice.value == null ? FacingMode.User : null,
-            ),
+          tracks = await MediaUtils.getTracks(
+            audio: audioState.value == LocalTrackState.enabling
+                ? TrackPreferences(device: audioDevice.value)
+                : null,
+            video: videoState.value == LocalTrackState.enabling
+                ? TrackPreferences(
+                    device: videoDevice.value,
+                    facingMode:
+                        videoDevice.value == null ? FacingMode.User : null,
+                  )
+                : null,
+            screen: screenShareState.value == LocalTrackState.enabling
+                ? TrackPreferences(device: screenDevice.value)
+                : null,
           );
         } on LocalMediaInitException catch (e) {
           switch (e.kind()) {
@@ -1366,8 +1378,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join(
-        '${link.val.replaceFirst('localhost', '192.168.50.100')}?token=$creds');
+    await _room?.join('$link?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1419,7 +1430,9 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          await _updateTracks();
+          if (!hasRemote) {
+            await _updateTracks();
+          }
         } catch (_) {
           // No-op.
         }
@@ -1432,40 +1445,47 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
-    print(
-        '($hasAudio) tracks before: ${(members[_me]?.tracks.toList() ?? []).map((e) => '${e.kind} ${e.source} ${e.track.getTrack().id()}')}');
+    print('\n[_updateTracks] before: ${logDevices()}');
 
-    final List<LocalMediaTrack> tracks =
-        await MediaUtils.mediaManager!.initLocalTracks(
-      _mediaStreamSettings(
-        audio: hasAudio,
-        video: videoState.value.isEnabled,
-        screen: screenShareState.value.isEnabled,
-        audioDevice: audioDevice.value,
-        videoDevice: videoDevice.value,
-        screenDevice: screenDevice.value,
-      ),
+    final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+      audio: hasAudio ? TrackPreferences(device: audioDevice.value) : null,
+      video: videoState.value.isEnabled
+          ? TrackPreferences(
+              device: videoDevice.value,
+              facingMode: videoDevice.value == null ? FacingMode.User : null,
+            )
+          : null,
+      screen: screenShareState.value.isEnabled
+          ? TrackPreferences(device: screenDevice.value)
+          : null,
     );
 
-    print(
-        'tracks: ${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().id()}')}');
-
-    for (Track t in members[_me]?.tracks.toList() ?? []) {
-      if (tracks.none((p) => p.getTrack().id() == t.track.getTrack().id())) {
-        members[_me]?.tracks.remove(t);
-        t.dispose();
-      }
+    _disposeLocalMedia();
+    for (LocalMediaTrack track in tracks) {
+      await _addLocalTrack(track);
     }
 
-    for (LocalMediaTrack p in tracks) {
-      if ((members[_me]?.tracks.toList() ?? [])
-          .none((t) => p.getTrack().id() == t.track.getTrack().id())) {
-        await _addLocalTrack(p);
-      }
-    }
+    print('\n[_updateTracks] after: ${logDevices()}');
 
-    print(
-        'tracks now: ${(members[_me]?.tracks.toList() ?? []).map((e) => '${e.kind} ${e.source} ${e.track.getTrack().id()}')}');
+    // print(
+    //     'tracks: ${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().id()}')}');
+
+    // for (Track t in members[_me]?.tracks.toList() ?? []) {
+    //   if (tracks.none((p) => p.getTrack().id() == t.track.getTrack().id())) {
+    //     members[_me]?.tracks.remove(t);
+    //     t.dispose();
+    //   }
+    // }
+
+    // for (LocalMediaTrack p in tracks) {
+    //   if ((members[_me]?.tracks.toList() ?? [])
+    //       .none((t) => p.getTrack().id() == t.track.getTrack().id())) {
+    //     await _addLocalTrack(p);
+    //   }
+    // }
+
+    // print(
+    //     'tracks now: ${(members[_me]?.tracks.toList() ?? []).map((e) => '${e.kind} ${e.source} ${e.track.getTrack().id()}')}');
   }
 
   /// Adds the provided [track] to the local tracks and initializes video
@@ -1524,6 +1544,8 @@ class OngoingCall {
       }
       return false;
     });
+
+    print('\n[_removeLocalTracks]: ${logDevices()}');
   }
 
   /// Ensures the [audioDevice], [videoDevice], [screenDevice], and
@@ -1584,6 +1606,10 @@ class OngoingCall {
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       setAudioDevice(devices.audio().first.deviceId());
     }
+  }
+
+  String logDevices() {
+    return '${me.tracks.map((p) => '${p.track.kind()} ${p.track.mediaSourceKind()}\n')}';
   }
 }
 

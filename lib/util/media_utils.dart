@@ -36,6 +36,8 @@ class MediaUtils {
   /// [MediaManagerHandle.onDeviceChange].
   static StreamController<List<MediaDeviceDetails>>? _devicesController;
 
+  static List<LocalMediaTrack> _tracks = [];
+
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
     if (_jason == null) {
@@ -74,6 +76,42 @@ class MediaUtils {
     return _devicesController!.stream;
   }
 
+  static Future<List<LocalMediaTrack>> getTracks({
+    TrackPreferences? audio,
+    TrackPreferences? video,
+    TrackPreferences? screen,
+  }) async {
+    final List<LocalMediaTrack> tracks = [];
+
+    // if (audio != null) {
+    //   final LocalMediaTrack? track = _tracks.firstWhereOrNull(
+    //     (e) =>
+    //         e.kind() == MediaKind.Audio &&
+    //         e.mediaSourceKind() == MediaSourceKind.Device &&
+    //         (audio!.device == null || e.getTrack().deviceId() == audio.device),
+    //   );
+
+    //   if (track != null) {
+    //     print('[MediaUtils] Re-use audio track: $track');
+    //     tracks.add(track);
+    //     audio = null;
+    //   }
+    // }
+
+    if (audio != null || video != null || screen != null) {
+      final List<LocalMediaTrack> local =
+          await MediaUtils.mediaManager!.initLocalTracks(
+        _mediaStreamSettings(audio: audio, video: video, screen: screen),
+      );
+
+      tracks.addAll(local);
+    }
+
+    print('return ${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()}')}');
+
+    return tracks;
+  }
+
   /// Returns the [MediaDeviceDetails]s currently available with the provided
   /// [kind], if specified.
   static Future<List<MediaDeviceDetails>> enumerateDevices([
@@ -84,4 +122,52 @@ class MediaUtils {
         .where((e) => kind == null || e.kind() == kind)
         .toList();
   }
+
+  /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
+  /// not.
+  static MediaStreamSettings _mediaStreamSettings({
+    TrackPreferences? audio,
+    TrackPreferences? video,
+    TrackPreferences? screen,
+  }) {
+    final MediaStreamSettings settings = MediaStreamSettings();
+
+    if (audio != null) {
+      final AudioTrackConstraints constraints = AudioTrackConstraints();
+      if (audio.device != null) constraints.deviceId(audio.device!);
+      settings.audio(constraints);
+    }
+
+    if (video != null) {
+      final DeviceVideoTrackConstraints constraints =
+          DeviceVideoTrackConstraints();
+      if (video.device != null) constraints.deviceId(video.device!);
+      if (video.facingMode != null) {
+        constraints.idealFacingMode(video.facingMode!);
+      }
+      settings.deviceVideo(constraints);
+    }
+
+    if (screen != null) {
+      final DisplayVideoTrackConstraints constraints =
+          DisplayVideoTrackConstraints();
+      if (screen.device != null) constraints.deviceId(screen.device!);
+      constraints.idealFrameRate(screen.framerate ?? 30);
+      settings.displayVideo(constraints);
+    }
+
+    return settings;
+  }
+}
+
+class TrackPreferences {
+  const TrackPreferences({
+    this.device,
+    this.facingMode,
+    this.framerate,
+  });
+
+  final String? device;
+  final FacingMode? facingMode;
+  final int? framerate;
 }
