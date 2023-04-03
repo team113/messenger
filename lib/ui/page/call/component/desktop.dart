@@ -757,7 +757,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           }
 
           return LayoutBuilder(builder: (_, constraints) {
-            if (c.secondary.isNotEmpty && c.secondaryAlignment.value == null) {
               // Scale the secondary panel after this frame is displayed, as
               // otherwise it invokes re-drawing twice in a frame, resulting in
               // an error.
@@ -766,7 +765,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 WidgetsBinding.instance
                     .addPostFrameCallback((_) => c.relocateSecondary());
               });
-            }
 
             return _secondaryView(c, context);
           });
