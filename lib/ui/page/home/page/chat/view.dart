@@ -236,9 +236,9 @@ class _ChatViewState extends State<ChatView>
                             const SizedBox(width: 10),
                           ],
                         ),
-                        background: c.paid
-                            ? const Color.fromRGBO(189, 224, 198, 1)
-                            : null,
+                        // background: c.paid
+                        //     ? const Color.fromARGB(255, 241, 250, 244)
+                        //     : null,
                         padding: const EdgeInsets.only(left: 4, right: 20),
                         leading: const [StyledBackButton()],
                         actions: [
