@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '985927661367',
     projectId: 'messenger-3872c',
     storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId: '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
+    iosClientId:
+        '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
     iosBundleId: 'com.team113.messenger',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '985927661367',
     projectId: 'messenger-3872c',
     storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId: '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
+    iosClientId:
+        '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
     iosBundleId: 'com.team113.messenger',
   );
 }
