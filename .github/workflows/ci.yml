@@ -157,7 +157,7 @@ jobs:
 
       - run: npm install -g firebase-tools
       - run: dart pub global activate flutterfire_cli
-      - run: flutterfire configure -y -p secrets.FCM_PROJECT_ID
+      - run: flutterfire configure -y -p secrets.FCM_PROJECT_ID --platforms="android,ios,macos,web"
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
