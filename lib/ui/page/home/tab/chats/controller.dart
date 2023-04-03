@@ -503,24 +503,38 @@ class ChatsTabController extends GetxController {
     final int length =
         chats.where((e) => e.chat.value.favoritePosition != null).length;
 
+    final List<RxChat> notInCall = chats
+        .where((e) =>
+            e.chat.value.favoritePosition != null &&
+            e.chat.value.ongoingCall == null)
+        .toList();
+
+    int indexTo = chats.indexWhere((e) =>
+            e.chat.value.id ==
+            notInCall[to > from ? to - 1 : to].chat.value.id) +
+        (to > from ? 1 : 0);
+
+    final int indexFrom = chats
+        .indexWhere((e) => e.chat.value.id == notInCall[from].chat.value.id);
+
     double position;
 
-    if (to <= 0) {
+    if (indexTo <= 0) {
       position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (to >= length) {
+    } else if (indexTo >= length) {
       position = chats[length - 1].chat.value.favoritePosition!.val * 2;
     } else {
-      position = (chats[to].chat.value.favoritePosition!.val +
-              chats[to - 1].chat.value.favoritePosition!.val) /
+      position = (chats[indexTo].chat.value.favoritePosition!.val +
+              chats[indexTo - 1].chat.value.favoritePosition!.val) /
           2;
     }
 
-    if (to > from) {
-      to--;
+    if (indexTo > indexFrom) {
+      indexTo--;
     }
 
-    final ChatId chatId = chats[from].id;
-    chats.insert(to, chats.removeAt(from));
+    final ChatId chatId = chats[indexFrom].id;
+    chats.insert(indexTo, chats.removeAt(indexFrom));
 
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
@@ -612,14 +626,6 @@ class ChatsTabController extends GetxController {
           b.chat.value.favoritePosition != null) {
         return a.chat.value.favoritePosition!
             .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
       }
 
       if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
