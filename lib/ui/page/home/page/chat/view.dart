@@ -236,46 +236,50 @@ class _ChatViewState extends State<ChatView>
                             const SizedBox(width: 10),
                           ],
                         ),
-                        // background: c.paid ? const Color(0xFFfff7ea) : null,
+                        background: c.paid
+                            ? const Color.fromRGBO(189, 224, 198, 1)
+                            : null,
                         padding: const EdgeInsets.only(left: 4, right: 20),
                         leading: const [StyledBackButton()],
                         actions: [
-                          if (c.paid) ...[
-                            WidgetButton(
-                              onPressed: c.paid
-                                  ? () {
-                                      // c.paidDisclaimer.value = true;
-                                      // c.confirmAction = null;
+                          // if (c.paid) ...[
+                          //   WidgetButton(
+                          //     onPressed: c.paid
+                          //         ? () {
+                          //             // c.paidDisclaimer.value = true;
+                          //             // c.confirmAction = null;
 
-                                      final Chat? chat = c.chat?.chat.value;
-                                      if (chat?.isDialog == true &&
-                                          chat?.members.isNotEmpty == true) {
-                                        router.user(
-                                          chat!.members
-                                                  .firstWhereOrNull(
-                                                      (e) => e.user.id != c.me)
-                                                  ?.user
-                                                  .id ??
-                                              chat.members.first.user.id,
-                                          push: true,
-                                          scrollToPaid: true,
-                                        );
-                                      }
-                                    }
-                                  : null,
-                              child: Transform.translate(
-                                offset: const Offset(0, 1),
-                                child: SvgLoader.asset(
-                                  'assets/icons/get_paid7.svg',
-                                  width: 20.8,
-                                  height: 21.75,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 29),
-                          ],
+                          //             final Chat? chat = c.chat?.chat.value;
+                          //             if (chat?.isDialog == true &&
+                          //                 chat?.members.isNotEmpty == true) {
+                          //               router.user(
+                          //                 chat!.members
+                          //                         .firstWhereOrNull(
+                          //                             (e) => e.user.id != c.me)
+                          //                         ?.user
+                          //                         .id ??
+                          //                     chat.members.first.user.id,
+                          //                 push: true,
+                          //                 scrollToPaid: true,
+                          //               );
+                          //             }
+                          //           }
+                          //         : null,
+                          //     child: Transform.translate(
+                          //       offset: const Offset(0, 1),
+                          //       child: SvgLoader.asset(
+                          //         'assets/icons/get_paid7.svg',
+                          //         width: 20.8,
+                          //         height: 21.75,
+                          //       ),
+                          //     ),
+                          //   ),
+                          //   const SizedBox(width: 29),
+                          // ],
                           if (c.chat!.chat.value.ongoingCall == null) ...[
-                            if (!c.paid || constraints.maxWidth > 400) ...[
+                            if (true ||
+                                !c.paid ||
+                                constraints.maxWidth > 400) ...[
                               WidgetButton(
                                 onPressed: () => c.call(true),
                                 child: SvgLoader.asset(
@@ -2290,6 +2294,8 @@ class _ChatViewState extends State<ChatView>
               onChanged: c.keepTyping,
               onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
               canForward: true,
+              // background:
+              //     c.paid ? const Color.fromARGB(255, 241, 250, 244) : null,
               // background: const Color(0xFFfff7ea),
               // canSend: !disabled,
               // canAttach: !disabled,

@@ -912,8 +912,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool timeInBubble = msg.attachments.isNotEmpty;
 
     // const Color paidColor = Color(0xFFF19CBB);
-    const Color paidColor = Color(0xFF8383ff);
+    // const Color paidColor = Color(0xFF8383ff);
     // const Color paidColor = Color(0xFF30d5c8);
+    const Color paidColor = Color.fromRGBO(99, 173, 118, 1);
 
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,

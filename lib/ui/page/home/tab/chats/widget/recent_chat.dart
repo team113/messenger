@@ -157,9 +157,12 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        folded: rxChat.chat.value.isDialog &&
+        special: rxChat.chat.value.isDialog &&
             (myUser?.name?.val == 'alex2' ||
-                myUser?.name?.val == 'kirey'), // rxChat.messageCost != 0,
+                myUser?.name?.val == 'kirey' ||
+                chat.members.any((e) =>
+                    e.user.name?.val == 'kirey' ||
+                    e.user.name?.val == 'alex2')), // rxChat.messageCost != 0,
         avatarBuilder: chat.isMonolog
             ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
             : avatarBuilder,
@@ -563,58 +566,58 @@ class RecentChatTile extends StatelessWidget {
                   style: item.authorId == me
                       ? null
                       : TextStyle(
-                          color: rxChat.messageCost != 0
-                              ? const Color(0xFF8383ff)
-                              : null,
-                        ),
+                          // color: rxChat.messageCost != 0
+                          //     ? const Color(0xFF8383ff)
+                          //     : null,
+                          ),
                 ),
               ),
           ];
 
-          if (rxChat.messageCost != 0 && item.authorId != me) {
-            subtitle = [
-              Flexible(
-                child: RichText(
-                  text: TextSpan(
-                    children: const [
-                      TextSpan(
-                        text: 'Платное сообщение, ',
-                        style: TextStyle(color: Color(0xFF8383FF)),
-                      ),
-                      TextSpan(
-                        text: '¤',
-                        style: TextStyle(
-                          height: 0.8,
-                          fontFamily: 'InterRoboto',
-                          fontWeight: FontWeight.w300,
-                          color: Color(0xFF8383FF),
-                          fontSize: 15,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '123',
-                        style: TextStyle(color: Color(0xFF8383FF)),
-                      ),
-                    ],
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(color: Color(0xFF8383FF)),
-                  ),
-                ),
-                // child: Text(
-                //   desc.toString(),
-                //   style: item.authorId == me
-                //       ? null
-                //       : TextStyle(
-                //           color: rxChat.messageCost != 0
-                //               ? const Color(0xFF8383FF)
-                //               : null,
-                //         ),
-                // ),
-              ),
-            ];
-          }
+          // if (rxChat.messageCost != 0 && item.authorId != me) {
+          //   subtitle = [
+          //     Flexible(
+          //       child: RichText(
+          //         text: TextSpan(
+          //           children: const [
+          //             TextSpan(
+          //               text: 'Платное сообщение, ',
+          //               style: TextStyle(color: Color(0xFF8383FF)),
+          //             ),
+          //             TextSpan(
+          //               text: '¤',
+          //               style: TextStyle(
+          //                 height: 0.8,
+          //                 fontFamily: 'InterRoboto',
+          //                 fontWeight: FontWeight.w300,
+          //                 color: Color(0xFF8383FF),
+          //                 fontSize: 15,
+          //               ),
+          //             ),
+          //             TextSpan(
+          //               text: '123',
+          //               style: TextStyle(color: Color(0xFF8383FF)),
+          //             ),
+          //           ],
+          //           style: Theme.of(context)
+          //               .textTheme
+          //               .titleSmall!
+          //               .copyWith(color: Color(0xFF8383FF)),
+          //         ),
+          //       ),
+          //       // child: Text(
+          //       //   desc.toString(),
+          //       //   style: item.authorId == me
+          //       //       ? null
+          //       //       : TextStyle(
+          //       //           color: rxChat.messageCost != 0
+          //       //               ? const Color(0xFF8383FF)
+          //       //               : null,
+          //       //         ),
+          //       // ),
+          //     ),
+          //   ];
+          // }
         } else if (item is ChatForward) {
           subtitle = [
             if (chat.isGroup)

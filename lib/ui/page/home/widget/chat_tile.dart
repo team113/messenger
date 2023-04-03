@@ -45,6 +45,7 @@ class ChatTile extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.folded = false,
+    this.special = false,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -90,10 +91,16 @@ class ChatTile extends StatelessWidget {
   final bool enableContextMenu;
 
   final bool folded;
+  final bool special;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
+    // const Color unselected = Color.fromARGB(255, 248, 255, 250);
+    const Color unselected = Color.fromARGB(255, 241, 250, 244);
+    const Color hovered = Color.fromARGB(255, 222, 245, 228);
+    const Color tapped = Color.fromRGBO(189, 224, 198, 1);
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
@@ -109,16 +116,18 @@ class ChatTile extends StatelessWidget {
             radius: 15,
             folded: folded,
             child: InkWellWithHover(
-              selectedColor: style.cardSelectedColor,
-              unselectedColor: style.cardColor.darken(darken),
+              selectedColor: special ? tapped : style.cardSelectedColor,
+              unselectedColor:
+                  special ? unselected : style.cardColor.darken(darken),
               selected: selected,
               hoveredBorder:
                   selected ? style.primaryBorder : style.cardHoveredBorder,
               border: selected ? style.primaryBorder : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: onTap,
-              unselectedHoverColor: style.cardHoveredColor.darken(darken),
-              selectedHoverColor: style.cardSelectedColor,
+              unselectedHoverColor:
+                  special ? hovered : style.cardHoveredColor.darken(darken),
+              selectedHoverColor: special ? tapped : style.cardSelectedColor,
               folded: chat?.chat.value.favoritePosition != null,
               child: Padding(
                 key: chat?.chat.value.favoritePosition != null

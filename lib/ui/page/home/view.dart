@@ -234,7 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                       child: Stack(
                                         children: [
                                           SvgLoader.asset(
-                                            'assets/icons/partner6.svg',
+                                            'assets/icons/add_funds1.svg',
                                             width: 30,
                                             height: 30,
                                           ),
@@ -287,7 +287,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/savings3.svg',
+                                    'assets/icons/savings5.svg',
                                     width: 30,
                                     height: 30,
                                   ),
