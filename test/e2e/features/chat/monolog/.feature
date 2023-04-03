@@ -47,6 +47,7 @@ Feature: Monolog
 
   Scenario: User hides local monolog
     When I open chat's info
+    And I scroll `ChatInfoScrollable` until `HideChatButton` is present
     And I tap `HideChatButton` button
     And I tap `Proceed` button
     Then I wait until `ChatMonolog` is absent
