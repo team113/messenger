@@ -28,7 +28,8 @@ import '../world/custom_world.dart';
 /// [FavoriteStatus].
 ///
 /// Examples:
-/// - Then I see monolog as {favorite}
+/// - Then I see monolog as favorite
+/// - Then I see monolog as unfavorite
 final StepDefinitionGeneric seeMonologAsFavorite =
     then1<FavoriteStatus, CustomWorld>(
   'I see monolog as {favorite}',

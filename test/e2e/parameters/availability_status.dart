@@ -17,10 +17,10 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// Available resource locations of the [AvailabilityStatusParameter].
+/// Resource availability status.
 enum AvailabilityStatus { local, remote }
 
-/// [CustomParameter] representing a [AvailabilityStatus].
+/// [CustomParameter] representing an [AvailabilityStatus].
 class AvailabilityStatusParameter extends CustomParameter<AvailabilityStatus> {
   AvailabilityStatusParameter()
       : super(

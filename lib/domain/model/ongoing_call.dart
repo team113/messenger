@@ -439,6 +439,12 @@ class OngoingCall {
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
               calls.getChat(chatId.value).then((v) {
+                if (!connected) {
+                  // [OngoingCall] might have been disposed or disconnected
+                  // while this [Future] was executing.
+                  return;
+                }
+
                 if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
@@ -647,6 +653,10 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() {
+    _heartbeat?.cancel();
+    _membersSubscription?.cancel();
+    connected = false;
+
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
       if (_jason != null) {
@@ -656,9 +666,6 @@ class OngoingCall {
         _jason!.free();
         _jason = null;
       }
-      _heartbeat?.cancel();
-      _membersSubscription?.cancel();
-      connected = false;
     });
   }
 

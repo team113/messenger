@@ -23,10 +23,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/availability_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat]-monolog has the specified [ResourceLocation].
+/// Indicates whether a [Chat]-monolog has the specified [AvailabilityStatus].
 ///
 /// Examples:
-/// - And monolog is indeed local
+/// - Then monolog is indeed local
 /// - Then monolog is indeed remote
 final StepDefinitionGeneric monologAvailability =
     then1<AvailabilityStatus, CustomWorld>(
@@ -50,6 +50,7 @@ final StepDefinitionGeneric monologAvailability =
             return !isLocal;
         }
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

@@ -52,18 +52,6 @@ Feature: Monolog
     Then I wait until `ChatMonolog` is absent
     And monolog is indeed remote
 
-    When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I copy from `NumCopyable` field
-    And I scroll `MenuListView` until `LogoutButton` is present
-    And I tap `LogoutButton` button
-    And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
-
-    When I tap `SignInButton` button
-    And I wait until `LoginView` is present
-    And I paste to `UsernameField` field
-    And I fill `PasswordField` field with "123"
-    And I tap `LoginButton` button
-    Then I wait until `HomeView` is present
-    And I wait until `ChatMonolog` is absent
+    When I restart app
+    And I pause for 5 seconds
+    Then I wait until `ChatMonolog` is absent

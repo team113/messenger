@@ -27,7 +27,7 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - I am in monolog
-final StepDefinitionGeneric iAmInChatMonolog = given<CustomWorld>(
+final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
   'I am in monolog',
   (context) async {
     final ChatService chatService = Get.find<ChatService>();

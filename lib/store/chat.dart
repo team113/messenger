@@ -126,7 +126,7 @@ class ChatRepository implements AbstractChatRepository {
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
 
-  /// [ChatId] of the [Chat]-monolog of the currently authenticated [MyUser].
+  /// [ChatId] of a [Chat]-monolog of the currently authenticated [MyUser].
   ChatId? _monolog;
 
   /// Indicator whether the local chat-monolog has been hidden.
@@ -186,7 +186,6 @@ class ChatRepository implements AbstractChatRepository {
       }
 
       _initMonolog();
-
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
