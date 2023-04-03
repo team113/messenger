@@ -151,8 +151,7 @@ jobs:
                           libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > /opt/service_account.json
-
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /opt/service_account.json
       - run: cat /opt/service_account.json
 
       - run: echo "${{ secrets.GOOGLE_SERVICES_JS }}" > web/firebase-messaging-sw.js
