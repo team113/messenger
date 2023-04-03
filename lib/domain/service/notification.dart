@@ -28,6 +28,7 @@ import 'package:get/get.dart' hide Response;
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
+import '/firebase_options.dart';
 import '/l10n/l10n.dart';
 import '/main.dart';
 import '/provider/gql/graphql.dart';
@@ -233,7 +234,7 @@ class NotificationService extends DisposableService {
       FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
 
       await Firebase.initializeApp(
-        options: Config.firebaseOptions.currentPlatform,
+        options: DefaultFirebaseOptions.currentPlatform,
       );
 
       final RemoteMessage? initial =
@@ -259,7 +260,7 @@ class NotificationService extends DisposableService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         String? token = await FirebaseMessaging.instance.getToken(
-          vapidKey: Config.firebaseOptions.vapidKey,
+          vapidKey: Config.vapidKey,
         );
         String? locale = L10n.chosen.value?.locale.toString();
 

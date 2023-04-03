@@ -60,3 +60,11 @@
 #
 # Default:
 #   directory = ""
+
+[fcm]
+# Key required to get FCM token on Web.
+#
+# Unused for Web only.
+#
+# Default:
+#   vapidKey = "BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0"

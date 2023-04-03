@@ -54,6 +54,9 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// Key used to get a FCM token on the Web.
+  static late String vapidKey;
+
   /// [DefaultFirebaseOptions] user to configure FCM.
   static DefaultFirebaseOptions firebaseOptions = DefaultFirebaseOptions();
 
@@ -72,8 +75,6 @@ class Config {
     Map<String, dynamic> document =
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
             .toMap();
-
-    firebaseOptions.init(document['fcm'] ?? {});
 
     graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
         ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
@@ -106,6 +107,11 @@ class Config {
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
+
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+        : (document['fcm']?['vapidKey'] ??
+            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
     origin = url;
 
