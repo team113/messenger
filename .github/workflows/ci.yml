@@ -150,10 +150,10 @@ jobs:
                           libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: echo ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} > /opt/service_account.json
+      - run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > /opt/service_account.json
       - run: export GOOGLE_APPLICATION_CREDENTIALS=/opt/service_account.json
 
-      - run: echo ${{ secrets.GOOGLE_SERVICES_JS }} > web/firebase-messaging-sw.js
+      - run: echo "${{ secrets.GOOGLE_SERVICES_JS }}" > web/firebase-messaging-sw.js
 
       - run: npm install -g firebase-tools
       - run: dart pub global activate flutterfire_cli
