@@ -810,12 +810,12 @@ endif
 firebase.configure:
 	npm install -g firebase-tools
 	dart pub global activate flutterfire_cli
-	flutterfire configure -y --project=$(project-id)
-                             --platforms=$(platforms)
-                             --ios-bundle-id=$(bundle-id)
-                             --macos-bundle-id=$(bundle-id)
-                             --android-package-name=$(bundle-id)
-                             --web-app-id=$(web-app-id)
+	flutterfire configure -y --project=$(project-id) \
+                             --platforms=$(platforms) \
+                             --ios-bundle-id=$(bundle-id) \
+                             --macos-bundle-id=$(bundle-id) \
+                             --android-package-name=$(bundle-id) \
+                             --web-app-id=$(web-app-id) \
 
 
 
