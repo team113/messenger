@@ -186,9 +186,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
 
-  /// List of [TapGestureRecognizer] used to provide the ability to click on
-  /// links or emails.
-  final List<TapGestureRecognizer> _linkGestureRecognizers = [];
+  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
+  /// any.
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  /// [TextSpan]s of the [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note] to display as a text of this [ChatForwardWidget].
+  final Map<ChatItemId, TextSpan> _text = {};
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
@@ -214,13 +218,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     assert(widget.forwards.isNotEmpty);
 
     _populateGlobalKeys();
+    _populateSpans();
     super.initState();
   }
 
   @override
-  dispose() {
-    for (TapGestureRecognizer gestureRecognizer in _linkGestureRecognizers) {
-      gestureRecognizer.dispose();
+  void dispose() {
+    for (var r in _recognizers) {
+      r.dispose();
     }
 
     super.dispose();
@@ -394,12 +399,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ];
         }
 
-        if (quote.text != null && quote.text!.val.isNotEmpty) {
-          final TextSpan rich =
-              quote.text!.val.detectLinksAndEmails(_linkGestureRecognizers);
-
+        final TextSpan? text = _text[msg.id];
+        if (text != null) {
           content = SelectionText.rich(
-            rich,
+            text,
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
             onSelecting: widget.onSelecting,
@@ -565,14 +568,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     if (item is ChatMessage) {
       final Style style = Theme.of(context).extension<Style>()!;
 
-      String? text = item.text?.val.trim();
-      TextSpan? rich;
-      if (text?.isEmpty == true) {
-        text = null;
-      } else {
-        text = item.text?.val;
-        rich = text?.detectLinksAndEmails(_linkGestureRecognizers);
-      }
+      final TextSpan? text = _text[item.id];
 
       final List<Attachment> attachments = item.attachments.where((e) {
         return ((e is ImageAttachment) ||
@@ -625,7 +621,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 files.isEmpty ? 10 : 0,
               ),
               child: SelectionText.rich(
-                rich!,
+                text,
                 selectable: PlatformUtils.isDesktop || menu,
                 onChanged: (a) => _selection = a,
                 onSelecting: widget.onSelecting,
@@ -1076,6 +1072,36 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
           .map((e) => GlobalKey())
           .toList();
+    }
+  }
+
+  /// Populates the [_text] with the [ChatMessage.text] of the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] parsed through a
+  /// [LinkParsingExtension.parseLinks] method.
+  void _populateSpans() {
+    for (var r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+    _text.clear();
+
+    for (Rx<ChatItem> forward in widget.forwards) {
+      final ChatItemQuote item = (forward.value as ChatForward).quote;
+      if (item is ChatMessageQuote) {
+        final String? string = item.text?.val.trim();
+        if (string?.isNotEmpty == true) {
+          _text[forward.value.id] =
+              string!.parseLinks(_recognizers, router.context);
+        }
+      }
+    }
+
+    if (widget.note.value != null) {
+      final ChatMessage item = widget.note.value!.value as ChatMessage;
+      final String? string = item.text?.val.trim();
+      if (string?.isNotEmpty == true) {
+        _text[item.id] = string!.parseLinks(_recognizers, router.context);
+      }
     }
   }
 }

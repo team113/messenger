@@ -395,9 +395,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
   SelectedContent? _selection;
 
-  /// List of [TapGestureRecognizer] used to provide the ability to click on
-  /// links or emails.
-  final List<TapGestureRecognizer> _linkGestureRecognizers = [];
+  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
+  /// any.
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
+  /// [ChatItemWidget].
+  TextSpan? _text;
 
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
@@ -420,6 +424,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
+    _populateSpans(widget.item.value);
     super.initState();
   }
 
@@ -428,8 +433,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     _ongoingCallTimer?.cancel();
     _ongoingCallTimer = null;
 
-    for (TapGestureRecognizer gestureRecognizer in _linkGestureRecognizers) {
-      gestureRecognizer.dispose();
+    for (var r in _recognizers) {
+      r.dispose();
     }
 
     super.dispose();
@@ -439,12 +444,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
       if (widget.item.value is ChatMessage) {
-        var msg = widget.item.value as ChatMessage;
+        final msg = widget.item.value as ChatMessage;
 
         bool needsUpdate = true;
         if (oldWidget.item is ChatMessage) {
-          needsUpdate = msg.attachments.length !=
-              (oldWidget.item as ChatMessage).attachments.length;
+          final old = oldWidget.item as ChatMessage;
+
+          needsUpdate = msg.attachments.length != old.attachments.length;
+
+          if (old.text != msg.text) {
+            _populateSpans(old);
+          }
         }
 
         if (needsUpdate) {
@@ -792,15 +802,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMessage(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final ChatMessage msg = widget.item.value as ChatMessage;
-    TextSpan? rich;
-
-    String? text = msg.text?.val.trim();
-    if (text?.isEmpty == true) {
-      text = null;
-    } else {
-      text = msg.text?.val;
-      rich = text?.detectLinksAndEmails(_linkGestureRecognizers);
-    }
 
     List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
@@ -828,7 +829,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           } else if (reply.text == null && reply.attachments.isNotEmpty) {
             avatarOffset += 90;
           } else if (reply.text != null) {
-            if (msg.attachments.isEmpty && text == null) {
+            if (msg.attachments.isEmpty && _text == null) {
               avatarOffset += 59 - 5;
             } else {
               avatarOffset += 55 - 4 + 8;
@@ -837,7 +838,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
 
         if (reply is ChatCallQuote) {
-          if (msg.attachments.isEmpty && text == null) {
+          if (msg.attachments.isEmpty && _text == null) {
             avatarOffset += 59 - 4;
           } else {
             avatarOffset += 55 - 4 + 8;
@@ -845,7 +846,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
 
         if (reply is ChatInfoQuote) {
-          if (msg.attachments.isEmpty && text == null) {
+          if (msg.attachments.isEmpty && _text == null) {
             avatarOffset += 59 - 5;
           } else {
             avatarOffset += 55 - 4 + 8;
@@ -891,11 +892,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               padding: EdgeInsets.fromLTRB(
                 12,
-                msg.attachments.isEmpty && text == null ? 4 : 8,
+                msg.attachments.isEmpty && _text == null ? 4 : 8,
                 9,
-                files.isEmpty && media.isNotEmpty && text == null
+                files.isEmpty && media.isNotEmpty && _text == null
                     ? 8
-                    : files.isNotEmpty && text == null
+                    : files.isNotEmpty && _text == null
                         ? 0
                         : 4,
               ),
@@ -909,7 +910,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.boldBody.copyWith(color: color),
               ),
             ),
-          if (text != null)
+          if (_text != null)
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.7,
@@ -925,7 +926,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
-                  rich!,
+                  _text!,
                   key: Key('Text_${widget.item.value.id}'),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
@@ -955,7 +956,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           if (media.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: text != null ||
+                topLeft: _text != null ||
                         msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
@@ -964,7 +965,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : files.isEmpty
                         ? const Radius.circular(15)
                         : Radius.zero,
-                topRight: text != null ||
+                topRight: _text != null ||
                         msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
@@ -1816,6 +1817,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
   }
+
+  /// Populates the [_text] with the [ChatMessage.text] of the provided [item]
+  /// parsed through a [LinkParsingExtension.parseLinks] method.
+  void _populateSpans(ChatItem msg) {
+    if (msg is ChatMessage) {
+      for (var r in _recognizers) {
+        r.dispose();
+      }
+      _recognizers.clear();
+
+      final String? string = msg.text?.val.trim();
+      if (string?.isEmpty == true) {
+        _text = null;
+      } else {
+        _text = string?.parseLinks(_recognizers, router.context);
+      }
+    } else if (msg is ChatForward) {
+      throw Exception(
+        'Use `ChatForward` widget for rendering `ChatForward`s instead',
+      );
+    }
+  }
 }
 
 /// Extension adding a string representation of a [Duration] in
@@ -1881,30 +1904,31 @@ extension LocalizedDurationExtension on Duration {
   }
 }
 
-/// Extension adding an ability to detect links and emails in a [String].
-extension DetectionLinksAndEmailsExtension on String {
-  /// Regular expression for detecting links and emails in a [String].
+/// Extension adding an ability to parse links and e-mails from a [String].
+extension LinkParsingExtension on String {
+  /// [RegExp] detecting links and e-mails in a [parseLinks] method.
   static final RegExp _regex = RegExp(
-      r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)');
+    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)',
+  );
 
-  /// Returns [TextSpan]s, separating plain text from links and emails.
-  TextSpan detectLinksAndEmails(
-    List<TapGestureRecognizer> gestureRecognizers,
-  ) {
+  /// Returns [TextSpan]s containing plain text along with links and e-mails
+  /// detected and parsed.
+  ///
+  /// [recognizers] are [TapGestureRecognizer] constructed, so ensure to dispose
+  /// them properly.
+  TextSpan parseLinks(
+    List<TapGestureRecognizer> recognizers, [
+    BuildContext? context,
+  ]) {
     final Iterable<RegExpMatch> matches = _regex.allMatches(this);
+    if (matches.isEmpty) {
+      return TextSpan(text: this);
+    }
 
-    if (matches.isEmpty) return TextSpan(text: this);
-
-    const TextStyle linkStyle = TextStyle(
-      color: Colors.blue,
-      decoration: TextDecoration.underline,
-      decorationThickness: 2,
-    );
+    final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
-
     final List<TextSpan> textSpans = [];
-
     final List<String> links = [];
 
     for (RegExpMatch match in matches) {
@@ -1914,16 +1938,18 @@ extension DetectionLinksAndEmailsExtension on String {
     for (String link in links) {
       final List<String> parts = text.split(link.trim());
 
-      if (parts[0] != '') {
+      if (parts[0].isNotEmpty) {
         textSpans.add(TextSpan(text: parts[0]));
       }
 
-      gestureRecognizers.add(TapGestureRecognizer());
+      final TapGestureRecognizer recognizer = TapGestureRecognizer();
+      recognizers.add(recognizer);
+
       textSpans.add(
         TextSpan(
           text: link,
-          style: linkStyle,
-          recognizer: gestureRecognizers.last
+          style: style?.linkStyle,
+          recognizer: recognizer
             ..onTap = () async {
               final Uri uri;
 
@@ -1931,7 +1957,8 @@ extension DetectionLinksAndEmailsExtension on String {
                 uri = Uri(scheme: 'mailto', path: link);
               } else {
                 uri = Uri.parse(
-                    !link.startsWith('http') ? 'https://$link' : link);
+                  !link.startsWith('http') ? 'https://$link' : link,
+                );
               }
 
               if (await canLaunchUrl(uri)) {
@@ -1941,7 +1968,7 @@ extension DetectionLinksAndEmailsExtension on String {
         ),
       );
 
-      if (parts[1] != '') {
+      if (parts[1].isNotEmpty) {
         if (link == links.last) {
           textSpans.add(TextSpan(text: parts[1]));
         } else {
