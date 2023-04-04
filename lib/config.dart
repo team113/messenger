@@ -22,7 +22,6 @@ import 'package:toml/toml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
-import 'firebase_options.dart';
 
 /// Configuration of this application.
 class Config {
@@ -56,9 +55,6 @@ class Config {
 
   /// Key used to get a FCM token on the Web.
   static late String vapidKey;
-
-  /// [DefaultFirebaseOptions] user to configure FCM.
-  static DefaultFirebaseOptions firebaseOptions = DefaultFirebaseOptions();
 
   /// Indicator whether all looped animations should be disabled.
   ///

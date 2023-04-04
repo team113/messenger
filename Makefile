@@ -815,7 +815,7 @@ firebase.configure:
                              --ios-bundle-id=$(bundle-id) \
                              --macos-bundle-id=$(bundle-id) \
                              --android-package-name=$(bundle-id) \
-                             --web-app-id=$(web-app-id) \
+                             --web-app-id=$(web-app-id)
 
 
 

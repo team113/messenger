@@ -144,7 +144,7 @@ class CallWorker extends DisposableService {
               c.state.value == OngoingCallState.local) {
             final SharedPreferences prefs =
                 await SharedPreferences.getInstance();
-            if (prefs.getString('answeredCall') != null) {
+            if (prefs.containsKey('answeredCall')) {
               _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
               prefs.remove('answeredCall');
             }
@@ -175,18 +175,10 @@ class CallWorker extends DisposableService {
                 // No-op.
               });
 
-              // Show a notification of an incoming call.
+              // Show a notification of an incoming call if the current device
+              // is not support push notifications.
               if (!calling && !PlatformUtils.pushNotifications) {
-                // On mobile, notification should be displayed only if application
-                // is not in the foreground and the call permissions are not
-                // granted.
-                bool showNotification = !PlatformUtils.isMobile;
-                if (PlatformUtils.isMobile) {
-                  showNotification =
-                      !isInForeground && !(await _callKeep.hasPhoneAccount());
-                }
-
-                if (showNotification && _myUser.value?.muted == null) {
+                if (_myUser.value?.muted == null) {
                   _chatService.get(c.chatId.value).then((RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
                       String? title = chat?.title.value ??

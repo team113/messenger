@@ -117,6 +117,7 @@ class NotificationService extends DisposableService {
     // don't show a local notification.
     if (_focused && payload == router.route) return;
 
+    // On Android sound will be played during the showing local notification.
     if (playSound && !PlatformUtils.isAndroid) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
