@@ -164,7 +164,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
                       color: Colors.white,
-                      fontSize: 13,
                     ),
                 maxLines: 2,
               ),
@@ -215,9 +214,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.hint!,
                     textAlign: TextAlign.center,
-                    style: context.theme.outlinedButtonTheme.style!.textStyle!
-                        .resolve({MaterialState.disabled})!.copyWith(
-                      fontSize: 13,
+                    style: context.textTheme.bodySmall!.copyWith(
                       color: Colors.white,
                       shadows: const [
                         Shadow(blurRadius: 6, color: Color(0xFF000000)),

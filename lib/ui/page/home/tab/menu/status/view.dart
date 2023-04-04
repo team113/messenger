@@ -64,7 +64,7 @@ class StatusView extends StatelessWidget {
               header: Center(
                 child: Text(
                   expanded ? 'label_status'.l10n : 'label_presence'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: context.textTheme.displaySmall,
                 ),
               ),
             ),
@@ -110,8 +110,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: style.systemMessageStyle
-                                .copyWith(color: Colors.black, fontSize: 18),
+                            style: context.textTheme.displaySmall!,
                           ),
                         ),
                       ),

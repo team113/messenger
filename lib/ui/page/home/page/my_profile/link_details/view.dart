@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -48,7 +49,7 @@ class LinkDetailsView extends StatelessWidget {
             header: Center(
               child: Text(
                 'label_your_direct_link'.l10n,
-                style: thin?.copyWith(fontSize: 18),
+                style: context.textTheme.displaySmall,
               ),
             ),
           ),
@@ -60,8 +61,7 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: thin?.copyWith(
-                  fontSize: 15,
+                style: context.textTheme.bodyLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),

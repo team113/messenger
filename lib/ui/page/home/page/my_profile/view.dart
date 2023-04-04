@@ -157,22 +157,20 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style: context.textTheme.bodyMedium!
-                                          .copyWith(
+                                      style:
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
-                                        fontSize: 11,
                                       ),
                                     ),
                                   ),
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: context.textTheme.bodyMedium!
-                                          .copyWith(
+                                      style:
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Colors.black,
-                                        fontSize: 11,
                                       ),
                                     ),
                                     WidgetButton(
@@ -180,12 +178,11 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: context.textTheme.bodyMedium!
+                                        style: context.textTheme.bodySmall!
                                             .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          fontSize: 11,
                                         ),
                                       ),
                                     ),
@@ -378,8 +375,9 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: context.textTheme.bodyLarge!
-            .copyWith(color: Theme.of(context).colorScheme.secondary),
+        style: context.textTheme.bodyLarge!.copyWith(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
       ),
     );
   });
@@ -438,8 +436,7 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
-                    fontSize: 11,
+                  style: context.textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
@@ -511,13 +508,13 @@ Widget _login(MyProfileController c, BuildContext context) {
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
           child: RichText(
             text: TextSpan(
-              style: context.textTheme.bodyMedium!
-                  .copyWith(fontSize: 11, fontWeight: FontWeight.normal),
+              style: context.textTheme.bodySmall,
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: context.textTheme.bodyMedium!
-                      .copyWith(color: Theme.of(context).colorScheme.primary),
+                  style: context.textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
@@ -533,8 +530,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                           Center(
                             child: Text(
                               'label_login_visibility_hint'.l10n,
-                              style: context.textTheme.bodyMedium!.copyWith(
-                                fontSize: 15,
+                              style: context.textTheme.bodyLarge!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
@@ -544,8 +540,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: context.textTheme.bodyMedium!.copyWith(
-                                fontSize: 18,
+                              style: context.textTheme.displaySmall!.copyWith(
                                 color: Colors.black,
                               ),
                             ),
@@ -615,8 +610,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
-                    fontSize: 11,
+                  style: context.textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
@@ -641,8 +635,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: context.textTheme.bodyMedium!.copyWith(
-                                    fontSize: 18,
+                                  style:
+                                      context.textTheme.displaySmall!.copyWith(
                                     color: Colors.black,
                                   ),
                                 ),
@@ -684,8 +678,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!
-                      .copyWith(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: context.textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
           ),
           child: FieldButton(
@@ -729,8 +724,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: context.textTheme.bodyLarge!
-              .copyWith(color: Theme.of(context).colorScheme.secondary),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -780,8 +776,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodyMedium!.copyWith(
-                    fontSize: 11,
+                  style: context.textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
@@ -806,8 +801,8 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: context.textTheme.bodyMedium!.copyWith(
-                                    fontSize: 18,
+                                  style:
+                                      context.textTheme.displaySmall!.copyWith(
                                     color: Colors.black,
                                   ),
                                 ),
@@ -849,8 +844,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!
-                      .copyWith(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: context.textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
           ),
           child: FieldButton(
@@ -873,8 +869,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: context.textTheme.bodyMedium!
-                .copyWith(color: Theme.of(context).colorScheme.primary),
+            style: context.textTheme.bodyMedium!.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
       ]);
@@ -891,8 +888,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: context.textTheme.bodyLarge!
-              .copyWith(color: Theme.of(context).colorScheme.secondary),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -949,8 +947,9 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: context.textTheme.bodyMedium!
-              .copyWith(color: Theme.of(context).colorScheme.secondary),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
       ),
     ],
@@ -989,7 +988,11 @@ Widget _background(BuildContext context, MyProfileController c) {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: style.boldBody),
+                child: Text(text,
+                    style: context.textTheme.displaySmall!.copyWith(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 17,
+                    )),
               ),
             ],
           ),
@@ -1075,9 +1078,8 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
+                      style: context.textTheme.bodySmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -1104,8 +1106,9 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           );
         }),
       ),
@@ -1137,8 +1140,9 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           );
         }),
       ),
@@ -1162,8 +1166,9 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           );
         }),
       ),
@@ -1187,8 +1192,9 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           );
         }),
       ),
@@ -1303,8 +1309,9 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: context.textTheme.bodyLarge!
-          .copyWith(color: Theme.of(context).colorScheme.secondary),
+      style: context.textTheme.bodyLarge!.copyWith(
+        color: Theme.of(context).colorScheme.secondary,
+      ),
     ),
   );
 }
@@ -1319,9 +1326,10 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
           style: context.textTheme.bodyLarge!.copyWith(
-              color: c.blacklist.isEmpty
-                  ? Colors.black
-                  : Theme.of(context).colorScheme.secondary),
+            color: c.blacklist.isEmpty
+                ? Colors.black
+                : Theme.of(context).colorScheme.secondary,
+          ),
         ),
       ),
     ],
@@ -1382,7 +1390,9 @@ Future<void> _deleteEmail(
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyMedium!.copyWith(
+          color: Colors.black,
+        ),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
@@ -1428,7 +1438,9 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyLarge!.copyWith(
+          color: Colors.black,
+        ),
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

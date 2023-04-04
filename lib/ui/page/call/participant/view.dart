@@ -65,9 +65,6 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: ParticipantController(
         call,
@@ -122,7 +119,7 @@ class ParticipantView extends StatelessWidget {
                             'a': ids.length,
                             'b': c.chat.value?.members.length ?? 1,
                           }),
-                          style: thin?.copyWith(fontSize: 18),
+                          style: context.textTheme.displaySmall!,
                         ),
                       ),
                     ),
@@ -265,9 +262,9 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: context.textTheme.bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15),
+                    style: context.textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   )
                 : SvgLoader.asset(
                     'assets/icons/delete.svg',

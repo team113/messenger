@@ -72,7 +72,7 @@ class CameraSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_camera'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: context.textTheme.displaySmall,
                   ),
                 ),
               ),

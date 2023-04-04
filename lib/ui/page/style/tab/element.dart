@@ -208,9 +208,8 @@ class ElementStyleTabView extends StatelessWidget {
                                           const BoxConstraints(maxWidth: 160),
                                       child: Text(
                                         'Username',
-                                        style: context.textTheme.bodyLarge
+                                        style: context.textTheme.displaySmall
                                             ?.copyWith(
-                                          fontSize: 17,
                                           color: const Color(0xFFBBBBBB),
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -567,9 +566,9 @@ class ElementStyleTabView extends StatelessWidget {
                               const SizedBox(height: 5),
                               Text(
                                 '10:04',
-                                style: context.textTheme.headlineMedium
-                                    ?.copyWith(
-                                        color: Colors.white, fontSize: 15),
+                                style: context.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.white,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -609,8 +608,9 @@ class ElementStyleTabView extends StatelessWidget {
                             'Добавить участника',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.headlineMedium
-                                ?.copyWith(color: Colors.white, fontSize: 17),
+                            style: context.textTheme.displayLarge?.copyWith(
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],

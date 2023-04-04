@@ -50,7 +50,7 @@ class Themes {
       fontFamilyFallback: ['.SF UI Display'],
       color: Colors.black,
       fontSize: 17,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.normal,
     );
 
     return ThemeData.light().copyWith(

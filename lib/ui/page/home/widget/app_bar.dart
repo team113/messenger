@@ -18,6 +18,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -107,7 +108,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: Theme.of(context).appBarTheme.titleTextStyle,
+                          style: context.textTheme.displaySmall,
                           child:
                               Center(child: title ?? const SizedBox.shrink()),
                         ),

@@ -33,9 +33,6 @@ class AddUserListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
-
     return ListTile(
       leading: const CircleAvatar(
         backgroundColor: Colors.green,
@@ -43,7 +40,10 @@ class AddUserListTile extends StatelessWidget {
       ),
       selected: true,
       selectedTileColor: const Color(0x11000000),
-      title: Text(user.name?.val ?? user.num.val, style: font17),
+      title: Text(
+        user.name?.val ?? user.num.val,
+        style: context.textTheme.displaySmall,
+      ),
       onTap: onTap,
     );
   }

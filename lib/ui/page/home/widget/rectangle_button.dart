@@ -65,7 +65,7 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style:  context.textTheme.bodyMedium!.copyWith(fontSize: 15),
+                  style: context.textTheme.bodyLarge,
                 ),
               ),
               const SizedBox(width: 12),

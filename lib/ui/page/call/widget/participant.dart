@@ -308,11 +308,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: context.theme.outlinedButtonTheme.style!.textStyle!
-              .resolve({MaterialState.disabled})!.copyWith(
-            fontSize: 15,
-            color: Colors.white,
-          ),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.white),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

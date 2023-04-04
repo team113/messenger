@@ -117,14 +117,10 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
                                 )
                             ],
                           );
@@ -269,7 +265,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: context.textTheme.bodyMedium!
+            style: context.textTheme.bodyLarge!
                 .copyWith(color: Theme.of(context).colorScheme.secondary),
             trailing: trailing != null
                 ? Transform.translate(
@@ -523,8 +519,7 @@ class UserView extends StatelessWidget {
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
+                              style: context.textTheme.displaySmall!.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
                               type: TextInputType.multiline,
@@ -612,7 +607,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

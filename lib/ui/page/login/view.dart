@@ -121,8 +121,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: theme.displaySmall?.copyWith(
-                    fontSize: 15,
+                  style: theme.bodyLarge?.copyWith(
                     color: const Color(0xFF888888),
                   ),
                 ),
@@ -151,7 +150,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
+                    style: theme.displaySmall,
                   ),
                 ),
               );
@@ -159,8 +158,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: theme.displaySmall?.copyWith(
-                    fontSize: 15,
+                  style: theme.bodyLarge?.copyWith(
                     color: const Color(0xFF888888),
                   ),
                 ),
@@ -219,7 +217,7 @@ class LoginView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
                     child: Text(
                       'label_password_changed'.l10n,
-                      style: theme.displaySmall?.copyWith(
+                      style: theme.bodyLarge?.copyWith(
                         fontSize: 15,
                         color: const Color(0xFF888888),
                       ),

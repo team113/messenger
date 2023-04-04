@@ -39,9 +39,6 @@ class AddContactListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
-
     return ListTile(
       leading: AnimatedSwitcher(
         duration: const Duration(milliseconds: 100),
@@ -54,7 +51,10 @@ class AddContactListTile extends StatelessWidget {
       ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),
-      title: Text('${contact.contact.value.name}', style: font17),
+      title: Text('${contact.contact.value.name}',
+          style: context.textTheme.displaySmall!.copyWith(
+            color: context.theme.colorScheme.primary,
+          )),
       onTap: onTap,
     );
   }

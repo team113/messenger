@@ -149,7 +149,8 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: context.textTheme.bodyLarge!
+                        .copyWith(color: Colors.white),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {

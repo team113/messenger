@@ -75,7 +75,7 @@ class MessageInfo extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_message'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: context.textTheme.displaySmall,
                 ),
               ),
             ),
@@ -94,7 +94,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: thin?.copyWith(fontSize: 13),
+                        style: context.textTheme.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgLoader.asset('assets/icons/copy.svg', height: 12),
@@ -132,7 +132,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
+                          style: context.textTheme.displaySmall,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),

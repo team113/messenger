@@ -309,14 +309,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                           left: widget.muted ? 6 : 1),
                                       child: Text(
                                         widget.label!,
-                                        style: context.theme.outlinedButtonTheme
-                                            .style!.textStyle!
-                                            .resolve({
-                                          MaterialState.disabled
-                                        })!.copyWith(
-                                          fontSize: 13,
-                                          color: Colors.white,
-                                        ),
+                                        style: context.textTheme.bodySmall!
+                                            .copyWith(color: Colors.white),
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),

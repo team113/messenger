@@ -311,14 +311,12 @@ class _MobileControlsState extends State<MobileControls>
           TextSpan(
             text: '/ ${formatDuration(duration)}',
             style: context.textTheme.bodyMedium!.copyWith(
-              fontSize: 14.0,
               color: Colors.white.withOpacity(.75),
               fontWeight: FontWeight.normal,
             ),
           )
         ],
         style: context.textTheme.bodyMedium!.copyWith(
-          fontSize: 14.0,
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),

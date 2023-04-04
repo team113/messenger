@@ -90,7 +90,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: style.boldBody.copyWith(fontSize: 17),
+                        style: context.textTheme.displaySmall,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -224,10 +224,7 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
+                                  style: context.textTheme.bodyLarge,
                                 ),
                               ),
                             ),

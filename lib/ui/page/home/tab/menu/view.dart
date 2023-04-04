@@ -84,13 +84,9 @@ class MenuTabView extends StatelessWidget {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                style: context.textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               );
                             }),
                           ],
@@ -176,9 +172,8 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!,
+                                            style: context
+                                                .textTheme.headlineSmall!,
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),

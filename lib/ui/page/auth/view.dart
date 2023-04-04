@@ -49,8 +49,6 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: Colors.black);
         final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
