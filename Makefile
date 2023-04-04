@@ -795,6 +795,31 @@ endif
 
 
 
+#####################
+# Firebase commands #
+#####################
+
+# Configure Firebase for the current project.
+#
+# Usage:
+#	make firebase.configure [project-id=<proj-ver>]
+#							[platforms=<platforms>]
+#							[web-app-id=<webAppId>]
+#							[bundle-id=<bundleId>]
+
+firebase.configure:
+	npm install -g firebase-tools
+	dart pub global activate flutterfire_cli
+	flutterfire configure -y --project=$(project-id)
+                             --platforms=$(platforms)
+                             --ios-bundle-id=$(bundle-id)
+                             --macos-bundle-id=$(bundle-id)
+                             --android-package-name=$(bundle-id)
+                             --web-app-id=$(web-app-id)
+
+
+
+
 ##################
 # .PHONY section #
 ##################
