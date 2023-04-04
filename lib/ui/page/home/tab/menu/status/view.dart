@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
@@ -50,10 +49,6 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: StatusController(Get.find()),
       builder: (StatusController c) {
@@ -64,7 +59,7 @@ class StatusView extends StatelessWidget {
               header: Center(
                 child: Text(
                   expanded ? 'label_status'.l10n : 'label_presence'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: context.textTheme.displaySmall,
                 ),
               ),
             ),
@@ -110,8 +105,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: style.systemMessageStyle
-                                .copyWith(color: Colors.black, fontSize: 18),
+                            style: context.textTheme.displaySmall!,
                           ),
                         ),
                       ),

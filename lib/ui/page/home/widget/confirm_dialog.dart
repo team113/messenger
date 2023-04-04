@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -119,9 +120,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
       final Style style = Theme.of(context).extension<Style>()!;
@@ -143,10 +141,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.black, fontSize: 18),
+                      style: context.textTheme.displaySmall,
                       child: variant.child,
                     ),
                   ),
@@ -170,7 +165,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(widget.title, style: thin?.copyWith(fontSize: 18)),
+            child: Text(
+              widget.title,
+              style: context.textTheme.displaySmall,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -186,8 +184,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: thin?.copyWith(
-                  fontSize: 15,
+                style: context.textTheme.bodyLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
@@ -218,7 +215,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: thin?.copyWith(color: Colors.white),
+              style:
+                  context.textTheme.bodyMedium!.copyWith(color: Colors.white),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());

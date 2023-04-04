@@ -105,7 +105,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
+                              style: context.textTheme.displaySmall,
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -358,11 +358,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         text,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
+                                        style: context.textTheme.bodyLarge!,
                                       ),
                                     ),
                                   ),
@@ -447,11 +443,7 @@ class ChatsTabView extends StatelessWidget {
                                         child: Text(
                                           element
                                               .category.name.capitalizeFirst!,
-                                          style:
-                                              style.systemMessageStyle.copyWith(
-                                            color: Colors.black,
-                                            fontSize: 15,
-                                          ),
+                                          style: context.textTheme.bodyLarge!,
                                         ),
                                       ),
                                     ),
@@ -811,13 +803,10 @@ class ChatsTabView extends StatelessWidget {
           child: Row(
             children: [
               button(
-                child: Text(
-                  'btn_close'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: context.textTheme.bodyLarge!
-                      .copyWith(color: Colors.black),
-                ),
+                child: Text('btn_close'.l10n,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: context.textTheme.bodyLarge),
                 onPressed: c.closeGroupCreating,
                 color: Colors.white,
               ),
@@ -827,6 +816,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
+                  style: context.textTheme.bodyLarge!
                   style: context.textTheme.bodyLarge!
                       .copyWith(color: Colors.white),
                 ),

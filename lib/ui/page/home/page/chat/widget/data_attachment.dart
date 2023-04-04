@@ -22,7 +22,6 @@ import 'package:path/path.dart' as p;
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
@@ -173,8 +172,6 @@ class _DataAttachmentState extends State<DataAttachment> {
         }
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
@@ -202,14 +199,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                             Flexible(
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
-                                style: style.boldBody,
+                                style: context.textTheme.displaySmall,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               p.extension(e.filename),
-                              style: style.boldBody,
+                              style: context.textTheme.displaySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -224,8 +221,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: style.boldBody.copyWith(
-                            fontSize: 13,
+                          style: context.textTheme.bodySmall!.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),

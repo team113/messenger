@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -188,7 +189,7 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: context.textTheme.headlineSmall,
                             ),
                           ),
                         ],

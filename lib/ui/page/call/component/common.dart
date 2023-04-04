@@ -154,7 +154,9 @@ class ScreenButton extends CallButton {
   String get hint {
     bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
-    return isScreen ? 'btn_call_screen_off'.l10n : 'btn_call_screen_on'.l10n;
+    return isScreen
+        ? 'btn_call_screen_off_desc'.l10n
+        : 'btn_call_screen_on'.l10n;
   }
 
   @override
@@ -449,7 +451,7 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: router.context!.textTheme.bodySmall!.copyWith(
+        style: router.context!.textTheme.bodyLarge!.copyWith(
           color: Colors.white,
         ),
         textAlign: TextAlign.center,

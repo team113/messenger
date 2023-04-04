@@ -43,8 +43,6 @@ class CallWindowSwitchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -60,7 +58,7 @@ class CallWindowSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_calls'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: context.textTheme.displaySmall,
                   ),
                 ),
               ),
@@ -101,8 +99,7 @@ class CallWindowSwitchView extends StatelessWidget {
                                         : 'label_open_calls_in_app'.l10n,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.bodyLarge!
-                                        .copyWith(fontSize: 15),
+                                    style: context.textTheme.bodyLarge,
                                   ),
                                 ),
                                 const SizedBox(width: 12),

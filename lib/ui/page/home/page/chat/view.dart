@@ -818,7 +818,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style?.copyWith(
+                style: context.textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
@@ -844,7 +844,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
+                style: context.textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
@@ -955,7 +955,9 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: style.systemMessageStyle,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.theme.colorScheme.primary,
+                  ),
                 ),
               ),
             ),
@@ -1079,8 +1081,7 @@ class _ChatViewState extends State<ChatView>
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
+                              style: context.textTheme.displaySmall!.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),

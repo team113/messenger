@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -131,8 +132,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -174,7 +173,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: style.boldBody.copyWith(
+                style: context.textTheme.displaySmall!.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? Colors.white
                       : Colors.black,

@@ -148,7 +148,7 @@ class RecentChatTile extends StatelessWidget {
           _status(context),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context).textTheme.titleSmall,
+            style: context.textTheme.titleSmall,
           ),
         ],
         subtitle: [
@@ -286,9 +286,7 @@ class RecentChatTile extends StatelessWidget {
                         inCall?.call() == true
                             ? 'btn_call_end'.l10n
                             : 'btn_join_call'.l10n,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
+                        style: context.textTheme.titleSmall
                             ?.copyWith(color: Colors.white),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -302,9 +300,7 @@ class RecentChatTile extends StatelessWidget {
                         DateTime.now()
                             .difference(chat.ongoingCall!.at.val)
                             .hhMmSs(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
+                        style: context.textTheme.titleSmall
                             ?.copyWith(color: Colors.white),
                       );
                     },
@@ -317,7 +313,7 @@ class RecentChatTile extends StatelessWidget {
         );
 
         return DefaultTextStyle(
-          style: Theme.of(context).textTheme.titleSmall!,
+          style: context.textTheme.titleSmall!,
           overflow: TextOverflow.ellipsis,
           child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
         );
@@ -665,7 +661,7 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.titleSmall!,
+        style: context.textTheme.titleSmall!,
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );

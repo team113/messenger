@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
@@ -48,8 +47,6 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     Widget header(
       String text, {
       EdgeInsets padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -61,8 +58,7 @@ class CallSettingsView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
               text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
+              style: context.textTheme.displaySmall,
             ),
           ),
         ),

@@ -52,9 +52,6 @@ class MicrophoneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),
       builder: (MicrophoneSwitchController c) {
@@ -69,7 +66,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_microphone'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: context.textTheme.displaySmall,
                   ),
                 ),
               ),

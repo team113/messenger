@@ -117,14 +117,10 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
                                 )
                             ],
                           );
@@ -523,8 +519,7 @@ class UserView extends StatelessWidget {
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
+                              style: context.textTheme.displaySmall!.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
                               type: TextInputType.multiline,

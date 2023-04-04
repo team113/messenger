@@ -22,7 +22,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -60,10 +59,6 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
       builder: (MessageInfoController c) {
@@ -75,7 +70,7 @@ class MessageInfo extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_message'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: context.textTheme.displaySmall,
                 ),
               ),
             ),
@@ -94,7 +89,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: thin?.copyWith(fontSize: 13),
+                        style: context.textTheme.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgLoader.asset('assets/icons/copy.svg', height: 12),
@@ -132,7 +127,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
+                          style: context.textTheme.displaySmall,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),

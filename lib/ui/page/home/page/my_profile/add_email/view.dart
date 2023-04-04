@@ -43,9 +43,6 @@ class AddEmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: AddEmailController(
         Get.find(),
@@ -71,8 +68,7 @@ class AddEmailView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_email_confirmation_sent_again'.l10n
                               : 'label_add_email_confirmation_sent'.l10n,
-                          style: thin?.copyWith(
-                            fontSize: 15,
+                          style: context.textTheme.bodyLarge!.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         );
@@ -99,7 +95,7 @@ class AddEmailView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendEmailTimeout.value},
                                       ),
-                                style: thin?.copyWith(
+                                style: context.textTheme.bodyLarge!.copyWith(
                                   color: c.resendEmailTimeout.value == 0
                                       ? Colors.white
                                       : Colors.black,
@@ -118,7 +114,7 @@ class AddEmailView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: thin?.copyWith(
+                                style: context.textTheme.bodyLarge!.copyWith(
                                   color: c.emailCode.isEmpty.value
                                       ? Colors.black
                                       : Colors.white,
@@ -149,8 +145,7 @@ class AddEmailView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_email_description'.l10n,
-                        style: thin?.copyWith(
-                          fontSize: 15,
+                        style: context.textTheme.bodyLarge!.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
@@ -169,7 +164,7 @@ class AddEmailView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: thin?.copyWith(
+                          style: context.textTheme.bodyLarge!.copyWith(
                             color: c.email.isEmpty.value
                                 ? Colors.black
                                 : Colors.white,

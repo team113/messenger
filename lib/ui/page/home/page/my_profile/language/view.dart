@@ -50,8 +50,6 @@ class LanguageSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -149,7 +147,8 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: context.textTheme.bodyLarge!
+                        .copyWith(color: Colors.white),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {

@@ -122,10 +122,10 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black,
-                        fontSize: 24 * 0.7,
-                      ),
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: Colors.black,
+                    fontSize: 24 * 0.7,
+                  ),
                   child: Center(
                     child: Padding(
                       padding: leading == null

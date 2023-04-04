@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/my_profile/link_details/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -55,10 +54,7 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.black, fontSize: 18),
+                  style: context.textTheme.displaySmall,
                 ),
               ),
             ),
@@ -92,10 +88,7 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: Theme.of(context)
-                .extension<Style>()!
-                .systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
+            style: context.textTheme.displaySmall,
           ),
         ),
       ),
@@ -186,7 +179,9 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodySmall,
+                    style: context.textTheme.bodySmall!.copyWith(
+                      fontWeight: FontWeight.normal,
+                    ),
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({

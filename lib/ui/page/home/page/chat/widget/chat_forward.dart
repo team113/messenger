@@ -222,7 +222,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             AvatarWidget.colors.length];
 
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: context.textTheme.displaySmall!,
       child: Obx(() {
         return _rounded(
           context,
@@ -265,7 +265,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               widget.user?.user.value.name?.val ??
                                   widget.user?.user.value.num.val ??
                                   'dot'.l10n * 3,
-                              style: style.boldBody.copyWith(color: color),
+                              style: context.textTheme.displaySmall!.copyWith(
+                                color: color,
+                              ),
                             ),
                           ),
                         ...widget.forwards.mapIndexed(
@@ -301,8 +303,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItemQuote quote = msg.quote;
-
-      Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
@@ -386,7 +386,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
             onSelecting: widget.onSelecting,
-            style: style.boldBody,
+            style: context.textTheme.displaySmall,
           );
         }
       } else if (quote is ChatCallQuote) {
@@ -439,16 +439,24 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   time,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: style.boldBody,
+                  style: context.textTheme.displaySmall!.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
             ],
           ],
         );
       } else if (quote is ChatInfoQuote) {
-        content = Text(quote.action.toString(), style: style.boldBody);
+        content = Text(
+          quote.action.toString(),
+          style: context.textTheme.displaySmall,
+        );
       } else {
-        content = Text('err_unknown'.l10n, style: style.boldBody);
+        content = Text(
+          'err_unknown'.l10n,
+          style: context.textTheme.displaySmall,
+        );
       }
 
       return AnimatedContainer(
@@ -507,8 +515,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     snapshot.data?.user.value.name?.val ??
                                         snapshot.data?.user.value.num.val ??
                                         'dot'.l10n * 3,
-                                    style:
-                                        style.boldBody.copyWith(color: color),
+                                    style: context.textTheme.displaySmall!
+                                        .copyWith(color: color),
                                   ),
                                 ),
                               ],
@@ -546,8 +554,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       String? text = item.text?.val.trim();
       if (text?.isEmpty == true) {
         text = null;
@@ -591,7 +597,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               selectable: PlatformUtils.isDesktop || menu,
               onChanged: (a) => _selection = a,
               onSelecting: widget.onSelecting,
-              style: style.boldBody.copyWith(color: color),
+              style: context.textTheme.displaySmall!.copyWith(color: color),
             ),
           ),
         if (text != null)
@@ -610,7 +616,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 selectable: PlatformUtils.isDesktop || menu,
                 onChanged: (a) => _selection = a,
                 onSelecting: widget.onSelecting,
-                style: style.boldBody,
+                style: context.textTheme.displaySmall,
               ),
             ),
           ),

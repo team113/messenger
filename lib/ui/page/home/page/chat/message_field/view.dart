@@ -474,7 +474,7 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.boldBody.copyWith(fontSize: 17),
+                  style: context.textTheme.displaySmall,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -639,7 +639,7 @@ class MessageFieldView extends StatelessWidget {
                   ),
                   Text(
                     p.extension(e.filename),
-                    style: context.textTheme.bodyLarge!.copyWith(fontSize: 13),
+                    style: context.textTheme.bodySmall,
                   )
                 ],
               ),
@@ -653,8 +653,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: context.textTheme.bodyLarge!.copyWith(
-                  fontSize: 13,
+                style: context.textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 textAlign: TextAlign.center,
@@ -821,7 +820,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
+          style: context.textTheme.displaySmall,
         );
       }
     } else if (item is ChatCall) {
@@ -862,7 +861,7 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.boldBody)),
+          Flexible(child: Text(title, style: context.textTheme.displaySmall)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -871,9 +870,8 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.boldBody.copyWith(
+                style: context.textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
-                  fontSize: 13,
                 ),
               ),
             ),
@@ -882,12 +880,14 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+      content = Text('label_forwarded_message'.l10n,
+          style: context.textTheme.displaySmall);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
+      content =
+          Text(item.action.toString(), style: context.textTheme.displaySmall);
     } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
+      content = Text('err_unknown'.l10n, style: context.textTheme.displaySmall);
     }
 
     final Widget expanded;
@@ -916,7 +916,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.boldBody.copyWith(
+                    style: context.textTheme.displaySmall!.copyWith(
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
@@ -960,12 +960,13 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.val,
-                          style: style.boldBody.copyWith(color: color),
+                          style: context.textTheme.displaySmall!
+                              .copyWith(color: color),
                         );
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.boldBody.copyWith(
+                        style: context.textTheme.displaySmall!.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),

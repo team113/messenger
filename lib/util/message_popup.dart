@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -55,11 +56,6 @@ class MessagePopup {
       context: router.context!,
       child: Builder(
         builder: (context) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black);
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -68,7 +64,8 @@ class MessagePopup {
                 header: Center(
                   child: Text(
                     title,
-                    style: thin?.copyWith(fontSize: 18),
+                    style:
+                        context.textTheme.displaySmall!.copyWith(fontSize: 18),
                   ),
                 ),
               ),
@@ -84,8 +81,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: thin?.copyWith(
-                                fontSize: 15,
+                              style: context.textTheme.bodyLarge!.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
@@ -109,7 +105,8 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: context.textTheme.bodyLarge!
+                        .copyWith(color: Colors.white),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   color: Theme.of(context).colorScheme.secondary,

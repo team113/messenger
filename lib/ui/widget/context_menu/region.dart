@@ -17,6 +17,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -206,11 +207,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         },
         itemBuilder: (b) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: Colors.black);
-
           if (b is ContextMenuButton) {
             return Row(
               children: [
@@ -218,7 +214,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12)
                 ],
-                Text(b.label, style: thin?.copyWith(fontSize: 15)),
+                Text(
+                  b.label,
+                  style: context.textTheme.bodyLarge,
+                ),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
