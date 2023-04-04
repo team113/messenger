@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../widget/caption.dart';
 import '/themes.dart';
@@ -49,18 +50,30 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ],
         );
 
-    Widget gradient(String desc, Gradient gradient) => Column(
-          children: [
-            Caption(
-              '${gradient.colors.map((e) => e.toHex())}, $desc',
-              color: isDarkMode ? style.onPrimary : style.onBackground,
+    Widget avatarColors() {
+      List<Color> avatarColors = style.avatarColors;
+      return ListView.builder(
+        itemCount: avatarColors.length,
+        itemBuilder: (context, index) {
+          return SizedBox(
+            height: 140,
+            width: 100,
+            child: Column(
+              children: [
+                Caption(
+                  avatarColors[index].toHex(),
+                  color: isDarkMode ? style.onPrimary : style.onBackground,
+                ),
+                _Colored(
+                  color: avatarColors[index],
+                  outline: isDarkMode ? style.onPrimary : style.onBackground,
+                )
+              ],
             ),
-            _Colored(
-              gradient: gradient,
-              outline: isDarkMode ? style.onPrimary : style.onBackground,
-            )
-          ],
-        );
+          );
+        },
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDarkMode ? style.onBackground : style.onPrimary,
@@ -181,20 +194,16 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             'Цвет статуса "Не беспокоить".',
             style.doNotDistrubColor,
           ),
-          gradient(
-              'Градиент аватаров в приложении.',
-              LinearGradient(colors: [
-                style.avatarColors[0],
-                style.avatarColors[1],
-                style.avatarColors[2],
-                style.avatarColors[3],
-                style.avatarColors[4],
-                style.avatarColors[5],
-                style.avatarColors[6],
-                style.avatarColors[7],
-                style.avatarColors[8],
-                style.avatarColors[9],
-              ])),
+          const SizedBox(height: 100),
+          Text(
+            'Цвета аватаров:',
+            style: context.textTheme.displayLarge!
+                .copyWith(color: style.onBackground),
+          ),
+          SizedBox(
+            height: 1000,
+            child: avatarColors(),
+          ),
           const SizedBox(height: 60),
         ],
       ),
@@ -207,15 +216,11 @@ class _Colored extends StatelessWidget {
   const _Colored({
     Key? key,
     this.color,
-    this.gradient,
     this.outline,
   }) : super(key: key);
 
   /// Color of the container.
   final Color? color;
-
-  /// Gradient of the container.
-  final Gradient? gradient;
 
   /// Optional outline of the container.
   final Color? outline;
@@ -226,7 +231,6 @@ class _Colored extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: color,
-        gradient: gradient,
         border: Border.all(color: outline ?? style.onBackground),
       ),
       height: 50,
