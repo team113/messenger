@@ -160,10 +160,7 @@ class AuthView extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             leading: Container(
-              child: SvgLoader.asset(
-                'assets/icons/start.svg',
-                width: 25 * 0.7,
-              ),
+              child: SvgLoader.asset('assets/icons/start.svg', width: 25 * 0.7),
             ),
             onPressed: c.register,
             color: Theme.of(context).colorScheme.secondary,
