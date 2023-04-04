@@ -357,9 +357,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   child: additionally.isEmpty
                       ? name
                       : AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: hovered ? name : const SizedBox(),
-                  ),
+                          duration: 150.milliseconds,
+                          child: hovered ? name : const SizedBox(),
+                        ),
                 ),
               ],
             ),
@@ -376,11 +376,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: additionally.isNotEmpty ? tooltip : AnimatedOpacity(
-                  duration: const Duration(milliseconds: 150),
-                  opacity: hovered ? 1 : 0,
-                  child: tooltip,
-                ),
+                child: additionally.isNotEmpty
+                    ? tooltip
+                    : AnimatedOpacity(
+                        duration: const Duration(milliseconds: 150),
+                        opacity: hovered ? 1 : 0,
+                        child: tooltip,
+                      ),
               ),
             ),
           ],
