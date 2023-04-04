@@ -47,6 +47,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -195,6 +196,8 @@ void main() async {
   await credentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -327,6 +330,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
       ),
     );
     AbstractContactRepository contactRepository = ContactRepository(

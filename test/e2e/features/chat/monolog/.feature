@@ -33,12 +33,6 @@ Feature: Monolog
     When I tap `AudioCall` button
     Then monolog is indeed remote
 
-  Scenario: User adds local monolog to favorites
-    When I open chat's info
-    And I tap `FavoriteChatButton` button
-    Then monolog is indeed remote
-    And I see monolog as favorite
-
   Scenario: User renames local monolog
     When I open chat's info
     And I fill `RenameChatField` field with "My monolog"

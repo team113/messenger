@@ -40,6 +40,7 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
@@ -94,6 +95,8 @@ void main() async {
   await backgroundProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -218,6 +221,7 @@ void main() async {
       draftProvider,
       userRepository,
       sessionProvider,
+      monologProvider,
     ),
   );
   ChatService chatService = Get.put(ChatService(chatRepository, authService));

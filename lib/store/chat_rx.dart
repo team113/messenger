@@ -663,6 +663,9 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Removes all entries from the [Box].
+  Future<void> clear() => _local.clear();
+
   /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
   Future<void> _initAttachments() async {
     final List<Future> futures = [];

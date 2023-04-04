@@ -42,6 +42,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -94,6 +95,8 @@ void main() async {
   await blacklistedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init(userId: const UserId('me'));
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
@@ -109,6 +112,7 @@ void main() async {
     Get.put(credentialsProvider);
     Get.put(NotificationService());
     Get.put(BackgroundWorker(sessionProvider));
+    Get.put(monologProvider);
 
     AuthService authService = Get.put(
       AuthService(

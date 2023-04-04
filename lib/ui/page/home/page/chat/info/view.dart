@@ -650,30 +650,35 @@ class ChatInfoView extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
-        _dense(
-          Obx(() {
-            final bool favorited = c.chat?.chat.value.favoritePosition != null;
+        if (!c.isLocal) ...[
+          _dense(
+            Obx(() {
+              final bool favorited =
+                  c.chat?.chat.value.favoritePosition != null;
 
-            return FieldButton(
-              key: Key(
-                favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-              ),
-              onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-              text: favorited
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+              return FieldButton(
+                key: Key(
+                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
                 ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
+                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+                text: favorited
+                    ? 'btn_delete_from_favorites'.l10n
+                    : 'btn_add_to_favorites'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child:
+                        SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+        ],
         if (!c.isMonolog) ...[
           _dense(
             Obx(() {

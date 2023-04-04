@@ -50,6 +50,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -388,6 +389,8 @@ void main() async {
   await myUserProvider.clear();
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -442,6 +445,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );

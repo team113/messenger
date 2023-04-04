@@ -49,6 +49,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
+import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
@@ -69,7 +70,8 @@ class ChatRepository implements AbstractChatRepository {
     this._callRepo,
     this._draftLocal,
     this._userRepo,
-    this._sessionLocal, {
+    this._sessionLocal,
+    this._monolog, {
     this.me,
   });
 
@@ -91,6 +93,10 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [RxChat.draft] local [Hive] storage.
   final DraftHiveProvider _draftLocal;
+
+  /// Local [Hive] storage of the [ChatId] of the [Chat]-monolog of the
+  /// currently authenticated [MyUser]'s.
+  final MonologHiveProvider _monolog;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -126,20 +132,11 @@ class ChatRepository implements AbstractChatRepository {
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
 
-  /// [ChatId] of a [Chat]-monolog of the currently authenticated [MyUser].
-  ChatId? _monolog;
-
-  /// Indicator whether the local chat-monolog has been hidden.
+  /// Indicator whether the local [Chat]-monolog has been hidden.
   ///
   /// Used to prevent the [Chat]-monolog from flickering if the local
   /// [Chat]-monolog was hidden.
   bool _isHideLocalMonolog = false;
-
-  /// [ChatFavoritePosition] of the local [Chat].
-  ///
-  /// Used to prevent the [Chat] from flickering if the local [Chat] is added to
-  /// favorites.
-  ChatFavoritePosition? _localChatFavoritePosition;
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -148,7 +145,7 @@ class ChatRepository implements AbstractChatRepository {
   RxBool get isReady => _isReady;
 
   @override
-  ChatId? get monolog => _monolog;
+  ChatId? get monolog => _monolog.monolog;
 
   @override
   Future<void> init({
@@ -228,7 +225,7 @@ class ChatRepository implements AbstractChatRepository {
             return _putEntry(_chat(query));
           }
         } else {
-          if (id.userId == me && _monolog != null) {
+          if (id.userId == me && monolog != null) {
             var query = (await _graphQlProvider.getMonolog());
             if (query != null) {
               return _putEntry(_chat(query));
@@ -255,41 +252,26 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> remove(ChatId id) => _chatLocal.remove(id);
 
   /// Ensures the provided [Chat]-dialog is remotely accessible.
-  Future<HiveRxChat?> ensureRemoteDialog(
-    ChatId chatId, {
-    bool putToHive = true,
-  }) async {
+  Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
       final ChatData chat = _chat(
         await _graphQlProvider.createDialogChat(chatId.userId),
       );
 
-      if (putToHive) {
-        return _putEntry(chat);
-      } else {
-        return HiveRxChat(this, _chatLocal, _draftLocal, chat.chat);
-      }
+      return _putEntry(chat);
     }
 
     return await get(chatId);
   }
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
-  Future<ChatData> ensureRemoteMonolog({
-    ChatName? name,
-    bool putToHive = true,
-  }) async {
+  Future<HiveRxChat> ensureRemoteMonolog([ChatName? name]) async {
     final ChatData chatData = _chat(
       await _graphQlProvider.createMonologChat(name),
     );
-
-    if (putToHive) {
-      _monolog = (await _putEntry(chatData)).id;
-    } else {
-      _monolog = chatData.chat.value.id;
-    }
-
-    return chatData;
+    final HiveRxChat chat = await _putEntry(chatData);
+    await _monolog.set(chat.id);
+    return chat;
   }
 
   @override
@@ -321,8 +303,7 @@ class ChatRepository implements AbstractChatRepository {
       );
 
       if (chatId.userId == me) {
-        await ensureRemoteMonolog();
-        rxChat = _chats[_monolog];
+        rxChat = await ensureRemoteMonolog();
       } else {
         rxChat = await ensureRemoteDialog(chatId);
       }
@@ -400,7 +381,7 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
     if (id.isLocal && id.userId == me) {
-      await ensureRemoteMonolog(name: name);
+      await ensureRemoteMonolog(name);
       return;
     }
 
@@ -451,19 +432,21 @@ class ChatRepository implements AbstractChatRepository {
     try {
       if (id.isLocal && id.userId == me) {
         _isHideLocalMonolog = true;
-        monolog = await ensureRemoteMonolog(putToHive: false);
+        monolog = _chat(await _graphQlProvider.createMonologChat(null));
         remove(id);
-        id = _monolog!;
+        id = monolog.chat.value.id;
+        await _monolog.set(id);
       }
 
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      if (id == _monolog) {
+      if (id == monolog?.chat.value.id) {
         _chats[id] = await _putEntry(monolog!);
       } else if (chat != null) {
         _chats[id] = chat;
+        _isHideLocalMonolog = false;
       }
-      _isHideLocalMonolog = false;
+
       rethrow;
     }
   }
@@ -715,8 +698,7 @@ class ChatRepository implements AbstractChatRepository {
   }) async {
     if (to.isLocal) {
       if (to.userId == me) {
-        await ensureRemoteMonolog();
-        to = _monolog!;
+        to = (await ensureRemoteMonolog()).id;
       } else {
         to = (await ensureRemoteDialog(to))!.id;
       }
@@ -784,8 +766,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     if (id.isLocal && id.userId == me) {
-      await ensureRemoteMonolog();
-      id = _monolog!;
+      id = (await ensureRemoteMonolog()).id;
     }
 
     try {
@@ -885,10 +866,9 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
-    HiveRxChat? chat = _chats[id];
+    final HiveRxChat? chat = _chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
     final ChatFavoritePosition newPosition;
-    bool isAddedNewChat = false;
 
     if (position == null) {
       final List<HiveRxChat> favorites = _chats.values
@@ -915,35 +895,8 @@ class ChatRepository implements AbstractChatRepository {
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
-      if (id.isLocal) {
-        _localChatFavoritePosition = newPosition;
-
-        if (id.userId == me) {
-          await ensureRemoteMonolog(putToHive: false);
-          id = _monolog!;
-        } else {
-          final HiveRxChat? newChat =
-              await ensureRemoteDialog(id, putToHive: false);
-          if (newChat != null) {
-            id = newChat.id;
-          }
-        }
-        isAddedNewChat = true;
-      }
-    } catch (e) {
-      _localChatFavoritePosition = null;
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
-
-    try {
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
-      if (isAddedNewChat) {
-        chat = _chats[id];
-      }
-
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
       rethrow;
@@ -969,7 +922,11 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
-    if (id.isLocal) return;
+    if (id.isLocal) {
+      final HiveRxChat? localChat = _chats[id];
+      await localChat?.clear();
+      return;
+    }
 
     final HiveRxChat? chat = _chats[id];
     final ChatItem? lastItem = chat?.chat.value.lastItem;
@@ -1266,12 +1223,9 @@ class ChatRepository implements AbstractChatRepository {
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
-          if (_isHideLocalMonolog) {
+          if (event.chat.chat.value.isMonolog && _isHideLocalMonolog) {
             _isHideLocalMonolog = false;
             break;
-          } else if (_localChatFavoritePosition != null) {
-            event.chat.chat.value.favoritePosition = _localChatFavoritePosition;
-            _localChatFavoritePosition = null;
           }
 
           _putEntry(event.chat);
@@ -1513,19 +1467,24 @@ class ChatRepository implements AbstractChatRepository {
     return _putEntry(chatData);
   }
 
-  /// Initializes the [_monolog].
+  /// Initializes the [monolog].
   Future<void> _initMonolog() async {
-    _monolog =
+    ChatId? monolog = _monolog.monolog;
+    monolog ??=
         _chats.values.firstWhereOrNull((e) => e.chat.value.isMonolog)?.id;
 
-    if (_monolog == null) {
+    if (monolog == null) {
       final ChatMixin? query = await _graphQlProvider.getMonolog();
 
       if (query == null) {
-        _monolog ??= (await _createLocalDialog(me!)).id;
+        monolog ??= (await _createLocalDialog(me!)).id;
       } else {
-        _monolog = query.id;
+        monolog = query.id;
       }
+    }
+
+    if (_monolog.monolog == null) {
+      await _monolog.set(monolog);
     }
   }
 }

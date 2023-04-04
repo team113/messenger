@@ -60,7 +60,7 @@ class CallRepository extends DisposableInterface
 
   /// Callback, called when the provided [Chat]-monolog should be remotely
   /// accessible.
-  Future<ChatData> Function()? ensureRemoteMonolog;
+  Future<RxChat> Function()? ensureRemoteMonolog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -205,7 +205,7 @@ class CallRepository extends DisposableInterface
     // TODO: Call should be displayed right away.
     if (chatId.isLocal) {
       if (chatId.userId == me && ensureRemoteMonolog != null) {
-        chatId = (await ensureRemoteMonolog!.call()).chat.value.id;
+        chatId = (await ensureRemoteMonolog!.call()).id;
       } else if (ensureRemoteDialog != null) {
         chatId = (await ensureRemoteDialog!.call(chatId))!.id;
       }
