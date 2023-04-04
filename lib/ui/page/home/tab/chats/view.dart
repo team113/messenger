@@ -309,7 +309,7 @@ class ChatsTabView extends StatelessWidget {
                                       const SizedBox(height: 5),
                                       Text(
                                         'label_required'.l10n,
-                                        style: context.textTheme.bodyMedium!
+                                        style: context.textTheme.bodyLarge!
                                             .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -817,6 +817,7 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: context.textTheme.bodyLarge!
+                  style: context.textTheme.bodyLarge!
                       .copyWith(color: Colors.white),
                 ),
                 onPressed: c.createGroup,
@@ -862,7 +863,7 @@ class ChatsTabView extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style:
-                    context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+                    context.textTheme.bodyLarge!.copyWith(color: Colors.black),
               ),
               onPressed: c.toggleSelecting,
               color: Colors.white,
@@ -878,7 +879,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     color:
                         c.selectedChats.isEmpty ? Colors.black : Colors.white,
                   ),

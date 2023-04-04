@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 
@@ -103,7 +104,8 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.systemMessageStyle.copyWith(fontSize: 11),
+      style: context.textTheme.bodySmall!
+          .copyWith(color: Theme.of(context).colorScheme.primary, fontSize: 11),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),

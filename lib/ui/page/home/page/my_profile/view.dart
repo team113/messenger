@@ -159,6 +159,8 @@ class MyProfileView extends StatelessWidget {
                                       'btn_upload'.l10n,
                                       style:
                                           context.textTheme.bodySmall!.copyWith(
+                                      style:
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
@@ -170,6 +172,8 @@ class MyProfileView extends StatelessWidget {
                                       'space_or_space'.l10n,
                                       style:
                                           context.textTheme.bodySmall!.copyWith(
+                                      style:
+                                          context.textTheme.bodySmall!.copyWith(
                                         color: Colors.black,
                                       ),
                                     ),
@@ -178,6 +182,7 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
+                                        style: context.textTheme.bodySmall!
                                         style: context.textTheme.bodySmall!
                                             .copyWith(
                                           color: Theme.of(context)
@@ -446,13 +451,13 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -509,6 +514,7 @@ Widget _login(MyProfileController c, BuildContext context) {
           child: RichText(
             text: TextSpan(
               style: context.textTheme.bodySmall,
+              style: context.textTheme.bodySmall,
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
@@ -518,7 +524,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   recognizer: TapGestureRecognizer()
@@ -616,13 +622,13 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -706,7 +712,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: context.textTheme.bodyMedium!
+            style: context.textTheme.bodyLarge!
                 .copyWith(color: Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -782,13 +788,13 @@ Widget _phones(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -1078,6 +1084,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
+                      style: context.textTheme.bodySmall!.copyWith(
                       style: context.textTheme.bodySmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -1416,7 +1423,7 @@ Future<void> _deletePhone(
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
       TextSpan(
         text: phone.val,
-        style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+        style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
       ),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],

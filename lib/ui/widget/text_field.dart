@@ -302,7 +302,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: context.textTheme.bodyMedium!.copyWith(fontSize: 0),
+                errorStyle: context.textTheme.bodyLarge!.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,

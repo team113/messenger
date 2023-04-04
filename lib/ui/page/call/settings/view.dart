@@ -108,7 +108,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: context.textTheme.bodyMedium!.copyWith(
+                            style: context.textTheme.bodyLarge!.copyWith(
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           );
@@ -143,7 +143,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: context.textTheme.bodyMedium!.copyWith(
+                            style: context.textTheme.bodyLarge!.copyWith(
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           );
@@ -178,7 +178,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: context.textTheme.bodyMedium!.copyWith(
+                            style: context.textTheme.bodyLarge!.copyWith(
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           );

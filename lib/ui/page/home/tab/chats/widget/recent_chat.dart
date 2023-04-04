@@ -399,7 +399,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: context.textTheme.bodyLarge!.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
@@ -422,7 +422,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodyMedium!.copyWith(
+                      style: context.textTheme.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -857,7 +857,7 @@ class RecentChatTile extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
-          style: context.textTheme.bodyMedium!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],

@@ -482,9 +482,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: context.textTheme.bodyMedium!
+                                        style: context.textTheme.bodySmall!
                                             .copyWith(
-                                          fontSize: 11,
                                           color: Colors.white,
                                         ),
                                         textAlign: TextAlign.center,
@@ -692,8 +691,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
+                        style: context.textTheme.bodySmall!.copyWith(
                           color: const Color(0xFFFFFFFF),
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1154,8 +1152,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
+                          style: context.textTheme.bodySmall!.copyWith(
                             color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -2073,8 +2070,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       child: Text(
                                         'Draggable',
                                         style: router
-                                            .context!.textTheme.bodyMedium!
-                                            .copyWith(color: Colors.white),
+                                            .context!.textTheme.bodyLarge!
+                                            .copyWith(
+                                          color: Colors.white,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
