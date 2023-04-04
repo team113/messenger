@@ -194,6 +194,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [ChatForwardWidget.note] to display as a text of this [ChatForwardWidget].
   final Map<ChatItemId, TextSpan> _text = {};
 
+  /// [Worker]s updating the [_text] on the [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note] changes.
+  final List<Worker> _workers = [];
+
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
   bool get _isRead {
@@ -224,11 +228,25 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   void dispose() {
+    for (var w in _workers) {
+      w.dispose();
+    }
+
     for (var r in _recognizers) {
       r.dispose();
     }
 
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatForwardWidget oldWidget) {
+    if (oldWidget.note != widget.note ||
+        oldWidget.forwards != widget.forwards) {
+      _populateWorkers();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -1043,6 +1061,42 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         ),
       ),
     );
+  }
+
+  /// Populates the [_workers] invoking the [_populateSpans] and
+  /// [_populateGlobalKeys] on the [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note] changes.
+  void _populateWorkers() {
+    for (var w in _workers) {
+      w.dispose();
+    }
+    _workers.clear();
+
+    _populateSpans();
+
+    ChatMessageText? text;
+    if (widget.note.value?.value is ChatMessage) {
+      final msg = widget.note.value?.value as ChatMessage;
+      text = msg.text;
+    }
+
+    _workers.add(ever(widget.note, (Rx<ChatItem>? item) {
+      if (item?.value is ChatMessage) {
+        final msg = item?.value as ChatMessage;
+        if (text != msg.text) {
+          _populateSpans();
+          text = msg.text;
+        }
+      }
+    }));
+
+    int length = widget.forwards.length;
+    _workers.add(ever(widget.forwards, (List<Rx<ChatItem>> forwards) {
+      if (forwards.length != length) {
+        _populateSpans();
+        length = forwards.length;
+      }
+    }));
   }
 
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and

@@ -403,6 +403,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [ChatItemWidget].
   TextSpan? _text;
 
+  /// [Worker] reacting on the [ChatItemWidget.item] changes updating the
+  /// [_text] and [_galleryKeys].
+  Worker? _worker;
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -423,8 +427,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   void initState() {
-    _populateGlobalKeys(widget.item.value);
-    _populateSpans(widget.item.value);
+    _populateWorker();
     super.initState();
   }
 
@@ -433,6 +436,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     _ongoingCallTimer?.cancel();
     _ongoingCallTimer = null;
 
+    _worker?.dispose();
     for (var r in _recognizers) {
       r.dispose();
     }
@@ -443,24 +447,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
-      if (widget.item.value is ChatMessage) {
-        final msg = widget.item.value as ChatMessage;
-
-        bool needsUpdate = true;
-        if (oldWidget.item is ChatMessage) {
-          final old = oldWidget.item as ChatMessage;
-
-          needsUpdate = msg.attachments.length != old.attachments.length;
-
-          if (old.text != msg.text) {
-            _populateSpans(old);
-          }
-        }
-
-        if (needsUpdate) {
-          _populateGlobalKeys(msg);
-        }
-      }
+      _populateWorker();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -1799,6 +1786,37 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       ),
     );
+  }
+
+  /// Populates the [_worker] invoking the [_populateSpans] and
+  /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
+  void _populateWorker() {
+    _worker?.dispose();
+    _populateGlobalKeys(widget.item.value);
+    _populateSpans(widget.item.value);
+
+    ChatMessageText? text;
+    int attachments = 0;
+
+    if (widget.item.value is ChatMessage) {
+      final msg = widget.item.value as ChatMessage;
+      attachments = msg.attachments.length;
+      text = msg.text;
+    }
+
+    _worker = ever(widget.item, (ChatItem item) {
+      if (item is ChatMessage) {
+        if (item.attachments.length != attachments) {
+          _populateGlobalKeys(item);
+          attachments = item.attachments.length;
+        }
+
+        if (text != item.text) {
+          _populateSpans(item);
+          text = item.text;
+        }
+      }
+    });
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
