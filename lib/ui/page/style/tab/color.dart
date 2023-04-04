@@ -57,7 +57,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
         itemCount: avatarColors.length,
         itemBuilder: (context, index) {
           return SizedBox(
-            height: 140,
+            height: 138,
             width: 100,
             child: Column(
               children: [
@@ -202,7 +202,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 .copyWith(color: style.onBackground),
           ),
           SizedBox(
-            height: 1000,
+            height: 1400,
             child: avatarColors(),
           ),
           const SizedBox(height: 60),
