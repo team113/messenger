@@ -37,6 +37,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
+
     Widget color(String desc, Color color) => Column(
           children: [
             Caption(
