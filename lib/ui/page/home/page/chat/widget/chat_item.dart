@@ -2194,6 +2194,7 @@ class FoldedWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipPath(
+      clipBehavior: Clip.none,
       clipper: folded ? FoldedClipper(radius) : null,
       child: Stack(
         alignment: Alignment.topRight,

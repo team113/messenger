@@ -155,14 +155,14 @@ class RecentChatTile extends StatelessWidget {
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
 
+      final bool paid = rxChat.chat.value.isDialog &&
+          (myUser?.name?.val == 'alex2' ||
+              myUser?.name?.val == 'kirey' ||
+              chat.members.any((e) =>
+                  e.user.name?.val == 'kirey' || e.user.name?.val == 'alex2'));
+
       return ChatTile(
         chat: rxChat,
-        special: rxChat.chat.value.isDialog &&
-            (myUser?.name?.val == 'alex2' ||
-                myUser?.name?.val == 'kirey' ||
-                chat.members.any((e) =>
-                    e.user.name?.val == 'kirey' ||
-                    e.user.name?.val == 'alex2')), // rxChat.messageCost != 0,
         avatarBuilder: chat.isMonolog
             ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
             : avatarBuilder,
@@ -275,6 +275,9 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         selected: isRoute || selected,
+        // selected: paid,
+        // outlined: isRoute || selected,
+        outlined: paid,
         enableContextMenu: enableContextMenu,
         onTap: onTap ??
             () {

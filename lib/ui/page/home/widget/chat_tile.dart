@@ -39,6 +39,7 @@ class ChatTile extends StatelessWidget {
     this.trailing = const [],
     this.actions = const [],
     this.selected = false,
+    this.outlined = false,
     this.onTap,
     this.height = 94,
     this.darken = 0,
@@ -71,6 +72,7 @@ class ChatTile extends StatelessWidget {
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
+  final bool outlined;
 
   /// Callback, called when this [ChatTile] is pressed.
   final void Function()? onTap;
@@ -102,6 +104,30 @@ class ChatTile extends StatelessWidget {
     const Color hovered = Color.fromARGB(255, 222, 245, 228);
     const Color tapped = Color.fromRGBO(189, 224, 198, 1);
 
+    final Border specialBorder = Border.all(
+      // color: Color(0xFFbde0c6),
+      // color: Colors.orange,
+      // color: Colors.amber,
+      // color: Color(0xFFD0D0D0),
+      // color: Theme.of(context).colorScheme.secondary,
+      color: style.cardHoveredBorder.top.color.darken(0.1),
+      width: 1,
+    );
+
+    // final Border specialBorderGrey =
+    //     Border.all(color: Color(0xFF8383ff), width: 1);
+    final Border specialBorderGrey = Border.all(
+      // color: Color(0xFFbde0c6),
+      // color: Colors.orange,
+      // color: Colors.amber,
+      color: Color(0xFFD0D0D0),
+      // color: Color(0xFFDEDEDE),
+      // color: const Color(0xFFEBEBEB),
+      width: 1,
+    );
+    // final Border specialBorderGrey =
+    //     Border.all(color: Color(0xFFD0D0D0), width: 1);
+
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
@@ -120,14 +146,31 @@ class ChatTile extends StatelessWidget {
               unselectedColor:
                   special ? unselected : style.cardColor.darken(darken),
               selected: selected,
-              hoveredBorder:
-                  selected ? style.primaryBorder : style.cardHoveredBorder,
-              border: selected ? style.primaryBorder : style.cardBorder,
+              outlined: outlined,
+              // hoveredBorder:
+              //     selected ? style.primaryBorder : style.cardHoveredBorder,
+              // border: selected ? style.primaryBorder : style.cardBorder,
+              hoveredBorder: outlined
+                  ? selected
+                      ? specialBorder
+                      : specialBorderGrey
+                  : selected
+                      ? style.primaryBorder
+                      : style.cardHoveredBorder,
+              border: outlined
+                  ? selected
+                      ? specialBorder
+                      : specialBorderGrey
+                  : selected
+                      ? style.primaryBorder
+                      : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: onTap,
               unselectedHoverColor:
                   special ? hovered : style.cardHoveredColor.darken(darken),
               selectedHoverColor: special ? tapped : style.cardSelectedColor,
+              // selectedHoverColor: style.cardHoveredColor.darken(darken),
+              // selectedHoverColor: style.cardSelectedColor.darken(0.03),
               folded: chat?.chat.value.favoritePosition != null,
               child: Padding(
                 key: chat?.chat.value.favoritePosition != null

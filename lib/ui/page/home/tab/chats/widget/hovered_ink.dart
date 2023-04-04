@@ -37,6 +37,7 @@ class InkWellWithHover extends StatefulWidget {
     this.borderRadius,
     this.onTap,
     this.folded = false,
+    this.outlined = false,
     required this.child,
   }) : super(key: key);
 
@@ -70,6 +71,8 @@ class InkWellWithHover extends StatefulWidget {
   /// Indicator whether this [InkWellWithHover] should have its corner folded.
   final bool folded;
 
+  final bool outlined;
+
   /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
 
@@ -84,57 +87,103 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
+    final border = OutlineInputBorder(
+      borderRadius: widget.borderRadius ?? BorderRadius.zero,
+      borderSide: BorderSide(
+        color: Color(0xFFD0D0D0),
+      ),
+    );
+
     return ClipPath(
       clipper:
           widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
-      child: DecoratedBox(
-        position: DecorationPosition.foreground,
-        decoration: BoxDecoration(
-          borderRadius: widget.borderRadius,
-          border: hovered ? widget.hoveredBorder : widget.border,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: widget.borderRadius,
-          color: hovered
-              ? widget.selected
-                  ? widget.selectedHoverColor
-                  : widget.unselectedHoverColor
-              : widget.selected
-                  ? widget.selectedColor
-                  : widget.unselectedColor,
-          child: InkWell(
-            borderRadius: widget.borderRadius,
-            onTap: widget.onTap?.call,
-            onHover: (v) => setState(() => hovered = v),
-            hoverColor: Colors.transparent,
-            child: Stack(
-              children: [
-                Center(child: widget.child),
-                if (widget.folded)
-                  Container(
-                    width: widget.borderRadius?.topLeft.y ?? 10,
-                    height: widget.borderRadius?.topLeft.y ?? 10,
-                    decoration: BoxDecoration(
-                      color: widget.selected
-                          ? widget.selectedHoverColor?.darken(0.1)
-                          : widget.hoveredBorder!.top.color.darken(0.1),
-                      borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(4),
-                      ),
-                      boxShadow: const [
-                        CustomBoxShadow(
-                          color: Color(0xFFC0C0C0),
-                          blurStyle: BlurStyle.outer,
-                          blurRadius: 4,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              borderRadius: widget.borderRadius,
+              border: hovered ? widget.hoveredBorder : widget.border,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: widget.borderRadius,
+              color: hovered
+                  ? widget.selected
+                      ? widget.selectedHoverColor
+                      : widget.unselectedHoverColor
+                  : widget.selected
+                      ? widget.selectedColor
+                      : widget.unselectedColor,
+              child: InkWell(
+                borderRadius: widget.borderRadius,
+                onTap: widget.onTap?.call,
+                onHover: (v) => setState(() => hovered = v),
+                hoverColor: Colors.transparent,
+                child: Stack(
+                  children: [
+                    Center(child: widget.child),
+                    if (widget.folded)
+                      Container(
+                        width: widget.borderRadius?.topLeft.y ?? 10,
+                        height: widget.borderRadius?.topLeft.y ?? 10,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .extension<Style>()!
+                              .cardHoveredBorder
+                              .top
+                              .color
+                              .darken(0.1),
+                          // color: const Color(0xFFEE9B01),
+                          // color: Colors.yellow,
+                          // color: const Color(0xFFFFED00),
+                          // color: widget.selected
+                          //     ? widget.outlined
+                          //         ? Theme.of(context)
+                          //             .colorScheme
+                          //             .secondary
+                          //             .darken(0.1)
+                          //         : widget.selectedHoverColor?.darken(0.1)
+                          //     : widget.hoveredBorder!.top.color.darken(0.1),
+                          borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(4),
+                          ),
+                          boxShadow: const [
+                            CustomBoxShadow(
+                              color: Color(0xFFC0C0C0),
+                              blurStyle: BlurStyle.outer,
+                              blurRadius: 4,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-              ],
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          // if (widget.outlined)
+          //   Positioned.fill(
+          //     child: IgnorePointer(
+          //       child: InputDecorator(
+          //         decoration: InputDecoration(
+          //           label: Text(
+          //             '1232321',
+          //             style: TextStyle(fontSize: 11),
+          //           ),
+          //           border: border,
+          //           errorBorder: border,
+          //           enabledBorder: border,
+          //           focusedBorder: border,
+          //           disabledBorder: border,
+          //           focusedErrorBorder: border,
+          //         ),
+          //         child: Container(height: double.infinity),
+          //       ),
+          //     ),
+          //   ),
+        ],
       ),
     );
   }
