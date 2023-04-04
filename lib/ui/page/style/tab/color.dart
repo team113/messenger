@@ -83,40 +83,119 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             ],
           ),
           color(
-              'background - Общий фон.', context.theme.colorScheme.background),
-          color('primary - Основной цвет текста и обводки.',
-              context.theme.colorScheme.primary),
-          color('Hover на кнопках.',
-              context.theme.colorScheme.primary.withOpacity(0.04)),
-          color('Нажатие на кнопку.',
-              context.theme.colorScheme.primary.withOpacity(0.12)),
-          color('Основной цвет текста и обводки.',
-              context.theme.colorScheme.primary),
-          gradient(
-            'Градиент кнопки начать общение.',
-            LinearGradient(
-              colors: [style.acceptColor, style.acceptColor],
-            ),
+            'Основной цвет текста и обводки.',
+            style.primary,
           ),
-          color('Цвет заднего фона звонка.', style.primaryBackgroundLight),
-          color('Цвет затемнения заднего фона в звонке.',
-              style.onBackgroundOpacity74),
-          color('Цвет надписей и иконок над задним фоном звонка.',
-              style.primaryHighlightDarkest),
-          color('Цвет кнопок принятия звонка.', style.acceptColor),
-          color('Цвет кнопки завершения звонка.', style.declineColor),
+          color(
+            'Вторичный цвет кнопок и фона.',
+            style.secondary,
+          ),
+          color(
+            'Общий фон.',
+            style.background,
+          ),
+          color(
+            'Фон текста и обводки.',
+            style.primaryBackground,
+          ),
+          color(
+            'Цвет заднего фона звонка.',
+            style.primaryBackgroundLight,
+          ),
+          color(
+            'Цвет заднего фона аватара, кнопок звонка.',
+            style.primaryBackgroundLightest,
+          ),
+          color(
+            'Цвет колеса загрузки.',
+            style.primaryHighlight,
+          ),
+          color(
+            'Цвет кнопок навигационной панели.',
+            style.primaryHighlightDark,
+          ),
+          color(
+            'Цвет надписей и иконок над задним фоном звонка.',
+            style.primaryHighlightDarkest,
+          ),
+          color(
+            'Цвет, использующийся в левой части страницы профиля.',
+            style.onPrimary,
+          ),
+          color(
+            'Цвет выпадающего меню.',
+            style.secondaryHighlight,
+          ),
+          color(
+            'Цвет кнопок "Подробнее" и "Забыл пароль".',
+            style.secondaryHighlightShiny,
+          ),
+          color(
+            'Цвет затемнения основного вида при неактивном вызове.',
+            style.secondaryHighlightShinier,
+          ),
+          color(
+            'Цвет сообщения в чате.',
+            style.secondaryHighlightShiniest,
+          ),
           color(
             'Цвет кнопок в звонке.',
-            style.primaryOpacity20,
+            style.onSecondary,
           ),
-          color('Цвет разделителей в панели ПКМ и в панели настроек.',
-              style.onBackgroundOpacity44),
-          color('Задний фон панели настроек.', style.onPrimaryOpacity20),
-          color('Задний фон панели ПКМ.', style.onPrimaryOpacity10),
-          color('Цвет нижней панели с кнопками в звонке.',
-              style.onBackgroundOpacity60),
-          color('Цвет разделителей в нижней панели с кнопками в звонке.',
-              style.onPrimaryOpacity40),
+          color(
+            'Цвет активного звонка.',
+            style.backgroundAuxiliary,
+          ),
+          color(
+            'Цвет фона профиля.',
+            style.backgroundAuxiliaryLight,
+          ),
+          color(
+            'Цвет отмены загрузки.',
+            style.backgroundAuxiliaryLighter,
+          ),
+          color(
+            'Цвет фона участников группы.',
+            style.backgroundAuxiliaryLightest,
+          ),
+          color(
+            'Цвет основного текста приложения.',
+            style.onBackground,
+          ),
+          color(
+            'Цвет кнопки принятия звонка.',
+            style.acceptColor,
+          ),
+          color(
+            'Цвет панели пользователя.',
+            style.acceptAuxilaryColor,
+          ),
+          color(
+            'Цвет кнопки завершения звонка.',
+            style.declineColor,
+          ),
+          color(
+            'Цвет, предупредающий о чем-либо.',
+            style.warningColor,
+          ),
+          color(
+            'Цвет статуса "Не беспокоить".',
+            style.doNotDistrubColor,
+          ),
+          gradient(
+              'Градиент аватаров в приложении.',
+              LinearGradient(colors: [
+                style.avatarColors[0],
+                style.avatarColors[1],
+                style.avatarColors[2],
+                style.avatarColors[3],
+                style.avatarColors[4],
+                style.avatarColors[5],
+                style.avatarColors[6],
+                style.avatarColors[7],
+                style.avatarColors[8],
+                style.avatarColors[9],
+              ])),
           const SizedBox(height: 60),
         ],
       ),
