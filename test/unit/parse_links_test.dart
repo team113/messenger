@@ -75,6 +75,20 @@ void main() {
       );
       expect(span5.children![3].toPlainText(), 'cat.dog@gmail.com');
       expect((span5.children![3] as TextSpan).recognizer != null, true);
+
+      const String text6 =
+          'Duplicate google.com links working as expected, google.com';
+      final TextSpan span6 = text6.parseLinks([]);
+      expect(span6.children!.length, 4);
+      expect(span6.children![0].toPlainText(), 'Duplicate ');
+      expect(span6.children![1].toPlainText(), 'google.com');
+      expect((span6.children![1] as TextSpan).recognizer != null, true);
+      expect(
+        span6.children![2].toPlainText(),
+        ' links working as expected, ',
+      );
+      expect(span6.children![3].toPlainText(), 'google.com');
+      expect((span6.children![3] as TextSpan).recognizer != null, true);
     },
   );
 }
