@@ -1953,8 +1953,14 @@ extension LinkParsingExtension on String {
       links.add(text.substring(match.start, match.end));
     }
 
-    for (String link in links) {
-      final List<String> parts = text.split(link.trim());
+    for (int i = 0; i < links.length; i++) {
+      final String link = links[i];
+
+      final int index = text.indexOf(link);
+      final List<String> parts = [
+        text.substring(0, index),
+        text.substring(index + link.length),
+      ];
 
       if (parts[0].isNotEmpty) {
         textSpans.add(TextSpan(text: parts[0]));
@@ -1987,7 +1993,7 @@ extension LinkParsingExtension on String {
       );
 
       if (parts[1].isNotEmpty) {
-        if (link == links.last) {
+        if (i == links.length - 1) {
           textSpans.add(TextSpan(text: parts[1]));
         } else {
           text = parts[1];
