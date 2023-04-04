@@ -160,6 +160,7 @@ jobs:
                          --platforms="android,ios,macos,web"
                          -i ${{ secrets.FCM_APPLE_BUNDLE_ID }}
                          -m ${{ secrets.FCM_APPLE_BUNDLE_ID }}
+                         -a ${{ secrets.FCM_APPLE_BUNDLE_ID }} # replace with FCM_ANDROID_PACKAGE_NAME
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
