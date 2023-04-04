@@ -36,7 +36,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
-import '/store/chat.dart';
 import '/store/user.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
