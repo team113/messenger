@@ -1646,12 +1646,13 @@ class CallController extends GetxController {
     }
 
     if (_lastConstraints != null) {
-      final widthDif = constraints.maxWidth - _lastConstraints!.maxWidth;
+      final dif = (constraints.maxWidth + constraints.maxHeight) -
+          (_lastConstraints!.maxWidth + _lastConstraints!.maxHeight);
 
       secondaryWidth.value =
-          _applySWidth(secondaryWidth.value + widthDif * 0.1);
+          _applySWidth(secondaryWidth.value + dif * 0.07);
       secondaryHeight.value =
-          _applySHeight(secondaryHeight.value + widthDif * 0.1);
+          _applySHeight(secondaryHeight.value + dif * 0.07);
     }
 
     _lastConstraints = constraints;
