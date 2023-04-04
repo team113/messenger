@@ -52,9 +52,6 @@ class OutputSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: OutputSwitchController(Get.find(), output: output),
       builder: (OutputSwitchController c) {

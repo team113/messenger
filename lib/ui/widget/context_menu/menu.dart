@@ -132,8 +132,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {

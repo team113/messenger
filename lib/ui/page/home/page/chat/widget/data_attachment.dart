@@ -22,7 +22,6 @@ import 'package:path/path.dart' as p;
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
@@ -172,8 +171,6 @@ class _DataAttachmentState extends State<DataAttachment> {
             break;
         }
       }
-
-      final Style style = Theme.of(context).extension<Style>()!;
 
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),

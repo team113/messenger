@@ -56,11 +56,6 @@ class MessagePopup {
       context: router.context!,
       child: Builder(
         builder: (context) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black);
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [

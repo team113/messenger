@@ -207,11 +207,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         },
         itemBuilder: (b) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: Colors.black);
-
           if (b is ContextMenuButton) {
             return Row(
               children: [

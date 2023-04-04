@@ -22,7 +22,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -60,10 +59,6 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
       builder: (MessageInfoController c) {

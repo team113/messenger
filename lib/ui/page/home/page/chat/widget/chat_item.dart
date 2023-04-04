@@ -1190,7 +1190,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item) {
-    Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
     Widget? content;
