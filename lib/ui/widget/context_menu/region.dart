@@ -70,8 +70,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// [Alignment] of a [FloatingContextMenu] this region displays.
   final Alignment alignment;
 
-  /// [ContextMenuButton]s representing the actions of the context menu.
-  final List<ContextMenuButton> actions;
+  /// [ContextMenuItem]s representing the actions of the context menu.
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
@@ -115,6 +115,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
+
+  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  OverlayEntry? _entry;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +173,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   onLongPressStart: widget.enableLongTap
                       ? (d) => _show(context, d.globalPosition)
                       : null,
-                  child: child,
+                  child: widget.builder == null
+                      ? child
+                      : Builder(builder: (_) => widget.builder!(_displayed)),
                 ),
         ),
       );
@@ -185,15 +190,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       return;
     }
 
-    _displayed = true;
-    if (widget.indicateOpenedMenu) {
-      _darkened = true;
-    }
-
-    setState(() {});
-
     if (widget.selector != null) {
-      await Selector.show<ContextMenuButton>(
+      await Selector.show<ContextMenuItem>(
         context: context,
         items: widget.actions,
         width: widget.width,
@@ -212,34 +210,57 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               .textTheme
               .bodySmall
               ?.copyWith(color: Colors.black);
-          return Row(
-            children: [
-              if (b.leading != null) ...[b.leading!, const SizedBox(width: 12)],
-              Text(b.label, style: thin?.copyWith(fontSize: 15)),
-              if (b.trailing != null) ...[
-                const SizedBox(width: 12),
-                b.trailing!,
+
+          if (b is ContextMenuButton) {
+            return Row(
+              children: [
+                if (b.leading != null) ...[
+                  b.leading!,
+                  const SizedBox(width: 12)
+                ],
+                Text(b.label, style: thin?.copyWith(fontSize: 15)),
+                if (b.trailing != null) ...[
+                  const SizedBox(width: 12),
+                  b.trailing!,
+                ],
               ],
-            ],
-          );
+            );
+          }
+
+          return const SizedBox();
         },
-        onSelected: (b) => b.onPressed?.call(),
+        onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
-      await showDialog(
-        barrierColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return LayoutBuilder(builder: (context, constraints) {
-            double qx = 1, qy = 1;
-            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-            Alignment alignment = Alignment(qx, qy);
+      _displayed = true;
+      if (widget.indicateOpenedMenu) {
+        _darkened = true;
+      }
 
-            return Listener(
-              onPointerUp: (d) => Navigator.of(context).pop(),
+      setState(() {});
+
+      _entry = OverlayEntry(builder: (_) {
+        return LayoutBuilder(builder: (_, constraints) {
+          double qx = 1, qy = 1;
+          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+          final Alignment alignment = Alignment(qx, qy);
+
+          return Listener(
+            onPointerUp: (d) {
+              _entry?.remove();
+
+              _displayed = false;
+              if (widget.indicateOpenedMenu) {
+                _darkened = false;
+              }
+
+              setState(() {});
+            },
+            child: Container(
+              color: Colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -256,17 +277,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   )
                 ],
               ),
-            );
-          });
-        },
-      );
-    }
+            ),
+          );
+        });
+      });
 
-    _displayed = false;
-    if (widget.indicateOpenedMenu) {
-      _darkened = false;
+      Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
-
-    setState(() {});
   }
 }

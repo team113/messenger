@@ -6935,6 +6935,10 @@ type Query {
   Use the `noFavorite` argument to exclude favorited `Chat`s from the
   returned result.
 
+  Use the `withOngoingCalls` argument to only include `Chat`s with ongoing
+  `ChatCall`s into the returned result (`true`), or to exclude them
+  (`false`).
+
   ## Authentication
 
   Mandatory.
@@ -6975,6 +6979,13 @@ type Query {
 
     """Indicator whether favorite `Chat`s should be excluded from the result."""
     noFavorite: Boolean = false
+
+    """
+    Indicator whether only `Chat`s with ongoing calls should be included into
+    the result (`true`), or whether they should be excluded from the result (`false`).
+    `null` means omitting filtering by this criteria.
+    """
+    withOngoingCalls: Boolean = null
   ): RecentChatsConnection!
 
   """
@@ -8165,6 +8176,14 @@ type Subscription {
     Indicator whether updates regarding favorite `Chat`s should be excluded from the result.
     """
     noFavorite: Boolean = false
+
+    """
+    Indicator whether only updates regarding `Chat`s with ongoing calls should
+    be included into the result (`true`), or whether they should be excluded
+    from the result (`false`).
+    `null` means omitting filtering by this criteria.
+    """
+    withOngoingCalls: Boolean = null
   ): RecentChatsTopEvents!
 
   """
