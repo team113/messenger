@@ -159,8 +159,6 @@ class MyProfileView extends StatelessWidget {
                                       'btn_upload'.l10n,
                                       style:
                                           context.textTheme.bodySmall!.copyWith(
-                                      style:
-                                          context.textTheme.bodySmall!.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
@@ -172,8 +170,6 @@ class MyProfileView extends StatelessWidget {
                                       'space_or_space'.l10n,
                                       style:
                                           context.textTheme.bodySmall!.copyWith(
-                                      style:
-                                          context.textTheme.bodySmall!.copyWith(
                                         color: Colors.black,
                                       ),
                                     ),
@@ -182,7 +178,6 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: context.textTheme.bodySmall!
                                         style: context.textTheme.bodySmall!
                                             .copyWith(
                                           color: Theme.of(context)
@@ -513,7 +508,6 @@ Widget _login(MyProfileController c, BuildContext context) {
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
           child: RichText(
             text: TextSpan(
-              style: context.textTheme.bodySmall,
               style: context.textTheme.bodySmall,
               children: [
                 TextSpan(
@@ -1084,7 +1078,6 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: context.textTheme.bodySmall!.copyWith(
                       style: context.textTheme.bodySmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),

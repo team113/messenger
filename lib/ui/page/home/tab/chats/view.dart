@@ -817,7 +817,6 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: context.textTheme.bodyLarge!
-                  style: context.textTheme.bodyLarge!
                       .copyWith(color: Colors.white),
                 ),
                 onPressed: c.createGroup,
