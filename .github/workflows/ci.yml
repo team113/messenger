@@ -13,7 +13,7 @@ concurrency:
 
 env:
   FLUTTER_VER: "3.7"
-  GOOGLE_APPLICATION_CREDENTIALS: "${{ runner.temp }}/service_account.json"
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
 
 jobs:
 
