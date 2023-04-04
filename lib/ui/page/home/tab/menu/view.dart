@@ -176,9 +176,8 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!,
+                                            style: context
+                                                .textTheme.headlineMedium!,
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
