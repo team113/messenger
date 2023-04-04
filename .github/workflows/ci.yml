@@ -158,9 +158,10 @@ jobs:
       - run: dart pub global activate flutterfire_cli
       - run: flutterfire configure -y -p ${{ secrets.FCM_PROJECT_ID }}
                          --platforms="android,ios,macos,web"
-                         -i ${{ secrets.FCM_APPLE_BUNDLE_ID }}
-                         -m ${{ secrets.FCM_APPLE_BUNDLE_ID }}
-                         -a ${{ secrets.FCM_APPLE_BUNDLE_ID }} # replace with FCM_ANDROID_PACKAGE_NAME
+                         --ios-bundle-id=${{ secrets.FCM_APPLE_BUNDLE_ID }}
+                         --macos-bundle-id=${{ secrets.FCM_APPLE_BUNDLE_ID }}
+                         --android-package-name=${{ secrets.FCM_APPLE_BUNDLE_ID }} # replace with FCM_ANDROID_PACKAGE_NAME
+                         --web-app-id=${{ secrets.FCM_WEB_APP_ID }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
