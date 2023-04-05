@@ -360,9 +360,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     child: additionally.isEmpty
                         ? name
                         : AnimatedSize(
-                      duration: 150.milliseconds,
-                      child: hovered ? name : const SizedBox(),
-                    ),
+                            duration: 150.milliseconds,
+                            child: hovered ? name : const SizedBox(),
+                          ),
                   ),
                 ],
               ),
