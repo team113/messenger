@@ -1063,9 +1063,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  /// Populates the [_workers] invoking the [_populateSpans] and
-  /// [_populateGlobalKeys] on the [ChatForwardWidget.forwards] and
-  /// [ChatForwardWidget.note] changes.
+  /// Populates the [_workers] invoking the [_populateSpans] on the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] changes.
   void _populateWorkers() {
     for (var w in _workers) {
       w.dispose();

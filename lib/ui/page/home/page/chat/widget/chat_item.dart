@@ -1932,8 +1932,8 @@ extension LinkParsingExtension on String {
   /// Returns [TextSpan]s containing plain text along with links and e-mails
   /// detected and parsed.
   ///
-  /// [recognizers] are [TapGestureRecognizer] constructed, so ensure to dispose
-  /// them properly.
+  /// [recognizers] are [TapGestureRecognizer]s constructed, so ensure to
+  /// dispose them properly.
   TextSpan parseLinks(
     List<TapGestureRecognizer> recognizers, [
     BuildContext? context,
@@ -1946,7 +1946,7 @@ extension LinkParsingExtension on String {
     final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
-    final List<TextSpan> textSpans = [];
+    final List<TextSpan> spans = [];
     final List<String> links = [];
 
     for (RegExpMatch match in matches) {
@@ -1963,13 +1963,13 @@ extension LinkParsingExtension on String {
       ];
 
       if (parts[0].isNotEmpty) {
-        textSpans.add(TextSpan(text: parts[0]));
+        spans.add(TextSpan(text: parts[0]));
       }
 
       final TapGestureRecognizer recognizer = TapGestureRecognizer();
       recognizers.add(recognizer);
 
-      textSpans.add(
+      spans.add(
         TextSpan(
           text: link,
           style: style?.linkStyle,
@@ -1994,13 +1994,13 @@ extension LinkParsingExtension on String {
 
       if (parts[1].isNotEmpty) {
         if (i == links.length - 1) {
-          textSpans.add(TextSpan(text: parts[1]));
+          spans.add(TextSpan(text: parts[1]));
         } else {
           text = parts[1];
         }
       }
     }
 
-    return TextSpan(children: textSpans);
+    return TextSpan(children: spans);
   }
 }
