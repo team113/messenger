@@ -222,7 +222,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     assert(widget.forwards.isNotEmpty);
 
     _populateGlobalKeys();
-    _populateSpans();
+    _populateWorkers();
     super.initState();
   }
 
