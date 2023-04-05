@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
+        - Clickable links and emails. ([#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#333], [#326])    
@@ -59,6 +60,7 @@ All user visible changes to this project will be documented in this file. This p
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380
+[#388]: /../../pull/388
 
 
 
