@@ -318,54 +318,60 @@ class ParticipantOverlayWidget extends StatelessWidget {
         ),
       );
 
-      final Widget tooltip = Container(
-        key: const Key('Tooltip'),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: const [
-            CustomBoxShadow(
-              color: Color(0x22000000),
-              blurRadius: 8,
-              blurStyle: BlurStyle.outer,
-            )
-          ],
-        ),
-        child: ConditionalBackdropFilter(
-          condition: preferBackdrop,
-          borderRadius: BorderRadius.circular(30),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: preferBackdrop
-                  ? const Color(0x4D165084)
-                  : const Color(0xBB1F3C5D),
-            ),
-            padding: EdgeInsets.only(
-              left: 6,
-              right: additionally.length >= 2 ? 6 : 6,
-              top: 4,
-              bottom: 4,
-            ),
-            height: 32,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...additionally,
-                if (additionally.isNotEmpty && hovered)
-                  const SizedBox(width: 3),
-                Flexible(
-                  child: additionally.isEmpty
-                      ? name
-                      : AnimatedSize(
-                          duration: 150.milliseconds,
-                          child: hovered ? name : const SizedBox(),
-                        ),
-                ),
-              ],
+      final Widget child;
+
+      if (hovered || additionally.isNotEmpty) {
+        child = Container(
+          key: const Key('Tooltip'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              CustomBoxShadow(
+                color: Color(0x22000000),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: preferBackdrop,
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: preferBackdrop
+                    ? const Color(0x4D165084)
+                    : const Color(0xBB1F3C5D),
+              ),
+              padding: EdgeInsets.only(
+                left: 6,
+                right: additionally.length >= 2 ? 6 : 6,
+                top: 4,
+                bottom: 4,
+              ),
+              height: 32,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...additionally,
+                  if (additionally.isNotEmpty && hovered)
+                    const SizedBox(width: 3),
+                  Flexible(
+                    child: additionally.isEmpty
+                        ? name
+                        : AnimatedSize(
+                      duration: 150.milliseconds,
+                      child: hovered ? name : const SizedBox(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
+      } else {
+        child = const SizedBox();
+      }
 
       return Center(
         child: Stack(
@@ -376,13 +382,17 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: additionally.isNotEmpty
-                    ? tooltip
-                    : AnimatedOpacity(
-                        duration: const Duration(milliseconds: 150),
-                        opacity: hovered ? 1 : 0,
-                        child: tooltip,
-                      ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      if (previous.isNotEmpty) previous.first,
+                      if (current != null) current,
+                    ],
+                  ),
+                  child: child,
+                ),
               ),
             ),
           ],

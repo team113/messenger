@@ -2007,7 +2007,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryBottomShifted = null;
-                          c.secondaryBottomShiftedByDock = null;
                           c.secondaryDragged.value = true;
                           c.displayMore.value = false;
                           c.keepUi(false);
