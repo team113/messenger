@@ -84,71 +84,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
-        const double height = 250;
-
-        // Animated logo widget.
-        Widget logo = LayoutBuilder(builder: (context, constraints) {
-          Widget placeholder = SizedBox(
-            height: constraints.maxHeight > 250
-                ? height
-                : constraints.maxHeight <= 140
-                    ? 140
-                    : height,
-            child: const Center(child: CustomProgressIndicator()),
-          );
-
-          return ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350),
-              child: AnimatedSize(
-                curve: Curves.ease,
-                duration: const Duration(milliseconds: 200),
-                child: SizedBox(
-                  height: constraints.maxHeight >= height ? height : 140,
-                  child: constraints.maxHeight >= height
-                      ? Container(
-                          key: const ValueKey('logo'),
-                          child: RiveAnimation.asset(
-                            'assets/images/logo/logo.riv',
-                            onInit: (a) {
-                              if (!Config.disableInfiniteAnimations) {
-                                final StateMachineController? machine =
-                                    StateMachineController.fromArtboard(
-                                        a, 'Machine');
-                                a.addController(machine!);
-                                c.blink = machine.findInput<bool>('blink')
-                                    as SMITrigger?;
-
-                                Future.delayed(
-                                  const Duration(milliseconds: 500),
-                                  c.animate,
-                                );
-                              }
-                            },
-                          ),
-                        )
-                      : Obx(() {
-                          return SvgLoader.asset(
-                            'assets/images/logo/head000${c.logoFrame.value}.svg',
-                            placeholderBuilder: (context) => placeholder,
-                            height: 140,
-                          );
-                        }),
-                ),
-              ));
-        });
-
-        // Language selection popup.
-        Widget language = CupertinoButton(
-          key: c.languageKey,
-          child: Text(
-            'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
-          ),
-          onPressed: () => LanguageSelectionView.show(context, null),
-        );
+        AnimatedLogo(controller: c);
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -222,7 +158,7 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          language,
+          LanguagePopUpWidget(c: c),
         ];
 
         return Stack(
@@ -259,7 +195,7 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            Flexible(child: logo),
+                            Flexible(child: AnimatedLogo(controller: c)),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,
@@ -348,5 +284,102 @@ class AuthView extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class AnimatedLogo extends StatelessWidget {
+  final AuthController controller;
+
+  const AnimatedLogo({Key? key, required this.controller}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      const double height = 250;
+      return ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 350),
+          child: AnimatedSize(
+            curve: Curves.ease,
+            duration: const Duration(milliseconds: 200),
+            child: SizedBox(
+              height: constraints.maxHeight >= height ? height : 140,
+              child: constraints.maxHeight >= height
+                  ? Container(
+                      key: const ValueKey('logo'),
+                      child: RiveAnimation.asset(
+                        'assets/images/logo/logo.riv',
+                        onInit: (a) {
+                          if (!Config.disableInfiniteAnimations) {
+                            final StateMachineController? machine =
+                                StateMachineController.fromArtboard(
+                                    a, 'Machine');
+                            a.addController(machine!);
+                            controller.blink =
+                                machine.findInput<bool>('blink') as SMITrigger?;
+                            Future.delayed(
+                              const Duration(milliseconds: 500),
+                              controller.animate,
+                            );
+                          }
+                        },
+                      ),
+                    )
+                  : Obx(() {
+                      return SvgLoader.asset(
+                        'assets/images/logo/head000${controller.logoFrame.value}.svg',
+                        placeholderBuilder: (context) =>
+                            PlaceholderWidget(controller: controller),
+                        height: 140,
+                      );
+                    }),
+            ),
+          ));
+    });
+  }
+}
+
+class PlaceholderWidget extends StatelessWidget {
+  final AuthController controller;
+  const PlaceholderWidget({Key? key, required this.controller})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    const double height = 250;
+    return LayoutBuilder(builder: (context, constraints) {
+      return SizedBox(
+        height: constraints.maxHeight > 250
+            ? height
+            : constraints.maxHeight <= 140
+                ? 140
+                : height,
+        child: const Center(child: CustomProgressIndicator()),
+      );
+    });
+  }
+}
+
+// Language selection popup.
+class LanguagePopUpWidget extends StatelessWidget {
+  final AuthController c;
+  const LanguagePopUpWidget({super.key, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle? thin =
+        context.textTheme.bodySmall?.copyWith(color: Colors.black);
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return CupertinoButton(
+      key: c.languageKey,
+      child: Text(
+        'label_language_entry'.l10nfmt({
+          'code': L10n.chosen.value!.locale.countryCode,
+          'name': L10n.chosen.value!.name,
+        }),
+        style: thin?.copyWith(fontSize: 13, color: primary),
+      ),
+      onPressed: () => LanguageSelectionView.show(context, null),
+    );
+    ;
   }
 }
