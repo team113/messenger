@@ -18,6 +18,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
@@ -185,6 +186,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
 
+  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
+  /// any.
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  /// [TextSpan]s of the [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note] to display as a text of this [ChatForwardWidget].
+  final Map<ChatItemId, TextSpan> _text = {};
+
+  /// [Worker]s updating the [_text] on the [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note] changes.
+  final List<Worker> _workers = [];
+
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
   bool get _isRead {
@@ -209,7 +222,31 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     assert(widget.forwards.isNotEmpty);
 
     _populateGlobalKeys();
+    _populateWorkers();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    for (var w in _workers) {
+      w.dispose();
+    }
+
+    for (var r in _recognizers) {
+      r.dispose();
+    }
+
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatForwardWidget oldWidget) {
+    if (oldWidget.note != widget.note ||
+        oldWidget.forwards != widget.forwards) {
+      _populateWorkers();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -381,9 +418,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ];
         }
 
-        if (quote.text != null && quote.text!.val.isNotEmpty) {
-          content = SelectionText(
-            quote.text!.val,
+        final TextSpan? text = _text[msg.id];
+        if (text != null) {
+          content = SelectionText.rich(
+            text,
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
             onSelecting: widget.onSelecting,
@@ -550,12 +588,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     if (item is ChatMessage) {
       final style = Theme.of(context).extension<Style>()!;
 
-      String? text = item.text?.val.trim();
-      if (text?.isEmpty == true) {
-        text = null;
-      } else {
-        text = item.text?.val;
-      }
+      final TextSpan? text = _text[item.id];
 
       final List<Attachment> attachments = item.attachments.where((e) {
         return ((e is ImageAttachment) ||
@@ -608,7 +641,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: SelectionText(
+              child: SelectionText.rich(
                 text,
                 selectable: PlatformUtils.isDesktop || menu,
                 onChanged: (a) => _selection = a,
@@ -1033,6 +1066,41 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
+  /// Populates the [_workers] invoking the [_populateSpans] on the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] changes.
+  void _populateWorkers() {
+    for (var w in _workers) {
+      w.dispose();
+    }
+    _workers.clear();
+
+    _populateSpans();
+
+    ChatMessageText? text;
+    if (widget.note.value?.value is ChatMessage) {
+      final msg = widget.note.value?.value as ChatMessage;
+      text = msg.text;
+    }
+
+    _workers.add(ever(widget.note, (Rx<ChatItem>? item) {
+      if (item?.value is ChatMessage) {
+        final msg = item?.value as ChatMessage;
+        if (text != msg.text) {
+          _populateSpans();
+          text = msg.text;
+        }
+      }
+    }));
+
+    int length = widget.forwards.length;
+    _workers.add(ever(widget.forwards, (List<Rx<ChatItem>> forwards) {
+      if (forwards.length != length) {
+        _populateSpans();
+        length = forwards.length;
+      }
+    }));
+  }
+
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and
   /// [ChatForwardWidget.note].
   void _populateGlobalKeys() {
@@ -1060,6 +1128,36 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
           .map((e) => GlobalKey())
           .toList();
+    }
+  }
+
+  /// Populates the [_text] with the [ChatMessage.text] of the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] parsed through a
+  /// [LinkParsingExtension.parseLinks] method.
+  void _populateSpans() {
+    for (var r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+    _text.clear();
+
+    for (Rx<ChatItem> forward in widget.forwards) {
+      final ChatItemQuote item = (forward.value as ChatForward).quote;
+      if (item is ChatMessageQuote) {
+        final String? string = item.text?.val.trim();
+        if (string?.isNotEmpty == true) {
+          _text[forward.value.id] =
+              string!.parseLinks(_recognizers, router.context);
+        }
+      }
+    }
+
+    if (widget.note.value != null) {
+      final ChatMessage item = widget.note.value!.value as ChatMessage;
+      final String? string = item.text?.val.trim();
+      if (string?.isNotEmpty == true) {
+        _text[item.id] = string!.parseLinks(_recognizers, router.context);
+      }
     }
   }
 }

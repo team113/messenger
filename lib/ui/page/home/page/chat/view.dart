@@ -693,12 +693,12 @@ class _ChatViewState extends State<ChatView>
                       .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
-                for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.send.replied.insert(0, e.value);
-                }
-
                 if (element.note.value != null) {
                   c.send.replied.insert(0, element.note.value!.value);
+                }
+
+                for (Rx<ChatItem> e in element.forwards) {
+                  c.send.replied.insert(0, e.value);
                 }
               }
             },
