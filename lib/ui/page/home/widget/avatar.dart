@@ -59,6 +59,7 @@ class AvatarWidget extends StatelessWidget {
     this.isOnline = false,
     this.isAway = false,
     this.quality = AvatarQuality.big,
+    this.badgeColor,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -142,6 +143,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool badge = true,
     AvatarQuality quality = AvatarQuality.big,
+    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
@@ -155,6 +157,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         quality: quality,
+        badgeColor: badgeColor,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -234,6 +237,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
@@ -244,6 +248,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        badgeColor: badgeColor,
       );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
@@ -255,6 +260,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     AvatarQuality quality = AvatarQuality.big,
+    Color? badgeColor,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -264,6 +270,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         quality: quality,
+        badgeColor: badgeColor,
       );
     }
 
@@ -282,6 +289,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         quality: quality,
+        badgeColor: badgeColor,
       );
     });
   }
@@ -335,6 +343,8 @@ class AvatarWidget extends StatelessWidget {
   final bool isAway;
 
   final AvatarQuality quality;
+
+  final Color? badgeColor;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -419,7 +429,7 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: Colors.white,
+          badgeColor: badgeColor ?? Colors.white,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),

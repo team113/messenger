@@ -161,16 +161,27 @@ class RecentChatTile extends StatelessWidget {
               chat.members.any((e) =>
                   e.user.name?.val == 'kirey' || e.user.name?.val == 'alex2'));
 
+      final bool invert = isRoute || selected;
+
       return ChatTile(
         chat: rxChat,
         avatarBuilder: chat.isMonolog
-            ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
-            : avatarBuilder,
+            ? (color, _) => avatarBuilder(
+                  AvatarWidget.fromMyUser(
+                    myUser,
+                    radius: 30,
+                    badgeColor: color,
+                  ),
+                )
+            : (_, w) => avatarBuilder(w),
         status: [
-          _status(context),
+          _status(context, invert),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(color: invert ? Colors.white : null),
           ),
         ],
         subtitle: [
@@ -180,13 +191,14 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected)),
+                Expanded(child: _subtitle(context, selected, invert)),
                 if (trailing == null) ...[
+                  _ongoingCall(context, invert: invert, paid: paid),
                   if (blocked) ...[
                     const SizedBox(width: 5),
-                    const Icon(
+                    Icon(
                       Icons.block,
-                      color: Color(0xFFC0C0C0),
+                      color: invert ? Colors.white : const Color(0xFFC0C0C0),
                       size: 20,
                     ),
                     if (chat.muted == null) const SizedBox(width: 5),
@@ -277,7 +289,9 @@ class RecentChatTile extends StatelessWidget {
         selected: isRoute || selected,
         // selected: paid,
         // outlined: isRoute || selected,
-        outlined: paid,
+        // outlined: paid,
+        invert: invert,
+        highlight: paid,
         enableContextMenu: enableContextMenu,
         onTap: onTap ??
             () {
@@ -291,77 +305,80 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context, bool selected) {
+  Widget _subtitle(BuildContext context, bool selected, [bool invert = false]) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (chat.ongoingCall != null) {
-        final Widget trailing = WidgetButton(
-          key: inCall?.call() == true
-              ? const Key('JoinCallButton')
-              : const Key('DropCallButton'),
-          onPressed: inCall?.call() == true ? onDrop : onJoin,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: inCall?.call() == true
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-            child: LayoutBuilder(builder: (context, constraints) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 8),
-                  Icon(
-                    inCall?.call() == true ? Icons.call_end : Icons.call,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  if (constraints.maxWidth > 110)
-                    Expanded(
-                      child: Text(
-                        inCall?.call() == true
-                            ? 'btn_call_end'.l10n
-                            : 'btn_join_call'.l10n,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  PeriodicBuilder(
-                    period: const Duration(seconds: 1),
-                    builder: (_) {
-                      return Text(
-                        DateTime.now()
-                            .difference(chat.ongoingCall!.at.val)
-                            .hhMmSs(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              );
-            }),
-          ),
-        );
+      // if (chat.ongoingCall != null) {
+      //   final Widget trailing = WidgetButton(
+      //     key: inCall?.call() == true
+      //         ? const Key('JoinCallButton')
+      //         : const Key('DropCallButton'),
+      //     onPressed: inCall?.call() == true ? onDrop : onJoin,
+      //     child: Container(
+      //       padding: const EdgeInsets.all(4),
+      //       decoration: BoxDecoration(
+      //         borderRadius: BorderRadius.circular(20),
+      //         color: inCall?.call() == true
+      //             ? Colors.red
+      //             : Theme.of(context).colorScheme.secondary,
+      //       ),
+      //       child: LayoutBuilder(builder: (context, constraints) {
+      //         return Row(
+      //           mainAxisSize: MainAxisSize.min,
+      //           children: [
+      //             const SizedBox(width: 8),
+      //             Icon(
+      //               inCall?.call() == true ? Icons.call_end : Icons.call,
+      //               size: 16,
+      //               color: Colors.white,
+      //             ),
+      //             const SizedBox(width: 8),
+      //             if (constraints.maxWidth > 110)
+      //               Expanded(
+      //                 child: Text(
+      //                   inCall?.call() == true
+      //                       ? 'btn_call_end'.l10n
+      //                       : 'btn_join_call'.l10n,
+      //                   style: Theme.of(context)
+      //                       .textTheme
+      //                       .titleSmall
+      //                       ?.copyWith(color: Colors.white),
+      //                   maxLines: 1,
+      //                   overflow: TextOverflow.ellipsis,
+      //                 ),
+      //               ),
+      //             const SizedBox(width: 8),
+      //             PeriodicBuilder(
+      //               period: const Duration(seconds: 1),
+      //               builder: (_) {
+      //                 return Text(
+      //                   DateTime.now()
+      //                       .difference(chat.ongoingCall!.at.val)
+      //                       .hhMmSs(),
+      //                   style: Theme.of(context)
+      //                       .textTheme
+      //                       .titleSmall
+      //                       ?.copyWith(color: Colors.white),
+      //                 );
+      //               },
+      //             ),
+      //             const SizedBox(width: 8),
+      //           ],
+      //         );
+      //       }),
+      //     ),
+      //   );
 
-        return DefaultTextStyle(
-          style: Theme.of(context).textTheme.titleSmall!,
-          overflow: TextOverflow.ellipsis,
-          child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
-        );
-      }
+      //   return DefaultTextStyle(
+      //     style: Theme.of(context)
+      //         .textTheme
+      //         .titleSmall!
+      //         .copyWith(color: invert ? Colors.white : null),
+      //     overflow: TextOverflow.ellipsis,
+      //     child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+      //   );
+      // }
 
       final ChatItem? item;
       if (rxChat.messages.isNotEmpty) {
@@ -762,7 +779,10 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.titleSmall!,
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall!
+            .copyWith(color: invert ? Colors.white : null),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -875,7 +895,7 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds a [ChatItem.status] visual representation.
-  Widget _status(BuildContext context) {
+  Widget _status(BuildContext context, bool invert) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -904,16 +924,163 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? Theme.of(context).colorScheme.secondary
+                ? invert
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.secondary
                 : isError
                     ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
+                    : invert
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.primary,
             size: 16,
           ),
         );
       }
 
       return const SizedBox();
+    });
+  }
+
+  Widget _ongoingCall(
+    BuildContext context, {
+    bool invert = false,
+    bool paid = false,
+  }) {
+    return Obx(() {
+      final Chat chat = rxChat.chat.value;
+
+      if (chat.ongoingCall == null) {
+        return const SizedBox();
+      }
+
+      const Color normalColor = Colors.white;
+      const Color paidColor = Color(0xFFe0f0ff);
+
+      Widget button(bool active) {
+        return DecoratedBox(
+          key: active
+              ? const Key('JoinCallButton')
+              : const Key('DropCallButton'),
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            border:
+                Border.all(color: paid ? paidColor : normalColor, width: 0.5),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Material(
+            elevation: 0,
+            type: MaterialType.button,
+            borderRadius: BorderRadius.circular(20),
+            color:
+                active ? Colors.red : Theme.of(context).colorScheme.secondary,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: active ? onDrop : onJoin,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      active ? Icons.call_end : Icons.call,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 6),
+                    PeriodicBuilder(
+                      period: const Duration(seconds: 1),
+                      builder: (_) {
+                        return Text(
+                          DateTime.now()
+                              .difference(chat.ongoingCall!.at.val)
+                              .hhMmSs(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(color: Colors.white),
+                        );
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(left: 5),
+        child: AnimatedSwitcher(
+          duration: 300.milliseconds,
+          child: button(inCall?.call() == true),
+        ),
+      );
+
+      final Widget trailing = WidgetButton(
+        onPressed: inCall?.call() == true ? onDrop : onJoin,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: inCall?.call() == true
+                ? Colors.red
+                : Theme.of(context).colorScheme.secondary,
+          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 8),
+                Icon(
+                  inCall?.call() == true ? Icons.call_end : Icons.call,
+                  size: 16,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                if (constraints.maxWidth > 110)
+                  Expanded(
+                    child: Text(
+                      inCall?.call() == true
+                          ? 'btn_call_end'.l10n
+                          : 'btn_join_call'.l10n,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                PeriodicBuilder(
+                  period: const Duration(seconds: 1),
+                  builder: (_) {
+                    return Text(
+                      DateTime.now()
+                          .difference(chat.ongoingCall!.at.val)
+                          .hhMmSs(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(color: Colors.white),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+            );
+          }),
+        ),
+      );
+
+      return DefaultTextStyle(
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall!
+            .copyWith(color: invert ? Colors.white : null),
+        overflow: TextOverflow.ellipsis,
+        child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+      );
     });
   }
 

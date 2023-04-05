@@ -28,7 +28,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 
 /// [Chat] visual representation.
-class ChatTile extends StatelessWidget {
+class ChatTile extends StatefulWidget {
   const ChatTile({
     super.key,
     this.chat,
@@ -43,10 +43,12 @@ class ChatTile extends StatelessWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
-    Widget Function(Widget)? avatarBuilder,
+    Widget Function(Color, Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.folded = false,
     this.special = false,
+    this.highlight = false,
+    this.invert = false,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -87,13 +89,25 @@ class ChatTile extends StatelessWidget {
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
-  final Widget Function(Widget child) avatarBuilder;
+  final Widget Function(Color badgeColor, Widget child) avatarBuilder;
 
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
 
   final bool folded;
   final bool special;
+  final bool highlight;
+  final bool invert;
+
+  @override
+  State<ChatTile> createState() => _ChatTileState();
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Color badgeColor, Widget child) => child;
+}
+
+class _ChatTileState extends State<ChatTile> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -128,60 +142,135 @@ class ChatTile extends StatelessWidget {
     // final Border specialBorderGrey =
     //     Border.all(color: Color(0xFFD0D0D0), width: 1);
 
+    final Color secondary = Theme.of(context).colorScheme.secondary;
+
+    // const Color normal = Colors.white;
+    // const Color hover = Color.fromARGB(255, 181, 225, 255);
+    // const Color paid = Color.fromRGBO(211, 237, 255, 1);
+    // const Color chosen = Color(0xFF63B4FF);
+
+    // const Color normal = Colors.white;
+    // const Color hover = Color(0xFF96cdff);
+    // const Color paid = Color(0xFFc9e5ff);
+    // const Color chosen = Color.fromARGB(255, 63, 182, 255);
+
+    const Color normal = Colors.white;
+    const Color hover = Color(0xFFd0e9ff);
+    const Color paid = Color(0xFFe0f0ff);
+    const Color chosen = Color(0xFF63B4FF);
+
+    final Border normalBorder = Border.all(
+      color: const Color(0xFFEBEBEB),
+      width: 0.5,
+    );
+    final Border hoverBorder = Border.all(
+      color: const Color(0xFFCAE6FE),
+      width: 0.5,
+    );
+    final Border paidBorder = Border.all(
+      color: const Color(0xFFDCEBFA),
+      width: 0.5,
+    );
+    final Border chosenBorder = Border.all(
+      color: const Color(0xFF58A6EF),
+      width: 0.5,
+    );
+
     return ContextMenuRegion(
-      key: Key('Chat_${chat?.chat.value.id}'),
+      key: Key('Chat_${widget.chat?.chat.value.id}'),
       preventContextMenu: false,
-      actions: actions,
+      actions: widget.actions,
       indicateOpenedMenu: true,
-      enabled: enableContextMenu,
+      enabled: widget.enableContextMenu,
       child: SizedBox(
-        height: height,
+        height: widget.height,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: FoldedWidget(
             radius: 15,
-            folded: folded,
+            folded: widget.folded,
             child: InkWellWithHover(
-              selectedColor: special ? tapped : style.cardSelectedColor,
-              unselectedColor:
-                  special ? unselected : style.cardColor.darken(darken),
-              selected: selected,
-              outlined: outlined,
-              // hoveredBorder:
-              //     selected ? style.primaryBorder : style.cardHoveredBorder,
-              // border: selected ? style.primaryBorder : style.cardBorder,
-              hoveredBorder: outlined
-                  ? selected
-                      ? specialBorder
-                      : specialBorderGrey
-                  : selected
-                      ? style.primaryBorder
-                      : style.cardHoveredBorder,
-              border: outlined
-                  ? selected
-                      ? specialBorder
-                      : specialBorderGrey
-                  : selected
-                      ? style.primaryBorder
-                      : style.cardBorder,
-              borderRadius: style.cardRadius,
-              onTap: onTap,
+              onHover: (b) => setState(() => _hovered = b),
+              selectedColor: chosen,
+              unselectedColor: widget.highlight ? paid : normal,
+              selectedHoverColor: chosen,
               unselectedHoverColor:
-                  special ? hovered : style.cardHoveredColor.darken(darken),
-              selectedHoverColor: special ? tapped : style.cardSelectedColor,
+                  (widget.highlight ? paid : normal).darken(0.03),
+
+              border: widget.selected
+                  ? chosenBorder
+                  : widget.highlight
+                      ? paidBorder
+                      : normalBorder,
+              hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
+
+              // selectedColor: invert
+              //     ? secondary
+              //     : special
+              //         ? tapped
+              //         : style.cardSelectedColor,
+              // unselectedColor: special
+              //     ? unselected
+              //     : highlight
+              //         ? style.cardHoveredColor.darken(darken)
+              //         : style.cardColor.darken(darken),
+              selected: widget.selected,
+              // outlined: outlined,
+              // // hoveredBorder:
+              // //     selected ? style.primaryBorder : style.cardHoveredBorder,
+              // // border: selected ? style.primaryBorder : style.cardBorder,
+              // hoveredBorder: outlined
+              //     ? selected
+              //         ? specialBorder
+              //         : specialBorderGrey
+              //     : selected
+              //         ? style.primaryBorder
+              //         : style.cardHoveredBorder,
+              // border: outlined
+              //     ? selected
+              //         ? specialBorder
+              //         : specialBorderGrey
+              //     : selected
+              //         ? style.primaryBorder
+              //         : style.cardBorder,
+              borderRadius: style.cardRadius,
+              onTap: widget.onTap,
+              // unselectedHoverColor: style.cardSelectedColor,
+              // // special ? hovered : style.cardHoveredColor.darken(darken),
+              // selectedHoverColor: invert
+              //     ? secondary
+              //     : special
+              //         ? tapped
+              //         : style.cardSelectedColor,
               // selectedHoverColor: style.cardHoveredColor.darken(darken),
               // selectedHoverColor: style.cardSelectedColor.darken(0.03),
-              folded: chat?.chat.value.favoritePosition != null,
+              folded: widget.chat?.chat.value.favoritePosition != null,
               child: Padding(
-                key: chat?.chat.value.favoritePosition != null
-                    ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                key: widget.chat?.chat.value.favoritePosition != null
+                    ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
                     : null,
                 padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                 child: Row(
                   children: [
-                    avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                    widget.avatarBuilder(
+                      // widget.selected
+                      //     ? chosen
+                      //     : _hovered
+                      //         ? hover
+                      //         : normal,
+                      Colors.white,
+                      AvatarWidget.fromRxChat(
+                        widget.chat,
+                        radius: 30,
+                        // badgeColor: widget.selected
+                        //     ? chosen
+                        //     : _hovered
+                        //         ? hover
+                        //         : normal,
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    ...leading,
+                    ...widget.leading,
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -195,27 +284,33 @@ class ChatTile extends StatelessWidget {
                                     Flexible(
                                       child: Obx(() {
                                         return Text(
-                                          chat?.title.value ?? ('dot'.l10n * 3),
+                                          widget.chat?.title.value ??
+                                              ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headlineSmall,
+                                              .headlineSmall
+                                              ?.copyWith(
+                                                color: widget.invert
+                                                    ? Colors.white
+                                                    : null,
+                                              ),
                                         );
                                       }),
                                     ),
-                                    ...title,
+                                    ...widget.title,
                                   ],
                                 ),
                               ),
-                              ...status,
+                              ...widget.status,
                             ],
                           ),
-                          ...subtitle,
+                          ...widget.subtitle,
                         ],
                       ),
                     ),
-                    ...trailing,
+                    ...widget.trailing,
                   ],
                 ),
               ),
@@ -225,7 +320,4 @@ class ChatTile extends StatelessWidget {
       ),
     );
   }
-
-  /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

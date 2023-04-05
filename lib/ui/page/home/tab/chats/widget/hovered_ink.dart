@@ -38,6 +38,7 @@ class InkWellWithHover extends StatefulWidget {
     this.onTap,
     this.folded = false,
     this.outlined = false,
+    this.onHover,
     required this.child,
   }) : super(key: key);
 
@@ -73,6 +74,8 @@ class InkWellWithHover extends StatefulWidget {
 
   final bool outlined;
 
+  final void Function(bool)? onHover;
+
   /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
 
@@ -89,9 +92,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
       borderRadius: widget.borderRadius ?? BorderRadius.zero,
-      borderSide: BorderSide(
-        color: Color(0xFFD0D0D0),
-      ),
+      borderSide: BorderSide(color: Color(0xFFD0D0D0)),
     );
 
     return ClipPath(
@@ -119,7 +120,10 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
               child: InkWell(
                 borderRadius: widget.borderRadius,
                 onTap: widget.onTap?.call,
-                onHover: (v) => setState(() => hovered = v),
+                onHover: (v) {
+                  widget.onHover?.call(v);
+                  setState(() => hovered = v);
+                },
                 hoverColor: Colors.transparent,
                 child: Stack(
                   children: [
