@@ -799,23 +799,22 @@ endif
 # Firebase commands #
 #####################
 
-# Configure Firebase for the current project.
+# Configure Firebase Cloud Messaging.
 #
 # Usage:
-#	make firebase.configure [project-id=<proj-ver>]
-#							[platforms=<platforms>]
-#							[web-app-id=<webAppId>]
-#							[bundle-id=<bundleId>]
+#	make firebase.configure [project-id=<project-id>]
+#	                        [platforms=android,ios,macos,web|<platforms>]
+#	                        [web-app-id=<web-app-id>]
+#	                        [bundle-id=<bundle-id>]
 
 firebase.configure:
-	npm install -g firebase-tools
-	dart pub global activate flutterfire_cli
 	flutterfire configure -y --project=$(project-id) \
-                             --platforms=$(platforms) \
-                             --ios-bundle-id=$(bundle-id) \
-                             --macos-bundle-id=$(bundle-id) \
-                             --android-package-name=$(bundle-id) \
-                             --web-app-id=$(web-app-id)
+	                         --platforms=$(or $(platforms),\
+	                        	android$(comma)ios$(comma)macos$(comma)web) \
+	                         --ios-bundle-id=$(bundle-id) \
+	                         --macos-bundle-id=$(bundle-id) \
+	                         --android-package-name=$(bundle-id) \
+	                         --web-app-id=$(web-app-id)
 
 
 
@@ -830,6 +829,7 @@ firebase.configure:
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
+        firebase.configure \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \

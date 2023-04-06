@@ -82,11 +82,14 @@ class NotificationService extends DisposableService {
 
     _initAudio();
     _initLocalNotifications(onNotificationResponse);
+
     try {
       await _initPushNotifications();
-    } catch (e, stack) {
-      Log.error(e);
-      Log.error(stack);
+    } catch (e) {
+      Log.print(
+        'Failed to initialize push notifications: $e',
+        'NotificationService',
+      );
     }
   }
 
@@ -111,7 +114,7 @@ class NotificationService extends DisposableService {
     String? icon,
     String? tag,
     bool playSound = true,
-    String? imageUrl,
+    String? image,
   }) async {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
@@ -133,10 +136,10 @@ class NotificationService extends DisposableService {
     }
 
     Uint8List? imageBytes;
-    if (PlatformUtils.isAndroid && imageUrl != null) {
+    if (PlatformUtils.isAndroid && image != null) {
       try {
         Response response = await PlatformUtils.dio.get(
-          imageUrl,
+          image,
           options: Options(responseType: ResponseType.bytes),
         );
 
@@ -228,7 +231,7 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Initializes the [FirebaseMessaging] receiving push notifications.
+  /// Initializes the [FirebaseMessaging] for receiving push notifications.
   Future<void> _initPushNotifications() async {
     if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
       FirebaseMessaging.onBackgroundMessage(backgroundHandler);
@@ -251,7 +254,7 @@ class NotificationService extends DisposableService {
             event.notification!.title!,
             body: event.notification!.body,
             payload: '${Routes.chat}/${event.data['chatId']}',
-            imageUrl: event.notification!.android?.imageUrl,
+            image: event.notification!.android?.imageUrl,
           );
         }
       });

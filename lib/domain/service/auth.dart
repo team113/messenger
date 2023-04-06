@@ -323,7 +323,7 @@ class AuthService extends GetxService {
         }
       }
 
-      await _authRepository.logout(fcmRegistrationToken: fcmRegistrationToken);
+      await _authRepository.logout(fcmRegistrationToken);
     } catch (e) {
       printError(info: e.toString());
     }

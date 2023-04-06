@@ -151,15 +151,24 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
 
       - run: echo '${{ secrets.GOOGLE_SERVICES_JS }}' > web/firebase-messaging-sw.js
+        if: ${{ matrix.platform == 'web' }}
 
-      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > ${{ runner.temp }}/service_account.json
-      - name: Configure firebase fcm
+      - name: Configure Firebase Cloud Messaging
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
-        run: make firebase.configure project-id=${{ secrets.FCM_PROJECT_ID }}
-                                     platforms="android,ios,macos,web"
-                                     web-app-id=${{ secrets.FCM_WEB_APP_ID }}
-                                     bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+        run: |
+          npm install -g firebase-tools
+          dart pub global activate flutterfire_cli
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > ${{ runner.temp }}/service_account.json
+          make firebase.configure project-id=${{ secrets.FCM_PROJECT_ID }}
+                                  platforms="android,ios,macos,web"
+                                  web-app-id=${{ secrets.FCM_WEB_APP_ID }}
+                                  bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ matrix.platform == 'ios' ||
+                matrix.platform == 'apk' ||
+                matrix.platform == 'appbundle' ||
+                matrix.platform == 'macos' ||
+                matrix.platform == 'web' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'

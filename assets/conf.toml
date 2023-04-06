@@ -62,9 +62,9 @@
 #   directory = ""
 
 [fcm]
-# Key required to get FCM token on Web.
+# Voluntary Application Server Identification key for Web Push.
 #
-# Unused for Web only.
+# Used for Web only.
 #
 # Default:
 #   vapidKey = "BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0"

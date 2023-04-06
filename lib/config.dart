@@ -53,8 +53,8 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
-  /// Key used to get a FCM token on the Web.
-  static late String vapidKey;
+  /// VAPID (Voluntary Application Server Identification) key for Web Push.
+  static String vapidKey = '';
 
   /// Indicator whether all looped animations should be disabled.
   ///
@@ -164,6 +164,7 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
+            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             origin = url;
           }
         }
