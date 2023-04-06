@@ -86,8 +86,14 @@ class CallRepository extends DisposableInterface
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
 
+  /// Indicator whether this [CallRepository] is disposed.
+  bool _isDisposed = false;
+
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
+
+  @override
+  bool get isDisposed => _isDisposed;
 
   @override
   Rx<OngoingCall>? operator [](ChatId chatId) => calls[chatId];
@@ -104,6 +110,8 @@ class CallRepository extends DisposableInterface
 
   @override
   void onClose() {
+    _isDisposed = true;
+
     _events?.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {

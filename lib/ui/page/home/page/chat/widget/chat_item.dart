@@ -864,14 +864,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? BorderRadius.only(
                           topLeft: const Radius.circular(15),
                           topRight: const Radius.circular(15),
-                          bottomLeft: msg.repliesTo.length == 1 && text == null
+                          bottomLeft: msg.repliesTo.length == 1 && _text == null
                               ? const Radius.circular(15)
                               : Radius.zero,
-                          bottomRight: msg.repliesTo.length == 1 && text == null
-                              ? const Radius.circular(15)
-                              : Radius.zero,
+                          bottomRight:
+                              msg.repliesTo.length == 1 && _text == null
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
                         )
-                      : i == msg.repliesTo.length - 1 && text == null
+                      : i == msg.repliesTo.length - 1 && _text == null
                           ? const BorderRadius.only(
                               bottomLeft: Radius.circular(15),
                               bottomRight: Radius.circular(15),

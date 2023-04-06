@@ -36,6 +36,9 @@ abstract class AbstractCallRepository {
   /// Map of the current [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls;
 
+  /// Indicator whether this repository is disposed.
+  bool get isDisposed;
+
   /// Returns reactive [OngoingCall] if there's any identified by [chatId].
   Rx<OngoingCall>? operator [](ChatId chatId);
 
