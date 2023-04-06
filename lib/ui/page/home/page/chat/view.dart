@@ -548,34 +548,38 @@ class _ChatViewState extends State<ChatView>
                                                       ],
                                                     ),
                                                     child: Center(
-                                                      child:
-                                                          Transform.translate(
-                                                        offset: Offset(
-                                                          0,
-                                                          PlatformUtils.isWeb
-                                                              ? -3
-                                                              : 0,
-                                                        ),
-                                                        child: Text(
-                                                          '¤',
-                                                          style: style
-                                                              .systemMessageStyle
-                                                              .copyWith(
-                                                            height: 0.9,
-                                                            fontFamily:
-                                                                'InterRoboto',
-                                                            fontWeight:
-                                                                FontWeight.w300,
-                                                            color: const Color(
-                                                                0xFF30d5c8),
-                                                            // color:
-                                                            //     Theme.of(context)
-                                                            //         .colorScheme
-                                                            //         .secondary,
-                                                            // color: const Color(
-                                                            //     0xFF8383FF),
-                                                            fontSize: 21,
+                                                      child: Transform.translate(
+                                                          offset: Offset(
+                                                            -1,
+                                                            PlatformUtils.isWeb
+                                                                ? 0
+                                                                : 0,
                                                           ),
+                                                          child: SvgLoader.asset(
+                                                            'assets/icons/currency.svg',
+                                                            width: 23.97,
+                                                            height: 26,
+                                                          )
+                                                          // child: Text(
+                                                          //   '¤',
+                                                          //   style: style
+                                                          //       .systemMessageStyle
+                                                          //       .copyWith(
+                                                          //     height: 0.9,
+                                                          //     fontFamily:
+                                                          //         'InterRoboto',
+                                                          //     fontWeight:
+                                                          //         FontWeight.w300,
+                                                          //     color: const Color(
+                                                          //         0xFF30d5c8),
+                                                          //     // color:
+                                                          //     //     Theme.of(context)
+                                                          //     //         .colorScheme
+                                                          //     //         .secondary,
+                                                          //     // color: const Color(
+                                                          //     //     0xFF8383FF),
+                                                          //     fontSize: 21,
+                                                          //   ),
                                                           // '\$',
                                                           // style: style
                                                           //     .systemMessageStyle
@@ -586,8 +590,8 @@ class _ChatViewState extends State<ChatView>
                                                           //           .colorScheme
                                                           //           .secondary,
                                                           // ),
-                                                        ),
-                                                      ),
+                                                          // ),
+                                                          ),
                                                     ),
                                                   )
                                                 : const SizedBox(),

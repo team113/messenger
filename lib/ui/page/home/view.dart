@@ -234,7 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                       child: Stack(
                                         children: [
                                           SvgLoader.asset(
-                                            'assets/icons/add_funds2.svg',
+                                            'assets/icons/balance8.svg',
                                             width: 30,
                                             height: 30,
                                           ),
@@ -248,8 +248,20 @@ class _HomeViewState extends State<HomeView> {
                                               child: Obx(() {
                                                 if (!c.displayFunds) {
                                                   SvgLoader.asset(
-                                                    'assets/icons/inter_white.svg',
+                                                    // 'assets/icons/inter_white.svg',
+                                                    // height: 12,
+                                                    'assets/icons/currency.svg',
                                                     height: 12,
+                                                  );
+                                                }
+
+                                                if (!c.displayFunds) {
+                                                  return Transform.translate(
+                                                    offset: const Offset(-1, 0),
+                                                    child: SvgLoader.asset(
+                                                      'assets/icons/currency_white.svg',
+                                                      height: 13,
+                                                    ),
                                                   );
                                                 }
 
@@ -259,10 +271,12 @@ class _HomeViewState extends State<HomeView> {
                                                           c.balance.value)
                                                       : '\$',
                                                   style: TextStyle(
-                                                    color: c.displayFunds
-                                                        ? Colors.white
-                                                        : const Color(
-                                                            0xFFF8B64C),
+                                                    color: Colors.white,
+                                                    // color: c.displayFunds
+                                                    //     // ? Colors.black
+                                                    //     ? Colors.white
+                                                    //     : const Color(
+                                                    //         0xFFF8B64C),
                                                     fontSize: c.displayFunds
                                                         ? 12
                                                         : 15,
@@ -287,7 +301,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/savings6.svg',
+                                    'assets/icons/savings7.svg',
                                     width: 30,
                                     height: 30,
                                   ),
@@ -312,7 +326,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.public,
                                   child: SvgLoader.asset(
-                                    'assets/icons/publics4.svg',
+                                    'assets/icons/publics5.svg',
                                     width: 30,
                                     height: 30,
                                   ),

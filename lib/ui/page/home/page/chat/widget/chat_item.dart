@@ -916,7 +916,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // const Color paidColor = Color(0xFF30d5c8);
     // const Color paidColor = Color.fromRGBO(99, 173, 118, 1);
 
-    final Color paidColor = Theme.of(context).colorScheme.secondary;
+    const Color paidColor = Color(0xFFb68ad1);
+
+    // final Color paidColor = Theme.of(context).colorScheme.secondary;
 
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
@@ -926,16 +928,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             text: TextSpan(
               children: [
                 if (!_fromMe) ...[
-                  TextSpan(
-                    text: '¤',
-                    style: textStyle.copyWith(
-                      height: 0.8,
-                      fontFamily: 'InterRoboto',
-                      fontWeight: FontWeight.w300,
-                      color: paidColor,
-                      fontSize: 11,
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Transform.translate(
+                      offset: Offset(0, PlatformUtils.isWeb ? -4 : 0),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 1),
+                        child: SvgLoader.asset(
+                          'assets/icons/currency_v.svg',
+                          width: 7,
+                        ),
+                      ),
                     ),
                   ),
+                  // TextSpan(
+                  //   text: '¤',
+                  //   style: textStyle.copyWith(
+                  //     height: 0.8,
+                  //     fontFamily: 'InterRoboto',
+                  //     fontWeight: FontWeight.w300,
+                  //     color: paidColor,
+                  //     fontSize: 11,
+                  //   ),
+                  // ),
                   TextSpan(
                     text: '123',
                     style: TextStyle(color: paidColor),
@@ -1129,7 +1144,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                       if (widget.paid && !_fromMe)
                         const WidgetSpan(
-                          child: SizedBox(width: 12 + 5 * 3, height: 20),
+                          child: SizedBox(width: 14 + 5 * 3, height: 20),
                         ),
                       // if (widget.displayTime && !timeInBubble) ...[
                       //   if (_fromMe)

@@ -268,14 +268,14 @@ class PlatformUtilsImpl {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async {
-    int total = 100;
-    for (int count = 0; count <= total; count++) {
-      if (cancelToken?.isCancelled == true) {
-        break;
-      }
-      await Future.delayed(40.milliseconds);
-      onReceiveProgress?.call(count, total);
-    }
+    // int total = 100;
+    // for (int count = 0; count <= total; count++) {
+    //   if (cancelToken?.isCancelled == true) {
+    //     break;
+    //   }
+    //   await Future.delayed(40.milliseconds);
+    //   onReceiveProgress?.call(count, total);
+    // }
 
     // return File('test/path');
 
