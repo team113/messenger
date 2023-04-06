@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -55,11 +56,6 @@ class ScreenShareView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
-    Widget framelessBuilder = const SizedBox(
-      height: videoHeight,
-      child: Center(child: CustomProgressIndicator()),
-    );
-
     return GetBuilder(
       init: ScreenShareController(
         Get.find(),
@@ -112,11 +108,16 @@ class ScreenShareView extends StatelessWidget {
                                       fit: BoxFit.contain,
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
-                                      framelessBuilder: () => framelessBuilder,
+                                      framelessBuilder: () =>
+                                          const FramelessBuilderWidget(
+                                        videoHeight: videoHeight,
+                                      ),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   )
-                                : framelessBuilder,
+                                : const FramelessBuilderWidget(
+                                    videoHeight: videoHeight,
+                                  ),
                           ),
                         );
                       });
@@ -148,6 +149,22 @@ class ScreenShareView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+}
+
+class FramelessBuilderWidget extends StatelessWidget {
+  final double videoHeight;
+  const FramelessBuilderWidget({
+    Key? key,
+    required this.videoHeight,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: videoHeight,
+      child: const Center(child: CustomProgressIndicator()),
     );
   }
 }
