@@ -843,8 +843,8 @@ class _DockWidget extends StatelessWidget {
   final CallController c;
   const _DockWidget(
     this.c, {
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1139,10 +1139,10 @@ class ScaffoldWidget extends StatelessWidget {
 
   const ScaffoldWidget(
     this.c, {
-    super.key,
+    Key? key,
     required this.content,
     required this.ui,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
