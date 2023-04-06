@@ -20,8 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';

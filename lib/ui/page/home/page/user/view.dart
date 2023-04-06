@@ -22,9 +22,9 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';

@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';

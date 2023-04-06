@@ -22,9 +22,9 @@ import '../controller.dart';
 import '../widget/call_title.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 
 /// Button in a [CallView].
 ///
@@ -110,8 +110,6 @@ class VideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;

@@ -23,9 +23,9 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the

@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/routes.dart';
+import '/themes.dart';
 
 /// Animated message briefly displayed at the bottom of the screen.
 ///
