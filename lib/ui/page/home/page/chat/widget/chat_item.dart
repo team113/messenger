@@ -881,7 +881,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: _repliedMessage(
                       e,
                       displayTimeline: i == msg.repliesTo.length - 1 &&
-                          text == null &&
+                          _text == null &&
                           timeInBubble == false,
                     ),
                   ),
@@ -928,13 +928,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: SelectionText.rich(
                   TextSpan(
                     children: [
-                      //WidgetSpan(
-                      //  child: Text(
-                      //    text,
-                      //    style: style.boldBody,
-                      //  ),
-                      //),
-                      _text!,
+                      WidgetSpan(
+                        child: Text.rich(
+                          _text!,
+                          style: style.boldBody,
+                        ),
+                      ),
                       if ((widget.displayTime && !timeInBubble))
                         WidgetSpan(
                           child: Opacity(opacity: 0, child: timeline),
@@ -1453,9 +1452,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ],
                         if (additional.isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Row(mainAxisSize: MainAxisSize.min, children: additional),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: additional,
+                          ),
                         ],
-
                       ],
                     ),
                   ),
@@ -1914,7 +1915,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ],
     );
   }
-  
+
   /// Populates the [_worker] invoking the [_populateSpans] and
   /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
   void _populateWorker() {
