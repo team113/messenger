@@ -93,7 +93,7 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> logout({FcmRegistrationToken? fcmRegistrationToken}) async {
+  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]) async {
     if (fcmRegistrationToken != null) {
       await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
     }
