@@ -1335,7 +1335,9 @@ Widget _primaryView(CallController c) {
                               else
                                 ContextMenuButton(
                                   label: 'btn_call_center'.l10n,
-                                  onPressed: () => c.center(participant),
+                                  onPressed: () => c.center(
+                                    participant,
+                                  ),
                                 ),
                               if (participant.member.id != c.me.id) ...[
                                 if (participant.video.value?.direction.value
