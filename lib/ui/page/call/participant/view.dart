@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -134,7 +135,11 @@ class ParticipantView extends StatelessWidget {
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           children: c.chat.value!.members.values.map((e) {
-                            return _user(context, c, e);
+                            return _UserWidget(
+                              c: c,
+                              user: e,
+                              call: call,
+                            );
                           }).toList(),
                         ),
                       ),
@@ -176,9 +181,24 @@ class ParticipantView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Returns a visual representation of the provided [user].
-  Widget _user(BuildContext context, ParticipantController c, RxUser user) {
+/// Returns a visual representation of the provided [user].
+class _UserWidget extends StatelessWidget {
+  final ParticipantController c;
+  final RxUser user;
+
+  /// [OngoingCall] this modal is bound to.
+  final Rx<OngoingCall> call;
+  const _UserWidget({
+    Key? key,
+    required this.c,
+    required this.user,
+    required this.call,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
