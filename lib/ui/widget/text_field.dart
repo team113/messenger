@@ -215,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: style.warningColor,
+                                          color: style.dangerColor,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -260,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: style.warningColor)
+                        ?.copyWith(color: style.dangerColor)
                     : null,
               ),
         ),
@@ -331,7 +331,7 @@ class ReactiveTextField extends StatelessWidget {
                           child: Text(
                             state.error.value!,
                             style: (this.style ?? const TextStyle()).copyWith(
-                              color: style.warningColor,
+                              color: style.dangerColor,
                               fontSize: 13,
                             ),
                           ),

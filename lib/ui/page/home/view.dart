@@ -95,6 +95,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     if (_deps == null) {
       return Scaffold(
         backgroundColor: style.onPrimary,
@@ -197,7 +198,7 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                badgeColor: style.warningColor,
+                                badgeColor: style.dangerColor,
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
@@ -214,7 +215,7 @@ class _HomeViewState extends State<HomeView> {
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.primaryHighlightDarkest
-                                    : style.warningColor,
+                                    : style.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
@@ -251,7 +252,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                badgeColor: style.warningColor,
+                                badgeColor: style.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
@@ -359,6 +360,7 @@ class _HomeViewState extends State<HomeView> {
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {

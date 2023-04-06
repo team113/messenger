@@ -41,6 +41,7 @@ class SelectedDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return SizedBox(
       width: 30,
       child: AnimatedSwitcher(

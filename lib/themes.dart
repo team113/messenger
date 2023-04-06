@@ -106,7 +106,7 @@ class Themes {
             acceptColor: const Color(0x7F34B139),
             acceptAuxilaryColor: Colors.green,
             declineColor: const Color(0x7FFF0000),
-            warningColor: Colors.red,
+            dangerColor: Colors.red,
             doNotDistrubColor: Colors.orange,
             avatarColors: [
               Colors.purple,
@@ -455,7 +455,7 @@ class Style extends ThemeExtension<Style> {
     required this.acceptColor,
     required this.acceptAuxilaryColor,
     required this.declineColor,
-    required this.warningColor,
+    required this.dangerColor,
     required this.doNotDistrubColor,
     required this.avatarColors,
     required this.barrierColor,
@@ -633,7 +633,7 @@ class Style extends ThemeExtension<Style> {
   final Color declineColor;
 
   /// [Color] of the warning icons, text, etc.
-  final Color warningColor;
+  final Color dangerColor;
 
   /// [Color] of the "Do not disturb" mode
   final Color doNotDistrubColor;
@@ -763,7 +763,7 @@ class Style extends ThemeExtension<Style> {
     Color? acceptColor,
     Color? acceptAuxilaryColor,
     Color? declineColor,
-    Color? warningColor,
+    Color? dangerColor,
     Color? doNotDistrubColor,
     List<Color>? avatarColors,
     Color? barrierColor,
@@ -856,7 +856,7 @@ class Style extends ThemeExtension<Style> {
       acceptColor: acceptColor ?? this.acceptColor,
       acceptAuxilaryColor: acceptAuxilaryColor ?? this.acceptAuxilaryColor,
       declineColor: declineColor ?? this.declineColor,
-      warningColor: warningColor ?? this.warningColor,
+      dangerColor: dangerColor ?? this.dangerColor,
       doNotDistrubColor: doNotDistrubColor ?? this.doNotDistrubColor,
       avatarColors: [
         avatarColors![0],
@@ -995,7 +995,7 @@ class Style extends ThemeExtension<Style> {
       acceptAuxilaryColor:
           Color.lerp(acceptAuxilaryColor, other.acceptAuxilaryColor, t)!,
       declineColor: Color.lerp(declineColor, other.declineColor, t)!,
-      warningColor: Color.lerp(warningColor, other.warningColor, t)!,
+      dangerColor: Color.lerp(dangerColor, other.dangerColor, t)!,
       doNotDistrubColor:
           Color.lerp(doNotDistrubColor, other.doNotDistrubColor, t)!,
       avatarColors: [

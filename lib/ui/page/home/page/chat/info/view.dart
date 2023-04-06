@@ -166,7 +166,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: style.warningColor,
+                                color: style.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -560,7 +560,7 @@ class ChatInfoView extends StatelessWidget {
                         height: 22,
                         width: 22,
                         decoration: BoxDecoration(
-                          color: style.warningColor,
+                          color: style.dangerColor,
                           shape: BoxShape.circle,
                         ),
                         child: Center(

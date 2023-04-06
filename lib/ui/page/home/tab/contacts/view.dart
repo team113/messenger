@@ -456,6 +456,7 @@ class ContactsTabView extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
 
@@ -579,6 +580,7 @@ class ContactsTabView extends StatelessWidget {
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
@@ -648,6 +650,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [

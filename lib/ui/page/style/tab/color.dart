@@ -189,7 +189,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ),
           color(
             'Цвет, предупредающий о чем-либо.',
-            style.warningColor,
+            style.dangerColor,
           ),
           color(
             'Цвет статуса "Не беспокоить".',
@@ -229,6 +229,7 @@ class _Colored extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       decoration: BoxDecoration(
         color: color,

@@ -30,6 +30,7 @@ class ContextMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
@@ -90,6 +91,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       width: double.infinity,

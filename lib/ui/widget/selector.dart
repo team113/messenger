@@ -113,6 +113,7 @@ class Selector<T> extends StatefulWidget {
     }
 
     final Style style = Theme.of(context).extension<Style>()!;
+
     if (isMobile) {
       return showModalBottomSheet(
         context: context,
@@ -180,6 +181,7 @@ class _SelectorState<T> extends State<Selector<T>> {
   /// Returns mobile design of this [Selector].
   Widget _mobile(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
       margin: EdgeInsets.only(

@@ -425,6 +425,7 @@ class UserView extends StatelessWidget {
   /// Returns a [User.presence] text.
   Widget _presence(UserController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
       if (presence == null) {
@@ -453,6 +454,7 @@ class UserView extends StatelessWidget {
   /// Returns the blacklisted information of this [User].
   Widget _blocked(UserController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       children: [
         if (c.isBlacklisted?.at != null)
@@ -556,6 +558,7 @@ class UserView extends StatelessWidget {
     BuildContext context,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
@@ -576,6 +579,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
@@ -596,6 +600,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
@@ -616,6 +621,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [

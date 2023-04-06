@@ -42,6 +42,7 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(

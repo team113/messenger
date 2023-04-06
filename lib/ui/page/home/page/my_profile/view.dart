@@ -65,6 +65,7 @@ class MyProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -926,7 +927,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           fillColor: style.onPrimary,
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
-                ? style.warningColor
+                ? style.dangerColor
                 : style.secondary,
           ),
         ),

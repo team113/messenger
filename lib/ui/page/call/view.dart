@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
-import '/themes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/desktop.dart';
@@ -35,8 +34,6 @@ class CallView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: CallController(
         _call,
@@ -44,8 +41,6 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        style.acceptColor,
-        style.declineColor,
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {

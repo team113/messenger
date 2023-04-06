@@ -146,6 +146,7 @@ class ModalPopupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(

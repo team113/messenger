@@ -334,7 +334,7 @@ class ChatItemWidget extends StatefulWidget {
                                     Icons.error,
                                     key: const Key('Error'),
                                     size: 48,
-                                    color: style.warningColor,
+                                    color: style.dangerColor,
                                   ),
                       ),
               )
@@ -456,6 +456,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return DefaultTextStyle(
       style: style.boldBody,
       child: Obx(() {
@@ -478,6 +479,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
@@ -1037,6 +1039,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     var message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
@@ -1405,6 +1408,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     double avatarOffset = 0,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -1563,7 +1567,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: style.warningColor,
+                                    color: style.dangerColor,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),

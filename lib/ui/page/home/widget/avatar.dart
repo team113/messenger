@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -307,7 +308,11 @@ class AvatarWidget extends StatelessWidget {
   final bool isAway;
 
   /// Avatar color swatches.
-  final List<Color?> colors = [];
+  final List<Color?> colors = List.generate(
+    Theme.of(router.context!).extension<Style>()!.avatarColors.length,
+    (index) =>
+        Theme.of(router.context!).extension<Style>()!.avatarColors[index],
+  );
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
@@ -338,10 +343,6 @@ class AvatarWidget extends StatelessWidget {
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    for (var i = 0; i < style.avatarColors.length; i++) {
-      colors.add(style.avatarColors[i]);
-    }
 
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;

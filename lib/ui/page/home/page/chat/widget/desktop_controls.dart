@@ -298,6 +298,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(
       () => GestureDetector(
         onTap: _onExpandCollapse,

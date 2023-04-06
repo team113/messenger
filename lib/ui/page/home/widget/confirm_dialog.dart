@@ -120,6 +120,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge

@@ -85,6 +85,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return ClipPath(
       clipper:
           widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,

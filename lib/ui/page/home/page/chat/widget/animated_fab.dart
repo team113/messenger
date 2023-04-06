@@ -133,7 +133,6 @@ class _AnimatedFabState extends State<AnimatedFab>
             ? Container(key: _fabKey, child: _fab())
             : _fab(),
       );
-  final style = Style;
 
   /// Populates the [_overlayEntry].
   void _populateOverlay() {

@@ -185,6 +185,7 @@ class ParticipantView extends StatelessWidget {
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
@@ -212,7 +213,11 @@ class ParticipantView extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 child: Material(
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
-                  color: inCall ? style.warningColor : style.secondary,
+                  color: inCall
+                      ? isRedialed
+                          ? style.primaryBackgroundLightest
+                          : style.dangerColor
+                      : style.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: inCall

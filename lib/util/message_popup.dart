@@ -53,6 +53,7 @@ class MessagePopup {
     List<Widget> additional = const [],
   }) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return ModalPopup.show(
       context: router.context!,
       child: Builder(

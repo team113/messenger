@@ -50,8 +50,10 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      Widget leading = Container();
       final Style style = Theme.of(context).extension<Style>()!;
+
+      Widget leading = Container();
+
       if (e is FileAttachment) {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
@@ -167,7 +169,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 18,
-              color: style.warningColor,
+              color: style.dangerColor,
             );
             break;
         }

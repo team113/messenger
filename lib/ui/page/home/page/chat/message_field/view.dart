@@ -707,7 +707,7 @@ class MessageFieldView extends StatelessWidget {
                                 child: Center(
                                   child: Icon(
                                     Icons.error,
-                                    color: style.warningColor,
+                                    color: style.dangerColor,
                                   ),
                                 ),
                               )

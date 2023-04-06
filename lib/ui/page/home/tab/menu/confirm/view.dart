@@ -42,6 +42,7 @@ class ConfirmLogoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin =
         theme.textTheme.bodyLarge?.copyWith(color: style.onBackground);
 

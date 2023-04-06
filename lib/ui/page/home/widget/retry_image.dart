@@ -203,6 +203,7 @@ class _RetryImageState extends State<RetryImage> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final Widget child;
 
     if (_image != null) {

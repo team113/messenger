@@ -140,6 +140,7 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -255,6 +256,7 @@ class RecentChatTile extends StatelessWidget {
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -269,7 +271,7 @@ class RecentChatTile extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color:
-                  inCall?.call() == true ? style.warningColor : style.secondary,
+                  inCall?.call() == true ? style.dangerColor : style.secondary,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               return Row(
@@ -678,6 +680,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds an [Attachment] visual representation.
   Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
+
     Widget? content;
 
     if (e is LocalAttachment) {
@@ -781,6 +784,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -811,7 +815,7 @@ class RecentChatTile extends StatelessWidget {
             color: isRead
                 ? style.secondary
                 : isError
-                    ? style.warningColor
+                    ? style.dangerColor
                     : style.primary,
             size: 16,
           ),
@@ -825,6 +829,7 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter() {
     final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       if (rxChat.unreadCount.value > 0) {
@@ -836,7 +841,7 @@ class RecentChatTile extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: chat.muted == null
-                ? style.warningColor
+                ? style.dangerColor
                 : style.primaryHighlightDarkest,
           ),
           alignment: Alignment.center,
@@ -864,6 +869,7 @@ class RecentChatTile extends StatelessWidget {
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
