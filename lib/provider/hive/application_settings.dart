@@ -92,4 +92,11 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
       );
+
+  /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
+  /// to [Hive].
+  Future<void> setTimelineEnabled(bool enabled) => putSafe(
+    0,
+    (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
+  );
 }

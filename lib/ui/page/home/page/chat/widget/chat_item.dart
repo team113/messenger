@@ -77,8 +77,9 @@ class ChatItemWidget extends StatefulWidget {
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
-    this.getUser,
     this.animation,
+    this.displayTime = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -118,6 +119,12 @@ class ChatItemWidget extends StatefulWidget {
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether time should by displayed right in this [ChatItemWidget].
+  final bool displayTime;
+
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
@@ -136,9 +143,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
   final void Function(String text)? onCopy;
-
-  /// Optional animation that controls a [SwipeableStatus].
-  final AnimationController? animation;
 
   /// Callback, called when a gallery list is required.
   ///
@@ -842,6 +846,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    final bool timeInBubble = msg.attachments.isNotEmpty;
+
+    final Widget timeline = _timeline(msg);
+
     return _rounded(
       context,
       (menu) {
@@ -870,7 +878,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   opacity: _isRead || !_fromMe ? 1 : 0.55,
                   child: WidgetButton(
                     onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
+                    child: _repliedMessage(
+                      e,
+                      displayTimeline: i == msg.repliesTo.length - 1 &&
+                          text == null &&
+                          timeInBubble == false,
+                    ),
                   ),
                 ),
               );
@@ -912,13 +925,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   9,
                   files.isEmpty ? 10 : 0,
                 ),
-                child: SelectionText(
-                  text,
+                child: SelectionText.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(
+                        child: Text(
+                          text,
+                          style: style.boldBody,
+                        ),
+                      ),
+                      if ((widget.displayTime && !timeInBubble))
+                        WidgetSpan(
+                          child: Opacity(opacity: 0, child: timeline),
+                        ),
+                    ],
+                  ),
                   key: Key('Text_${widget.item.value.id}'),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
-                  style: style.boldBody,
                 ),
               ),
             ),
@@ -1004,27 +1029,47 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-          child: IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: _fromMe
-                    ? _isRead
-                        ? style.readMessageColor
-                        : style.unreadMessageColor
-                    : style.messageColor,
-                borderRadius: BorderRadius.circular(15),
-                border: _fromMe
-                    ? _isRead
-                        ? style.secondaryBorder
-                        : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                    : style.primaryBorder,
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                            ? style.readMessageColor
+                            : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? _isRead
+                            ? style.secondaryBorder
+                            : Border.all(
+                                color: const Color(0xFFDAEDFF), width: 0.5)
+                        : style.primaryBorder,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              ),
-            ),
+              if (widget.displayTime)
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: timeline,
+                        )
+                      : timeline,
+                )
+            ],
           ),
         );
       },
@@ -1084,77 +1129,103 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
       opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                child: Text(
-                  widget.user?.user.value.name?.val ??
-                      widget.user?.user.value.num.val ??
-                      'dot'.l10n * 3,
-                  style: style.boldBody.copyWith(color: color),
-                ),
-              ),
-            const SizedBox(height: 4),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
-              ),
-              padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                    child: message.withVideo
-                        ? SvgLoader.asset(
-                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 13 * 1.4,
-                          )
-                        : SvgLoader.asset(
-                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 15 * 1.4,
-                          ),
-                  ),
-                  Flexible(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.boldBody,
-                          ),
-                        ),
-                        if (time != null) ...[
-                          const SizedBox(width: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 1),
-                            child: Text(
-                              time,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                          ),
-                        ],
-                      ],
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                ],
-              ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.black.withOpacity(0.03),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                            child: message.withVideo
+                                ? SvgLoader.asset(
+                                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                                    height: 13 * 1.4,
+                                  )
+                                : SvgLoader.asset(
+                                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                                    height: 15 * 1.4,
+                                  ),
+                          ),
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: style.boldBody,
+                                  ),
+                                ),
+                                if (time != null) ...[
+                                  const SizedBox(width: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 1),
+                                    child: Text(
+                                      time,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                  ],
+                ),
+                Opacity(
+                  opacity: 0,
+                  child: _timeline(widget.item.value),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            right: 8,
+            bottom: 4,
+            child: _timeline(widget.item.value),
+          )
+        ],
       ),
     );
 
@@ -1187,7 +1258,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item) {
+  Widget _repliedMessage(ChatItemQuote item, {bool displayTimeline = false}) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
@@ -1353,36 +1424,43 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           children: [
             const SizedBox(width: 12),
             Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
-                ),
-                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      snapshot.data?.user.value.name?.val ??
-                          snapshot.data?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(width: 2, color: color)),
                     ),
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: content,
-                      ),
-                    ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(mainAxisSize: MainAxisSize.min, children: additional),
-                    ],
-                  ],
-                ),
+                    margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          snapshot.data?.user.value.name?.val ??
+                              snapshot.data?.user.value.num.val ??
+                              'dot'.l10n * 3,
+                          style: style.boldBody.copyWith(color: color),
+                        ),
+                        if (content != null) ...[
+                          const SizedBox(height: 2),
+                          DefaultTextStyle.merge(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: content,
+                          ),
+                        ],
+                        if (additional.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(mainAxisSize: MainAxisSize.min, children: additional),
+                        ],
+
+                      ],
+                    ),
+                  ),
+                  if (displayTimeline)
+                    Opacity(opacity: 0, child: _timeline(widget.item.value)),
+                ],
               ),
             ),
           ],
@@ -1410,7 +1488,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           e.memberId != widget.item.value.authorId,
     );
 
-    bool isSent = item.status.value == SendingStatus.sent;
+    final bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -1463,7 +1541,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1785,6 +1863,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Return timeline label for the provided item.
+  Widget _timeline(ChatItem item) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final bool isMonolog = widget.chat.value?.isMonolog == true;
+    final bool sent = item.status.value == SendingStatus.sent;
+
+    final bool isSent = sent && _fromMe;
+    final bool isDelivered = sent &&
+        _fromMe &&
+        (widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+            isMonolog);
+    final bool isRead = sent && (!_fromMe || _isRead || isMonolog);
+    final bool isError = item.status.value == SendingStatus.error;
+    final bool isSending = item.status.value == SendingStatus.sending;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_fromMe) ...[
+          if (isSent || isDelivered || isRead || isSending || isError)
+            Icon(
+              (isRead || isDelivered)
+                  ? Icons.done_all
+                  : isSending
+                      ? Icons.access_alarm
+                      : isError
+                          ? Icons.error_outline
+                          : Icons.done,
+              color: isRead
+                  ? Theme.of(context).colorScheme.secondary
+                  : isError
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.primary,
+              size: 12,
+            ),
+          const SizedBox(width: 3),
+        ],
+        SelectionContainer.disabled(
+          child: Text(
+            DateFormat.Hm().format(item.at.val.toLocal()),
+            style: style.systemMessageStyle.copyWith(fontSize: 11),
+          ),
+        ),
+      ],
     );
   }
 

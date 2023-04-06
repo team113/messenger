@@ -281,7 +281,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? const Radius.circular(15)
                                   : Radius.zero,
                             ),
-                            child: _forwardedMessage(e, menu),
+                            child: _forwardedMessage(
+                              e,
+                              menu,
+                              showTimeline: i == widget.forwards.length - 1,
+                            ),
                           ),
                         ),
                       ],
@@ -297,7 +301,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns a visual representation of the provided [forward].
-  Widget _forwardedMessage(Rx<ChatItem> forward, bool menu) {
+  Widget _forwardedMessage(
+    Rx<ChatItem> forward,
+    bool menu, {
+    bool showTimeline = false,
+  }) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItemQuote quote = msg.quote;
@@ -476,61 +484,72 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
                             AvatarWidget.colors.length];
 
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(width: 2, color: color),
-                          ),
-                        ),
-                        margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(width: 2, color: color),
+                              ),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Transform.scale(
-                                  scaleX: -1,
-                                  child:
-                                      Icon(Icons.reply, size: 17, color: color),
+                                Row(
+                                  children: [
+                                    Transform.scale(
+                                      scaleX: -1,
+                                      child: Icon(Icons.reply,
+                                          size: 17, color: color),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        snapshot.data?.user.value.name?.val ??
+                                            snapshot.data?.user.value.num.val ??
+                                            'dot'.l10n * 3,
+                                        style: style.boldBody
+                                            .copyWith(color: color),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    snapshot.data?.user.value.name?.val ??
-                                        snapshot.data?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                    style:
-                                        style.boldBody.copyWith(color: color),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  content,
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        msg.authorId == widget.me
+                                            ? CrossAxisAlignment.end
+                                            : CrossAxisAlignment.start,
+                                    children: additional,
                                   ),
-                                ),
+                                ],
                               ],
                             ),
-                            if (content != null) ...[
-                              const SizedBox(height: 2),
-                              content,
-                            ],
-                            if (additional.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: msg.authorId == widget.me
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                                children: additional,
-                              ),
-                            ],
-                          ],
-                        ),
+                          ),
+                        )
+                      ],
+                    ),
+                    if (showTimeline)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8, bottom: 4),
+                        child: _timeline(forward.value),
                       ),
-                    )
                   ],
                 );
               },
@@ -1027,6 +1046,54 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Return timeline label for the provided item.
+  Widget _timeline(ChatItem item) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final bool isMonolog = widget.chat.value?.isMonolog == true;
+    final bool sent = item.status.value == SendingStatus.sent;
+
+    final bool isSent = sent && _fromMe;
+    final bool isDelivered = sent &&
+        _fromMe &&
+        (widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+            isMonolog);
+    final bool isRead = sent && (!_fromMe || _isRead || isMonolog);
+    final bool isError = item.status.value == SendingStatus.error;
+    final bool isSending = item.status.value == SendingStatus.sending;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_fromMe) ...[
+          if (isSent || isDelivered || isRead || isSending || isError)
+            Icon(
+              (isRead || isDelivered)
+                  ? Icons.done_all
+                  : isSending
+                      ? Icons.access_alarm
+                      : isError
+                          ? Icons.error_outline
+                          : Icons.done,
+              color: isRead
+                  ? Theme.of(context).colorScheme.secondary
+                  : isError
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.primary,
+              size: 12,
+            ),
+          const SizedBox(width: 3),
+        ],
+        SelectionContainer.disabled(
+          child: Text(
+            DateFormat.Hm().format(item.at.val.toLocal()),
+            style: style.systemMessageStyle.copyWith(fontSize: 11),
+          ),
+        ),
+      ],
     );
   }
 

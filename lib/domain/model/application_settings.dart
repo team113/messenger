@@ -34,6 +34,7 @@ class ApplicationSettings extends HiveObject {
     this.showDragAndDropButtonsHint = false,
     this.sortContactsByName = true,
     this.loadImages = true,
+    this.timelineEnabled = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -75,4 +76,8 @@ class ApplicationSettings extends HiveObject {
   /// Indicator whether [ImageAttachment]s should be loaded automatically.
   @HiveField(8)
   bool loadImages;
+
+  /// Indicator whether time should be displayed in timeline mode in chat.
+  @HiveField(9)
+  bool timelineEnabled;
 }
