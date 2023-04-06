@@ -498,7 +498,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   right: 10,
                   top: c.size.height * 0.05,
                 ),
-                child: callTitle(c),
+                child: CallTitleWidget(c),
               ),
             ),
           );
@@ -527,27 +527,26 @@ Widget mobileCall(CallController c, BuildContext context) {
                 if (PlatformUtils.isMobile)
                   padding(
                     c.videoState.value.isEnabled
-                        ? withDescription(
-                            SwitchButton(c).build(),
-                            AnimatedOpacity(
+                        ? WithDescriptionWidget(
+                            description: AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
                               child: Text('btn_call_switch_camera_desc'.l10n),
                             ),
+                            child: SwitchButton(c).build(),
                           )
-                        : withDescription(
-                            SpeakerButton(c).build(),
-                            AnimatedOpacity(
+                        : WithDescriptionWidget(
+                            description: AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
                               child: Text('btn_call_toggle_speaker_desc'.l10n),
                             ),
+                            child: SpeakerButton(c).build(),
                           ),
                   ),
                 if (PlatformUtils.isDesktop)
-                  padding(withDescription(
-                    ScreenButton(c).build(),
-                    AnimatedOpacity(
+                  padding(WithDescriptionWidget(
+                    description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
                       child: Text(
@@ -558,10 +557,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                             : 'btn_call_screen_on_desc'.l10n,
                       ),
                     ),
+                    child: ScreenButton(c).build(),
                   )),
-                padding(withDescription(
-                  AudioButton(c).build(),
-                  AnimatedOpacity(
+                padding(WithDescriptionWidget(
+                  description: AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
                     child: Text(
@@ -571,10 +570,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                           : 'btn_call_audio_on_desc'.l10n,
                     ),
                   ),
+                  child: AudioButton(c).build(),
                 )),
-                padding(withDescription(
-                  VideoButton(c).build(),
-                  AnimatedOpacity(
+                padding(WithDescriptionWidget(
+                  description: AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
                     child: Text(
@@ -584,45 +583,46 @@ Widget mobileCall(CallController c, BuildContext context) {
                           : 'btn_call_video_on_desc'.l10n,
                     ),
                   ),
+                  child: VideoButton(c).build(),
                 )),
-                padding(withDescription(
-                  DropButton(c).build(),
-                  AnimatedOpacity(
+                padding(WithDescriptionWidget(
+                  description: AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
                     child: Text('btn_call_end_desc'.l10n),
                   ),
+                  child: DropButton(c).build(),
                 )),
               ],
             ),
             const SizedBox(height: 32),
             buttons(
               [
-                padding(withDescription(
-                  ParticipantsButton(c).build(),
-                  Text('btn_participants_desc'.l10n),
+                padding(WithDescriptionWidget(
+                  description: Text('btn_participants_desc'.l10n),
+                  child: ParticipantsButton(c).build(),
                 )),
-                padding(withDescription(
-                  HandButton(c).build(),
-                  AnimatedOpacity(
+                padding(WithDescriptionWidget(
+                  description: AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
                     child: Text(c.me.isHandRaised.value
                         ? 'btn_call_hand_down_desc'.l10n
                         : 'btn_call_hand_up_desc'.l10n),
                   ),
+                  child: HandButton(c).build(),
                 )),
-                padding(withDescription(
-                  RemoteAudioButton(c).build(),
-                  Text(c.isRemoteAudioEnabled.value
+                padding(WithDescriptionWidget(
+                  description: Text(c.isRemoteAudioEnabled.value
                       ? 'btn_call_remote_audio_off_desc'.l10n
                       : 'btn_call_remote_audio_on_desc'.l10n),
+                  child: RemoteAudioButton(c).build(),
                 )),
-                padding(withDescription(
-                  RemoteVideoButton(c).build(),
-                  Text(c.isRemoteVideoEnabled.value
+                padding(WithDescriptionWidget(
+                  description: Text(c.isRemoteVideoEnabled.value
                       ? 'btn_call_remote_video_off_desc'.l10n
                       : 'btn_call_remote_video_on_desc'.l10n),
+                  child: RemoteVideoButton(c).build(),
                 )),
               ],
             ),

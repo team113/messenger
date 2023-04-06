@@ -642,7 +642,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         right: 10,
                         top: c.size.height * 0.05,
                       ),
-                      child: callTitle(c),
+                      child: CallTitleWidget(c),
                     ),
                   )
                 : Container(key: UniqueKey()),

@@ -380,6 +380,5 @@ class LanguagePopUpWidget extends StatelessWidget {
       ),
       onPressed: () => LanguageSelectionView.show(context, null),
     );
-    ;
   }
 }
