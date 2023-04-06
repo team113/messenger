@@ -40,9 +40,9 @@ import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -55,7 +55,8 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final style = Theme.of(context).extension<Style>()!;
+  final Style style = Theme.of(context).extension<Style>()!;
+
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
@@ -70,7 +71,6 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Secondary view possible alignment.
       Widget possibleContainer() {
-        final style = Theme.of(context).extension<Style>()!;
         return Obx(() {
           Alignment? alignment = c.possibleSecondaryAlignment.value;
           if (alignment == null) {
@@ -1118,7 +1118,8 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Container(
         key: const ValueKey('TitleBar'),
         color: style.backgroundAuxiliaryLight,
@@ -1199,7 +1200,8 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final style = Theme.of(router.context!).extension<Style>()!;
+  final Style style = Theme.of(router.context!).extension<Style>()!;
+
   return Obx(() {
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
@@ -1213,7 +1215,6 @@ Widget _primaryView(CallController c) {
     return Stack(
       children: [
         ReorderableFit<_DragData>(
-          hoverColor: style.transparent,
           key: const Key('PrimaryFitView'),
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
@@ -1474,6 +1475,8 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
@@ -1683,7 +1686,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
         c.isCursorHidden.value = false;
       }
 
-      final style = Theme.of(context).extension<Style>()!;
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -1804,7 +1806,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           // Secondary panel itself.
           ReorderableFit<_DragData>(
-            hoverColor: style.transparent,
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {
@@ -2293,7 +2294,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
-  final style = Theme.of(router.context!).extension<Style>()!;
+  final Style style = Theme.of(router.context!).extension<Style>()!;
+
   return Obx(() {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
@@ -2413,7 +2415,8 @@ Widget _secondaryTarget(CallController c) {
                                                   child: Padding(
                                                     padding:
                                                         const EdgeInsets.all(
-                                                            10),
+                                                      10,
+                                                    ),
                                                     child: Icon(
                                                       Icons.add_rounded,
                                                       size: 35,

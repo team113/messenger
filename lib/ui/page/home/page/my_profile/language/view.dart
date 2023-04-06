@@ -49,7 +49,8 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge

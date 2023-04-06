@@ -93,7 +93,8 @@ class MessageFieldView extends StatelessWidget {
       borderRadius: BorderRadius.circular(25),
       borderSide: BorderSide.none,
     );
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Theme.of(context).copyWith(
       shadowColor: style.onBackgroundOpacity67,
       iconTheme: IconThemeData(color: style.secondaryHighlight),
@@ -121,7 +122,7 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
@@ -136,7 +137,9 @@ class MessageFieldView extends StatelessWidget {
                 borderRadius: style.cardRadius,
                 boxShadow: [
                   CustomBoxShadow(
-                      blurRadius: 8, color: style.onBackgroundOpacity88),
+                    blurRadius: 8,
+                    color: style.onBackgroundOpacity88,
+                  ),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -161,7 +164,7 @@ class MessageFieldView extends StatelessWidget {
   /// Returns a visual representation of the message attachments, replies,
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
@@ -421,7 +424,7 @@ class MessageFieldView extends StatelessWidget {
   /// Builds a visual representation of the send field itself along with its
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -535,7 +538,8 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(
           attachment: e,
@@ -655,10 +659,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: style.primary,
-                ),
+                style: TextStyle(fontSize: 13, color: style.primary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -671,7 +672,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
@@ -704,8 +705,10 @@ class MessageFieldView extends StatelessWidget {
                                   color: style.onPrimary,
                                 ),
                                 child: Center(
-                                  child: Icon(Icons.error,
-                                      color: style.warningColor),
+                                  child: Icon(
+                                    Icons.error,
+                                    color: style.warningColor,
+                                  ),
                                 ),
                               )
                             : const SizedBox()
@@ -778,7 +781,7 @@ class MessageFieldView extends StatelessWidget {
     MessageFieldController c, {
     void Function()? onClose,
   }) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = item.authorId == c.me;
 
     Widget? content;
@@ -907,10 +910,7 @@ class MessageFieldView extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
-                  left: BorderSide(
-                    width: 2,
-                    color: style.secondary,
-                  ),
+                  left: BorderSide(width: 2, color: style.secondary),
                 ),
               ),
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -921,9 +921,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.boldBody.copyWith(
-                      color: style.secondary,
-                    ),
+                    style: style.boldBody.copyWith(color: style.secondary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -971,9 +969,7 @@ class MessageFieldView extends StatelessWidget {
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.boldBody.copyWith(
-                          color: style.secondary,
-                        ),
+                        style: style.boldBody.copyWith(color: style.secondary),
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),

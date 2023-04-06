@@ -34,7 +34,8 @@ class AddUserListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
         .resolve({MaterialState.disabled})!.copyWith(color: style.onBackground);
 

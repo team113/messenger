@@ -119,7 +119,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
@@ -127,7 +127,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       return Padding(
         padding: ModalPopup.padding(context),

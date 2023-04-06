@@ -44,7 +44,8 @@ class TooltipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget button = InkWell(
       hoverColor: style.transparent,
       highlightColor: style.transparent,

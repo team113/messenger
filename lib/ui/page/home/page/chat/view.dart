@@ -94,7 +94,8 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
@@ -525,7 +526,8 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
 
@@ -782,8 +784,9 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
-    final styleColor = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -809,7 +812,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: style);
+        return Text(subtitle.toString(), style: textStyle);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -821,9 +824,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style?.copyWith(
-                  color: styleColor.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.secondary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -847,9 +848,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
-                  color: styleColor.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.secondary),
               ),
             ),
             const SizedBox(width: 3),
@@ -864,7 +863,7 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: style);
+          return Text(subtitle, style: textStyle);
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -902,7 +901,7 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: style);
+                          return Text(buffer.toString(), style: textStyle);
                         }
 
                         return const SizedBox();
@@ -924,7 +923,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1015,7 +1014,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadLabel(BuildContext context, ChatController c) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
       width: double.infinity,
@@ -1037,7 +1036,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
   Widget _blockedField(ChatController c) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -1048,7 +1047,9 @@ class _ChatViewState extends State<ChatView>
             borderRadius: style.cardRadius,
             boxShadow: [
               CustomBoxShadow(
-                  blurRadius: 8, color: style.onBackgroundOpacity88),
+                blurRadius: 8,
+                color: style.onBackgroundOpacity88,
+              ),
             ],
           ),
           child: ConditionalBackdropFilter(

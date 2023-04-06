@@ -251,7 +251,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     AvatarWidget avatarWidget = AvatarWidget();
     Color? color = widget.user?.user.value.id == widget.me
@@ -340,7 +340,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       ChatForward msg = forward.value as ChatForward;
       ChatItemQuote quote = msg.quote;
 
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
@@ -586,7 +586,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       final TextSpan? text = _text[item.id];
 

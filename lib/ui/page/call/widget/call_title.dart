@@ -22,8 +22,8 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
@@ -63,7 +63,8 @@ class CallTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return DefaultTextStyle.merge(
       maxLines: 1,
       softWrap: true,
@@ -102,10 +103,7 @@ class CallTitle extends StatelessWidget {
                   style: context.textTheme.headlineMedium
                       ?.copyWith(color: style.onPrimary),
                 ),
-                if (withDots)
-                  AnimatedDots(
-                    color: style.onPrimary,
-                  ),
+                if (withDots) const AnimatedDots(),
               ],
             ),
         ],

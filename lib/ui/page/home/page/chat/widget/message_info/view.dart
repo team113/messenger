@@ -60,7 +60,8 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
@@ -116,10 +117,7 @@ class MessageInfo extends StatelessWidget {
                   height: 50,
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(
-                            color: style.secondary,
-                            width: 2,
-                          )
+                        ? Border.all(color: style.secondary, width: 2)
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
@@ -227,9 +225,7 @@ class MessageInfo extends StatelessWidget {
                                       'minute':
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
-                                    style: TextStyle(
-                                      color: style.primary,
-                                    ),
+                                    style: TextStyle(color: style.primary),
                                   ),
                                 ],
                               );

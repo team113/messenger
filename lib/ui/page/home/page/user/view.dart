@@ -52,7 +52,8 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -121,9 +122,7 @@ class UserView extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(
-                                        color: style.primary,
-                                      ),
+                                      ?.copyWith(color: style.primary),
                                 )
                             ],
                           );
@@ -254,7 +253,8 @@ class UserView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     // Builds a stylized button representing a single action.
     Widget action({
       Key? key,
@@ -424,7 +424,7 @@ class UserView extends StatelessWidget {
 
   /// Returns a [User.presence] text.
   Widget _presence(UserController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
       if (presence == null) {
@@ -452,7 +452,7 @@ class UserView extends StatelessWidget {
 
   /// Returns the blacklisted information of this [User].
   Widget _blocked(UserController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Column(
       children: [
         if (c.isBlacklisted?.at != null)
@@ -479,7 +479,7 @@ class UserView extends StatelessWidget {
 
   /// Returns a [WidgetButton] for removing the [User] from the blacklist.
   Widget _blockedField(BuildContext context, UserController c) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -555,7 +555,7 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
@@ -575,7 +575,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
@@ -595,7 +595,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
@@ -615,7 +615,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [

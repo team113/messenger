@@ -25,7 +25,7 @@ import '/util/platform_utils.dart';
 /// [ReactiveTextField]-styled button.
 class FieldButton extends StatefulWidget {
   const FieldButton({
-    Key? key,
+    super.key,
     this.text,
     this.textAlign = TextAlign.start,
     this.hint,
@@ -35,8 +35,8 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
-    required this.fillColor,
-  }) : super(key: key);
+    this.fillColor,
+  });
 
   /// Optional label of this [FieldButton].
   final String? text;
@@ -68,7 +68,7 @@ class FieldButton extends StatefulWidget {
   final TextStyle? style;
 
   /// Fill color of the [ReactiveTextField].
-  final Color fillColor;
+  final Color? fillColor;
 
   @override
   State<FieldButton> createState() => _FieldButtonState();
@@ -81,7 +81,7 @@ class _FieldButtonState extends State<FieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     final Widget child = MouseRegion(
       onEnter: PlatformUtils.isMobile
@@ -104,7 +104,7 @@ class _FieldButtonState extends State<FieldButton> {
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
                 ? style.cardHoveredColor
-                : widget.fillColor,
+                : widget.fillColor ?? style.onPrimary,
           ),
         ),
       ),

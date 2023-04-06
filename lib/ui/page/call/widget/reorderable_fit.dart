@@ -52,7 +52,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    required this.hoverColor,
+    this.hoverColor,
     this.axis,
     this.left,
     this.right,
@@ -160,7 +160,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   final Axis? axis;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
   final BorderRadius? borderRadius;
@@ -412,7 +412,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    required this.hoverColor,
+    this.hoverColor,
     this.wrapSize,
     this.axis,
     this.width,
@@ -493,7 +493,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Left position of this view.
   final double? left;
@@ -593,7 +593,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       var item = _items[index];
       return Stack(
         children: [
@@ -660,7 +661,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       child: Container(
                         color: candidates.isEmpty
                             ? style.transparent
-                            : widget.hoverColor,
+                            : widget.hoverColor ?? style.transparent,
                       ),
                     );
                   },
@@ -688,7 +689,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       child: Container(
                         color: candidates.isEmpty
                             ? style.transparent
-                            : widget.hoverColor,
+                            : widget.hoverColor ?? style.transparent,
                       ),
                     );
                   },
@@ -1062,7 +1063,8 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,

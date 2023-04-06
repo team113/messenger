@@ -55,7 +55,8 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final styleColor = Theme.of(context).extension<Style>()!;
+  final Style style = Theme.of(context).extension<Style>()!;
+
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
         (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
@@ -159,8 +160,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       duration: 200.milliseconds,
                       decoration: BoxDecoration(
                         color: animated
-                            ? styleColor.backgroundAuxiliaryLight
-                            : styleColor.transparent,
+                            ? style.backgroundAuxiliaryLight
+                            : style.transparent,
                       ),
                       width: animated
                           ? MediaQuery.of(context).size.width - 20
@@ -301,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: styleColor.secondaryHighlightShinier,
+                    color: style.secondaryHighlightShinier,
                   ),
                 );
               }
@@ -319,7 +320,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: styleColor.onBackgroundOpacity25,
+                            color: style.onBackgroundOpacity25,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -355,15 +356,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 children: [
                                   Text(
                                     state,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(
-                                            color: styleColor
-                                                .onBackgroundOpacity98),
-                                  ),
-                                  if (withDots)
-                                    AnimatedDots(
-                                      color: styleColor.onPrimary,
+                                    style:
+                                        context.textTheme.bodySmall?.copyWith(
+                                      color: style.onBackgroundOpacity98,
                                     ),
+                                  ),
+                                  if (withDots) const AnimatedDots(),
                                 ],
                               ),
                             );
@@ -379,7 +377,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    color: styleColor.primaryHighlight,
+                    color: style.primaryHighlight,
                     size: 66,
                     duration: const Duration(milliseconds: 4500),
                   ),
@@ -444,7 +442,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: styleColor.onBackgroundOpacity67)
+                ? Container(color: style.onBackgroundOpacity67)
                 : null,
           ),
         );
@@ -664,8 +662,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? styleColor.onSecondaryOpacity90
-                          : styleColor.onSecondaryOpacity60,
+                          ? style.onSecondaryOpacity90
+                          : style.onSecondaryOpacity60,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),
@@ -689,7 +687,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: styleColor.onPrimaryOpacity40,
+                                  color: style.onPrimaryOpacity40,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -768,7 +766,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Combines all the stackable content into [Scaffold].
     Widget scaffold = Scaffold(
-      backgroundColor: styleColor.primaryBackgroundLight,
+      backgroundColor: style.primaryBackgroundLight,
       body: Stack(
         children: [
           ...content,

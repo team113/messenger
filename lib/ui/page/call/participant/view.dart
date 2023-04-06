@@ -23,8 +23,8 @@ import 'package:get/get.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -66,7 +66,8 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
@@ -183,7 +184,7 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
@@ -265,10 +266,7 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: TextStyle(
-                      color: style.secondary,
-                      fontSize: 15,
-                    ),
+                    style: TextStyle(color: style.secondary, fontSize: 15),
                   )
                 : SvgLoader.asset(
                     'assets/icons/delete.svg',

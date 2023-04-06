@@ -109,7 +109,8 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: _controller.value.isInitialized
@@ -155,7 +156,8 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     try {
       _controller = VideoPlayerController.network(widget.url);
       widget.onController?.call(_controller);

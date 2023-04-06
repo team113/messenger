@@ -86,7 +86,8 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
         if (controller.value.isInitialized) {
@@ -172,7 +173,8 @@ class _ProgressBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     final baseOffset = size.height / 2 - barHeight / 2;
 
     canvas.drawRRect(

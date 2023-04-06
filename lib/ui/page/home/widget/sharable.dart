@@ -65,7 +65,7 @@ class SharableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final styleColor = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -96,10 +96,10 @@ class SharableTextField extends StatelessWidget {
                   prefix: leading,
                   state: state,
                   suffix: trailing == null ? Icons.ios_share : null,
-                  fillColor: styleColor.onPrimary,
+                  fillColor: style.onPrimary,
                   trailing: trailing,
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

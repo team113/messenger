@@ -132,7 +132,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     final Widget child;
 
     if (_darkened && PlatformUtils.isDesktop) {
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
       child = Stack(
         children: [
           builder(),
@@ -186,7 +186,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     if (widget.actions.isEmpty) {
       return;
     }

@@ -585,7 +585,8 @@ extension PresenceL10n on Presence {
 
   /// Returns a [Color] representing this [Presence].
   Color? getColor() {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     switch (this) {
       case Presence.present:
         return style.acceptAuxilaryColor;

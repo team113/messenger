@@ -139,7 +139,7 @@ class RecentChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -254,7 +254,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -677,7 +677,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds an [Attachment] visual representation.
   Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
     Widget? content;
 
     if (e is LocalAttachment) {
@@ -780,7 +780,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -824,7 +824,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter() {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       if (rxChat.unreadCount.value > 0) {
@@ -863,7 +863,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [

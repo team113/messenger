@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
@@ -41,7 +41,8 @@ class HintWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Card(
       elevation: 8,
       shadowColor: style.onBackgroundOpacity74,

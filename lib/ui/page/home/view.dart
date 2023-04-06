@@ -94,7 +94,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     if (_deps == null) {
       return Scaffold(
         backgroundColor: style.onPrimary,
@@ -358,7 +358,7 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {

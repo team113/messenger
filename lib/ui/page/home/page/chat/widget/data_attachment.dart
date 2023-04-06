@@ -51,7 +51,7 @@ class _DataAttachmentState extends State<DataAttachment> {
 
     return Obx(() {
       Widget leading = Container();
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
       if (e is FileAttachment) {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:

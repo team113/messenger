@@ -55,7 +55,8 @@ class DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return FieldButton(
       text: 'space'.l10n * 4 + title,
       fillColor: style.onPrimary,

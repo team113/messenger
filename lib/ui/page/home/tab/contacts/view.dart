@@ -52,7 +52,7 @@ class ContactsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -455,7 +455,7 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
 
@@ -578,7 +578,7 @@ class ContactsTabView extends StatelessWidget {
   /// Returns the animated [OutlinedRoundedButton]s for multiple selected
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
@@ -647,7 +647,7 @@ class ContactsTabView extends StatelessWidget {
     BuildContext context,
     RxChatContact contact,
   ) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [

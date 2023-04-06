@@ -60,7 +60,7 @@ class CopyableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final styleColor = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -89,7 +89,7 @@ class CopyableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
-                  fillColor: styleColor.onPrimary,
+                  fillColor: style.onPrimary,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(
@@ -101,7 +101,7 @@ class CopyableTextField extends StatelessWidget {
                     ),
                   ),
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

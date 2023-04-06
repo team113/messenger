@@ -48,7 +48,7 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     Widget header(
       String text, {
@@ -113,9 +113,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             fillColor: style.onPrimary,
-                            style: TextStyle(
-                              color: style.secondary,
-                            ),
+                            style: TextStyle(color: style.secondary),
                           );
                         }),
                       ),
@@ -149,9 +147,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             fillColor: style.onPrimary,
-                            style: TextStyle(
-                              color: style.secondary,
-                            ),
+                            style: TextStyle(color: style.secondary),
                           );
                         }),
                       ),
@@ -185,9 +181,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             fillColor: style.onPrimary,
-                            style: TextStyle(
-                              color: style.secondary,
-                            ),
+                            style: TextStyle(color: style.secondary),
                           );
                         }),
                       ),
@@ -208,9 +202,7 @@ class CallSettingsView extends StatelessWidget {
                           ),
                           maxLines: null,
                           fillColor: style.onPrimary,
-                          style: TextStyle(
-                            color: style.secondary,
-                          ),
+                          style: TextStyle(color: style.secondary),
                         ),
                       ),
                     ),

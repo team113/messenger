@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../routes.dart';
+import '/routes.dart';
 import '/themes.dart';
 
 /// Animated minimizable draggable [Widget] controlled by a [GestureDetector].

@@ -434,7 +434,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
     List<Widget> widgets = [];
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     for (int i = 0; i < widget.actions.length; ++i) {
       if (widget.actions[i] is! ContextMenuDivider) {

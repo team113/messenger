@@ -48,7 +48,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),

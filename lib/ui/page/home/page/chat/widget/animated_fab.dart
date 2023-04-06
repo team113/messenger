@@ -19,8 +19,8 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/routes.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 
 /// Animated button with expandable on toggle [actions].
@@ -152,6 +152,8 @@ class _AnimatedFabState extends State<AnimatedFab>
     _overlayEntry = OverlayEntry(
       builder: (ctx) => LayoutBuilder(
         builder: (context, constraints) {
+          final Style style = Theme.of(context).extension<Style>()!;
+
           if (!firstLayout) {
             final keyContext = _key.currentContext;
             if (keyContext != null) {
@@ -170,9 +172,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: Theme.of(context)
-                          .extension<Style>()!
-                          .onBackground
+                      color: style.onBackground
                           .withOpacity(0.25 * _controller.value),
                     );
                   },
@@ -247,12 +247,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                               const SizedBox(width: 5),
                               Material(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onPrimary,
-                                shadowColor: Theme.of(context)
-                                    .extension<Style>()!
-                                    .onBackgroundOpacity81,
+                                color: style.onPrimary,
+                                shadowColor: style.onBackgroundOpacity81,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,
@@ -304,7 +300,8 @@ class _AnimatedFabState extends State<AnimatedFab>
     void Function()? onTap,
     required Widget icon,
   }) {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return Material(
       type: MaterialType.circle,
       color: style.onPrimary,

@@ -67,7 +67,8 @@ class _ScalerState extends State<Scaler> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onPanStart: (details) {
         setState(() {

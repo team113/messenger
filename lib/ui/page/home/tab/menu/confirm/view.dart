@@ -41,7 +41,7 @@ class ConfirmLogoutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         theme.textTheme.bodyLarge?.copyWith(color: style.onBackground);
 

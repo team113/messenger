@@ -22,10 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
@@ -42,7 +42,8 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -53,7 +54,6 @@ class AuthView extends StatelessWidget {
 
         final TextStyle? thin =
             context.textTheme.bodySmall?.copyWith(color: style.onBackground);
-        final Color primary = style.primary;
 
         // Header part of the page.
         //
@@ -70,7 +70,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: primary),
+            style: thin?.copyWith(fontSize: 24, color: style.primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -78,7 +78,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            style: thin?.copyWith(fontSize: 15.4, color: style.primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -147,7 +147,7 @@ class AuthView extends StatelessWidget {
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,
             }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
+            style: thin?.copyWith(fontSize: 13, color: style.primary),
           ),
           onPressed: () => LanguageSelectionView.show(context, null),
         );
@@ -289,7 +289,8 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     await ModalPopup.show(
       context: context,
       child: Column(

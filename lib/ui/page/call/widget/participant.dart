@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/routes.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
@@ -84,7 +84,8 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
@@ -175,7 +176,8 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Returns a raised hand animated icon.
   Widget _handRaisedIcon(bool isRaised) {
-    final style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: isRaised
@@ -219,7 +221,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool isMuted;
 
@@ -405,7 +408,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Center(
       child: Stack(
         alignment: Alignment.center,

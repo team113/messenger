@@ -51,7 +51,8 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
@@ -262,7 +263,8 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       children: [
         Stack(
@@ -321,10 +323,7 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: TextStyle(
-                  color: style.secondary,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: style.secondary, fontSize: 11),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
@@ -337,10 +336,7 @@ class ChatInfoView extends StatelessWidget {
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(
-                    color: style.secondary,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: style.secondary, fontSize: 11),
                 ),
               ),
             ],
@@ -352,7 +348,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Obx(() {
       return _padding(
@@ -386,7 +382,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,7 +470,7 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       Widget bigButton({
         Key? key,
@@ -538,10 +535,7 @@ class ChatInfoView extends StatelessWidget {
         children: [
           bigButton(
             key: const Key('AddMemberButton'),
-            leading: Icon(
-              Icons.people,
-              color: style.secondary,
-            ),
+            leading: Icon(Icons.people, color: style.secondary),
             title: Text('btn_add_member'.l10n),
             onTap: () => AddChatMemberView.show(context, chatId: id),
           ),
@@ -605,10 +599,7 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: TextStyle(
-                        color: style.secondary,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: style.secondary, fontSize: 15),
                     ),
                   )
                 else
@@ -635,7 +626,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -643,7 +635,6 @@ class ChatInfoView extends StatelessWidget {
           FieldButton(
             onPressed: () {},
             text: 'btn_add_to_contacts'.l10n,
-            fillColor: style.onPrimary,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -797,7 +788,8 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
     RxUser user,
   ) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (c.me == user.id) {
       await _leaveGroup(c, context);
     } else {
@@ -833,7 +825,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
@@ -853,7 +846,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
@@ -876,7 +870,8 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [

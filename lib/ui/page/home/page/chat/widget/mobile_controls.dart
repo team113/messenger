@@ -96,7 +96,8 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder?.call(
             context,
@@ -205,7 +206,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
     return AnimatedOpacity(
@@ -255,7 +257,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
       backgroundColor: style.onBackgroundOpacity88,
@@ -269,7 +272,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTap: () {
         _cancelAndRestartTimer();
@@ -305,7 +309,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
@@ -333,7 +338,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Expanded(
       child: VideoProgressBar(
         _controller,

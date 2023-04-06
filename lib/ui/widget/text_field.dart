@@ -173,7 +173,8 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final styleColor = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Obx(() {
         return WidgetButton(
           onPressed: state.approvable && state.changed.value
@@ -202,7 +203,7 @@ class ReactiveTextField extends StatelessWidget {
                                     child: Icon(
                                       Icons.check,
                                       size: 18,
-                                      color: styleColor.acceptAuxilaryColor,
+                                      color: style.acceptAuxilaryColor,
                                     ),
                                   )
                                 : (state.error.value != null &&
@@ -214,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: styleColor.warningColor,
+                                          color: style.warningColor,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -250,7 +251,8 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final styleColor = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
@@ -258,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: styleColor.warningColor)
+                        ?.copyWith(color: style.warningColor)
                     : null,
               ),
         ),
@@ -272,7 +274,7 @@ class ReactiveTextField extends StatelessWidget {
                       ? CupertinoTextSelectionControls()
                       : null,
               controller: state.controller,
-              style: style,
+              style: this.style,
               focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
@@ -328,8 +330,8 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (style ?? const TextStyle()).copyWith(
-                              color: styleColor.warningColor,
+                            style: (this.style ?? const TextStyle()).copyWith(
+                              color: style.warningColor,
                               fontSize: 13,
                             ),
                           ),

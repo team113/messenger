@@ -35,7 +35,8 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
@@ -64,10 +65,7 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: thin?.copyWith(
-                  fontSize: 15,
-                  color: style.primary,
-                ),
+                style: thin?.copyWith(fontSize: 15, color: style.primary),
               ),
             ),
           ),

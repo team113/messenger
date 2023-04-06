@@ -178,8 +178,9 @@ class ChatItemWidget extends StatefulWidget {
     bool filled = true,
     bool autoLoad = true,
   }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isLocal = e is LocalAttachment;
-    final style = Theme.of(context).extension<Style>()!;
     final bool isVideo;
     if (isLocal) {
       isVideo = e.file.isVideo;
@@ -454,7 +455,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return DefaultTextStyle(
       style: style.boldBody,
       child: Obx(() {
@@ -476,7 +477,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
@@ -786,7 +787,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
@@ -1035,7 +1036,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     var message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
@@ -1190,7 +1191,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     bool fromMe = item.author == widget.me;
 
@@ -1403,7 +1404,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Widget Function(bool menu) builder, {
     double avatarOffset = 0,
   }) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     ChatItem item = widget.item.value;
 
     String? copyable;

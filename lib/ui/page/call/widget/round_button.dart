@@ -34,7 +34,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.assetWidth = 60,
     this.onPressed,
     this.text,
-    required this.color,
+    this.color,
     this.hint,
     this.withBlur = false,
     this.style,
@@ -105,7 +105,8 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
       borderRadius: BorderRadius.circular(60),
@@ -202,7 +203,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       } else {
         firstLayout = false;
       }
-      final style = Theme.of(context).extension<Style>()!;
+
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return IgnorePointer(
         child: Stack(
           children: [
