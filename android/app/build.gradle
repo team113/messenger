@@ -26,14 +26,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
-    ndkVersion "25.1.8937393"
     compileSdkVersion 33
 
     compileOptions {
@@ -61,42 +54,15 @@ android {
         }
     }
 
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-        }
-    }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release`
+            // works.
+            signingConfig signingConfigs.debug
         }
     }
 }
-
-// def Properties props = new Properties()
-// def propFile = new File('key.properties')
-// if (propFile.canRead()){
-//     props.load(new FileInputStream(propFile))
-
-//     if (props != null
-//         && props.containsKey('STORE_FILE')
-//         && props.containsKey('STORE_PASSWORD')
-//         && props.containsKey('KEY_ALIAS')
-//         && props.containsKey('KEY_PASSWORD')
-//     ) {
-//         android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
-//         android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
-//         android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
-//         android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
-//     } else {
-//         android.buildTypes.release.signingConfig = null
-//     }
-// } else {
-//     android.buildTypes.release.signingConfig = null
-// }
 
 flutter {
     source '../..'
