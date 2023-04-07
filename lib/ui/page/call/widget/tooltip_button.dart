@@ -42,16 +42,11 @@ class TooltipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget button = InkWell(
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      onTap: onTap,
-      child: child,
-    );
-
     return hint == null
-        ? button
+        ? ButtonOfTooltip(
+            onTap: onTap,
+            child: child,
+          )
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
@@ -65,7 +60,35 @@ class TooltipButton extends StatelessWidget {
               ],
             ),
             decoration: const BoxDecoration(),
-            child: button,
+            child: ButtonOfTooltip(
+              onTap: onTap,
+              child: child,
+            ),
           );
+  }
+}
+
+class ButtonOfTooltip extends StatelessWidget {
+  /// Widget of this button.
+  final Widget? child;
+
+  /// Callback, called when this button is pressed.
+  final GestureTapCallback? onTap;
+
+  const ButtonOfTooltip({
+    Key? key,
+    this.child,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      onTap: onTap,
+      child: child,
+    );
   }
 }

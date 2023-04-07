@@ -106,7 +106,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   @override
   Widget build(BuildContext context) {
     if (widget.border != null) {
-      DecoratedBox(
+      return DecoratedBox(
         position: DecorationPosition.foreground,
         decoration:
             BoxDecoration(border: widget.border, shape: BoxShape.circle),
