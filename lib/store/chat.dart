@@ -156,12 +156,18 @@ class ChatRepository implements AbstractChatRepository {
       HashMap<ChatId, ChatData> chats =
           await Backoff.run(_recentChats, _cancelToken);
 
+      HashMap<ChatId, ChatData> chatsWithCall = await Backoff.run(
+        () => _recentChats(withOngoingCalls: true),
+        _cancelToken,
+      );
+
       for (HiveChat c in _chatLocal.chats) {
         if (!c.value.id.isLocal && !chats.containsKey(c.value.id)) {
           _chatLocal.remove(c.value.id);
         }
       }
 
+      chats.addAll(chatsWithCall);
       for (ChatData c in chats.values) {
         _chats[c.chat.value.id]?.subscribe();
         _putEntry(c);
@@ -1160,7 +1166,7 @@ class ChatRepository implements AbstractChatRepository {
         break;
 
       case RecentChatsEventKind.deleted:
-        // No-op.
+// No-op.
         break;
     }
   }
@@ -1192,10 +1198,15 @@ class ChatRepository implements AbstractChatRepository {
   // TODO: Chat list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [HiveChat]s from the remote.
-  Future<HashMap<ChatId, ChatData>> _recentChats() async {
+  Future<HashMap<ChatId, ChatData>> _recentChats({
+    bool? withOngoingCalls,
+  }) async {
     const maxInt = 120;
-    RecentChats$Query$RecentChats query =
-        (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
+    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
+      first: maxInt,
+      withOngoingCalls: withOngoingCalls,
+    ))
+        .recentChats;
 
     HashMap<ChatId, ChatData> chats = HashMap();
     for (var c in query.nodes) {
