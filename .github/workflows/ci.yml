@@ -118,13 +118,13 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          # - apk
-          # - appbundle
-          # - ios
-          # - linux
+          - apk
+          - appbundle
+          - ios
+          - linux
           - macos
-          # - web
-          # - windows
+          - web
+          - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
     runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
                                                && 'macos-12')
