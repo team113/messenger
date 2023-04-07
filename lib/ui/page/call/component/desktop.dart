@@ -1669,9 +1669,8 @@ class PositionedBoilerplateWidget extends StatelessWidget {
 class _SecondaryView extends StatelessWidget {
   final CallController c;
   const _SecondaryView(
-    this.c, {
-    super.key,
-  });
+    this.c,
+  );
 
   @override
   Widget build(BuildContext context) {
