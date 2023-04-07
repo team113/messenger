@@ -1166,7 +1166,7 @@ class ChatRepository implements AbstractChatRepository {
         break;
 
       case RecentChatsEventKind.deleted:
-// No-op.
+        // No-op.
         break;
     }
   }
