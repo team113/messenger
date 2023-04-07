@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -86,47 +87,46 @@ class ParticipantWidget extends StatelessWidget {
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
-      // [Widget]s to display in background when no video is available.
-      List<Widget> background() {
-        return [
-          CallCoverWidget(
-            participant.user.value?.user.value.callCover,
-            user: participant.user.value?.user.value,
-          )
-        ];
-      }
-
       return Stack(
         children: [
-          if (!hasVideo) ...background(),
-          AnimatedSwitcher(
-            key: const Key('AnimatedSwitcher'),
-            duration: animate
-                ? const Duration(milliseconds: 200)
-                : const Duration(seconds: 1),
-            child: !hasVideo
-                ? Container()
-                : Center(
-                    child: RtcVideoView(
-                      participant.video.value!.renderer.value
-                          as RtcVideoRenderer,
-                      source: participant.source,
-                      key: participant.videoKey,
-                      mirror:
-                          participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.Device,
-                      fit: fit,
-                      borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      border:
-                          outline == null ? null : Border.all(color: outline!),
-                      onSizeDetermined: onSizeDetermined,
-                      enableContextMenu: false,
-                      respectAspectRatio: respectAspectRatio,
-                      offstageUntilDetermined: offstageUntilDetermined,
-                      framelessBuilder: () => Stack(children: background()),
-                    ),
-                  ),
-          ),
+          (!hasVideo)
+              ? BackgroundParicipantWidget(
+                  participant: participant,
+                )
+              : AnimatedSwitcher(
+                  key: const Key('AnimatedSwitcher'),
+                  duration: animate
+                      ? const Duration(milliseconds: 200)
+                      : const Duration(seconds: 1),
+                  child: !hasVideo
+                      ? Container()
+                      : Center(
+                          child: RtcVideoView(
+                            participant.video.value!.renderer.value
+                                as RtcVideoRenderer,
+                            source: participant.source,
+                            key: participant.videoKey,
+                            mirror: participant.member.owner ==
+                                    MediaOwnerKind.local &&
+                                participant.source == MediaSourceKind.Device,
+                            fit: fit,
+                            borderRadius:
+                                borderRadius ?? BorderRadius.circular(10),
+                            border: outline == null
+                                ? null
+                                : Border.all(color: outline!),
+                            onSizeDetermined: onSizeDetermined,
+                            enableContextMenu: false,
+                            respectAspectRatio: respectAspectRatio,
+                            offstageUntilDetermined: offstageUntilDetermined,
+                            framelessBuilder: () => Stack(children: [
+                              BackgroundParicipantWidget(
+                                participant: participant,
+                              )
+                            ]),
+                          ),
+                        ),
+                ),
           Obx(() {
             final Widget child;
 
@@ -164,28 +164,13 @@ class ParticipantWidget extends StatelessWidget {
             return AnimatedSwitcher(duration: 250.milliseconds, child: child);
           }),
           Positioned.fill(
-            child: _handRaisedIcon(participant.member.isHandRaised.value),
+            child: _HandRaisedButton(
+              isRaised: participant.member.isHandRaised.value,
+            ),
           ),
         ],
       );
     });
-  }
-
-  /// Returns a raised hand animated icon.
-  Widget _handRaisedIcon(bool isRaised) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 150),
-      child: isRaised
-          ? CircleAvatar(
-              radius: 45,
-              backgroundColor: const Color(0xD8818181),
-              child: SvgLoader.asset(
-                'assets/icons/hand_up.svg',
-                width: 90,
-              ),
-            )
-          : Container(),
-    );
   }
 }
 
@@ -416,6 +401,78 @@ class ParticipantDecoratorWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// [Widget]s to display in background when no video is available.
+class BackgroundParicipantWidget extends StatelessWidget {
+  /// [Participant] this [ParticipantWidget] represents.
+  final Participant participant;
+  const BackgroundParicipantWidget({super.key, required this.participant});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      CallCoverWidget(
+        participant.user.value?.user.value.callCover,
+        user: participant.user.value?.user.value,
+      )
+    ]);
+  }
+}
+
+/// Returns a raised hand animated icon.
+class _HandRaisedButton extends StatelessWidget {
+  final bool isRaised;
+  const _HandRaisedButton({
+    Key? key,
+    required this.isRaised,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 150),
+      child: isRaised
+          ? CircleAvatar(
+              radius: 45,
+              backgroundColor: const Color(0xD8818181),
+              child: SvgLoader.asset(
+                'assets/icons/hand_up.svg',
+                width: 90,
+              ),
+            )
+          : Container(),
+    );
+  }
+}
+
+class NameParticipantWidget extends StatelessWidget {
+  /// [Participant] this [ParticipantOverlayWidget] represents.
+  final Participant participant;
+
+  const NameParticipantWidget({
+    Key? key,
+    required this.participant,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 3, right: 3),
+      child: Text(
+        participant.user.value?.user.value.name?.val ??
+            participant.user.value?.user.value.num.val ??
+            'dot'.l10n * 3,
+        style: context.theme.outlinedButtonTheme.style!.textStyle!
+            .resolve({MaterialState.disabled})!.copyWith(
+          fontSize: 15,
+          color: Colors.white,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
