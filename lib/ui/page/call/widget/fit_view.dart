@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -189,54 +190,111 @@ class FitView extends StatelessWidget {
       int mColumns =
           calculate(constraints: constraints, length: children.length);
 
-      // Creates a column of a row at [rowIndex] index.
-      List<Widget> createColumn(int rowIndex) {
-        final List<Widget> column = [];
-
-        for (int columnIndex = 0; columnIndex < mColumns; columnIndex++) {
-          final cellIndex = rowIndex * mColumns + columnIndex;
-          if (cellIndex <= children.length - 1) {
-            column.add(Expanded(child: children[cellIndex]));
-            if (dividerColor != null &&
-                columnIndex < mColumns - 1 &&
-                cellIndex < children.length - 1) {
-              column.add(IgnorePointer(
-                child: Container(
-                  width: dividerSize,
-                  height: double.infinity,
-                  color: dividerColor,
-                ),
-              ));
-            }
-          }
-        }
-
-        return column;
-      }
-
-      // Creates a row of a [_createColumn]s.
-      List<Widget> createRows() {
-        final List<Widget> rows = [];
-        final rowCount = (children.length / mColumns).ceil();
-
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-          final List<Widget> column = createColumn(rowIndex);
-          rows.add(Expanded(child: Row(children: column)));
-          if (dividerColor != null && rowIndex < rowCount - 1) {
-            rows.add(IgnorePointer(
-              child: Container(
-                height: dividerSize,
-                width: double.infinity,
-                color: dividerColor,
-              ),
-            ));
-          }
-        }
-
-        return rows;
-      }
-
-      return Column(children: createRows());
+      return Column(
+        children: CreateRowsWidget(
+          mColumns: mColumns,
+          dividerSize: dividerSize,
+          children: children,
+        ) as List<Widget>,
+      );
     });
+  }
+}
+
+/// Creates a column of a row at [rowIndex] index.
+class CreateColumnWidget extends StatelessWidget {
+  final int mColumns;
+  final int rowIndex;
+
+  /// Color of a divider between [children].
+  ///
+  /// If `null`, then there will be no divider at all.
+  final Color? dividerColor;
+
+  /// Size of a divider between [children].
+  final double dividerSize;
+
+  final List<Widget> children;
+  const CreateColumnWidget({
+    Key? key,
+    required this.mColumns,
+    required this.rowIndex,
+    this.dividerColor,
+    required this.dividerSize,
+    required this.children,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> column = [];
+
+    for (int columnIndex = 0; columnIndex < mColumns; columnIndex++) {
+      final cellIndex = rowIndex * mColumns + columnIndex;
+      if (cellIndex <= children.length - 1) {
+        column.add(Expanded(child: children[cellIndex]));
+        if (dividerColor != null &&
+            columnIndex < mColumns - 1 &&
+            cellIndex < children.length - 1) {
+          column.add(IgnorePointer(
+            child: Container(
+              width: dividerSize,
+              height: double.infinity,
+              color: dividerColor,
+            ),
+          ));
+        }
+      }
+    }
+
+    return Column(children: column);
+  }
+}
+
+/// Creates a row of a [_createColumn]s.
+class CreateRowsWidget extends StatelessWidget {
+  final int mColumns;
+
+  /// Color of a divider between [children].
+  ///
+  /// If `null`, then there will be no divider at all.
+  final Color? dividerColor;
+
+  /// Size of a divider between [children].
+  final double dividerSize;
+
+  final List<Widget> children;
+  const CreateRowsWidget({
+    Key? key,
+    required this.mColumns,
+    this.dividerColor,
+    required this.dividerSize,
+    required this.children,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> rows = [];
+    final rowCount = (children.length / mColumns).ceil();
+
+    for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+      final List<Widget> column = CreateColumnWidget(
+        mColumns: mColumns,
+        rowIndex: rowIndex,
+        dividerSize: dividerSize,
+        children: children,
+      ) as List<Widget>;
+      rows.add(Expanded(child: Row(children: column)));
+      if (dividerColor != null && rowIndex < rowCount - 1) {
+        rows.add(IgnorePointer(
+          child: Container(
+            height: dividerSize,
+            width: double.infinity,
+            color: dividerColor,
+          ),
+        ));
+      }
+    }
+
+    return Row(children: rows);
   }
 }
