@@ -118,13 +118,13 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - apk
-          - appbundle
-          - ios
-          - linux
+          # - apk
+          # - appbundle
+          # - ios
+          # - linux
           - macos
-          - web
-          - windows
+          # - web
+          # - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
     runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
                                                && 'macos-12')
@@ -149,6 +149,18 @@ jobs:
                           libgstreamer-plugins-base1.0-dev
                           libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
+
+      # - name: Codesign executable
+      #   env:
+      #     MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+      #     MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+      #   run: |
+      #     echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
+      #     security create-keychain -p password build.keychain
+      #     security default-keychain -s build.keychain
+      #     security unlock-keychain -p password build.keychain
+      #     security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+      #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
