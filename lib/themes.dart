@@ -69,6 +69,11 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            linkStyle: const TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+              decorationThickness: 2,
+            ),
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
@@ -348,6 +353,7 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.linkStyle,
     required this.messageColor,
     required this.primaryBorder,
     required this.readMessageColor,
@@ -395,6 +401,9 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
+  /// [TextStyle] to apply to a link.
+  final TextStyle linkStyle;
+
   /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
   final Color messageColor;
 
@@ -438,6 +447,7 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
+    TextStyle? linkStyle,
     Color? messageColor,
     Border? primaryBorder,
     Color? readMessageColor,
@@ -463,6 +473,7 @@ class Style extends ThemeExtension<Style> {
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      linkStyle: linkStyle ?? this.linkStyle,
       messageColor: messageColor ?? this.messageColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       readMessageColor: readMessageColor ?? this.readMessageColor,
@@ -506,6 +517,7 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      linkStyle: TextStyle.lerp(linkStyle, other.linkStyle, t)!,
       messageColor: Color.lerp(messageColor, other.messageColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       readMessageColor:
