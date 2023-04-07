@@ -34,6 +34,8 @@ All user visible changes to this project will be documented in this file. This p
         - Proportionally resizing secondary panel. ([#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
+    - Menu:
+        - Chat timeline style selection. ([#399])
 
 ### Fixed
 
@@ -58,6 +60,7 @@ All user visible changes to this project will be documented in this file. This p
 [#377]: /../../issues/377
 [#380]: /../../pull/380
 [#388]: /../../pull/388
+[#399]: /../../pull/399
 
 
 

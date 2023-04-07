@@ -930,6 +930,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     children: [
                       WidgetSpan(
                         child: Text.rich(
+                          key: Key('Text_${widget.item.value.id}'),
                           _text!,
                           style: style.boldBody,
                         ),
@@ -940,7 +941,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                     ],
                   ),
-                  key: Key('Text_${widget.item.value.id}'),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,

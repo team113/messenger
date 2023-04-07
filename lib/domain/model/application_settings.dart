@@ -77,7 +77,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(8)
   bool loadImages;
 
-  /// Indicator whether time should be displayed in timeline mode in chat.
+  /// Indicator whether time should be displayed as timeline in chat.
   @HiveField(9)
   bool timelineEnabled;
 }
