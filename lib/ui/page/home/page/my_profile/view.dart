@@ -62,6 +62,7 @@ import 'output_switch/view.dart';
 import 'paid_list/view.dart';
 import 'password/view.dart';
 import 'timeline_switch/view.dart';
+import 'welcome_message/view.dart';
 import 'widget/copyable.dart';
 import 'widget/download_button.dart';
 
@@ -1320,6 +1321,13 @@ Widget _media(BuildContext context, MyProfileController c) {
 }
 
 Widget _welcome(BuildContext context, MyProfileController c) {
+  return _dense(
+    FieldButton(
+      text: 'Change',
+      onPressed: () => WelcomeMessageView.show(context),
+    ),
+  );
+
   return Column(
     children: [
       _padding(

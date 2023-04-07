@@ -234,7 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                       child: Stack(
                                         children: [
                                           SvgLoader.asset(
-                                            'assets/icons/balance8.svg',
+                                            'assets/icons/balance9.svg',
                                             width: 30,
                                             height: 30,
                                           ),
@@ -359,7 +359,7 @@ class _HomeViewState extends State<HomeView> {
                                         );
                                       } else {
                                         child = SvgLoader.asset(
-                                          'assets/icons/chats.svg',
+                                          'assets/icons/chats2.svg',
                                           key: const Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,
