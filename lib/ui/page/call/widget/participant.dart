@@ -386,7 +386,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   duration: const Duration(milliseconds: 150),
                   layoutBuilder: (current, previous) => Stack(
                     alignment: Alignment.center,
-                    children: <Widget>[
+                    children: [
                       if (previous.isNotEmpty) previous.first,
                       if (current != null) current,
                     ],

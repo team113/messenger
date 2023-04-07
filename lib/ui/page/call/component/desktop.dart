@@ -758,8 +758,8 @@ Widget desktopCall(CallController c, BuildContext context) {
 
           return LayoutBuilder(builder: (_, constraints) {
             // Scale the secondary panel after this frame is displayed, as
-            // otherwise it invokes re-drawing twice in a frame, resulting in
-            // an error.
+            // otherwise it invokes re-drawing twice in a frame, resulting in an
+            // error.
             WidgetsBinding.instance.addPostFrameCallback((_) {
               c.scaleSecondary(constraints);
               WidgetsBinding.instance
