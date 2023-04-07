@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -104,59 +105,53 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    Widget button = ConditionalBackdropFilter(
-      condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(60),
-      child: Material(
-        key: _key,
-        elevation: 0,
-        color: widget.color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(60),
-          onHover: widget.hint != null
-              ? (b) {
-                  if (b) {
-                    _populateOverlay();
-                  } else {
-                    _hintEntry?.remove();
-                    _hintEntry = null;
-                  }
-                }
-              : null,
-          onTap: widget.onPressed,
-          child: widget.child ??
-              SizedBox(
-                width: max(widget.assetWidth, 60),
-                height: max(widget.assetWidth, 60),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth,
-                  ),
-                ),
-              ),
-        ),
-      ),
-    );
-
     if (widget.border != null) {
-      button = DecoratedBox(
+      DecoratedBox(
         position: DecorationPosition.foreground,
         decoration:
             BoxDecoration(border: widget.border, shape: BoxShape.circle),
-        child: button,
+        child: RoundButtonWidget(
+          onPressed: widget.onPressed,
+          hint: widget.hint,
+          color: widget.color,
+          withBlur: widget.withBlur,
+          asset: widget.asset,
+          assetWidth: widget.assetWidth,
+          hintEntry: _hintEntry,
+          populateOverlay: () => _populateOverlay(),
+          child: widget.child,
+        ),
       );
     }
 
     return widget.text == null
-        ? button
+        ? RoundButtonWidget(
+            onPressed: widget.onPressed,
+            hint: widget.hint,
+            color: widget.color,
+            withBlur: widget.withBlur,
+            asset: widget.asset,
+            assetWidth: widget.assetWidth,
+            hintEntry: _hintEntry,
+            populateOverlay: () => _populateOverlay(),
+            child: widget.child,
+          )
         : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              button,
+              RoundButtonWidget(
+                onPressed: widget.onPressed,
+                hint: widget.hint,
+                color: widget.color,
+                withBlur: widget.withBlur,
+                asset: widget.asset,
+                assetWidth: widget.assetWidth,
+                hintEntry: _hintEntry,
+                populateOverlay: () => _populateOverlay(),
+                child: widget.child,
+              ),
               const SizedBox(height: 5),
               Text(
                 widget.text!,
@@ -234,5 +229,91 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     });
 
     Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
+  }
+}
+
+class RoundButtonWidget extends StatelessWidget {
+  /// [GlobalKey] of this [RoundFloatingButton] to place its [_hintEntry]
+  /// correctly.
+  final GlobalKey _key = GlobalKey();
+
+  /// Callback, called when the button is tapped or activated other way.
+  ///
+  /// If this is set to `null`, the button is disabled.
+  final void Function()? onPressed;
+
+  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  final Widget? child;
+
+  /// Text that will show above the button on a hover.
+  final String? hint;
+
+  /// Background color of the button.
+  final Color? color;
+
+  /// Indicator whether the button should have a blur under it or not.
+  final bool withBlur;
+
+  /// Name of the asset to place into the [SvgLoader.asset].
+  final String? asset;
+
+  /// Width of the [asset].
+  final double assetWidth;
+
+  /// [OverlayEntry] of the hint of this [RoundFloatingButton].
+  OverlayEntry? hintEntry;
+
+  final void Function()? populateOverlay;
+
+  RoundButtonWidget({
+    Key? key,
+    required this.onPressed,
+    required this.child,
+    required this.hint,
+    required this.color,
+    required this.withBlur,
+    required this.asset,
+    required this.assetWidth,
+    required this.hintEntry,
+    required this.populateOverlay,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ConditionalBackdropFilter(
+      condition: !WebUtils.isSafari && withBlur,
+      borderRadius: BorderRadius.circular(60),
+      child: Material(
+        key: _key,
+        elevation: 0,
+        color: color,
+        type: MaterialType.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(60),
+          onHover: hint != null
+              ? (b) {
+                  if (b) {
+                    populateOverlay;
+                  } else {
+                    hintEntry?.remove();
+                    hintEntry = null;
+                  }
+                }
+              : null,
+          onTap: onPressed,
+          child: child ??
+              SizedBox(
+                width: max(assetWidth, 60),
+                height: max(assetWidth, 60),
+                child: Center(
+                  child: SvgLoader.asset(
+                    'assets/icons/$asset.svg',
+                    width: assetWidth,
+                  ),
+                ),
+              ),
+        ),
+      ),
+    );
   }
 }
