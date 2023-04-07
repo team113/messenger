@@ -138,6 +138,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]-monolog was hidden.
   bool _isHideLocalMonolog = false;
 
+  /// Indicator whether this [ChatRepository] is disposed.
+  bool _isDisposed = false;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -194,6 +197,8 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   void dispose() {
+    _isDisposed = true;
+
     for (var c in _chats.entries) {
       c.value.dispose();
     }
@@ -270,7 +275,11 @@ class ChatRepository implements AbstractChatRepository {
       await _graphQlProvider.createMonologChat(name),
     );
     final HiveRxChat chat = await _putEntry(chatData);
-    await _monolog.set(chat.id);
+
+    if (!_isDisposed) {
+      await _monolog.set(chat.id);
+    }
+
     return chat;
   }
 

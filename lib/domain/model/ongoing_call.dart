@@ -869,7 +869,9 @@ class OngoingCall {
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
 
-      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      if (PlatformUtils.isDesktop &&
+          !PlatformUtils.isWeb &&
+          _mediaManager != null) {
         displays.value = await _mediaManager!.enumerateDisplays();
       }
     } on EnumerateDevicesException catch (e) {
