@@ -1196,7 +1196,6 @@ abstract class UserGraphQlMixin {
         'token': token,
       }),
       options: dio.Options(
-        contentType: 'multipart/form-data',
         headers: {
           if (locale != null) 'Accept-Language': locale,
         },

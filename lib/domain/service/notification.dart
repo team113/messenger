@@ -28,9 +28,7 @@ import 'package:get/get.dart' hide Response;
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
-import '/firebase_options.dart';
 import '/l10n/l10n.dart';
-import '/main.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -72,19 +70,37 @@ class NotificationService extends DisposableService {
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
   ///
-  /// Optional [onNotificationResponse] callback is called when user taps on a
-  /// notification.
+  /// Optional [onLocalNotificationResponse] callback is called when user taps
+  /// on a local notification.
+  ///
+  /// Optional [onFcmNotificationResponse] callback is called when user taps on
+  /// a FCM notification.
+  ///
+  /// Optional [onFcmBackgroundNotificationResponse] callback is called when a
+  /// FCM notification received and the app is in the background or terminated
+  /// state.
   void init({
-    void Function(NotificationResponse)? onNotificationResponse,
+    FirebaseOptions? firebaseOptions,
+    Rx<Language?>? language,
+    void Function(NotificationResponse)? onLocalNotificationResponse,
+    void Function(RemoteMessage message)? onFcmNotificationResponse,
+    Future<void> Function(RemoteMessage message)?
+        onFcmBackgroundNotificationResponse,
   }) async {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
-    _initLocalNotifications(onNotificationResponse);
+    _initLocalNotifications(onLocalNotificationResponse);
 
     try {
-      await _initPushNotifications();
+      await _initPushNotifications(
+        firebaseOptions: firebaseOptions,
+        language: language,
+        onFcmNotificationResponse: onFcmNotificationResponse,
+        onFcmBackgroundNotificationResponse:
+            onFcmBackgroundNotificationResponse,
+      );
     } catch (e) {
       Log.print(
         'Failed to initialize push notifications: $e',
@@ -136,7 +152,7 @@ class NotificationService extends DisposableService {
     }
 
     Uint8List? imageBytes;
-    if (PlatformUtils.isAndroid && image != null) {
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb && image != null) {
       try {
         Response response = await PlatformUtils.dio.get(
           image,
@@ -145,6 +161,25 @@ class NotificationService extends DisposableService {
 
         if (response.statusCode == 200) {
           imageBytes = response.data;
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    String? imagePath;
+    if ((PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
+        !PlatformUtils.isWeb &&
+        image != null) {
+      try {
+        File? file = await PlatformUtils.download(
+          image,
+          'notification_image_${DateTime.now()}',
+          null,
+        );
+
+        if (file != null) {
+          imagePath = file.path;
         }
       } catch (_) {
         // No-op.
@@ -176,6 +211,16 @@ class NotificationService extends DisposableService {
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
           ),
           // TODO: Setup custom notification sound for iOS.
+          iOS: DarwinNotificationDetails(
+            attachments: [
+              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+            ],
+          ),
+          macOS: DarwinNotificationDetails(
+            attachments: [
+              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+            ],
+          ),
         ),
         payload: payload,
       );
@@ -232,20 +277,27 @@ class NotificationService extends DisposableService {
   }
 
   /// Initializes the [FirebaseMessaging] for receiving push notifications.
-  Future<void> _initPushNotifications() async {
+  Future<void> _initPushNotifications({
+    FirebaseOptions? firebaseOptions,
+    Rx<Language?>? language,
+    void Function(RemoteMessage message)? onFcmNotificationResponse,
+    Future<void> Function(RemoteMessage message)?
+        onFcmBackgroundNotificationResponse,
+  }) async {
     if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
-      FirebaseMessaging.onBackgroundMessage(backgroundHandler);
-      FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+      if (onFcmBackgroundNotificationResponse != null) {
+        FirebaseMessaging.onBackgroundMessage(
+            onFcmBackgroundNotificationResponse);
+      }
+      FirebaseMessaging.onMessageOpenedApp.listen(onFcmNotificationResponse);
 
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp(options: firebaseOptions);
 
       final RemoteMessage? initial =
           await FirebaseMessaging.instance.getInitialMessage();
 
       if (initial != null) {
-        handleMessage(initial);
+        onFcmNotificationResponse?.call(initial);
       }
 
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
@@ -275,24 +327,26 @@ class NotificationService extends DisposableService {
           );
         }
 
-        _localeWorker = ever(
-          L10n.chosen,
-          (chosen) async {
-            if (locale != chosen?.locale.toString()) {
-              locale = chosen?.locale.toString();
+        if (language != null) {
+          _localeWorker = ever(
+            language,
+            (chosen) async {
+              if (locale != chosen?.locale.toString()) {
+                locale = chosen?.locale.toString();
 
-              if (token != null) {
-                await _graphQlProvider
-                    .unregisterFcmDevice(FcmRegistrationToken(token!));
+                if (token != null) {
+                  await _graphQlProvider
+                      .unregisterFcmDevice(FcmRegistrationToken(token!));
 
-                _graphQlProvider.registerFcmDevice(
-                  FcmRegistrationToken(token!),
-                  locale,
-                );
+                  _graphQlProvider.registerFcmDevice(
+                    FcmRegistrationToken(token!),
+                    locale,
+                  );
+                }
               }
-            }
-          },
-        );
+            },
+          );
+        }
 
         _onTokenRefresh =
             FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {

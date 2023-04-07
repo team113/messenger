@@ -36,6 +36,7 @@ import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart';
 import 'provider/gql/graphql.dart';
@@ -617,7 +618,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             );
 
             deps.put(NotificationService(graphQlProvider)).init(
-                  onNotificationResponse: onNotificationResponse,
+                  firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+                  language: L10n.chosen,
+                  onLocalNotificationResponse: onNotificationResponse,
+                  onFcmBackgroundNotificationResponse: backgroundHandler,
+                  onFcmNotificationResponse: handleMessage,
                 );
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
