@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -16,8 +17,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/gestures.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -110,7 +111,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          _chatSubtitle(c, context),
+                          _ChatSubtitle(c),
                         ],
                       ),
                     ),
@@ -209,22 +210,36 @@ class ChatInfoView extends StatelessWidget {
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
-                      _avatar(c, context),
+                      _AvatarWidget(c),
                       const SizedBox(height: 15),
-                      _name(c, context),
+                      _NameWidget(c),
                     ],
                   ),
                   Block(
                     title: 'label_chat_members'.l10n,
-                    children: [_members(c, context)],
+                    children: [
+                      _MembersWidget(
+                        c,
+                        id: id,
+                        removeChatMember: _removeChatMember,
+                      )
+                    ],
                   ),
                   Block(
                     title: 'label_direct_chat_link'.l10n,
-                    children: [_link(c, context)],
+                    children: [_LinkWidget(c)],
                   ),
                   Block(
                     title: 'label_actions'.l10n,
-                    children: [_actions(c, context)],
+                    children: [
+                      _ActionsWidget(
+                        c,
+                        hideChat: _hideChat,
+                        clearChat: _clearChat,
+                        leaveGroup: _leaveGroup,
+                        blacklistChat: _blacklistChat,
+                      )
+                    ],
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -236,8 +251,116 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Returns a subtitle to display under the [Chat]'s title.
-  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
+  /// Opens a confirmation popup removing the provided [user].
+  Future<void> _removeChatMember(
+    ChatInfoController c,
+    BuildContext context,
+    RxUser user,
+  ) async {
+    if (c.me == user.id) {
+      await _leaveGroup(c, context);
+    } else {
+      final bool? result = await MessagePopup.alert(
+        'label_remove_member'.l10n,
+        description: [
+          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+          TextSpan(
+            text: user.user.value.name?.val ?? user.user.value.num.val,
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+        ],
+      );
+
+      if (result == true) {
+        await c.removeChatMember(user.id);
+      }
+    }
+  }
+
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatInfoController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+    );
+
+    if (result == true) {
+      await c.removeChatMember(c.me!);
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blacklisting this [Chat].
+  Future<void> _blacklistChat(
+    ChatInfoController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      // TODO: Blacklist this [Chat].
+    }
+  }
+}
+
+/// Returns a subtitle to display under the [Chat]'s title.
+class _ChatSubtitle extends StatelessWidget {
+  final ChatInfoController c;
+  const _ChatSubtitle(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
@@ -253,14 +376,33 @@ class ChatInfoView extends StatelessWidget {
       return Container();
     });
   }
+}
 
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
+/// Basic [Padding] wrapper.
+class _PaddingWidget extends StatelessWidget {
+  final Widget child;
+  const _PaddingWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
 
-  /// Returns a [Chat.avatar] visual representation along with its manipulation
-  /// buttons.
-  Widget _avatar(ChatInfoController c, BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(8), child: child);
+  }
+}
+
+/// Returns a [Chat.avatar] visual representation along with its manipulation
+/// buttons.
+class _AvatarWidget extends StatelessWidget {
+  final ChatInfoController c;
+  const _AvatarWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         Stack(
@@ -347,12 +489,21 @@ class ChatInfoView extends StatelessWidget {
       ],
     );
   }
+}
 
-  /// Returns a [Chat.name] editable field.
-  Widget _name(ChatInfoController c, BuildContext context) {
+/// Returns a [Chat.name] editable field.
+class _NameWidget extends StatelessWidget {
+  final ChatInfoController c;
+  const _NameWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
-      return _padding(
-        ReactiveTextField(
+      return _PaddingWidget(
+        child: ReactiveTextField(
           key: const Key('RenameChatField'),
           state: c.name,
           label: c.chat?.chat.value.name == null
@@ -378,9 +529,18 @@ class ChatInfoView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns a [Chat.directLink] editable field.
-  Widget _link(ChatInfoController c, BuildContext context) {
+/// Returns a [Chat.directLink] editable field.
+class _LinkWidget extends StatelessWidget {
+  final ChatInfoController c;
+  const _LinkWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,9 +609,26 @@ class ChatInfoView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns a list of [Chat.members].
-  Widget _members(ChatInfoController c, BuildContext context) {
+/// Returns a list of [Chat.members].
+class _MembersWidget extends StatelessWidget {
+  final ChatInfoController c;
+  final ChatId id;
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+    RxUser user,
+  ) removeChatMember;
+  const _MembersWidget(
+    this.c, {
+    Key? key,
+    required this.id,
+    required this.removeChatMember,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final RxUser? me = c.chat!.members[c.me];
       final List<RxUser> members = [];
@@ -595,7 +772,7 @@ class ChatInfoView extends StatelessWidget {
                 ],
                 if (e.id == c.me)
                   WidgetButton(
-                    onPressed: () => _removeChatMember(c, context, e),
+                    onPressed: () => removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
                       style: TextStyle(
@@ -607,7 +784,7 @@ class ChatInfoView extends StatelessWidget {
                 else
                   WidgetButton(
                     key: const Key('DeleteMemberButton'),
-                    onPressed: () => _removeChatMember(c, context, e),
+                    onPressed: () => removeChatMember(c, context, e),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',
                       height: 14 * 1.5,
@@ -621,18 +798,58 @@ class ChatInfoView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Dense [Padding] wrapper.
-  Widget _dense(Widget child) =>
-      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+/// Dense [Padding] wrapper.
+class _DenseWidget extends StatelessWidget {
+  final Widget child;
+  const _DenseWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
 
-  /// Returns the action buttons to do with this [Chat].
-  Widget _actions(ChatInfoController c, BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+  }
+}
+
+/// Returns the action buttons to do with this [Chat].
+class _ActionsWidget extends StatelessWidget {
+  final ChatInfoController c;
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+  ) hideChat;
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+  ) clearChat;
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+  ) leaveGroup;
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+  ) blacklistChat;
+  const _ActionsWidget(
+    this.c, {
+    Key? key,
+    required this.hideChat,
+    required this.clearChat,
+    required this.leaveGroup,
+    required this.blacklistChat,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dense(
-          FieldButton(
+        _DenseWidget(
+          child: FieldButton(
             onPressed: () {},
             text: 'btn_add_to_contacts'.l10n,
             trailing: Transform.translate(
@@ -646,8 +863,8 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          Obx(() {
+        _DenseWidget(
+          child: Obx(() {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
 
             return FieldButton(
@@ -667,8 +884,8 @@ class ChatInfoView extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 10),
-        _dense(
-          Obx(() {
+        _DenseWidget(
+          child: Obx(() {
             final bool muted = c.chat?.chat.value.muted != null;
 
             return FieldButton(
@@ -696,9 +913,9 @@ class ChatInfoView extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _hideChat(c, context),
+        _DenseWidget(
+          child: FieldButton(
+            onPressed: () => hideChat(c, context),
             text: 'btn_hide_chat'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -711,10 +928,10 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
+        _DenseWidget(
+          child: FieldButton(
             key: const Key('ClearHistoryButton'),
-            onPressed: () => _clearChat(c, context),
+            onPressed: () => clearChat(c, context),
             text: 'btn_clear_history'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -727,9 +944,9 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _leaveGroup(c, context),
+        _DenseWidget(
+          child: FieldButton(
+            onPressed: () => leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -742,9 +959,9 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _blacklistChat(c, context),
+        _DenseWidget(
+          child: FieldButton(
+            onPressed: () => blacklistChat(c, context),
             text: 'btn_block'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -757,8 +974,8 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _dense(
-          FieldButton(
+        _DenseWidget(
+          child: FieldButton(
             onPressed: () {},
             text: 'btn_report'.l10n,
             trailing: Transform.translate(
@@ -773,104 +990,5 @@ class ChatInfoView extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// Opens a confirmation popup removing the provided [user].
-  Future<void> _removeChatMember(
-    ChatInfoController c,
-    BuildContext context,
-    RxUser user,
-  ) async {
-    if (c.me == user.id) {
-      await _leaveGroup(c, context);
-    } else {
-      final bool? result = await MessagePopup.alert(
-        'label_remove_member'.l10n,
-        description: [
-          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-          TextSpan(
-            text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
-          ),
-          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-        ],
-      );
-
-      if (result == true) {
-        await c.removeChatMember(user.id);
-      }
-    }
-  }
-
-  /// Opens a confirmation popup leaving this [Chat].
-  Future<void> _leaveGroup(ChatInfoController c, BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_leave_group'.l10n,
-      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
-    );
-
-    if (result == true) {
-      await c.removeChatMember(c.me!);
-    }
-  }
-
-  /// Opens a confirmation popup hiding this [Chat].
-  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.hideChat();
-    }
-  }
-
-  /// Opens a confirmation popup clearing this [Chat].
-  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.clearChat();
-    }
-  }
-
-  /// Opens a confirmation popup blacklisting this [Chat].
-  Future<void> _blacklistChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_block'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      // TODO: Blacklist this [Chat].
-    }
   }
 }
