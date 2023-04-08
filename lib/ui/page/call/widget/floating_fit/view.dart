@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -17,8 +18,8 @@
 
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../animated_transition.dart';
@@ -152,7 +153,17 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                       ),
                   ],
                 ),
-                if (!widget.fit) _floatingPanel(c, context, constraints),
+                if (!widget.fit)
+                  _FloatingPanelWidget(
+                    c: c,
+                    context: context,
+                    constraints: constraints,
+                    paneled: _paneled,
+                    itemBuilder: widget.itemBuilder,
+                    overlayBuilder: widget.overlayBuilder,
+                    onManipulated: widget.onManipulated,
+                    swap: _swap,
+                  ),
               ],
             );
           }),
@@ -162,11 +173,107 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
   }
 
   /// Returns the visual representation of a floating panel.
-  Widget _floatingPanel(
-    FloatingFitController c,
-    BuildContext context,
-    BoxConstraints constraints,
-  ) {
+
+  /// Swaps the [_paneled] and the [_primary] items with an animation.
+  void _swap() {
+    final _FloatingItem<T> paneled = _paneled;
+    final _FloatingItem<T> primary = _primary;
+
+    ++_locked;
+    paneled.entry = OverlayEntry(builder: (context) {
+      return AnimatedTransition(
+        beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
+        endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
+        onEnd: () {
+          paneled.entry?.remove();
+          paneled.entry = null;
+          --_locked;
+          setState(() {});
+        },
+        child: widget.itemBuilder(paneled.item),
+      );
+    });
+
+    ++_locked;
+    primary.entry = OverlayEntry(builder: (context) {
+      return AnimatedTransition(
+        beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
+        endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
+        onEnd: () {
+          primary.entry?.remove();
+          primary.entry = null;
+          --_locked;
+          setState(() {});
+        },
+        child: widget.itemBuilder(primary.item),
+      );
+    });
+
+    Overlay.of(context)
+        .insertAll([paneled.entry, primary.entry].whereNotNull());
+
+    _paneled = primary;
+    _primary = paneled;
+
+    widget.onSwapped?.call(_primary.item, _paneled.item);
+
+    setState(() {});
+  }
+}
+
+/// Data of an [Object] used in a [FloatingFit].
+class _FloatingItem<T> {
+  _FloatingItem(this.item);
+
+  /// Item itself.
+  final T item;
+
+  /// [GlobalKey] of an [item].
+  final GlobalKey itemKey = GlobalKey();
+
+  /// [OverlayEntry] of this [_FloatingItem].
+  OverlayEntry? entry;
+}
+
+/// Returns the visual representation of a floating panel.
+class _FloatingPanelWidget<Object> extends StatelessWidget {
+  final FloatingFitController c;
+  final BuildContext context;
+  final BoxConstraints constraints;
+
+  /// [_FloatingItem] to put in a floating panel of this [FloatingFit].
+  final _FloatingItem<Object> paneled;
+
+  /// Builder building the provided item.
+  final Widget Function(Object data) itemBuilder;
+
+  /// Builder building the provided item's overlay.
+  final Widget Function(Object data) overlayBuilder;
+
+  /// Callback, called when floating panel is being manipulated in some way.
+  final void Function(bool)? onManipulated;
+
+  /// Callback, called when floating panel is being manipulated in some way.
+  final void Function()? swap;
+
+  const _FloatingPanelWidget({
+    Key? key,
+    required this.c,
+    required this.context,
+    required this.constraints,
+    required this.paneled,
+    required this.itemBuilder,
+    required this.overlayBuilder,
+    required this.onManipulated,
+    required this.swap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       double? left = c.left.value;
       double? top = c.top.value;
@@ -242,15 +349,15 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: ClipRRect(
                 key: const Key('SecondaryView'),
                 borderRadius: BorderRadius.circular(10),
-                child: _paneled.entry == null
+                child: paneled.entry == null
                     ? KeyedSubtree(
-                        key: _paneled.itemKey,
+                        key: paneled.itemKey,
                         child: Stack(
                           children: [
-                            widget.itemBuilder(_paneled.item),
+                            itemBuilder(paneled.item),
                             AnimatedDelayedSwitcher(
                               duration: 100.milliseconds,
-                              child: widget.overlayBuilder(_paneled.item),
+                              child: overlayBuilder(paneled.item),
                             ),
                           ],
                         ),
@@ -267,11 +374,11 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
             top: top,
             bottom: bottom,
             child: Listener(
-              onPointerDown: (_) => widget.onManipulated?.call(true),
-              onPointerUp: (_) => widget.onManipulated?.call(false),
+              onPointerDown: (_) => onManipulated?.call(true),
+              onPointerUp: (_) => onManipulated?.call(false),
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: _swap,
+                onTap: () => swap,
                 onScaleStart: (d) {
                   c.bottomShifted = null;
 
@@ -320,68 +427,4 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       );
     });
   }
-
-  /// Swaps the [_paneled] and the [_primary] items with an animation.
-  void _swap() {
-    final _FloatingItem<T> paneled = _paneled;
-    final _FloatingItem<T> primary = _primary;
-
-    ++_locked;
-    paneled.entry = OverlayEntry(builder: (context) {
-      return AnimatedTransition(
-        beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
-        endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-        onEnd: () {
-          paneled.entry?.remove();
-          paneled.entry = null;
-          --_locked;
-          setState(() {});
-        },
-        child: widget.itemBuilder(paneled.item),
-      );
-    });
-
-    ++_locked;
-    primary.entry = OverlayEntry(builder: (context) {
-      return AnimatedTransition(
-        beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
-        endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-        onEnd: () {
-          primary.entry?.remove();
-          primary.entry = null;
-          --_locked;
-          setState(() {});
-        },
-        child: widget.itemBuilder(primary.item),
-      );
-    });
-
-    Overlay.of(context)
-        .insertAll([paneled.entry, primary.entry].whereNotNull());
-
-    _paneled = primary;
-    _primary = paneled;
-
-    widget.onSwapped?.call(_primary.item, _paneled.item);
-
-    setState(() {});
-  }
-}
-
-/// Data of an [Object] used in a [FloatingFit].
-class _FloatingItem<T> {
-  _FloatingItem(this.item);
-
-  /// Item itself.
-  final T item;
-
-  /// [GlobalKey] of an [item].
-  final GlobalKey itemKey = GlobalKey();
-
-  /// [OverlayEntry] of this [_FloatingItem].
-  OverlayEntry? entry;
 }
