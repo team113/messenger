@@ -645,68 +645,10 @@ class _MembersWidget extends StatelessWidget {
 
       final Style style = Theme.of(context).extension<Style>()!;
 
-      Widget bigButton({
-        Key? key,
-        Widget? leading,
-        required Widget title,
-        Widget? subtitle,
-        void Function()? onTap,
-        bool selected = false,
-      }) {
-        return SizedBox(
-          key: key,
-          height: 56,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              border: style.cardBorder,
-              color: Colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: selected
-                  ? style.cardSelectedColor
-                  : style.cardColor.darken(0.05),
-              child: InkWell(
-                borderRadius: style.cardRadius,
-                onTap: onTap,
-                hoverColor: const Color(0xFFF4F9FF),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: DefaultTextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontWeight: FontWeight.w300,
-                          ),
-                          child: title,
-                        ),
-                      ),
-                      if (leading != null) ...[
-                        const SizedBox(width: 12),
-                        leading,
-                        const SizedBox(width: 4),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          bigButton(
+          BigButtonWidget(
             key: const Key('AddMemberButton'),
             leading: Icon(
               Icons.people,
@@ -989,6 +931,75 @@ class _ActionsWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class BigButtonWidget extends StatelessWidget {
+  final Widget? leading;
+  final Widget title;
+  final Widget? subtitle;
+  final void Function()? onTap;
+  final bool selected;
+  const BigButtonWidget({
+    Key? key,
+    this.leading,
+    required this.title,
+    this.subtitle,
+    this.onTap,
+    this.selected = false,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return SizedBox(
+      key: key,
+      height: 56,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color:
+              selected ? style.cardSelectedColor : style.cardColor.darken(0.05),
+          child: InkWell(
+            borderRadius: style.cardRadius,
+            onTap: onTap,
+            hoverColor: const Color(0xFFF4F9FF),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              child: Row(
+                children: [
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: DefaultTextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      child: title,
+                    ),
+                  ),
+                  if (leading != null) ...[
+                    const SizedBox(width: 12),
+                    leading!,
+                    const SizedBox(width: 4),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
