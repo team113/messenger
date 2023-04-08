@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -173,21 +174,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
-                          return Obx(() {
-                            return AnimatedScale(
-                              duration: 150.milliseconds,
-                              scale: c.page.value == tab ? 1.2 : 1,
-                              child: AnimatedOpacity(
-                                duration: 150.milliseconds,
-                                opacity: c.page.value == tab ? 1 : 0.7,
-                                child: child,
-                              ),
-                            );
-                          });
-                        }
-
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -197,7 +183,8 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                child: tab(
+                                child: TabBoilerplateWidget(
+                                  c,
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
                                     'assets/icons/contacts.svg',
@@ -219,7 +206,8 @@ class _HomeViewState extends State<HomeView> {
                                     HapticFeedback.lightImpact();
                                     ChatsMoreView.show(context);
                                   },
-                                  child: tab(
+                                  child: TabBoilerplateWidget(
+                                    c,
                                     tab: HomeTab.chats,
                                     child: Obx(() {
                                       final Widget child;
@@ -258,7 +246,8 @@ class _HomeViewState extends State<HomeView> {
                                   child: Padding(
                                     key: c.profileKey,
                                     padding: const EdgeInsets.only(bottom: 2),
-                                    child: tab(
+                                    child: TabBoilerplateWidget(
+                                      c,
                                       tab: HomeTab.menu,
                                       child: AvatarWidget.fromMyUser(
                                         c.myUser.value,
@@ -295,32 +284,6 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
-        Widget navigation = IgnorePointer(
-          ignoring: router.route == Routes.home && context.isNarrow,
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Row(
-              children: [
-                Obx(() {
-                  double width = c.sideBarWidth.value;
-                  return ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
-                    child: Container(),
-                  );
-                }),
-                Expanded(
-                  child: Router(
-                    routerDelegate: _routerDelegate,
-                    backButtonDispatcher: _backButtonDispatcher,
-                  ),
-                ),
-              ],
-            );
-          }),
-        );
-
         /// Navigator should be drawn under or above the [sideBar] for the
         /// animations to look correctly.
         ///
@@ -337,11 +300,26 @@ class _HomeViewState extends State<HomeView> {
                   width: double.infinity,
                   height: double.infinity,
                 ),
-                _background(c),
+                _BackgroundWidget(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  Container(
+                    child: context.isNarrow
+                        ? null
+                        : HomeNavigationWidget(
+                            c: c,
+                            backButtonDispatcher: _backButtonDispatcher,
+                            routerDelegate: _routerDelegate,
+                          ),
+                  ),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  Container(
+                      child: context.isNarrow
+                          ? HomeNavigationWidget(
+                              c: c,
+                              backButtonDispatcher: _backButtonDispatcher,
+                              routerDelegate: _routerDelegate,
+                            )
+                          : null),
                 ] else
                   const Scaffold(
                     body: Center(child: CustomProgressIndicator()),
@@ -353,9 +331,92 @@ class _HomeViewState extends State<HomeView> {
       },
     );
   }
+}
 
-  /// Builds the [HomeController.background] visual representation.
-  Widget _background(HomeController c) {
+/// [AnimatedOpacity] boilerplate.
+class TabBoilerplateWidget extends StatelessWidget {
+  final HomeController c;
+  final Widget child;
+  final HomeTab? tab;
+
+  const TabBoilerplateWidget(
+    this.c, {
+    Key? key,
+    required this.child,
+    required this.tab,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return AnimatedScale(
+        duration: 150.milliseconds,
+        scale: c.page.value == tab ? 1.2 : 1,
+        child: AnimatedOpacity(
+          duration: 150.milliseconds,
+          opacity: c.page.value == tab ? 1 : 0.7,
+          child: child,
+        ),
+      );
+    });
+  }
+}
+
+/// Nested navigation widget that displays [navigator] in an [Expanded]
+/// to take all the remaining from the [sideBar] space.
+class HomeNavigationWidget extends StatelessWidget {
+  final HomeController c;
+
+  /// [HomeRouterDelegate] for the nested [Router].
+  final HomeRouterDelegate routerDelegate;
+
+  /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
+  final ChildBackButtonDispatcher backButtonDispatcher;
+  const HomeNavigationWidget({
+    Key? key,
+    required this.c,
+    required this.routerDelegate,
+    required this.backButtonDispatcher,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: router.route == Routes.home && context.isNarrow,
+      child: LayoutBuilder(builder: (context, constraints) {
+        return Row(
+          children: [
+            Obx(() {
+              double width = c.sideBarWidth.value;
+              return ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
+                child: Container(),
+              );
+            }),
+            Expanded(
+              child: Router(
+                routerDelegate: routerDelegate,
+                backButtonDispatcher: backButtonDispatcher,
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+}
+
+/// Builds the [HomeController.background] visual representation.
+class _BackgroundWidget extends StatelessWidget {
+  final HomeController c;
+  const _BackgroundWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
