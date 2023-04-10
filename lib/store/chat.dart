@@ -436,10 +436,10 @@ class ChatRepository extends DisposableInterface
 
         // Delete the local [Chat]-monolog from [Hive], since it won't be
         // removed as is will be hidden right away.
-        remove(id);
+        await remove(id);
 
         id = monolog.chat.value.id;
-        _monologLocal.set(id);
+        await _monologLocal.set(id);
       }
 
       await _graphQlProvider.hideChat(id);
