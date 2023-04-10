@@ -1437,21 +1437,20 @@ class ChatRepository extends DisposableInterface
   /// [responderId] and the authenticated [MyUser].
   Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
+
+    final List<RxUser?> users = [
+      await _userRepo.get(me),
+      if (responderId != me) await _userRepo.get(responderId)
+    ];
+
     final ChatData chatData = ChatData(
       HiveChat(
         Chat(
           chatId,
-          members: [
-            if (responderId != me)
-              ChatMember(
-                (await _userRepo.get(responderId))!.user.value,
-                PreciseDateTime.now(),
-              ),
-            ChatMember(
-              (await _userRepo.get(me))!.user.value,
-              PreciseDateTime.now(),
-            ),
-          ],
+          members: users
+              .whereNotNull()
+              .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
+              .toList(),
           kindIndex: ChatKind.values
               .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
         ),

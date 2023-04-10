@@ -762,4 +762,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Future<ChatMixin?> getMonolog() async {
     return GetMonolog$Query.fromJson({'monolog': null}).monolog;
   }
+
+  @override
+  Future<GetUser$Query> getUser(UserId id) async {
+    return GetUser$Query.fromJson({'user': null});
+  }
 }

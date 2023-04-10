@@ -137,6 +137,12 @@ void main() async {
   )).thenAnswer(
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   test('ChatService successfully toggle chat mute', () async {
     AuthService authService = Get.put(
       AuthService(

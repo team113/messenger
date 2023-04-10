@@ -125,6 +125,8 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((realInvocation) => const Stream.empty());
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );

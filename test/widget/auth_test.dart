@@ -270,6 +270,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
+  Future<GetUser$Query> getUser(UserId id) async {
+    return GetUser$Query.fromJson({'user': null});
+  }
+
+  @override
   Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
     Future.delayed(
       Duration.zero,

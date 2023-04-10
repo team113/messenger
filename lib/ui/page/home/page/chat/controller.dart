@@ -933,7 +933,6 @@ class ChatController extends GetxController {
         _scrollToLastRead();
       }
 
-      print('status.value = RxStatus.success()');
       status.value = RxStatus.success();
 
       if (_bottomLoader != null) {
