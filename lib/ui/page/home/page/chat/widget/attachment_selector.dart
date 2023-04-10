@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -72,34 +73,9 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget button({
-      required String text,
-      IconData? icon,
-      Widget? child,
-      void Function()? onPressed,
-    }) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: RoundFloatingButton(
-          text: text,
-          withBlur: false,
-          onPressed: () {
-            onPressed?.call();
-            Navigator.of(context).pop();
-          },
-          style: const TextStyle(fontSize: 15, color: Colors.black),
-          color: Theme.of(context).colorScheme.secondary,
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
-          ),
-        ),
-      );
-    }
-
     List<Widget> children = [
-      button(
+      _ButtonWidget(
+        icon: null,
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
@@ -110,7 +86,8 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
       ),
       if (PlatformUtils.isAndroid)
-        button(
+        _ButtonWidget(
+          icon: null,
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
           child: SvgLoader.asset(
@@ -119,7 +96,8 @@ class AttachmentSourceSelector extends StatelessWidget {
             height: 60,
           ),
         ),
-      button(
+      _ButtonWidget(
+        icon: null,
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
         child: SvgLoader.asset(
@@ -128,7 +106,8 @@ class AttachmentSourceSelector extends StatelessWidget {
           height: 60,
         ),
       ),
-      button(
+      _ButtonWidget(
+        icon: null,
         text: 'label_file'.l10n,
         onPressed: onPickFile,
         child: SvgLoader.asset(
@@ -156,6 +135,42 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
         const SizedBox(height: 10),
       ],
+    );
+  }
+}
+
+class _ButtonWidget extends StatelessWidget {
+  final String text;
+  final IconData? icon;
+  final Widget? child;
+  final void Function()? onPressed;
+  const _ButtonWidget({
+    Key? key,
+    required this.text,
+    required this.icon,
+    required this.child,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: RoundFloatingButton(
+        text: text,
+        withBlur: false,
+        onPressed: () {
+          onPressed?.call();
+          Navigator.of(context).pop();
+        },
+        style: const TextStyle(fontSize: 15, color: Colors.black),
+        color: Theme.of(context).colorScheme.secondary,
+        child: SizedBox(
+          width: 60,
+          height: 60,
+          child: child ?? Icon(icon, color: Colors.white, size: 30),
+        ),
+      ),
     );
   }
 }
