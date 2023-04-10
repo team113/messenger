@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -127,8 +128,20 @@ class _AnimatedFabState extends State<AnimatedFab>
   Widget build(BuildContext context) => Container(
         key: _key,
         child: _overlayEntry == null
-            ? Container(key: _fabKey, child: _fab())
-            : _fab(),
+            ? Container(
+                key: _fabKey,
+                child: _FabWidget(
+                    controller: _controller,
+                    closedIcon: widget.closedIcon,
+                    openedIcon: widget.openedIcon,
+                    toggleOverlay: () => _toggleOverlay()),
+              )
+            : _FabWidget(
+                controller: _controller,
+                closedIcon: widget.closedIcon,
+                openedIcon: widget.openedIcon,
+                toggleOverlay: () => _toggleOverlay(),
+              ),
       );
 
   /// Populates the [_overlayEntry].
@@ -174,7 +187,14 @@ class _AnimatedFabState extends State<AnimatedFab>
               Positioned(
                 left: offset.dx,
                 top: offset.dy,
-                child: Container(key: _fabKey, child: _fab()),
+                child: Container(
+                  key: _fabKey,
+                  child: _FabWidget(
+                      controller: _controller,
+                      closedIcon: widget.closedIcon,
+                      openedIcon: widget.openedIcon,
+                      toggleOverlay: () => _toggleOverlay()),
+                ),
               ),
               ...widget.actions.mapIndexed(
                 (i, e) {
@@ -235,7 +255,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _button(icon: e.icon, onTap: onTap),
+                            _ButtonWidget(icon: e.icon, onTap: onTap),
                             if (e.label != null) ...[
                               const SizedBox(width: 5),
                               Material(
@@ -287,48 +307,72 @@ class _AnimatedFabState extends State<AnimatedFab>
         break;
     }
   }
+}
 
-  /// Returns an [InkWell] circular button with an [icon].
-  Widget _button({
-    void Function()? onTap,
-    required Widget icon,
-  }) =>
-      Material(
-        type: MaterialType.circle,
-        color: Colors.white,
-        shadowColor: const Color(0x55000000),
-        elevation: 6,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Container(
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            width: 42,
-            height: 42,
-            child: Center(child: icon),
-          ),
+/// Returns an [InkWell] circular button with an [icon].
+class _ButtonWidget extends StatelessWidget {
+  final void Function()? onTap;
+  final Widget icon;
+  const _ButtonWidget({
+    Key? key,
+    required this.onTap,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.circle,
+      color: Colors.white,
+      shadowColor: const Color(0x55000000),
+      elevation: 6,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          width: 42,
+          height: 42,
+          child: Center(child: icon),
         ),
-      );
+      ),
+    );
+  }
+}
 
-  /// Returns an animated circular button toggling overlay.
-  Widget _fab() {
-    return _button(
+/// Returns an animated circular button toggling overlay.
+class _FabWidget extends StatelessWidget {
+  final AnimationController controller;
+  final Widget closedIcon;
+  final Widget openedIcon;
+  final void Function()? toggleOverlay;
+  const _FabWidget({
+    Key? key,
+    required this.controller,
+    required this.closedIcon,
+    required this.openedIcon,
+    required this.toggleOverlay,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _ButtonWidget(
       icon: AnimatedBuilder(
-        animation: _controller,
+        animation: controller,
         builder: (BuildContext context, Widget? _) => Transform.rotate(
-          angle: _controller.value * pi / 2,
+          angle: controller.value * pi / 2,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: _controller.value < 0.4
-                ? widget.closedIcon
+            child: controller.value < 0.4
+                ? closedIcon
                 : Transform.rotate(
                     angle: -pi / 2,
-                    child: Center(child: widget.openedIcon),
+                    child: Center(child: openedIcon),
                   ),
           ),
         ),
       ),
-      onTap: _toggleOverlay,
+      onTap: toggleOverlay,
     );
   }
 }
