@@ -928,30 +928,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             text: TextSpan(
               children: [
                 if (!_fromMe) ...[
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Transform.translate(
-                      offset: Offset(0, PlatformUtils.isWeb ? -4 : 0),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 1),
-                        child: SvgLoader.asset(
-                          'assets/icons/currency_v.svg',
-                          width: 7,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // TextSpan(
-                  //   text: '¤',
-                  //   style: textStyle.copyWith(
-                  //     height: 0.8,
-                  //     fontFamily: 'Gapopa',
-                  //     fontWeight: FontWeight.w300,
-                  //     color: paidColor,
-                  //     fontSize: 11,
+                  // WidgetSpan(
+                  //   alignment: PlaceholderAlignment.middle,
+                  //   child: Transform.translate(
+                  //     offset: Offset(0, PlatformUtils.isWeb ? -4 : 0),
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.only(right: 1),
+                  //       child: SvgLoader.asset(
+                  //         'assets/icons/currency_v.svg',
+                  //         width: 7,
+                  //       ),
+                  //     ),
                   //   ),
                   // ),
                   TextSpan(
+                    text: '¤',
+                    style: textStyle.copyWith(
+                      fontFamily: 'Gapopa',
+                      fontWeight: FontWeight.w300,
+                      color: paidColor,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const WidgetSpan(child: SizedBox(width: 1)),
+                  const TextSpan(
                     text: '123',
                     style: TextStyle(color: paidColor),
                   ),
