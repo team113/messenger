@@ -164,24 +164,24 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
-  Offset _offset = Offset.zero;
+  final Offset _offset = Offset.zero;
 
   /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
-  Offset _totalOffset = Offset.zero;
+  final Offset _totalOffset = Offset.zero;
 
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
-  Duration _offsetDuration = Duration.zero;
+  final Duration _offsetDuration = Duration.zero;
 
   /// Indicator whether this [ChatForwardWidget] is in an ongoing drag.
-  bool _dragging = false;
+  final bool _dragging = false;
 
   /// Indicator whether [GestureDetector] of this [ChatForwardWidget] recognized
   /// a horizontal drag start.
   ///
   /// This indicator doesn't mean that the started drag will become an ongoing.
-  bool _draggingStarted = false;
+  final bool _draggingStarted = false;
 
   /// [SelectedContent] of a [SelectionText] within this [ChatForwardWidget].
   SelectedContent? _selection;
@@ -253,6 +253,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           onEdit: widget.onEdit,
           onHide: widget.onHide,
           onReply: widget.onReply,
+          changeDraggingState: changeDraggingState,
           builder: (menu) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
             child: ClipRRect(
@@ -353,6 +354,24 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         );
       }),
     );
+  }
+
+  void changeDraggingState(
+    bool dragging,
+    bool draggingStarted,
+    Offset offset,
+    Duration offsetDuration,
+    Offset totalOffset,
+  ) {
+    if (dragging) {
+      dragging = false;
+      draggingStarted = false;
+      offset = Offset.zero;
+      totalOffset = Offset.zero;
+      offsetDuration = 200.milliseconds;
+      widget.onDrag?.call(dragging);
+      setState(() {});
+    }
   }
 
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and
@@ -892,6 +911,7 @@ class _RoundedWidget extends StatefulWidget {
     required this.onEdit,
     required this.onHide,
     required this.onReply,
+    required this.changeDraggingState,
     required this.builder,
   }) : super(key: key);
 
@@ -955,6 +975,14 @@ class _RoundedWidget extends StatefulWidget {
   final void Function()? onHide;
 
   final void Function()? onDelete;
+
+  final void Function(
+    bool dragging,
+    bool draggingStarted,
+    Offset offset,
+    Duration offsetDuration,
+    Offset totalOffset,
+  )? changeDraggingState;
 
   final Widget Function(bool) builder;
 
@@ -1091,15 +1119,7 @@ class _RoundedWidgetState extends State<_RoundedWidget> {
           onHorizontalDragEnd: PlatformUtils.isDesktop
               ? null
               : (d) {
-                  if (widget.dragging) {
-                    widget.dragging = false;
-                    widget.draggingStarted = false;
-                    widget.offset = Offset.zero;
-                    widget.totalOffset = Offset.zero;
-                    widget.offsetDuration = 200.milliseconds;
-                    widget.onDrag?.call(widget.dragging);
-                    setState(() {});
-                  }
+                  widget.changeDraggingState;
                 },
           child: Row(
             crossAxisAlignment: widget.fromMe
