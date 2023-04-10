@@ -223,6 +223,8 @@ void main() async {
     (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
   );
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
