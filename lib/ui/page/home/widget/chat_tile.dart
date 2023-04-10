@@ -156,7 +156,8 @@ class _ChatTileState extends State<ChatTile> {
 
     const Color normal = Colors.white;
     const Color hover = Color(0xFFd0e9ff);
-    const Color paid = Color(0xFFe0f0ff);
+    // const Color paid = Color(0xFFe0f0ff);
+    const Color paid = Color.fromRGBO(213, 232, 253, 1);
     const Color chosen = Color(0xFF63B4FF);
 
     final Border normalBorder = Border.all(

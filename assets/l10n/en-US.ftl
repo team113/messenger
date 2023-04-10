@@ -556,6 +556,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->

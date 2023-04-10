@@ -425,7 +425,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isMonolog || chat.isRead(widget.item.value, widget.me);
+      return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
@@ -542,6 +542,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
             return Text('label_group_created'.l10n);
           });
+        } else if (widget.chat.value?.isMonolog == true) {
+          content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -1016,11 +1018,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ? const Color(0xFFF9F9F9)
                           : const Color(0xFFFFFFFF),
                   borderRadius: i == 0
-                      ? const BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
+                      ? BorderRadius.only(
+                          topLeft: const Radius.circular(15),
+                          topRight: const Radius.circular(15),
+                          bottomLeft: msg.repliesTo.length == 1 && _text == null
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                          bottomRight:
+                              msg.repliesTo.length == 1 && _text == null
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
                         )
-                      : BorderRadius.zero,
+                      : i == msg.repliesTo.length - 1 && _text == null
+                          ? const BorderRadius.only(
+                              bottomLeft: Radius.circular(15),
+                              bottomRight: Radius.circular(15),
+                            )
+                          : BorderRadius.zero,
                 ),
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 500),

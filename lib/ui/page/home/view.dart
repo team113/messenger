@@ -247,15 +247,6 @@ class _HomeViewState extends State<HomeView> {
                                             child: Center(
                                               child: Obx(() {
                                                 if (!c.displayFunds) {
-                                                  SvgLoader.asset(
-                                                    // 'assets/icons/inter_white.svg',
-                                                    // height: 12,
-                                                    'assets/icons/currency.svg',
-                                                    height: 12,
-                                                  );
-                                                }
-
-                                                if (!c.displayFunds) {
                                                   return Transform.translate(
                                                     offset: const Offset(-1, 0),
                                                     child: SvgLoader.asset(
@@ -352,14 +343,14 @@ class _HomeViewState extends State<HomeView> {
 
                                       if (c.myUser.value?.muted != null) {
                                         child = SvgLoader.asset(
-                                          'assets/icons/chats_muted.svg',
+                                          'assets/icons/chats_muted2.svg',
                                           key: const Key('Muted'),
                                           width: 36.06,
                                           height: 30,
                                         );
                                       } else {
                                         child = SvgLoader.asset(
-                                          'assets/icons/chats3.svg',
+                                          'assets/icons/chats4.svg',
                                           key: const Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,

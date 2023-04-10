@@ -50,6 +50,7 @@ import 'provider/hive/contact.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
+import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
@@ -473,6 +474,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
+                deps.put(MonologHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -514,6 +516,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callRepository,
                   Get.find(),
                   userRepository,
+                  Get.find(),
                   Get.find(),
                   me: me,
                 ),
@@ -587,6 +590,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
+              deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
@@ -624,6 +628,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
               Get.find(),
               userRepository,
+              Get.find(),
               Get.find(),
               me: me,
             );

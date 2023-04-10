@@ -574,6 +574,7 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_monolog_created = Чат создан
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->

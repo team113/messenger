@@ -109,6 +109,12 @@ class ChatInfoController extends GetxController {
   bool get inCall =>
       _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
+  /// Indicates whether the [chat] is a monolog.
+  bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
+  /// Indicates whether the [chat] is local.
+  bool get isLocal => chat?.chat.value.id.isLocal ?? false;
+
   @override
   void onInit() {
     name = TextFieldState(

@@ -462,6 +462,9 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
+  /// Indicates whether the [chat] is a monolog.
+  bool get isMonolog => chat.value?.chat.value.isMonolog ?? false;
+
   /// Reactive map of the current call [CallMember]s.
   RxObsMap<CallMemberId, CallMember> get members => _currentCall.value.members;
 
@@ -1256,6 +1259,10 @@ class CallController extends GetxController {
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
+    if (isMonolog) {
+      return;
+    }
+
     if (isMobile) {
       panelController.close().then((_) {
         isPanelOpen.value = false;
@@ -1356,8 +1363,8 @@ class CallController extends GetxController {
           if (secondaryBottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              secondaryBottomShifted = null;
               secondaryBottom.value = secondaryBottomShifted;
+              secondaryBottomShifted = null;
             } else {
               secondaryBottom.value =
                   secondaryBottom.value! - intersect.height.abs();

@@ -43,6 +43,10 @@ abstract class AbstractChatRepository {
   RxBool get isReady;
   Rx<RxStatus> get status;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog;
+
   /// Initializes this repository.
   ///
   /// Callback [onMemberRemoved] should be called once an [User] is removed from
@@ -50,9 +54,6 @@ abstract class AbstractChatRepository {
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   });
-
-  /// Disposes this repository.
-  void dispose();
 
   /// Clears the stored [chats].
   Future<void> clearCache();
@@ -188,9 +189,6 @@ abstract class AbstractChatRepository {
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
-
-  /// Creates a [Chat]-monolog for the authenticated [MyUser].
-  Future<RxChat> createMonolog({ChatName? name});
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

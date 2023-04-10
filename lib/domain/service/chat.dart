@@ -55,20 +55,15 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatRepository.monolog;
+
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
   }
-
-  @override
-  void onClose() {
-    _chatRepository.dispose();
-    super.onClose();
-  }
-
-  Future<RxChat> createMonolog({ChatName? name}) =>
-      _chatRepository.createMonolog(name: name);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
@@ -342,7 +337,10 @@ extension ChatIsRoute on Chat {
     final bool byUser = isDialog &&
         member != null &&
         route.startsWith('${Routes.chat}/${ChatId.local(member)}');
+    final bool byMonolog = isMonolog &&
+        me != null &&
+        route.startsWith('${Routes.chat}/${ChatId.local(me)}');
 
-    return byId || byUser;
+    return byId || byUser || byMonolog;
   }
 }

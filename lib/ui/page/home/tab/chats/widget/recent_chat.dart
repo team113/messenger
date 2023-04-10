@@ -954,7 +954,8 @@ class RecentChatTile extends StatelessWidget {
       }
 
       const Color normalColor = Colors.white;
-      const Color paidColor = Color(0xFFe0f0ff);
+      // const Color paidColor = Color(0xFFe0f0ff);
+      const Color paidColor = Color.fromRGBO(213, 232, 253, 1);
 
       Widget button(bool active) {
         return DecoratedBox(
