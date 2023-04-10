@@ -55,18 +55,12 @@ class ChatService extends DisposableService {
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
-  ChatId? get monolog => _chatRepository.monolog;
+  ChatId get monolog => _chatRepository.monolog;
 
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _chatRepository.dispose();
-    super.onClose();
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated

@@ -270,8 +270,8 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        if (user.id == me && _chatService.monolog != null) {
-          router.chat(_chatService.monolog!, push: true);
+        if (user.id == me) {
+          router.chat(_chatService.monolog, push: true);
         } else {
           router.chat(user.user.value.dialog);
         }

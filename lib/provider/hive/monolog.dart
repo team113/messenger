@@ -35,8 +35,8 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
   }
 
   /// Returns the stored [ChatId] from [Hive].
-  ChatId? get monolog => getSafe(0);
+  ChatId? get() => getSafe(0);
 
-  /// Saves the provided [ChatId] in [Hive].
+  /// Saves the provided [ChatId] to [Hive].
   Future<void> set(ChatId id) => putSafe(0, id);
 }

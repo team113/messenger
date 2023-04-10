@@ -44,7 +44,7 @@ abstract class AbstractChatRepository {
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
-  ChatId? get monolog;
+  ChatId get monolog;
 
   /// Initializes this repository.
   ///
@@ -53,9 +53,6 @@ abstract class AbstractChatRepository {
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   });
-
-  /// Disposes this repository.
-  void dispose();
 
   /// Clears the stored [chats].
   Future<void> clearCache();

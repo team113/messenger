@@ -869,10 +869,8 @@ class OngoingCall {
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
 
-      if (PlatformUtils.isDesktop &&
-          !PlatformUtils.isWeb &&
-          _mediaManager != null) {
-        displays.value = await _mediaManager!.enumerateDisplays();
+      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+        displays.value = await _mediaManager?.enumerateDisplays() ?? [];
       }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');

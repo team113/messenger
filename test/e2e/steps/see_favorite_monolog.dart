@@ -38,19 +38,19 @@ final StepDefinitionGeneric seeMonologAsFavorite =
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId? monologId = Get.find<ChatService>().monolog;
+        final ChatId monolog = Get.find<ChatService>().monolog;
 
         switch (status) {
           case FavoriteStatus.favorite:
             return await context.world.appDriver.isPresent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$monologId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
             );
 
           case FavoriteStatus.unfavorite:
             return await context.world.appDriver.isAbsent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$monologId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
             );
         }
       },

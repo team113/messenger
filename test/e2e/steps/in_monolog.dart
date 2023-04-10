@@ -31,7 +31,7 @@ final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
   'I am in monolog',
   (context) async {
     final ChatService chatService = Get.find<ChatService>();
-    router.chat(chatService.monolog!);
+    router.chat(chatService.monolog);
 
     await context.world.appDriver.waitUntil(
       () async {
