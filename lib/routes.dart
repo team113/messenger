@@ -565,7 +565,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
-            await deps.put(SettingsWorker(settingsRepository)).init();
+            SettingsWorker settingsWorker =
+                deps.put(SettingsWorker(settingsRepository));
+            await settingsWorker.init();
 
             GraphQlProvider graphQlProvider = Get.find();
             UserRepository userRepository = UserRepository(
@@ -617,13 +619,21 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            deps.put(NotificationService(graphQlProvider)).init(
-                  firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-                  language: L10n.chosen,
-                  onLocalNotificationResponse: onNotificationResponse,
-                  onFcmBackgroundNotificationResponse: backgroundHandler,
-                  onFcmNotificationResponse: handleMessage,
-                );
+            NotificationService notificationService = deps.put(
+              NotificationService(
+                graphQlProvider,
+                L10n.chosen.value?.locale.toString(),
+              ),
+            )..init(
+                firebaseOptions: PlatformUtils.pushNotifications
+                    ? DefaultFirebaseOptions.currentPlatform
+                    : null,
+                onLocalNotificationResponse: onNotificationResponse,
+                onFcmBackgroundNotificationResponse: backgroundHandler,
+                onFcmNotificationResponse: handleMessage,
+              );
+            settingsWorker.notificationService = notificationService;
+
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -38,10 +39,16 @@ import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
 class NotificationService extends DisposableService {
-  NotificationService(this._graphQlProvider);
+  NotificationService(this._graphQlProvider, this._language);
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  /// Language used in FCM notifications.
+  String? _language;
+
+  /// Firebase Cloud Messaging token.
+  String? _token;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
@@ -81,7 +88,6 @@ class NotificationService extends DisposableService {
   /// state.
   void init({
     FirebaseOptions? firebaseOptions,
-    Rx<Language?>? language,
     void Function(NotificationResponse)? onLocalNotificationResponse,
     void Function(RemoteMessage message)? onFcmNotificationResponse,
     Future<void> Function(RemoteMessage message)?
@@ -96,7 +102,6 @@ class NotificationService extends DisposableService {
     try {
       await _initPushNotifications(
         firebaseOptions: firebaseOptions,
-        language: language,
         onFcmNotificationResponse: onFcmNotificationResponse,
         onFcmBackgroundNotificationResponse:
             onFcmBackgroundNotificationResponse,
@@ -227,6 +232,22 @@ class NotificationService extends DisposableService {
     }
   }
 
+  /// Updates the [_language] and resubscribes for FCM notifications.
+  updateLanguage(String? language) async {
+    if (_language != language) {
+      _language = language;
+      if (_token != null) {
+        await _graphQlProvider
+            .unregisterFcmDevice(FcmRegistrationToken(_token!));
+
+        _graphQlProvider.registerFcmDevice(
+          FcmRegistrationToken(_token!),
+          _language,
+        );
+      }
+    }
+  }
+
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
     try {
@@ -237,6 +258,8 @@ class NotificationService extends DisposableService {
     }
   }
 
+  /// Initializes [FlutterLocalNotificationsPlugin] for showing local
+  /// notifications.
   Future<void> _initLocalNotifications(
     void Function(NotificationResponse)? onNotificationResponse,
   ) async {
@@ -279,7 +302,6 @@ class NotificationService extends DisposableService {
   /// Initializes the [FirebaseMessaging] for receiving push notifications.
   Future<void> _initPushNotifications({
     FirebaseOptions? firebaseOptions,
-    Rx<Language?>? language,
     void Function(RemoteMessage message)? onFcmNotificationResponse,
     Future<void> Function(RemoteMessage message)?
         onFcmBackgroundNotificationResponse,
@@ -315,49 +337,28 @@ class NotificationService extends DisposableService {
           await FirebaseMessaging.instance.requestPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        String? token = await FirebaseMessaging.instance.getToken(
+        _token = await FirebaseMessaging.instance.getToken(
           vapidKey: Config.vapidKey,
         );
         String? locale = L10n.chosen.value?.locale.toString();
 
-        if (token != null) {
+        if (_token != null) {
           _graphQlProvider.registerFcmDevice(
-            FcmRegistrationToken(token),
+            FcmRegistrationToken(_token!),
             locale,
-          );
-        }
-
-        if (language != null) {
-          _localeWorker = ever(
-            language,
-            (chosen) async {
-              if (locale != chosen?.locale.toString()) {
-                locale = chosen?.locale.toString();
-
-                if (token != null) {
-                  await _graphQlProvider
-                      .unregisterFcmDevice(FcmRegistrationToken(token!));
-
-                  _graphQlProvider.registerFcmDevice(
-                    FcmRegistrationToken(token!),
-                    locale,
-                  );
-                }
-              }
-            },
           );
         }
 
         _onTokenRefresh =
             FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-          if (token != null) {
+          if (_token != null) {
             await _graphQlProvider
-                .unregisterFcmDevice(FcmRegistrationToken(token!));
+                .unregisterFcmDevice(FcmRegistrationToken(_token!));
           }
 
-          token = fcmToken;
+          _token = fcmToken;
           _graphQlProvider.registerFcmDevice(
-            FcmRegistrationToken(token!),
+            FcmRegistrationToken(_token!),
             locale,
           );
         });

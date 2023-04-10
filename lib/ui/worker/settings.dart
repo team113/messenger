@@ -20,19 +20,27 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 
-/// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
-/// changes.
+/// Worker updating the [L10n.chosen] and the [NotificationService] language on
+/// the [ApplicationSettings.locale] changes.
 class SettingsWorker extends DisposableService {
   SettingsWorker(this._settingsRepository);
 
   /// [AbstractSettingsRepository] storing the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
 
+  /// [NotificationService] of this [SettingsWorker].
+  NotificationService? _notificationService;
+
   /// [Worker] updating the [L10n] on
   /// [AbstractSettingsRepository.applicationSettings] changes.
   Worker? _worker;
+
+  /// Sets the provided [NotificationService] as a [_notificationService].
+  set notificationService(NotificationService notificationService) =>
+      _notificationService = notificationService;
 
   /// Initializes this [SettingsWorker] and bootstraps the
   /// [ApplicationSettings.locale], if needed.
@@ -50,6 +58,7 @@ class SettingsWorker extends DisposableService {
         if (locale != settings?.locale) {
           locale = settings?.locale;
           L10n.set(Language.from(locale) ?? L10n.languages.first);
+          _notificationService?.updateLanguage(locale);
         }
       },
     );
