@@ -1503,15 +1503,11 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(
-              left: 21,
-              bottom: PlatformUtils.isWeb && !PlatformUtils.isAndroid ? 6 : 0,
-            ),
+            padding: const EdgeInsets.only(left: 21, bottom: 4),
             child: Text(
               '¤',
               style: TextStyle(
-                height: 0.8,
-                fontFamily: 'InterRoboto',
+                fontFamily: 'Gapopa',
                 fontWeight: FontWeight.w400,
                 color: enabled
                     ? Theme.of(context).colorScheme.secondary
@@ -1540,15 +1536,11 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             formatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           Padding(
-            padding: EdgeInsets.only(
-              left: 21,
-              bottom: PlatformUtils.isWeb && !PlatformUtils.isAndroid ? 6 : 0,
-            ),
+            padding: const EdgeInsets.only(left: 21, bottom: 4),
             child: Text(
               '¤',
               style: TextStyle(
-                height: 0.8,
-                fontFamily: 'InterRoboto',
+                fontFamily: 'Gapopa',
                 fontWeight: FontWeight.w400,
                 color: Theme.of(context).colorScheme.primary,
                 fontSize: 15,

@@ -608,7 +608,7 @@ class RecentChatTile extends StatelessWidget {
           //               text: '¤',
           //               style: TextStyle(
           //                 height: 0.8,
-          //                 fontFamily: 'InterRoboto',
+          //                 fontFamily: 'Gapopa',
           //                 fontWeight: FontWeight.w300,
           //                 color: Color(0xFF8383FF),
           //                 fontSize: 15,

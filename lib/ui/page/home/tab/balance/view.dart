@@ -54,8 +54,7 @@ class BalanceTabView extends StatelessWidget {
                     text: '¤',
                     style:
                         Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-                              height: 0.8,
-                              fontFamily: 'InterRoboto',
+                              fontFamily: 'Gapopa',
                               fontWeight: FontWeight.w300,
                               fontSize: 18,
                             ),
@@ -165,13 +164,14 @@ class BalanceTabView extends StatelessWidget {
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
-                                                height: 0.8,
-                                                fontFamily: 'InterRoboto',
+                                                fontFamily: 'Gapopa',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 18,
                                               ),
                                             ),
-                                            const TextSpan(text: ' (Inter)?'),
+                                            const TextSpan(
+                                              text: ' (Gapopa coin)?',
+                                            ),
                                           ],
                                           style:
                                               textStyle?.copyWith(fontSize: 18),
@@ -193,24 +193,25 @@ class BalanceTabView extends StatelessWidget {
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
-                                                height: 0.8,
-                                                fontFamily: 'InterRoboto',
+                                                fontFamily: 'Gapopa',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 15,
                                               ),
                                             ),
                                             const TextSpan(
                                               text:
-                                                  ' (Inter) is an internal currency for purchasing services offered by Gapopa.\n\n',
+                                                  ' (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n',
                                             ),
                                             TextSpan(
                                               text: '¤',
                                               style: textStyle?.copyWith(
-                                                height: 0.8,
-                                                fontFamily: 'InterRoboto',
+                                                fontFamily: 'Gapopa',
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 15,
                                               ),
+                                            ),
+                                            const WidgetSpan(
+                                              child: SizedBox(width: 1),
                                             ),
                                             const TextSpan(text: '100 = €1.00'),
                                           ],

@@ -945,7 +945,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   //   text: '¤',
                   //   style: textStyle.copyWith(
                   //     height: 0.8,
-                  //     fontFamily: 'InterRoboto',
+                  //     fontFamily: 'Gapopa',
                   //     fontWeight: FontWeight.w300,
                   //     color: paidColor,
                   //     fontSize: 11,
@@ -1088,7 +1088,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           text: '¤',
                           style: textStyle.copyWith(
                             height: 0.8,
-                            fontFamily: 'InterRoboto',
+                            fontFamily: 'Gapopa',
                             fontWeight: FontWeight.w300,
                             color: paidColor,
                             fontSize: 11,
@@ -2309,7 +2309,7 @@ class FoldedWidget extends StatelessWidget {
               //       style:
               //           Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
               //                 height: 0.8,
-              //                 fontFamily: 'InterRoboto',
+              //                 fontFamily: 'Gapopa',
               //                 fontWeight: FontWeight.w300,
               //                 fontSize: 9,
               //               ),

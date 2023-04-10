@@ -53,32 +53,24 @@ class PaidNotification extends StatelessWidget {
                         TextSpan(
                           text: '¤',
                           style: style.systemMessageStyle.copyWith(
-                            height: 0.8,
-                            fontFamily: 'InterRoboto',
+                            fontFamily: 'Gapopa',
                             fontWeight: FontWeight.w300,
-                            // color: const Color(0xFF8383FF),
                             fontSize: 13,
                           ),
                         ),
-                        const TextSpan(
-                          text: '50',
-                          // style: TextStyle(color: Color(0xFF8383FF)),
-                        ),
+                        const WidgetSpan(child: SizedBox(width: 1)),
+                        const TextSpan(text: '50'),
                         const TextSpan(text: ' за отправку сообщения и '),
                         TextSpan(
                           text: '¤',
                           style: style.systemMessageStyle.copyWith(
-                            height: 0.8,
-                            fontFamily: 'InterRoboto',
+                            fontFamily: 'Gapopa',
                             fontWeight: FontWeight.w300,
-                            // color: const Color(0xFF8383FF),
                             fontSize: 13,
                           ),
                         ),
-                        const TextSpan(
-                          text: '150',
-                          // style: TextStyle(color: Color(0xFF8383FF)),
-                        ),
+                        const WidgetSpan(child: SizedBox(width: 1)),
+                        const TextSpan(text: '150'),
                         const TextSpan(text: '/мин за за совершение звонка.'),
                       ],
                     ),

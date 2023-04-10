@@ -102,12 +102,12 @@ class PaidListView extends StatelessWidget {
                                     TextSpan(
                                       text: '¤',
                                       style: textStyle?.copyWith(
-                                        height: 0.8,
-                                        fontFamily: 'InterRoboto',
+                                        fontFamily: 'Gapopa',
                                         fontWeight: FontWeight.w300,
                                         fontSize: 13,
                                       ),
                                     ),
+                                    const WidgetSpan(child: SizedBox(width: 1)),
                                     const TextSpan(text: '50 per message'),
                                   ],
                                   style: textStyle?.copyWith(fontSize: 13),
@@ -119,12 +119,12 @@ class PaidListView extends StatelessWidget {
                                     TextSpan(
                                       text: '¤',
                                       style: textStyle?.copyWith(
-                                        height: 0.8,
-                                        fontFamily: 'InterRoboto',
+                                        fontFamily: 'Gapopa',
                                         fontWeight: FontWeight.w300,
                                         fontSize: 13,
                                       ),
                                     ),
+                                    const WidgetSpan(child: SizedBox(width: 1)),
                                     const TextSpan(text: '120 per call minute'),
                                   ],
                                   style: textStyle?.copyWith(fontSize: 13),
@@ -138,7 +138,7 @@ class PaidListView extends StatelessWidget {
                             //         text: '¤',
                             //         style: textStyle?.copyWith(
                             //           height: 0.8,
-                            //           fontFamily: 'InterRoboto',
+                            //           fontFamily: 'Gapopa',
                             //           fontWeight: FontWeight.w300,
                             //           fontSize: 13,
                             //         ),
@@ -148,7 +148,7 @@ class PaidListView extends StatelessWidget {
                             //         text: '¤',
                             //         style: textStyle?.copyWith(
                             //           height: 0.8,
-                            //           fontFamily: 'InterRoboto',
+                            //           fontFamily: 'Gapopa',
                             //           fontWeight: FontWeight.w300,
                             //           fontSize: 13,
                             //         ),

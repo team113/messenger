@@ -838,18 +838,13 @@ class UserView extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
-                    left: 21,
-                    bottom: PlatformUtils.isWeb ? 6 : 0,
-                  ),
+                  padding: const EdgeInsets.only(left: 21, bottom: 4),
                   child: Text(
                     '¤',
                     style: TextStyle(
-                      height: 0.8,
-                      fontFamily: 'InterRoboto',
+                      fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.secondary,
-                      // color: Color(0xFFC6C6C6),
                       fontSize: 15,
                     ),
                   ),
@@ -896,17 +891,12 @@ class UserView extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
-                    left: 21,
-                    bottom: PlatformUtils.isWeb ? 6 : 0,
-                  ),
+                  padding: const EdgeInsets.only(left: 21, bottom: 4),
                   child: Text(
                     '¤',
                     style: TextStyle(
-                      height: 0.8,
-                      fontFamily: 'InterRoboto',
+                      fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,
-                      // color: Color(0xFFC6C6C6),
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 15,
                     ),

@@ -119,8 +119,7 @@ class TransactionWidget extends StatelessWidget {
                                             .textTheme
                                             .headlineSmall
                                             ?.copyWith(
-                                              height: 0.8,
-                                              fontFamily: 'InterRoboto',
+                                              fontFamily: 'Gapopa',
                                               fontWeight: FontWeight.w300,
                                             ),
                                       ),
