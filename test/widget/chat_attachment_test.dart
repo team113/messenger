@@ -257,10 +257,6 @@ void main() async {
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
-  when(graphQlProvider.chatEvents(
-    const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
-    any,
-  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getBlacklist(
     first: 120,

@@ -137,11 +137,6 @@ void main() async {
   )).thenAnswer(
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
-    any,
-  )).thenAnswer((_) => const Stream.empty());
-
   test('ChatService successfully toggle chat mute', () async {
     AuthService authService = Get.put(
       AuthService(

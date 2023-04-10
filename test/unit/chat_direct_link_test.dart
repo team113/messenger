@@ -213,11 +213,6 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
-    any,
-  )).thenAnswer((_) => const Stream.empty());
-
   test('ChatService and UserService successfully create ChatDirectLink',
       () async {
     when(graphQlProvider.createChatDirectLink(
