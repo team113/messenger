@@ -23,6 +23,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/repository/settings.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
@@ -83,6 +84,8 @@ class WelcomeMessageController extends GetxController {
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
+  final Rx<ChatMessage?> message = Rx(null);
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -96,7 +99,18 @@ class WelcomeMessageController extends GetxController {
       _userService,
       text: text,
       attachments: attachments,
-      onSubmit: () async {},
+      onSubmit: () async {
+        message.value = ChatMessage(
+          ChatItemId.local(),
+          const ChatId('123'),
+          me!,
+          PreciseDateTime.now(),
+          text: ChatMessageText(send.field.text),
+          attachments: send.attachments.map((e) => e.value).toList(),
+        );
+
+        send.clear();
+      },
     );
 
     super.onInit();

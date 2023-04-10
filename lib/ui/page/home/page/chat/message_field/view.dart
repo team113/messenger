@@ -499,7 +499,14 @@ class MessageFieldView extends StatelessWidget {
             return GestureDetector(
               onLongPress: canForward ? c.forwarding.toggle : null,
               child: WidgetButton(
-                onPressed: canSend ? c.field.submit : null,
+                onPressed: canSend
+                    ? () {
+                        if (c.editing.value) {
+                          c.field.unsubmit();
+                        }
+                        c.field.submit();
+                      }
+                    : null,
                 child: SizedBox(
                   width: 56,
                   height: 56,
@@ -512,12 +519,19 @@ class MessageFieldView extends StatelessWidget {
                               width: 26,
                               height: 22,
                             )
-                          : SvgLoader.asset(
-                              key: sendKey ?? const Key('Send'),
-                              'assets/icons/send${disabled ? '_disabled' : ''}.svg',
-                              height: 22.85,
-                              width: 25.18,
-                            ),
+                          : c.editing.value
+                              ? SvgLoader.asset(
+                                  key: sendKey ?? const Key('Send'),
+                                  'assets/icons/edit_message.svg',
+                                  height: 24,
+                                  width: 24,
+                                )
+                              : SvgLoader.asset(
+                                  key: sendKey ?? const Key('Send'),
+                                  'assets/icons/send${disabled ? '_disabled' : ''}.svg',
+                                  height: 22.85,
+                                  width: 25.18,
+                                ),
                     ),
                   ),
                 ),

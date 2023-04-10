@@ -137,6 +137,8 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
 
+  final RxBool editing = RxBool(false);
+
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
@@ -181,6 +183,7 @@ class MessageFieldController extends GetxController {
 
   /// Resets the [replied], [attachments] and [field].
   void clear() {
+    editing.value = false;
     replied.clear();
     attachments.clear();
     forwarding.value = false;

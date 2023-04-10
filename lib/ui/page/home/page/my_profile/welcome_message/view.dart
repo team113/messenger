@@ -17,9 +17,18 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/data_attachment.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -71,6 +80,123 @@ class WelcomeMessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    Widget message({
+      String text = '123',
+      List<Attachment> attachments = const [],
+      PreciseDateTime? at,
+    }) {
+      List<Attachment> media = attachments.where((e) {
+        return ((e is ImageAttachment) ||
+            (e is FileAttachment && e.isVideo) ||
+            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+      }).toList();
+
+      List<Attachment> files = attachments.where((e) {
+        return ((e is FileAttachment && !e.isVideo) ||
+            (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      }).toList();
+
+      return Container(
+        padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+        child: IntrinsicWidth(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: style.readMessageColor,
+              borderRadius: BorderRadius.circular(15),
+              border: style.secondaryBorder,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                    child: Text(text, style: style.boldBody),
+                  ),
+                if (files.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                    child: Column(
+                      children: files
+                          .map(
+                            (e) => ChatItemWidget.fileAttachment(
+                              context,
+                              e,
+                              fromMe: true,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                if (media.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: text.isNotEmpty || files.isNotEmpty
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      topRight: text.isNotEmpty || files.isNotEmpty
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      bottomLeft: const Radius.circular(15),
+                      bottomRight: const Radius.circular(15),
+                    ),
+                    child: media.length == 1
+                        ? ChatItemWidget.mediaAttachment(
+                            context,
+                            media.first,
+                            media,
+                            filled: false,
+                          )
+                        : SizedBox(
+                            width: media.length * 120,
+                            height: max(media.length * 60, 300),
+                            child: FitView(
+                              dividerColor: Colors.transparent,
+                              children: media
+                                  .mapIndexed(
+                                    (i, e) => ChatItemWidget.mediaAttachment(
+                                      context,
+                                      e,
+                                      media,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                  ),
+                if (at != null)
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: media.isNotEmpty || files.isNotEmpty ? 4 : 0,
+                        right: 8,
+                        bottom: 4,
+                      ),
+                      child: Text(
+                        'label_date_ymd'.l10nfmt({
+                          'year': at.val.year.toString().padLeft(4, '0'),
+                          'month': at.val.month.toString().padLeft(2, '0'),
+                          'day': at.val.day.toString().padLeft(2, '0'),
+                        }),
+                        style: style.systemMessageStyle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return GetBuilder(
       init: WelcomeMessageController(
         Get.find(),
@@ -106,32 +232,219 @@ class WelcomeMessageView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 13),
-                  // Expanded(
-                  //   child: Container(
-                  //     color: Colors.transparent,
-                  //     child: c.background.value == null
-                  //         ? Container(
-                  //             child: SvgLoader.asset(
-                  //               'assets/images/background_light.svg',
-                  //               width: double.infinity,
-                  //               height: double.infinity,
-                  //               fit: BoxFit.cover,
-                  //             ),
-                  //           )
-                  //         : Image.memory(
-                  //             c.background.value!,
-                  //             fit: BoxFit.cover,
-                  //           ),
-                  //   ),
-                  // ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                    child: MessageFieldView(
-                      fieldKey: const Key('ForwardField'),
-                      sendKey: const Key('SendForward'),
-                      constraints: BoxConstraints(),
-                      controller: c.send,
+                    padding: ModalPopup.padding(context),
+                    child: Text(
+                      'Пояснялка, что это за приветственное сообщение и с чем его есть...'
+                          .l10n,
+                      style: thin,
+                    ),
+                  ),
+                  const SizedBox(height: 13),
+                  Flexible(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              bottomRight: style.cardRadius.bottomRight,
+                              bottomLeft: style.cardRadius.bottomLeft,
+                            ),
+                            child: Container(
+                              color: Colors.transparent,
+                              child: c.background.value == null
+                                  ? Container(
+                                      child: SvgLoader.asset(
+                                        'assets/images/background_light.svg',
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.memory(
+                                      c.background.value!,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: SingleChildScrollView(
+                                child: Obx(() {
+                                  if (c.message.value == null) {
+                                    return const SizedBox(height: 60);
+                                  }
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 16,
+                                      top: 16,
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Column(
+                                        children: [
+                                          IgnorePointer(
+                                            child: message(
+                                              text:
+                                                  c.message.value?.text?.val ??
+                                                      '',
+                                              attachments: c.message.value
+                                                      ?.attachments ??
+                                                  [],
+                                              at: c.message.value?.at,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              WidgetButton(
+                                                onPressed: () {
+                                                  c.send.editing.value = true;
+
+                                                  c.send.field.unchecked = c
+                                                          .message
+                                                          .value
+                                                          ?.text
+                                                          ?.val ??
+                                                      '';
+
+                                                  c.send.attachments.value = c
+                                                          .message
+                                                          .value
+                                                          ?.attachments
+                                                          .map(
+                                                            (e) => MapEntry(
+                                                              GlobalKey(),
+                                                              e,
+                                                            ),
+                                                          )
+                                                          .toList() ??
+                                                      [];
+                                                },
+                                                child: Text(
+                                                  'btn_edit'.l10n,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                'space_or_space'.l10n,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 11),
+                                              ),
+                                              WidgetButton(
+                                                key: const Key('DeleteAvatar'),
+                                                onPressed: () {
+                                                  c.message.value = null;
+                                                },
+                                                child: Text(
+                                                  'btn_delete'
+                                                      .l10n
+                                                      .toLowerCase(),
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      // Row(
+                                      // //   mainAxisSize: MainAxisSize.min,
+                                      // //   children: [
+                                      // //     // const SizedBox(width: 10),
+                                      // //     Column(
+                                      // //       mainAxisSize: MainAxisSize.min,
+                                      // //       children: [
+                                      // //         // WidgetButton(
+                                      // //         //   onPressed: () {
+                                      // //         //     c.send.editing.value = true;
+
+                                      // //         //     c.send.field.unchecked = c
+                                      // //         //             .message
+                                      // //         //             .value
+                                      // //         //             ?.text
+                                      // //         //             ?.val ??
+                                      // //         //         '';
+
+                                      // //         //     c.send.attachments.value = c
+                                      // //         //             .message
+                                      // //         //             .value
+                                      // //         //             ?.attachments
+                                      // //         //             .map(
+                                      // //         //               (e) => MapEntry(
+                                      // //         //                 GlobalKey(),
+                                      // //         //                 e,
+                                      // //         //               ),
+                                      // //         //             )
+                                      // //         //             .toList() ??
+                                      // //         //         [];
+                                      // //         //   },
+                                      // //         //   child: SvgLoader.asset(
+                                      // //         //     'assets/icons/edit_message.svg',
+                                      // //         //     height: 24,
+                                      // //         //     width: 24,
+                                      // //         //   ),
+                                      // //         // ),
+                                      // //         // const SizedBox(height: 16),
+                                      // //         // WidgetButton(
+                                      // //         //   onPressed: () {
+                                      // //         //     c.message.value = null;
+                                      // //         //   },
+                                      // //         //   child: SvgLoader.asset(
+                                      // //         //     'assets/icons/delete_message.svg',
+                                      // //         //     height: 26.16,
+                                      // //         //     width: 25,
+                                      // //         //   ),
+                                      // //         // ),
+                                      // //       ],
+                                      // //     ),
+                                      // //     Flexible(
+                                      // //       child: IgnorePointer(
+                                      // //         child: message(
+                                      // //           text: c.message.value?.text
+                                      // //                   ?.val ??
+                                      // //               '',
+                                      // //           attachments: c.message.value
+                                      // //                   ?.attachments ??
+                                      // //               [],
+                                      // //           at: c.message.value?.at,
+                                      // //         ),
+                                      // //       ),
+                                      // //     ),
+                                      // //   ],
+                                      // // ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                              child: MessageFieldView(
+                                fieldKey: const Key('ForwardField'),
+                                sendKey: const Key('SendForward'),
+                                constraints: const BoxConstraints(),
+                                controller: c.send,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
