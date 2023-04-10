@@ -182,6 +182,5 @@ void main() async {
     ]);
 
     await Get.deleteAll(force: true);
-    await tester.pumpAndSettle(const Duration(milliseconds: 500));
   });
 }

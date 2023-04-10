@@ -361,9 +361,6 @@ abstract class ReactiveFieldState {
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
   FocusNode get focus;
 
-  /// [Timer] is used to debounce [ReactiveFieldState].
-  Timer? debounceTimer;
-
   /// Indicator whether [controller]'s text was changed.
   RxBool get changed;
 
@@ -410,8 +407,8 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        if (debounceTimer?.isActive ?? false) debounceTimer!.cancel();
-        debounceTimer = Timer(const Duration(milliseconds: 500), () {
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(const Duration(milliseconds: 500), () {
           changed.value = controller.text != _previousSubmit;
           onChanged?.call(this);
         });
@@ -420,6 +417,7 @@ class TextFieldState extends ReactiveFieldState {
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
+
       if (onChanged != null) {
         if (controller.text != _previousText &&
             (_previousText != null || controller.text.isNotEmpty)) {
@@ -477,6 +475,9 @@ class TextFieldState extends ReactiveFieldState {
   /// was modified since the last [submit] action.
   String? _previousSubmit;
 
+  /// [Timer] debouncing the [onChanged] callback.
+  Timer? _debounceTimer;
+
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
 
@@ -533,5 +534,6 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    _debounceTimer?.cancel();
   }
 }
