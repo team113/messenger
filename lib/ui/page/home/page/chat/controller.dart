@@ -900,8 +900,9 @@ class ChatController extends GetxController {
 
             elements[_bottomLoader!.id] = _bottomLoader!;
 
-            if (listController.position.pixels >=
-                listController.position.maxScrollExtent - 100) {
+            if (listController.hasClients &&
+                listController.position.pixels >=
+                    listController.position.maxScrollExtent - 100) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 listController.sliverController.animateToIndex(
                   elements.length - 1,
@@ -932,6 +933,7 @@ class ChatController extends GetxController {
         _scrollToLastRead();
       }
 
+      print('status.value = RxStatus.success()');
       status.value = RxStatus.success();
 
       if (_bottomLoader != null) {

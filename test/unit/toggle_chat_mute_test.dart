@@ -111,29 +111,6 @@ void main() async {
     }
   };
 
-  var monologData = {
-    'monolog': {
-      'id': '2673cc09-9823-4cd2-924f-c172a22ebf69',
-      'name': 'null',
-      'members': {'nodes': []},
-      'kind': 'MONOLOG',
-      'isHidden': false,
-      'muted': null,
-      'directLink': null,
-      'createdAt': '2021-12-15T15:11:18.316846+00:00',
-      'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-      'lastReads': [],
-      'lastDelivery': '1970-01-01T00:00:00+00:00',
-      'lastItem': null,
-      'lastReadItem': null,
-      'gallery': {'nodes': []},
-      'unreadCount': 0,
-      'totalCount': 0,
-      'ongoingCall': null,
-      'ver': '0'
-    }
-  };
-
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
@@ -159,10 +136,6 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer(
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
-
-  when(graphQlProvider.getMonolog()).thenAnswer(
-    (_) => Future.value(GetMonolog$Query.fromJson(monologData).monolog),
-  );
 
   when(graphQlProvider.chatEvents(
     const ChatId('2673cc09-9823-4cd2-924f-c172a22ebf69'),
