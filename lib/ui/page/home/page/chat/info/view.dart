@@ -643,8 +643,6 @@ class _MembersWidget extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
