@@ -454,7 +454,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
-              await deps.put(SettingsWorker(settingsRepository)).init();
+              await deps.put(SettingsWorker(settingsRepository, null)).init();
 
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository = UserRepository(
@@ -562,14 +562,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
+            GraphQlProvider graphQlProvider = Get.find();
+
+            NotificationService notificationService = deps.put(
+              NotificationService(graphQlProvider),
+            );
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
-            SettingsWorker settingsWorker =
-                deps.put(SettingsWorker(settingsRepository));
-            await settingsWorker.init();
+            await deps
+                .put(SettingsWorker(settingsRepository, notificationService))
+                .init();
 
-            GraphQlProvider graphQlProvider = Get.find();
+            notificationService.init(
+              language: L10n.chosen.value?.locale.toString(),
+              firebaseOptions: PlatformUtils.pushNotifications
+                  ? DefaultFirebaseOptions.currentPlatform
+                  : null,
+              onLocalNotificationResponse: onNotificationResponse,
+              onFcmBackgroundNotificationResponse: backgroundHandler,
+              onFcmNotificationResponse: handleMessage,
+            );
+
             UserRepository userRepository = UserRepository(
               graphQlProvider,
               Get.find(),
@@ -618,21 +632,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 userRepository,
               ),
             );
-
-            NotificationService notificationService = deps.put(
-              NotificationService(
-                graphQlProvider,
-                L10n.chosen.value?.locale.toString(),
-              ),
-            )..init(
-                firebaseOptions: PlatformUtils.pushNotifications
-                    ? DefaultFirebaseOptions.currentPlatform
-                    : null,
-                onLocalNotificationResponse: onNotificationResponse,
-                onFcmBackgroundNotificationResponse: backgroundHandler,
-                onFcmNotificationResponse: handleMessage,
-              );
-            settingsWorker.notificationService = notificationService;
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));

@@ -25,11 +25,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart' hide Response;
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -39,7 +37,7 @@ import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
 class NotificationService extends DisposableService {
-  NotificationService(this._graphQlProvider, this._language);
+  NotificationService(this._graphQlProvider);
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -47,7 +45,7 @@ class NotificationService extends DisposableService {
   /// Language used in FCM notifications.
   String? _language;
 
-  /// Firebase Cloud Messaging token.
+  /// FCM token used to subscribe for push notifications.
   String? _token;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
@@ -67,9 +65,6 @@ class NotificationService extends DisposableService {
   /// [StreamSubscription] on the [FirebaseMessaging.onMessage] stream.
   StreamSubscription? _foregroundSubscription;
 
-  /// [Worker] reacting on the [L10n.chosen] changes.
-  Worker? _localeWorker;
-
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
@@ -87,12 +82,15 @@ class NotificationService extends DisposableService {
   /// FCM notification received and the app is in the background or terminated
   /// state.
   void init({
+    String? language,
     FirebaseOptions? firebaseOptions,
     void Function(NotificationResponse)? onLocalNotificationResponse,
     void Function(RemoteMessage message)? onFcmNotificationResponse,
     Future<void> Function(RemoteMessage message)?
         onFcmBackgroundNotificationResponse,
   }) async {
+    _language = language;
+
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
@@ -119,7 +117,6 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
-    _localeWorker?.dispose();
     _audioPlayer?.dispose();
     AudioCache.instance.clear('audio/notification.mp3');
   }
@@ -141,7 +138,7 @@ class NotificationService extends DisposableService {
     // don't show a local notification.
     if (_focused && payload == router.route) return;
 
-    // On Android sound will be played during the showing local notification.
+    // On Android sound will be played during showing the local notification.
     if (playSound && !PlatformUtils.isAndroid) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
@@ -340,12 +337,11 @@ class NotificationService extends DisposableService {
         _token = await FirebaseMessaging.instance.getToken(
           vapidKey: Config.vapidKey,
         );
-        String? locale = L10n.chosen.value?.locale.toString();
 
         if (_token != null) {
           _graphQlProvider.registerFcmDevice(
             FcmRegistrationToken(_token!),
-            locale,
+            _language,
           );
         }
 
@@ -359,7 +355,7 @@ class NotificationService extends DisposableService {
           _token = fcmToken;
           _graphQlProvider.registerFcmDevice(
             FcmRegistrationToken(_token!),
-            locale,
+            _language,
           );
         });
       }
