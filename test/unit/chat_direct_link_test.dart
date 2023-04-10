@@ -315,6 +315,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -371,6 +372,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -448,6 +450,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     Get.put(ChatService(chatRepository, authService));
@@ -501,6 +504,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -565,6 +569,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -620,6 +625,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     Get.put(ChatService(chatRepository, authService));

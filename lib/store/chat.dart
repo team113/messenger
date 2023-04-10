@@ -73,7 +73,7 @@ class ChatRepository extends DisposableInterface
     this._userRepo,
     this._sessionLocal,
     this._monologLocal, {
-    this.me,
+    required this.me,
   });
 
   /// Callback, called when an [User] identified by the provided [userId] is
@@ -81,7 +81,7 @@ class ChatRepository extends DisposableInterface
   late final Future<void> Function(ChatId id, UserId userId) onMemberRemoved;
 
   /// [UserId] of the currently authenticated [MyUser].
-  final UserId? me;
+  final UserId me;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -145,7 +145,7 @@ class ChatRepository extends DisposableInterface
   RxBool get isReady => _isReady;
 
   @override
-  ChatId get monolog => _monologLocal.get() ?? ChatId.local(me!);
+  ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
   Future<void> init({
@@ -1448,7 +1448,7 @@ class ChatRepository extends DisposableInterface
                 PreciseDateTime.now(),
               ),
             ChatMember(
-              (await _userRepo.get(me!))!.user.value,
+              (await _userRepo.get(me))!.user.value,
               PreciseDateTime.now(),
             ),
           ],
@@ -1471,7 +1471,7 @@ class ChatRepository extends DisposableInterface
     if (monolog.isLocal) {
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
-        await _createLocalDialog(me!);
+        await _createLocalDialog(me);
       } else {
         _monologLocal.set(query.id);
       }

@@ -315,6 +315,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
     return Get.put(ChatService(chatRepository, authService));

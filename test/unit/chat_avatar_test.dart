@@ -204,6 +204,7 @@ void main() async {
       userRepository,
       sessionProvider,
       monologProvider,
+      me: const UserId('me'),
     );
 
     ChatService chatService = ChatService(chatRepository, authService);
@@ -296,6 +297,7 @@ void main() async {
       userRepository,
       sessionProvider,
       monologProvider,
+      me: const UserId('me'),
     );
 
     ChatService chatService = ChatService(chatRepository, authService);

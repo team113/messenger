@@ -332,6 +332,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        me: const UserId('me'),
       ),
     );
 
