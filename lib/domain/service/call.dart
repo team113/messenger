@@ -83,7 +83,7 @@ class CallService extends DisposableService {
         withScreen: withScreen,
       );
 
-      if (_callsRepo.isDisposed) {
+      if (isClosed) {
         call.value.dispose();
       } else {
         call.value.connect(this);
