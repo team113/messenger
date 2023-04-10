@@ -384,6 +384,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
+                  layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (previous.isNotEmpty) previous.first,
+                      if (current != null) current,
+                    ],
+                  ),
                   child: child,
                 ),
               ),
