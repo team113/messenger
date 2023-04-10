@@ -304,7 +304,6 @@ class HiveRxChat extends RxChat {
 
     List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
-    print('_guard.isLocked: ${_guard.isLocked}');
     return _guard.protect(() async {
       for (HiveChatItem item in _local.messages) {
         if (item.value.status.value == SendingStatus.sent) {
@@ -325,7 +324,6 @@ class HiveRxChat extends RxChat {
 
       Future.delayed(Duration.zero, updateReads);
       status.value = RxStatus.success();
-      print('ok');
     });
   }
 
