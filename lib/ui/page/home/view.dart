@@ -359,7 +359,7 @@ class _HomeViewState extends State<HomeView> {
                                         );
                                       } else {
                                         child = SvgLoader.asset(
-                                          'assets/icons/chats2.svg',
+                                          'assets/icons/chats3.svg',
                                           key: const Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,
