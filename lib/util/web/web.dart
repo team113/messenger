@@ -535,6 +535,28 @@ class WebUtils {
       Uri.base.toString().replaceFirst(from, to),
     );
   }
+
+  /// Updates current favicon with alert icon.
+  static void setAlertIcon() {
+    html.ElementList<html.LinkElement> links =
+        html.querySelectorAll("link[rel*='icon']");
+
+    for (var e in links) {
+      if (!e.href.contains('icons/alert/')) {
+        e.href = e.href.replaceAll('icons/', 'icons/alert/');
+      }
+    }
+  }
+
+  /// Resets favicon to default.
+  static void resetIcon() {
+    html.ElementList<html.LinkElement> links =
+        html.querySelectorAll("link[rel~='icon']");
+
+    for (var e in links) {
+      e.href = e.href.replaceAll('icons/alert/', 'icons/');
+    }
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

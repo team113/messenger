@@ -206,4 +206,14 @@ class WebUtils {
   static void replaceState(String from, String to) {
     // No-op.
   }
+
+  /// Updates current favicon with alert icon.
+  static void setAlertIcon() {
+    // No-op.
+  }
+
+  /// Resets favicon to default.
+  static void resetIcon() {
+    // No-op.
+  }
 }
