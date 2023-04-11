@@ -109,7 +109,7 @@ class _DesktopControlsState extends State<DesktopControls>
   Timer? _showAfterExpandCollapseTimer;
 
   /// Indicator whether the video progress bar is being dragged.
-  bool _dragging = false;
+  final bool _dragging = false;
 
   @override
   void initState() {

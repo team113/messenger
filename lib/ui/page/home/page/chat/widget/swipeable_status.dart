@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -84,19 +85,56 @@ class SwipeableStatus extends StatelessWidget {
           ? Alignment.bottomRight
           : Alignment.centerRight,
       children: [
-        translate ? _animatedBuilder(child, translated: false) : child,
-        _animatedBuilder(
-          Padding(
+        translate
+            ? _AnimatedBuilder(
+                translated: false,
+                animation: animation,
+                width: width,
+                child: child,
+              )
+            : child,
+        _AnimatedBuilder(
+          animation: animation,
+          width: width,
+          child: Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
+            child: SizedBox(
+                width: width,
+                child: _SwipeableWithStatus(
+                  isSent: isSent,
+                  isDelivered: isDelivered,
+                  isRead: isRead,
+                  isSending: isSending,
+                  isError: isError,
+                  swipeable: swipeable,
+                )),
           ),
         ),
       ],
     );
   }
+}
 
-  /// Returns a [Row] of [swipeable] and a status.
-  Widget _swipeableWithStatus(BuildContext context) {
+/// Returns a [Row] of [swipeable] and a status.
+class _SwipeableWithStatus extends StatelessWidget {
+  final bool isSent;
+  final bool isDelivered;
+  final bool isRead;
+  final bool isSending;
+  final bool isError;
+  final Widget swipeable;
+  const _SwipeableWithStatus({
+    Key? key,
+    required this.isSent,
+    required this.isDelivered,
+    required this.isRead,
+    required this.isSending,
+    required this.isError,
+    required this.swipeable,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return DefaultTextStyle.merge(
@@ -139,20 +177,36 @@ class SwipeableStatus extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
-      AnimatedBuilder(
-        animation: animation!,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Tween(
-              begin: translated ? const Offset(width, 0) : Offset.zero,
-              end: translated ? Offset.zero : const Offset(-width, 0),
-            ).evaluate(animation!),
-            child: child,
-          );
-        },
-        child: child,
-      );
+/// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
+class _AnimatedBuilder extends StatelessWidget {
+  final Widget child;
+  final bool translated;
+  final AnimationController? animation;
+  final double width;
+  const _AnimatedBuilder({
+    Key? key,
+    required this.child,
+    this.translated = true,
+    required this.animation,
+    required this.width,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation!,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Tween(
+            begin: translated ? Offset(width, 0) : Offset.zero,
+            end: translated ? Offset.zero : Offset(-width, 0),
+          ).evaluate(animation!),
+          child: child,
+        );
+      },
+      child: child,
+    );
+  }
 }

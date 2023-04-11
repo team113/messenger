@@ -338,6 +338,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             getUser: widget.getUser,
                             user: widget.user,
                             chat: widget.chat,
+                            textChat: _text,
                           ),
                         if (widget.note.value == null &&
                             !_fromMe &&
@@ -365,6 +366,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     : Radius.zero,
                               ),
                               child: _ForwardedMessage(
+                                textChat: _text,
                                 forward: e,
                                 menu: menu,
                                 isRead: _isRead,
@@ -411,6 +413,41 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
   }
 
+  /// Populates the [_workers] invoking the [_populateSpans] on the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] changes.
+  void _populateWorkers() {
+    for (var w in _workers) {
+      w.dispose();
+    }
+    _workers.clear();
+
+    _populateSpans();
+
+    ChatMessageText? text;
+    if (widget.note.value?.value is ChatMessage) {
+      final msg = widget.note.value?.value as ChatMessage;
+      text = msg.text;
+    }
+
+    _workers.add(ever(widget.note, (Rx<ChatItem>? item) {
+      if (item?.value is ChatMessage) {
+        final msg = item?.value as ChatMessage;
+        if (text != msg.text) {
+          _populateSpans();
+          text = msg.text;
+        }
+      }
+    }));
+
+    int length = widget.forwards.length;
+    _workers.add(ever(widget.forwards, (List<Rx<ChatItem>> forwards) {
+      if (forwards.length != length) {
+        _populateSpans();
+        length = forwards.length;
+      }
+    }));
+  }
+
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and
   /// [ChatForwardWidget.note].
   void _populateGlobalKeys() {
@@ -440,6 +477,36 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           .toList();
     }
   }
+
+  /// Populates the [_text] with the [ChatMessage.text] of the
+  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] parsed through a
+  /// [LinkParsingExtension.parseLinks] method.
+  void _populateSpans() {
+    for (var r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+    _text.clear();
+
+    for (Rx<ChatItem> forward in widget.forwards) {
+      final ChatItemQuote item = (forward.value as ChatForward).quote;
+      if (item is ChatMessageQuote) {
+        final String? string = item.text?.val.trim();
+        if (string?.isNotEmpty == true) {
+          _text[forward.value.id] =
+              string!.parseLinks(_recognizers, router.context);
+        }
+      }
+    }
+
+    if (widget.note.value != null) {
+      final ChatMessage item = widget.note.value!.value as ChatMessage;
+      final String? string = item.text?.val.trim();
+      if (string?.isNotEmpty == true) {
+        _text[item.id] = string!.parseLinks(_recognizers, router.context);
+      }
+    }
+  }
 }
 
 /// Returns a visual representation of the provided [forward].
@@ -455,6 +522,7 @@ class _ForwardedMessage extends StatelessWidget {
   final bool loadImages;
   SelectedContent? selection;
   final UserId me;
+  final Map<ChatItemId, TextSpan> textChat;
   void Function(bool)? onSelecting;
   final void Function(ChatItemQuote)? onForwardedTap;
   final Future<RxUser?> Function(UserId)? getUser;
@@ -471,6 +539,7 @@ class _ForwardedMessage extends StatelessWidget {
     required this.loadImages,
     required this.selection,
     required this.me,
+    required this.textChat,
     required this.onSelecting,
     required this.onForwardedTap,
     required this.getUser,
@@ -560,7 +629,7 @@ class _ForwardedMessage extends StatelessWidget {
           ];
         }
 
-        final TextSpan? text = _text[msg.id];
+        final TextSpan? text = textChat[msg.id];
         if (text != null) {
           content = SelectionText.rich(
             text,
@@ -744,6 +813,8 @@ class _NoteWidget extends StatelessWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
+  final Map<ChatItemId, TextSpan> textChat;
+
   /// Reactive value of a [Chat] these [forwards] are posted in.
   final Rx<Chat?> chat;
   _NoteWidget({
@@ -763,6 +834,7 @@ class _NoteWidget extends StatelessWidget {
     required this.onForwardedTap,
     required this.getUser,
     required this.user,
+    required this.textChat,
     required this.chat,
   }) : super(key: key);
 
@@ -773,7 +845,7 @@ class _NoteWidget extends StatelessWidget {
     if (item is ChatMessage) {
       final Style style = Theme.of(context).extension<Style>()!;
 
-      final TextSpan? text = _text[item.id];
+      final TextSpan? text = textChat[item.id];
 
       final List<Attachment> attachments = item.attachments.where((e) {
         return ((e is ImageAttachment) ||
@@ -1353,100 +1425,5 @@ class _RoundedWidgetState extends State<_RoundedWidget> {
         ),
       ),
     );
-  }
-
-  /// Populates the [_workers] invoking the [_populateSpans] on the
-  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] changes.
-  void _populateWorkers() {
-    for (var w in _workers) {
-      w.dispose();
-    }
-    _workers.clear();
-
-    _populateSpans();
-
-    ChatMessageText? text;
-    if (widget.note.value?.value is ChatMessage) {
-      final msg = widget.note.value?.value as ChatMessage;
-      text = msg.text;
-    }
-
-    _workers.add(ever(widget.note, (Rx<ChatItem>? item) {
-      if (item?.value is ChatMessage) {
-        final msg = item?.value as ChatMessage;
-        if (text != msg.text) {
-          _populateSpans();
-          text = msg.text;
-        }
-      }
-    }));
-
-    int length = widget.forwards.length;
-    _workers.add(ever(widget.forwards, (List<Rx<ChatItem>> forwards) {
-      if (forwards.length != length) {
-        _populateSpans();
-        length = forwards.length;
-      }
-    }));
-  }
-
-  /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and
-  /// [ChatForwardWidget.note].
-  void _populateGlobalKeys() {
-    _galleryKeys.clear();
-
-    for (Rx<ChatItem> forward in widget.forwards) {
-      final ChatItemQuote item = (forward.value as ChatForward).quote;
-      if (item is ChatMessageQuote) {
-        _galleryKeys[forward.value.id] = item.attachments
-            .where((e) =>
-                e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-            .map((e) => GlobalKey())
-            .toList();
-      }
-    }
-
-    if (widget.note.value != null) {
-      final ChatMessage item = (widget.note.value!.value as ChatMessage);
-      _galleryKeys[item.id] = item.attachments
-          .where((e) =>
-              e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-          .map((e) => GlobalKey())
-          .toList();
-    }
-  }
-
-  /// Populates the [_text] with the [ChatMessage.text] of the
-  /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] parsed through a
-  /// [LinkParsingExtension.parseLinks] method.
-  void _populateSpans() {
-    for (var r in _recognizers) {
-      r.dispose();
-    }
-    _recognizers.clear();
-    _text.clear();
-
-    for (Rx<ChatItem> forward in widget.forwards) {
-      final ChatItemQuote item = (forward.value as ChatForward).quote;
-      if (item is ChatMessageQuote) {
-        final String? string = item.text?.val.trim();
-        if (string?.isNotEmpty == true) {
-          _text[forward.value.id] =
-              string!.parseLinks(_recognizers, router.context);
-        }
-      }
-    }
-
-    if (widget.note.value != null) {
-      final ChatMessage item = widget.note.value!.value as ChatMessage;
-      final String? string = item.text?.val.trim();
-      if (string?.isNotEmpty == true) {
-        _text[item.id] = string!.parseLinks(_recognizers, router.context);
-      }
-    }
   }
 }
