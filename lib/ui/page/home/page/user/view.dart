@@ -244,7 +244,7 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: _BlockedWidget(c),
+                  child: _BlockedField(c),
                 );
               }),
             );
