@@ -543,7 +543,7 @@ class WebUtils {
 
     for (var e in links) {
       if (!e.href.contains('icons/alert/')) {
-        e.href = e.href.replaceAll('icons/', 'icons/alert/');
+        e.href = e.href.replaceFirst('icons/', 'icons/alert/');
       }
     }
   }
@@ -554,7 +554,7 @@ class WebUtils {
         html.querySelectorAll("link[rel~='icon']");
 
     for (var e in links) {
-      e.href = e.href.replaceAll('icons/alert/', 'icons/');
+      e.href = e.href.replaceFirst('icons/alert/', 'icons/');
     }
   }
 }
