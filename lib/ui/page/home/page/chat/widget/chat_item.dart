@@ -848,8 +848,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    // Indicator whether the [_timestamp] should be displayed in a bubble above
+    // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
     final bool timeInBubble = msg.attachments.isNotEmpty;
-    final Widget timeline = _timestamp(msg);
 
     return _rounded(
       context,
@@ -936,8 +937,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           style: style.boldBody,
                         ),
                       ),
-                      if ((widget.timestamp && !timeInBubble))
-                        WidgetSpan(child: Opacity(opacity: 0, child: timeline)),
+                      if (widget.timestamp && !timeInBubble)
+                        WidgetSpan(
+                          child: Opacity(opacity: 0, child: _timestamp(msg)),
+                        ),
                     ],
                   ),
                   selectable: PlatformUtils.isDesktop || menu,
@@ -1064,9 +1067,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             color: Colors.white.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: timeline,
+                          child: _timestamp(msg),
                         )
-                      : timeline,
+                      : _timestamp(msg),
                 )
             ],
           ),
@@ -1128,94 +1131,89 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
       opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (!_fromMe &&
-                    widget.chat.value?.isGroup == true &&
-                    widget.avatar)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                    child: Text(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
-                    ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+        child: IntrinsicWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!_fromMe &&
+                  widget.chat.value?.isGroup == true &&
+                  widget.avatar)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                  child: Text(
+                    widget.user?.user.value.name?.val ??
+                        widget.user?.user.value.num.val ??
+                        'dot'.l10n * 3,
+                    style: style.boldBody.copyWith(color: color),
                   ),
-                const SizedBox(height: 4),
-                Row(
+                ),
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black.withOpacity(0.03),
+                ),
+                padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.black.withOpacity(0.03),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                      child: message.withVideo
+                          ? SvgLoader.asset(
+                              'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                              height: 13 * 1.4,
+                            )
+                          : SvgLoader.asset(
+                              'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                              height: 15 * 1.4,
+                            ),
+                    ),
+                    Flexible(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                            child: message.withVideo
-                                ? SvgLoader.asset(
-                                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                                    height: 13 * 1.4,
-                                  )
-                                : SvgLoader.asset(
-                                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                                    height: 15 * 1.4,
-                                  ),
-                          ),
                           Flexible(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: style.boldBody,
-                                  ),
-                                ),
-                                if (time != null) ...[
-                                  const SizedBox(width: 8),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 1),
-                                    child: Text(
-                                      time,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall,
-                                    ),
-                                  ),
-                                ],
-                              ],
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: style.boldBody,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          if (time != null) ...[
+                            const SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 1),
+                              child: Text(
+                                time,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                   ],
                 ),
-                Opacity(opacity: 0, child: _timestamp(widget.item.value)),
-              ],
-            ),
+              ),
+              if (widget.timestamp)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Transform.translate(
+                    offset: const Offset(0, 4),
+                    child: _timestamp(widget.item.value),
+                  ),
+                ),
+            ],
           ),
-          Positioned(right: 8, bottom: 4, child: _timestamp(widget.item.value))
-        ],
+        ),
       ),
     );
 
