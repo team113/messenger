@@ -1128,92 +1128,105 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
+    final Widget call = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.black.withOpacity(0.03),
+      ),
+      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: message.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 13 * 1.4,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 15 * 1.4,
+                  ),
+          ),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.boldBody,
+                  ),
+                ),
+                if (time != null) ...[
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: Text(
+                      time,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+    );
+
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
       opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        child: IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!_fromMe &&
-                  widget.chat.value?.isGroup == true &&
-                  widget.avatar)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                  child: Text(
-                    widget.user?.user.value.name?.val ??
-                        widget.user?.user.value.num.val ??
-                        'dot'.l10n * 3,
-                    style: style.boldBody.copyWith(color: color),
-                  ),
-                ),
-              const SizedBox(height: 4),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.black.withOpacity(0.03),
-                ),
-                padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                      child: message.withVideo
-                          ? SvgLoader.asset(
-                              'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 13 * 1.4,
-                            )
-                          : SvgLoader.asset(
-                              'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 15 * 1.4,
-                            ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
                     ),
-                    Flexible(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: style.boldBody,
+                  ),
+                const SizedBox(height: 4),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(child: call),
+                      if (widget.timestamp)
+                        WidgetSpan(
+                          child: Opacity(
+                            opacity: 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _timestamp(widget.item.value),
                             ),
                           ),
-                          if (time != null) ...[
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 1),
-                              child: Text(
-                                time,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-              if (widget.timestamp)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Transform.translate(
-                    offset: const Offset(0, 4),
-                    child: _timestamp(widget.item.value),
+                        ),
+                    ],
                   ),
                 ),
-            ],
+              ],
+            ),
           ),
-        ),
+          Positioned(right: 8, bottom: 4, child: _timestamp(widget.item.value))
+        ],
       ),
     );
 
@@ -1863,7 +1876,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       return MessageTimestamp(
         at: item.at,
-        status: item.status.value,
+        status: _fromMe ? item.status.value : null,
         read: _isRead || isMonolog,
         delivered: widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
             isMonolog,

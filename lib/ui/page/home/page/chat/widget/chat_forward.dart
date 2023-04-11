@@ -599,7 +599,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
                           return MessageTimestamp(
                             at: forward.value.at,
-                            status: forward.value.status.value,
+                            status: _fromMe ? forward.value.status.value : null,
                             read: _isRead || isMonolog,
                             delivered: widget.chat.value?.lastDelivery
                                         .isBefore(forward.value.at) ==
