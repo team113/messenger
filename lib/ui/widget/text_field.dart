@@ -408,7 +408,7 @@ class TextFieldState extends ReactiveFieldState {
     if (onChanged != null) {
       controller.addListener(() {
         _debounceTimer?.cancel();
-        _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+        _debounceTimer = Timer(timeout, () {
           changed.value = controller.text != _previousSubmit;
           onChanged?.call(this);
         });
@@ -477,6 +477,9 @@ class TextFieldState extends ReactiveFieldState {
 
   /// [Timer] debouncing the [onChanged] callback.
   Timer? _debounceTimer;
+
+  /// [_debounceTimer] delay time.
+  Duration timeout = const Duration(milliseconds: 500);
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;

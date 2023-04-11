@@ -17,55 +17,48 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:mockito/mockito.dart';
+
+class MockFunction extends Mock {
+  void call(TextFieldState state);
+}
 
 void main() {
   group('TextFieldState tests', () {
     test('the debouncer is triggered after 500 milliseconds', () async {
+      final mockFunction = MockFunction();
       final state = TextFieldState(
-        onChanged: (s) {
-          expect(s.text, 'zhorenty');
-        },
+        onChanged: mockFunction,
       );
       state.controller.text = 'zhorenty';
-      await Future.delayed(const Duration(milliseconds: 400));
       expect(state.changed.value, false);
-      await Future.delayed(const Duration(milliseconds: 150));
+      await Future.delayed(state.timeout);
       expect(state.changed.value, true);
+
+      verify(mockFunction.call(state)).called(1);
+      expect(state.controller.text, 'zhorenty');
     });
-    test('TextFieldState onChanged called for valid input', () {
+
+    test('onChanged function called correctly', () async {
+      final mockFunction = MockFunction();
       final state = TextFieldState(
-        onChanged: (state) {
-          expect(state.changed.value, true);
-        },
+        onChanged: mockFunction,
       );
-      state.controller.text = 'zhorenty';
+
+      state.controller.text = 'Zhorenty';
       state.controller.addListener(() => state.onChanged!(state));
+      await Future.delayed(state.timeout);
+      verify(mockFunction.call(state)).called(1);
     });
 
-    test('TextFieldState onChanged not called for invalid input', () async {
+    test('onSubmitted called when submit() is called', () {
+      final mockFunction = MockFunction();
       final state = TextFieldState(
-        onChanged: (state) {
-          expect(state.changed.value, true);
-        },
-      );
-      state.controller.text = 'zhorenty#';
-      state.controller.addListener(() => state.onChanged!(state));
-      expect(state.changed.value, false);
-
-      await Future.delayed(const Duration(milliseconds: 1100));
-      state.controller.text = 'zhorenty';
-      state.controller.addListener(() => state.onChanged!(state));
-      expect(state.changed.value, true);
-    });
-
-    test('TextFieldState onSubmitted called when submit() is called', () {
-      final state = TextFieldState(
-        onSubmitted: (state) {
-          expect(state.text, 'zhorenty');
-        },
+        onSubmitted: mockFunction,
       );
       state.controller.text = 'zhorenty';
       state.submit();
+      verify(mockFunction.call(state)).called(1);
     });
   });
 }
