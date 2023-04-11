@@ -268,25 +268,26 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent &&
-                            c.settings.value?.timelineEnabled == true) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
+                      onPointerSignal: c.settings.value?.timelineEnabled == true
+                          ? (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
 
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 10.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
+                          : null,
                       onPointerPanZoomUpdate: (s) {
                         if (c.scrollOffset.dx.abs() < 7 &&
                             c.scrollOffset.dy.abs() < 7) {
@@ -310,7 +311,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse)
+                          if (c.isSelecting.isFalse &&
+                              c.settings.value?.timelineEnabled == true)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -318,40 +320,38 @@ class _ChatViewState extends State<ChatView>
                                   AllowMultipleHorizontalDragGestureRecognizer(),
                               (AllowMultipleHorizontalDragGestureRecognizer
                                   instance) {
-                                if (c.settings.value?.timelineEnabled == true) {
-                                  instance.onUpdate = (d) {
-                                    if (!c.isItemDragged.value &&
-                                        c.scrollOffset.dy.abs() < 7 &&
-                                        c.scrollOffset.dx.abs() > 7 &&
-                                        c.isSelecting.isFalse) {
-                                      double value =
-                                          (_animation.value - d.delta.dx / 100)
-                                              .clamp(0, 1);
+                                instance.onUpdate = (d) {
+                                  if (!c.isItemDragged.value &&
+                                      c.scrollOffset.dy.abs() < 7 &&
+                                      c.scrollOffset.dx.abs() > 7 &&
+                                      c.isSelecting.isFalse) {
+                                    double value =
+                                        (_animation.value - d.delta.dx / 100)
+                                            .clamp(0, 1);
 
-                                      if (_animation.value != 1 && value == 1 ||
-                                          _animation.value != 0 && value == 0) {
-                                        HapticFeedback.selectionClick();
-                                      }
-
-                                      _animation.value = value.clamp(0, 1);
+                                    if (_animation.value != 1 && value == 1 ||
+                                        _animation.value != 0 && value == 0) {
+                                      HapticFeedback.selectionClick();
                                     }
-                                  };
 
-                                  instance.onEnd = (d) async {
-                                    c.scrollOffset = Offset.zero;
-                                    if (!c.isItemDragged.value &&
-                                        _animation.value != 1 &&
-                                        _animation.value != 0) {
-                                      if (_animation.value >= 0.5) {
-                                        await _animation.forward();
-                                        HapticFeedback.selectionClick();
-                                      } else {
-                                        await _animation.reverse();
-                                        HapticFeedback.selectionClick();
-                                      }
+                                    _animation.value = value.clamp(0, 1);
+                                  }
+                                };
+
+                                instance.onEnd = (d) async {
+                                  c.scrollOffset = Offset.zero;
+                                  if (!c.isItemDragged.value &&
+                                      _animation.value != 1 &&
+                                      _animation.value != 0) {
+                                    if (_animation.value >= 0.5) {
+                                      await _animation.forward();
+                                      HapticFeedback.selectionClick();
+                                    } else {
+                                      await _animation.reverse();
+                                      HapticFeedback.selectionClick();
                                     }
-                                  };
-                                }
+                                  }
+                                };
                               },
                             )
                         },
@@ -602,7 +602,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
-            displayTime: c.settings.value?.timelineEnabled != true,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
@@ -655,6 +655,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () async {
               final List<Future> futures = [];
 

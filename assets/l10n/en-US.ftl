@@ -378,6 +378,7 @@ label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
+label_as_timeline = As timeline
 label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
@@ -431,7 +432,6 @@ label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
 label_clear_history = Clear history
-label_compact_timeline = As timeline
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_contact = Contact
@@ -456,7 +456,6 @@ label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
-label_detailed_timeline = In message
 label_details = Details.
 label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
@@ -478,6 +477,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
+label_display_timestamps = Display time stamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -524,6 +524,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Hint from Gapopa
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
+label_in_message = In message
 label_incoming_call = Incoming call
 label_introduction_description =
     Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
@@ -556,7 +557,6 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
-label_messages_displaying = Timeline style
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
@@ -674,7 +674,7 @@ label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_timeline_displaying = Display time stamps
+label_timeline_style = Timeline style
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed

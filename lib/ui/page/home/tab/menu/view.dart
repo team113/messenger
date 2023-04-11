@@ -239,7 +239,7 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       icon: Icons.chat_bubble,
                       title: 'label_chats'.l10n,
-                      subtitle: 'label_messages_displaying'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
                     );
                     break;
 

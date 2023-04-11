@@ -56,7 +56,7 @@ class TimelineSwitchView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_timeline_displaying'.l10n,
+                    'label_display_timestamps'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -70,14 +70,14 @@ class TimelineSwitchView extends StatelessWidget {
                   itemCount: 2,
                   itemBuilder: (_, i) {
                     return Obx(() {
+                      final bool enabled =
+                          (c.settings.value?.timelineEnabled ?? true);
+
                       final bool selected;
                       if (i == 0) {
-                        selected =
-                            (c.settings.value?.timelineEnabled ?? true) == true;
+                        selected = enabled;
                       } else {
-                        selected =
-                            (c.settings.value?.timelineEnabled ?? true) ==
-                                false;
+                        selected = !enabled;
                       }
 
                       return Material(
@@ -95,8 +95,8 @@ class TimelineSwitchView extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     i == 0
-                                        ? 'label_compact_timeline'.l10n
-                                        : 'label_detailed_timeline'.l10n,
+                                        ? 'label_as_timeline'.l10n
+                                        : 'label_in_message'.l10n,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(fontSize: 15),

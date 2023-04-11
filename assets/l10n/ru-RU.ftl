@@ -392,6 +392,7 @@ label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
+label_as_timeline = Как таймлайн
 label_attachments = [{$count} { $count ->
     [1] прикрепление
     [few] прикрепления
@@ -446,7 +447,6 @@ label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
 label_clear_history = Очистить историю
-label_compact_timeline = Как таймлайн
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
 label_contact = Контакт
@@ -471,7 +471,6 @@ label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
-label_detailed_timeline = В сообщении
 label_details = Подробнее.
 label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
@@ -494,6 +493,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -540,6 +540,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
+label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
@@ -572,7 +573,6 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
-label_messages_displaying = Стиль метки времени
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
@@ -694,7 +694,7 @@ label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_timeline_displaying = Отображать метки времени
+label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный

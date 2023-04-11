@@ -54,6 +54,7 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 
@@ -69,8 +70,9 @@ class ChatForwardWidget extends StatefulWidget {
     this.reads = const [],
     this.loadImages = true,
     this.user,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -93,17 +95,11 @@ class ChatForwardWidget extends StatefulWidget {
   /// [ChatMessage] attached to these [forwards] as a note.
   final Rx<Rx<ChatItem>?> note;
 
-  /// [UserId] of the authenticated [MyUser].
-  final UserId me;
-
   /// [UserId] of the [user] who posted these [forwards].
   final UserId authorId;
 
-  /// Optional animation controlling a [SwipeableStatus].
-  final AnimationController? animation;
-
-  /// [User] posted these [forwards].
-  final RxUser? user;
+  /// [UserId] of the authenticated [MyUser].
+  final UserId me;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -111,6 +107,16 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
+
+  /// [User] posted these [forwards].
+  final RxUser? user;
+
+  /// Optional animation controlling a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatForwardWidget].
+  final bool timestamp;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -321,7 +327,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: _forwardedMessage(
                               e,
                               menu,
-                              showTimeline: i == widget.forwards.length - 1,
+                              timestamp: widget.timestamp &&
+                                  i == widget.forwards.length - 1,
                             ),
                           ),
                         ),
@@ -341,7 +348,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget _forwardedMessage(
     Rx<ChatItem> forward,
     bool menu, {
-    bool showTimeline = false,
+    bool timestamp = false,
   }) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
@@ -583,10 +590,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         )
                       ],
                     ),
-                    if (showTimeline)
+                    if (timestamp)
                       Padding(
                         padding: const EdgeInsets.only(right: 8, bottom: 4),
-                        child: _timeline(forward.value),
+                        child: Obx(() {
+                          final bool isMonolog =
+                              widget.chat.value?.isMonolog == true;
+
+                          return MessageTimestamp(
+                            at: forward.value.at,
+                            status: forward.value.status.value,
+                            read: _isRead || isMonolog,
+                            delivered: widget.chat.value?.lastDelivery
+                                        .isBefore(forward.value.at) ==
+                                    false ||
+                                isMonolog,
+                          );
+                        }),
                       ),
                   ],
                 );
@@ -1079,54 +1099,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ),
         ),
       ),
-    );
-  }
-
-  /// Return timeline label for the provided item.
-  Widget _timeline(ChatItem item) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final bool isMonolog = widget.chat.value?.isMonolog == true;
-    final bool sent = item.status.value == SendingStatus.sent;
-
-    final bool isSent = sent && _fromMe;
-    final bool isDelivered = sent &&
-        _fromMe &&
-        (widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
-            isMonolog);
-    final bool isRead = sent && (!_fromMe || _isRead || isMonolog);
-    final bool isError = item.status.value == SendingStatus.error;
-    final bool isSending = item.status.value == SendingStatus.sending;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_fromMe) ...[
-          if (isSent || isDelivered || isRead || isSending || isError)
-            Icon(
-              (isRead || isDelivered)
-                  ? Icons.done_all
-                  : isSending
-                      ? Icons.access_alarm
-                      : isError
-                          ? Icons.error_outline
-                          : Icons.done,
-              color: isRead
-                  ? Theme.of(context).colorScheme.secondary
-                  : isError
-                      ? Colors.red
-                      : Theme.of(context).colorScheme.primary,
-              size: 12,
-            ),
-          const SizedBox(width: 3),
-        ],
-        SelectionContainer.disabled(
-          child: Text(
-            DateFormat.Hm().format(item.at.val.toLocal()),
-            style: style.systemMessageStyle.copyWith(fontSize: 11),
-          ),
-        ),
-      ],
     );
   }
 
