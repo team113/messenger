@@ -15,14 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/get_paid/view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -268,6 +276,7 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.welcome:
                         return Block(
                           title: 'label_welcome_message'.l10n,
+                          // padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                           children: [_welcome(context, c)],
                         );
 
@@ -1321,11 +1330,351 @@ Widget _media(BuildContext context, MyProfileController c) {
 }
 
 Widget _welcome(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      text: 'Change',
-      onPressed: () => WelcomeMessageView.show(context),
+  final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? thin =
+      Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+
+  Widget info({required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: DefaultTextStyle(
+            style: style.systemMessageStyle,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget message({
+    String text = '123',
+    List<Attachment> attachments = const [],
+    PreciseDateTime? at,
+  }) {
+    List<Attachment> media = attachments.where((e) {
+      return ((e is ImageAttachment) ||
+          (e is FileAttachment && e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+    }).toList();
+
+    List<Attachment> files = attachments.where((e) {
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+    }).toList();
+
+    final bool timeInBubble = attachments.isNotEmpty;
+
+    Widget? timeline;
+    if (at != null) {
+      timeline = SelectionContainer.disabled(
+        child: Text(
+          '${'label_date_ymd'.l10nfmt({
+                'year': at.val.year.toString().padLeft(4, '0'),
+                'month': at.val.month.toString().padLeft(2, '0'),
+                'day': at.val.day.toString().padLeft(2, '0'),
+              })}, 10:04',
+          style: style.systemMessageStyle.copyWith(fontSize: 11),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      child: Stack(
+        children: [
+          IntrinsicWidth(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: style.readMessageColor,
+                borderRadius: BorderRadius.circular(15),
+                border: style.secondaryBorder,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: text),
+                            if (timeline != null)
+                              WidgetSpan(
+                                child: Opacity(opacity: 0, child: timeline),
+                              ),
+                          ],
+                        ),
+                        style: style.boldBody,
+                      ),
+                    ),
+                  if (files.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                      child: Column(
+                        children: files
+                            .map(
+                              (e) => ChatItemWidget.fileAttachment(
+                                context,
+                                e,
+                                fromMe: true,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  if (media.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        topRight: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        bottomLeft: const Radius.circular(15),
+                        bottomRight: const Radius.circular(15),
+                      ),
+                      child: media.length == 1
+                          ? ChatItemWidget.mediaAttachment(
+                              context,
+                              media.first,
+                              media,
+                              filled: false,
+                            )
+                          : SizedBox(
+                              width: media.length * 120,
+                              height: max(media.length * 60, 300),
+                              child: FitView(
+                                dividerColor: Colors.transparent,
+                                children: media
+                                    .mapIndexed(
+                                      (i, e) => ChatItemWidget.mediaAttachment(
+                                        context,
+                                        e,
+                                        media,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (timeline != null)
+            Positioned(
+              right: timeInBubble ? 4 : 8,
+              bottom: 4,
+              child: timeInBubble
+                  ? Container(
+                      padding: const EdgeInsets.only(left: 4, right: 4),
+                      decoration: BoxDecoration(
+                        // color: Colors.white.withOpacity(0.9),
+                        color: style.readMessageColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: timeline,
+                    )
+                  : timeline,
+            )
+        ],
+      ),
+    );
+  }
+
+  final Widget editOrDelete = info(
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        WidgetButton(
+          onPressed: () async {
+            final ChatMessage? m = await WelcomeMessageView.show(
+              context,
+              initial: c.welcome.value,
+            );
+
+            if (m != null) {
+              c.welcome.value = m;
+            }
+          },
+          child: Text(
+            'btn_edit'.l10n,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        Text(
+          'space_or_space'.l10n,
+          style: const TextStyle(color: Colors.black, fontSize: 11),
+        ),
+        WidgetButton(
+          key: const Key('DeleteAvatar'),
+          onPressed: () => c.welcome.value = null,
+          child: Text(
+            'btn_delete'.l10n.toLowerCase(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 11,
+            ),
+          ),
+        ),
+      ],
     ),
+  );
+
+  return Column(
+    children: [
+      Text('label_welcome_message_description'.l10n, style: thin),
+      const SizedBox(height: 13),
+      Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              // borderRadius: BorderRadius.only(
+              //   bottomRight: style.cardRadius.bottomRight,
+              //   bottomLeft: style.cardRadius.bottomLeft,
+              // ),
+              borderRadius: style.cardRadius,
+              child: Container(
+                color: Colors.transparent,
+                child: c.background.value == null
+                    ? Container(
+                        child: SvgLoader.asset(
+                          'assets/images/background_light.svg',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Image.memory(
+                        c.background.value!,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+          ),
+          Obx(() {
+            if (c.welcome.value == null) {
+              return WidgetButton(
+                onPressed: () async {
+                  final ChatMessage? m = await WelcomeMessageView.show(
+                    context,
+                    initial: c.welcome.value,
+                  );
+
+                  if (m != null) {
+                    c.welcome.value = m;
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  height: 60 * 3,
+                  child: info(
+                    child: const Text(
+                      'Здесь будет Ваше приветственное сообщение',
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: IgnorePointer(
+                      child: message(
+                        text: c.welcome.value?.text?.val ?? '',
+                        attachments: c.welcome.value?.attachments ?? [],
+                        // at: c.welcome.value?.at,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // const SizedBox(height: 10),
+                // editOrDelete,
+              ],
+            );
+          }),
+        ],
+      ),
+      Obx(() {
+        return Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                WidgetButton(
+                  key: const Key('UploadAvatar'),
+                  onPressed: () async {
+                    final ChatMessage? m = await WelcomeMessageView.show(
+                      context,
+                      initial: c.welcome.value,
+                    );
+
+                    if (m != null) {
+                      c.welcome.value = m;
+                    }
+                  },
+                  child: Text(
+                    c.welcome.value == null ? 'btn_add'.l10n : 'btn_edit'.l10n,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                if (c.welcome.value != null) ...[
+                  Text(
+                    'space_or_space'.l10n,
+                    style: const TextStyle(color: Colors.black, fontSize: 11),
+                  ),
+                  WidgetButton(
+                    key: const Key('DeleteAvatar'),
+                    onPressed: () => c.welcome.value = null,
+                    child: Text(
+                      'btn_delete'.l10n.toLowerCase(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }),
+      // _dense(
+      //   FieldButton(
+      //     text: 'Change',
+      //     onPressed: () => WelcomeMessageView.show(context),
+      //   ),
+      // ),
+    ],
   );
 
   return Column(

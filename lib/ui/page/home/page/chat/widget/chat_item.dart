@@ -1300,7 +1300,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ? Container(
                             padding: const EdgeInsets.only(left: 4, right: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
+                              // color: Colors.white.withOpacity(0.9),
+                              color: _fromMe
+                                  ? style.readMessageColor
+                                  : style.messageColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: timeline,

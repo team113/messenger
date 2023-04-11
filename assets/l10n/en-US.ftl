@@ -798,3 +798,4 @@ label_get_paid_for_incoming_from = Get-Paid for incoming messages and incoming c
 label_individual_users = Individual users: {$count}
 btn_verify_email = Verify E-mail
 btn_set_price = Get-Paid for incoming
+label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.

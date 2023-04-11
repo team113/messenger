@@ -26,6 +26,7 @@ class Block extends StatelessWidget {
     super.key,
     this.children = const [],
     this.title,
+    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
   });
 
   /// Optional header of this [Block].
@@ -33,6 +34,8 @@ class Block extends StatelessWidget {
 
   /// [Widget]s to display.
   final List<Widget> children;
+
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +51,7 @@ class Block extends StatelessWidget {
         ),
         constraints:
             context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+        padding: padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

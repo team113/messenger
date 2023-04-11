@@ -48,19 +48,26 @@ class WelcomeMessageController extends GetxController {
     this._chatService,
     this._userService,
     this._settingsRepo, {
-    ChatMessage? initial,
+    this.text,
     this.pop,
-  }) : message = Rx(initial);
+    this.attachments = const [],
+  });
 
   /// Selected items in [SearchView] popup.
   final Rx<SearchViewResults?> searchResults = Rx(null);
 
+  /// Initial [String] to put in the [MessageFieldController.field].
+  final String? text;
+
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
-  final void Function(dynamic)? pop;
+  final void Function()? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [Attachment]s to attach to the [quotes].
+  final List<Attachment> attachments;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -77,7 +84,7 @@ class WelcomeMessageController extends GetxController {
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
-  late final Rx<ChatMessage?> message;
+  final Rx<ChatMessage?> message = Rx(null);
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -90,25 +97,21 @@ class WelcomeMessageController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      text: message.value?.text?.val,
-      attachments: message.value?.attachments ?? [],
+      text: text,
+      attachments: attachments,
       onSubmit: () async {
-        pop?.call(
-          ChatMessage(
-            message.value?.id ?? ChatItemId.local(),
-            message.value?.chatId ?? const ChatId('123'),
-            message.value?.authorId ?? me!,
-            message.value?.at ?? PreciseDateTime.now(),
-            text: ChatMessageText(send.field.text),
-            attachments: send.attachments.map((e) => e.value).toList(),
-          ),
+        message.value = ChatMessage(
+          ChatItemId.local(),
+          const ChatId('123'),
+          me!,
+          PreciseDateTime.now(),
+          text: ChatMessageText(send.field.text),
+          attachments: send.attachments.map((e) => e.value).toList(),
         );
 
         send.clear();
       },
     );
-
-    send.editing.value = message.value != null;
 
     super.onInit();
   }

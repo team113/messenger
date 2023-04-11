@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -106,6 +107,8 @@ class MyProfileController extends GetxController {
 
   final RxBool verified = RxBool(false);
   final RxBool hintVerified = RxBool(false);
+
+  final Rx<ChatMessage?> welcome = Rx(null);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
