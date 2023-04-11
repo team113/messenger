@@ -71,7 +71,7 @@ import 'message_field/controller.dart';
 
 export 'view.dart';
 
-/// Controller of the [Routes.chat] page.
+/// Controller of the [Routes.chats] page.
 class ChatController extends GetxController {
   ChatController(
     this.id,

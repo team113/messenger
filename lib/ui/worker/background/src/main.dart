@@ -379,7 +379,7 @@ class _BackgroundService {
                 'Gapopa',
               ),
             ),
-            payload: '${Routes.chat}/$chatId',
+            payload: '${Routes.chats}/$chatId',
           );
         });
       }
