@@ -30,9 +30,9 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 import '/themes.dart';
-import 'progress_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'progress_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {

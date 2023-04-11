@@ -31,7 +31,7 @@ import 'svg/svg.dart';
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
   const ReactiveTextField({
-    Key? key,
+    super.key,
     required this.state,
     this.dense,
     this.enabled = true,
@@ -57,7 +57,7 @@ class ReactiveTextField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     required this.fillColor,
     this.maxLength,
-  }) : super(key: key);
+  });
 
   /// Reactive state of this [ReactiveTextField].
   final ReactiveFieldState state;
