@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
+        - Clickable links and emails. ([#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
     - Contacts tab:
@@ -30,7 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned file attachments. ([#362])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
-        - Proportionally resizing secondary panel. ([#356], [#258])
+        - Proportionally resizing secondary panel. ([#393], [#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
 
@@ -56,6 +57,8 @@ All user visible changes to this project will be documented in this file. This p
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380
+[#388]: /../../pull/388
+[#393]: /../../pull/393
 
 
 

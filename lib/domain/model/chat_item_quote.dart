@@ -43,14 +43,20 @@ abstract class ChatItemQuote {
         at: item.at,
         attachments: item.attachments,
         text: item.text,
+        original: item,
       );
     } else if (item is ChatCall) {
-      return ChatCallQuote(author: item.authorId, at: item.at);
+      return ChatCallQuote(
+        author: item.authorId,
+        at: item.at,
+        original: item,
+      );
     } else if (item is ChatInfo) {
       return ChatInfoQuote(
         author: item.authorId,
         at: item.at,
         action: item.action,
+        original: item,
       );
     } else if (item is ChatForward) {
       return item.quote;
