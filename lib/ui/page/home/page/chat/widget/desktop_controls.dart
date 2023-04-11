@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -29,9 +30,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import 'progress_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'progress_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -142,6 +143,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
@@ -190,10 +193,36 @@ class _DesktopControlsState extends State<DesktopControls>
             ),
             _latestValue.isBuffering
                 ? const Center(child: CustomProgressIndicator())
-                : _buildHitArea(),
+                : _BuildHitArea(
+                    latestValue: _latestValue,
+                    controller: _controller,
+                    dragging: _dragging,
+                    hideStuff: _hideStuff,
+                    showInterface: _showInterface,
+                    playPause: _playPause,
+                  ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [_buildBottomBar(context)],
+              children: [
+                _BuildBottomBar(
+                    showBottomBar: _showBottomBar,
+                    showInterface: _showInterface,
+                    controller: _controller,
+                    playPause: _playPause,
+                    barHeight: _barHeight,
+                    iconColor: iconColor,
+                    latestValue: _latestValue,
+                    dragging: _dragging,
+                    hideTimer: _hideTimer,
+                    startHideTimer: _startHideTimer,
+                    chewieController: _chewieController,
+                    volumeEntry: _volumeEntry,
+                    volumeKey: _volumeKey,
+                    cancelAndRestartTimer: _cancelAndRestartTimer,
+                    latestVolume: _latestVolume,
+                    onExpandCollapse: _onExpandCollapse,
+                    isFullscreen: widget.isFullscreen)
+              ],
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -245,264 +274,6 @@ class _DesktopControlsState extends State<DesktopControls>
     _hideTimer?.cancel();
     _initTimer?.cancel();
     _showAfterExpandCollapseTimer?.cancel();
-  }
-
-  /// Returns the bottom controls bar.
-  Widget _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
-    return AnimatedSlider(
-      duration: const Duration(milliseconds: 300),
-      isOpen: _showBottomBar || _showInterface,
-      translate: false,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              height: 32,
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: const Color(0x66000000),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 7),
-                  _buildPlayPause(_controller),
-                  const SizedBox(width: 12),
-                  _buildPosition(iconColor),
-                  const SizedBox(width: 12),
-                  _buildProgressBar(),
-                  const SizedBox(width: 12),
-                  _buildMuteButton(_controller),
-                  const SizedBox(width: 12),
-                  _buildExpandButton(),
-                  const SizedBox(width: 12),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the fullscreen toggling button.
-  Widget _buildExpandButton() {
-    return Obx(
-      () => GestureDetector(
-        onTap: _onExpandCollapse,
-        child: SizedBox(
-          height: _barHeight,
-          child: Center(
-            child: Icon(
-              widget.isFullscreen?.value == true
-                  ? Icons.fullscreen_exit
-                  : Icons.fullscreen,
-              color: Colors.white,
-              size: 21,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final bool isFinished = _latestValue.position >= _latestValue.duration;
-
-    return Center(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: _controller.value.isPlaying
-            ? Container()
-            : AnimatedOpacity(
-                opacity:
-                    !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    iconSize: 32,
-                    icon: isFinished
-                        ? const Icon(Icons.replay, color: Colors.white)
-                        : AnimatedPlayPause(
-                            color: Colors.white,
-                            playing: _controller.value.isPlaying,
-                          ),
-                    onPressed: _playPause,
-                  ),
-                ),
-              ),
-      ),
-    );
-  }
-
-  /// Returns the play/pause button.
-  Widget _buildPlayPause(VideoPlayerController controller) {
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: GestureDetector(
-        onTap: _playPause,
-        child: Container(
-          height: _barHeight,
-          color: Colors.transparent,
-          child: AnimatedPlayPause(
-            size: 21,
-            playing: controller.value.isPlaying,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the mute/unmute button with a volume overlay above it.
-  Widget _buildMuteButton(VideoPlayerController controller) {
-    return MouseRegion(
-      onEnter: (_) {
-        if (mounted && _volumeEntry == null) {
-          Offset offset = Offset.zero;
-          final keyContext = _volumeKey.currentContext;
-          if (keyContext != null) {
-            final box = keyContext.findRenderObject() as RenderBox;
-            offset = box.localToGlobal(Offset.zero);
-          }
-
-          _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
-          setState(() {});
-        }
-      },
-      child: GestureDetector(
-        onTap: () {
-          _cancelAndRestartTimer();
-          if (_latestValue.volume == 0) {
-            controller.setVolume(_latestVolume ?? 0.5);
-          } else {
-            _latestVolume = controller.value.volume;
-            controller.setVolume(0.0);
-          }
-        },
-        child: ClipRect(
-          child: SizedBox(
-            key: _volumeKey,
-            height: _barHeight,
-            child: Icon(
-              _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [_volumeEntry] overlay.
-  Widget _volumeOverlay(Offset offset) {
-    return Stack(
-      children: [
-        Positioned(
-          left: offset.dx - 6,
-          bottom: 10,
-          child: MouseRegion(
-            opaque: false,
-            onExit: (d) {
-              if (mounted) {
-                _volumeEntry?.remove();
-                _volumeEntry = null;
-                setState(() {});
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        width: 15,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0x66000000),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: RotatedBox(
-                          quarterTurns: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: VideoVolumeBar(
-                              _chewieController.videoPlayerController,
-                              colors: _chewieController.materialProgressColors!,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 27),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Returns the [Text] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final position = _latestValue.position;
-    final duration = _latestValue.duration;
-
-    return Text(
-      '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: const TextStyle(fontSize: 14.0, color: Colors.white),
-    );
-  }
-
-  /// Returns the [VideoProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    return Expanded(
-      child: VideoProgressBar(
-        _controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: false,
-        onDragStart: () {
-          setState(() => _dragging = true);
-          _hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => _dragging = false);
-          _startHideTimer();
-        },
-        colors: _chewieController.materialProgressColors ??
-            ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
-            ),
-      ),
-    );
   }
 
   /// Invokes a fullscreen toggle action.
@@ -579,5 +350,472 @@ class _DesktopControlsState extends State<DesktopControls>
     if (!_controller.value.isPlaying) {
       _startInterfaceTimer(3.seconds);
     }
+  }
+}
+
+/// Returns the bottom controls bar.
+class _BuildBottomBar extends StatelessWidget {
+  final bool showBottomBar;
+  final bool showInterface;
+  final VideoPlayerController controller;
+  final void Function()? playPause;
+  final double barHeight;
+  final Color? iconColor;
+  final VideoPlayerValue latestValue;
+  final bool dragging;
+  final Timer? hideTimer;
+  final void Function(Duration? duration)? startHideTimer;
+  final ChewieController chewieController;
+  final OverlayEntry? volumeEntry;
+  final GlobalKey<State<StatefulWidget>> volumeKey;
+  final void Function()? cancelAndRestartTimer;
+  final double? latestVolume;
+  final void Function()? onExpandCollapse;
+
+  /// Reactive indicator of whether this video is in fullscreen mode.
+  final RxBool? isFullscreen;
+
+  const _BuildBottomBar({
+    Key? key,
+    required this.showBottomBar,
+    required this.showInterface,
+    required this.controller,
+    required this.playPause,
+    required this.barHeight,
+    required this.iconColor,
+    required this.latestValue,
+    required this.dragging,
+    required this.hideTimer,
+    required this.startHideTimer,
+    required this.chewieController,
+    required this.volumeEntry,
+    required this.volumeKey,
+    required this.cancelAndRestartTimer,
+    required this.latestVolume,
+    required this.onExpandCollapse,
+    required this.isFullscreen,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
+
+    return AnimatedSlider(
+      duration: const Duration(milliseconds: 300),
+      isOpen: showBottomBar || showInterface,
+      translate: false,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              height: 32,
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: const Color(0x66000000),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 7),
+                  _BuildPlayPause(
+                    controller: controller,
+                    playPause: playPause,
+                    barHeight: barHeight,
+                  ),
+                  const SizedBox(width: 12),
+                  _BuildPosition(
+                    iconColor: iconColor,
+                    latestValue: latestValue,
+                  ),
+                  const SizedBox(width: 12),
+                  _BuildProgressBar(
+                    controller: controller,
+                    dragging: dragging,
+                    hideTimer: hideTimer,
+                    startHideTimer: startHideTimer,
+                    chewieController: chewieController,
+                  ),
+                  const SizedBox(width: 12),
+                  _BuildMuteButton(
+                    controller: controller,
+                    volumeKey: volumeKey,
+                    chewieController: chewieController,
+                    cancelAndRestartTimer: cancelAndRestartTimer,
+                    latestValue: latestValue,
+                    barHeight: barHeight,
+                    latestVolume: latestVolume,
+                    volumeEntry: volumeEntry,
+                  ),
+                  const SizedBox(width: 12),
+                  _BuildExpandButton(
+                    onExpandCollapse: onExpandCollapse,
+                    barHeight: barHeight,
+                    isFullscreen: isFullscreen,
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Returns the play/pause button.
+class _BuildPlayPause extends StatelessWidget {
+  final VideoPlayerController controller;
+  final void Function()? playPause;
+  final double barHeight;
+  const _BuildPlayPause({
+    Key? key,
+    required this.controller,
+    required this.playPause,
+    required this.barHeight,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: const Offset(0, 0),
+      child: GestureDetector(
+        onTap: playPause,
+        child: Container(
+          height: barHeight,
+          color: Colors.transparent,
+          child: AnimatedPlayPause(
+            size: 21,
+            playing: controller.value.isPlaying,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Returns the [Text] of the current video position.
+class _BuildPosition extends StatelessWidget {
+  final Color? iconColor;
+  final VideoPlayerValue latestValue;
+
+  const _BuildPosition({
+    Key? key,
+    required this.iconColor,
+    required this.latestValue,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final position = latestValue.position;
+    final duration = latestValue.duration;
+
+    return Text(
+      '${formatDuration(position)} / ${formatDuration(duration)}',
+      style: const TextStyle(fontSize: 14.0, color: Colors.white),
+    );
+  }
+}
+
+class _BuildProgressBar extends StatefulWidget {
+  final VideoPlayerController controller;
+  bool dragging;
+  final Timer? hideTimer;
+  final void Function(Duration? duration)? startHideTimer;
+  final ChewieController chewieController;
+
+  _BuildProgressBar({
+    Key? key,
+    required this.controller,
+    required this.dragging,
+    required this.hideTimer,
+    required this.startHideTimer,
+    required this.chewieController,
+  }) : super(key: key);
+
+  @override
+  State<_BuildProgressBar> createState() => _BuildProgressBarState();
+}
+
+class _BuildProgressBarState extends State<_BuildProgressBar> {
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: VideoProgressBar(
+        widget.controller,
+        barHeight: 2,
+        handleHeight: 6,
+        drawShadow: false,
+        onDragStart: () {
+          setState(() => widget.dragging = true);
+          widget.hideTimer?.cancel();
+        },
+        onDragEnd: () {
+          setState(() => widget.dragging = false);
+          widget.startHideTimer;
+        },
+        colors: widget.chewieController.materialProgressColors ??
+            ChewieProgressColors(
+              playedColor: Theme.of(context).colorScheme.secondary,
+              handleColor: Theme.of(context).colorScheme.secondary,
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
+              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+            ),
+      ),
+    );
+  }
+}
+
+/// Returns the [_volumeEntry] overlay.
+class _VolumeOverlay extends StatefulWidget {
+  _VolumeOverlay({
+    Key? key,
+    required this.chewieController,
+    required this.offset,
+    required this.volumeEntry,
+  }) : super(key: key);
+  final Offset offset;
+  OverlayEntry? volumeEntry;
+  final ChewieController chewieController;
+
+  @override
+  State<_VolumeOverlay> createState() => _VolumeOverlayState();
+}
+
+class _VolumeOverlayState extends State<_VolumeOverlay> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          left: widget.offset.dx - 6,
+          bottom: 10,
+          child: MouseRegion(
+            opaque: false,
+            onExit: (d) {
+              if (mounted) {
+                widget.volumeEntry?.remove();
+                widget.volumeEntry = null;
+                setState(() {});
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        width: 15,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: const Color(0x66000000),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: RotatedBox(
+                          quarterTurns: 3,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                            ),
+                            child: VideoVolumeBar(
+                              widget.chewieController.videoPlayerController,
+                              colors: widget
+                                  .chewieController.materialProgressColors!,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 27),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Returns the mute/unmute button with a volume overlay above it.
+class _BuildMuteButton extends StatefulWidget {
+  _BuildMuteButton({
+    Key? key,
+    required this.controller,
+    required this.volumeKey,
+    required this.chewieController,
+    required this.cancelAndRestartTimer,
+    required this.latestValue,
+    required this.barHeight,
+    required this.latestVolume,
+    required this.volumeEntry,
+  }) : super(key: key);
+
+  final VideoPlayerController controller;
+
+  OverlayEntry? volumeEntry;
+
+  final GlobalKey<State<StatefulWidget>> volumeKey;
+
+  final ChewieController chewieController;
+  final void Function()? cancelAndRestartTimer;
+  final VideoPlayerValue latestValue;
+  double? latestVolume;
+  final double barHeight;
+
+  @override
+  State<_BuildMuteButton> createState() => _BuildMuteButtonState();
+}
+
+class _BuildMuteButtonState extends State<_BuildMuteButton> {
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        if (mounted && widget.volumeEntry == null) {
+          Offset offset = Offset.zero;
+          final keyContext = widget.volumeKey.currentContext;
+          if (keyContext != null) {
+            final box = keyContext.findRenderObject() as RenderBox;
+            offset = box.localToGlobal(Offset.zero);
+          }
+
+          widget.volumeEntry = OverlayEntry(
+              builder: (_) => _VolumeOverlay(
+                    chewieController: widget.chewieController,
+                    offset: offset,
+                    volumeEntry: widget.volumeEntry,
+                  ));
+          Overlay.of(context, rootOverlay: true).insert(widget.volumeEntry!);
+          setState(() {});
+        }
+      },
+      child: GestureDetector(
+        onTap: () {
+          widget.cancelAndRestartTimer;
+          if (widget.latestValue.volume == 0) {
+            widget.controller.setVolume(widget.latestVolume ?? 0.5);
+          } else {
+            widget.latestVolume = widget.controller.value.volume;
+            widget.controller.setVolume(0.0);
+          }
+        },
+        child: ClipRect(
+          child: SizedBox(
+            key: widget.volumeKey,
+            height: widget.barHeight,
+            child: Icon(
+              widget.latestValue.volume > 0
+                  ? Icons.volume_up
+                  : Icons.volume_off,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Returns the fullscreen toggling button.
+class _BuildExpandButton extends StatelessWidget {
+  final void Function()? onExpandCollapse;
+  final double barHeight;
+
+  /// Reactive indicator of whether this video is in fullscreen mode.
+  final RxBool? isFullscreen;
+  const _BuildExpandButton({
+    Key? key,
+    required this.onExpandCollapse,
+    required this.barHeight,
+    required this.isFullscreen,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => GestureDetector(
+        onTap: onExpandCollapse,
+        child: SizedBox(
+          height: barHeight,
+          child: Center(
+            child: Icon(
+              isFullscreen?.value == true
+                  ? Icons.fullscreen_exit
+                  : Icons.fullscreen,
+              color: Colors.white,
+              size: 21,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Returns the [Center]ed play/pause circular button.
+class _BuildHitArea extends StatelessWidget {
+  final VideoPlayerValue latestValue;
+  final VideoPlayerController controller;
+  final bool dragging;
+  final bool hideStuff;
+  final bool showInterface;
+  final void Function()? playPause;
+  const _BuildHitArea({
+    Key? key,
+    required this.latestValue,
+    required this.controller,
+    required this.dragging,
+    required this.hideStuff,
+    required this.showInterface,
+    required this.playPause,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isFinished = latestValue.position >= latestValue.duration;
+
+    return Center(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        child: controller.value.isPlaying
+            ? Container()
+            : AnimatedOpacity(
+                opacity: !dragging && !hideStuff || showInterface ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    iconSize: 32,
+                    icon: isFinished
+                        ? const Icon(Icons.replay, color: Colors.white)
+                        : AnimatedPlayPause(
+                            color: Colors.white,
+                            playing: controller.value.isPlaying,
+                          ),
+                    onPressed: playPause,
+                  ),
+                ),
+              ),
+      ),
+    );
   }
 }
