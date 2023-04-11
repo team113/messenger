@@ -25,33 +25,21 @@ class MockFunction extends Mock {
 
 void main() {
   group('TextFieldState tests', () {
-    test('the debouncer is triggered after 500 milliseconds', () async {
+    test('onChanged called with right timeout', () async {
       final mockFunction = MockFunction();
       final state = TextFieldState(
         onChanged: mockFunction,
       );
       state.controller.text = 'zhorenty';
-      expect(state.changed.value, false);
+      verifyNever(mockFunction.call(state));
+
       await Future.delayed(state.timeout);
       expect(state.changed.value, true);
-
-      verify(mockFunction.call(state)).called(1);
       expect(state.controller.text, 'zhorenty');
-    });
-
-    test('onChanged function called correctly', () async {
-      final mockFunction = MockFunction();
-      final state = TextFieldState(
-        onChanged: mockFunction,
-      );
-
-      state.controller.text = 'Zhorenty';
-      state.controller.addListener(() => state.onChanged!(state));
-      await Future.delayed(state.timeout);
       verify(mockFunction.call(state)).called(1);
     });
 
-    test('onSubmitted called when submit() is called', () {
+    test('onSubmitted called when TextFieldState.submit is called', () {
       final mockFunction = MockFunction();
       final state = TextFieldState(
         onSubmitted: mockFunction,
