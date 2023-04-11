@@ -61,7 +61,7 @@ class NotificationService extends DisposableService {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) {
       _focused = v;
-      if(_focused) {
+      if (_focused) {
         WebUtils.resetIcon();
       }
     });
@@ -138,7 +138,7 @@ class NotificationService extends DisposableService {
         tag: tag,
       ).onError((_, __) => false);
 
-      if(!_focused) {
+      if (!_focused) {
         WebUtils.setAlertIcon();
       }
     } else if (!PlatformUtils.isWindows) {
