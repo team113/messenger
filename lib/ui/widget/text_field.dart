@@ -392,9 +392,8 @@ class TextFieldState extends ReactiveFieldState {
     bool editable = true,
     bool submitted = true,
   }) : focus = focus ?? FocusNode() {
-    text ??= '';
     controller = TextEditingController(text: text);
-    isEmpty = RxBool(text.isEmpty);
+    isEmpty = RxBool(text?.isEmpty ?? true);
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
@@ -408,7 +407,7 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        changed.value = controller.text != (_previousSubmit ?? '');
 
         _debounceTimer?.cancel();
         _debounceTimer = Timer(timeout, () {
@@ -424,7 +423,8 @@ class TextFieldState extends ReactiveFieldState {
       isFocused.value = this.focus.hasFocus;
 
       if (onChanged != null) {
-        if (controller.text != _previousText) {
+        if (controller.text != _previousText &&
+            (_previousText != null || controller.text.isNotEmpty)) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
             onChanged?.call(this);
@@ -473,11 +473,11 @@ class TextFieldState extends ReactiveFieldState {
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
-  String _previousText = '';
+  String? _previousText;
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
-  String _previousSubmit = '';
+  String? _previousSubmit;
 
   /// [Timer] debouncing the [onChanged] callback.
   Timer? _debounceTimer;
@@ -529,7 +529,7 @@ class TextFieldState extends ReactiveFieldState {
 
   /// Clears the last submitted value.
   void unsubmit() {
-    _previousSubmit = '';
+    _previousSubmit = null;
     changed.value = false;
   }
 
@@ -538,8 +538,8 @@ class TextFieldState extends ReactiveFieldState {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
-    _previousText = '';
-    _previousSubmit = '';
+    _previousText = null;
+    _previousSubmit = null;
     changed.value = false;
     _debounceTimer?.cancel();
   }
