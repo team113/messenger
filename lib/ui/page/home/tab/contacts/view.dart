@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -326,10 +327,10 @@ class ContactsTabView extends StatelessWidget {
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
                                 child: Obx(() {
-                                  final Widget child = _contact(
-                                    context,
-                                    contact,
-                                    c,
+                                  final Widget child = _ContactWidget(
+                                    contact: contact,
+                                    c: c,
+                                    removeFromContacts: _removeFromContacts,
                                     avatarBuilder: (child) {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
@@ -403,7 +404,11 @@ class ContactsTabView extends StatelessWidget {
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
                                     child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                                      child: _ContactWidget(
+                                        contact: e,
+                                        c: c,
+                                        removeFromContacts: _removeFromContacts,
+                                      ),
                                     ),
                                   ),
                                 );
@@ -440,20 +445,82 @@ class ContactsTabView extends StatelessWidget {
               ],
             );
           }),
-          bottomNavigationBar:
-              c.selecting.value ? _selectButtons(context, c) : null,
+          bottomNavigationBar: c.selecting.value
+              ? _SelectButtonsWidget(
+                  c: c,
+                  removeContacts: _removeContacts,
+                )
+              : null,
         );
       }),
     );
   }
 
-  /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(
+  /// Opens a confirmation popup deleting the provided [contact] from address
+  /// book.
+  Future<void> _removeFromContacts(
+    ContactsTabController c,
     BuildContext context,
     RxChatContact contact,
-    ContactsTabController c, {
-    Widget Function(Widget)? avatarBuilder,
-  }) {
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text: contact.contact.value.name.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteFromContacts(contact.contact.value);
+    }
+  }
+
+  /// Opens a confirmation popup deleting the selected contacts.
+  Future<void> _removeContacts(
+    BuildContext context,
+    ContactsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contacts'.l10n,
+      description: [
+        TextSpan(
+          text: 'alert_contacts_will_be_deleted'
+              .l10nfmt({'count': c.selectedContacts.length}),
+        ),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteContacts();
+    }
+  }
+}
+
+/// Returns a [ListTile] with [contact]'s information.
+class _ContactWidget extends StatelessWidget {
+  final RxChatContact contact;
+  final ContactsTabController c;
+  final Widget Function(Widget)? avatarBuilder;
+  final Future<void> Function(
+    ContactsTabController c,
+    BuildContext context,
+    RxChatContact contact,
+  ) removeFromContacts;
+  const _ContactWidget({
+    Key? key,
+    required this.contact,
+    required this.c,
+    this.avatarBuilder,
+    required this.removeFromContacts,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
 
@@ -498,7 +565,7 @@ class ContactsTabView extends StatelessWidget {
                 ),
           ContextMenuButton(
             label: 'btn_delete'.l10n,
-            onPressed: () => _removeFromContacts(c, context, contact),
+            onPressed: () => removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
           ),
           const ContextMenuDivider(),
@@ -571,10 +638,24 @@ class ContactsTabView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [ChatContacts]s manipulation.
-  Widget _selectButtons(BuildContext context, ContactsTabController c) {
+/// Returns the animated [OutlinedRoundedButton]s for multiple selected
+/// [ChatContacts]s manipulation.
+class _SelectButtonsWidget extends StatelessWidget {
+  final ContactsTabController c;
+  final Future<void> Function(
+    BuildContext context,
+    ContactsTabController c,
+  ) removeContacts;
+  const _SelectButtonsWidget({
+    Key? key,
+    required this.c,
+    required this.removeContacts,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     const List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
@@ -625,7 +706,7 @@ class ContactsTabView extends StatelessWidget {
                 ),
                 onPressed: c.selectedContacts.isEmpty
                     ? null
-                    : () => _removeContacts(context, c),
+                    : () => removeContacts(context, c),
                 color: Theme.of(context).colorScheme.secondary,
                 shadows: shadows,
               ),
@@ -634,49 +715,5 @@ class ContactsTabView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  /// Opens a confirmation popup deleting the provided [contact] from address
-  /// book.
-  Future<void> _removeFromContacts(
-    ContactsTabController c,
-    BuildContext context,
-    RxChatContact contact,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_delete_contact'.l10n,
-      description: [
-        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(
-          text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.deleteFromContacts(contact.contact.value);
-    }
-  }
-
-  /// Opens a confirmation popup deleting the selected contacts.
-  Future<void> _removeContacts(
-    BuildContext context,
-    ContactsTabController c,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_delete_contacts'.l10n,
-      description: [
-        TextSpan(
-          text: 'alert_contacts_will_be_deleted'
-              .l10nfmt({'count': c.selectedContacts.length}),
-        ),
-      ],
-    );
-
-    if (result == true) {
-      await c.deleteContacts();
-    }
   }
 }
