@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -122,49 +123,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
-    // Builds a button representing the provided [ConfirmDialogVariant].
-    Widget button(ConfirmDialogVariant variant) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
-      return Padding(
-        padding: ModalPopup.padding(context),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: _variant == variant
-              ? style.cardSelectedColor.withOpacity(0.8)
-              : style.cardColor.darken(0.05),
-          child: InkWell(
-            onTap: () => setState(() => _variant = variant),
-            borderRadius: style.cardRadius,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.black, fontSize: 18),
-                      child: variant.child,
-                    ),
-                  ),
-                  IgnorePointer(
-                    child: Radio<ConfirmDialogVariant>(
-                      value: variant,
-                      groupValue: _variant,
-                      onChanged: null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -203,7 +161,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 controller: scrollController,
                 physics: const ClampingScrollPhysics(),
                 shrinkWrap: true,
-                itemBuilder: (c, i) => button(widget.variants[i]),
+                itemBuilder: (c, i) => _ButtonWidget(
+                  stateVariant: widget.variants[i],
+                  variant: _variant,
+                ),
                 separatorBuilder: (c, i) => const SizedBox(height: 10),
                 itemCount: widget.variants.length,
               ),
@@ -228,6 +189,65 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+}
+
+/// Builds a button representing the provided [ConfirmDialogVariant].
+class _ButtonWidget extends StatefulWidget {
+  final ConfirmDialogVariant stateVariant;
+  ConfirmDialogVariant variant;
+  _ButtonWidget({
+    Key? key,
+    required this.stateVariant,
+    required this.variant,
+  }) : super(key: key);
+
+  @override
+  State<_ButtonWidget> createState() => _ButtonWidgetState();
+}
+
+class _ButtonWidgetState extends State<_ButtonWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: ModalPopup.padding(context),
+      child: Material(
+        type: MaterialType.card,
+        borderRadius: style.cardRadius,
+        color: widget.variant == widget.stateVariant
+            ? style.cardSelectedColor.withOpacity(0.8)
+            : style.cardColor.darken(0.05),
+        child: InkWell(
+          onTap: () => setState(() => widget.variant = widget.stateVariant),
+          borderRadius: style.cardRadius,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: Colors.black, fontSize: 18),
+                    child: widget.stateVariant.child,
+                  ),
+                ),
+                IgnorePointer(
+                  child: Radio<ConfirmDialogVariant>(
+                    value: widget.stateVariant,
+                    groupValue: widget.variant,
+                    onChanged: null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
