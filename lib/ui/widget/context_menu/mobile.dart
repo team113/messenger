@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -325,7 +326,18 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               ),
                             ),
                           const SizedBox(height: 10),
-                          _contextMenu(fade, slide),
+                          _ContextMenu(
+                            fade: fade,
+                            slide: slide,
+                            alignment: widget.alignment,
+                            bounds: _bounds,
+                            unconstrained: widget.unconstrained,
+                            margin: widget.margin,
+                            actionsKey: widget.actionsKey,
+                            actions: widget.actions,
+                            pointerDown: _pointerDown,
+                            dismiss: _dismiss,
+                          ),
                         ],
                       ),
                     )
@@ -358,7 +370,18 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
-                    _contextMenu(fade, slide),
+                    _ContextMenu(
+                      fade: fade,
+                      slide: slide,
+                      alignment: widget.alignment,
+                      bounds: _bounds,
+                      unconstrained: widget.unconstrained,
+                      margin: widget.margin,
+                      actionsKey: widget.actionsKey,
+                      actions: widget.actions,
+                      pointerDown: _pointerDown,
+                      dismiss: _dismiss,
+                    ),
                   ]
                 ],
               );
@@ -369,78 +392,36 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  /// Returns a visual representation of the context menu itself.
-  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
-    final double width = MediaQuery.of(context).size.width;
-    EdgeInsets padding;
-
-    if (widget.alignment == Alignment.bottomLeft ||
-        widget.alignment == Alignment.bottomRight) {
-      const double minWidth = 230;
-      final double menuWidth = _bounds.right - _bounds.left;
-
-      if (widget.alignment == Alignment.bottomLeft) {
-        padding = EdgeInsets.only(
-          left: _bounds.left - 5,
-          right: menuWidth < minWidth
-              ? width - _bounds.left - minWidth
-              : width - _bounds.right - 5,
-        );
-      } else {
-        padding = EdgeInsets.only(
-          left: menuWidth < minWidth
-              ? _bounds.right - minWidth
-              : _bounds.left - 5,
-          right: width - _bounds.right - 5,
-        );
-      }
-
-      if (padding.left < 3) {
-        padding = EdgeInsets.only(
-          left: 3,
-          right: width - minWidth - 8,
-        );
-      }
-    } else if (widget.unconstrained) {
-      padding = const EdgeInsets.only(left: 0, right: 0);
-    } else {
-      padding = EdgeInsets.only(
-        left: max(0, _bounds.left - 10),
-        right: max(0, width - _bounds.right - 10),
-      );
-    }
-
-    return Align(
-      alignment: widget.alignment,
-      child: Padding(
-        padding: widget.margin.add(padding),
-        child: SlideTransition(
-          position: slide,
-          child: FadeTransition(
-            opacity: fade,
-            child: Padding(
-              key: widget.actionsKey,
-              padding: EdgeInsets.only(
-                bottom: 10 + router.context!.mediaQueryPadding.bottom,
-              ),
-              child: _actions(),
-            ),
-          ),
-        ),
-      ),
-    );
+  /// Starts a dismiss animation.
+  void _dismiss() {
+    HapticFeedback.selectionClick();
+    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
+    _fading.reverse();
   }
+}
 
-  /// Builds the [_AnimatedMenu.actions].
-  Widget _actions() {
+/// Builds the [_AnimatedMenu.actions].
+class _Actions extends StatelessWidget {
+  final List<ContextMenuItem> actions;
+  Offset? pointerDown;
+  final void Function()? dismiss;
+  _Actions({
+    Key? key,
+    required this.actions,
+    required this.pointerDown,
+    required this.dismiss,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     List<Widget> widgets = [];
 
-    for (int i = 0; i < widget.actions.length; ++i) {
-      if (widget.actions[i] is! ContextMenuDivider) {
-        widgets.add(widget.actions[i]);
+    for (int i = 0; i < actions.length; ++i) {
+      if (actions[i] is! ContextMenuDivider) {
+        widgets.add(actions[i]);
 
         // Add a divider, if required.
-        if (i < widget.actions.length - 1) {
+        if (i < actions.length - 1) {
           widgets.add(
             Container(
               color: const Color(0x11000000),
@@ -456,12 +437,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
     return Listener(
       onPointerUp: (d) {
-        if (_pointerDown != null &&
-            (_pointerDown!.distance - d.position.distance).abs() < 7) {
-          _dismiss();
+        if (pointerDown != null &&
+            (pointerDown!.distance - d.position.distance).abs() < 7) {
+          dismiss;
         }
       },
-      onPointerDown: (d) => _pointerDown = d.position,
+      onPointerDown: (d) => pointerDown = d.position,
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(
@@ -481,11 +462,96 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       ),
     );
   }
+}
 
-  /// Starts a dismiss animation.
-  void _dismiss() {
-    HapticFeedback.selectionClick();
-    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
-    _fading.reverse();
+/// Returns a visual representation of the context menu itself.
+class _ContextMenu extends StatelessWidget {
+  final Animation<double> fade;
+  final Animation<Offset> slide;
+  final Alignment alignment;
+  final Rect bounds;
+  final bool unconstrained;
+  final EdgeInsets margin;
+  final GlobalKey<State<StatefulWidget>> actionsKey;
+  final List<ContextMenuItem> actions;
+  final Offset? pointerDown;
+  final void Function()? dismiss;
+  const _ContextMenu({
+    Key? key,
+    required this.fade,
+    required this.slide,
+    required this.alignment,
+    required this.bounds,
+    required this.unconstrained,
+    required this.margin,
+    required this.actionsKey,
+    required this.actions,
+    required this.pointerDown,
+    required this.dismiss,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    EdgeInsets padding;
+
+    if (alignment == Alignment.bottomLeft ||
+        alignment == Alignment.bottomRight) {
+      const double minWidth = 230;
+      final double menuWidth = bounds.right - bounds.left;
+
+      if (alignment == Alignment.bottomLeft) {
+        padding = EdgeInsets.only(
+          left: bounds.left - 5,
+          right: menuWidth < minWidth
+              ? width - bounds.left - minWidth
+              : width - bounds.right - 5,
+        );
+      } else {
+        padding = EdgeInsets.only(
+          left:
+              menuWidth < minWidth ? bounds.right - minWidth : bounds.left - 5,
+          right: width - bounds.right - 5,
+        );
+      }
+
+      if (padding.left < 3) {
+        padding = EdgeInsets.only(
+          left: 3,
+          right: width - minWidth - 8,
+        );
+      }
+    } else if (unconstrained) {
+      padding = const EdgeInsets.only(left: 0, right: 0);
+    } else {
+      padding = EdgeInsets.only(
+        left: max(0, bounds.left - 10),
+        right: max(0, width - bounds.right - 10),
+      );
+    }
+
+    return Align(
+      alignment: alignment,
+      child: Padding(
+        padding: margin.add(padding),
+        child: SlideTransition(
+          position: slide,
+          child: FadeTransition(
+            opacity: fade,
+            child: Padding(
+              key: actionsKey,
+              padding: EdgeInsets.only(
+                bottom: 10 + router.context!.mediaQueryPadding.bottom,
+              ),
+              child: _Actions(
+                actions: actions,
+                pointerDown: pointerDown,
+                dismiss: dismiss,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
