@@ -1194,7 +1194,8 @@ class HiveRxChat extends RxChat {
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   ///
-  /// Should be used only with sorted [List].
+  /// Only meaningful, if this [List] is sorted in some way, as this method
+  /// iterates it from the [first] til the [last].
   void insertAfter(T element, bool Function(T) test) {
     if (isEmpty || !test(this[0])) {
       insert(0, element);

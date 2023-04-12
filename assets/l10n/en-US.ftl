@@ -231,13 +231,13 @@ err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
-err_call_forwarding = Can't forward call messages
 err_call_is_in_popup = Call is used in a separate popup
 err_call_monolog = You can\t call yourself
 err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
+err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied
 err_code_limit_exceed =

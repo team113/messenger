@@ -310,19 +310,20 @@ class ChatController extends GetxController {
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
-              MessagePopup.error('err_call_forwarding'.l10n);
-            } else {
-              bool? result = await ChatForwardView.show(
-                router.context!,
-                id,
-                send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
-                text: send.field.text,
-                attachments: send.attachments.map((e) => e.value).toList(),
-              );
+              MessagePopup.error('err_cant_forward_calls'.l10n);
+              return;
+            }
 
-              if (result == true) {
-                send.clear();
-              }
+            bool? result = await ChatForwardView.show(
+              router.context!,
+              id,
+              send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
+              text: send.field.text,
+              attachments: send.attachments.map((e) => e.value).toList(),
+            );
+
+            if (result == true) {
+              send.clear();
             }
           }
         } else {
