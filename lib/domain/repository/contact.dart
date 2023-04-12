@@ -36,6 +36,9 @@ abstract class AbstractContactRepository {
   /// used.
   RxBool get isReady;
 
+  /// Returns the status of the [contacts] and [favorites] fetching.
+  Rx<RxStatus> get status;
+
   /// Initializes this repository.
   Future<void> init();
 

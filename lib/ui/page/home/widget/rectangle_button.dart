@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Rectangular filled selectable button.
@@ -45,13 +44,11 @@ class RectangleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected
-          ? style.cardSelectedColor.withOpacity(0.8)
-          : Colors.white.darken(0.05),
+      color: selected ? colorScheme.secondary : Colors.white.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -64,7 +61,10 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: selected ? colorScheme.onSecondary : null,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -76,12 +76,11 @@ class RectangleButton extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                            backgroundColor: colorScheme.onSecondary,
                             radius: 12,
-                            child: const Icon(
+                            child: Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: colorScheme.secondary,
                               size: 12,
                             ),
                           )

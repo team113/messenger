@@ -86,6 +86,10 @@ class ContactsTabController extends GetxController {
   /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
+  /// [Timer] for displaying the fetching [contacts] and [favorites] when
+  /// `null`.
+  late final Rx<Timer?> fetching;
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
@@ -125,6 +129,9 @@ class ContactsTabController extends GetxController {
   bool get sortByName =>
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
+  /// Returns the status of the [contacts] and [favorites] fetching.
+  Rx<RxStatus> get status => _contactService.status;
+
   @override
   void onInit() {
     contacts.value = _contactService.contacts.values.toList();
@@ -138,6 +145,8 @@ class ContactsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    fetching = Rx(Timer(2.seconds, () => fetching.value = null));
 
     super.onInit();
   }
@@ -157,6 +166,8 @@ class ContactsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    fetching.value?.cancel();
 
     super.onClose();
   }

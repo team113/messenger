@@ -110,6 +110,9 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [Timer] for displaying the fetching [chats] when `null`.
+  late final Rx<Timer?> fetching;
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -153,6 +156,9 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
+  /// Returns the status of the [chats] fetching.
+  Rx<RxStatus> get status => _chatService.status;
+
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
@@ -161,6 +167,8 @@ class ChatsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    fetching = Rx(Timer(2.seconds, () => fetching.value = null));
 
     _sortChats();
 
@@ -250,6 +258,8 @@ class ChatsTabController extends GetxController {
     for (RxUser v in _recipients) {
       v.stopUpdates();
     }
+
+    fetching.value?.cancel();
 
     router.navigation.value = true;
 

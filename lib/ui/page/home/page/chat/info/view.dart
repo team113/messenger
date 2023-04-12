@@ -472,9 +472,7 @@ class ChatInfoView extends StatelessWidget {
         Key? key,
         Widget? leading,
         required Widget title,
-        Widget? subtitle,
         void Function()? onTap,
-        bool selected = false,
       }) {
         return SizedBox(
           key: key,
@@ -488,13 +486,11 @@ class ChatInfoView extends StatelessWidget {
             child: Material(
               type: MaterialType.card,
               borderRadius: style.cardRadius,
-              color: selected
-                  ? style.cardSelectedColor
-                  : style.cardColor.darken(0.05),
+              color: style.cardColor.darken(0.05),
               child: InkWell(
                 borderRadius: style.cardRadius,
                 onTap: onTap,
-                hoverColor: const Color(0xFFF4F9FF),
+                hoverColor: style.cardColor.darken(0.08),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Row(

@@ -53,6 +53,9 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Returns the status of the [chats] fetching.
+  Rx<RxStatus> get status => _chatRepository.status;
+
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);

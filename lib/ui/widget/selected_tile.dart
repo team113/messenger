@@ -96,7 +96,7 @@ class SelectedTile extends StatelessWidget {
               ),
               trailing: [
                 if (myUser == null)
-                  SelectedDot(selected: selected, darken: darken)
+                  SelectedDot(selected: selected, darken: darken, invert: true)
               ],
             )
           : ChatTile(
@@ -108,7 +108,7 @@ class SelectedTile extends StatelessWidget {
               darken: darken,
               trailing: [
                 if (myUser == null)
-                  SelectedDot(selected: selected, darken: darken)
+                  SelectedDot(selected: selected, darken: darken, invert: true)
               ],
             ),
     );

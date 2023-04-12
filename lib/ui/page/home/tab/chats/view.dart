@@ -17,6 +17,7 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -54,6 +56,7 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -83,7 +86,7 @@ class ChatsTabView extends StatelessWidget {
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
                       ? Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: colorScheme.secondary,
                           width: 2,
                         )
                       : null,
@@ -130,7 +133,35 @@ class ChatsTabView extends StatelessWidget {
                       child =
                           Text('label_select_chats'.l10n, key: const Key('3'));
                     } else {
-                      child = Text('label_chats'.l10n, key: const Key('2'));
+                      final bool isLoading = c.fetching.value == null &&
+                          (c.status.value.isLoadingMore ||
+                              !c.status.value.isSuccess);
+
+                      child = Column(
+                        key: const Key('2'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('label_chats'.l10n),
+                          AnimatedSizeAndFade(
+                            sizeDuration: const Duration(milliseconds: 300),
+                            fadeDuration: const Duration(milliseconds: 300),
+                            child: isLoading
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Center(
+                                      child: Text(
+                                        'label_synchronization'.l10n,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      );
                     }
 
                     return AnimatedSwitcher(
@@ -310,9 +341,7 @@ class ChatsTabView extends StatelessWidget {
                                       Text(
                                         'label_required'.l10n,
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color: colorScheme.onSecondary,
                                         ),
                                       ),
                                     ],
@@ -570,6 +599,9 @@ class ChatsTabView extends StatelessWidget {
                                           SelectedDot(
                                             selected: selected,
                                             size: 20,
+                                            invert: true,
+                                            isRoute: e.chat.value
+                                                .isRoute(router.route, null),
                                           )
                                         ]
                                       : null,
@@ -659,7 +691,10 @@ class ChatsTabView extends StatelessWidget {
                                                       'ReorderHandle_${chat.id.val}',
                                                     ),
                                                     index: i,
-                                                    child: child,
+                                                    child: GestureDetector(
+                                                      onLongPress: () {},
+                                                      child: child,
+                                                    ),
                                                   ),
                                                 );
                                               },

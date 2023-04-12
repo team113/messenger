@@ -26,6 +26,8 @@ class SelectedDot extends StatelessWidget {
     this.selected = false,
     this.size = 24,
     this.darken = 0,
+    this.invert = false,
+    this.isRoute = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -37,8 +39,16 @@ class SelectedDot extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [SelectedDot].
   final double darken;
 
+  /// Indicator whether parts of the [CircleAvatar] should change colors.
+  final bool invert;
+
+  /// Indicator whether the current route represents a parent [Widget].
+  final bool isRoute;
+
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 30,
       child: AnimatedSwitcher(
@@ -46,16 +56,24 @@ class SelectedDot extends StatelessWidget {
         child: selected
             ? CircleAvatar(
                 key: const Key('Selected'),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor:
+                    invert ? colorScheme.onSecondary : colorScheme.secondary,
                 radius: size / 2,
-                child: const Icon(Icons.check, color: Colors.white, size: 14),
+                child: Icon(
+                  Icons.check,
+                  color:
+                      invert ? colorScheme.secondary : colorScheme.onSecondary,
+                  size: 14,
+                ),
               )
             : Container(
                 key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
+                    color: isRoute
+                        ? colorScheme.onSecondary
+                        : const Color(0xFFD7D7D7).darken(darken),
                     width: 1,
                   ),
                 ),

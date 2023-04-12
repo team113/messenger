@@ -49,9 +49,9 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -89,10 +89,13 @@ class LanguageSelectionView extends StatelessWidget {
                           child: Material(
                             borderRadius: BorderRadius.circular(10),
                             color: selected
-                                ? style.cardSelectedColor.withOpacity(0.8)
+                                ? colorScheme.secondary
                                 : Colors.white.darken(0.05),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(10),
+                              hoverColor: selected
+                                  ? colorScheme.secondary
+                                  : Colors.white.darken(0.08),
                               onTap: () => c.selected.value = e,
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
@@ -104,7 +107,12 @@ class LanguageSelectionView extends StatelessWidget {
                                             e.locale.languageCode.toUpperCase(),
                                         'name': e.name,
                                       }),
-                                      style: const TextStyle(fontSize: 17),
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: selected
+                                            ? colorScheme.onSecondary
+                                            : null,
+                                      ),
                                     ),
                                     const Spacer(),
                                     SizedBox(
@@ -114,14 +122,11 @@ class LanguageSelectionView extends StatelessWidget {
                                         duration: 200.milliseconds,
                                         child: selected
                                             ? CircleAvatar(
-                                                backgroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
+                                                backgroundColor: Colors.white,
                                                 radius: 12,
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.check,
-                                                  color: Colors.white,
+                                                  color: colorScheme.secondary,
                                                   size: 12,
                                                 ),
                                               )
@@ -158,7 +163,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 16),

@@ -24,10 +24,14 @@ class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
     Key? key,
     this.period = const Duration(seconds: 1),
+    this.invert = false,
   }) : super(key: key);
 
   /// [Duration] over which the circles are animated.
   final Duration period;
+
+  /// Indicator whether of this [AnimatedTyping] should use the opposite color.
+  final bool invert;
 
   @override
   State<AnimatedTyping> createState() => _AnimatedTypingState();
@@ -56,10 +60,13 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin = Theme.of(context).colorScheme.secondary;
+        final Color begin =
+            widget.invert ? colorScheme.onSecondary : colorScheme.secondary;
         const Color end = Color(0xFFB6DCFF);
 
         const double size = 4;

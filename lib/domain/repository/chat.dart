@@ -42,6 +42,9 @@ abstract class AbstractChatRepository {
   /// used.
   RxBool get isReady;
 
+  /// Returns the status of the [chats] fetching.
+  Rx<RxStatus> get status;
+
   /// Initializes this repository.
   ///
   /// Callback [onMemberRemoved] should be called once an [User] is removed from

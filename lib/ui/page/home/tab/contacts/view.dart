@@ -17,6 +17,7 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -53,6 +54,7 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -68,7 +70,7 @@ class ContactsTabView extends StatelessWidget {
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
                 ? Border.all(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: colorScheme.secondary,
                     width: 2,
                   )
                 : null,
@@ -100,7 +102,33 @@ class ContactsTabView extends StatelessWidget {
               } else if (c.selecting.value) {
                 child = Text('label_select_contacts'.l10n);
               } else {
-                child = Text('label_contacts'.l10n);
+                final bool isLoading = c.fetching.value == null &&
+                    (c.status.value.isLoadingMore || !c.status.value.isSuccess);
+
+                child = Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('label_contacts'.l10n),
+                    AnimatedSizeAndFade(
+                      sizeDuration: const Duration(milliseconds: 300),
+                      fadeDuration: const Duration(milliseconds: 300),
+                      child: isLoading
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Center(
+                                child: Text(
+                                  'label_synchronization'.l10n,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                );
               }
 
               return AnimatedSwitcher(duration: 250.milliseconds, child: child);
@@ -358,7 +386,10 @@ class ContactsTabView extends StatelessWidget {
                                           ),
                                           index: i,
                                           enabled: !c.selecting.value,
-                                          child: child,
+                                          child: GestureDetector(
+                                            onLongPress: () {},
+                                            child: child,
+                                          ),
                                         ),
                                       );
                                     },
@@ -454,6 +485,8 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
 
@@ -462,11 +495,13 @@ class ContactsTabView extends StatelessWidget {
               ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
           true;
 
+      final bool invert = selected || c.selectedContacts.contains(contact.id);
+
       return ContactTile(
         key: Key('Contact_${contact.id}'),
         contact: contact,
         folded: favorite,
-        selected: selected || c.selectedContacts.contains(contact.id),
+        selected: invert,
         enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
             ? (child) => WidgetButton(
@@ -517,8 +552,10 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                  style: TextStyle(
+                    color:
+                        invert ? colorScheme.onSecondary : colorScheme.primary,
+                  ),
                 );
               }
 
@@ -537,7 +574,9 @@ class ContactsTabView extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: SvgLoader.asset(
-                'assets/icons/muted.svg',
+                invert
+                    ? 'assets/icons/muted_light.svg'
+                    : 'assets/icons/muted.svg',
                 key: Key('MuteIndicator_${contact.id}'),
                 width: 19.99,
                 height: 15,
@@ -549,9 +588,14 @@ class ContactsTabView extends StatelessWidget {
               return const SizedBox();
             }
 
-            return const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(
+                Icons.block,
+                color:
+                    invert ? colorScheme.onSecondary : const Color(0xFFC0C0C0),
+                size: 20,
+              ),
             );
           }),
           Obx(() {
@@ -564,6 +608,8 @@ class ContactsTabView extends StatelessWidget {
               child: SelectedDot(
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
+                invert: true,
+                isRoute: selected,
               ),
             );
           }),

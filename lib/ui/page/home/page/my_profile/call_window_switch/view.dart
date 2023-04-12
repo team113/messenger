@@ -42,9 +42,9 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -85,10 +85,13 @@ class CallWindowSwitchView extends StatelessWidget {
                       return Material(
                         borderRadius: BorderRadius.circular(10),
                         color: selected
-                            ? style.cardSelectedColor.withOpacity(0.8)
+                            ? colorScheme.secondary
                             : Colors.white.darken(0.05),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
+                          hoverColor: selected
+                              ? colorScheme.secondary
+                              : Colors.white.darken(0.08),
                           onTap: () => c.setPopupsEnabled(i == 0),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -101,7 +104,12 @@ class CallWindowSwitchView extends StatelessWidget {
                                         : 'label_open_calls_in_app'.l10n,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 15),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: selected
+                                          ? colorScheme.onSecondary
+                                          : null,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -112,13 +120,11 @@ class CallWindowSwitchView extends StatelessWidget {
                                     duration: 200.milliseconds,
                                     child: selected
                                         ? CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            backgroundColor: Colors.white,
                                             radius: 12,
-                                            child: const Icon(
+                                            child: Icon(
                                               Icons.check,
-                                              color: Colors.white,
+                                              color: colorScheme.secondary,
                                               size: 12,
                                             ),
                                           )

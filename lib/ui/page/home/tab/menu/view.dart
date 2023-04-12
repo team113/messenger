@@ -41,6 +41,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
+        final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -123,6 +124,9 @@ class MenuTabView extends StatelessWidget {
                   VoidCallback? onTap,
                 }) {
                   return Obx(() {
+                    final bool invert = tab == router.profileSection.value &&
+                        router.route == Routes.me;
+
                     return Padding(
                       key: key,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -137,9 +141,8 @@ class MenuTabView extends StatelessWidget {
                           child: Material(
                             type: MaterialType.card,
                             borderRadius: style.cardRadius,
-                            color: tab == router.profileSection.value &&
-                                    router.route == Routes.me
-                                ? style.cardSelectedColor
+                            color: invert
+                                ? colorScheme.secondary
                                 : style.cardColor,
                             child: InkWell(
                               borderRadius: style.cardRadius,
@@ -152,7 +155,9 @@ class MenuTabView extends StatelessWidget {
                                     }
                                     router.me();
                                   },
-                              hoverColor: style.cardHoveredColor,
+                              hoverColor: invert
+                                  ? colorScheme.secondary
+                                  : style.cardColor.darken(0.03),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
@@ -160,9 +165,9 @@ class MenuTabView extends StatelessWidget {
                                     const SizedBox(width: 12),
                                     Icon(
                                       icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: invert
+                                          ? colorScheme.onSecondary
+                                          : colorScheme.secondary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(
@@ -177,13 +182,23 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headlineSmall!,
+                                                .headlineSmall!
+                                                .copyWith(
+                                                  color: invert
+                                                      ? colorScheme.onSecondary
+                                                      : null,
+                                                ),
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: invert
+                                                  ? colorScheme.onSecondary
+                                                  : null,
+                                            ),
                                             child: Text(subtitle),
                                           ),
                                         ],

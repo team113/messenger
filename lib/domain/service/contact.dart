@@ -42,6 +42,9 @@ class ContactService extends DisposableService {
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
+  /// Returns the status of the [contacts] and [favorites] fetching.
+  Rx<RxStatus> get status => _contactRepository.status;
+
   @override
   void onInit() {
     _contactRepository.init();
