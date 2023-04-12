@@ -23,7 +23,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -50,7 +54,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(
+    this._myUserService,
+    this._settingsRepo,
+    this._chatService,
+  );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -110,8 +118,12 @@ class MyProfileController extends GetxController {
 
   final Rx<ChatMessage?> welcome = Rx(null);
 
+  late final MessageFieldController send;
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
+
+  final ChatService _chatService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -463,6 +475,24 @@ class MyProfileController extends GetxController {
         }
       }
     });
+
+    send = MessageFieldController(
+      _chatService,
+      null,
+      onSubmit: () async {
+        welcome.value = ChatMessage(
+          welcome.value?.id ?? ChatItemId.local(),
+          welcome.value?.chatId ?? const ChatId('123'),
+          welcome.value?.authorId ?? myUser.value!.id,
+          welcome.value?.at ?? PreciseDateTime.now(),
+          text: ChatMessageText(send.field.text),
+          attachments: send.attachments.map((e) => e.value).toList(),
+        );
+
+        send.editing.value = false;
+        send.clear();
+      },
+    );
 
     super.onInit();
   }

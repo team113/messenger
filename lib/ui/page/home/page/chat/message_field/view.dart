@@ -519,19 +519,12 @@ class MessageFieldView extends StatelessWidget {
                               width: 26,
                               height: 22,
                             )
-                          : c.editing.value
-                              ? SvgLoader.asset(
-                                  key: sendKey ?? const Key('Send'),
-                                  'assets/icons/edit_message.svg',
-                                  height: 24,
-                                  width: 24,
-                                )
-                              : SvgLoader.asset(
-                                  key: sendKey ?? const Key('Send'),
-                                  'assets/icons/send${disabled ? '_disabled' : ''}.svg',
-                                  height: 22.85,
-                                  width: 25.18,
-                                ),
+                          : SvgLoader.asset(
+                              key: sendKey ?? const Key('Send'),
+                              'assets/icons/send${disabled ? '_disabled' : ''}.svg',
+                              height: 22.85,
+                              width: 25.18,
+                            ),
                     ),
                   ),
                 ),

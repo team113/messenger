@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
@@ -23,9 +24,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
@@ -34,6 +37,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/get_paid/view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../chat/message_field/view.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/my_user.dart';
@@ -82,7 +86,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find()),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -276,7 +280,7 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.welcome:
                         return Block(
                           title: 'label_welcome_message'.l10n,
-                          // padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                           children: [_welcome(context, c)],
                         );
 
@@ -1376,13 +1380,17 @@ Widget _welcome(BuildContext context, MyProfileController c) {
     if (at != null) {
       timeline = SelectionContainer.disabled(
         child: Text(
-          '${'label_date_ymd'.l10nfmt({
-                'year': at.val.year.toString().padLeft(4, '0'),
-                'month': at.val.month.toString().padLeft(2, '0'),
-                'day': at.val.day.toString().padLeft(2, '0'),
-              })}, 10:04',
+          DateFormat.Hm().format(at.val.toLocal()),
           style: style.systemMessageStyle.copyWith(fontSize: 11),
         ),
+        // child: Text(
+        //   '${'label_date_ymd'.l10nfmt({
+        //         'year': at.val.year.toString().padLeft(4, '0'),
+        //         'month': at.val.month.toString().padLeft(2, '0'),
+        //         'day': at.val.day.toString().padLeft(2, '0'),
+        //       })}, 10:04',
+        //   style: style.systemMessageStyle.copyWith(fontSize: 11),
+        // ),
       );
     }
 
@@ -1482,7 +1490,12 @@ Widget _welcome(BuildContext context, MyProfileController c) {
               bottom: 4,
               child: timeInBubble
                   ? Container(
-                      padding: const EdgeInsets.only(left: 4, right: 4),
+                      padding: const EdgeInsets.only(
+                        left: 5,
+                        right: 5,
+                        top: 2,
+                        bottom: 2,
+                      ),
                       decoration: BoxDecoration(
                         // color: Colors.white.withOpacity(0.9),
                         color: style.readMessageColor,
@@ -1503,35 +1516,42 @@ Widget _welcome(BuildContext context, MyProfileController c) {
       children: [
         WidgetButton(
           onPressed: () async {
-            final ChatMessage? m = await WelcomeMessageView.show(
-              context,
-              initial: c.welcome.value,
-            );
+            c.send.editing.value = true;
+            c.send.field.unchecked = c.welcome.value?.text?.val;
+            c.send.attachments.value = c.welcome.value?.attachments
+                    .map((e) => MapEntry(GlobalKey(), e))
+                    .toList() ??
+                [];
 
-            if (m != null) {
-              c.welcome.value = m;
-            }
+            // final ChatMessage? m = await WelcomeMessageView.show(
+            //   context,
+            //   initial: c.welcome.value,
+            // );
+
+            // if (m != null) {
+            //   c.welcome.value = m;
+            // }
           },
           child: Text(
             'btn_edit'.l10n,
-            style: TextStyle(
+            style: style.systemMessageStyle.copyWith(
               color: Theme.of(context).colorScheme.secondary,
-              fontSize: 11,
+              // fontSize: 11,
             ),
           ),
         ),
         Text(
           'space_or_space'.l10n,
-          style: const TextStyle(color: Colors.black, fontSize: 11),
+          style: style.systemMessageStyle,
         ),
         WidgetButton(
           key: const Key('DeleteAvatar'),
           onPressed: () => c.welcome.value = null,
           child: Text(
             'btn_delete'.l10n.toLowerCase(),
-            style: TextStyle(
+            style: style.systemMessageStyle.copyWith(
               color: Theme.of(context).colorScheme.secondary,
-              fontSize: 11,
+              // fontSize: 11,
             ),
           ),
         ),
@@ -1541,133 +1561,260 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      Text('label_welcome_message_description'.l10n, style: thin),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Text('label_welcome_message_description'.l10n, style: thin),
+      ),
       const SizedBox(height: 13),
-      Stack(
-        children: [
-          Positioned.fill(
-            child: ClipRRect(
-              // borderRadius: BorderRadius.only(
-              //   bottomRight: style.cardRadius.bottomRight,
-              //   bottomLeft: style.cardRadius.bottomLeft,
-              // ),
-              borderRadius: style.cardRadius,
-              child: Container(
-                color: Colors.transparent,
-                child: c.background.value == null
-                    ? Container(
-                        child: SvgLoader.asset(
-                          'assets/images/background_light.svg',
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Image.memory(
-                        c.background.value!,
-                        fit: BoxFit.cover,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  bottomRight: style.cardRadius.bottomRight,
+                  bottomLeft: style.cardRadius.bottomLeft,
+                ),
+                // borderRadius: style.cardRadius,
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                      // color: style.sidebarColor,
                       ),
+                  child: Obx(() {
+                    return c.background.value == null
+                        ? Container(
+                            child: SvgLoader.asset(
+                              'assets/images/background_light.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Image.memory(
+                            c.background.value!,
+                            fit: BoxFit.cover,
+                          );
+
+                    // return c.background.value == null
+                    //     ? ImageFiltered(
+                    //         imageFilter:
+                    //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                    //         child: Container(
+                    //           child: SvgLoader.asset(
+                    //             'assets/images/background_light.svg',
+                    //             width: double.infinity,
+                    //             height: double.infinity,
+                    //             fit: BoxFit.cover,
+                    //           ),
+                    //         ),
+                    //       )
+                    //     : ImageFiltered(
+                    //         imageFilter:
+                    //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                    //         child: Image.memory(
+                    //           c.background.value!,
+                    //           fit: BoxFit.cover,
+                    //         ),
+                    //       );
+                  }),
+                ),
               ),
             ),
-          ),
-          Obx(() {
-            if (c.welcome.value == null) {
-              return WidgetButton(
-                onPressed: () async {
-                  final ChatMessage? m = await WelcomeMessageView.show(
-                    context,
-                    initial: c.welcome.value,
-                  );
+            Obx(() {
+              return Column(
+                children: [
+                  const SizedBox(height: 16),
+                  if (c.welcome.value == null)
+                    WidgetButton(
+                      onPressed: () async {
+                        final ChatMessage? m = await WelcomeMessageView.show(
+                          context,
+                          initial: c.welcome.value,
+                        );
 
-                  if (m != null) {
-                    c.welcome.value = m;
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  height: 60 * 3,
-                  child: info(
-                    child: const Text(
-                      'Здесь будет Ваше приветственное сообщение',
-                    ),
-                  ),
-                ),
-              );
-            }
-
-            return Column(
-              children: [
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: IgnorePointer(
-                      child: message(
-                        text: c.welcome.value?.text?.val ?? '',
-                        attachments: c.welcome.value?.attachments ?? [],
-                        // at: c.welcome.value?.at,
+                        if (m != null) {
+                          c.welcome.value = m;
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        height: 60 * 3,
+                        child: info(
+                          child: const Text(
+                            'Здесь будет Ваше приветственное сообщение',
+                          ),
+                        ),
+                      ),
+                    )
+                  else ...[
+                    info(
+                      child: Text(
+                        c.welcome.value?.at.val.toRelative() ?? '',
+                        // 'label_date_ymd'.l10nfmt({
+                        //   'year': c.welcome.value?.at.val.year
+                        //       .toString()
+                        //       .padLeft(4, '0'),
+                        //   'month': c.welcome.value?.at.val.month
+                        //       .toString()
+                        //       .padLeft(2, '0'),
+                        //   'day': c.welcome.value?.at.val.day
+                        //       .toString()
+                        //       .padLeft(2, '0'),
+                        // }),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // const SizedBox(height: 10),
-                // editOrDelete,
-              ],
-            );
-          }),
-        ],
-      ),
-      Obx(() {
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                WidgetButton(
-                  key: const Key('UploadAvatar'),
-                  onPressed: () async {
-                    final ChatMessage? m = await WelcomeMessageView.show(
-                      context,
-                      initial: c.welcome.value,
-                    );
-
-                    if (m != null) {
-                      c.welcome.value = m;
-                    }
-                  },
-                  child: Text(
-                    c.welcome.value == null ? 'btn_add'.l10n : 'btn_edit'.l10n,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-                if (c.welcome.value != null) ...[
-                  Text(
-                    'space_or_space'.l10n,
-                    style: const TextStyle(color: Colors.black, fontSize: 11),
-                  ),
-                  WidgetButton(
-                    key: const Key('DeleteAvatar'),
-                    onPressed: () => c.welcome.value = null,
-                    child: Text(
-                      'btn_delete'.l10n.toLowerCase(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: IgnorePointer(
+                          child: message(
+                            text: c.welcome.value?.text?.val ?? '',
+                            attachments: c.welcome.value?.attachments ?? [],
+                            at: c.welcome.value?.at,
+                          ),
+                        ),
                       ),
                     ),
+                    editOrDelete,
+                  ],
+                  // const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    child: MessageFieldView(
+                      fieldKey: const Key('ForwardField'),
+                      sendKey: const Key('SendForward'),
+                      constraints: const BoxConstraints(),
+                      controller: c.send,
+                    ),
                   ),
+                  if (false)
+                    Obx(() {
+                      final Widget child;
+
+                      if (c.welcome.value != null && !c.send.editing.value) {
+                        child =
+                            const SizedBox(height: 16, width: double.infinity);
+                      } else {
+                        child = Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                          child: MessageFieldView(
+                            fieldKey: const Key('ForwardField'),
+                            sendKey: const Key('SendForward'),
+                            constraints: const BoxConstraints(),
+                            controller: c.send,
+                          ),
+                        );
+                      }
+
+                      return child;
+
+                      return AnimatedSizeAndFade(
+                        fadeDuration: 250.milliseconds,
+                        sizeDuration: 250.milliseconds,
+                        child: child,
+                      );
+                    }),
+                  // const SizedBox(height: 10),
+                  // editOrDelete,
                 ],
-              ],
+              );
+            }),
+          ],
+        ),
+      ),
+
+      if (false)
+        Obx(() {
+          if (c.welcome.value == null /* || c.send.editing.value*/) {
+            return const SizedBox();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (c.welcome.value != null)
+                    WidgetButton(
+                      onPressed: () async {
+                        c.send.editing.value = true;
+                        c.send.field.unchecked = c.welcome.value?.text?.val;
+                        c.send.attachments.value = c.welcome.value?.attachments
+                                .map((e) => MapEntry(GlobalKey(), e))
+                                .toList() ??
+                            [];
+
+                        // final ChatMessage? m = await WelcomeMessageView.show(
+                        //   context,
+                        //   initial: c.welcome.value,
+                        // );
+
+                        // if (m != null) {
+                        //   c.welcome.value = m;
+                        // }
+                      },
+                      child: Text(
+                        c.welcome.value == null
+                            ? 'btn_add'.l10n
+                            : 'btn_edit'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (c.welcome.value != null) ...[
+                    Text(
+                      'space_or_space'.l10n,
+                      style: const TextStyle(color: Colors.black, fontSize: 11),
+                    ),
+                    WidgetButton(
+                      onPressed: () => c.welcome.value = null,
+                      child: Text(
+                        'btn_delete'.l10n.toLowerCase(),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      // Obx(() {
+      //   final Widget child;
+
+      //   if (c.welcome.value != null && !c.send.editing.value) {
+      //     child = const SizedBox(height: 16, width: double.infinity);
+      //   } else {
+      //     child = Padding(
+      //       padding:
+      //           EdgeInsets.fromLTRB(0, c.welcome.value == null ? 0 : 16, 0, 0),
+      //       child: MessageFieldView(
+      //         fieldKey: const Key('ForwardField'),
+      //         sendKey: const Key('SendForward'),
+      //         constraints: const BoxConstraints(),
+      //         controller: c.send,
+      //       ),
+      //     );
+      //   }
+
+      //   return child;
+
+      //   return AnimatedSizeAndFade(
+      //     fadeDuration: 250.milliseconds,
+      //     sizeDuration: 250.milliseconds,
+      //     child: child,
+      //   );
+      // }),
+
       // _dense(
       //   FieldButton(
       //     text: 'Change',

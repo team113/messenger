@@ -155,10 +155,10 @@ class MessageFieldController extends GetxController {
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// [Chat]s service uploading the [attachments].
-  final ChatService _chatService;
+  final ChatService? _chatService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
+  final UserService? _userService;
 
   /// Worker reacting on the [replied] changes.
   Worker? _repliesWorker;
@@ -170,7 +170,7 @@ class MessageFieldController extends GetxController {
   Worker? _editedWorker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _chatService.me;
+  UserId? get me => _chatService?.me;
 
   @override
   void onClose() {
@@ -192,7 +192,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) async => await _userService?.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
@@ -271,7 +271,8 @@ class MessageFieldController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        Attachment uploaded =
+            await _chatService?.uploadAttachment(attachment) ?? attachment;
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {

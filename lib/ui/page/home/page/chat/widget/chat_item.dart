@@ -311,39 +311,32 @@ class ChatItemWidget extends StatefulWidget {
                     ),
               ElasticAnimatedSwitcher(
                 key: Key('AttachmentStatus_${e.id}'),
-                child: !isLocal
+                child: !isLocal || e.status.value == SendingStatus.sent
                     ? Container(key: const Key('Sent'))
                     : Container(
                         constraints: filled
                             ? const BoxConstraints(
                                 minWidth: 300, minHeight: 300)
                             : null,
-                        child: e.status.value == SendingStatus.sent
-                            ? const Icon(
-                                Icons.check_circle,
-                                key: Key('Sent'),
-                                size: 48,
-                                color: Colors.green,
-                              )
-                            : e.status.value == SendingStatus.sending
-                                ? SizedBox(
-                                    width: 60,
-                                    height: 60,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        key: const Key('Sending'),
-                                        value: e.progress.value,
-                                        backgroundColor: Colors.white,
-                                        strokeWidth: 10,
-                                      ),
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.error,
-                                    key: Key('Error'),
-                                    size: 48,
-                                    color: Colors.red,
+                        child: e.status.value == SendingStatus.sending
+                            ? SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    key: const Key('Sending'),
+                                    value: e.progress.value,
+                                    backgroundColor: Colors.white,
+                                    strokeWidth: 10,
                                   ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.error,
+                                key: Key('Error'),
+                                size: 48,
+                                color: Colors.red,
+                              ),
                       ),
               )
             ],
@@ -1298,7 +1291,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     bottom: 4,
                     child: timeInBubble
                         ? Container(
-                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            padding: const EdgeInsets.only(
+                              left: 5,
+                              right: 5,
+                              top: 2,
+                              bottom: 2,
+                            ),
                             decoration: BoxDecoration(
                               // color: Colors.white.withOpacity(0.9),
                               color: _fromMe
