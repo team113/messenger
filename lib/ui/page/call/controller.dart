@@ -365,10 +365,6 @@ class CallController extends GetxController {
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
-  /// [secondaryBottom] value before the secondary view got relocated due to the
-  /// intersection with the [Dock].
-  double? secondaryBottomShiftedByDock;
-
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
 
@@ -572,7 +568,6 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
-        secondaryBottomShifted = secondaryBottom.value;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -1037,6 +1032,9 @@ class CallController extends GetxController {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
     }
+
+    updateSecondaryAttach();
+    applySecondaryConstraints();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1290,14 +1288,15 @@ class CallController extends GetxController {
       );
 
       if (intersect.width > 0 && intersect.height > 0) {
+        secondaryBottomShifted ??= secondaryBottom.value ??
+            size.height - secondaryTop.value! - secondaryHeight.value;
+
         // Intersection is non-zero, so move the secondary panel up.
         if (secondaryBottom.value != null) {
           secondaryBottom.value = secondaryBottom.value! + intersect.height;
         } else {
           secondaryTop.value = secondaryTop.value! - intersect.height;
         }
-
-        secondaryBottomShiftedByDock ??= secondaryBottomShifted;
 
         applySecondaryConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
@@ -1307,27 +1306,25 @@ class CallController extends GetxController {
         double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
 
-        if (secondaryBottomShiftedByDock != null) {
-          secondaryBottomShifted = secondaryBottomShiftedByDock;
-        }
-        secondaryBottomShiftedByDock = null;
-
         if (bottom > secondaryBottomShifted!) {
           double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
               secondaryBottom.value = secondaryBottomShifted;
+              secondaryBottomShifted = null;
             } else {
-              secondaryBottom.value = secondaryBottom.value! + intersect.height;
+              secondaryBottom.value =
+                  secondaryBottom.value! - intersect.height.abs();
             }
           } else {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
               secondaryTop.value =
                   size.height - secondaryHeight.value - secondaryBottomShifted!;
+              secondaryBottomShifted = null;
             } else {
-              secondaryTop.value = secondaryTop.value! - intersect.height;
+              secondaryTop.value = secondaryTop.value! + intersect.height.abs();
             }
           }
 
@@ -1410,8 +1407,6 @@ class CallController extends GetxController {
           : 0;
     }
 
-    secondaryBottomShifted =
-        secondaryBottom.value ?? size.height - top - secondaryHeight.value;
     relocateSecondary();
   }
 
@@ -1632,22 +1627,19 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [secondaryRatio] according to the [constraints] and
-  /// [_lastConstraints] difference.
+  /// Scales secondary according to the [constraints] and [_lastConstraints]
+  /// difference.
   void scaleSecondary(BoxConstraints constraints) {
     if (_lastConstraints == constraints) {
       return;
     }
 
     if (_lastConstraints != null) {
-      final widthDif = constraints.maxWidth - (_lastConstraints?.maxWidth ?? 0);
-      final heightDif =
-          constraints.maxHeight - (_lastConstraints?.maxHeight ?? 0);
+      final dif = (constraints.maxWidth + constraints.maxHeight) -
+          (_lastConstraints!.maxWidth + _lastConstraints!.maxHeight);
 
-      secondaryWidth.value =
-          _applySWidth(secondaryWidth.value + widthDif * secondaryRatio);
-      secondaryHeight.value =
-          _applySHeight(secondaryHeight.value + heightDif * secondaryRatio);
+      secondaryWidth.value = _applySWidth(secondaryWidth.value + dif * 0.07);
+      secondaryHeight.value = _applySHeight(secondaryHeight.value + dif * 0.07);
     }
 
     _lastConstraints = constraints;
