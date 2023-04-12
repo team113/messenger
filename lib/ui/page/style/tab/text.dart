@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -24,16 +25,6 @@ import '../widget/caption.dart';
 class FontStyleTabView extends StatelessWidget {
   const FontStyleTabView({Key? key}) : super(key: key);
 
-  Widget _font(String desc, String sample, TextStyle style) => Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Caption(
-              '$desc - шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}'),
-          Text(sample, style: style),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) => DefaultTextStyle.merge(
         maxLines: 1,
@@ -41,19 +32,19 @@ class FontStyleTabView extends StatelessWidget {
           controller: ScrollController(),
           padding: const EdgeInsets.all(8),
           children: [
-            _font('Заголовок 3', 'Messenger',
+            _FontWidget('Заголовок 3', 'Messenger',
                 context.theme.textTheme.displaySmall!),
-            _font('Заголовок 4', 'Universal Messenger',
+            _FontWidget('Заголовок 4', 'Universal Messenger',
                 context.theme.textTheme.headlineMedium!),
-            _font('Заголовок 5', 'by Gapopa',
+            _FontWidget('Заголовок 5', 'by Gapopa',
                 context.theme.textTheme.headlineSmall!),
-            _font(
+            _FontWidget(
               'Кнопка',
               'Start chatting',
               context.theme.outlinedButtonTheme.style!.textStyle!
                   .resolve({MaterialState.disabled})!,
             ),
-            _font(
+            _FontWidget(
               'Подпись к кнопке',
               'no registration',
               context.theme.outlinedButtonTheme.style!.textStyle!
@@ -63,4 +54,29 @@ class FontStyleTabView extends StatelessWidget {
           ],
         ),
       );
+}
+
+class _FontWidget extends StatelessWidget {
+  final String desc;
+  final String sample;
+  final TextStyle style;
+  const _FontWidget(
+    this.desc,
+    this.sample,
+    this.style, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Caption(
+            '$desc - шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}'),
+        Text(sample, style: style),
+      ],
+    );
+  }
 }

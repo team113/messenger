@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -35,32 +36,6 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
-    Widget color(String desc, Color color) => Column(
-          children: [
-            Caption(
-              '${color.toHex()}, $desc',
-              color: isDarkMode ? Colors.white : Colors.black,
-            ),
-            _Colored(
-              color: color,
-              outline: isDarkMode ? Colors.white : Colors.black,
-            )
-          ],
-        );
-
-    Widget gradient(String desc, Gradient gradient) => Column(
-          children: [
-            Caption(
-              '${gradient.colors.map((e) => e.toHex())}, $desc',
-              color: isDarkMode ? Colors.white : Colors.black,
-            ),
-            _Colored(
-              gradient: gradient,
-              outline: isDarkMode ? Colors.white : Colors.black,
-            )
-          ],
-        );
-
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       body: ListView(
@@ -80,39 +55,94 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               const Icon(Icons.dark_mode, color: Colors.grey),
             ],
           ),
-          color(
-              'background - Общий фон.', context.theme.colorScheme.background),
-          color('primary - Основной цвет текста и обводки.',
-              context.theme.colorScheme.primary),
-          color('Hover на кнопках.',
-              context.theme.colorScheme.primary.withOpacity(0.04)),
-          color('Нажатие на кнопку.',
-              context.theme.colorScheme.primary.withOpacity(0.12)),
-          color('Основной цвет текста и обводки.',
-              context.theme.colorScheme.primary),
-          gradient(
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'background - Общий фон.',
+            context.theme.colorScheme.background,
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'primary - Основной цвет текста и обводки.',
+            context.theme.colorScheme.primary,
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Hover на кнопках.',
+            context.theme.colorScheme.primary.withOpacity(0.04),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Нажатие на кнопку.',
+            context.theme.colorScheme.primary.withOpacity(0.12),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Основной цвет текста и обводки.',
+            context.theme.colorScheme.primary,
+          ),
+          _GradientWidget(
+            isDarkMode: isDarkMode,
             'Градиент кнопки начать общение.',
             const LinearGradient(
               colors: [Color(0xFF03A803), Color(0xFF20CD66)],
             ),
           ),
-          color('Цвет заднего фона звонка.', const Color(0xFF444444)),
-          color('Цвет затемнения заднего фона в звонке.',
-              const Color(0x40000000)),
-          color('Цвет надписей и иконок над задним фоном звонка.',
-              const Color(0xFFBBBBBB)),
-          color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
-          color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
-          color('Цвет кнопок в звонке.', const Color(0xA6818181)),
-          color('Цвет разделителей в панели ПКМ и в панели настроек.',
-              const Color(0x99000000)),
-          color('Задний фон панели настроек.', const Color(0xCCFFFFFF)),
-          color('Задний фон панели ПКМ.', const Color(0xE6FFFFFF)),
-          color('Цвет нижней панели с кнопками в звонке.',
-              const Color(0x66000000)),
-          color('Цвет разделителей в нижней панели с кнопками в звонке.',
-              const Color(0x99FFFFFF)),
-          const SizedBox(height: 60),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет заднего фона звонка.',
+            const Color(0xFF444444),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет затемнения заднего фона в звонке.',
+            const Color(0x40000000),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет надписей и иконок над задним фоном звонка.',
+            const Color(0xFFBBBBBB),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет кнопок принятия звонка.',
+            const Color(0xA634B139),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет кнопки завершения звонка.',
+            const Color(0xA6FF0000),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет кнопок в звонке.',
+            const Color(0xA6818181),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет разделителей в панели ПКМ и в панели настроек.',
+            const Color(0x99000000),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Задний фон панели настроек.',
+            const Color(0xCCFFFFFF),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Задний фон панели ПКМ.',
+            const Color(0xE6FFFFFF),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет нижней панели с кнопками в звонке.',
+            const Color(0x66000000),
+          ),
+          _ColorWidget(
+            isDarkMode: isDarkMode,
+            'Цвет разделителей в нижней панели с кнопками в звонке.',
+            const Color(0x99FFFFFF),
+          ),
+          const SizedBox(height: 60)
         ],
       ),
     );
@@ -146,4 +176,60 @@ class _Colored extends StatelessWidget {
         ),
         height: 50,
       );
+}
+
+class _ColorWidget extends StatelessWidget {
+  final String desc;
+  final Color color;
+  final bool isDarkMode;
+  const _ColorWidget(
+    this.desc,
+    this.color, {
+    Key? key,
+    required this.isDarkMode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Caption(
+          '${color.toHex()}, $desc',
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+        _Colored(
+          color: color,
+          outline: isDarkMode ? Colors.white : Colors.black,
+        )
+      ],
+    );
+  }
+}
+
+class _GradientWidget extends StatelessWidget {
+  final String desc;
+  final Gradient gradient;
+  final bool isDarkMode;
+  const _GradientWidget(
+    this.desc,
+    this.gradient, {
+    Key? key,
+    required this.isDarkMode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Caption(
+          '${gradient.colors.map((e) => e.toHex())}, $desc',
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+        _Colored(
+          gradient: gradient,
+          outline: isDarkMode ? Colors.white : Colors.black,
+        )
+      ],
+    );
+  }
 }

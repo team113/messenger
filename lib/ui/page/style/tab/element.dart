@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -38,29 +39,6 @@ class ElementStyleTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget element({
-      required String title,
-      required Widget child,
-      bool background = false,
-      Color backgroundColor = const Color(0xFF444444),
-      String? asset,
-    }) =>
-        Column(
-          children: [
-            Caption(title),
-            _WithDownload(
-              enabled: asset != null,
-              path: asset ?? '',
-              child: Container(
-                color: background ? backgroundColor : null,
-                padding:
-                    background ? const EdgeInsets.fromLTRB(30, 8, 30, 8) : null,
-                child: child,
-              ),
-            ),
-          ],
-        );
-
     return SingleChildScrollView(
       controller: ScrollController(),
       child: Padding(
@@ -70,19 +48,19 @@ class ElementStyleTabView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              element(
+              _ElementWidget(
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
                 child: SvgLoader.asset('assets/images/logo/logo0000.svg',
                     height: 350),
               ),
-              element(
+              _ElementWidget(
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
                 child: SvgLoader.asset('assets/images/logo/head0000.svg',
                     height: 160),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка начать общение.',
                 asset: 'assets/icons/start.svg',
@@ -102,7 +80,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка войти.',
                 asset: 'assets/icons/sign_in.svg',
@@ -114,7 +92,7 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка загрузки App Store.',
                 asset: 'assets/icons/apple.svg',
@@ -128,7 +106,7 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка загрузки Google Play.',
                 asset: 'assets/icons/google.svg',
@@ -143,7 +121,7 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка загрузки Linux.',
                 asset: 'assets/icons/linux.svg',
@@ -154,7 +132,7 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Кнопка загрузки Windows.',
                 asset: 'assets/icons/windows.svg',
@@ -166,7 +144,7 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-              element(
+              _ElementWidget(
                 title: 'Аватары.',
                 child: Wrap(
                   spacing: 2,
@@ -177,7 +155,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 title: 'Перетягиваемая панель окна звонка.',
                 child: Container(
                   color: const Color(0xFF222222),
@@ -310,7 +288,7 @@ class ElementStyleTabView extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text('(иконки скачиваются по клику по иконкам)'),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Меню ПКМ над видео в звонке.',
                 child: ConstrainedBox(
@@ -329,7 +307,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Принять звонок с аудио.',
                 asset: 'assets/icons/audio_call_start.svg',
@@ -340,7 +318,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD34B139),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Принять звонок с видео.',
                 asset: 'assets/icons/video_on.svg',
@@ -351,7 +329,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD34B139),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Отклонить звонок.',
                 asset: 'assets/icons/call_end.svg',
@@ -362,7 +340,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDDFF0000),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Положить/отменить звонок.',
                 asset: 'assets/icons/call_end.svg',
@@ -373,7 +351,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDDFF0000),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Выключить камеру в звонке.',
                 asset: 'assets/icons/video_on.svg',
@@ -384,7 +362,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Включить камеру в звонке.',
                 asset: 'assets/icons/video_off.svg',
@@ -395,7 +373,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Выключить микрофон в звонке.',
                 asset: 'assets/icons/microphone_on.svg',
@@ -406,7 +384,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Включить микрофон в звонке.',
                 asset: 'assets/icons/microphone_off.svg',
@@ -417,7 +395,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Выключить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_on.svg',
@@ -428,7 +406,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Включить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_off.svg',
@@ -439,7 +417,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Выключить динамик в звонке.',
                 asset: 'assets/icons/speaker_on.svg',
@@ -449,7 +427,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Включить динамик в звонке.',
                 asset: 'assets/icons/speaker_off.svg',
@@ -459,7 +437,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Переключить камеру на заднюю в звонке.',
                 asset: 'assets/icons/camera_front.svg',
@@ -469,7 +447,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Переключить камеру на переднюю в звонке.',
                 asset: 'assets/icons/camera_back.svg',
@@ -479,7 +457,7 @@ class ElementStyleTabView extends StatelessWidget {
                   color: const Color(0xDD818181),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Область Drag-n-drop в боковой панели звонка.',
                 asset: 'assets/icons/drag-n-drop.svg',
@@ -505,7 +483,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Титульная информация звонка.',
                 child: CallTitle(
@@ -520,7 +498,7 @@ class ElementStyleTabView extends StatelessWidget {
                   withDots: true,
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Информация о звонке в панели на мобильном устройстве.',
                 asset: 'assets/icons/add_user.svg',
@@ -579,7 +557,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title:
                     'Добавить участника в звонок в панели на мобильном устройстве.',
@@ -616,7 +594,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Временная метка в чате.',
                 child: Container(
@@ -631,7 +609,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
+              _ElementWidget(
                 background: true,
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
@@ -684,7 +662,8 @@ class ElementStyleTabView extends StatelessWidget {
               ),
               const SizedBox(height: 200),
               const Caption('Не используется'),
-              element(
+              _ElementWidget(
+                backgroundColor: const Color(0xFF444444),
                 background: true,
                 title: 'Открыть настройки в звонке.',
                 asset: 'assets/icons/settings.svg',
@@ -742,5 +721,40 @@ class _WithDownload extends StatelessWidget {
             ],
           )
         : child;
+  }
+}
+
+class _ElementWidget extends StatelessWidget {
+  final String title;
+  final Widget child;
+  final bool background;
+  final Color backgroundColor;
+  final String? asset;
+  const _ElementWidget({
+    Key? key,
+    required this.title,
+    required this.child,
+    this.background = false,
+    this.backgroundColor = const Color(0xFF444444),
+    this.asset,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Caption(title),
+        _WithDownload(
+          enabled: asset != null,
+          path: asset ?? '',
+          child: Container(
+            color: background ? backgroundColor : null,
+            padding:
+                background ? const EdgeInsets.fromLTRB(30, 8, 30, 8) : null,
+            child: child,
+          ),
+        ),
+      ],
+    );
   }
 }
