@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -388,7 +389,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                               onKeyEvent: _onKeyEvent,
                               child: Listener(
                                 onPointerSignal: _onPointerSignal,
-                                child: _pageView(),
+                                child: _PageView(
+                                  saveToGallery: _saveToGallery,
+                                  share: _share,
+                                  children: widget.children,
+                                  page: _page,
+                                  isZoomed: _isZoomed,
+                                  isInitialPage: _isInitialPage,
+                                  dismiss: _dismiss,
+                                  isFullscreen: _isFullscreen,
+                                  node: node,
+                                  toggleFullscreen: _toggleFullscreen,
+                                  videoControllers: _videoControllers,
+                                  pageController: _pageController,
+                                  bounds: _bounds,
+                                  calculatePosition: _calculatePosition,
+                                  onPageChanged: widget.onPageChanged,
+                                  ignorePageSnapping: _ignorePageSnapping,
+                                  download: _download,
+                                ),
                               ),
                             ),
                           ),
@@ -401,206 +420,6 @@ class _GalleryPopupState extends State<GalleryPopup>
           ],
         );
       },
-    );
-  }
-
-  /// Returns the gallery view of its items itself.
-  Widget _pageView() {
-    // Use more advanced [PhotoViewGallery] on native mobile platforms.
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      return ContextMenuRegion(
-        actions: [
-          ContextMenuButton(
-            label: 'btn_save_to_gallery'.l10n,
-            onPressed: () => _saveToGallery(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_share'.l10n,
-            onPressed: () => _share(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_info'.l10n,
-            onPressed: () {},
-          ),
-        ],
-        moveDownwards: false,
-        child: PhotoViewGallery.builder(
-          scrollPhysics: const BouncingScrollPhysics(),
-          scaleStateChangedCallback: (s) {
-            setState(() => _isZoomed = s.isScaleStateZooming);
-          },
-          wantKeepAlive: false,
-          builder: (BuildContext context, int index) {
-            GalleryItem e = widget.children[index];
-
-            if (!e.isVideo) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.link),
-                initialScale: PhotoViewComputedScale.contained * 0.99,
-                minScale: PhotoViewComputedScale.contained * 0.99,
-                maxScale: PhotoViewComputedScale.contained * 3,
-                errorBuilder: (_, __, ___) {
-                  return InitCallback(
-                    callback: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
-                    child: const SizedBox(
-                      height: 300,
-                      child: Center(child: CustomProgressIndicator()),
-                    ),
-                  );
-                },
-              );
-            }
-
-            return PhotoViewGalleryPageOptions.customChild(
-              disableGestures: e.isVideo,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: e.isVideo
-                    ? Video(
-                        e.link,
-                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
-                        onError: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      )
-                    : RetryImage(
-                        e.link,
-                        checksum: e.checksum,
-                        onForbidden: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      ),
-              ),
-              minScale: PhotoViewComputedScale.contained,
-              maxScale: PhotoViewComputedScale.contained * 3,
-            );
-          },
-          itemCount: widget.children.length,
-          loadingBuilder: (context, event) => Center(
-            child: SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: CustomProgressIndicator(
-                value: event == null
-                    ? 0
-                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-              ),
-            ),
-          ),
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-          pageController: _pageController,
-          onPageChanged: (i) {
-            _isInitialPage = false;
-            _isZoomed = false;
-            setState(() => _page = i);
-            _bounds = _calculatePosition() ?? _bounds;
-            widget.onPageChanged?.call(i);
-          },
-        ),
-      );
-    }
-
-    // Otherwise use the default [PageView].
-    return PageView(
-      controller: _pageController,
-      physics:
-          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
-      onPageChanged: (i) {
-        _isInitialPage = false;
-        setState(() => _page = i);
-        _bounds = _calculatePosition() ?? _bounds;
-        widget.onPageChanged?.call(i);
-      },
-      pageSnapping: !_ignorePageSnapping,
-      children: widget.children.mapIndexed((index, e) {
-        return ContextMenuRegion(
-          enabled: !PlatformUtils.isWeb,
-          actions: [
-            ContextMenuButton(
-              label: 'btn_download'.l10n,
-              onPressed: () => _download(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_info'.l10n,
-              onPressed: () {},
-            ),
-          ],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: e.isVideo
-                ? Video(
-                    e.link,
-                    showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                    onClose: _dismiss,
-                    isFullscreen: _isFullscreen,
-                    toggleFullscreen: () {
-                      node.requestFocus();
-                      _toggleFullscreen();
-                    },
-                    onController: (c) {
-                      if (c == null) {
-                        _videoControllers.remove(index);
-                      } else {
-                        _videoControllers[index] = c;
-                      }
-                    },
-                    onError: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
-                  )
-                : GestureDetector(
-                    onTap: () {
-                      if (_pageController.page == _page) {
-                        _dismiss();
-                      }
-                    },
-                    onDoubleTap: () {
-                      node.requestFocus();
-                      _toggleFullscreen();
-                    },
-                    child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
-                          ),
-                  ),
-          ),
-        );
-      }).toList(),
     );
   }
 
@@ -1126,5 +945,252 @@ extension GlobalKeyExtension on GlobalKey {
     } else {
       return null;
     }
+  }
+}
+
+/// Returns the gallery view of its items itself.
+class _PageView extends StatefulWidget {
+  final Future<void> Function(GalleryItem item) saveToGallery;
+  final Future<void> Function(GalleryItem item) share;
+  final List<GalleryItem> children;
+  int page;
+  bool isZoomed;
+  bool isInitialPage;
+  final void Function() dismiss;
+  final RxBool isFullscreen;
+  final FocusNode node;
+  final void Function() toggleFullscreen;
+  final Map<int, VideoPlayerController> videoControllers;
+  final PageController pageController;
+  Rect bounds;
+  final Rect? Function() calculatePosition;
+  void Function(int)? onPageChanged;
+  final bool ignorePageSnapping;
+  final Future<void> Function(GalleryItem item) download;
+  _PageView({
+    Key? key,
+    required this.saveToGallery,
+    required this.share,
+    required this.children,
+    required this.page,
+    required this.isZoomed,
+    required this.isInitialPage,
+    required this.dismiss,
+    required this.isFullscreen,
+    required this.node,
+    required this.toggleFullscreen,
+    required this.videoControllers,
+    required this.pageController,
+    required this.bounds,
+    required this.calculatePosition,
+    required this.onPageChanged,
+    required this.ignorePageSnapping,
+    required this.download,
+  }) : super(key: key);
+
+  @override
+  State<_PageView> createState() => _PageViewState();
+}
+
+class _PageViewState extends State<_PageView> {
+  @override
+  Widget build(BuildContext context) {
+    // Use more advanced [PhotoViewGallery] on native mobile platforms.
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => widget.saveToGallery(widget.children[widget.page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => widget.share(widget.children[widget.page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
+        moveDownwards: false,
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          scaleStateChangedCallback: (s) {
+            setState(() => widget.isZoomed = s.isScaleStateZooming);
+          },
+          wantKeepAlive: false,
+          builder: (BuildContext context, int index) {
+            GalleryItem e = widget.children[index];
+
+            if (!e.isVideo) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(e.link),
+                initialScale: PhotoViewComputedScale.contained * 0.99,
+                minScale: PhotoViewComputedScale.contained * 0.99,
+                maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CustomProgressIndicator()),
+                    ),
+                  );
+                },
+              );
+            }
+
+            return PhotoViewGalleryPageOptions.customChild(
+              disableGestures: e.isVideo,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? Video(
+                        e.link,
+                        showInterfaceFor:
+                            widget.isInitialPage ? 3.seconds : null,
+                        onClose: widget.dismiss,
+                        isFullscreen: widget.isFullscreen,
+                        toggleFullscreen: () {
+                          widget.node.requestFocus();
+                          widget.toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            widget.videoControllers.remove(index);
+                          } else {
+                            widget.videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      )
+                    : RetryImage(
+                        e.link,
+                        checksum: e.checksum,
+                        onForbidden: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      ),
+              ),
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.contained * 3,
+            );
+          },
+          itemCount: widget.children.length,
+          loadingBuilder: (context, event) => Center(
+            child: SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CustomProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
+            ),
+          ),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          pageController: widget.pageController,
+          onPageChanged: (i) {
+            widget.isInitialPage = false;
+            widget.isZoomed = false;
+            setState(() => widget.page = i);
+            widget.bounds = widget.calculatePosition() ?? widget.bounds;
+            widget.onPageChanged?.call(i);
+          },
+        ),
+      );
+    }
+
+    // Otherwise use the default [PageView].
+    return PageView(
+      controller: widget.pageController,
+      physics:
+          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
+      onPageChanged: (i) {
+        widget.isInitialPage = false;
+        setState(() => widget.page = i);
+        widget.bounds = widget.calculatePosition() ?? widget.bounds;
+        widget.onPageChanged?.call(i);
+      },
+      pageSnapping: !widget.ignorePageSnapping,
+      children: widget.children.mapIndexed((index, e) {
+        return ContextMenuRegion(
+          enabled: !PlatformUtils.isWeb,
+          actions: [
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () => widget.download(widget.children[widget.page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: e.isVideo
+                ? Video(
+                    e.link,
+                    showInterfaceFor: widget.isInitialPage ? 3.seconds : null,
+                    onClose: widget.dismiss,
+                    isFullscreen: widget.isFullscreen,
+                    toggleFullscreen: () {
+                      widget.node.requestFocus();
+                      widget.toggleFullscreen();
+                    },
+                    onController: (c) {
+                      if (c == null) {
+                        widget.videoControllers.remove(index);
+                      } else {
+                        widget.videoControllers[index] = c;
+                      }
+                    },
+                    onError: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                  )
+                : GestureDetector(
+                    onTap: () {
+                      if (widget.pageController.page == widget.page) {
+                        widget.dismiss();
+                      }
+                    },
+                    onDoubleTap: () {
+                      widget.node.requestFocus();
+                      widget.toggleFullscreen();
+                    },
+                    child: PlatformUtils.isWeb
+                        ? IgnorePointer(child: WebImage(e.link))
+                        : RetryImage(
+                            e.link,
+                            checksum: e.checksum,
+                            onForbidden: () async {
+                              await e.onError?.call();
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
+                  ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }
