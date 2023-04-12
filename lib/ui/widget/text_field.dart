@@ -55,7 +55,7 @@ class ReactiveTextField extends StatelessWidget {
     this.filled,
     this.treatErrorAsStatus = true,
     this.textAlign = TextAlign.start,
-    required this.fillColor,
+    this.fillColor,
     this.maxLength,
   }) : super(key: key);
 
@@ -140,7 +140,7 @@ class ReactiveTextField extends StatelessWidget {
   final TextAlign textAlign;
 
   /// Fill color of the [TextField].
-  final Color fillColor;
+  final Color? fillColor;
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
@@ -289,7 +289,7 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                fillColor: fillColor,
+                fillColor: fillColor ?? style.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,

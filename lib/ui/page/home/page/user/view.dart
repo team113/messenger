@@ -266,7 +266,6 @@ class UserView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         child: _dense(
           FieldButton(
-            fillColor: style.onPrimary,
             key: key,
             onPressed: onPressed,
             text: text ?? '',
@@ -424,8 +423,6 @@ class UserView extends StatelessWidget {
 
   /// Returns a [User.presence] text.
   Widget _presence(UserController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       final Presence? presence = c.user?.user.value.presence;
       if (presence == null) {
@@ -439,7 +436,6 @@ class UserView extends StatelessWidget {
           key: const Key('Presence'),
           state: TextFieldState(text: subtitle),
           label: 'label_presence'.l10n,
-          fillColor: style.onPrimary,
           enabled: false,
           trailing: CircleAvatar(
             key: Key(presence.name.capitalizeFirst!),
@@ -453,8 +449,6 @@ class UserView extends StatelessWidget {
 
   /// Returns the blacklisted information of this [User].
   Widget _blocked(UserController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Column(
       children: [
         if (c.isBlacklisted?.at != null)
@@ -462,7 +456,6 @@ class UserView extends StatelessWidget {
             ReactiveTextField(
               state: TextFieldState(text: c.isBlacklisted!.at.toString()),
               label: 'label_date'.l10n,
-              fillColor: style.onPrimary,
               enabled: false,
             ),
           ),
@@ -471,7 +464,6 @@ class UserView extends StatelessWidget {
             ReactiveTextField(
               state: TextFieldState(text: c.isBlacklisted!.reason?.val),
               label: 'label_reason'.l10n,
-              fillColor: style.onPrimary,
               enabled: false,
             ),
           ),
@@ -530,7 +522,6 @@ class UserView extends StatelessWidget {
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              fillColor: style.onPrimary,
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
                                 color: style.secondary,
@@ -637,7 +628,6 @@ class UserView extends StatelessWidget {
         ReactiveTextField(
           state: c.reason,
           label: 'label_reason'.l10n,
-          fillColor: style.onPrimary,
         ),
       ],
     );

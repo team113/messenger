@@ -43,9 +43,9 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -804,11 +804,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    AvatarWidget avatarWidget = AvatarWidget();
     Color? color = _fromMe
         ? style.secondary
-        : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            avatarWidget.colors.length];
+        : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.avatarColors.length];
 
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
@@ -1080,11 +1079,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    AvatarWidget avatarWidget = AvatarWidget();
-    final Color? color = _fromMe
+    final Color color = _fromMe
         ? style.secondary
-        : avatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            avatarWidget.colors.length];
+        : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.avatarColors.length];
 
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
@@ -1174,7 +1172,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ? _isRead
                     ? style.secondaryBorder
                     : Border.all(
-                        color: style.backgroundAuxiliaryLighter, width: 0.5)
+                        color: style.backgroundAuxiliaryLighter,
+                        width: 0.5,
+                      )
                 : style.primaryBorder,
             color: _fromMe
                 ? _isRead
@@ -1350,12 +1350,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        AvatarWidget avatarWidget = AvatarWidget();
         Color? color = snapshot.data?.user.value.id == widget.me
             ? style.secondary
-            : avatarWidget.colors[
+            : style.avatarColors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    avatarWidget.colors.length];
+                    style.avatarColors.length];
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -1365,7 +1364,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color!)),
+                  border: Border(left: BorderSide(width: 2, color: color)),
                 ),
                 margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
                 padding: const EdgeInsets.only(left: 8),

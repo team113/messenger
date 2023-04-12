@@ -54,7 +54,6 @@ class ReactiveDropdown<T> extends StatelessWidget {
             state: state,
             enabled: false,
             label: label,
-            fillColor: style.onPrimary,
             hint: label,
             icon: icon,
             suffix: Icons.keyboard_arrow_down,

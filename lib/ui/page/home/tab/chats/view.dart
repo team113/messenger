@@ -101,7 +101,6 @@ class ChatsTabView extends StatelessWidget {
                               key: const Key('SearchField'),
                               state: c.search.value!.search,
                               hint: 'label_search'.l10n,
-                              fillColor: style.onPrimary,
                               maxLines: 1,
                               filled: false,
                               dense: true,
@@ -897,7 +896,7 @@ class ChatsTabView extends StatelessWidget {
                 onPressed: c.selectedChats.isEmpty
                     ? null
                     : () => _hideChats(context, c),
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.secondary,
                 shadows: shadows,
               ),
             );
@@ -909,8 +908,6 @@ class ChatsTabView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the selected chats.
   Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     bool clear = false;
 
     final bool? result = await MessagePopup.alert(
@@ -925,7 +922,6 @@ class ChatsTabView extends StatelessWidget {
         const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
           return FieldButton(
-            fillColor: style.onPrimary,
             text: 'btn_clear_history'.l10n,
             onPressed: () => setState(() => clear = !clear),
             trailing: SelectedDot(selected: clear, size: 22),

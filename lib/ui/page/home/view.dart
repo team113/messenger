@@ -198,7 +198,6 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                badgeColor: style.dangerColor,
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
@@ -252,7 +251,6 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                badgeColor: style.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
@@ -419,7 +417,8 @@ class _HomeViewState extends State<HomeView> {
                       }),
                     ),
                     Expanded(
-                        child: ColoredBox(color: style.onBackgroundOpacity98)),
+                      child: ColoredBox(color: style.onBackgroundOpacity98),
+                    ),
                   ],
                 ),
               ],

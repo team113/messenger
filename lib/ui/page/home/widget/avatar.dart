@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../routes.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -41,7 +40,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
-  AvatarWidget({
+  const AvatarWidget({
     Key? key,
     this.avatar,
     this.radius,
@@ -307,13 +306,6 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  /// Avatar color swatches.
-  final List<Color?> colors = List.generate(
-    Theme.of(router.context!).extension<Style>()!.avatarColors.length,
-    (index) =>
-        Theme.of(router.context!).extension<Style>()!.avatarColors[index],
-  );
-
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
     if (radius == null && minRadius == null && maxRadius == null) {
@@ -348,9 +340,10 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = colors[color! % colors.length]!;
+        gradient = style.avatarColors[color! % style.avatarColors.length];
       } else if (title != null) {
-        gradient = colors[(title!.hashCode) % colors.length]!;
+        gradient =
+            style.avatarColors[(title!.hashCode) % style.avatarColors.length];
       } else {
         gradient = style.primaryBackgroundLightest;
       }

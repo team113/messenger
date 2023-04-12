@@ -56,14 +56,14 @@ class CallCoverWidget extends StatelessWidget {
             final String? title = user?.name?.val ?? user?.num.val;
             final int? color = user?.num.val.sum();
 
-            final Color? gradient;
+            final Color gradient;
 
-            final List<Color> avatarWidget = style.avatarColors;
+            final List<Color> avatarColors = style.avatarColors;
 
             if (color != null) {
-              gradient = avatarWidget[color % avatarWidget.length];
+              gradient = avatarColors[color % avatarColors.length];
             } else if (title != null) {
-              gradient = avatarWidget[(title.hashCode) % avatarWidget.length];
+              gradient = avatarColors[(title.hashCode) % avatarColors.length];
             } else {
               gradient = style.primaryBackgroundLightest;
             }

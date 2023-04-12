@@ -449,8 +449,11 @@ class RecentChatTile extends StatelessWidget {
         if (item is ChatCall) {
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(Icons.call,
-                size: 16, color: style.primaryBackgroundLightest),
+            child: Icon(
+              Icons.call,
+              size: 16,
+              color: style.primaryBackgroundLightest,
+            ),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {

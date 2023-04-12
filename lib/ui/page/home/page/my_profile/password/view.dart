@@ -114,7 +114,6 @@ class ChangePasswordView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ReactiveTextField(
-                          fillColor: style.onPrimary,
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
                           obscure: c.obscurePassword.value,
@@ -130,7 +129,6 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
-                      fillColor: style.onPrimary,
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: c.obscureNewPassword.toggle,
                       treatErrorAsStatus: false,
@@ -144,7 +142,6 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('RepeatPasswordField'),
                       state: c.repeatPassword,
                       label: 'label_repeat_password'.l10n,
-                      fillColor: style.onPrimary,
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: c.obscureRepeatPassword.toggle,
                       treatErrorAsStatus: false,

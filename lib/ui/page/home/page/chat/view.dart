@@ -1084,7 +1084,6 @@ class _ChatViewState extends State<ChatView>
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              fillColor: style.onPrimary,
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
                                 color: style.secondary,

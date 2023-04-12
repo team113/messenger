@@ -86,7 +86,6 @@ class ContactsTabView extends StatelessWidget {
                         key: const Key('SearchField'),
                         state: c.search.value!.search,
                         hint: 'label_search'.l10n,
-                        fillColor: style.onPrimary,
                         maxLines: 1,
                         filled: false,
                         dense: true,
@@ -554,8 +553,11 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.block,
-                  color: style.primaryHighlightDarkest, size: 20),
+              child: Icon(
+                Icons.block,
+                color: style.primaryHighlightDarkest,
+                size: 20,
+              ),
             );
           }),
           Obx(() {
@@ -632,7 +634,7 @@ class ContactsTabView extends StatelessWidget {
                 onPressed: c.selectedContacts.isEmpty
                     ? null
                     : () => _removeContacts(context, c),
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.secondary,
                 shadows: shadows,
               ),
             );

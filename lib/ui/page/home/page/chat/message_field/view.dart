@@ -479,7 +479,6 @@ class MessageFieldView extends StatelessWidget {
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   style: style.boldBody.copyWith(fontSize: 17),
-                  fillColor: style.onPrimary,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -941,17 +940,16 @@ class MessageFieldView extends StatelessWidget {
       expanded = FutureBuilder<RxUser?>(
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
-          AvatarWidget avatarWidget = AvatarWidget();
-          final Color? color = snapshot.data?.user.value.id == c.me
+          final Color color = snapshot.data?.user.value.id == c.me
               ? style.secondary
-              : avatarWidget.colors[
+              : style.avatarColors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      avatarWidget.colors.length];
+                      style.avatarColors.length];
 
           return Container(
             key: Key('Reply_${c.replied.indexOf(item)}'),
             decoration: BoxDecoration(
-              border: Border(left: BorderSide(width: 2, color: color!)),
+              border: Border(left: BorderSide(width: 2, color: color)),
             ),
             margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             padding: const EdgeInsets.only(left: 8),

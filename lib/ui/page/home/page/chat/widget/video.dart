@@ -23,9 +23,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import '/themes.dart';
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -109,7 +109,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).extension<Style>()!;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),

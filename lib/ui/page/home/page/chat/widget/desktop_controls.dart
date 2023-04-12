@@ -516,7 +516,7 @@ class _DesktopControlsState extends State<DesktopControls>
               playedColor: style.secondary,
               handleColor: style.secondary,
               bufferedColor: style.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              backgroundColor: style.primary.withOpacity(.5),
             ),
       ),
     );

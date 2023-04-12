@@ -87,7 +87,6 @@ class AddPhoneView extends StatelessWidget {
                     ReactiveTextField(
                       key: const Key('ConfirmationCode'),
                       state: c.phoneCode,
-                      fillColor: style.onPrimary,
                       label: 'label_confirmation_code'.l10n,
                       formatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
@@ -166,7 +165,6 @@ class AddPhoneView extends StatelessWidget {
                       key: const Key('Phone'),
                       state: c.phone,
                       label: 'label_phone_number'.l10n,
-                      fillColor: style.onPrimary,
                       // TODO: Improve hint to account user's region.
                       hint: '+34 123 123 53 53',
                       formatters: [
@@ -188,7 +186,6 @@ class AddPhoneView extends StatelessWidget {
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,
-                        color: style.secondary,
                       );
                     }),
                   ],

@@ -112,7 +112,6 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            fillColor: style.onPrimary,
                             style: TextStyle(color: style.secondary),
                           );
                         }),
@@ -146,7 +145,6 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            fillColor: style.onPrimary,
                             style: TextStyle(color: style.secondary),
                           );
                         }),
@@ -180,7 +178,6 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            fillColor: style.onPrimary,
                             style: TextStyle(color: style.secondary),
                           );
                         }),
@@ -201,7 +198,6 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          fillColor: style.onPrimary,
                           style: TextStyle(color: style.secondary),
                         ),
                       ),

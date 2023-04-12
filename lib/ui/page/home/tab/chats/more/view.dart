@@ -121,7 +121,6 @@ class ChatsMoreView extends StatelessWidget {
                     .l10n,
                 editable: false,
               ),
-              fillColor: style.onPrimary,
             ),
           ),
           Align(
@@ -163,7 +162,6 @@ class ChatsMoreView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('LinkField'),
             state: c.link,
-            fillColor: style.onPrimary,
             onSuffixPressed: c.link.isEmpty.value
                 ? null
                 : () {

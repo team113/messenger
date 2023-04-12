@@ -101,7 +101,8 @@ class CustomNavigationBar extends StatelessWidget {
                                 child: Center(
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(
-                                      badgeColor: b.badgeColor,
+                                      badgeColor:
+                                          b.badgeColor ?? style.dangerColor,
                                     ),
                                     badgeContent: b.badge == null
                                         ? null
@@ -138,7 +139,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
-    required this.badgeColor,
+    this.badgeColor,
     this.child,
   });
 
@@ -149,7 +150,7 @@ class CustomNavigationBarItem {
   final String? badge;
 
   /// [Color] of the provided [badge], if any.
-  final Color badgeColor;
+  final Color? badgeColor;
 
   /// [Widget] to display.
   final Widget? child;

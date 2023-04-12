@@ -59,7 +59,6 @@ class DownloadButton extends StatelessWidget {
 
     return FieldButton(
       text: 'space'.l10n * 4 + title,
-      fillColor: style.onPrimary,
       textAlign: TextAlign.center,
       onPressed: link == null
           ? null

@@ -85,7 +85,6 @@ class StatusView extends StatelessWidget {
                           key: const Key('StatusField'),
                           state: c.status,
                           label: 'label_status'.l10n,
-                          fillColor: style.onPrimary,
                           filled: true,
                           maxLength: 25,
                           onSuffixPressed: c.status.text.isEmpty
@@ -115,7 +114,9 @@ class StatusView extends StatelessWidget {
                           child: Text(
                             'label_presence'.l10n,
                             style: style.systemMessageStyle.copyWith(
-                                color: style.onBackground, fontSize: 18),
+                              color: style.onBackground,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),

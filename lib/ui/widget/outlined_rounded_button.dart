@@ -31,7 +31,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.onLongPress,
     this.gradient,
     this.elevation = 0,
-    required this.color,
+    this.color,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
     this.shadows,
