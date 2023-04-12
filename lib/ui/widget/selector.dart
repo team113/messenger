@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -96,22 +97,6 @@ class Selector<T> extends StatefulWidget {
   }) {
     final bool isMobile = context.isMobile;
 
-    Widget builder(BuildContext context) {
-      return Selector<T>(
-        debounce: debounce,
-        initial: initial,
-        items: items,
-        itemBuilder: itemBuilder,
-        buttonBuilder: buttonBuilder,
-        onSelected: onSelected,
-        buttonKey: buttonKey,
-        alignment: alignment,
-        width: width,
-        margin: margin,
-        isMobile: isMobile,
-      );
-    }
-
     if (isMobile) {
       return showModalBottomSheet(
         context: context,
@@ -123,13 +108,37 @@ class Selector<T> extends StatefulWidget {
             topRight: Radius.circular(8),
           ),
         ),
-        builder: builder,
+        builder: (context) => _Builder(
+          debounce: debounce,
+          initial: initial,
+          items: items,
+          itemBuilder: itemBuilder,
+          buttonBuilder: buttonBuilder,
+          onSelected: onSelected,
+          buttonKey: buttonKey,
+          alignment: alignment,
+          width: width,
+          margin: margin,
+          isMobile: isMobile,
+        ),
       );
     } else {
       return showDialog(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        builder: builder,
+        builder: (context) => _Builder(
+          debounce: debounce,
+          initial: initial,
+          items: items,
+          itemBuilder: itemBuilder,
+          buttonBuilder: buttonBuilder,
+          onSelected: onSelected,
+          buttonKey: buttonKey,
+          alignment: alignment,
+          width: width,
+          margin: margin,
+          isMobile: isMobile,
+        ),
       );
     }
   }
@@ -170,16 +179,98 @@ class _SelectorState<T> extends State<Selector<T>> {
   @override
   Widget build(BuildContext context) {
     if (widget.isMobile) {
-      return _mobile(context);
+      return _Mobile(
+        items: widget.items,
+        initial: widget.initial,
+        selected: _selected,
+        debounceWorker: _debounce,
+        onSelected: widget.onSelected,
+        itemBuilder: widget.itemBuilder,
+      );
     } else {
-      return _desktop(context);
+      return _Desktop(
+        buttonKey: widget.buttonKey,
+        alignment: widget.alignment,
+        width: widget.width,
+        buttonBuilder: widget.buttonBuilder,
+        selected: _selected,
+        debounceWorker: _debounce,
+        onSelected: widget.onSelected,
+        itemBuilder: widget.itemBuilder,
+        margin: widget.margin,
+        items: widget.items,
+      );
     }
   }
+}
 
-  /// Returns mobile design of this [Selector].
-  Widget _mobile(BuildContext context) {
+class _Builder<T> extends StatelessWidget {
+  final Duration? debounce;
+  final T? initial;
+  final List<T> items;
+  final Widget Function(T) itemBuilder;
+  final Widget Function(int i, T data)? buttonBuilder;
+  final void Function(T)? onSelected;
+  final GlobalKey? buttonKey;
+  final Alignment alignment;
+  final double width;
+  final EdgeInsets margin;
+  final bool isMobile;
+  const _Builder({
+    Key? key,
+    required this.debounce,
+    required this.initial,
+    required this.items,
+    required this.itemBuilder,
+    required this.buttonBuilder,
+    required this.onSelected,
+    required this.buttonKey,
+    required this.alignment,
+    required this.width,
+    required this.margin,
+    required this.isMobile,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<T>(
+      debounce: debounce,
+      initial: initial,
+      items: items,
+      itemBuilder: itemBuilder,
+      buttonBuilder: buttonBuilder,
+      onSelected: onSelected,
+      buttonKey: buttonKey,
+      alignment: alignment,
+      width: width,
+      margin: margin,
+      isMobile: isMobile,
+    );
+  }
+}
+
+/// Returns mobile design of this [Selector].
+class _Mobile<T> extends StatelessWidget {
+  final List<T> items;
+  final T? initial;
+  final Rx<T> selected;
+  final Worker? debounceWorker;
+  final void Function(T)? onSelected;
+  final Widget Function(T) itemBuilder;
+  const _Mobile({
+    Key? key,
+    required this.items,
+    required this.initial,
+    required this.selected,
+    required this.debounceWorker,
+    required this.onSelected,
+    required this.itemBuilder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
+      height: 12 + 3 + 12 + 14 * 2 + min(items.length * 38, 330) + 12,
       margin: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
@@ -207,9 +298,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                   children: [
                     CupertinoPicker(
                       scrollController: FixedExtentScrollController(
-                        initialItem: widget.initial == null
-                            ? 0
-                            : widget.items.indexOf(_selected.value),
+                        initialItem:
+                            initial == null ? 0 : items.indexOf(selected.value),
                       ),
                       magnification: 1,
                       squeeze: 1,
@@ -225,18 +315,18 @@ class _SelectorState<T> extends State<Selector<T>> {
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
-                        _selected.value = widget.items[i];
-                        if (_debounce == null) {
-                          widget.onSelected?.call(_selected.value);
+                        selected.value = items[i];
+                        if (debounceWorker == null) {
+                          onSelected?.call(selected.value);
                         }
                       },
-                      children: widget.items
+                      children: items
                           .map(
                             (e) => Center(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(46, 0, 29, 0),
-                                child: widget.itemBuilder(e),
+                                child: itemBuilder(e),
                               ),
                             ),
                           )
@@ -285,9 +375,36 @@ class _SelectorState<T> extends State<Selector<T>> {
       ),
     );
   }
+}
 
-  /// Returns desktop design of this [Selector].
-  Widget _desktop(BuildContext context) {
+/// Returns desktop design of this [Selector].
+class _Desktop<T> extends StatelessWidget {
+  final GlobalKey<State<StatefulWidget>>? buttonKey;
+  final Alignment alignment;
+  final double width;
+  final Widget Function(int, T)? buttonBuilder;
+  final Rx<T> selected;
+  final Worker? debounceWorker;
+  final void Function(T)? onSelected;
+  final Widget Function(T) itemBuilder;
+  final EdgeInsets margin;
+  final List<T> items;
+  const _Desktop({
+    Key? key,
+    required this.buttonKey,
+    required this.alignment,
+    required this.width,
+    required this.buttonBuilder,
+    required this.selected,
+    required this.debounceWorker,
+    required this.onSelected,
+    required this.itemBuilder,
+    required this.margin,
+    required this.items,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
@@ -296,42 +413,42 @@ class _SelectorState<T> extends State<Selector<T>> {
 
       Offset offset =
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-      final keyContext = widget.buttonKey?.currentContext;
+      final keyContext = buttonKey?.currentContext;
       if (keyContext != null) {
         final box = keyContext.findRenderObject() as RenderBox?;
         offset = box?.localToGlobal(Offset.zero) ?? offset;
 
-        if (widget.alignment == Alignment.topCenter) {
+        if (alignment == Alignment.topCenter) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0) / 2,
             offset.dy,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - width / 2;
           bottom = MediaQuery.of(context).size.height - offset.dy;
-        } else if (widget.alignment == Alignment.topLeft) {
+        } else if (alignment == Alignment.topLeft) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0),
             offset.dy,
           );
 
-          left = offset.dx - widget.width;
+          left = offset.dx - width;
           bottom = MediaQuery.of(context).size.height - offset.dy;
-        } else if (widget.alignment == Alignment.bottomCenter) {
+        } else if (alignment == Alignment.bottomCenter) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0) / 2,
             offset.dy + (box?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - width / 2;
           top = offset.dy;
-        } else if (widget.alignment == Alignment.bottomRight) {
+        } else if (alignment == Alignment.bottomRight) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0),
             offset.dy + (box?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - width / 2;
           top = offset.dy;
         } else {
           offset = Offset(
@@ -339,7 +456,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (box?.size.height ?? 0) / 2,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - width / 2;
           top = offset.dy;
         }
       }
@@ -358,8 +475,8 @@ class _SelectorState<T> extends State<Selector<T>> {
 
       // Builds the provided [item].
       Widget button(int i, T item) {
-        if (widget.buttonBuilder != null) {
-          return widget.buttonBuilder!(i, item);
+        if (buttonBuilder != null) {
+          return buttonBuilder!(i, item);
         }
 
         return Padding(
@@ -372,16 +489,16 @@ class _SelectorState<T> extends State<Selector<T>> {
               highlightColor: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               onTap: () {
-                _selected.value = item;
-                if (_debounce == null) {
-                  widget.onSelected?.call(_selected.value);
+                selected.value = item;
+                if (debounceWorker == null) {
+                  onSelected?.call(selected.value);
                 }
               },
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: widget.itemBuilder(item),
+                  child: itemBuilder(item),
                 ),
               ),
             ),
@@ -399,8 +516,8 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                width: widget.width,
-                margin: widget.margin,
+                width: width,
+                margin: margin,
                 constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
@@ -412,10 +529,10 @@ class _SelectorState<T> extends State<Selector<T>> {
                       borderRadius: style.contextMenuRadius,
                       child: ListView(
                         shrinkWrap: true,
-                        children: widget.items.mapIndexed(button).toList(),
+                        children: items.mapIndexed(button).toList(),
                       ),
                     ),
-                    if (widget.items.length >= 8)
+                    if (items.length >= 8)
                       Positioned.fill(
                         child: Align(
                           alignment: Alignment.topCenter,
@@ -435,7 +552,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                           ),
                         ),
                       ),
-                    if (widget.items.length >= 8)
+                    if (items.length >= 8)
                       Positioned.fill(
                         child: Align(
                           alignment: Alignment.bottomCenter,

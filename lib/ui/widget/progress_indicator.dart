@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -270,10 +271,29 @@ class _CircularProgressIndicatorState
   @override
   Widget build(BuildContext context) {
     if (widget.value != null) {
-      return _buildMaterialIndicator(context, 0.0, 0.0, 0, 0.0);
+      return _BuildMaterialIndicator(
+        headValue: 0.0,
+        tailValue: 0.0,
+        offsetValue: 0.0,
+        rotationValue: 0.0,
+        backgroundColor: widget.backgroundColor,
+        value: widget.value,
+        strokeWidth: widget.strokeWidth,
+        getValueColor: _getValueColor,
+      );
     }
 
-    return _buildAnimation();
+    return _BuildAnimation(
+      controller: _controller,
+      strokeHeadTween: _strokeHeadTween,
+      strokeTailTween: _strokeTailTween,
+      offsetTween: _offsetTween,
+      rotationTween: _rotationTween,
+      backgroundColor: widget.backgroundColor,
+      value: widget.value,
+      strokeWidth: widget.strokeWidth,
+      getValueColor: _getValueColor,
+    );
   }
 
   /// Returns the [Color] of the progress indicator.
@@ -283,56 +303,6 @@ class _CircularProgressIndicatorState
         ProgressIndicatorTheme.of(context).color ??
         defaultColor ??
         Theme.of(context).colorScheme.primary;
-  }
-
-  /// Draws a determinate progress indicator.
-  Widget _buildMaterialIndicator(
-    BuildContext context,
-    double headValue,
-    double tailValue,
-    double offsetValue,
-    double rotationValue,
-  ) {
-    final ProgressIndicatorThemeData defaults = Theme.of(context).useMaterial3
-        ? _CircularProgressIndicatorDefaultsM3(context)
-        : _CircularProgressIndicatorDefaultsM2(context);
-    final Color? trackColor = widget.backgroundColor ??
-        ProgressIndicatorTheme.of(context).circularTrackColor;
-
-    return Container(
-      constraints: const BoxConstraints(
-        minWidth: _kMinCircularProgressIndicatorSize,
-        minHeight: _kMinCircularProgressIndicatorSize,
-      ),
-      child: CustomPaint(
-        painter: _CircularProgressIndicatorPainter(
-          backgroundColor: trackColor,
-          valueColor: _getValueColor(context, defaultColor: defaults.color),
-          value: widget.value,
-          headValue: headValue,
-          tailValue: tailValue,
-          offsetValue: offsetValue,
-          rotationValue: rotationValue,
-          strokeWidth: widget.strokeWidth,
-        ),
-      ),
-    );
-  }
-
-  /// Draws a indeterminate progress indicator.
-  Widget _buildAnimation() {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return _buildMaterialIndicator(
-          context,
-          _strokeHeadTween.evaluate(_controller),
-          _strokeTailTween.evaluate(_controller),
-          _offsetTween.evaluate(_controller),
-          _rotationTween.evaluate(_controller),
-        );
-      },
-    );
   }
 }
 
@@ -362,4 +332,101 @@ class _CircularProgressIndicatorDefaultsM3 extends ProgressIndicatorThemeData {
 
   @override
   Color get color => _colors.primary;
+}
+
+/// Draws a determinate progress indicator.
+class _BuildMaterialIndicator extends StatelessWidget {
+  final double headValue;
+  final double tailValue;
+  final double offsetValue;
+  final double rotationValue;
+  final Color? backgroundColor;
+  final Color Function(BuildContext context, {Color? defaultColor})
+      getValueColor;
+  final double? value;
+  final double strokeWidth;
+  const _BuildMaterialIndicator({
+    Key? key,
+    required this.headValue,
+    required this.tailValue,
+    required this.offsetValue,
+    required this.rotationValue,
+    required this.backgroundColor,
+    required this.value,
+    required this.strokeWidth,
+    required this.getValueColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final ProgressIndicatorThemeData defaults = Theme.of(context).useMaterial3
+        ? _CircularProgressIndicatorDefaultsM3(context)
+        : _CircularProgressIndicatorDefaultsM2(context);
+    final Color? trackColor = backgroundColor ??
+        ProgressIndicatorTheme.of(context).circularTrackColor;
+
+    return Container(
+      constraints: const BoxConstraints(
+        minWidth: _kMinCircularProgressIndicatorSize,
+        minHeight: _kMinCircularProgressIndicatorSize,
+      ),
+      child: CustomPaint(
+        painter: _CircularProgressIndicatorPainter(
+          backgroundColor: trackColor,
+          valueColor: getValueColor(context, defaultColor: defaults.color),
+          value: value,
+          headValue: headValue,
+          tailValue: tailValue,
+          offsetValue: offsetValue,
+          rotationValue: rotationValue,
+          strokeWidth: strokeWidth,
+        ),
+      ),
+    );
+  }
+}
+
+/// Draws a indeterminate progress indicator.
+class _BuildAnimation extends StatelessWidget {
+  final AnimationController controller;
+  final Animatable<double> strokeHeadTween;
+  final Animatable<double> strokeTailTween;
+  final Animatable<double> offsetTween;
+  final Animatable<double> rotationTween;
+  final Color? backgroundColor;
+  final Color Function(BuildContext context, {Color? defaultColor})
+      getValueColor;
+  final double? value;
+  final double strokeWidth;
+  const _BuildAnimation({
+    Key? key,
+    required this.controller,
+    required this.strokeHeadTween,
+    required this.strokeTailTween,
+    required this.offsetTween,
+    required this.rotationTween,
+    required this.backgroundColor,
+    required this.value,
+    required this.strokeWidth,
+    required this.getValueColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (BuildContext context, Widget? child) {
+        return _BuildMaterialIndicator(
+          headValue: strokeHeadTween.evaluate(controller),
+          tailValue: strokeTailTween.evaluate(controller),
+          offsetValue: offsetTween.evaluate(controller),
+          rotationValue: rotationTween.evaluate(controller),
+          backgroundColor: backgroundColor,
+          value: value,
+          strokeWidth: strokeWidth,
+          getValueColor: getValueColor,
+        );
+      },
+    );
+  }
 }
