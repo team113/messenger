@@ -850,7 +850,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     // Indicator whether the [_timestamp] should be displayed in a bubble above
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
-    final bool timeInBubble = msg.attachments.isNotEmpty;
+    final bool timeInBubble =
+        msg.attachments.whereType<ImageAttachment>().isNotEmpty;
 
     return _rounded(
       context,
@@ -884,7 +885,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       e,
                       timestamp: i == msg.repliesTo.length - 1 &&
                           _text == null &&
-                          timeInBubble == false,
+                          msg.attachments.isEmpty,
                     ),
                   ),
                 ),
@@ -955,15 +956,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: Column(
-                  children: files
-                      .map(
-                        (e) => ChatItemWidget.fileAttachment(
+                child: SelectionContainer.disabled(
+                  child: Column(
+                    children: [
+                      ...files.mapIndexed(
+                        (i, e) => ChatItemWidget.fileAttachment(
                           e,
                           onFileTap: widget.onFileTap,
                         ),
-                      )
-                      .toList(),
+                      ),
+                      if (_text == null && !timeInBubble)
+                        Opacity(
+                          opacity: 0,
+                          child: _timestamp(msg),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1614,7 +1622,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisAlignment:
                 _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
-              if (_fromMe)
+              if (_fromMe && !widget.timestamp)
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
