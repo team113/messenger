@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -50,6 +51,9 @@ class RecentChatTile extends StatelessWidget {
     this.rxChat, {
     super.key,
     this.me,
+    this.el,
+    this.ei,
+    this.ef,
     this.blocked = false,
     this.selected = false,
     this.trailing,
@@ -74,6 +78,10 @@ class RecentChatTile extends StatelessWidget {
 
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
+
+  final LocalAttachment? el;
+  final ImageAttachment? ei;
+  final FileAttachment? ef;
 
   /// Indicator whether this [RecentChatTile] should display a blocked icon in
   /// its trailing.
@@ -145,7 +153,10 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         status: [
-          _status(context),
+          _StatusWidget(
+            rxChat: rxChat,
+            me: me,
+          ),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
             style: Theme.of(context).textTheme.titleSmall,
@@ -158,7 +169,19 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected)),
+                Expanded(
+                    child: _SubtitleWidget(
+                  rxChat: rxChat,
+                  selected: selected,
+                  inCall: inCall,
+                  onDrop: onDrop,
+                  onJoin: onJoin,
+                  me: me,
+                  el: el,
+                  ei: ei,
+                  ef: ef,
+                  getUser: getUser,
+                )),
                 if (trailing == null) ...[
                   if (blocked) ...[
                     const SizedBox(width: 5),
@@ -179,7 +202,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _counter(),
+                  _CounterWidget(rxChat: rxChat),
                 ] else
                   ...trailing!,
               ],
@@ -249,9 +272,90 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Builds a subtitle for the provided [RxChat] containing either its
-  /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context, bool selected) {
+  /// Hides the [rxChat].
+  Future<void> _hideChat(BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(
+          text: rxChat.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      onHide?.call();
+    }
+  }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
+}
+
+/// Extension adding conversion from [DateTime] to its short text relative to
+/// the [DateTime.now].
+extension DateTimeToShort on DateTime {
+  /// Returns short text representing this [DateTime].
+  ///
+  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
+  /// short weekday name, if [difference] between this [DateTime] and
+  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
+  /// of `YYYY-MM-DD`.
+  String toShort() {
+    final DateTime now = DateTime.now();
+    final DateTime from = DateTime(now.year, now.month, now.day);
+    final DateTime to = DateTime(year, month, day);
+
+    final int differenceInDays = from.difference(to).inDays;
+
+    if (differenceInDays > 6) {
+      final String day = this.day.toString().padLeft(2, '0');
+      final String month = this.month.toString().padLeft(2, '0');
+
+      return '$year-$month-$day';
+    } else if (differenceInDays < 1) {
+      final String hour = this.hour.toString().padLeft(2, '0');
+      final String minute = this.minute.toString().padLeft(2, '0');
+
+      return '$hour:$minute';
+    } else {
+      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
+    }
+  }
+}
+
+/// Builds a subtitle for the provided [RxChat] containing either its
+/// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
+class _SubtitleWidget extends StatelessWidget {
+  final RxChat rxChat;
+  final bool selected;
+  final bool Function()? inCall;
+  final void Function()? onDrop;
+  final void Function()? onJoin;
+  final UserId? me;
+  final LocalAttachment? el;
+  final ImageAttachment? ei;
+  final FileAttachment? ef;
+  final Future<RxUser?> Function(UserId)? getUser;
+  const _SubtitleWidget({
+    Key? key,
+    required this.rxChat,
+    required this.selected,
+    required this.inCall,
+    required this.onDrop,
+    required this.onJoin,
+    required this.me,
+    required this.el,
+    required this.ei,
+    required this.ef,
+    required this.getUser,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -359,7 +463,12 @@ class RecentChatTile extends StatelessWidget {
               draft.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _attachment(e),
+                  child: _AttachmentWidget(
+                    e: e,
+                    el: el,
+                    ei: ei,
+                    ef: ef,
+                  ),
                 );
               }),
             );
@@ -367,7 +476,12 @@ class RecentChatTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _attachment(draft.attachments.first),
+                child: _AttachmentWidget(
+                  e: draft.attachments.first,
+                  el: el,
+                  ei: ei,
+                  ef: ef,
+                ),
               ),
             );
           }
@@ -474,8 +588,11 @@ class RecentChatTile extends StatelessWidget {
                 item.attachments.map((e) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 2),
-                    child: _attachment(
-                      e,
+                    child: _AttachmentWidget(
+                      e: e,
+                      ef: ef,
+                      ei: ei,
+                      el: el,
                       onError: () => rxChat.updateAttachments(item!),
                     ),
                   );
@@ -485,8 +602,11 @@ class RecentChatTile extends StatelessWidget {
               images.add(
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
-                  child: _attachment(
-                    item.attachments.first,
+                  child: _AttachmentWidget(
+                    e: item.attachments.first,
+                    ef: ef,
+                    ei: ei,
+                    el: el,
                     onError: () => rxChat.updateAttachments(item!),
                   ),
                 ),
@@ -671,22 +791,38 @@ class RecentChatTile extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Builds an [Attachment] visual representation.
-  Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
+class _AttachmentWidget extends StatelessWidget {
+  final Attachment e;
+  final LocalAttachment? el;
+  final ImageAttachment? ei;
+  final FileAttachment? ef;
+  final Future<void> Function()? onError;
+  const _AttachmentWidget({
+    Key? key,
+    required this.e,
+    required this.el,
+    required this.ei,
+    required this.ef,
+    this.onError,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     Widget? content;
 
     if (e is LocalAttachment) {
-      if (e.file.isImage && e.file.bytes.value != null) {
-        content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
-      } else if (e.file.isVideo) {
+      if (el!.file.isImage && el!.file.bytes.value != null) {
+        content = Image.memory(el!.file.bytes.value!, fit: BoxFit.cover);
+      } else if (el!.file.isVideo) {
         // TODO: `video_player` being used doesn't support desktop platforms.
         if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes.value != null) {
+            el!.file.bytes.value != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
-              bytes: e.file.bytes.value!,
+              bytes: el!.file.bytes.value!,
               key: key,
               height: 300,
             ),
@@ -715,8 +851,8 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is ImageAttachment) {
       content = RetryImage(
-        e.medium.url,
-        checksum: e.medium.checksum,
+        ei!.medium.url,
+        checksum: ei!.medium.checksum,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -726,7 +862,7 @@ class RecentChatTile extends StatelessWidget {
     }
 
     if (e is FileAttachment) {
-      if (e.isVideo) {
+      if (ef!.isVideo) {
         if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
           content = FittedBox(
             fit: BoxFit.cover,
@@ -773,9 +909,20 @@ class RecentChatTile extends StatelessWidget {
 
     return const SizedBox();
   }
+}
 
-  /// Builds a [ChatItem.status] visual representation.
-  Widget _status(BuildContext context) {
+/// Builds a [ChatItem.status] visual representation.
+class _StatusWidget extends StatelessWidget {
+  final RxChat rxChat;
+  final UserId? me;
+  const _StatusWidget({
+    Key? key,
+    required this.rxChat,
+    required this.me,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -816,9 +963,18 @@ class RecentChatTile extends StatelessWidget {
       return const SizedBox();
     });
   }
+}
 
-  /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter() {
+/// Returns a visual representation of the [Chat.unreadCount] counter.
+class _CounterWidget extends StatelessWidget {
+  final RxChat rxChat;
+  const _CounterWidget({
+    Key? key,
+    required this.rxChat,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -852,59 +1008,5 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
-  }
-
-  /// Hides the [rxChat].
-  Future<void> _hideChat(BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      onHide?.call();
-    }
-  }
-
-  /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
-  ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
   }
 }
