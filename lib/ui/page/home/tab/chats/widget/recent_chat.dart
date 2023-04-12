@@ -623,7 +623,7 @@ class _SubtitleWidget extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.authorId),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarFromRxUser(user: snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
                           chat.getUser(item!.authorId),
                           radius: 10,
@@ -652,7 +652,7 @@ class _SubtitleWidget extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.authorId),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarFromRxUser(user: snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
                           chat.getUser(item!.authorId),
                           radius: 10,

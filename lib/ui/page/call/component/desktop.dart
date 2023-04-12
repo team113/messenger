@@ -1303,7 +1303,7 @@ class _TitleBarWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(c.chat.value, radius: 8),
+                      AvatarFromRxChat(chat: c.chat.value, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(

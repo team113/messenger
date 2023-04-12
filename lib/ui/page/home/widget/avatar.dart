@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -75,48 +76,6 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified reactive [contact].
-  static Widget fromRxContact(
-    RxChatContact? contact, {
-    Key? key,
-    Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-    bool showBadge = true,
-  }) {
-    if (contact == null) {
-      return AvatarWidget.fromContact(
-        key: key,
-        contact?.contact.value,
-        avatar: avatar,
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(() {
-      return AvatarWidget(
-        key: key,
-        isOnline: contact.contact.value.users.length == 1 &&
-            contact.user.value?.user.value.online == true,
-        isAway: contact.user.value?.user.value.presence == Presence.away,
-        avatar: contact.user.value?.user.value.avatar,
-        title: contact.contact.value.name.val,
-        color: contact.user.value == null
-            ? contact.contact.value.name.val.sum()
-            : contact.user.value?.user.value.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    });
-  }
-
   /// Creates an [AvatarWidget] from the specified [MyUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
@@ -160,43 +119,6 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified reactive [user].
-  static Widget fromRxUser(
-    RxUser? user, {
-    Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-    bool badge = true,
-  }) {
-    if (user == null) {
-      return AvatarWidget.fromUser(
-        user?.user.value,
-        key: key,
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(
-      () => AvatarWidget(
-        key: key,
-        isOnline: badge && user.user.value.online == true,
-        isAway: user.user.value.presence == Presence.away,
-        avatar: user.user.value.avatar,
-        title: user.user.value.name?.val ?? user.user.value.num.val,
-        color: user.user.value.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      ),
-    );
-  }
-
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
     Chat? chat,
@@ -219,43 +141,6 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
       );
-
-  /// Creates an [AvatarWidget] from the specified [RxChat].
-  static Widget fromRxChat(
-    RxChat? chat, {
-    Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-  }) {
-    if (chat == null) {
-      return AvatarWidget(
-        key: key,
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(() {
-      RxUser? user =
-          chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
-      return AvatarWidget(
-        key: key,
-        isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
-        isAway: user?.user.value.presence == Presence.away,
-        avatar: chat.avatar.value,
-        title: chat.title.value,
-        color: chat.chat.value.colorDiscriminant(chat.me).sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    });
-  }
 
   /// [Avatar] to display.
   final Avatar? avatar;
@@ -338,15 +223,116 @@ class AvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return opacity == 1
-        ? _avatar(context)
+        ? _AvatarWidget(
+            color: color,
+            colors: colors,
+            title: title,
+            minDiameter: _minDiameter,
+            maxDiameter: _maxDiameter,
+            isOnline: isOnline,
+            isAway: isAway,
+            avatar: avatar,
+          )
         : Opacity(
             opacity: opacity,
-            child: _avatar(context),
+            child: _AvatarWidget(
+              color: color,
+              colors: colors,
+              title: title,
+              minDiameter: _minDiameter,
+              maxDiameter: _maxDiameter,
+              isOnline: isOnline,
+              isAway: isAway,
+              avatar: avatar,
+            ),
           );
   }
+}
 
-  /// Returns an actual interface of this [AvatarWidget].
-  Widget _avatar(BuildContext context) {
+/// Extension adding an ability to get initials from a [String].
+extension _InitialsExtension on String {
+  /// Returns initials (two letters which begin each word) of this string.
+  String initials() {
+    List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
+
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    } else if (words.isNotEmpty) {
+      if (words[0].length >= 2) {
+        return '${words[0][0].toUpperCase()}${words[0][1].toLowerCase()}';
+      } else {
+        return words[0].toUpperCase();
+      }
+    }
+
+    return '';
+  }
+}
+
+/// Extension adding an ability to get a sum of [String] code units.
+extension SumStringExtension on String {
+  /// Returns a sum of [codeUnits].
+  int sum() => codeUnits.fold(0, (a, b) => a + b);
+}
+
+/// Extension adding an ability to lighten or darken a color.
+extension BrightnessColorExtension on Color {
+  /// Returns a lighten variant of this color.
+  Color lighten([double amount = .2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+
+  /// Returns a darken variant of this color.
+  Color darken([double amount = .2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+}
+
+/// Returns an actual interface of this [AvatarWidget].
+class _AvatarWidget extends StatelessWidget {
+  final int? color;
+  final List<Color> colors;
+  final String? title;
+  final double minDiameter;
+  final double maxDiameter;
+  final bool isOnline;
+  final bool isAway;
+  final Avatar? avatar;
+
+  const _AvatarWidget({
+    Key? key,
+    required this.color,
+    required this.colors,
+    required this.title,
+    required this.minDiameter,
+    required this.maxDiameter,
+    required this.isOnline,
+    required this.isAway,
+    required this.avatar,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
@@ -358,10 +344,10 @@ class AvatarWidget extends StatelessWidget {
         gradient = const Color(0xFF555555);
       }
 
-      double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-      double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-      double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-      double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+      double minWidth = min(minDiameter, constraints.smallest.shortestSide);
+      double minHeight = min(minDiameter, constraints.smallest.shortestSide);
+      double maxWidth = min(maxDiameter, constraints.biggest.shortestSide);
+      double maxHeight = min(maxDiameter, constraints.biggest.shortestSide);
 
       final double badgeSize = maxWidth / 10;
 
@@ -433,61 +419,151 @@ class AvatarWidget extends StatelessWidget {
   }
 }
 
-/// Extension adding an ability to get initials from a [String].
-extension _InitialsExtension on String {
-  /// Returns initials (two letters which begin each word) of this string.
-  String initials() {
-    List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
+/// Creates an [AvatarWidget] from the specified reactive [contact].
+class AvatarFromRxContact extends StatelessWidget {
+  final RxChatContact? contact;
+  final Avatar? avatar;
+  final double? radius;
+  final double? maxRadius;
+  final double? minRadius;
+  final double? opacity;
+  final bool? showBadge;
+  const AvatarFromRxContact({
+    Key? key,
+    this.contact,
+    this.avatar,
+    this.radius,
+    this.maxRadius,
+    this.minRadius,
+    this.opacity = 1,
+    this.showBadge = true,
+  }) : super(key: key);
 
-    if (words.length >= 2) {
-      return '${words[0][0]}${words[1][0]}'.toUpperCase();
-    } else if (words.isNotEmpty) {
-      if (words[0].length >= 2) {
-        return '${words[0][0].toUpperCase()}${words[0][1].toLowerCase()}';
-      } else {
-        return words[0].toUpperCase();
-      }
+  @override
+  Widget build(BuildContext context) {
+    if (contact == null) {
+      return AvatarWidget.fromContact(
+        key: key,
+        contact?.contact.value,
+        avatar: avatar,
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity ?? 1,
+      );
     }
 
-    return '';
+    return Obx(() {
+      return AvatarWidget(
+        key: key,
+        isOnline: contact!.contact.value.users.length == 1 &&
+            contact!.user.value?.user.value.online == true,
+        isAway: contact!.user.value?.user.value.presence == Presence.away,
+        avatar: contact!.user.value?.user.value.avatar,
+        title: contact!.contact.value.name.val,
+        color: contact!.user.value == null
+            ? contact!.contact.value.name.val.sum()
+            : contact!.user.value?.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity ?? 1,
+      );
+    });
   }
 }
 
-/// Extension adding an ability to get a sum of [String] code units.
-extension SumStringExtension on String {
-  /// Returns a sum of [codeUnits].
-  int sum() => codeUnits.fold(0, (a, b) => a + b);
+/// Creates an [AvatarWidget] from the specified reactive [user].
+class AvatarFromRxUser extends StatelessWidget {
+  final RxUser? user;
+  final double? radius;
+  final double? maxRadius;
+  final double? minRadius;
+  final double opacity;
+  final bool badge;
+  const AvatarFromRxUser({
+    Key? key,
+    this.user,
+    this.radius,
+    this.maxRadius,
+    this.minRadius,
+    this.opacity = 1,
+    this.badge = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (user == null) {
+      return AvatarWidget.fromUser(
+        user?.user.value,
+        key: key,
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(
+      () => AvatarWidget(
+        key: key,
+        isOnline: badge && user!.user.value.online == true,
+        isAway: user!.user.value.presence == Presence.away,
+        avatar: user!.user.value.avatar,
+        title: user!.user.value.name?.val ?? user!.user.value.num.val,
+        color: user!.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      ),
+    );
+  }
 }
 
-/// Extension adding an ability to lighten or darken a color.
-extension BrightnessColorExtension on Color {
-  /// Returns a lighten variant of this color.
-  Color lighten([double amount = .2]) {
-    assert(amount >= 0 && amount <= 1);
+/// Creates an [AvatarWidget] from the specified [RxChat].
+class AvatarFromRxChat extends StatelessWidget {
+  final RxChat? chat;
+  final double? radius;
+  final double? maxRadius;
+  final double? minRadius;
+  final double opacity;
+  const AvatarFromRxChat({
+    Key? key,
+    this.chat,
+    this.radius,
+    this.maxRadius,
+    this.minRadius,
+    this.opacity = 1,
+  }) : super(key: key);
 
-    if (amount == 0) {
-      return this;
+  @override
+  Widget build(BuildContext context) {
+    if (chat == null) {
+      return AvatarWidget(
+        key: key,
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
     }
 
-    final hsl = HSLColor.fromColor(this);
-    final hslLight =
-        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
-
-    return hslLight.toColor();
-  }
-
-  /// Returns a darken variant of this color.
-  Color darken([double amount = .2]) {
-    assert(amount >= 0 && amount <= 1);
-
-    if (amount == 0) {
-      return this;
-    }
-
-    final hsl = HSLColor.fromColor(this);
-    final hslLight =
-        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
-
-    return hslLight.toColor();
+    return Obx(() {
+      RxUser? user =
+          chat!.members.values.firstWhereOrNull((e) => e.id != chat!.me);
+      return AvatarWidget(
+        key: key,
+        isOnline: chat!.chat.value.isDialog && user?.user.value.online == true,
+        isAway: user?.user.value.presence == Presence.away,
+        avatar: chat!.avatar.value,
+        title: chat!.title.value,
+        color: chat!.chat.value.colorDiscriminant(chat!.me).sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    });
   }
 }

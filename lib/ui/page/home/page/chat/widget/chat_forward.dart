@@ -1134,7 +1134,7 @@ class _RoundedWidgetState extends State<_RoundedWidget> {
                 future: widget.getUser?.call(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                    return AvatarFromRxUser(user: snapshot.data, radius: 10);
                   }
                   return AvatarWidget.fromUser(user, radius: 10);
                 },
@@ -1239,8 +1239,8 @@ class _RoundedWidgetState extends State<_RoundedWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(widget.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
+                    child: AvatarFromRxUser(
+                      user: widget.user,
                       radius: 15,
                     ),
                   ),

@@ -152,13 +152,13 @@ class ContactTile extends StatelessWidget {
                 ...leading,
                 avatarBuilder(
                   contact != null
-                      ? AvatarWidget.fromRxContact(
-                          contact,
+                      ? AvatarFromRxContact(
+                          contact: contact,
                           radius: dense ? 17 : radius,
                         )
                       : user != null
-                          ? AvatarWidget.fromRxUser(
-                              user,
+                          ? AvatarFromRxUser(
+                              user: user,
                               radius: dense ? 17 : radius,
                             )
                           : AvatarWidget.fromMyUser(

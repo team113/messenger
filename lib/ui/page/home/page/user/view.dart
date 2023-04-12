@@ -83,7 +83,7 @@ class UserView extends StatelessWidget {
                       shadowColor: const Color(0x55000000),
                       color: Colors.white,
                       child: Center(
-                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                        child: AvatarFromRxUser(user: c.user, radius: 17),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -203,8 +203,8 @@ class UserView extends StatelessWidget {
                                       ),
                                     );
                                   },
-                            child: AvatarWidget.fromRxUser(
-                              c.user,
+                            child: AvatarFromRxUser(
+                              user: c.user,
                               key: c.avatarKey,
                               radius: 100,
                               badge: false,

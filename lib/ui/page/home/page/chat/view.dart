@@ -164,8 +164,8 @@ class _ChatViewState extends State<ChatView>
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
                               child: Center(
-                                child: AvatarWidget.fromRxChat(
-                                  c.chat,
+                                child: AvatarFromRxChat(
+                                  chat: c.chat,
                                   radius: 17,
                                 ),
                               ),
