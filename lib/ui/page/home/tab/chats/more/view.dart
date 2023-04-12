@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -68,11 +69,11 @@ class ChatsMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  _mute(context, c),
+                  _MuteWidget(c),
                   const SizedBox(height: 21),
-                  _header(context, 'label_your_direct_link'.l10n),
+                  _HeaderWidget(text: 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
-                  _link(context, c),
+                  _LinkWidget(c),
                 ],
               ),
             ),
@@ -82,9 +83,18 @@ class ChatsMoreView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Returns a styled as a header [Container] with the provided [text].
-  Widget _header(BuildContext context, String text) {
+/// Returns a styled as a header [Container] with the provided [text].
+class _HeaderWidget extends StatelessWidget {
+  final String text;
+  const _HeaderWidget({
+    Key? key,
+    required this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -101,9 +111,18 @@ class ChatsMoreView extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Returns a [Switch] toggling [MyUser.muted].
-  Widget _mute(BuildContext context, ChatsMoreController c) {
+/// Returns a [Switch] toggling [MyUser.muted].
+class _MuteWidget extends StatelessWidget {
+  final ChatsMoreController c;
+  const _MuteWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -145,9 +164,18 @@ class ChatsMoreView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns a [MyUser.chatDirectLink] editable field.
-  Widget _link(BuildContext context, ChatsMoreController c) {
+/// Returns a [MyUser.chatDirectLink] editable field.
+class _LinkWidget extends StatelessWidget {
+  final ChatsMoreController c;
+  const _LinkWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
