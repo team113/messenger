@@ -694,15 +694,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             opacity: _isRead || !_fromMe ? 1 : 0.55,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              child: Column(
-                children: files
-                    .map(
-                      (e) => ChatItemWidget.fileAttachment(
-                        e,
-                        onFileTap: (a) => widget.onFileTap?.call(item, a),
-                      ),
-                    )
-                    .toList(),
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: files
+                      .map(
+                        (e) => ChatItemWidget.fileAttachment(
+                          e,
+                          onFileTap: (a) => widget.onFileTap?.call(item, a),
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
             ),
           ),
