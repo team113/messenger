@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -50,26 +51,6 @@ class LoginView extends StatelessWidget {
           final Widget header;
           final List<Widget> children;
 
-          // Returns a primary styled [OutlinedRoundedButton].
-          Widget primaryButton({
-            Key? key,
-            String? title,
-            VoidCallback? onPressed,
-          }) {
-            return OutlinedRoundedButton(
-              key: key,
-              maxWidth: double.infinity,
-              title: Text(
-                title ?? '',
-                style: TextStyle(
-                  color: onPressed == null ? Colors.black : Colors.white,
-                ),
-              ),
-              onPressed: onPressed,
-              color: Theme.of(context).colorScheme.secondary,
-            );
-          }
-
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
@@ -98,7 +79,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                _PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed:
@@ -135,7 +116,7 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                _PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.recoveryCode.isEmpty.value
@@ -192,7 +173,7 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                _PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.newPassword.isEmpty.value ||
@@ -270,7 +251,7 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                _PrimaryButton(
                   key: const Key('LoginButton'),
                   title: 'btn_login'.l10n,
                   onPressed: c.signIn,
@@ -304,6 +285,33 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+}
+
+/// Returns a primary styled [OutlinedRoundedButton].
+class _PrimaryButton extends StatelessWidget {
+  final String? title;
+  final VoidCallback? onPressed;
+  const _PrimaryButton({
+    Key? key,
+    this.title,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedRoundedButton(
+      key: key,
+      maxWidth: double.infinity,
+      title: Text(
+        title ?? '',
+        style: TextStyle(
+          color: onPressed == null ? Colors.black : Colors.white,
+        ),
+      ),
+      onPressed: onPressed,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }

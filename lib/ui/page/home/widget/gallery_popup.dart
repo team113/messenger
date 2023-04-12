@@ -243,10 +243,10 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Indicator whether this [GalleryPopup] hasn't been scrolled since it was
   /// initially opened.
-  bool _isInitialPage = true;
+  final bool _isInitialPage = true;
 
   /// Indicator whether the currently visible [GalleryItem] is zoomed.
-  bool _isZoomed = false;
+  final bool _isZoomed = false;
 
   @override
   void initState() {
