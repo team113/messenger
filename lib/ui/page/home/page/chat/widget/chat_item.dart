@@ -852,8 +852,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     // Indicator whether the [_timestamp] should be displayed in a bubble above
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
-    final bool timeInBubble =
-        msg.attachments.whereType<ImageAttachment>().isNotEmpty;
+    final bool timeInBubble = media.isNotEmpty;
 
     return _rounded(
       context,
@@ -956,7 +955,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           style: style.boldBody,
                         ),
                       ),
-                      if (widget.timestamp && !timeInBubble)
+                      if (widget.timestamp && files.isEmpty && !timeInBubble)
                         WidgetSpan(
                           child: Opacity(opacity: 0, child: _timestamp(msg)),
                         ),
@@ -984,10 +983,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       ),
                       if (_text == null && !timeInBubble)
-                        Opacity(
-                          opacity: 0,
-                          child: _timestamp(msg),
-                        ),
+                        Opacity(opacity: 0, child: _timestamp(msg)),
                     ],
                   ),
                 ),
@@ -1251,7 +1247,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ],
             ),
           ),
-          Positioned(right: 8, bottom: 4, child: _timestamp(widget.item.value))
+          if (widget.timestamp)
+            Positioned(
+              right: 8,
+              bottom: 4,
+              child: _timestamp(widget.item.value),
+            )
         ],
       ),
     );
