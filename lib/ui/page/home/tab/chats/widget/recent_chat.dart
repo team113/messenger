@@ -135,6 +135,9 @@ class RecentChatTile extends StatelessWidget {
   /// [RecentChatTile].
   final bool enableContextMenu;
 
+  /// [RegExp] detecting separate numbers.
+  static final RegExp _numberRegex = RegExp(r'\d');
+
   @override
   Widget build(BuildContext context) {
     final Color onSecondary = Theme.of(context).colorScheme.onSecondary;
@@ -874,7 +877,7 @@ class RecentChatTile extends StatelessWidget {
                             DateTime.now().difference(chat.ongoingCall!.at.val);
                         final String text = duration.hhMmSs();
                         final String longText =
-                            text.replaceAll(RegExp(r'\d'), '0');
+                            text.replaceAll(_numberRegex, '0');
 
                         return Stack(
                           children: [

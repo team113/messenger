@@ -407,6 +407,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [_text] and [_galleryKeys].
   Worker? _worker;
 
+  /// [RegExp] detecting separate numbers.
+  static final RegExp _numberRegex = RegExp(r'\d');
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -1092,6 +1095,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
+    final String? longTime = time?.replaceAll(_numberRegex, '0');
+
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = _fromMe
@@ -1156,11 +1161,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           const SizedBox(width: 8),
                           Padding(
                             padding: const EdgeInsets.only(bottom: 1),
-                            child: Text(
-                              time,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall,
+                            child: Stack(
+                              children: [
+                                Opacity(
+                                  opacity: 0,
+                                  child: Text(
+                                    longTime!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                ),
+                                Text(
+                                  time,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                              ],
                             ),
                           ),
                         ],
