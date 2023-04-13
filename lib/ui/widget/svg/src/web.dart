@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -23,9 +24,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:js' as js;
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '/util/log.dart';
 
@@ -299,15 +300,9 @@ class _BrowserSvgState extends State<_BrowserSvg> {
     }
   }
 
-  /// Builds a placeholder displayed while loading a SVG picture.
-  Widget _buildPlaceholder(BuildContext context) =>
-      widget.placeholderBuilder == null
-          ? const SizedBox()
-          : Builder(builder: widget.placeholderBuilder!);
-
   @override
   Widget build(BuildContext context) => _image == null
-      ? _buildPlaceholder(context)
+      ? _BuildPlaceholder(placeholderBuilder: widget.placeholderBuilder)
       : rendererCanvasKit
           ? SvgPicture.memory(
               _imageBytes!,
@@ -326,4 +321,18 @@ class _BrowserSvgState extends State<_BrowserSvg> {
                 width: widget.width,
               ),
             );
+}
+
+/// Builds a placeholder displayed while loading a SVG picture.
+class _BuildPlaceholder extends StatelessWidget {
+  final Widget Function(BuildContext)? placeholderBuilder;
+  const _BuildPlaceholder({
+    Key? key,
+    required this.placeholderBuilder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => placeholderBuilder == null
+      ? const SizedBox()
+      : Builder(builder: placeholderBuilder!);
 }
