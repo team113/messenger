@@ -51,7 +51,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
-      if(route.endsWith('/')) {
+      if (route.endsWith('/')) {
         route = route.substring(0, route.length - 1);
       }
 

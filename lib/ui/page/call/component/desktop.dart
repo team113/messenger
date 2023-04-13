@@ -652,7 +652,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         // Sliding from the top info header.
         if (WebUtils.isPopup)
           Obx(() {
-            if(!c.fullscreen.value) {
+            if (!c.fullscreen.value) {
               return const SizedBox();
             }
 
