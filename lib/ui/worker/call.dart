@@ -188,7 +188,7 @@ class CallWorker extends DisposableService {
                       _notificationService.show(
                         title ?? 'label_incoming_call'.l10n,
                         body: title == null ? null : 'label_incoming_call'.l10n,
-                        payload: '${Routes.chat}/${c.chatId}',
+                        payload: '${Routes.chats}/${c.chatId}',
                         icon: chat?.avatar.value?.original.url,
                         playSound: false,
                       );
@@ -208,7 +208,6 @@ class CallWorker extends DisposableService {
               }
             });
           }
-
           break;
 
         case OperationKind.removed:

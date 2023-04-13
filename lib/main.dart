@@ -280,7 +280,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void onNotificationResponse(NotificationResponse response) {
   if (response.payload != null) {
-    if (response.payload!.startsWith(Routes.chat)) {
+    if (response.payload!.startsWith(Routes.chats)) {
       router.push(response.payload!);
     }
   }

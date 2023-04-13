@@ -63,6 +63,7 @@ class MyUserWorker extends DisposableService {
     _updateBadge(0);
     _worker?.dispose();
     router.prefix.value = null;
+    _updateBadge(0);
     super.onClose();
   }
 

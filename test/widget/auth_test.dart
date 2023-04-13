@@ -22,6 +22,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -41,11 +42,13 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:messenger/ui/page/home/view.dart';
@@ -92,6 +95,8 @@ void main() async {
   await blacklistedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init(userId: const UserId('me'));
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
@@ -107,6 +112,7 @@ void main() async {
     Get.put(credentialsProvider);
     Get.put(NotificationService(graphQlProvider));
     Get.put(BackgroundWorker(sessionProvider));
+    Get.put(monologProvider);
 
     AuthService authService = Get.put(
       AuthService(
@@ -256,5 +262,33 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     int? last,
   }) {
     return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
+  }
+
+  @override
+  Future<ChatMixin?> getMonolog() async {
+    return GetMonolog$Query.fromJson({'monolog': null}).monolog;
+  }
+
+  @override
+  Future<GetUser$Query> getUser(UserId id) async {
+    return GetUser$Query.fromJson({'user': null});
+  }
+
+  @override
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
+    Future.delayed(
+      Duration.zero,
+      () => chatEventsStream.add(QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'chatEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true,
+          }
+        },
+        parserFn: (_) => null,
+      )),
+    );
+    return chatEventsStream.stream;
   }
 }
