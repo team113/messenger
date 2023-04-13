@@ -76,10 +76,10 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
-  static const chat = '/chat';
+  static const chats = '/chats';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
-  static const contact = '/contact';
+  static const contacts = '/contacts';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
@@ -215,8 +215,8 @@ class RouterState extends ChangeNotifier {
         String last = routes.last.split('/').last;
         routes.last = routes.last.replaceFirst('/$last', '');
         if (routes.last == '' ||
-            routes.last == Routes.contact ||
-            routes.last == Routes.chat ||
+            routes.last == Routes.contacts ||
+            routes.last == Routes.chats ||
             routes.last == Routes.menu ||
             routes.last == Routes.user) {
           routes.last = Routes.home;
@@ -288,10 +288,10 @@ class AppRouteInformationParser
       RouteInformation routeInformation) {
     RouteConfiguration configuration;
     switch (routeInformation.location) {
-      case Routes.contact:
+      case Routes.contacts:
         configuration = RouteConfiguration(Routes.home, HomeTab.contacts);
         break;
-      case Routes.chat:
+      case Routes.chats:
         configuration = RouteConfiguration(Routes.home, HomeTab.chats);
         break;
       case Routes.menu:
@@ -313,10 +313,10 @@ class AppRouteInformationParser
     if (configuration.loggedIn && configuration.route == Routes.home) {
       switch (configuration.tab!) {
         case HomeTab.contacts:
-          route = Routes.contact;
+          route = Routes.contacts;
           break;
         case HomeTab.chats:
-          route = Routes.chat;
+          route = Routes.chats;
           break;
         case HomeTab.menu:
           route = Routes.menu;
@@ -655,8 +655,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
-    if (_state.route.startsWith(Routes.chat) ||
-        _state.route.startsWith(Routes.contact) ||
+    if (_state.route.startsWith(Routes.chats) ||
+        _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
@@ -723,11 +723,11 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);
 
-  /// Changes router location to the [Routes.contact] page.
+  /// Changes router location to the [Routes.contacts] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void contact(UserId id, {bool push = false}) =>
-      push ? this.push('${Routes.contact}/$id') : go('${Routes.contact}/$id');
+      push ? this.push('${Routes.contacts}/$id') : go('${Routes.contacts}/$id');
 
   /// Changes router location to the [Routes.user] page.
   ///
@@ -735,7 +735,7 @@ extension RouteLinks on RouterState {
   void user(UserId id, {bool push = false}) =>
       push ? this.push('${Routes.user}/$id') : go('${Routes.user}/$id');
 
-  /// Changes router location to the [Routes.chat] page.
+  /// Changes router location to the [Routes.chats] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void chat(
@@ -744,9 +744,9 @@ extension RouteLinks on RouterState {
     ChatItemId? itemId,
   }) {
     if (push) {
-      this.push('${Routes.chat}/$id');
+      this.push('${Routes.chats}/$id');
     } else {
-      go('${Routes.chat}/$id');
+      go('${Routes.chats}/$id');
     }
 
     arguments = {'itemId': itemId};
@@ -755,9 +755,9 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id, {bool push = false}) {
     if (push) {
-      this.push('${Routes.chat}/$id${Routes.chatInfo}');
+      this.push('${Routes.chats}/$id${Routes.chatInfo}');
     } else {
-      go('${Routes.chat}/$id${Routes.chatInfo}');
+      go('${Routes.chats}/$id${Routes.chatInfo}');
     }
   }
 }

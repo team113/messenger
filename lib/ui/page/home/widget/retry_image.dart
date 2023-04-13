@@ -186,6 +186,8 @@ class _RetryImageState extends State<RetryImage> {
 
     if (oldWidget.url != widget.url ||
         (!oldWidget.autoLoad && widget.autoLoad)) {
+      _cancelToken.cancel();
+      _cancelToken = CancelToken();
       _loadImage();
     }
 
@@ -385,6 +387,7 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
               }
             }
 
