@@ -416,6 +416,16 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_call_title_paid =
+    {$title} | {$state ->
+        [joining] Joining...
+        [active] {$members} of {$allMembers} | {$duration} | {$gpc} GPC
+        *[other] {$type ->
+            [video] Video call
+            [audio] Audio call
+            *[other] Calling...
+        }
+    }
 label_calls = Calls
 label_calls_displaying = Calls displaying
 label_camera = Camera
@@ -799,3 +809,6 @@ label_individual_users = Individual users: {$count}
 btn_verify_email = Verify E-mail
 btn_set_price = Get-Paid for incoming
 label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
+label_no_welcome_message = Welcome message has not been added
+label_paid_audio_call = Paid audio call
+label_paid_video_call = Paid video call

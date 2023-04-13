@@ -64,6 +64,7 @@ import 'animated_offset.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
@@ -923,19 +924,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             text: TextSpan(
               children: [
                 if (!_fromMe) ...[
-                  // WidgetSpan(
-                  //   alignment: PlaceholderAlignment.middle,
-                  //   child: Transform.translate(
-                  //     offset: Offset(0, PlatformUtils.isWeb ? -4 : 0),
-                  //     child: Padding(
-                  //       padding: const EdgeInsets.only(right: 1),
-                  //       child: SvgLoader.asset(
-                  //         'assets/icons/currency_v.svg',
-                  //         width: 7,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   TextSpan(
                     text: '¤',
                     style: textStyle.copyWith(
@@ -1366,168 +1354,349 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
-    final bool avatar =
-        !(_fromMe && widget.chat.value?.isGroup == true && widget.avatar);
-
-    final Widget child;
-
-    if (avatar) {
-      child = AnimatedOpacity(
-        duration: const Duration(milliseconds: 500),
-        opacity: _isRead || !_fromMe ? 1 : 0.55,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!_fromMe &&
-                  widget.chat.value?.isGroup == true &&
-                  widget.avatar)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                  child: Text(
-                    widget.user?.user.value.name?.val ??
-                        widget.user?.user.value.num.val ??
-                        'dot'.l10n * 3,
-                    style: style.boldBody.copyWith(color: color),
+    final Widget call = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.black.withOpacity(0.03),
+      ),
+      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: message.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 13 * 1.4,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 15 * 1.4,
                   ),
-                ),
-              const SizedBox(height: 4),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.black.withOpacity(0.03),
-                ),
-                padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-                child: Row(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                      child: message.withVideo
-                          ? SvgLoader.asset(
-                              'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 13 * 1.4,
-                            )
-                          : SvgLoader.asset(
-                              'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                              height: 15 * 1.4,
-                            ),
-                    ),
-                    Flexible(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: style.boldBody,
-                            ),
-                          ),
-                          if (time != null) ...[
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 1),
-                              child: Text(
-                                time,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ],
           ),
-        ),
-      );
-    } else {
-      child = AnimatedOpacity(
-        duration: const Duration(milliseconds: 500),
-        opacity: _isRead || !_fromMe ? 1 : 0.55,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                child: message.withVideo
-                    ? SvgLoader.asset(
-                        'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                        height: 13 * 1.4,
-                      )
-                    : SvgLoader.asset(
-                        'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                        height: 15 * 1.4,
-                      ),
-              ),
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody,
-                ),
-              ),
-              if (time != null) ...[
-                const SizedBox(width: 9),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 1),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
                   child: Text(
-                    time,
+                    title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: style.boldBody,
+                  ),
+                ),
+                if (time != null) ...[
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: Text(
+                      time,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+    );
+
+    const Color paidColor = Color(0xFFb68ad1);
+
+    final Widget child = AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: _isRead || !_fromMe ? 1 : 0.55,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(child: call),
+                      if (widget.paid && !_fromMe) ...[
+                        const WidgetSpan(child: SizedBox(width: 3)),
+                        if (!_fromMe) ...[
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0, 5),
+                              child: Text(
+                                '¤',
+                                style: style.systemMessageStyle.copyWith(
+                                  fontFamily: 'Gapopa',
+                                  fontWeight: FontWeight.w300,
+                                  color: paidColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const WidgetSpan(child: SizedBox(width: 1)),
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0, 5),
+                              child: Text(
+                                '123',
+                                style: style.systemMessageStyle.copyWith(
+                                  color: paidColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]
+                      ],
+                      if (widget.paid && !_fromMe && widget.displayTime) ...[
+                        WidgetSpan(
+                          child: Transform.translate(
+                            offset: const Offset(0, 4),
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                              color: Theme.of(context).colorScheme.primary,
+                              height: 10,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (widget.displayTime)
+                        WidgetSpan(
+                          child: Opacity(
+                            opacity: 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _timestamp(widget.item.value),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
-            ],
+            ),
           ),
-        ),
-      );
-    }
+          if (widget.displayTime)
+            Positioned(
+              right: 8,
+              bottom: 4,
+              child: _timestamp(widget.item.value),
+            )
+        ],
+      ),
+    );
 
     return _rounded(
       context,
       (_) => Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
-        child: FoldedWidget(
-          folded: widget.paid,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            decoration: BoxDecoration(
-              border: _fromMe
-                  ? _isRead
-                      ? style.secondaryBorder
-                      : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                  : style.primaryBorder,
-              color: _fromMe
-                  ? _isRead
-                      ? style.readMessageColor
-                      : style.unreadMessageColor
-                  : style.messageColor,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: child,
-            ),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            border: _fromMe
+                ? _isRead
+                    ? style.secondaryBorder
+                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                : style.primaryBorder,
+            color: _fromMe
+                ? _isRead
+                    ? style.readMessageColor
+                    : style.unreadMessageColor
+                : style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: child,
           ),
         ),
       ),
     );
+
+    // final bool avatar =
+    //     !(_fromMe && widget.chat.value?.isGroup == true && widget.avatar);
+
+    // final Widget child;
+
+    // if (avatar) {
+    //   child = AnimatedOpacity(
+    //     duration: const Duration(milliseconds: 500),
+    //     opacity: _isRead || !_fromMe ? 1 : 0.55,
+    //     child: Padding(
+    //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+    //       child: Column(
+    //         crossAxisAlignment: CrossAxisAlignment.start,
+    //         children: [
+    //           if (!_fromMe &&
+    //               widget.chat.value?.isGroup == true &&
+    //               widget.avatar)
+    //             Padding(
+    //               padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+    //               child: Text(
+    //                 widget.user?.user.value.name?.val ??
+    //                     widget.user?.user.value.num.val ??
+    //                     'dot'.l10n * 3,
+    //                 style: style.boldBody.copyWith(color: color),
+    //               ),
+    //             ),
+    //           const SizedBox(height: 4),
+    //           Container(
+    //             decoration: BoxDecoration(
+    //               borderRadius: BorderRadius.circular(10),
+    //               color: Colors.black.withOpacity(0.03),
+    //             ),
+    //             padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+    //             child: Row(
+    //               // crossAxisAlignment: CrossAxisAlignment.start,
+    //               mainAxisSize: MainAxisSize.min,
+    //               children: [
+    //                 Padding(
+    //                   padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+    //                   child: message.withVideo
+    //                       ? SvgLoader.asset(
+    //                           'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+    //                           height: 13 * 1.4,
+    //                         )
+    //                       : SvgLoader.asset(
+    //                           'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+    //                           height: 15 * 1.4,
+    //                         ),
+    //                 ),
+    //                 Flexible(
+    //                   child: Row(
+    //                     mainAxisSize: MainAxisSize.min,
+    //                     crossAxisAlignment: CrossAxisAlignment.start,
+    //                     children: [
+    //                       Flexible(
+    //                         child: Text(
+    //                           title,
+    //                           maxLines: 1,
+    //                           overflow: TextOverflow.ellipsis,
+    //                           style: style.boldBody,
+    //                         ),
+    //                       ),
+    //                       if (time != null) ...[
+    //                         const SizedBox(width: 8),
+    //                         Padding(
+    //                           padding: const EdgeInsets.only(bottom: 1),
+    //                           child: Text(
+    //                             time,
+    //                             maxLines: 1,
+    //                             overflow: TextOverflow.ellipsis,
+    //                             style: Theme.of(context).textTheme.titleSmall,
+    //                           ),
+    //                         ),
+    //                       ],
+    //                     ],
+    //                   ),
+    //                 ),
+    //                 const SizedBox(width: 8),
+    //               ],
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // } else {
+    //   child = AnimatedOpacity(
+    //     duration: const Duration(milliseconds: 500),
+    //     opacity: _isRead || !_fromMe ? 1 : 0.55,
+    //     child: Padding(
+    //       padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+    //       child: Row(
+    //         mainAxisSize: MainAxisSize.min,
+    //         crossAxisAlignment: CrossAxisAlignment.end,
+    //         children: [
+    //           Padding(
+    //             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+    //             child: message.withVideo
+    //                 ? SvgLoader.asset(
+    //                     'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+    //                     height: 13 * 1.4,
+    //                   )
+    //                 : SvgLoader.asset(
+    //                     'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+    //                     height: 15 * 1.4,
+    //                   ),
+    //           ),
+    //           Flexible(
+    //             child: Text(
+    //               title,
+    //               maxLines: 1,
+    //               overflow: TextOverflow.ellipsis,
+    //               style: style.boldBody,
+    //             ),
+    //           ),
+    //           if (time != null) ...[
+    //             const SizedBox(width: 9),
+    //             Padding(
+    //               padding: const EdgeInsets.only(bottom: 1),
+    //               child: Text(
+    //                 time,
+    //                 maxLines: 1,
+    //                 overflow: TextOverflow.ellipsis,
+    //                 style: Theme.of(context).textTheme.titleSmall,
+    //               ),
+    //             ),
+    //           ],
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // }
+
+    // return _rounded(
+    //   context,
+    //   (_) => Padding(
+    //     padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
+    //     child: FoldedWidget(
+    //       folded: widget.paid,
+    //       child: AnimatedContainer(
+    //         duration: const Duration(milliseconds: 500),
+    //         decoration: BoxDecoration(
+    //           border: _fromMe
+    //               ? _isRead
+    //                   ? style.secondaryBorder
+    //                   : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+    //               : style.primaryBorder,
+    //           color: _fromMe
+    //               ? _isRead
+    //                   ? style.readMessageColor
+    //                   : style.unreadMessageColor
+    //               : style.messageColor,
+    //           borderRadius: BorderRadius.circular(15),
+    //         ),
+    //         child: ClipRRect(
+    //           borderRadius: BorderRadius.circular(15),
+    //           child: child,
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   /// Renders the provided [item] as a replied message.
@@ -2137,6 +2306,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       ),
     );
+  }
+
+  /// Builds a [MessageTimestamp] of the provided [item].
+  Widget _timestamp(ChatItem item) {
+    return Obx(() {
+      final bool isMonolog = widget.chat.value?.isMonolog == true;
+
+      return KeyedSubtree(
+        key: Key('MessageStatus_${item.id}'),
+        child: MessageTimestamp(
+          at: item.at,
+          status: _fromMe ? item.status.value : null,
+          read: _isRead || isMonolog,
+          delivered:
+              widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+                  isMonolog,
+        ),
+      );
+    });
   }
 
   /// Populates the [_worker] invoking the [_populateSpans] and

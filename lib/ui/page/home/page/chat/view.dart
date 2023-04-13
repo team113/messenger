@@ -548,50 +548,50 @@ class _ChatViewState extends State<ChatView>
                                                       ],
                                                     ),
                                                     child: Center(
-                                                      child: Transform.translate(
-                                                          offset: Offset(
-                                                            -1,
-                                                            PlatformUtils.isWeb
-                                                                ? 0
-                                                                : 0,
+                                                      child:
+                                                          Transform.translate(
+                                                        offset: Offset(
+                                                          -1,
+                                                          -4,
+                                                        ),
+                                                        // child: SvgLoader.asset(
+                                                        //   'assets/icons/currency.svg',
+                                                        //   width: 23.97,
+                                                        //   height: 26,
+                                                        // )
+                                                        child: Text(
+                                                          '¤',
+                                                          style: style
+                                                              .systemMessageStyle
+                                                              .copyWith(
+                                                            fontFamily:
+                                                                'Gapopa',
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: const Color(
+                                                              0xFFffcf78,
+                                                            ),
+                                                            // color:
+                                                            //     Theme.of(context)
+                                                            //         .colorScheme
+                                                            //         .secondary,
+                                                            // color: const Color(
+                                                            //     0xFF8383FF),
+                                                            fontSize: 21,
                                                           ),
-                                                          child: SvgLoader.asset(
-                                                            'assets/icons/currency.svg',
-                                                            width: 23.97,
-                                                            height: 26,
-                                                          )
-                                                          // child: Text(
-                                                          //   '¤',
-                                                          //   style: style
-                                                          //       .systemMessageStyle
-                                                          //       .copyWith(
-                                                          //     height: 0.9,
-                                                          //     fontFamily:
-                                                          //         'InterRoboto',
-                                                          //     fontWeight:
-                                                          //         FontWeight.w300,
-                                                          //     color: const Color(
-                                                          //         0xFF30d5c8),
-                                                          //     // color:
-                                                          //     //     Theme.of(context)
-                                                          //     //         .colorScheme
-                                                          //     //         .secondary,
-                                                          //     // color: const Color(
-                                                          //     //     0xFF8383FF),
-                                                          //     fontSize: 21,
-                                                          //   ),
-                                                          // '\$',
-                                                          // style: style
-                                                          //     .systemMessageStyle
-                                                          //     .copyWith(
-                                                          //   fontSize: 15,
-                                                          //   color:
-                                                          //       Theme.of(context)
-                                                          //           .colorScheme
-                                                          //           .secondary,
-                                                          // ),
-                                                          // ),
-                                                          ),
+                                                        ),
+                                                        // '\$',
+                                                        // style: style
+                                                        //     .systemMessageStyle
+                                                        //     .copyWith(
+                                                        //   fontSize: 15,
+                                                        //   color:
+                                                        //       Theme.of(context)
+                                                        //           .colorScheme
+                                                        //           .secondary,
+                                                        // ),
+                                                        // ),
+                                                      ),
                                                     ),
                                                   )
                                                 : const SizedBox(),

@@ -433,6 +433,16 @@ label_call_title =
             *[other] Звоним...
         }
     }
+label_call_title_paid =
+    {$title} | {$state ->
+        [joining] Подключение...
+        [active] {$members} из {$allMembers} | {$duration} | {$gpc} GPC
+        *[other] {$type ->
+            [video] Видеозвонок
+            [audio] Аудиозвонок
+            *[other] Звоним...
+        }
+    }
 label_calls = Звонки
 label_calls_displaying = Отображение звонков
 label_camera = Камера
@@ -827,3 +837,6 @@ label_individual_users = Индивидуальные пользователи: 
 btn_verify_email = Верифицировать E-mail
 btn_set_price = Принимать оплату за входящие
 label_welcome_message_description = Приветствие автоматически отображается у пользователей, которые добавили Вас в свой список чатов, но не отображается у пользователей, которых добавили Вы.
+label_no_welcome_message = Приветственное сообщение не добавлено
+label_paid_audio_call = Платный аудиозвонок
+label_paid_video_call = Платный видеозвонок

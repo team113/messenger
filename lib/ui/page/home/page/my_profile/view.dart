@@ -1571,56 +1571,67 @@ Widget _welcome(BuildContext context, MyProfileController c) {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  bottomRight: style.cardRadius.bottomRight,
-                  bottomLeft: style.cardRadius.bottomLeft,
-                ),
-                // borderRadius: style.cardRadius,
-                child: DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  decoration: BoxDecoration(
-                      // color: style.sidebarColor,
-                      ),
-                  child: Obx(() {
-                    return c.background.value == null
-                        ? Container(
-                            child: SvgLoader.asset(
-                              'assets/images/background_light.svg',
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Image.memory(
-                            c.background.value!,
-                            fit: BoxFit.cover,
-                          );
-
-                    // return c.background.value == null
-                    //     ? ImageFiltered(
-                    //         imageFilter:
-                    //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    //         child: Container(
-                    //           child: SvgLoader.asset(
-                    //             'assets/images/background_light.svg',
-                    //             width: double.infinity,
-                    //             height: double.infinity,
-                    //             fit: BoxFit.cover,
-                    //           ),
-                    //         ),
-                    //       )
-                    //     : ImageFiltered(
-                    //         imageFilter:
-                    //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    //         child: Image.memory(
-                    //           c.background.value!,
-                    //           fit: BoxFit.cover,
-                    //         ),
-                    //       );
-                  }),
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: style.unreadMessageColor,
+                  borderRadius: BorderRadius.only(
+                    bottomRight: style.cardRadius.bottomRight,
+                    bottomLeft: style.cardRadius.bottomLeft,
+                  ),
                 ),
               ),
+              // child: ClipRRect(
+              //   borderRadius: BorderRadius.only(
+              //     bottomRight: style.cardRadius.bottomRight,
+              //     bottomLeft: style.cardRadius.bottomLeft,
+              //   ),
+              //   // borderRadius: style.cardRadius,
+              //   child: DecoratedBox(
+              //     position: DecorationPosition.foreground,
+              //     decoration: BoxDecoration(
+              //         // color: style.sidebarColor,
+              //         ),
+              //     child: Obx(() {
+              //       return c.background.value == null
+              //           ? Container(
+              //               child: SvgLoader.asset(
+              //                 'assets/images/background_light.svg',
+              //                 width: double.infinity,
+              //                 height: double.infinity,
+              //                 fit: BoxFit.cover,
+              //               ),
+              //             )
+              //           : Image.memory(
+              //               c.background.value!,
+              //               fit: BoxFit.cover,
+              //             );
+
+              //       // return c.background.value == null
+              //       //     ? ImageFiltered(
+              //       //         imageFilter:
+              //       //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+              //       //         child: Container(
+              //       //           child: SvgLoader.asset(
+              //       //             'assets/images/background_light.svg',
+              //       //             width: double.infinity,
+              //       //             height: double.infinity,
+              //       //             fit: BoxFit.cover,
+              //       //           ),
+              //       //         ),
+              //       //       )
+              //       //     : ImageFiltered(
+              //       //         imageFilter:
+              //       //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+              //       //         child: Image.memory(
+              //       //           c.background.value!,
+              //       //           fit: BoxFit.cover,
+              //       //         ),
+              //       //       );
+              //     }),
+              //   ),
+              // ),
             ),
             Obx(() {
               return Column(
@@ -1642,9 +1653,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                         padding: const EdgeInsets.symmetric(horizontal: 32),
                         height: 60 * 3,
                         child: info(
-                          child: const Text(
-                            'Здесь будет Ваше приветственное сообщение',
-                          ),
+                          child: Text('label_no_welcome_message'.l10n),
                         ),
                       ),
                     )

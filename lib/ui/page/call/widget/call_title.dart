@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,6 +27,7 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
+import 'conditional_backdrop.dart';
 
 /// [AvatarWidget] with caption and subtitle texts used to display
 /// [ChatCall.caller] and [OngoingCall] state.
@@ -37,6 +40,7 @@ class CallTitle extends StatelessWidget {
     this.avatar,
     this.state,
     this.withDots = false,
+    this.withDecoration = false,
   }) : super(key: key);
 
   /// [Chat] that contains the current [OngoingCall].
@@ -59,6 +63,8 @@ class CallTitle extends StatelessWidget {
   ///
   /// Only meaningful if [state] is non-`null`.
   final bool withDots;
+
+  final bool withDecoration;
 
   @override
   Widget build(BuildContext context) {
@@ -90,18 +96,33 @@ class CallTitle extends StatelessWidget {
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (withDots) const SizedBox(width: 13),
-                Text(
-                  state!,
-                  style: context.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-                if (withDots) const AnimatedDots(),
-              ],
+            AnimatedContainer(
+              duration: 200.milliseconds,
+              padding: withDecoration
+                  ? const EdgeInsets.fromLTRB(16, 8, 16, 8)
+                  : EdgeInsets.zero,
+              decoration: BoxDecoration(
+                // color: const Color(0xFFFFFFFF),
+                color: withDecoration
+                    ? const Color(0xFFB68AD1)
+                    : const Color(0x00B68AD1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (withDots) const SizedBox(width: 13),
+                  Text(
+                    state!,
+                    style: context.textTheme.headlineMedium?.copyWith(
+                      color: Colors.white,
+                      // color: paid ? const Color(0xFFB68AD1) : Colors.white,
+                    ),
+                  ),
+                  if (withDots) const AnimatedDots(),
+                ],
+              ),
             ),
         ],
       ),

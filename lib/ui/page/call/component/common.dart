@@ -495,8 +495,12 @@ Widget callTitle(CallController c) {
                     ? null
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
-                    ? 'label_video_call'.l10n
-                    : 'label_audio_call'.l10n;
+                    ? c.income
+                        ? 'label_paid_video_call'.l10n
+                        : 'label_video_call'.l10n
+                    : c.income
+                        ? 'label_paid_audio_call'.l10n
+                        : 'label_audio_call'.l10n;
 
     return CallTitle(
       c.me.id.userId,
@@ -505,6 +509,7 @@ Widget callTitle(CallController c) {
       avatar: c.chat.value?.avatar.value,
       state: state,
       withDots: withDots,
+      withDecoration: c.income && c.state.value != OngoingCallState.active,
     );
   });
 }

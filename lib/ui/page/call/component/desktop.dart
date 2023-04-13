@@ -730,7 +730,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                         horizontal: 10,
                       ),
                       child: Text(
-                        'label_call_title'.l10nfmt(c.titleArguments),
+                        (c.income
+                                ? 'label_call_title_paid'
+                                : 'label_call_title')
+                            .l10nfmt(c.titleArguments),
                         style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
                           color: const Color(0xFFFFFFFF),
@@ -1198,7 +1201,10 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'label_call_title'.l10nfmt(c.titleArguments),
+                          (c.income
+                                  ? 'label_call_title_paid'
+                                  : 'label_call_title')
+                              .l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),

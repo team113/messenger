@@ -28,6 +28,7 @@ import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/application_settings.dart';
@@ -66,6 +67,7 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
+    this._myUserService,
     this._settingsRepository,
   );
 
@@ -325,6 +327,12 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
+  final MyUserService _myUserService;
+
+  bool get income =>
+      _myUserService.myUser.value?.name?.val == 'kirey' ||
+      _myUserService.myUser.value?.name?.val == 'alex2';
+
   /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
@@ -511,6 +519,9 @@ class CallController extends GetxController {
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.members.length ?? 1}';
         args['duration'] = duration.value.hhMmSs();
+        if (income) {
+          args['gpc'] = ((duration.value.inMinutes + 1) * 3).toString();
+        }
         break;
 
       case OngoingCallState.joining:
@@ -600,7 +611,7 @@ class CallController extends GetxController {
         if (v != null) {
           void updateTitle() {
             WebUtils.title(
-              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
+              '\u205f​​​ \u205f​​​${(income ? 'label_call_title_paid' : 'label_call_title').l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
             );
           }
 

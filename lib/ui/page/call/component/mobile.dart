@@ -873,6 +873,14 @@ Widget _chat(BuildContext context, CallController c) {
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
+                            if (c.income)
+                              Text(
+                                '${(c.duration.value.inMinutes + 1) * 3} GPC | ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: Colors.white),
+                              ),
                             Text(
                               c.duration.value.hhMmSs(),
                               style: Theme.of(context)
