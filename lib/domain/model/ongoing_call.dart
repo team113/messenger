@@ -153,6 +153,8 @@ class OngoingCall {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
+    members[_me] = CallMember.me(_me, isConnected: true);
+
     if (withAudio) {
       audioState = Rx(LocalTrackState.enabling);
     } else {
@@ -325,8 +327,6 @@ class OngoingCall {
         _jason = null;
         return;
       }
-
-      members[_me] = CallMember.me(_me, isConnected: true);
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {

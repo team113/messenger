@@ -264,7 +264,7 @@ class WebUtils {
     html.window.localStorage['credentialsUpdating'] = updating.toString();
   }
 
-  /// Returns indicator whether [Credentials] is updating in any tab.
+  /// Indicates whether [Credentials] is updating in any tab.
   static bool get credentialsUpdating {
     String? updating = html.window.localStorage['credentialsUpdating'];
     if (updating == null) {

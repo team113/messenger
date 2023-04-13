@@ -70,7 +70,7 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns indicator whether [Credentials] is updating in any tab.
+  /// Indicates whether [Credentials] is updating in any tab.
   static bool get credentialsUpdating => false;
 
   /// Indicates whether the current window is a popup.

@@ -56,10 +56,12 @@ class AuthService extends GetxService {
   Timer? _refreshTimer;
 
   /// [_refreshTimer] interval.
-  final Duration _refreshTaskInterval = const Duration(minutes: 1);
+  // TODO: revert change before merging.
+  final Duration _refreshTaskInterval = const Duration(seconds: 10);
 
   /// Minimal allowed [_session] TTL.
-  final Duration _accessTokenMinTtl = const Duration(minutes: 2);
+  // TODO: revert change before merging.
+  final Duration _accessTokenMinTtl = const Duration(minutes: 28);
 
   /// Guard used to track [renewSession] completion.
   final Mutex _tokenGuard = Mutex();
@@ -85,6 +87,13 @@ class AuthService extends GetxService {
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
+
+  /// Indicates whether the [credentials] should be updated.
+  bool get needUpdate =>
+      credentials.value?.session.expireAt
+          .subtract(_accessTokenMinTtl)
+          .isBefore(PreciseDateTime.now().toUtc()) ==
+      true;
 
   @override
   void onClose() {
@@ -124,11 +133,14 @@ class AuthService extends GetxService {
           Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
           if (creds.session.token != credentials.value?.session.token &&
               creds.userId == credentials.value?.userId) {
-            print('RenewSession1');
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
             _status.value = RxStatus.success();
+          }
+        } else {
+          if (!WebUtils.isPopup) {
+            router.go(_unauthorized());
           }
         }
       }
@@ -137,7 +149,6 @@ class AuthService extends GetxService {
     WebUtils.credentials = creds;
     _sessionSubscription = _sessionProvider.boxEvents
         .listen((e) => WebUtils.credentials = e.value?.credentials);
-    WebUtils.removeAllCalls();
 
     if (session == null) {
       return _unauthorized();
@@ -314,23 +325,17 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
-    bool alreadyRenewing;
-
     if (WebUtils.credentialsUpdating) {
-      // Wait till [Credentials] updates in another window.
+      // Wait till [Credentials] updating in another tab.
       await Future.delayed(5.seconds);
+
+      if (!needUpdate) {
+        // [Credentials] updated, end function.
+        return;
+      }
     }
 
-    if (credentials.value?.session.expireAt
-            .subtract(_accessTokenMinTtl)
-            .isBefore(PreciseDateTime.now().toUtc()) !=
-        true) {
-      // [Credentials] updated, end function.
-      return;
-    }
-
-    // If [Credentials] still don't updated then update it manually.
-    alreadyRenewing = _tokenGuard.isLocked;
+    bool alreadyRenewing = _tokenGuard.isLocked;
 
     // Do not perform renew since some other task has already renewed it. But
     // still wait for the lock to be sure that session was renewed when current
@@ -367,11 +372,7 @@ class AuthService extends GetxService {
     _refreshTimer?.cancel();
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.rememberedSession != null &&
-          credentials.value?.session.expireAt
-                  .subtract(_accessTokenMinTtl)
-                  .isBefore(PreciseDateTime.now().toUtc()) ==
-              true) {
+      if (credentials.value?.rememberedSession != null && needUpdate) {
         renewSession();
       }
     });
