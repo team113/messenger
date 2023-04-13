@@ -1882,12 +1882,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return Obx(() {
       final bool isMonolog = widget.chat.value?.isMonolog == true;
 
-      return MessageTimestamp(
-        at: item.at,
-        status: _fromMe ? item.status.value : null,
-        read: _isRead || isMonolog,
-        delivered: widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
-            isMonolog,
+      return KeyedSubtree(
+        key: Key('MessageStatus_${item.id}'),
+        child: MessageTimestamp(
+          at: item.at,
+          status: _fromMe ? item.status.value : null,
+          read: _isRead || isMonolog,
+          delivered:
+              widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+                  isMonolog,
+        ),
       );
     });
   }

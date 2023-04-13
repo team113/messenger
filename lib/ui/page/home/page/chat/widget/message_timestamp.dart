@@ -76,6 +76,13 @@ class MessageTimestamp extends StatelessWidget {
                       ? Colors.red
                       : Theme.of(context).colorScheme.primary,
               size: 12,
+              key: Key(
+                isError
+                    ? 'Error'
+                    : isSending
+                        ? 'Sending'
+                        : 'Sent',
+              ),
             ),
           const SizedBox(width: 3),
         ],
