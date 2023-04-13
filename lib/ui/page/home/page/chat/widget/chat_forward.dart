@@ -207,7 +207,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.forwards.first.value, widget.me);
+      return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
     }
@@ -995,6 +995,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = widget.authorId == widget.me &&
                                     !widget.chat.value!.isRead(
                                       widget.forwards.first.value,
@@ -1004,18 +1005,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

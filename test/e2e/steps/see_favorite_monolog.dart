@@ -15,40 +15,42 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is displayed with the
-/// specified [FavoriteStatus].
+/// Indicates whether a [Chat]-monolog is displayed with the specified
+/// [FavoriteStatus].
 ///
 /// Examples:
-/// - Then I see "Example" chat as favorite
-/// - Then I see "Example" chat as unfavorite
-final StepDefinitionGeneric seeChatAsFavorite =
-    then2<String, FavoriteStatus, CustomWorld>(
-  'I see {string} chat as {favorite}',
-  (name, status, context) async {
+/// - Then I see monolog as favorite
+/// - Then I see monolog as unfavorite
+final StepDefinitionGeneric seeMonologAsFavorite =
+    then1<FavoriteStatus, CustomWorld>(
+  'I see monolog as {favorite}',
+  (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
+        final ChatId monolog = Get.find<ChatService>().monolog;
 
         switch (status) {
           case FavoriteStatus.favorite:
             return await context.world.appDriver.isPresent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
             );
 
           case FavoriteStatus.unfavorite:
             return await context.world.appDriver.isAbsent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
             );
         }
       },

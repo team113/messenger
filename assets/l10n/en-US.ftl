@@ -208,7 +208,6 @@ btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
-btn_saved_messages = Saved messages
 btn_select = Select
 btn_set_password = Set password
 btn_settings = Settings
@@ -429,7 +428,7 @@ label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
-label_chat_monolog = Saved messages
+label_chat_monolog = To myself
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
@@ -555,6 +554,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
