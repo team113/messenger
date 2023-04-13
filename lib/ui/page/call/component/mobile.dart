@@ -70,8 +70,8 @@ class MobileCall extends StatelessWidget {
 
       // Call stackable content.
       List<Widget> content = [
-        SvgLoader.asset(
-          'assets/images/background_dark.svg',
+        const AssetWidget(
+          asset: 'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
           fit: BoxFit.cover,

@@ -153,8 +153,8 @@ class ChatsTabView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.only(left: 20, right: 12),
                             height: double.infinity,
-                            child: SvgLoader.asset(
-                              'assets/icons/search.svg',
+                            child: const AssetWidget(
+                              asset: 'assets/icons/search.svg',
                               width: 17.77,
                             ),
                           ),
@@ -167,21 +167,21 @@ class ChatsTabView extends StatelessWidget {
                       final Widget child;
 
                       if (c.searching.value) {
-                        child = SvgLoader.asset(
-                          'assets/icons/close_primary.svg',
-                          key: const Key('CloseSearch'),
+                        child = const AssetWidget(
+                          asset: 'assets/icons/close_primary.svg',
+                          key: Key('CloseSearch'),
                           height: 15,
                         );
                       } else {
                         child = c.groupCreating.value || c.selecting.value
-                            ? SvgLoader.asset(
-                                'assets/icons/close_primary.svg',
-                                key: const Key('CloseGroupSearching'),
+                            ? const AssetWidget(
+                                asset: 'assets/icons/close_primary.svg',
+                                key: Key('CloseGroupSearching'),
                                 height: 15,
                               )
-                            : SvgLoader.asset(
-                                'assets/icons/group.svg',
-                                key: const Key('CreateGroup'),
+                            : const AssetWidget(
+                                asset: 'assets/icons/group.svg',
+                                key: Key('CreateGroup'),
                                 width: 21.77,
                                 height: 18.44,
                               );

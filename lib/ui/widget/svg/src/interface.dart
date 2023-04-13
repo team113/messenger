@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -30,19 +31,32 @@ import 'package:flutter/material.dart';
 /// should be placed in a context that sets tight layout constraints. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-Widget svgFromAsset(
-  String asset, {
-  Alignment alignment = Alignment.center,
-  bool excludeFromSemantics = false,
-  BoxFit fit = BoxFit.contain,
-  double? height,
-  Key? key,
-  String? package,
-  WidgetBuilder? placeholderBuilder,
-  String? semanticsLabel,
-  double? width,
-}) =>
-    throw UnimplementedError();
+class SvgFromAsset extends StatelessWidget {
+  final String asset;
+  final Alignment alignment;
+  final bool excludeFromSemantics;
+  final BoxFit fit;
+  final double? height;
+  final String? package;
+  final WidgetBuilder? placeholderBuilder;
+  final String? semanticsLabel;
+  final double? width;
+  const SvgFromAsset({
+    Key? key,
+    required this.asset,
+    this.alignment = Alignment.center,
+    this.excludeFromSemantics = false,
+    this.fit = BoxFit.contain,
+    this.height,
+    this.package,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.width,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => throw UnimplementedError();
+}
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -50,19 +64,32 @@ Widget svgFromAsset(
 /// should be placed in a context setting layout constraints tightly. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-Widget svgFromBytes(
-  Uint8List bytes, {
-  Alignment alignment = Alignment.center,
-  bool excludeFromSemantics = false,
-  BoxFit fit = BoxFit.cover,
-  double? height,
-  Key? key,
-  String? package,
-  WidgetBuilder? placeholderBuilder,
-  String? semanticsLabel,
-  double? width,
-}) =>
-    throw UnimplementedError();
+class SvgFromBytes extends StatelessWidget {
+  final Uint8List bytes;
+  final Alignment alignment;
+  final bool excludeFromSemantics;
+  final BoxFit fit;
+  final double? height;
+  final String? package;
+  final WidgetBuilder? placeholderBuilder;
+  final String? semanticsLabel;
+  final double? width;
+  const SvgFromBytes({
+    Key? key,
+    required this.bytes,
+    this.alignment = Alignment.center,
+    this.excludeFromSemantics = false,
+    this.fit = BoxFit.cover,
+    this.height,
+    this.package,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.width,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => throw UnimplementedError();
+}
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -70,15 +97,27 @@ Widget svgFromBytes(
 /// should be placed in a context setting layout constraints tightly. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-Widget svgFromFile(
-  File file, {
-  Key? key,
-  Alignment alignment = Alignment.center,
-  bool excludeFromSemantics = false,
-  BoxFit fit = BoxFit.cover,
-  double? width,
-  double? height,
-  WidgetBuilder? placeholderBuilder,
-  String? semanticsLabel,
-}) =>
-    throw UnimplementedError();
+class SvgFromFile extends StatelessWidget {
+  final File file;
+  final Alignment alignment;
+  final bool excludeFromSemantics;
+  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final WidgetBuilder? placeholderBuilder;
+  final String? semanticsLabel;
+  const SvgFromFile({
+    Key? key,
+    required this.file,
+    this.alignment = Alignment.center,
+    this.excludeFromSemantics = false,
+    this.fit = BoxFit.cover,
+    this.width,
+    this.height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => throw UnimplementedError();
+}

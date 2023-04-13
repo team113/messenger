@@ -103,8 +103,8 @@ class ChatInfoView extends StatelessWidget {
                               ),
                               if (c.chat?.chat.value.muted != null) ...[
                                 const SizedBox(width: 5),
-                                SvgLoader.asset(
-                                  'assets/icons/muted.svg',
+                                const AssetWidget(
+                                  asset: 'assets/icons/muted.svg',
                                   width: 19.99 * 0.6,
                                   height: 15 * 0.6,
                                 ),
@@ -126,8 +126,8 @@ class ChatInfoView extends StatelessWidget {
                   onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat.svg',
+                    child: const AssetWidget(
+                      asset: 'assets/icons/chat.svg',
                       width: 20.12,
                       height: 21.62,
                     ),
@@ -138,8 +138,8 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
+                      child: const AssetWidget(
+                        asset: 'assets/icons/chat_video_call.svg',
                         height: 17,
                       ),
                     ),
@@ -147,8 +147,8 @@ class ChatInfoView extends StatelessWidget {
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
+                    child: const AssetWidget(
+                      asset: 'assets/icons/chat_audio_call.svg',
                       height: 19,
                     ),
                   ),
@@ -168,9 +168,9 @@ class ChatInfoView extends StatelessWidget {
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
-                              child: Center(
-                                child: SvgLoader.asset(
-                                  'assets/icons/call_end.svg',
+                              child: const Center(
+                                child: AssetWidget(
+                                  asset: 'assets/icons/call_end.svg',
                                   width: 22,
                                   height: 22,
                                 ),
@@ -187,9 +187,9 @@ class ChatInfoView extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.secondary,
                                 shape: BoxShape.circle,
                               ),
-                              child: Center(
-                                child: SvgLoader.asset(
-                                  'assets/icons/audio_call_start.svg',
+                              child: const Center(
+                                child: AssetWidget(
+                                  asset: 'assets/icons/audio_call_start.svg',
                                   width: 10,
                                   height: 10,
                                 ),
@@ -522,7 +522,8 @@ class _NameWidget extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
+                    child: const AssetWidget(
+                        asset: 'assets/icons/copy.svg', height: 15),
                   ),
                 ),
         ),
@@ -565,8 +566,8 @@ class _LinkWidget extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
+                      child: const AssetWidget(
+                        asset: 'assets/icons/copy.svg',
                         height: 15,
                       ),
                     ),
@@ -679,9 +680,9 @@ class _MembersWidget extends StatelessWidget {
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        child: Center(
-                          child: SvgLoader.asset(
-                            'assets/icons/call_end.svg',
+                        child: const Center(
+                          child: AssetWidget(
+                            asset: 'assets/icons/call_end.svg',
                             width: 22,
                             height: 22,
                           ),
@@ -695,12 +696,12 @@ class _MembersWidget extends StatelessWidget {
                       child: InkWell(
                         onTap: () => c.redialChatCallMember(e.id),
                         borderRadius: BorderRadius.circular(60),
-                        child: SizedBox(
+                        child: const SizedBox(
                           width: 22,
                           height: 22,
                           child: Center(
-                            child: SvgLoader.asset(
-                              'assets/icons/audio_call_start.svg',
+                            child: AssetWidget(
+                              asset: 'assets/icons/audio_call_start.svg',
                               width: 10,
                               height: 10,
                             ),
@@ -725,8 +726,8 @@ class _MembersWidget extends StatelessWidget {
                   WidgetButton(
                     key: const Key('DeleteMemberButton'),
                     onPressed: () => removeChatMember(c, context, e),
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
+                    child: const AssetWidget(
+                      asset: 'assets/icons/delete.svg',
                       height: 14 * 1.5,
                     ),
                   ),
@@ -796,7 +797,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -816,7 +818,8 @@ class _ActionsWidget extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  child: const AssetWidget(
+                      asset: 'assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -836,13 +839,13 @@ class _ActionsWidget extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: muted
-                      ? SvgLoader.asset(
-                          'assets/icons/btn_mute.svg',
+                      ? const AssetWidget(
+                          asset: 'assets/icons/btn_mute.svg',
                           width: 18.68,
                           height: 15,
                         )
-                      : SvgLoader.asset(
-                          'assets/icons/btn_unmute.svg',
+                      : const AssetWidget(
+                          asset: 'assets/icons/btn_unmute.svg',
                           width: 17.86,
                           height: 15,
                         ),
@@ -861,7 +864,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -877,7 +881,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -892,7 +897,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -907,7 +913,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -922,7 +929,8 @@ class _ActionsWidget extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: const AssetWidget(
+                    asset: 'assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),

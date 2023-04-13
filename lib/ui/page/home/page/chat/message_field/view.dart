@@ -258,12 +258,14 @@ class MessageFieldView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                ? AssetWidget(
+                    asset:
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                : AssetWidget(
+                    asset:
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
@@ -302,7 +304,8 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgLoader.asset('assets/icons/edit.svg', width: 17, height: 17),
+          const AssetWidget(
+              asset: 'assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -421,8 +424,8 @@ class MessageFieldView extends StatelessWidget {
                         color: style.cardColor,
                       ),
                       alignment: Alignment.center,
-                      child: SvgLoader.asset(
-                        'assets/icons/close_primary.svg',
+                      child: const AssetWidget(
+                        asset: 'assets/icons/close_primary.svg',
                         width: 7,
                         height: 7,
                       ),
@@ -960,12 +963,12 @@ class _BuildField extends StatelessWidget {
                         );
                       }
                 : null,
-            child: SizedBox(
+            child: const SizedBox(
               width: 56,
               height: 56,
               child: Center(
-                child: SvgLoader.asset(
-                  'assets/icons/attach.svg',
+                child: AssetWidget(
+                  asset: 'assets/icons/attach.svg',
                   height: 22,
                   width: 22,
                 ),
@@ -1009,14 +1012,14 @@ class _BuildField extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: 300.milliseconds,
                       child: c.forwarding.value
-                          ? SvgLoader.asset(
-                              'assets/icons/forward.svg',
+                          ? const AssetWidget(
+                              asset: 'assets/icons/forward.svg',
                               width: 26,
                               height: 22,
                             )
-                          : SvgLoader.asset(
+                          : AssetWidget(
                               key: sendKey ?? const Key('Send'),
-                              'assets/icons/send.svg',
+                              asset: 'assets/icons/send.svg',
                               height: 22.85,
                               width: 25.18,
                             ),
@@ -1117,8 +1120,8 @@ class MessageFieldAttachment extends StatelessWidget {
                               color: style.cardColor,
                             ),
                             alignment: Alignment.center,
-                            child: SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
+                            child: const AssetWidget(
+                              asset: 'assets/icons/close_primary.svg',
                               width: 7,
                               height: 7,
                             ),
