@@ -60,8 +60,8 @@ class AssetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgFromAsset(
-      asset: asset,
+    return svgFromAsset(
+      asset,
       key: key,
       alignment: alignment,
       fit: fit,
@@ -104,8 +104,8 @@ class BytesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgFromBytes(
-      bytes: bytes,
+    return svgFromBytes(
+      bytes,
       key: key,
       alignment: Alignment.center,
       fit: fit,
@@ -146,8 +146,8 @@ class FileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgFromFile(
-      file: file,
+    return svgFromFile(
+      file,
       key: key,
       alignment: Alignment.center,
       excludeFromSemantics: excludeFromSemantics,
