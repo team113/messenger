@@ -213,7 +213,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.forwards.first.value, widget.me);
+      return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
     }
@@ -521,7 +521,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: () => widget.onForwardedTap?.call(quote),
+            onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
@@ -556,15 +556,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   children: [
                                     Transform.scale(
                                       scaleX: -1,
-                                      child: Icon(Icons.reply,
-                                          size: 17, color: color),
+                                      child: Icon(
+                                        Icons.reply,
+                                        size: 17,
+                                        color: color,
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
                                     Flexible(
-                                      child: Text(
+                                      child: SelectionText(
                                         snapshot.data?.user.value.name?.val ??
                                             snapshot.data?.user.value.num.val ??
                                             'dot'.l10n * 3,
+                                        selectable:
+                                            PlatformUtils.isDesktop || menu,
+                                        onChanged: (a) => _selection = a,
+                                        onSelecting: widget.onSelecting,
                                         style: style.boldBody
                                             .copyWith(color: color),
                                       ),
@@ -589,7 +596,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ],
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                     if (timestamp)
@@ -1035,6 +1042,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = widget.authorId == widget.me &&
                                     !widget.chat.value!.isRead(
                                       widget.forwards.first.value,
@@ -1044,18 +1052,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

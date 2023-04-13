@@ -214,14 +214,16 @@ class ChatInfoView extends StatelessWidget {
                       _name(c, context),
                     ],
                   ),
-                  Block(
-                    title: 'label_chat_members'.l10n,
-                    children: [_members(c, context)],
-                  ),
-                  Block(
-                    title: 'label_direct_chat_link'.l10n,
-                    children: [_link(c, context)],
-                  ),
+                  if (!c.isMonolog) ...[
+                    Block(
+                      title: 'label_chat_members'.l10n,
+                      children: [_members(c, context)],
+                    ),
+                    Block(
+                      title: 'label_direct_chat_link'.l10n,
+                      children: [_link(c, context)],
+                    ),
+                  ],
                   Block(
                     title: 'label_actions'.l10n,
                     children: [_actions(c, context)],
@@ -631,30 +633,11 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool favorited = c.chat?.chat.value.favoritePosition != null;
-
-            return FieldButton(
-              onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-              text: favorited
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
+        if (!c.isMonolog) ...[
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_add_to_contacts'.l10n,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: Transform.scale(
@@ -663,41 +646,74 @@ class ChatInfoView extends StatelessWidget {
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool muted = c.chat?.chat.value.muted != null;
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (!c.isLocal) ...[
+          _dense(
+            Obx(() {
+              final bool favorited =
+                  c.chat?.chat.value.favoritePosition != null;
 
-            return FieldButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: muted
-                      ? SvgLoader.asset(
-                          'assets/icons/btn_mute.svg',
-                          width: 18.68,
-                          height: 15,
-                        )
-                      : SvgLoader.asset(
-                          'assets/icons/btn_unmute.svg',
-                          width: 17.86,
-                          height: 15,
-                        ),
+              return FieldButton(
+                key: Key(
+                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
                 ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
+                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+                text: favorited
+                    ? 'btn_delete_from_favorites'.l10n
+                    : 'btn_add_to_favorites'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child:
+                        SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (!c.isMonolog) ...[
+          _dense(
+            Obx(() {
+              final bool muted = c.chat?.chat.value.muted != null;
+
+              return FieldButton(
+                onPressed: muted ? c.unmuteChat : c.muteChat,
+                text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: muted
+                        ? SvgLoader.asset(
+                            'assets/icons/btn_mute.svg',
+                            width: 18.68,
+                            height: 15,
+                          )
+                        : SvgLoader.asset(
+                            'assets/icons/btn_unmute.svg',
+                            width: 17.86,
+                            height: 15,
+                          ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+        ],
         _dense(
           FieldButton(
+            key: const Key('HideChatButton'),
             onPressed: () => _hideChat(c, context),
             text: 'btn_hide_chat'.l10n,
             trailing: Transform.translate(
@@ -726,51 +742,53 @@ class ChatInfoView extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _leaveGroup(c, context),
-            text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog) ...[
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () => _leaveGroup(c, context),
+              text: 'btn_leave_group'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _blacklistChat(c, context),
-            text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () => _blacklistChat(c, context),
+              text: 'btn_block'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_report'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
+        ],
       ],
     );
   }

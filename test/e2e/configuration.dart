@@ -32,6 +32,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/availability_status.dart';
 import 'parameters/download_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
@@ -58,11 +59,13 @@ import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
+import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
@@ -76,6 +79,7 @@ import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
+import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
@@ -135,12 +139,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        iAmInMonolog,
         iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
+        monologAvailability,
         noInternetConnection,
         openChatInfo,
         pasteToField,
@@ -154,12 +160,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatMessages,
-        seeChatPosition,
         seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
         seeDraftInDialog,
+        seeFavoriteChatPosition,
+        seeMonologAsFavorite,
         seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
@@ -212,6 +219,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        AvailabilityStatusParameter(),
         DownloadStatusParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),

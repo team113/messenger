@@ -421,7 +421,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me);
+      return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
@@ -538,6 +538,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
             return Text('label_group_created'.l10n);
           });
+        } else if (widget.chat.value?.isMonolog == true) {
+          content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -859,33 +861,49 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final List<Widget> children = [
           if (msg.repliesTo.isNotEmpty)
             ...msg.repliesTo.mapIndexed((i, e) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: e.author == widget.me
-                      ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
-                      : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
-                  borderRadius: i == 0
-                      ? const BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                        )
-                      : BorderRadius.zero,
-                ),
-                child: AnimatedOpacity(
+              return SelectionContainer.disabled(
+                child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
-                  opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(
-                      e,
-                      timestamp: i == msg.repliesTo.length - 1 &&
-                          _text == null &&
-                          msg.attachments.isEmpty,
+                  decoration: BoxDecoration(
+                    color: e.author == widget.me
+                        ? _isRead || !_fromMe
+                            ? const Color(0xFFDBEAFD)
+                            : const Color(0xFFE6F1FE)
+                        : _isRead || !_fromMe
+                            ? const Color(0xFFF9F9F9)
+                            : const Color(0xFFFFFFFF),
+                    borderRadius: i == 0
+                        ? BorderRadius.only(
+                            topLeft: const Radius.circular(15),
+                            topRight: const Radius.circular(15),
+                            bottomLeft:
+                                msg.repliesTo.length == 1 && _text == null
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                            bottomRight:
+                                msg.repliesTo.length == 1 && _text == null
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                          )
+                        : i == msg.repliesTo.length - 1 && _text == null
+                            ? const BorderRadius.only(
+                                bottomLeft: Radius.circular(15),
+                                bottomRight: Radius.circular(15),
+                              )
+                            : BorderRadius.zero,
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.55,
+                    child: WidgetButton(
+                      onPressed:
+                          menu ? null : () => widget.onRepliedTap?.call(e),
+                      child: _repliedMessage(
+                        e,
+                        timestamp: i == msg.repliesTo.length - 1 &&
+                            _text == null &&
+                            msg.attachments.isEmpty,
+                      ),
                     ),
                   ),
                 ),
@@ -1661,7 +1679,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           child:
                               AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )
-                      : const SizedBox.square(dimension: 34),
+                      : const SizedBox(width: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
@@ -1760,6 +1778,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&
@@ -1768,18 +1787,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

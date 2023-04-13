@@ -147,7 +147,7 @@ class ChatWorker extends DisposableService {
           _notificationService.show(
             c.title.value,
             body: 'label_you_were_added_to_group'.l10n,
-            payload: '${Routes.chat}/${c.chat.value.id}',
+            payload: '${Routes.chats}/${c.chat.value.id}',
             icon: c.avatar.value?.original.url,
             tag: c.chat.value.id.val,
           );
@@ -164,7 +164,7 @@ class ChatWorker extends DisposableService {
           await _notificationService.show(
             c.title.value,
             body: body,
-            payload: '${Routes.chat}/${c.chat.value.id}',
+            payload: '${Routes.chats}/${c.chat.value.id}',
             icon: c.avatar.value?.original.url,
             tag: tag,
           );
