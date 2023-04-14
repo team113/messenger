@@ -15,43 +15,42 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-import '../configuration.dart';
-import '../parameters/favorite_status.dart';
+import '../parameters/availability_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is displayed with the
-/// specified [FavoriteStatus].
+/// Indicates whether a [Chat]-monolog has the specified [AvailabilityStatus].
 ///
 /// Examples:
-/// - Then I see "Example" chat as favorite
-/// - Then I see "Example" chat as unfavorite
-final StepDefinitionGeneric seeChatAsFavorite =
-    then2<String, FavoriteStatus, CustomWorld>(
-  'I see {string} chat as {favorite}',
-  (name, status, context) async {
+/// - Then monolog is indeed local
+/// - Then monolog is indeed remote
+final StepDefinitionGeneric monologAvailability =
+    then1<AvailabilityStatus, CustomWorld>(
+  'monolog is indeed {availability}',
+  (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
+        final provider = GraphQlProvider();
+        final AuthService authService = Get.find();
+        provider.token = authService.credentials.value!.session.token;
+
+        final isLocal = (await provider.getMonolog()) == null;
 
         switch (status) {
-          case FavoriteStatus.favorite:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
-            );
+          case AvailabilityStatus.local:
+            return isLocal;
 
-          case FavoriteStatus.unfavorite:
-            return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
-            );
+          case AvailabilityStatus.remote:
+            return !isLocal;
         }
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

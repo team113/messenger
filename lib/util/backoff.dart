@@ -20,6 +20,8 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 
+import 'log.dart';
+
 /// Backoff algorithm helper.
 class Backoff {
   /// Minimal [Duration] of the backoff.
@@ -52,6 +54,8 @@ class Backoff {
             } else if (backoff < _maxBackoff) {
               backoff *= 2;
             }
+
+            Log.error(e);
           }
         }
       }),
