@@ -359,7 +359,7 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    var message = find.text('edit message', skipOffstage: false);
+    var message = find.text('edit message￼', skipOffstage: false);
     expect(message, findsOneWidget);
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 10));
@@ -377,10 +377,10 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(
-      find.text('edit message', skipOffstage: false),
+      find.text('edit message￼', skipOffstage: false),
       findsNothing,
     );
-    expect(find.text('new text', skipOffstage: false), findsOneWidget);
+    expect(find.text('new text￼', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

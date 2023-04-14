@@ -946,6 +946,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
+                  key: Key('Text_${widget.item.value.id}'),
                   TextSpan(
                     children: [
                       _text!,

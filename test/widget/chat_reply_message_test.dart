@@ -444,7 +444,7 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
-    var message = find.text('text message', skipOffstage: false);
+    var message = find.text('text message￼', skipOffstage: false);
     expect(message, findsOneWidget);
 
     await tester.longPress(message);
@@ -469,7 +469,7 @@ void main() async {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('reply message', skipOffstage: false), findsOneWidget);
+    expect(find.text('reply message￼', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

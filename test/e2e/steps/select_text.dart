@@ -57,7 +57,7 @@ final StepDefinitionGeneric selectMessageText =
         of: finder,
         matching: find.byType(RichText, skipOffstage: false),
         skipOffstage: false,
-      ),
+      ).first,
     );
 
     // Returns an [Offset] of the provided [paragraph].
