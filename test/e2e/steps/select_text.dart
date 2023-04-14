@@ -53,11 +53,13 @@ final StepDefinitionGeneric selectMessageText =
         context.world.appDriver.findByKeySkipOffstage('Text_${message.id}');
     final RenderParagraph paragraph =
         context.world.appDriver.nativeDriver.renderObject<RenderParagraph>(
-      find.descendant(
-        of: finder,
-        matching: find.byType(RichText, skipOffstage: false),
-        skipOffstage: false,
-      ).first,
+      find
+          .descendant(
+            of: finder,
+            matching: find.byType(RichText, skipOffstage: false),
+            skipOffstage: false,
+          )
+          .first,
     );
 
     // Returns an [Offset] of the provided [paragraph].
