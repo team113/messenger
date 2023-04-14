@@ -259,6 +259,23 @@ class WebUtils {
     }
   }
 
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static set credentialsUpdating(bool updating) {
+    html.window.localStorage['credentialsUpdating'] = updating.toString();
+  }
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static bool get credentialsUpdating {
+    final String? updating = html.window.localStorage['credentialsUpdating'];
+
+    if (updating == null) {
+      return false;
+    } else {
+      return updating.toLowerCase() == 'true';
+    }
+  }
+
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 

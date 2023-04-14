@@ -195,15 +195,6 @@
           );
         });
       }
-    } else {
-      window.addEventListener('beforeunload', function (e) {
-        window.localStorage.removeItem('credentials');
-        for (var key in localStorage) {
-          if (key.startsWith('call_')) {
-            window.localStorage.removeItem(key);
-          }
-        }
-      });
     }
   </script>
 </head>
