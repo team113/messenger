@@ -18,6 +18,7 @@
 		A07034EC7A46B97F7C1A0FB7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99F473182A6514BAB22E2C8C /* GoogleService-Info.plist */; };
 		DD6533922924DC25005702E0 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = DD6533912924DC25005702E0 /* NotificationService.m */; };
 		DD6533962924DC25005702E0 /* ImageNotification.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DD65338E2924DC25005702E0 /* ImageNotification.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DDBE78E829E823BE009457F1 /* notification.caf in Resources */ = {isa = PBXBuildFile; fileRef = DDBE78E729E823BE009457F1 /* notification.caf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,7 @@
 		DD6533902924DC25005702E0 /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		DD6533912924DC25005702E0 /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		DD6533932924DC25005702E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DDBE78E729E823BE009457F1 /* notification.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = notification.caf; sourceTree = "<group>"; };
 		EF889A8C1D0D74BFB9E8D60F /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -140,6 +142,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				DDBE78E729E823BE009457F1 /* notification.caf */,
 				DD0F942D292542BF00CDD472 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -276,6 +279,7 @@
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
+				DDBE78E829E823BE009457F1 /* notification.caf in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				A07034EC7A46B97F7C1A0FB7 /* GoogleService-Info.plist in Resources */,
 			);

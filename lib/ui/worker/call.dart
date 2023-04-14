@@ -134,26 +134,28 @@ class CallWorker extends DisposableService {
 
       switch (event.op) {
         case OperationKind.added:
-          OngoingCall c = event.value!.value;
+          final OngoingCall c = event.value!.value;
 
-          // Play a sound of an incoming or outgoing call.
-          bool calling = (_callService.me == c.caller?.id ||
-                  c.state.value == OngoingCallState.local) &&
-              c.conversationStartedAt == null;
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
+            // Indicator whether it is us who are calling.
+            final bool outgoing = (_callService.me == c.caller?.id ||
+                    c.state.value == OngoingCallState.local) &&
+                c.conversationStartedAt == null;
+
             final SharedPreferences prefs =
                 await SharedPreferences.getInstance();
+
             if (prefs.containsKey('answeredCall')) {
               _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
               prefs.remove('answeredCall');
             }
 
-            bool isInForeground = router.lifecycle.value.inForeground;
+            final bool isInForeground = router.lifecycle.value.inForeground;
             if (isInForeground && _answeredCalls.contains(c.chatId.value)) {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
-            } else if (calling) {
+            } else if (outgoing) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play('chinese.mp3', fade: true);
@@ -175,9 +177,8 @@ class CallWorker extends DisposableService {
                 // No-op.
               });
 
-              // Show a notification of an incoming call if the current device
-              // is not support push notifications.
-              if (!calling && !PlatformUtils.pushNotifications) {
+              // Show a notification of an incoming call.
+              if (!outgoing && !PlatformUtils.pushNotifications) {
                 if (_myUser.value?.muted == null) {
                   _chatService.get(c.chatId.value).then((RxChat? chat) {
                     if (chat?.chat.value.muted == null) {

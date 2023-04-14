@@ -138,7 +138,7 @@ class NotificationService extends DisposableService {
     // don't show a local notification.
     if (_focused && payload == router.route) return;
 
-    // On Android sound will be played during showing the local notification.
+    // Android plays the notification sound itself when showing a notification.
     if (playSound && !PlatformUtils.isAndroid) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
@@ -154,37 +154,38 @@ class NotificationService extends DisposableService {
     }
 
     Uint8List? imageBytes;
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb && image != null) {
-      try {
-        Response response = await PlatformUtils.dio.get(
-          image,
-          options: Options(responseType: ResponseType.bytes),
-        );
-
-        if (response.statusCode == 200) {
-          imageBytes = response.data;
-        }
-      } catch (_) {
-        // No-op.
-      }
-    }
-
     String? imagePath;
-    if ((PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
-        !PlatformUtils.isWeb &&
-        image != null) {
-      try {
-        File? file = await PlatformUtils.download(
-          image,
-          'notification_image_${DateTime.now()}',
-          null,
-        );
 
-        if (file != null) {
-          imagePath = file.path;
+    // In order to show an image in local notification, Android requires bytes
+    // of that image fetched, while iOS and macOS require path to it.
+    if (!PlatformUtils.isWeb && image != null) {
+      if (PlatformUtils.isAndroid) {
+        try {
+          final Response response = await PlatformUtils.dio.get(
+            image,
+            options: Options(responseType: ResponseType.bytes),
+          );
+
+          if (response.statusCode == 200) {
+            imageBytes = response.data;
+          }
+        } catch (_) {
+          // No-op.
         }
-      } catch (_) {
-        // No-op.
+      } else if (PlatformUtils.isIOS || PlatformUtils.isMacOS) {
+        try {
+          final File? file = await PlatformUtils.download(
+            image,
+            'notification_image_${DateTime.now()}',
+            null,
+          );
+
+          if (file != null) {
+            imagePath = file.path;
+          }
+        } catch (_) {
+          // No-op.
+        }
       }
     }
 
@@ -214,11 +215,13 @@ class NotificationService extends DisposableService {
           ),
           // TODO: Setup custom notification sound for iOS.
           iOS: DarwinNotificationDetails(
+            sound: 'notification.caf',
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath)
             ],
           ),
           macOS: DarwinNotificationDetails(
+            sound: 'notification.caf',
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath)
             ],
@@ -230,14 +233,15 @@ class NotificationService extends DisposableService {
   }
 
   /// Updates the [_language] and resubscribes for FCM notifications.
-  updateLanguage(String? language) async {
+  void updateLanguage(String? language) async {
     if (_language != language) {
       _language = language;
+
       if (_token != null) {
         await _graphQlProvider
             .unregisterFcmDevice(FcmRegistrationToken(_token!));
 
-        _graphQlProvider.registerFcmDevice(
+        await _graphQlProvider.registerFcmDevice(
           FcmRegistrationToken(_token!),
           _language,
         );
@@ -306,7 +310,8 @@ class NotificationService extends DisposableService {
     if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
       if (onFcmBackgroundNotificationResponse != null) {
         FirebaseMessaging.onBackgroundMessage(
-            onFcmBackgroundNotificationResponse);
+          onFcmBackgroundNotificationResponse,
+        );
       }
       FirebaseMessaging.onMessageOpenedApp.listen(onFcmNotificationResponse);
 
@@ -324,7 +329,7 @@ class NotificationService extends DisposableService {
           show(
             event.notification!.title!,
             body: event.notification!.body,
-            payload: '${Routes.chat}/${event.data['chatId']}',
+            payload: '${Routes.chats}/${event.data['chatId']}',
             image: event.notification!.android?.imageUrl,
           );
         }
@@ -346,13 +351,13 @@ class NotificationService extends DisposableService {
         }
 
         _onTokenRefresh =
-            FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+            FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
           if (_token != null) {
             await _graphQlProvider
                 .unregisterFcmDevice(FcmRegistrationToken(_token!));
           }
 
-          _token = fcmToken;
+          _token = token;
           _graphQlProvider.registerFcmDevice(
             FcmRegistrationToken(_token!),
             _language,
