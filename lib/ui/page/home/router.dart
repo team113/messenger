@@ -57,33 +57,33 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.me,
           child: MyProfileView(),
         ));
-      } else if (route.startsWith('${Routes.chat}/') &&
+      } else if (route.startsWith('${Routes.chats}/') &&
           route.endsWith(Routes.chatInfo)) {
         String id = route
-            .replaceFirst('${Routes.chat}/', '')
+            .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
         pages.add(_CustomPage(
           key: ValueKey('ChatInfoPage$id'),
-          name: '${Routes.chat}/$id${Routes.chatInfo}',
+          name: '${Routes.chats}/$id${Routes.chatInfo}',
           child: ChatInfoView(ChatId(id)),
         ));
-      } else if (route.startsWith('${Routes.chat}/')) {
+      } else if (route.startsWith('${Routes.chats}/')) {
         String id = route
-            .replaceFirst('${Routes.chat}/', '')
+            .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
         pages.add(_CustomPage(
           key: ValueKey('ChatPage$id'),
-          name: '${Routes.chat}/$id',
+          name: '${Routes.chats}/$id',
           child: ChatView(
             ChatId(id),
             itemId: router.arguments?['itemId'] as ChatItemId?,
           ),
         ));
-      } else if (route.startsWith('${Routes.contact}/')) {
-        final id = route.replaceFirst('${Routes.contact}/', '');
+      } else if (route.startsWith('${Routes.contacts}/')) {
+        final id = route.replaceFirst('${Routes.contacts}/', '');
         pages.add(_CustomPage(
           key: ValueKey('ContactPage$id'),
-          name: '${Routes.contact}/$id',
+          name: '${Routes.contacts}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {

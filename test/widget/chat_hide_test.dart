@@ -47,6 +47,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -60,7 +61,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/view.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -125,6 +125,12 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((realInvocation) => const Stream.empty());
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
   await authService.init();
@@ -163,6 +169,8 @@ void main() async {
   await blacklistedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -302,6 +310,8 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -314,7 +324,9 @@ void main() async {
 
     expect(find.text('chatname'), findsOneWidget);
 
-    await tester.longPress(find.byType(ContextMenuRegion));
+    await tester.longPress(
+      find.byKey(const Key('Chat_0d72d245-8425-467a-9ebd-082d4f47850b')),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('ButtonHideChat')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
