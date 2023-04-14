@@ -215,4 +215,14 @@ class WebUtils {
   static void replaceState(String from, String to) {
     // No-op.
   }
+
+  /// Sets the favicon being used to an alert style.
+  static void setAlertFavicon() {
+    // No-op.
+  }
+
+  /// Sets the favicon being used to the default style.
+  static void setDefaultFavicon() {
+    // No-op.
+  }
 }
