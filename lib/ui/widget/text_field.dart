@@ -32,33 +32,33 @@ import 'svg/svg.dart';
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
   const ReactiveTextField({
-    Key? key,
+    super.key,
     required this.state,
-    this.enabled = true,
-    this.style,
-    this.type,
-    this.icon,
-    this.suffix,
-    this.prefix,
-    this.padding,
-    this.trailing,
-    this.label,
-    this.hint,
-    this.onChanged,
-    this.formatters,
     this.dense,
-    this.obscure = false,
-    this.minLines,
-    this.maxLines = 1,
-    this.textInputAction,
-    this.onSuffixPressed,
-    this.prefixText,
-    this.treatErrorAsStatus = true,
-    this.filled,
-    this.textAlign = TextAlign.start,
+    this.enabled = true,
     this.fillColor = Colors.white,
+    this.filled,
+    this.formatters,
+    this.hint,
+    this.icon,
+    this.label,
     this.maxLength,
-  }) : super(key: key);
+    this.maxLines = 1,
+    this.minLines,
+    this.obscure = false,
+    this.onChanged,
+    this.onSuffixPressed,
+    this.padding,
+    this.prefix,
+    this.prefixText,
+    this.style,
+    this.suffix,
+    this.textAlign = TextAlign.start,
+    this.textInputAction,
+    this.trailing,
+    this.treatErrorAsStatus = true,
+    this.type,
+  });
 
   /// Reactive state of this [ReactiveTextField].
   final ReactiveFieldState state;
@@ -410,7 +410,7 @@ class TextFieldState extends ReactiveFieldState {
         changed.value = controller.text != (_previousSubmit ?? '');
 
         _debounceTimer?.cancel();
-        _debounceTimer = Timer(timeout, () {
+        _debounceTimer = Timer(debounce, () {
           if (_previousText != controller.text) {
             _previousText = controller.text;
             onChanged?.call(this);
@@ -434,6 +434,9 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
+
+  /// [Duration] to debounce the [onChanged] calls with.
+  static const Duration debounce = Duration(milliseconds: 500);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -481,9 +484,6 @@ class TextFieldState extends ReactiveFieldState {
 
   /// [Timer] debouncing the [onChanged] callback.
   Timer? _debounceTimer;
-
-  /// [Duration] of the [_debounceTimer].
-  Duration timeout = const Duration(milliseconds: 500);
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;

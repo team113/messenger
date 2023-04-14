@@ -19,34 +19,37 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:mockito/mockito.dart';
 
-class MockFunction extends Mock {
-  void call(TextFieldState state);
-}
-
 void main() {
-  group('TextFieldState tests', () {
-    test('onChanged called with right timeout', () async {
-      final mockFunction = MockFunction();
-      final state = TextFieldState(
-        onChanged: mockFunction,
-      );
-      state.controller.text = 'zhorenty';
-      verifyNever(mockFunction.call(state));
+  group('TextFieldState works correctly', () {
+    // Dummy callback to ensure it's being called.
+    final _Mock mock = _Mock();
 
-      await Future.delayed(state.timeout);
+    test('TextFieldState.onChanged has correct debounce', () async {
+      final TextFieldState state = TextFieldState(onChanged: mock.dummy)
+        ..controller.text = 'zhorenty';
+
+      verifyNever(mock.dummy.call(state));
+
+      await Future.delayed(TextFieldState.debounce);
+
       expect(state.changed.value, true);
       expect(state.controller.text, 'zhorenty');
-      verify(mockFunction.call(state)).called(1);
+
+      verify(mock.dummy.call(state)).called(1);
     });
 
-    test('onSubmitted called when TextFieldState.submit is called', () {
-      final mockFunction = MockFunction();
-      final state = TextFieldState(
-        onSubmitted: mockFunction,
-      );
-      state.controller.text = 'zhorenty';
-      state.submit();
-      verify(mockFunction.call(state)).called(1);
+    test('TextFieldState.onSubmitted is called', () {
+      final TextFieldState state = TextFieldState(onSubmitted: mock.dummy)
+        ..controller.text = 'zhorenty'
+        ..submit();
+
+      verify(mock.dummy.call(state)).called(1);
     });
   });
+}
+
+/// [Mock] for verifying its [dummy] method being called or not.
+class _Mock extends Mock {
+  /// Dummy method to ensure it's being called.
+  void dummy(TextFieldState state);
 }
