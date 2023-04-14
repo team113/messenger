@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -42,12 +41,8 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.onBackground);
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -72,7 +67,7 @@ class ChangePasswordView extends StatelessWidget {
                             : 'label_password_changed'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: style.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -82,10 +77,10 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: thin?.copyWith(color: style.onPrimary),
+                        style: thin?.copyWith(color: Colors.white),
                       ),
                       onPressed: Navigator.of(context).pop,
-                      color: style.secondary,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -168,12 +163,11 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
-                            color:
-                                enabled ? style.onPrimary : style.onBackground,
+                            color: enabled ? Colors.white : Colors.black,
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,
-                        color: style.secondary,
+                        color: Theme.of(context).colorScheme.secondary,
                       );
                     }),
                   ],

@@ -55,8 +55,6 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
-
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
@@ -93,7 +91,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.onSecondaryOpacity30,
+                color: const Color(0x4D165084),
               ),
             ),
           );
@@ -224,7 +222,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: style.onBackgroundOpacity60,
+                color: const Color(0x70000000),
               ),
             );
           }
@@ -303,11 +301,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                       : (d) => c.keepUi(),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: style.transparent,
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
+                      boxShadow: const [
                         CustomBoxShadow(
-                          color: style.onBackgroundOpacity81,
+                          color: Color(0x33000000),
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -320,7 +318,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: style.onSecondaryOpacity20,
+                          color: const Color(0x301D6AAE),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -411,11 +409,11 @@ Widget desktopCall(CallController c, BuildContext context) {
               onExit: enabled ? (d) => c.keepUi() : null,
               child: Container(
                 decoration: BoxDecoration(
-                  color: style.transparent,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
+                  boxShadow: const [
                     CustomBoxShadow(
-                      color: style.onBackgroundOpacity81,
+                      color: Color(0x33000000),
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -430,8 +428,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: candidate.any((e) => e?.c == c)
-                            ? style.onSecondaryOpacity90
-                            : style.onSecondaryOpacity60,
+                            ? const Color(0xE0165084)
+                            : const Color(0x9D165084),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -484,9 +482,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 11,
-                                          color: style.onPrimary,
+                                          color: Colors.white,
                                         ),
                                         textAlign: TextAlign.center,
                                       )
@@ -601,7 +599,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(color: style.onBackgroundOpacity67)
+                  ? Container(color: const Color(0x55000000))
                   : null,
             );
           }),
@@ -667,9 +665,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
+                    boxShadow: const [
                       CustomBoxShadow(
-                        color: style.onBackgroundOpacity81,
+                        color: Color(0x33000000),
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -684,7 +682,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: style.onSecondaryOpacity20,
+                        color: const Color(0x301D6AAE),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -695,7 +693,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         'label_call_title'.l10nfmt(c.titleArguments),
                         style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
-                          color: style.onPrimary,
+                          color: const Color(0xFFFFFFFF),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -857,7 +855,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Combines all the stackable content into [Scaffold].
       Widget scaffold = Scaffold(
-        backgroundColor: style.onBackground,
+        backgroundColor: Colors.black,
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -871,11 +869,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: style.transparent,
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
+                    boxShadow: const [
                       CustomBoxShadow(
-                        color: style.onBackgroundOpacity81,
+                        color: Color(0x33000000),
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1116,11 +1114,9 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return Container(
         key: const ValueKey('TitleBar'),
-        color: style.backgroundAuxiliaryLight,
+        color: const Color(0xFF162636),
         height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -1157,7 +1153,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: style.transparent,
+                            color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1198,8 +1194,6 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
-
   return Obx(() {
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
@@ -1433,7 +1427,7 @@ Widget _primaryView(CallController c) {
               duration: 200.milliseconds,
               child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
                   ? Container(
-                      color: style.onBackgroundOpacity74,
+                      color: const Color(0x40000000),
                       child: Center(
                         child: AnimatedDelayedScale(
                           duration: const Duration(milliseconds: 300),
@@ -1446,15 +1440,15 @@ Widget _primaryView(CallController c) {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: !c.minimized.value || c.fullscreen.value
-                                    ? style.onBackgroundOpacity74
-                                    : style.onBackgroundOpacity44,
+                                    ? const Color(0x40000000)
+                                    : const Color(0x90000000),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
+                              child: const Padding(
+                                padding: EdgeInsets.all(16),
                                 child: Icon(
                                   Icons.add_rounded,
                                   size: 50,
-                                  color: style.onPrimary,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
@@ -1473,8 +1467,6 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
-
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
@@ -1700,9 +1692,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     width: width,
                     height: height,
                     decoration: BoxDecoration(
-                      boxShadow: [
+                      boxShadow: const [
                         CustomBoxShadow(
-                          color: style.onBackgroundOpacity74,
+                          color: Color(0x44000000),
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -1734,14 +1726,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         borderRadius: borderRadius,
                         child: Stack(
                           children: [
-                            Container(color: style.backgroundAuxiliary),
+                            Container(color: const Color(0xFF0A1724)),
                             SvgLoader.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                            Container(color: style.onPrimaryOpacity90),
+                            Container(color: const Color(0x11FFFFFF)),
                           ],
                         ),
                       ),
@@ -2068,16 +2060,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
                                 color: PlatformUtils.isWeb
-                                    ? style.onSecondaryOpacity60
-                                    : style.onSecondaryOpacity90,
+                                    ? const Color(0x9D165084)
+                                    : const Color(0xE9165084),
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),
-                                    Expanded(
+                                    const Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style:
-                                            TextStyle(color: style.onPrimary),
+                                        style: TextStyle(color: Colors.white),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -2144,7 +2135,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
                         ? Container(
-                            color: style.onBackgroundOpacity74,
+                            color: const Color(0x40000000),
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(
@@ -2161,15 +2152,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       borderRadius: BorderRadius.circular(16),
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
-                                          ? style.onBackgroundOpacity74
-                                          : style.onBackgroundOpacity44,
+                                          ? const Color(0x40000000)
+                                          : const Color(0x90000000),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: style.onPrimary,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
@@ -2291,8 +2282,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
-
   return Obx(() {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
@@ -2351,21 +2340,21 @@ Widget _secondaryTarget(CallController c) {
                                   decoration: BoxDecoration(
                                     border: Border(
                                       left: secondaryAxis == Axis.horizontal
-                                          ? BorderSide(
-                                              color: style.primary,
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                       bottom: secondaryAxis == Axis.vertical
-                                          ? BorderSide(
-                                              color: style.primary,
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                     ),
-                                    boxShadow: [
+                                    boxShadow: const [
                                       CustomBoxShadow(
-                                        color: style.onBackgroundOpacity81,
+                                        color: Color(0x33000000),
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )
@@ -2375,8 +2364,8 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? style.onPrimaryOpacity90
-                                          : style.transparent,
+                                          ? const Color(0x10FFFFFF)
+                                          : const Color(0x00FFFFFF),
                                       child: Center(
                                         child: SizedBox(
                                           width:
@@ -2403,21 +2392,18 @@ Widget _secondaryTarget(CallController c) {
                                                     : 1,
                                                 child: Container(
                                                   decoration: BoxDecoration(
-                                                    color: style
-                                                        .onBackgroundOpacity74,
+                                                    color:
+                                                        const Color(0x40000000),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             16),
                                                   ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                      10,
-                                                    ),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.all(10),
                                                     child: Icon(
                                                       Icons.add_rounded,
                                                       size: 35,
-                                                      color: style.onPrimary,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ),

@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../widget/caption.dart';
-import '/themes.dart';
 
 /// Colors tab view of the [Routes.style] page.
 class ColorStyleTabView extends StatefulWidget {
@@ -36,48 +35,34 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     Widget color(String desc, Color color) => Column(
           children: [
             Caption(
               '${color.toHex()}, $desc',
-              color: isDarkMode ? style.onPrimary : style.onBackground,
+              color: isDarkMode ? Colors.white : Colors.black,
             ),
             _Colored(
               color: color,
-              outline: isDarkMode ? style.onPrimary : style.onBackground,
+              outline: isDarkMode ? Colors.white : Colors.black,
             )
           ],
         );
 
-    Widget avatarColors() {
-      List<Color> avatarColors = style.avatarColors;
-      return ListView.builder(
-        itemCount: avatarColors.length,
-        itemBuilder: (context, index) {
-          return SizedBox(
-            height: 138,
-            width: 100,
-            child: Column(
-              children: [
-                Caption(
-                  avatarColors[index].toHex(),
-                  color: isDarkMode ? style.onPrimary : style.onBackground,
-                ),
-                _Colored(
-                  color: avatarColors[index],
-                  outline: isDarkMode ? style.onPrimary : style.onBackground,
-                )
-              ],
+    Widget gradient(String desc, Gradient gradient) => Column(
+          children: [
+            Caption(
+              '${gradient.colors.map((e) => e.toHex())}, $desc',
+              color: isDarkMode ? Colors.white : Colors.black,
             ),
-          );
-        },
-      );
-    }
+            _Colored(
+              gradient: gradient,
+              outline: isDarkMode ? Colors.white : Colors.black,
+            )
+          ],
+        );
 
     return Scaffold(
-      backgroundColor: isDarkMode ? style.onBackground : style.onPrimary,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       body: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(8),
@@ -87,124 +72,46 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.light_mode, color: style.doNotDistrubColor),
+              const Icon(Icons.light_mode, color: Colors.orange),
               Switch(
                 value: isDarkMode,
                 onChanged: (b) => setState(() => isDarkMode = b),
               ),
-              Icon(Icons.dark_mode, color: style.primary),
+              const Icon(Icons.dark_mode, color: Colors.grey),
             ],
           ),
           color(
-            'Основной цвет текста и обводки.',
-            style.primary,
+              'background - Общий фон.', context.theme.colorScheme.background),
+          color('primary - Основной цвет текста и обводки.',
+              context.theme.colorScheme.primary),
+          color('Hover на кнопках.',
+              context.theme.colorScheme.primary.withOpacity(0.04)),
+          color('Нажатие на кнопку.',
+              context.theme.colorScheme.primary.withOpacity(0.12)),
+          color('Основной цвет текста и обводки.',
+              context.theme.colorScheme.primary),
+          gradient(
+            'Градиент кнопки начать общение.',
+            const LinearGradient(
+              colors: [Color(0xFF03A803), Color(0xFF20CD66)],
+            ),
           ),
-          color(
-            'Вторичный цвет кнопок и фона.',
-            style.secondary,
-          ),
-          color(
-            'Общий фон.',
-            style.background,
-          ),
-          color(
-            'Фон текста и обводки.',
-            style.primaryBackground,
-          ),
-          color(
-            'Цвет заднего фона звонка.',
-            style.primaryBackgroundLight,
-          ),
-          color(
-            'Цвет заднего фона аватара, кнопок звонка.',
-            style.primaryBackgroundLightest,
-          ),
-          color(
-            'Цвет колеса загрузки.',
-            style.primaryHighlight,
-          ),
-          color(
-            'Цвет кнопок навигационной панели.',
-            style.primaryHighlightDark,
-          ),
-          color(
-            'Цвет надписей и иконок над задним фоном звонка.',
-            style.primaryHighlightDarkest,
-          ),
-          color(
-            'Цвет, использующийся в левой части страницы профиля.',
-            style.onPrimary,
-          ),
-          color(
-            'Цвет выпадающего меню.',
-            style.secondaryHighlight,
-          ),
-          color(
-            'Цвет кнопок "Подробнее" и "Забыл пароль".',
-            style.secondaryHighlightShiny,
-          ),
-          color(
-            'Цвет затемнения основного вида при неактивном вызове.',
-            style.secondaryHighlightShinier,
-          ),
-          color(
-            'Цвет сообщения в чате.',
-            style.secondaryHighlightShiniest,
-          ),
-          color(
-            'Цвет кнопок в звонке.',
-            style.onSecondary,
-          ),
-          color(
-            'Цвет активного звонка.',
-            style.backgroundAuxiliary,
-          ),
-          color(
-            'Цвет фона профиля.',
-            style.backgroundAuxiliaryLight,
-          ),
-          color(
-            'Цвет отмены загрузки.',
-            style.backgroundAuxiliaryLighter,
-          ),
-          color(
-            'Цвет фона участников группы.',
-            style.backgroundAuxiliaryLightest,
-          ),
-          color(
-            'Цвет основного текста приложения.',
-            style.onBackground,
-          ),
-          color(
-            'Цвет кнопки принятия звонка.',
-            style.acceptColor,
-          ),
-          color(
-            'Цвет панели пользователя.',
-            style.acceptAuxilaryColor,
-          ),
-          color(
-            'Цвет кнопки завершения звонка.',
-            style.declineColor,
-          ),
-          color(
-            'Цвет, предупредающий о чем-либо.',
-            style.dangerColor,
-          ),
-          color(
-            'Цвет статуса "Не беспокоить".',
-            style.doNotDistrubColor,
-          ),
-          const SizedBox(height: 100),
-          Text(
-            'Цвета аватаров:',
-            style: context.textTheme.displayLarge!
-                .copyWith(color: style.onBackground),
-          ),
-          SizedBox(
-            height: 1400,
-            child: avatarColors(),
-          ),
+          color('Цвет заднего фона звонка.', const Color(0xFF444444)),
+          color('Цвет затемнения заднего фона в звонке.',
+              const Color(0x40000000)),
+          color('Цвет надписей и иконок над задним фоном звонка.',
+              const Color(0xFFBBBBBB)),
+          color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
+          color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
+          color('Цвет кнопок в звонке.', const Color(0xA6818181)),
+          color('Цвет разделителей в панели ПКМ и в панели настроек.',
+              const Color(0x99000000)),
+          color('Задний фон панели настроек.', const Color(0xCCFFFFFF)),
+          color('Задний фон панели ПКМ.', const Color(0xE6FFFFFF)),
+          color('Цвет нижней панели с кнопками в звонке.',
+              const Color(0x66000000)),
+          color('Цвет разделителей в нижней панели с кнопками в звонке.',
+              const Color(0x99FFFFFF)),
           const SizedBox(height: 60),
         ],
       ),
@@ -217,25 +124,26 @@ class _Colored extends StatelessWidget {
   const _Colored({
     Key? key,
     this.color,
+    this.gradient,
     this.outline,
   }) : super(key: key);
 
   /// Color of the container.
   final Color? color;
 
+  /// Gradient of the container.
+  final Gradient? gradient;
+
   /// Optional outline of the container.
   final Color? outline;
 
   @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        border: Border.all(color: outline ?? style.onBackground),
-      ),
-      height: 50,
-    );
-  }
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: color,
+          gradient: gradient,
+          border: Border.all(color: outline ?? Colors.black),
+        ),
+        height: 50,
+      );
 }

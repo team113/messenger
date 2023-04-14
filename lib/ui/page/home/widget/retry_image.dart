@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
-import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -187,6 +186,8 @@ class _RetryImageState extends State<RetryImage> {
 
     if (oldWidget.url != widget.url ||
         (!oldWidget.autoLoad && widget.autoLoad)) {
+      _cancelToken.cancel();
+      _cancelToken = CancelToken();
       _loadImage();
     }
 
@@ -202,8 +203,6 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     final Widget child;
 
     if (_image != null) {
@@ -272,7 +271,7 @@ class _RetryImageState extends State<RetryImage> {
                     blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
-                    color: style.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)
@@ -283,7 +282,7 @@ class _RetryImageState extends State<RetryImage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: style.onBackgroundOpacity98,
+                                  color: Colors.black.withOpacity(0.2),
                                   blurRadius: 8,
                                   blurStyle: BlurStyle.outer,
                                 ),
@@ -388,6 +387,7 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
               }
             }
 

@@ -25,7 +25,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
 
@@ -52,7 +51,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor,
+    this.hoverColor = const Color(0x00000000),
     this.axis,
     this.left,
     this.right,
@@ -160,7 +159,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   final Axis? axis;
 
   /// Hover color of the [DragTarget].
-  final Color? hoverColor;
+  final Color hoverColor;
 
   /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
   final BorderRadius? borderRadius;
@@ -412,7 +411,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor,
+    this.hoverColor = const Color(0x00000000),
     this.wrapSize,
     this.axis,
     this.width,
@@ -493,7 +492,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
-  final Color? hoverColor;
+  final Color hoverColor;
 
   /// Left position of this view.
   final double? left;
@@ -593,8 +592,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       var item = _items[index];
       return Stack(
         children: [
@@ -660,8 +657,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? style.transparent
-                            : widget.hoverColor ?? style.transparent,
+                            ? const Color(0x00000000)
+                            : widget.hoverColor,
                       ),
                     );
                   },
@@ -688,8 +685,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? style.transparent
-                            : widget.hoverColor ?? style.transparent,
+                            ? const Color(0x00000000)
+                            : widget.hoverColor,
                       ),
                     );
                   },
@@ -1063,8 +1060,6 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,
@@ -1151,7 +1146,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: style.transparent,
+                color: Colors.transparent,
               ),
             ),
             child: KeyedSubtree(

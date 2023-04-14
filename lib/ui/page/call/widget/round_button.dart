@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -34,7 +33,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.assetWidth = 60,
     this.onPressed,
     this.text,
-    this.color,
+    this.color = const Color(0x794E5A78),
     this.hint,
     this.withBlur = false,
     this.style,
@@ -105,8 +104,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
       borderRadius: BorderRadius.circular(60),
@@ -166,7 +163,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: style.onPrimary,
+                      color: Colors.white,
                       fontSize: 13,
                     ),
                 maxLines: 2,
@@ -204,8 +201,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return IgnorePointer(
         child: Stack(
           children: [
@@ -223,10 +218,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     style: context.theme.outlinedButtonTheme.style!.textStyle!
                         .resolve({MaterialState.disabled})!.copyWith(
                       fontSize: 13,
-                      color: style.onPrimary,
-                      shadows: [
-                        Shadow(blurRadius: 6, color: style.onBackground),
-                        Shadow(blurRadius: 6, color: style.onBackground),
+                      color: Colors.white,
+                      shadows: const [
+                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
+                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
                       ],
                     ),
                   ),

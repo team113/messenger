@@ -119,12 +119,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.onBackground);
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -150,7 +146,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                       style: Theme.of(context)
                           .textTheme
                           .bodyLarge
-                          ?.copyWith(color: style.onBackground, fontSize: 18),
+                          ?.copyWith(color: Colors.black, fontSize: 18),
                       child: variant.child,
                     ),
                   ),
@@ -192,7 +188,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 widget.description!,
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: style.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -222,12 +218,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: thin?.copyWith(color: style.onPrimary),
+              style: thin?.copyWith(color: Colors.white),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
             },
-            color: style.secondary,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
         const SizedBox(height: 12),

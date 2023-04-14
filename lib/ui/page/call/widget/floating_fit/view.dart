@@ -167,8 +167,6 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     BuildContext context,
     BoxConstraints constraints,
   ) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       double? left = c.left.value;
       double? top = c.top.value;
@@ -193,9 +191,9 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 height: height,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
+                  boxShadow: const [
                     CustomBoxShadow(
-                      color: style.onBackgroundOpacity74,
+                      color: Color(0x44000000),
                       blurRadius: 9,
                       blurStyle: BlurStyle.outer,
                     )
@@ -218,14 +216,14 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   children: [
-                    Container(color: style.backgroundAuxiliary),
+                    Container(color: const Color(0xFF0A1724)),
                     SvgLoader.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
                     ),
-                    Container(color: style.onPrimaryOpacity90),
+                    Container(color: const Color(0x11FFFFFF)),
                   ],
                 ),
               ),
@@ -313,7 +311,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 child: Container(
                   width: width,
                   height: height,
-                  color: style.transparent,
+                  color: Colors.transparent,
                 ),
               ),
             ),

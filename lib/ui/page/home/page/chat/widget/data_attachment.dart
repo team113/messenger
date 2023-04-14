@@ -50,8 +50,6 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       Widget leading = Container();
 
       if (e is FileAttachment) {
@@ -67,16 +65,16 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: style.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      style.secondary,
-                      style.secondary,
-                      style.backgroundAuxiliaryLighter,
+                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).colorScheme.secondary,
+                      const Color(0xFFD1E1F0),
                     ],
                     stops: [
                       0,
@@ -103,12 +101,12 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: style.secondary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(
                   Icons.insert_drive_file,
-                  color: style.onPrimary,
+                  color: Colors.white,
                   size: 16,
                 ),
               ),
@@ -124,11 +122,11 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? style.backgroundAuxiliaryLighter
-                    : style.transparent,
+                    ? const Color(0xFFD1E1F0)
+                    : const Color(0x00D1E1F0),
                 border: Border.all(
                   width: 2,
-                  color: style.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               child: Center(
@@ -149,31 +147,33 @@ class _DataAttachmentState extends State<DataAttachment> {
               dimension: 18,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor: style.onPrimary,
+                backgroundColor: Colors.white,
                 strokeWidth: 5,
               ),
             );
             break;
 
           case SendingStatus.sent:
-            leading = Icon(
+            leading = const Icon(
               Icons.check_circle,
-              key: const Key('Sent'),
+              key: Key('Sent'),
               size: 18,
-              color: style.acceptAuxilaryColor,
+              color: Colors.green,
             );
             break;
 
           case SendingStatus.error:
-            leading = Icon(
+            leading = const Icon(
               Icons.error_outline,
-              key: const Key('Error'),
+              key: Key('Error'),
               size: 18,
-              color: style.dangerColor,
+              color: Colors.red,
             );
             break;
         }
       }
+
+      final Style style = Theme.of(context).extension<Style>()!;
 
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
@@ -186,7 +186,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: style.onBackgroundOpacity98,
+                color: Colors.black.withOpacity(0.03),
               ),
               padding: const EdgeInsets.all(4),
               child: Row(
@@ -226,7 +226,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           overflow: TextOverflow.ellipsis,
                           style: style.boldBody.copyWith(
                             fontSize: 13,
-                            color: style.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],

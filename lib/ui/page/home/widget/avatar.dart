@@ -31,7 +31,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
 
@@ -306,6 +305,20 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
+  /// Avatar color swatches.
+  static const List<Color> colors = [
+    Colors.purple,
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.cyan,
+    Colors.lightGreen,
+    Colors.lime,
+    Colors.amber,
+    Colors.orange,
+    Colors.deepOrange,
+  ];
+
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
     if (radius == null && minRadius == null && maxRadius == null) {
@@ -334,18 +347,15 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
       if (color != null) {
-        gradient = style.avatarColors[color! % style.avatarColors.length];
+        gradient = colors[color! % colors.length];
       } else if (title != null) {
-        gradient =
-            style.avatarColors[(title!.hashCode) % style.avatarColors.length];
+        gradient = colors[(title!.hashCode) % colors.length];
       } else {
-        gradient = style.primaryBackgroundLightest;
+        gradient = const Color(0xFF555555);
       }
 
       double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
@@ -358,14 +368,14 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: style.onPrimary,
+          badgeColor: Colors.white,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isAway ? style.doNotDistrubColor : style.acceptAuxilaryColor,
+            color: isAway ? Colors.orange : Colors.green,
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
@@ -396,7 +406,7 @@ class AvatarWidget extends StatelessWidget {
                   (title ?? '??').initials(),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 15 * (maxWidth / 40.0),
-                        color: style.onPrimary,
+                        color: Colors.white,
                         fontWeight: FontWeight.w700,
                       ),
 

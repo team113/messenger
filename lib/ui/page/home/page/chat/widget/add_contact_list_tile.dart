@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].
@@ -40,23 +39,21 @@ class AddContactListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: style.onBackground);
+        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
 
     return ListTile(
       leading: AnimatedSwitcher(
         duration: const Duration(milliseconds: 100),
         child: selected
-            ? CircleAvatar(
-                backgroundColor: style.acceptAuxilaryColor,
-                child: Icon(Icons.check, color: style.onPrimary),
+            ? const CircleAvatar(
+                backgroundColor: Colors.green,
+                child: Icon(Icons.check, color: Colors.white),
               )
             : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
-      selectedTileColor: style.onBackgroundOpacity94,
+      selectedTileColor: const Color(0x11000000),
       title: Text('${contact.contact.value.name}', style: font17),
       onTap: onTap,
     );

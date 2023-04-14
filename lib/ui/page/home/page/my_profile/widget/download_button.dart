@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -55,8 +54,6 @@ class DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return FieldButton(
       text: 'space'.l10n * 4 + title,
       textAlign: TextAlign.center,
@@ -89,7 +86,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: TextStyle(color: style.secondary),
+      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     );
   }
 }

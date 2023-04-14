@@ -20,7 +20,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
@@ -65,8 +64,6 @@ class CustomProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return ConditionalBackdropFilter(
       condition: blur,
       borderRadius: BorderRadius.circular(60),
@@ -76,8 +73,8 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: color ?? style.primaryHighlightDarkest,
-          backgroundColor: backgroundColor ?? style.primaryHighlightDark,
+          color: color ?? const Color(0xFFAFAFAF),
+          backgroundColor: backgroundColor ?? const Color(0xFFD5D5D5),
           valueColor: valueColor,
           strokeWidth: strokeWidth,
         ),
@@ -281,13 +278,11 @@ class _CircularProgressIndicatorState
 
   /// Returns the [Color] of the progress indicator.
   Color _getValueColor(BuildContext context, {Color? defaultColor}) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return widget.valueColor?.value ??
         widget.color ??
         ProgressIndicatorTheme.of(context).color ??
         defaultColor ??
-        style.onBackground;
+        Theme.of(context).colorScheme.primary;
   }
 
   /// Draws a determinate progress indicator.

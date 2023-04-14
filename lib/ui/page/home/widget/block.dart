@@ -63,7 +63,7 @@ class Block extends StatelessWidget {
                     child: Text(
                       title!,
                       style: style.systemMessageStyle
-                          .copyWith(color: style.onBackground, fontSize: 18),
+                          .copyWith(color: Colors.black, fontSize: 18),
                     ),
                   ),
                 ),

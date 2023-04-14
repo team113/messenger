@@ -44,8 +44,6 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
@@ -60,7 +58,7 @@ class ChatsMoreView extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge
-                      ?.copyWith(color: style.onBackground, fontSize: 18),
+                      ?.copyWith(color: Colors.black, fontSize: 18),
                 ),
               ),
             ),
@@ -87,8 +85,6 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -96,8 +92,10 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: style.systemMessageStyle
-                .copyWith(color: style.onBackground, fontSize: 18),
+            style: Theme.of(context)
+                .extension<Style>()!
+                .systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
           ),
         ),
       ),
@@ -106,8 +104,6 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -136,7 +132,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor: style.secondary,
+                    activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -152,8 +148,6 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,13 +199,13 @@ class ChatsMoreView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: style.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                          color: style.secondary,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {

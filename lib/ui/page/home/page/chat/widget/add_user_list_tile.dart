@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/themes.dart';
 
 /// [ListTile] with an information of an [User].
 class AddUserListTile extends StatelessWidget {
@@ -34,18 +33,16 @@ class AddUserListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: style.onBackground);
+        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
 
     return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: style.acceptAuxilaryColor,
-        child: Icon(Icons.check, color: style.onPrimary),
+      leading: const CircleAvatar(
+        backgroundColor: Colors.green,
+        child: Icon(Icons.check, color: Colors.white),
       ),
       selected: true,
-      selectedTileColor: style.onBackgroundOpacity94,
+      selectedTileColor: const Color(0x11000000),
       title: Text(user.name?.val ?? user.num.val, style: font17),
       onTap: onTap,
     );

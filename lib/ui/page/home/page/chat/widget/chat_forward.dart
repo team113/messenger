@@ -207,7 +207,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.forwards.first.value, widget.me);
+      return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.forwards.first.value, widget.me);
     }
@@ -251,12 +251,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    Style style = Theme.of(context).extension<Style>()!;
 
-    Color? color = widget.user?.user.value.id == widget.me
-        ? style.secondary
-        : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            style.avatarColors.length];
+    Color color = widget.user?.user.value.id == widget.me
+        ? Theme.of(context).colorScheme.secondary
+        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -282,7 +282,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: style.backgroundAuxiliaryLighter,
+                                color: const Color(0xFFDAEDFF),
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -339,7 +339,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       ChatForward msg = forward.value as ChatForward;
       ChatItemQuote quote = msg.quote;
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
@@ -397,7 +397,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: style.transparent,
+                          dividerColor: Colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
@@ -494,25 +494,25 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
-                  ? style.secondaryHighlightShiniest
-                  : style.backgroundAuxiliaryLighter
+                  ? const Color(0xFFDBEAFD)
+                  : const Color(0xFFE6F1FE)
               : _isRead || !_fromMe
-                  ? style.primaryHighlight
-                  : style.onPrimary,
+                  ? const Color(0xFFF9F9F9)
+                  : const Color(0xFFFFFFFF),
         ),
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: () => widget.onForwardedTap?.call(quote),
+            onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                Color? color = snapshot.data?.user.value.id == widget.me
-                    ? style.secondary
-                    : style.avatarColors[
+                Color color = snapshot.data?.user.value.id == widget.me
+                    ? Theme.of(context).colorScheme.secondary
+                    : AvatarWidget.colors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.avatarColors.length];
+                            AvatarWidget.colors.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -541,10 +541,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
-                                  child: Text(
+                                  child: SelectionText(
                                     snapshot.data?.user.value.name?.val ??
                                         snapshot.data?.user.value.num.val ??
                                         'dot'.l10n * 3,
+                                    selectable: PlatformUtils.isDesktop || menu,
+                                    onChanged: (a) => _selection = a,
+                                    onSelecting: widget.onSelecting,
                                     style:
                                         style.boldBody.copyWith(color: color),
                                   ),
@@ -599,10 +602,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      Color? color = widget.user?.user.value.id == widget.me
-          ? style.secondary
-          : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              style.avatarColors.length];
+      final Color color = widget.user?.user.value.id == widget.me
+          ? Theme.of(context).colorScheme.secondary
+          : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+              AvatarWidget.colors.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
@@ -701,7 +704,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       width: attachments.length * 120,
                       height: max(attachments.length * 60, 300),
                       child: FitView(
-                        dividerColor: style.transparent,
+                        dividerColor: Colors.transparent,
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
@@ -992,6 +995,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = widget.authorId == widget.me &&
                                     !widget.chat.value!.isRead(
                                       widget.forwards.first.value,
@@ -1001,18 +1005,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

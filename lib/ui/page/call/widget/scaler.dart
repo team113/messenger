@@ -17,8 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
-
 /// Draggable widget reporting delta of a dragging through [onDragUpdate]
 /// callback.
 class Scaler extends StatefulWidget {
@@ -67,8 +65,6 @@ class _ScalerState extends State<Scaler> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GestureDetector(
       onPanStart: (details) {
         setState(() {
@@ -91,7 +87,7 @@ class _ScalerState extends State<Scaler> {
         child: Container(
           width: widget.width,
           height: widget.height,
-          color: style.secondaryHighlight,
+          color: Colors.blue,
         ),
       ),
     );

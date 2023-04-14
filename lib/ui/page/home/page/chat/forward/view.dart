@@ -24,7 +24,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -85,8 +84,6 @@ class ChatForwardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: ChatForwardController(
         Get.find(),
@@ -146,7 +143,7 @@ class ChatForwardView extends StatelessWidget {
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(
-                            color: style.onBackgroundOpacity74,
+                            color: const Color(0x40000000),
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(milliseconds: 300),
@@ -157,14 +154,14 @@ class ChatForwardView extends StatelessWidget {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
-                                      color: style.onBackgroundOpacity74,
+                                      color: const Color(0x40000000),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: style.onPrimary,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),

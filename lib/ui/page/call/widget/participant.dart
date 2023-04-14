@@ -23,7 +23,6 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -84,8 +83,6 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
@@ -140,14 +137,14 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.onBackgroundOpacity44,
-                child: Padding(
-                  padding: const EdgeInsets.all(21.0),
+                color: Colors.black.withOpacity(0.4),
+                child: const Padding(
+                  padding: EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: style.primaryHighlight,
+                      color: Color(0xFFEEEEEE),
                       size: 100 / 1.5,
-                      duration: const Duration(milliseconds: 4500),
+                      duration: Duration(milliseconds: 4500),
                     ),
                   ),
                 ),
@@ -157,7 +154,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.onBackgroundOpacity25,
+                color: Colors.black.withOpacity(0.2),
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -176,14 +173,12 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Returns a raised hand animated icon.
   Widget _handRaisedIcon(bool isRaised) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: style.primaryOpacity20,
+              backgroundColor: const Color(0xD8818181),
               child: SvgLoader.asset(
                 'assets/icons/hand_up.svg',
                 width: 90,
@@ -221,8 +216,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       bool isMuted;
 
@@ -318,7 +311,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           style: context.theme.outlinedButtonTheme.style!.textStyle!
               .resolve({MaterialState.disabled})!.copyWith(
             fontSize: 15,
-            color: style.onPrimary,
+            color: Colors.white,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -332,9 +325,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            boxShadow: [
+            boxShadow: const [
               CustomBoxShadow(
-                color: style.onBackgroundOpacity88,
+                color: Color(0x22000000),
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -347,8 +340,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? style.onSecondaryOpacity30
-                    : style.onSecondary,
+                    ? const Color(0x4D165084)
+                    : const Color(0xBB1F3C5D),
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -415,8 +408,6 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Center(
       child: Stack(
         alignment: Alignment.center,
@@ -426,8 +417,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border:
-                    Border.all(color: style.onBackgroundOpacity81, width: 0.5),
+                border: Border.all(color: const Color(0x30000000), width: 0.5),
               ),
               child: const IgnorePointer(),
             ),

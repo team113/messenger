@@ -21,7 +21,6 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -53,12 +52,8 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.onBackground);
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -139,13 +134,13 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: thin?.copyWith(color: style.onPrimary),
+                    style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: () {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: style.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 12),

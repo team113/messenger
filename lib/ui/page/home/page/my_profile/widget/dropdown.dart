@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
 import '/ui/widget/text_field.dart';
 
 /// Button for selecting from a list of items.
@@ -45,8 +44,6 @@ class ReactiveDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return StatefulBuilder(
       builder: (context, setState) => Stack(
         children: [
@@ -84,7 +81,7 @@ class ReactiveDropdown<T> extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 isExpanded: true,
                 style: context.textTheme.titleMedium
-                    ?.copyWith(color: style.onBackground),
+                    ?.copyWith(color: Colors.black),
                 icon: const SizedBox(),
                 underline: const SizedBox(),
               ),

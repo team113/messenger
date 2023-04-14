@@ -24,7 +24,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -66,12 +65,8 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.onBackground);
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: ParticipantController(
@@ -153,13 +148,13 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(color: style.onPrimary),
+                          style: const TextStyle(color: Colors.white),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: style.secondary,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -184,8 +179,6 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
@@ -215,9 +208,9 @@ class ParticipantView extends StatelessWidget {
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
                   color: inCall
                       ? isRedialed
-                          ? style.primaryBackgroundLightest
-                          : style.dangerColor
-                      : style.secondary,
+                          ? Colors.grey
+                          : Colors.red
+                      : Theme.of(context).colorScheme.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: inCall
@@ -257,7 +250,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: TextStyle(color: style.onBackground),
+                      style: const TextStyle(color: Colors.black),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -271,7 +264,10 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: TextStyle(color: style.secondary, fontSize: 15),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 15,
+                    ),
                   )
                 : SvgLoader.asset(
                     'assets/icons/delete.svg',

@@ -216,6 +216,12 @@ class CallController extends GetxController {
   /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
 
+  /// Color of a call buttons that accept the call.
+  static const Color acceptColor = Color(0x7F34B139);
+
+  /// Color of a call buttons that end the call.
+  static const Color endColor = Color(0x7FFF0000);
+
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
@@ -448,6 +454,9 @@ class CallController extends GetxController {
 
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
+
+  /// Indicates whether the [chat] is a monolog.
+  bool get isMonolog => chat.value?.chat.value.isMonolog ?? false;
 
   /// Reactive map of the current call [CallMember]s.
   RxObsMap<CallMemberId, CallMember> get members => _currentCall.value.members;
@@ -1211,6 +1220,10 @@ class CallController extends GetxController {
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
+    if (isMonolog) {
+      return;
+    }
+
     if (isMobile) {
       panelController.close().then((_) {
         isPanelOpen.value = false;
@@ -1953,7 +1966,7 @@ class CallController extends GetxController {
 
       switch (member.owner) {
         case MediaOwnerKind.local:
-          if (isGroup) {
+          if (isGroup || isMonolog) {
             switch (participant.source) {
               case MediaSourceKind.Device:
                 locals.add(participant);

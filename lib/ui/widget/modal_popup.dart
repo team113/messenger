@@ -54,7 +54,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: style.onPrimary,
+        backgroundColor: Colors.white,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -77,7 +77,7 @@ abstract class ModalPopup {
                       width: 60,
                       height: 3,
                       decoration: BoxDecoration(
-                        color: style.primaryHighlightDarkest,
+                        color: const Color(0xFFCCCCCC),
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -112,7 +112,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: style.onPrimary,
+                color: Colors.white,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
@@ -145,8 +145,6 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
@@ -159,7 +157,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_back_ios_new,
                   size: 14,
-                  color: style.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             )
@@ -175,7 +173,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.close,
                   size: 18,
-                  color: style.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             )

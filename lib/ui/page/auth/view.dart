@@ -25,7 +25,6 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
@@ -42,8 +41,6 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -53,7 +50,8 @@ class AuthView extends StatelessWidget {
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
         final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: style.onBackground);
+            context.textTheme.bodySmall?.copyWith(color: Colors.black);
+        final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
         //
@@ -70,7 +68,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: style.primary),
+            style: thin?.copyWith(fontSize: 24, color: primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -78,7 +76,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: style.primary),
+            style: thin?.copyWith(fontSize: 15.4, color: primary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -147,7 +145,7 @@ class AuthView extends StatelessWidget {
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,
             }),
-            style: thin?.copyWith(fontSize: 13, color: style.primary),
+            style: thin?.copyWith(fontSize: 13, color: primary),
           ),
           onPressed: () => LanguageSelectionView.show(context, null),
         );
@@ -159,7 +157,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: TextStyle(color: style.onPrimary),
+              style: const TextStyle(color: Colors.white),
             ),
             leading: Container(
               child: SvgLoader.asset(
@@ -168,13 +166,12 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: style.secondary,
+            color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
-            color: style.onPrimary,
             leading: SvgLoader.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -185,7 +182,6 @@ class AuthView extends StatelessWidget {
           if (isIosWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child: SvgLoader.asset(
@@ -198,7 +194,6 @@ class AuthView extends StatelessWidget {
           if (isAndroidWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child: SvgLoader.asset(
@@ -211,7 +206,6 @@ class AuthView extends StatelessWidget {
           if (isDesktopWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
               leading: PlatformUtils.isMacOS
                   ? SvgLoader.asset(
                       'assets/icons/apple.svg',
@@ -241,7 +235,7 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: style.background,
+                color: const Color(0xFFF6F8F9),
               ),
             ),
             IgnorePointer(
@@ -255,7 +249,7 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor: style.transparent,
+                backgroundColor: Colors.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -289,8 +283,6 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     await ModalPopup.show(
       context: context,
       child: Column(
@@ -303,7 +295,7 @@ class AuthView extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge
-                    ?.copyWith(color: style.onBackground, fontSize: 18),
+                    ?.copyWith(color: Colors.black, fontSize: 18),
               ),
             ),
           ),

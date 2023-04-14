@@ -39,7 +39,6 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
@@ -585,13 +584,11 @@ extension PresenceL10n on Presence {
 
   /// Returns a [Color] representing this [Presence].
   Color? getColor() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
     switch (this) {
       case Presence.present:
-        return style.acceptAuxilaryColor;
+        return Colors.green;
       case Presence.away:
-        return style.doNotDistrubColor;
+        return Colors.orange;
       case Presence.artemisUnknown:
         return null;
     }

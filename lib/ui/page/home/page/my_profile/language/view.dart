@@ -50,11 +50,8 @@ class LanguageSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.onBackground);
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -93,7 +90,7 @@ class LanguageSelectionView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             color: selected
                                 ? style.cardSelectedColor.withOpacity(0.8)
-                                : style.onPrimary.darken(0.05),
+                                : Colors.white.darken(0.05),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(10),
                               onTap: () => c.selected.value = e,
@@ -122,9 +119,9 @@ class LanguageSelectionView extends StatelessWidget {
                                                         .colorScheme
                                                         .secondary,
                                                 radius: 12,
-                                                child: Icon(
+                                                child: const Icon(
                                                   Icons.check,
-                                                  color: style.onPrimary,
+                                                  color: Colors.white,
                                                   size: 12,
                                                 ),
                                               )
@@ -152,7 +149,7 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: style.onPrimary),
+                    style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {
@@ -161,7 +158,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: style.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 16),

@@ -19,9 +19,6 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-import '/routes.dart';
-import '/themes.dart';
-
 /// Draggable video volume bar.
 ///
 /// Use [RotatedBox] to rotate it vertically.
@@ -86,8 +83,6 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
         if (controller.value.isInitialized) {
@@ -111,7 +106,7 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
           child: Container(
             height: constraints.biggest.height,
             width: constraints.biggest.width,
-            color: style.transparent,
+            color: Colors.transparent,
             child: CustomPaint(
               painter: _ProgressBarPainter(
                 value: controller.value,
@@ -173,8 +168,6 @@ class _ProgressBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
     final baseOffset = size.height / 2 - barHeight / 2;
 
     canvas.drawRRect(
@@ -229,7 +222,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
         );
 
-      canvas.drawShadow(shadowPath, style.onBackground, 0.2, false);
+      canvas.drawShadow(shadowPath, Colors.black, 0.2, false);
     }
 
     canvas.drawCircle(

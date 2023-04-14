@@ -55,7 +55,7 @@ import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
 
-/// View of the [Routes.chat] page.
+/// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
   const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
@@ -94,8 +94,6 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
@@ -114,7 +112,7 @@ class _ChatViewState extends State<ChatView>
         void onDetailsTap() {
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
@@ -142,6 +140,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -159,8 +159,8 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: style.onBackgroundOpacity67,
-                            color: style.onPrimary,
+                            shadowColor: const Color(0x55000000),
+                            color: Colors.white,
                             child: InkWell(
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
@@ -176,8 +176,8 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: style.transparent,
-                              highlightColor: style.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -186,12 +186,14 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    _chatSubtitle(c),
+                                    Obx(() {
+                                      return Text(
+                                        c.chat!.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      );
+                                    }),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -203,70 +205,80 @@ class _ChatViewState extends State<ChatView>
                       padding: const EdgeInsets.only(left: 4, right: 20),
                       leading: const [StyledBackButton()],
                       actions: [
-                        if (c.chat!.chat.value.ongoingCall == null) ...[
-                          WidgetButton(
-                            onPressed: () => c.call(true),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
-                            ),
-                          ),
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            key: const Key('AudioCall'),
-                            onPressed: () => c.call(false),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call.svg',
-                              height: 19,
-                            ),
-                          ),
-                        ] else ...[
-                          AnimatedSwitcher(
-                            key: const Key('ActiveCallButton'),
-                            duration: 300.milliseconds,
-                            child: c.inCall
-                                ? WidgetButton(
-                                    key: const Key('Drop'),
-                                    onPressed: c.dropCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        color: style.declineColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/call_end.svg',
-                                          width: 32,
+                        Obx(() {
+                          final List<Widget> children;
+
+                          if (c.chat!.chat.value.ongoingCall == null) {
+                            children = [
+                              WidgetButton(
+                                onPressed: () => c.call(true),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
+                                ),
+                              ),
+                              const SizedBox(width: 28),
+                              WidgetButton(
+                                key: const Key('AudioCall'),
+                                onPressed: () => c.call(false),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
+                              ),
+                            ];
+                          } else {
+                            children = [
+                              AnimatedSwitcher(
+                                key: const Key('ActiveCallButton'),
+                                duration: 300.milliseconds,
+                                child: c.inCall
+                                    ? WidgetButton(
+                                        key: const Key('Drop'),
+                                        onPressed: c.dropCall,
+                                        child: Container(
                                           height: 32,
+                                          width: 32,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/call_end.svg',
+                                              width: 32,
+                                              height: 32,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : WidgetButton(
+                                        key: const Key('Join'),
+                                        onPressed: c.joinCall,
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/audio_call_start.svg',
+                                              width: 15,
+                                              height: 15,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                : WidgetButton(
-                                    key: const Key('Join'),
-                                    onPressed: c.joinCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/audio_call_start.svg',
-                                          width: 15,
-                                          height: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ],
+                              ),
+                            ];
+                          }
+
+                          return Row(children: children);
+                        }),
                       ],
                     ),
                     body: Listener(
@@ -483,7 +495,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: style.onBackgroundOpacity74,
+                                color: const Color(0x40000000),
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -495,14 +507,14 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: style.onBackgroundOpacity74,
+                                          color: const Color(0x40000000),
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(16),
                                           child: Icon(
                                             Icons.add_rounded,
                                             size: 50,
-                                            color: style.onPrimary,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
@@ -526,8 +538,6 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
 
@@ -561,11 +571,11 @@ class _ChatViewState extends State<ChatView>
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       bool nextSame = false;
@@ -573,11 +583,11 @@ class _ChatViewState extends State<ChatView>
         nextSame = (next is ChatMessageElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (next is ChatCallElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       return Padding(
@@ -755,10 +765,10 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: Center(
+                child: const Center(
                   child: ColoredBox(
-                    color: style.transparent,
-                    child: const CustomProgressIndicator(),
+                    color: Colors.transparent,
+                    child: CustomProgressIndicator(),
                   ),
                 ),
               ),
@@ -784,9 +794,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -812,7 +820,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(subtitle.toString(), style: style);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -824,7 +832,9 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.secondary),
+                style: style?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -848,7 +858,9 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.secondary),
+                style: style?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
             const SizedBox(width: 3),
@@ -863,7 +875,7 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: textStyle);
+          return Text(subtitle, style: style);
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -901,7 +913,7 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(buffer.toString(), style: style);
                         }
 
                         return const SizedBox();
@@ -987,7 +999,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.keepTyping,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
       );
@@ -1045,11 +1057,8 @@ class _ChatViewState extends State<ChatView>
           key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: style.onBackgroundOpacity88,
-              ),
+            boxShadow: const [
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
             ],
           ),
           child: ConditionalBackdropFilter(
@@ -1086,7 +1095,7 @@ class _ChatViewState extends State<ChatView>
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: style.secondary,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
                           ),

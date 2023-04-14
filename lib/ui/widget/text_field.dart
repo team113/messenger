@@ -15,13 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
@@ -35,28 +36,28 @@ class ReactiveTextField extends StatelessWidget {
     required this.state,
     this.dense,
     this.enabled = true,
+    this.fillColor = Colors.white,
+    this.filled,
     this.formatters,
     this.hint,
     this.icon,
     this.label,
+    this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
     this.obscure = false,
     this.onChanged,
+    this.onSuffixPressed,
+    this.padding,
+    this.prefix,
+    this.prefixText,
     this.style,
     this.suffix,
-    this.prefix,
-    this.trailing,
-    this.type,
-    this.padding,
-    this.minLines,
-    this.maxLines = 1,
-    this.textInputAction,
-    this.onSuffixPressed,
-    this.prefixText,
-    this.filled,
-    this.treatErrorAsStatus = true,
     this.textAlign = TextAlign.start,
-    this.fillColor,
-    this.maxLength,
+    this.textInputAction,
+    this.trailing,
+    this.treatErrorAsStatus = true,
+    this.type,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -140,7 +141,7 @@ class ReactiveTextField extends StatelessWidget {
   final TextAlign textAlign;
 
   /// Fill color of the [TextField].
-  final Color? fillColor;
+  final Color fillColor;
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
@@ -173,8 +174,6 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return Obx(() {
         return WidgetButton(
           onPressed: state.approvable && state.changed.value
@@ -197,25 +196,25 @@ class ReactiveTextField extends StatelessWidget {
                                 height: 17,
                               )
                             : state.status.value.isSuccess
-                                ? SizedBox(
-                                    key: const ValueKey('Success'),
+                                ? const SizedBox(
+                                    key: ValueKey('Success'),
                                     width: 24,
                                     child: Icon(
                                       Icons.check,
                                       size: 18,
-                                      color: style.acceptAuxilaryColor,
+                                      color: Colors.green,
                                     ),
                                   )
                                 : (state.error.value != null &&
                                             treatErrorAsStatus) ||
                                         state.status.value.isError
-                                    ? SizedBox(
-                                        key: const ValueKey('Error'),
+                                    ? const SizedBox(
+                                        key: ValueKey('Error'),
                                         width: 24,
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: style.dangerColor,
+                                          color: Colors.red,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -251,8 +250,6 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
@@ -260,7 +257,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: style.dangerColor)
+                        ?.copyWith(color: Colors.red)
                     : null,
               ),
         ),
@@ -274,7 +271,7 @@ class ReactiveTextField extends StatelessWidget {
                       ? CupertinoTextSelectionControls()
                       : null,
               controller: state.controller,
-              style: this.style,
+              style: style,
               focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
@@ -289,7 +286,7 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                fillColor: fillColor ?? style.onPrimary,
+                fillColor: fillColor,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,
@@ -330,8 +327,8 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? const TextStyle()).copyWith(
-                              color: style.dangerColor,
+                            style: (style ?? const TextStyle()).copyWith(
+                              color: Colors.red,
                               fontSize: 13,
                             ),
                           ),
@@ -410,7 +407,15 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        changed.value = controller.text != (_previousSubmit ?? '');
+
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(debounce, () {
+          if (_previousText != controller.text) {
+            _previousText = controller.text;
+            onChanged?.call(this);
+          }
+        });
       });
     }
 
@@ -429,6 +434,9 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
+
+  /// [Duration] to debounce the [onChanged] calls with.
+  static const Duration debounce = Duration(milliseconds: 500);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -473,6 +481,9 @@ class TextFieldState extends ReactiveFieldState {
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   String? _previousSubmit;
+
+  /// [Timer] debouncing the [onChanged] callback.
+  Timer? _debounceTimer;
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
@@ -530,5 +541,6 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    _debounceTimer?.cancel();
   }
 }

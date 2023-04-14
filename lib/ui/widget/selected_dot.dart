@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
@@ -40,8 +39,6 @@ class SelectedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return SizedBox(
       width: 30,
       child: AnimatedSwitcher(
@@ -51,14 +48,14 @@ class SelectedDot extends StatelessWidget {
                 key: const Key('Selected'),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 radius: size / 2,
-                child: Icon(Icons.check, color: style.onPrimary, size: 14),
+                child: const Icon(Icons.check, color: Colors.white, size: 14),
               )
             : Container(
                 key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: style.primaryHighlightDark.darken(darken),
+                    color: const Color(0xFFD7D7D7).darken(darken),
                     width: 1,
                   ),
                 ),

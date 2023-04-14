@@ -17,8 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
-
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
@@ -31,7 +29,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.onLongPress,
     this.gradient,
     this.elevation = 0,
-    this.color,
+    this.color = Colors.white,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
     this.shadows,
@@ -83,8 +81,6 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Container(
       constraints: BoxConstraints(
         maxWidth: maxWidth,
@@ -93,19 +89,19 @@ class OutlinedRoundedButton extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         boxShadow: shadows,
-        color: onPressed == null ? style.primaryHighlight : color,
+        color: onPressed == null ? const Color(0xFFEEEEEE) : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
-        color: style.transparent,
+        color: Colors.transparent,
         elevation: elevation,
         borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: style.primary.withOpacity(0.02),
+          hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,
@@ -126,7 +122,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: style.onBackground,
+                        color: Colors.black,
                         fontSize: 24 * 0.7,
                       ),
                   child: Center(

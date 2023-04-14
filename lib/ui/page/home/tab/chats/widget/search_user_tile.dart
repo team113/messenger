@@ -25,7 +25,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the
@@ -49,8 +48,6 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       final ChatId? chatId =
           user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
@@ -58,7 +55,7 @@ class SearchUserTile extends StatelessWidget {
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
       final bool selected = router.routes.lastWhereOrNull((e) =>
-              e.startsWith('${Routes.chat}/$chatId') ||
+              e.startsWith('${Routes.chats}/$chatId') ||
               e.startsWith('${Routes.user}/$userId')) !=
           null;
 
@@ -77,17 +74,17 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: TextStyle(color: style.primary),
+              style: const TextStyle(color: Color(0xFF888888)),
             ),
           ],
           trailing: [
             if (user?.user.value.isBlacklisted != null ||
                 contact?.user.value?.user.value.isBlacklisted != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: style.primaryHighlightDarkest,
+                  color: Color(0xFFC0C0C0),
                   size: 20,
                 ),
               )

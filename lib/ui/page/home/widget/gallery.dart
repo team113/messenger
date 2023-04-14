@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/domain/model/image_gallery_item.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 import 'gallery_popup.dart';
@@ -84,8 +83,6 @@ class _CarouselGalleryState extends State<CarouselGallery> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GestureDetector(
       onTap: widget.items?.isNotEmpty == true
           ? () {
@@ -128,7 +125,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ),
                   ),
                 )
-              : Container(color: style.onPrimary),
+              : Container(color: Colors.white),
           ScrollConfiguration(
             behavior: _MyCustomScrollBehavior(),
             child: CarouselSlider(
@@ -181,8 +178,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                               shape: BoxShape.circle,
                               boxShadow: const [BoxShadow(blurRadius: 1)],
                               color: widget.index == i
-                                  ? style.onPrimary
-                                  : style.primary,
+                                  ? Colors.white
+                                  : Colors.grey,
                             ),
                           ),
                         ),
