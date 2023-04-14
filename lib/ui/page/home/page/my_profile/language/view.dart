@@ -118,9 +118,7 @@ class LanguageSelectionView extends StatelessWidget {
                                         child: selected
                                             ? CircleAvatar(
                                                 backgroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
+                                                    style.colors.primary,
                                                 radius: 12,
                                                 child: Icon(
                                                   Icons.check,

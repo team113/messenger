@@ -261,9 +261,7 @@ class _ChatViewState extends State<ChatView>
                                           height: 32,
                                           width: 32,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            color: style.colors.primary,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(

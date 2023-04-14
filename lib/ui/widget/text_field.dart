@@ -227,9 +227,7 @@ class ReactiveTextField extends StatelessWidget {
                                               'btn_save'.l10n,
                                               style: TextStyle(
                                                 fontSize: 11,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
+                                                color: style.colors.primary,
                                                 fontWeight: FontWeight.normal,
                                               ),
                                             ),

@@ -115,9 +115,8 @@ class CallWindowSwitchView extends StatelessWidget {
                                     duration: 200.milliseconds,
                                     child: selected
                                         ? CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            backgroundColor:
+                                                style.colors.primary,
                                             radius: 12,
                                             child: Icon(
                                               Icons.check,

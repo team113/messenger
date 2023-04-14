@@ -160,9 +160,7 @@ class MenuTabView extends StatelessWidget {
                                     const SizedBox(width: 12),
                                     Icon(
                                       icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: style.colors.primary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(

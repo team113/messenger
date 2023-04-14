@@ -106,7 +106,7 @@ class ChangePasswordView extends StatelessWidget {
                           'label_password_not_set_info'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.secondary,
                           ),
                         ),
                       )

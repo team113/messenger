@@ -161,9 +161,7 @@ class MyProfileView extends StatelessWidget {
                                     child: Text(
                                       'btn_upload'.l10n,
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
+                                        color: style.colors.primary,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -182,9 +180,7 @@ class MyProfileView extends StatelessWidget {
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
+                                          color: style.colors.primary,
                                           fontSize: 11,
                                         ),
                                       ),

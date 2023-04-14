@@ -49,7 +49,7 @@ class SelectedDot extends StatelessWidget {
         child: selected
             ? CircleAvatar(
                 key: const Key('Selected'),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor: style.colors.primary,
                 radius: size / 2,
                 child:
                     Icon(Icons.check, color: style.colors.onPrimary, size: 14),

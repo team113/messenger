@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
@@ -64,6 +65,8 @@ class SharableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style styleColor = Theme.of(context).extension<Style>()!;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -72,7 +75,7 @@ class SharableTextField extends StatelessWidget {
             padding: const EdgeInsets.only(left: 10, right: 25),
             child: Icon(
               icon,
-              color: context.theme.colorScheme.primary,
+              color: styleColor.colors.secondary,
             ),
           ),
         Expanded(
