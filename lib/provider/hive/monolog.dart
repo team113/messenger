@@ -15,29 +15,28 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
-import '/util/new_type.dart';
-import 'version.dart';
+import 'base.dart';
 
-part 'chat.g.dart';
+/// [Hive] storage for [ChatId] of a [Chat]-monolog of the authenticated
+/// [MyUser].
+class MonologHiveProvider extends HiveBaseProvider<ChatId> {
+  @override
+  Stream<BoxEvent> get boxEvents => box.watch();
 
-/// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
-class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
-}
+  @override
+  String get boxName => 'monolog';
 
-/// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends NewType<String> {
-  RecentChatsCursor(String val) : super(val);
-}
+  @override
+  void registerAdapters() {
+    Hive.maybeRegisterAdapter(ChatIdAdapter());
+  }
 
-/// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
-class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
+  /// Returns the stored [ChatId] from [Hive].
+  ChatId? get() => getSafe(0);
+
+  /// Saves the provided [ChatId] to [Hive].
+  Future<void> set(ChatId id) => putSafe(0, id);
 }

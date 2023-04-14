@@ -15,29 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:get/get.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
-import '/util/new_type.dart';
-import 'version.dart';
+import '../world/custom_world.dart';
 
-part 'chat.g.dart';
+/// Routes the [router] to the [Chat]-monolog page.
+///
+/// Examples:
+/// - I am in monolog
+final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
+  'I am in monolog',
+  (context) async {
+    final ChatService chatService = Get.find<ChatService>();
+    router.chat(chatService.monolog);
 
-/// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
-class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
-}
-
-/// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends NewType<String> {
-  RecentChatsCursor(String val) : super(val);
-}
-
-/// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
-class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
-}
+    await context.world.appDriver.waitUntil(
+      () async {
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
+    );
+  },
+);
