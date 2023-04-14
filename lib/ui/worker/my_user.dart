@@ -43,21 +43,12 @@ class MyUserWorker extends DisposableService {
 
   @override
   void onInit() {
-    unreadChatsUpdated(int unread) {
-      _updateBadge(unread);
-      router.prefix.value = unread == 0 ? null : '($unread)';
-      if (unread > 0) {
-        WebUtils.setAlertIcon();
-      } else {
-        WebUtils.resetIcon();
-      }
-    }
+    _updateBadge(_myUser.myUser.value?.unreadChatsCount ?? 0);
 
-    unreadChatsUpdated(_myUser.myUser.value?.unreadChatsCount ?? 0);
-
-    _worker = ever(_myUser.myUser, (MyUser? u) {
-      unreadChatsUpdated(u?.unreadChatsCount ?? 0);
-    });
+    _worker = ever(
+      _myUser.myUser,
+      (MyUser? u) => _updateBadge(u?.unreadChatsCount ?? 0),
+    );
 
     super.onInit();
   }
@@ -102,6 +93,14 @@ class MyUserWorker extends DisposableService {
         } catch (_) {
           // No-op.
         }
+      }
+
+      router.prefix.value = count == 0 ? null : '($count)';
+
+      if (count > 0) {
+        WebUtils.setAlertFavicon();
+      } else {
+        WebUtils.setDefaultFavicon();
       }
     }
   }

@@ -216,13 +216,13 @@ class WebUtils {
     // No-op.
   }
 
-  /// Updates current favicon with alert icon.
-  static void setAlertIcon() {
+  /// Sets the favicon being used to an alert style.
+  static void setAlertFavicon() {
     // No-op.
   }
 
-  /// Resets favicon to default.
-  static void resetIcon() {
+  /// Sets the favicon being used to the default style.
+  static void setDefaultFavicon() {
     // No-op.
   }
 }

@@ -553,24 +553,18 @@ class WebUtils {
     );
   }
 
-  /// Updates current favicon with alert icon.
+  /// Sets the favicon being used to an alert style.
   static void setAlertIcon() {
-    html.ElementList<html.LinkElement> links =
-        html.querySelectorAll("link[rel*='icon']");
-
-    for (var e in links) {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
       if (!e.href.contains('icons/alert/')) {
         e.href = e.href.replaceFirst('icons/', 'icons/alert/');
       }
     }
   }
 
-  /// Resets favicon to default.
+  /// Sets the favicon being used to the default style.
   static void resetIcon() {
-    html.ElementList<html.LinkElement> links =
-        html.querySelectorAll("link[rel*='icon']");
-
-    for (var e in links) {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
       e.href = e.href.replaceFirst('icons/alert/', 'icons/');
     }
   }
