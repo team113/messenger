@@ -545,61 +545,6 @@ class ChatsTabView extends StatelessWidget {
                                 }
                               }
 
-                              // Builds a [RecentChatTile] from the provided
-                              // [RxChat].
-                              Widget tile(
-                                RxChat e, {
-                                Widget Function(Widget)? avatarBuilder,
-                              }) {
-                                final bool selected =
-                                    c.selectedChats.contains(e.id);
-
-                                return RecentChatTile(
-                                  e,
-                                  key: e.chat.value.isMonolog
-                                      ? const Key('ChatMonolog')
-                                      : Key('RecentChat_${e.id}'),
-                                  me: c.me,
-                                  blocked: e.blacklisted,
-                                  selected: selected,
-                                  getUser: c.getUser,
-                                  avatarBuilder: c.selecting.value
-                                      ? (c) => WidgetButton(
-                                            onPressed: () => router.chat(e.id),
-                                            child: c,
-                                          )
-                                      : avatarBuilder,
-                                  onJoin: () => c.joinCall(e.id),
-                                  onDrop: () => c.dropCall(e.id),
-                                  onLeave: e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.leaveChat(e.id),
-                                  onHide: () => c.hideChat(e.id),
-                                  inCall: () => c.inCall(e.id),
-                                  onMute: e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.muteChat(e.id),
-                                  onUnmute: e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.unmuteChat(e.id),
-                                  onFavorite: () => c.favoriteChat(e.id),
-                                  onUnfavorite: () => c.unfavoriteChat(e.id),
-                                  onSelect: c.toggleSelecting,
-                                  onTap: c.selecting.value
-                                      ? () => c.selectChat(e)
-                                      : null,
-                                  enableContextMenu: !c.selecting.value,
-                                  trailing: c.selecting.value
-                                      ? [
-                                          SelectedDot(
-                                            selected: selected,
-                                            size: 20,
-                                          )
-                                        ]
-                                      : null,
-                                );
-                              }
-
                               return CustomScrollView(
                                 controller: c.scrollController,
                                 slivers: [
