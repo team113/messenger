@@ -948,22 +948,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: SelectionText.rich(
                   TextSpan(
                     children: [
-                      WidgetSpan(
-                        child: Text.rich(
-                          key: Key('Text_${widget.item.value.id}'),
-                          _text!,
-                          style: style.boldBody,
-                        ),
-                      ),
+                      _text!,
                       if (widget.timestamp && files.isEmpty && !timeInBubble)
                         WidgetSpan(
-                          child: Opacity(opacity: 0, child: _timestamp(msg)),
+                          child: Opacity(
+                            key: const Key('WidgetSpan'),
+                            opacity: 0,
+                            child: _timestamp(msg),
+                          ),
                         ),
                     ],
                   ),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
+                  style: style.boldBody,
                 ),
               ),
             ),
@@ -1560,6 +1559,34 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    buildItem(menu) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        builder(PlatformUtils.isMobile ? menu : false),
+        if (avatars.isNotEmpty)
+          Transform.translate(
+            offset: Offset(-12, -widget.margin.bottom),
+            child: WidgetButton(
+              onPressed: () => MessageInfo.show(
+                context,
+                reads: reads ?? [],
+                id: widget.item.value.id,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.center,
+                  children: avatars,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
@@ -1859,33 +1886,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: (bool menu) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            builder(menu),
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => MessageInfo.show(
-                                    context,
-                                    reads: reads ?? [],
-                                    id: widget.item.value.id,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        builder: PlatformUtils.isMobile ? buildItem : null,
+                        child: PlatformUtils.isMobile ? null : buildItem(false),
                       ),
                     ),
                   );

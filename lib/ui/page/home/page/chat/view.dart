@@ -325,8 +325,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse &&
-                              c.settings.value?.timelineEnabled == true)
+                          if (c.settings.value?.timelineEnabled == true &&
+                              c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -626,9 +626,13 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (selection) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(selection);
+              }
+            },
             onRepliedTap: (q) async {
               if (q.original != null) {
                 await c.animateTo(q.original!.id);
@@ -719,9 +723,13 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (selection) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(selection);
+              }
+            },
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
