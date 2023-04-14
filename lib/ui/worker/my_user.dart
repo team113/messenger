@@ -24,6 +24,7 @@ import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// Worker responsible for updating the [RouterState.prefix] with the
 /// [MyUser.unreadChatsCount].
@@ -42,17 +43,20 @@ class MyUserWorker extends DisposableService {
 
   @override
   void onInit() {
-    _updateBadge(_myUser.myUser.value?.unreadChatsCount ?? 0);
-    router.prefix.value = _myUser.myUser.value == null ||
-            _myUser.myUser.value?.unreadChatsCount == 0
-        ? null
-        : '(${_myUser.myUser.value!.unreadChatsCount})';
+    unreadChatsUpdated(int unread) {
+      _updateBadge(unread);
+      router.prefix.value = unread == 0 ? null : '($unread)';
+      if (unread > 0) {
+        WebUtils.setAlertIcon();
+      } else {
+        WebUtils.resetIcon();
+      }
+    }
+
+    unreadChatsUpdated(_myUser.myUser.value?.unreadChatsCount ?? 0);
 
     _worker = ever(_myUser.myUser, (MyUser? u) {
-      _updateBadge(u?.unreadChatsCount ?? 0);
-      router.prefix.value = u == null || u.unreadChatsCount == 0
-          ? null
-          : '(${u.unreadChatsCount})';
+      unreadChatsUpdated(u?.unreadChatsCount ?? 0);
     });
 
     super.onInit();
