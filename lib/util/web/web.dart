@@ -259,14 +259,16 @@ class WebUtils {
     }
   }
 
-  /// Sets the `credentialsUpdating` indicator to the browser's storage.
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
   static set credentialsUpdating(bool updating) {
     html.window.localStorage['credentialsUpdating'] = updating.toString();
   }
 
-  /// Indicates whether [Credentials] is updating in any tab.
+  /// Indicates whether [Credentials] are considered being updated currently.
   static bool get credentialsUpdating {
-    String? updating = html.window.localStorage['credentialsUpdating'];
+    final String? updating = html.window.localStorage['credentialsUpdating'];
+
     if (updating == null) {
       return false;
     } else {

@@ -65,12 +65,13 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
-  /// Sets the `credentialsUpdating` indicator to the browser's storage.
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
   static set credentialsUpdating(bool updating) {
     // No-op.
   }
 
-  /// Indicates whether [Credentials] is updating in any tab.
+  /// Indicates whether [Credentials] are considered being updated currently.
   static bool get credentialsUpdating => false;
 
   /// Indicates whether the current window is a popup.
