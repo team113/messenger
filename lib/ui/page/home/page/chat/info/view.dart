@@ -78,8 +78,8 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: style.onBackgroundOpacity67,
-                    color: style.onPrimary,
+                    shadowColor: style.colors.onBackgroundOpacity67,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
                     ),
@@ -166,7 +166,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: style.dangerColor,
+                                color: style.colors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -185,7 +185,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: style.secondary,
+                                color: style.colors.primary,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -304,7 +304,7 @@ class ChatInfoView extends StatelessWidget {
                           height: 200,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: style.onBackgroundOpacity88,
+                            color: style.colors.onBackgroundOpacity88,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )
@@ -323,20 +323,21 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: TextStyle(color: style.secondary, fontSize: 11),
+                style: TextStyle(color: style.colors.primary, fontSize: 11),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: TextStyle(color: style.onBackground, fontSize: 11),
+                style:
+                    TextStyle(color: style.colors.onBackground, fontSize: 11),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(color: style.secondary, fontSize: 11),
+                  style: TextStyle(color: style.colors.primary, fontSize: 11),
                 ),
               ),
             ],
@@ -431,12 +432,13 @@ class ChatInfoView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: style.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: TextStyle(color: style.secondaryHighlightShiny),
+                        style: TextStyle(
+                            color: style.colors.secondaryHighlightShiny),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -483,7 +485,7 @@ class ChatInfoView extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
               border: style.cardBorder,
-              color: style.transparent,
+              color: style.colors.transparent,
             ),
             child: Material(
               type: MaterialType.card,
@@ -494,7 +496,7 @@ class ChatInfoView extends StatelessWidget {
               child: InkWell(
                 borderRadius: style.cardRadius,
                 onTap: onTap,
-                hoverColor: style.backgroundAuxiliaryLightest,
+                hoverColor: style.colors.backgroundAuxiliaryLightest,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Row(
@@ -506,7 +508,7 @@ class ChatInfoView extends StatelessWidget {
                           maxLines: 1,
                           style: TextStyle(
                             fontSize: 15,
-                            color: style.secondary,
+                            color: style.colors.primary,
                             fontWeight: FontWeight.w300,
                           ),
                           child: title,
@@ -531,7 +533,7 @@ class ChatInfoView extends StatelessWidget {
         children: [
           bigButton(
             key: const Key('AddMemberButton'),
-            leading: Icon(Icons.people, color: style.secondary),
+            leading: Icon(Icons.people, color: style.colors.primary),
             title: Text('btn_add_member'.l10n),
             onTap: () => AddChatMemberView.show(context, chatId: id),
           ),
@@ -556,7 +558,7 @@ class ChatInfoView extends StatelessWidget {
                         height: 22,
                         width: 22,
                         decoration: BoxDecoration(
-                          color: style.dangerColor,
+                          color: style.colors.dangerColor,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -570,7 +572,7 @@ class ChatInfoView extends StatelessWidget {
                     )
                   else
                     Material(
-                      color: style.secondary,
+                      color: style.colors.primary,
                       type: MaterialType.circle,
                       child: InkWell(
                         onTap: () => c.redialChatCallMember(e.id),
@@ -595,7 +597,8 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: TextStyle(color: style.secondary, fontSize: 15),
+                      style:
+                          TextStyle(color: style.colors.primary, fontSize: 15),
                     ),
                   )
                 else
@@ -638,7 +641,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -658,7 +661,7 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: TextStyle(color: style.secondary),
+              style: TextStyle(color: style.colors.primary),
             );
           }),
         ),
@@ -687,7 +690,7 @@ class ChatInfoView extends StatelessWidget {
                         ),
                 ),
               ),
-              style: TextStyle(color: style.secondary),
+              style: TextStyle(color: style.colors.primary),
             );
           }),
         ),
@@ -703,7 +706,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -719,7 +722,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -734,7 +737,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -749,7 +752,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -764,7 +767,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
       ],
@@ -788,7 +791,7 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: TextStyle(color: style.onBackground),
+            style: TextStyle(color: style.colors.onBackground),
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -822,7 +825,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
@@ -843,7 +846,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
@@ -867,7 +870,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],

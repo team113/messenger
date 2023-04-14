@@ -62,7 +62,7 @@ class CallSettingsView extends StatelessWidget {
             child: Text(
               text,
               style: style.systemMessageStyle
-                  .copyWith(color: style.onBackground, fontSize: 18),
+                  .copyWith(color: style.colors.onBackground, fontSize: 18),
             ),
           ),
         ),
@@ -112,7 +112,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(color: style.secondary),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -145,7 +145,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(color: style.secondary),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -178,7 +178,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(color: style.secondary),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -198,7 +198,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: TextStyle(color: style.secondary),
+                          style: TextStyle(color: style.colors.primary),
                         ),
                       ),
                     ),

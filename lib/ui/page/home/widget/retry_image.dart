@@ -272,7 +272,7 @@ class _RetryImageState extends State<RetryImage> {
                     blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
-                    color: style.secondary,
+                    color: style.colors.primary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)
@@ -283,7 +283,7 @@ class _RetryImageState extends State<RetryImage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: style.onBackgroundOpacity98,
+                                  color: style.colors.onBackgroundOpacity98,
                                   blurRadius: 8,
                                   blurStyle: BlurStyle.outer,
                                 ),

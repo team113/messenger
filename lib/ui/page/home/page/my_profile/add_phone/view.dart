@@ -49,7 +49,7 @@ class AddPhoneView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: AddPhoneController(
@@ -78,7 +78,7 @@ class AddPhoneView extends StatelessWidget {
                               : 'label_add_phone_confirmation_sent'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color: style.primary,
+                            color: style.colors.secondary,
                           ),
                         );
                       }),
@@ -106,14 +106,14 @@ class AddPhoneView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
-                                      ? style.onPrimary
-                                      : style.onBackground,
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
                                 ),
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
                                   : null,
-                              color: style.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -125,14 +125,14 @@ class AddPhoneView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.phoneCode.isEmpty.value
-                                      ? style.onBackground
-                                      : style.onPrimary,
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
                                 ),
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
                                   : c.phoneCode.submit,
-                              color: style.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -156,7 +156,7 @@ class AddPhoneView extends StatelessWidget {
                         'label_add_phone_description'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: style.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                     ),
@@ -180,8 +180,8 @@ class AddPhoneView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.phone.isEmpty.value
-                                ? style.onBackground
-                                : style.onPrimary,
+                                ? style.colors.onBackground
+                                : style.colors.onPrimary,
                           ),
                         ),
                         onPressed:

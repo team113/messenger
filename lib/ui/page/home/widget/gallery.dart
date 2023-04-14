@@ -128,7 +128,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ),
                   ),
                 )
-              : Container(color: style.onPrimary),
+              : Container(color: style.colors.onPrimary),
           ScrollConfiguration(
             behavior: _MyCustomScrollBehavior(),
             child: CarouselSlider(
@@ -181,8 +181,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                               shape: BoxShape.circle,
                               boxShadow: const [BoxShadow(blurRadius: 1)],
                               color: widget.index == i
-                                  ? style.onPrimary
-                                  : style.primary,
+                                  ? style.colors.onPrimary
+                                  : style.colors.secondary,
                             ),
                           ),
                         ),

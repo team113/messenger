@@ -67,10 +67,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(
-                    color: style.secondary,
-                    width: 2,
-                  )
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -185,7 +182,7 @@ class ContactsTabView extends StatelessWidget {
                   key: UniqueKey(),
                   child: ColoredBox(
                     key: const Key('Loading'),
-                    color: style.transparent,
+                    color: style.colors.transparent,
                     child: const CustomProgressIndicator(),
                   ),
                 );
@@ -225,7 +222,7 @@ class ContactsTabView extends StatelessWidget {
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
                                   style: style.systemMessageStyle.copyWith(
-                                    color: style.onBackground,
+                                    color: style.colors.onBackground,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -289,8 +286,8 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    style.transparent,
-                                    style.onBackgroundOpacity81,
+                                    style.colors.transparent,
+                                    style.colors.onBackgroundOpacity81,
                                     t,
                                   )!;
 
@@ -424,8 +421,8 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? style.primaryHighlight
-                        : style.primaryHighlight,
+                        ? style.colors.primaryHighlight
+                        : style.colors.transparent,
                   );
                 }),
                 Padding(
@@ -555,7 +552,7 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
                 Icons.block,
-                color: style.primaryHighlightDarkest,
+                color: style.colors.primaryHighlightDarkest,
                 size: 20,
               ),
             );
@@ -586,7 +583,7 @@ class ContactsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.onBackgroundOpacity88,
+        color: style.colors.onBackgroundOpacity88,
         blurStyle: BlurStyle.outer,
       ),
     ];
@@ -608,10 +605,10 @@ class ContactsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(color: style.onBackground),
+                style: TextStyle(color: style.colors.onBackground),
               ),
               onPressed: c.toggleSelecting,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               shadows: shadows,
             ),
           ),
@@ -627,14 +624,14 @@ class ContactsTabView extends StatelessWidget {
                   maxLines: 1,
                   style: TextStyle(
                     color: c.selectedContacts.isEmpty
-                        ? style.onBackground
-                        : style.onPrimary,
+                        ? style.colors.onBackground
+                        : style.colors.onPrimary,
                   ),
                 ),
                 onPressed: c.selectedContacts.isEmpty
                     ? null
                     : () => _removeContacts(context, c),
-                color: style.secondary,
+                color: style.colors.primary,
                 shadows: shadows,
               ),
             );
@@ -659,7 +656,7 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

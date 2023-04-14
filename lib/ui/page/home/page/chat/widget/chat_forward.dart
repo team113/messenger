@@ -253,10 +253,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    Color? color = widget.user?.user.value.id == widget.me
-        ? style.secondary
-        : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            style.avatarColors.length];
+    final Color color = widget.user?.user.value.id == widget.me
+        ? style.colors.primary
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -282,7 +282,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: style.backgroundAuxiliaryLighter,
+                                color: style.colors.backgroundAuxiliaryLighter,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -397,7 +397,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: style.transparent,
+                          dividerColor: style.colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
@@ -494,11 +494,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
-                  ? style.secondaryHighlightShiniest
-                  : style.backgroundAuxiliaryLighter
+                  ? style.colors.secondaryHighlightShiniest
+                  : style.colors.backgroundAuxiliaryLighter
               : _isRead || !_fromMe
-                  ? style.primaryHighlight
-                  : style.onPrimary,
+                  ? style.colors.primaryHighlight
+                  : style.colors.onPrimary,
         ),
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
@@ -508,11 +508,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                Color? color = snapshot.data?.user.value.id == widget.me
-                    ? style.secondary
-                    : style.avatarColors[
+                final Color color = snapshot.data?.user.value.id == widget.me
+                    ? style.colors.primary
+                    : style.colors.userColors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.avatarColors.length];
+                            style.colors.userColors.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -599,10 +599,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      Color? color = widget.user?.user.value.id == widget.me
-          ? style.secondary
-          : style.avatarColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              style.avatarColors.length];
+      final Color color = widget.user?.user.value.id == widget.me
+          ? style.colors.primary
+          : style.colors.userColors[
+              (widget.user?.user.value.num.val.sum() ?? 3) %
+                  style.colors.userColors.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
@@ -701,7 +702,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       width: attachments.length * 120,
                       height: max(attachments.length * 60, 300),
                       child: FitView(
-                        dividerColor: style.transparent,
+                        dividerColor: style.colors.transparent,
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(

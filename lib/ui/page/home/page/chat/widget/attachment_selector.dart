@@ -90,12 +90,12 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: TextStyle(fontSize: 15, color: style.onBackground),
-          color: style.secondary,
+          style: TextStyle(fontSize: 15, color: style.colors.onBackground),
+          color: style.colors.primary,
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ?? Icon(icon, color: style.onPrimary, size: 30),
+            child: child ?? Icon(icon, color: style.colors.onPrimary, size: 30),
           ),
         ),
       );
@@ -155,7 +155,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           key: const Key('CloseButton'),
           title: Text('btn_close'.l10n),
           onPressed: Navigator.of(context).pop,
-          color: style.primaryHighlight,
+          color: style.colors.primaryHighlight,
         ),
         const SizedBox(height: 10),
       ],

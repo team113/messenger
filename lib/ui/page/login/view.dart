@@ -65,12 +65,13 @@ class LoginView extends StatelessWidget {
               title: Text(
                 title ?? '',
                 style: TextStyle(
-                  color:
-                      onPressed == null ? style.onBackground : style.onPrimary,
+                  color: onPressed == null
+                      ? style.colors.onBackground
+                      : style.colors.onPrimary,
                 ),
               ),
               onPressed: onPressed,
-              color: style.secondary,
+              color: style.colors.primary,
             );
           }
 
@@ -92,7 +93,7 @@ class LoginView extends StatelessWidget {
                   'label_recover_account_description'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: style.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -128,7 +129,7 @@ class LoginView extends StatelessWidget {
                   'label_recovery_code_sent'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: style.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -166,7 +167,7 @@ class LoginView extends StatelessWidget {
                   'label_recovery_enter_new_password'.l10n,
                   style: theme.displaySmall?.copyWith(
                     fontSize: 15,
-                    color: style.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -226,7 +227,7 @@ class LoginView extends StatelessWidget {
                       'label_password_changed'.l10n,
                       style: theme.displaySmall?.copyWith(
                         fontSize: 15,
-                        color: style.primary,
+                        color: style.colors.secondary,
                       ),
                     ),
                   ),
@@ -267,8 +268,8 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style:
-                              TextStyle(color: style.secondaryHighlightShiny),
+                          style: TextStyle(
+                              color: style.colors.secondaryHighlightShiny),
                         ),
                       ),
                     ),

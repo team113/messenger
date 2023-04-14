@@ -124,11 +124,12 @@ class _VideoState extends State<Video> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error, size: 48, color: style.dangerColor),
+                      Icon(Icons.error,
+                          size: 48, color: style.colors.dangerColor),
                       const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: TextStyle(color: style.onPrimary),
+                        style: TextStyle(color: style.colors.onPrimary),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -142,7 +143,7 @@ class _VideoState extends State<Video> {
                       width: MediaQuery.of(context).size.width * 0.99,
                       height: MediaQuery.of(context).size.height * 0.6,
                       decoration: BoxDecoration(
-                        color: style.transparent,
+                        color: style.colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: _loading != null
@@ -171,10 +172,10 @@ class _VideoState extends State<Video> {
         autoInitialize: true,
         showControlsOnInitialize: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: style.secondaryHighlight,
-          handleColor: style.secondaryHighlight,
-          bufferedColor: style.onPrimary,
-          backgroundColor: style.onPrimaryOpacity50,
+          playedColor: style.colors.secondaryHighlight,
+          handleColor: style.colors.secondaryHighlight,
+          bufferedColor: style.colors.onPrimary,
+          backgroundColor: style.colors.onPrimaryOpacity50,
         ),
         customControls: PlatformUtils.isMobile
             ? const MobileControls()
@@ -194,7 +195,7 @@ class _VideoState extends State<Video> {
                   resizeToAvoidBottomInset: false,
                   body: Container(
                     alignment: Alignment.center,
-                    color: style.onBackground,
+                    color: style.colors.onBackground,
                     child: provider,
                   ),
                 );

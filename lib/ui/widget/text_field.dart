@@ -203,7 +203,7 @@ class ReactiveTextField extends StatelessWidget {
                                     child: Icon(
                                       Icons.check,
                                       size: 18,
-                                      color: style.acceptAuxilaryColor,
+                                      color: style.colors.acceptAuxiliaryColor,
                                     ),
                                   )
                                 : (state.error.value != null &&
@@ -215,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: style.dangerColor,
+                                          color: style.colors.dangerColor,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -260,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: style.dangerColor)
+                        ?.copyWith(color: style.colors.dangerColor)
                     : null,
               ),
         ),
@@ -289,7 +289,7 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                fillColor: fillColor ?? style.onPrimary,
+                fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,
@@ -331,7 +331,7 @@ class ReactiveTextField extends StatelessWidget {
                           child: Text(
                             state.error.value!,
                             style: (this.style ?? const TextStyle()).copyWith(
-                              color: style.dangerColor,
+                              color: style.colors.dangerColor,
                               fontSize: 13,
                             ),
                           ),

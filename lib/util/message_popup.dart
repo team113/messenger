@@ -61,7 +61,7 @@ class MessagePopup {
           final TextStyle? thin = Theme.of(context)
               .textTheme
               .bodyLarge
-              ?.copyWith(color: style.onBackground);
+              ?.copyWith(color: style.colors.onBackground);
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -89,7 +89,7 @@ class MessagePopup {
                               children: description,
                               style: thin?.copyWith(
                                 fontSize: 15,
-                                color: style.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                           ),
@@ -112,10 +112,10 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: style.onPrimary),
+                    style: thin?.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

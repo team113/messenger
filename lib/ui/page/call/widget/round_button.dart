@@ -29,7 +29,7 @@ import 'conditional_backdrop.dart';
 /// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
-    Key? key,
+    super.key,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
@@ -40,7 +40,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.style,
     this.border,
     this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the button is tapped or activated other way.
   ///
@@ -166,7 +166,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: style.onPrimary,
+                      color: style.colors.onPrimary,
                       fontSize: 13,
                     ),
                 maxLines: 2,
@@ -223,10 +223,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     style: context.theme.outlinedButtonTheme.style!.textStyle!
                         .resolve({MaterialState.disabled})!.copyWith(
                       fontSize: 13,
-                      color: style.onPrimary,
+                      color: style.colors.onPrimary,
                       shadows: [
-                        Shadow(blurRadius: 6, color: style.onBackground),
-                        Shadow(blurRadius: 6, color: style.onBackground),
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
                       ],
                     ),
                   ),

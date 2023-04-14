@@ -154,7 +154,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   // [Container] for receiving pointer events over this
                   // [VideoThumbnail], since the [ContextMenuInterceptor] above
                   // intercepts them.
-                  Container(color: style.transparent),
+                  Container(color: style.colors.transparent),
                 ],
               ),
             )

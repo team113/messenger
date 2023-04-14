@@ -35,7 +35,7 @@ class StyledBackButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Icon(
             Icons.arrow_back_ios_rounded,
-            color: style.secondary,
+            color: style.colors.primary,
             size: 22,
           ),
         ),

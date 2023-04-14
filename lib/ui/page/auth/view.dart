@@ -52,8 +52,9 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: style.onBackground);
+        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
 
         // Header part of the page.
         //
@@ -70,7 +71,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: style.primary),
+            style: thin?.copyWith(fontSize: 24, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -78,7 +79,8 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: style.primary),
+            style:
+                thin?.copyWith(fontSize: 15.4, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -147,7 +149,7 @@ class AuthView extends StatelessWidget {
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,
             }),
-            style: thin?.copyWith(fontSize: 13, color: style.primary),
+            style: thin?.copyWith(fontSize: 13, color: style.colors.secondary),
           ),
           onPressed: () => LanguageSelectionView.show(context, null),
         );
@@ -159,7 +161,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: TextStyle(color: style.onPrimary),
+              style: TextStyle(color: style.colors.onPrimary),
             ),
             leading: Container(
               child: SvgLoader.asset(
@@ -168,13 +170,13 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: style.secondary,
+            color: style.colors.primary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
-            color: style.onPrimary,
+            color: style.colors.onPrimary,
             leading: SvgLoader.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -185,7 +187,7 @@ class AuthView extends StatelessWidget {
           if (isIosWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child: SvgLoader.asset(
@@ -198,7 +200,7 @@ class AuthView extends StatelessWidget {
           if (isAndroidWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child: SvgLoader.asset(
@@ -211,7 +213,7 @@ class AuthView extends StatelessWidget {
           if (isDesktopWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               leading: PlatformUtils.isMacOS
                   ? SvgLoader.asset(
                       'assets/icons/apple.svg',
@@ -241,7 +243,7 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: style.background,
+                color: style.colors.background,
               ),
             ),
             IgnorePointer(
@@ -255,7 +257,7 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor: style.transparent,
+                backgroundColor: style.colors.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -303,7 +305,7 @@ class AuthView extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge
-                    ?.copyWith(color: style.onBackground, fontSize: 18),
+                    ?.copyWith(color: style.colors.onBackground, fontSize: 18),
               ),
             ),
           ),

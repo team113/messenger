@@ -47,9 +47,9 @@ class TooltipButton extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     Widget button = InkWell(
-      hoverColor: style.transparent,
-      highlightColor: style.transparent,
-      splashColor: style.transparent,
+      hoverColor: style.colors.transparent,
+      highlightColor: style.colors.transparent,
+      splashColor: style.colors.transparent,
       onTap: onTap,
       child: child,
     );
@@ -62,10 +62,10 @@ class TooltipButton extends StatelessWidget {
             textStyle: context.theme.outlinedButtonTheme.style!.textStyle!
                 .resolve({MaterialState.disabled})!.copyWith(
               fontSize: 13,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               shadows: [
-                Shadow(blurRadius: 6, color: style.onBackground),
-                Shadow(blurRadius: 6, color: style.onBackground),
+                Shadow(blurRadius: 6, color: style.colors.onBackground),
+                Shadow(blurRadius: 6, color: style.colors.onBackground),
               ],
             ),
             decoration: const BoxDecoration(),

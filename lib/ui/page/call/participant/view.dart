@@ -71,7 +71,7 @@ class ParticipantView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: ParticipantController(
@@ -153,13 +153,13 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(color: style.onPrimary),
+                          style: TextStyle(color: style.colors.onPrimary),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: style.secondary,
+                        color: style.colors.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -215,9 +215,9 @@ class ParticipantView extends StatelessWidget {
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
                   color: inCall
                       ? isRedialed
-                          ? style.primaryBackgroundLightest
-                          : style.dangerColor
-                      : style.secondary,
+                          ? style.colors.primaryBackgroundLightest
+                          : style.colors.dangerColor
+                      : style.colors.primary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: inCall
@@ -257,7 +257,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: TextStyle(color: style.onBackground),
+                      style: TextStyle(color: style.colors.onBackground),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -271,7 +271,7 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: TextStyle(color: style.secondary, fontSize: 15),
+                    style: TextStyle(color: style.colors.primary, fontSize: 15),
                   )
                 : SvgLoader.asset(
                     'assets/icons/delete.svg',

@@ -42,19 +42,22 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           children: [
             Caption(
               '${color.toHex()}, $desc',
-              color: isDarkMode ? style.onPrimary : style.onBackground,
+              color: isDarkMode
+                  ? style.colors.onPrimary
+                  : style.colors.onBackground,
             ),
             _Colored(
               color: color,
-              outline: isDarkMode ? style.onPrimary : style.onBackground,
+              outline: isDarkMode
+                  ? style.colors.onPrimary
+                  : style.colors.onBackground,
             )
           ],
         );
 
-    Widget avatarColors() {
-      List<Color> avatarColors = style.avatarColors;
+    Widget userColors() {
       return ListView.builder(
-        itemCount: avatarColors.length,
+        itemCount: style.colors.userColors.length,
         itemBuilder: (context, index) {
           return SizedBox(
             height: 138,
@@ -62,12 +65,16 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             child: Column(
               children: [
                 Caption(
-                  avatarColors[index].toHex(),
-                  color: isDarkMode ? style.onPrimary : style.onBackground,
+                  style.colors.userColors[index].toHex(),
+                  color: isDarkMode
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
                 ),
                 _Colored(
-                  color: avatarColors[index],
-                  outline: isDarkMode ? style.onPrimary : style.onBackground,
+                  color: style.colors.userColors[index],
+                  outline: isDarkMode
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
                 )
               ],
             ),
@@ -77,7 +84,8 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
     }
 
     return Scaffold(
-      backgroundColor: isDarkMode ? style.onBackground : style.onPrimary,
+      backgroundColor:
+          isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
       body: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(8),
@@ -87,123 +95,123 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.light_mode, color: style.doNotDistrubColor),
+              Icon(Icons.light_mode, color: style.colors.warningColor),
               Switch(
                 value: isDarkMode,
                 onChanged: (b) => setState(() => isDarkMode = b),
               ),
-              Icon(Icons.dark_mode, color: style.primary),
+              Icon(Icons.dark_mode, color: style.colors.secondary),
             ],
           ),
           color(
             'Основной цвет текста и обводки.',
-            style.primary,
+            style.colors.secondary,
           ),
           color(
             'Вторичный цвет кнопок и фона.',
-            style.secondary,
+            style.colors.primary,
           ),
           color(
             'Общий фон.',
-            style.background,
+            style.colors.background,
           ),
           color(
             'Фон текста и обводки.',
-            style.primaryBackground,
+            style.colors.primaryBackground,
           ),
           color(
             'Цвет заднего фона звонка.',
-            style.primaryBackgroundLight,
+            style.colors.primaryBackgroundLight,
           ),
           color(
             'Цвет заднего фона аватара, кнопок звонка.',
-            style.primaryBackgroundLightest,
+            style.colors.primaryBackgroundLightest,
           ),
           color(
             'Цвет колеса загрузки.',
-            style.primaryHighlight,
+            style.colors.primaryHighlight,
           ),
           color(
             'Цвет кнопок навигационной панели.',
-            style.primaryHighlightDark,
+            style.colors.primaryHighlightDark,
           ),
           color(
             'Цвет надписей и иконок над задним фоном звонка.',
-            style.primaryHighlightDarkest,
+            style.colors.primaryHighlightDarkest,
           ),
           color(
             'Цвет, использующийся в левой части страницы профиля.',
-            style.onPrimary,
+            style.colors.onPrimary,
           ),
           color(
             'Цвет выпадающего меню.',
-            style.secondaryHighlight,
+            style.colors.secondaryHighlight,
           ),
           color(
             'Цвет кнопок "Подробнее" и "Забыл пароль".',
-            style.secondaryHighlightShiny,
+            style.colors.secondaryHighlightShiny,
           ),
           color(
             'Цвет затемнения основного вида при неактивном вызове.',
-            style.secondaryHighlightShinier,
+            style.colors.secondaryHighlightShinier,
           ),
           color(
             'Цвет сообщения в чате.',
-            style.secondaryHighlightShiniest,
+            style.colors.secondaryHighlightShiniest,
           ),
           color(
             'Цвет кнопок в звонке.',
-            style.onSecondary,
+            style.colors.onSecondary,
           ),
           color(
             'Цвет активного звонка.',
-            style.backgroundAuxiliary,
+            style.colors.backgroundAuxiliary,
           ),
           color(
             'Цвет фона профиля.',
-            style.backgroundAuxiliaryLight,
+            style.colors.backgroundAuxiliaryLight,
           ),
           color(
             'Цвет отмены загрузки.',
-            style.backgroundAuxiliaryLighter,
+            style.colors.backgroundAuxiliaryLighter,
           ),
           color(
             'Цвет фона участников группы.',
-            style.backgroundAuxiliaryLightest,
+            style.colors.backgroundAuxiliaryLightest,
           ),
           color(
             'Цвет основного текста приложения.',
-            style.onBackground,
+            style.colors.onBackground,
           ),
           color(
             'Цвет кнопки принятия звонка.',
-            style.acceptColor,
+            style.colors.acceptColor,
           ),
           color(
             'Цвет панели пользователя.',
-            style.acceptAuxilaryColor,
+            style.colors.acceptAuxiliaryColor,
           ),
           color(
             'Цвет кнопки завершения звонка.',
-            style.declineColor,
+            style.colors.declineColor,
           ),
           color(
             'Цвет, предупредающий о чем-либо.',
-            style.dangerColor,
+            style.colors.dangerColor,
           ),
           color(
             'Цвет статуса "Не беспокоить".',
-            style.doNotDistrubColor,
+            style.colors.warningColor,
           ),
           const SizedBox(height: 100),
           Text(
             'Цвета аватаров:',
             style: context.textTheme.displayLarge!
-                .copyWith(color: style.onBackground),
+                .copyWith(color: style.colors.onBackground),
           ),
           SizedBox(
             height: 1400,
-            child: avatarColors(),
+            child: userColors(),
           ),
           const SizedBox(height: 60),
         ],
@@ -233,7 +241,7 @@ class _Colored extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: color,
-        border: Border.all(color: outline ?? style.onBackground),
+        border: Border.all(color: outline ?? style.colors.onBackground),
       ),
       height: 50,
     );

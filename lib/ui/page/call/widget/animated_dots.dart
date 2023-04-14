@@ -70,7 +70,7 @@ class _AnimatedDotsState extends State<AnimatedDots> {
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: TextStyle(color: style.onPrimary),
+        style: TextStyle(color: style.colors.onPrimary),
       ),
     );
   }

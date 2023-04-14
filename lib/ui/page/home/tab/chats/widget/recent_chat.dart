@@ -167,7 +167,7 @@ class RecentChatTile extends StatelessWidget {
                     const SizedBox(width: 5),
                     Icon(
                       Icons.block,
-                      color: style.primaryHighlightDarkest,
+                      color: style.colors.primaryHighlightDarkest,
                       size: 20,
                     ),
                     if (chat.muted == null) const SizedBox(width: 5),
@@ -270,8 +270,9 @@ class RecentChatTile extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color:
-                  inCall?.call() == true ? style.dangerColor : style.secondary,
+              color: inCall?.call() == true
+                  ? style.colors.dangerColor
+                  : style.colors.primary,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               return Row(
@@ -281,7 +282,7 @@ class RecentChatTile extends StatelessWidget {
                   Icon(
                     inCall?.call() == true ? Icons.call_end : Icons.call,
                     size: 16,
-                    color: style.onPrimary,
+                    color: style.colors.onPrimary,
                   ),
                   const SizedBox(width: 8),
                   if (constraints.maxWidth > 110)
@@ -293,7 +294,7 @@ class RecentChatTile extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall
-                            ?.copyWith(color: style.onPrimary),
+                            ?.copyWith(color: style.colors.onPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -309,7 +310,7 @@ class RecentChatTile extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall
-                            ?.copyWith(color: style.onPrimary),
+                            ?.copyWith(color: style.colors.onPrimary),
                       );
                     },
                   ),
@@ -408,7 +409,7 @@ class RecentChatTile extends StatelessWidget {
                 Text(
                   'label_typing'.l10n,
                   style: TextStyle(
-                    color: style.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
                 const SizedBox(width: 3),
@@ -431,7 +432,7 @@ class RecentChatTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: style.secondary,
+                        color: style.colors.primary,
                       ),
                     ),
                   ),
@@ -452,7 +453,7 @@ class RecentChatTile extends StatelessWidget {
             child: Icon(
               Icons.call,
               size: 16,
-              color: style.primaryBackgroundLightest,
+              color: style.colors.primaryBackgroundLightest,
             ),
           );
 
@@ -703,17 +704,17 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: style.primary,
+            color: style.colors.secondary,
             child: Icon(
               Icons.video_file,
               size: 18,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
             ),
           );
         }
       } else {
         content = Container(
-          color: style.primary,
+          color: style.colors.secondary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -750,17 +751,17 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: style.primary,
+            color: style.colors.secondary,
             child: Icon(
               Icons.video_file,
               size: 18,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
             ),
           );
         }
       } else {
         content = Container(
-          color: style.primary,
+          color: style.colors.secondary,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,
@@ -816,10 +817,10 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? style.secondary
+                ? style.colors.primary
                 : isError
-                    ? style.dangerColor
-                    : style.primary,
+                    ? style.colors.dangerColor
+                    : style.colors.secondary,
             size: 16,
           ),
         );
@@ -844,8 +845,8 @@ class RecentChatTile extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: chat.muted == null
-                ? style.dangerColor
-                : style.primaryHighlightDarkest,
+                ? style.colors.dangerColor
+                : style.colors.primaryHighlightDarkest,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -854,7 +855,7 @@ class RecentChatTile extends StatelessWidget {
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
             style: TextStyle(
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -879,7 +880,7 @@ class RecentChatTile extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],

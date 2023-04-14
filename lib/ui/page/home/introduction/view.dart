@@ -49,7 +49,7 @@ class IntroductionView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -103,14 +103,14 @@ class IntroductionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? style.onBackground
-                          : style.onPrimary,
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -121,7 +121,7 @@ class IntroductionView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
                     fontSize: 15,
-                    color: style.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -131,10 +131,10 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(color: style.onPrimary),
+                      style: thin?.copyWith(color: style.colors.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: style.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -149,11 +149,11 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: thin?.copyWith(color: style.onPrimary),
+                    style: thin?.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;

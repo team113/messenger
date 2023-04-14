@@ -58,7 +58,7 @@ class MicrophoneSwitchView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),

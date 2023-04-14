@@ -93,19 +93,19 @@ class OutlinedRoundedButton extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         boxShadow: shadows,
-        color: onPressed == null ? style.primaryHighlight : color,
+        color: onPressed == null ? style.colors.primaryHighlight : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
-        color: style.transparent,
+        color: style.colors.transparent,
         elevation: elevation,
         borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: style.primary.withOpacity(0.02),
+          hoverColor: style.colors.secondary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,
@@ -126,7 +126,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: style.onBackground,
+                        color: style.colors.onBackground,
                         fontSize: 24 * 0.7,
                       ),
                   child: Center(

@@ -340,12 +340,13 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = style.avatarColors[color! % style.avatarColors.length];
-      } else if (title != null) {
         gradient =
-            style.avatarColors[(title!.hashCode) % style.avatarColors.length];
+            style.colors.userColors[color! % style.colors.userColors.length];
+      } else if (title != null) {
+        gradient = style.colors
+            .userColors[(title!.hashCode) % style.colors.userColors.length];
       } else {
-        gradient = style.primaryBackgroundLightest;
+        gradient = style.colors.primaryBackgroundLightest;
       }
 
       double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
@@ -358,14 +359,16 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: style.onPrimary,
+          badgeColor: style.colors.onPrimary,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isAway ? style.doNotDistrubColor : style.acceptAuxilaryColor,
+            color: isAway
+                ? style.colors.warningColor
+                : style.colors.acceptAuxiliaryColor,
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
@@ -396,7 +399,7 @@ class AvatarWidget extends StatelessWidget {
                   (title ?? '??').initials(),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: 15 * (maxWidth / 40.0),
-                        color: style.onPrimary,
+                        color: style.colors.onPrimary,
                         fontWeight: FontWeight.w700,
                       ),
 

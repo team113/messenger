@@ -98,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: style.onPrimary,
+        backgroundColor: style.colors.onPrimary,
         body: const Center(child: CustomProgressIndicator()),
       );
     }
@@ -213,8 +213,8 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? style.primaryHighlightDarkest
-                                    : style.dangerColor,
+                                    ? style.colors.primaryHighlightDarkest
+                                    : style.colors.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
@@ -334,7 +334,7 @@ class _HomeViewState extends State<HomeView> {
               key: const Key('HomeView'),
               children: [
                 Container(
-                  color: style.onPrimary,
+                  color: style.colors.onPrimary,
                   width: double.infinity,
                   height: double.infinity,
                 ),
@@ -399,7 +399,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: ColoredBox(color: style.onBackgroundOpacity94),
+                child: ColoredBox(color: style.colors.onBackgroundOpacity94),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -417,7 +417,8 @@ class _HomeViewState extends State<HomeView> {
                       }),
                     ),
                     Expanded(
-                      child: ColoredBox(color: style.onBackgroundOpacity98),
+                      child:
+                          ColoredBox(color: style.colors.onBackgroundOpacity98),
                     ),
                   ],
                 ),

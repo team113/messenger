@@ -51,14 +51,15 @@ class SelectedDot extends StatelessWidget {
                 key: const Key('Selected'),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 radius: size / 2,
-                child: Icon(Icons.check, color: style.onPrimary, size: 14),
+                child:
+                    Icon(Icons.check, color: style.colors.onPrimary, size: 14),
               )
             : Container(
                 key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: style.primaryHighlightDark.darken(darken),
+                    color: style.colors.primaryHighlightDark.darken(darken),
                     width: 1,
                   ),
                 ),

@@ -81,8 +81,8 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: style.onBackgroundOpacity67,
-                      color: style.onPrimary,
+                      shadowColor: style.colors.onBackgroundOpacity67,
+                      color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
@@ -122,7 +122,7 @@ class UserView extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(color: style.primary),
+                                      ?.copyWith(color: style.colors.secondary),
                                 )
                             ],
                           );
@@ -269,7 +269,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: TextStyle(color: style.secondary),
+            style: TextStyle(color: style.colors.primary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),
@@ -485,7 +485,7 @@ class UserView extends StatelessWidget {
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: style.onBackgroundOpacity88,
+                color: style.colors.onBackgroundOpacity88,
               ),
             ],
           ),
@@ -524,7 +524,7 @@ class UserView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: style.secondary,
+                                color: style.colors.primary,
                               ),
                               type: TextInputType.multiline,
                               textInputAction: TextInputAction.newline,
@@ -556,7 +556,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -577,7 +577,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -598,7 +598,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -619,16 +619,13 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: TextStyle(color: style.onBackground),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(
-          state: c.reason,
-          label: 'label_reason'.l10n,
-        ),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
       ],
     );
 

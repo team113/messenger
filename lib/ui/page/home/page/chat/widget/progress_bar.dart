@@ -111,7 +111,7 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
           child: Container(
             height: constraints.biggest.height,
             width: constraints.biggest.width,
-            color: style.transparent,
+            color: style.colors.transparent,
             child: CustomPaint(
               painter: _ProgressBarPainter(
                 value: controller.value,
@@ -229,7 +229,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
         );
 
-      canvas.drawShadow(shadowPath, style.onBackground, 0.2, false);
+      canvas.drawShadow(shadowPath, style.colors.onBackground, 0.2, false);
     }
 
     canvas.drawCircle(

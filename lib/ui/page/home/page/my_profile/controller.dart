@@ -589,9 +589,9 @@ extension PresenceL10n on Presence {
 
     switch (this) {
       case Presence.present:
-        return style.acceptAuxilaryColor;
+        return style.colors.acceptAuxiliaryColor;
       case Presence.away:
-        return style.doNotDistrubColor;
+        return style.colors.warningColor;
       case Presence.artemisUnknown:
         return null;
     }

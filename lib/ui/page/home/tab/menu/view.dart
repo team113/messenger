@@ -52,8 +52,8 @@ class MenuTabView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: style.onBackgroundOpacity67,
-                    color: style.onPrimary,
+                    shadowColor: style.colors.onBackgroundOpacity67,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
@@ -77,7 +77,8 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: TextStyle(color: style.onBackground),
+                              style:
+                                  TextStyle(color: style.colors.onBackground),
                             ),
                             Obx(() {
                               return Text(
@@ -87,7 +88,7 @@ class MenuTabView extends StatelessWidget {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: style.primary,
+                                      color: style.colors.secondary,
                                     ),
                               );
                             }),
@@ -131,7 +132,7 @@ class MenuTabView extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: style.cardRadius,
                             border: style.cardBorder,
-                            color: style.transparent,
+                            color: style.colors.transparent,
                           ),
                           child: Material(
                             type: MaterialType.card,

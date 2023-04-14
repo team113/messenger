@@ -89,7 +89,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: TextStyle(color: style.secondary),
+      style: TextStyle(color: style.colors.primary),
     );
   }
 }

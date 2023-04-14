@@ -40,7 +40,7 @@ class LinkDetailsView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -65,7 +65,8 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: thin?.copyWith(fontSize: 15, color: style.primary),
+                style:
+                    thin?.copyWith(fontSize: 15, color: style.colors.secondary),
               ),
             ),
           ),

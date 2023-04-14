@@ -67,7 +67,7 @@ abstract class CallButton {
     return RoundFloatingButton(
       asset: asset,
       assetWidth: assetWidth,
-      color: color ?? style.onSecondaryOpacity50,
+      color: color ?? style.colors.onSecondaryOpacity50,
       hint: !expanded && hinted ? hint : null,
       text: expanded ? hint : null,
       withBlur: withBlur,
@@ -288,12 +288,12 @@ class AcceptAudioButton extends CallButton {
     return _common(
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
-      color: style.acceptColor,
+      color: style.colors.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: style.primaryHighlight, width: 1.5)
+          ? Border.all(color: style.colors.primaryHighlight, width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: false),
     );
@@ -316,12 +316,12 @@ class AcceptVideoButton extends CallButton {
 
     return _common(
       asset: 'video_on',
-      color: style.acceptColor,
+      color: style.colors.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: style.onPrimaryOpacity50, width: 1.5)
+          ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
       onPressed: () => c.join(withVideo: true),
     );
@@ -341,7 +341,7 @@ class DeclineButton extends CallButton {
 
     return _common(
       asset: 'call_end',
-      color: style.declineColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -363,7 +363,7 @@ class DropButton extends CallButton {
 
     return _common(
       asset: 'call_end',
-      color: style.declineColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -383,7 +383,7 @@ class CancelButton extends CallButton {
 
     return _common(
       asset: 'call_end',
-      color: style.declineColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       withBlur: blur,
       onPressed: c.drop,
@@ -407,7 +407,7 @@ class EndCallButton extends CallButton {
 
     return _common(
       asset: 'call_end',
-      color: style.declineColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -466,7 +466,7 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: TextStyle(fontSize: 11, color: style.onPrimary),
+        style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,

@@ -96,8 +96,8 @@ class MessageFieldView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme.of(context).copyWith(
-      shadowColor: style.onBackgroundOpacity67,
-      iconTheme: IconThemeData(color: style.secondaryHighlight),
+      shadowColor: style.colors.onBackgroundOpacity67,
+      iconTheme: IconThemeData(color: style.colors.secondaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -105,9 +105,9 @@ class MessageFieldView extends StatelessWidget {
         focusedBorder: border,
         disabledBorder: border,
         focusedErrorBorder: border,
-        focusColor: style.onPrimary,
-        fillColor: style.onPrimary,
-        hoverColor: style.transparent,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
         filled: true,
         isDense: true,
         contentPadding: EdgeInsets.fromLTRB(
@@ -138,7 +138,7 @@ class MessageFieldView extends StatelessWidget {
                 boxShadow: [
                   CustomBoxShadow(
                     blurRadius: 8,
-                    color: style.onBackgroundOpacity88,
+                    color: style.colors.onBackgroundOpacity88,
                   ),
                 ],
               ),
@@ -299,8 +299,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    style.transparent,
-                    style.onBackgroundOpacity81,
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity81,
                     t,
                   )!;
 
@@ -356,7 +356,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: style.onPrimaryOpacity60,
+            color: style.colors.onPrimaryOpacity60,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -606,11 +606,11 @@ class MessageFieldView extends StatelessWidget {
                         height: 60,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: style.onBackgroundOpacity50,
+                          color: style.colors.onBackgroundOpacity50,
                         ),
                         child: Icon(
                           Icons.play_arrow,
-                          color: style.onPrimary,
+                          color: style.colors.onPrimary,
                           size: 48,
                         ),
                       ),
@@ -658,7 +658,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(fontSize: 13, color: style.primary),
+                style: TextStyle(fontSize: 13, color: style.colors.secondary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -683,7 +683,7 @@ class MessageFieldView extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: style.primaryHighlight,
+            color: style.colors.primaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -701,12 +701,12 @@ class MessageFieldView extends StatelessWidget {
                             ? Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: style.onPrimary,
+                                  color: style.colors.onPrimary,
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.error,
-                                    color: style.dangerColor,
+                                    color: style.colors.dangerColor,
                                   ),
                                 ),
                               )
@@ -796,8 +796,8 @@ class MessageFieldView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? style.onPrimaryOpacity75
-                    : style.onBackgroundOpacity98,
+                    ? style.colors.onPrimaryOpacity75
+                    : style.colors.onBackgroundOpacity98,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
@@ -806,8 +806,8 @@ class MessageFieldView extends StatelessWidget {
                   ? Icon(
                       Icons.file_copy,
                       color: fromMe
-                          ? style.onPrimary
-                          : style.primaryHighlightDarkest,
+                          ? style.colors.onPrimary
+                          : style.colors.primaryHighlightDarkest,
                       size: 16,
                     )
                   : RetryImage(
@@ -879,7 +879,7 @@ class MessageFieldView extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: style.boldBody.copyWith(
-                  color: style.primary,
+                  color: style.colors.secondary,
                   fontSize: 13,
                 ),
               ),
@@ -909,7 +909,7 @@ class MessageFieldView extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
-                  left: BorderSide(width: 2, color: style.secondary),
+                  left: BorderSide(width: 2, color: style.colors.primary),
                 ),
               ),
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -920,7 +920,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.boldBody.copyWith(color: style.secondary),
+                    style: style.boldBody.copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -941,10 +941,10 @@ class MessageFieldView extends StatelessWidget {
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
-              ? style.secondary
-              : style.avatarColors[
+              ? style.colors.primary
+              : style.colors.userColors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      style.avatarColors.length];
+                      style.colors.userColors.length];
 
           return Container(
             key: Key('Reply_${c.replied.indexOf(item)}'),
@@ -967,7 +967,8 @@ class MessageFieldView extends StatelessWidget {
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.boldBody.copyWith(color: style.secondary),
+                        style: style.boldBody
+                            .copyWith(color: style.colors.primary),
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),
@@ -991,7 +992,7 @@ class MessageFieldView extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
-          color: style.primaryHighlight,
+          color: style.colors.primaryHighlight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(

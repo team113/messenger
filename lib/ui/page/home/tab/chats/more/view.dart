@@ -57,10 +57,8 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: style.onBackground, fontSize: 18),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: style.colors.onBackground, fontSize: 18),
                 ),
               ),
             ),
@@ -97,7 +95,7 @@ class ChatsMoreView extends StatelessWidget {
           child: Text(
             text,
             style: style.systemMessageStyle
-                .copyWith(color: style.onBackground, fontSize: 18),
+                .copyWith(color: style.colors.onBackground, fontSize: 18),
           ),
         ),
       ),
@@ -136,7 +134,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor: style.secondary,
+                    activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -205,13 +203,13 @@ class ChatsMoreView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: style.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                          color: style.secondary,
+                          color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {

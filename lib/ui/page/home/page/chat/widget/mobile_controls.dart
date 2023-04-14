@@ -103,7 +103,9 @@ class _MobileControlsState extends State<MobileControls>
             context,
             _chewieController.videoPlayerController.value.errorDescription!,
           ) ??
-          Center(child: Icon(Icons.error, color: style.onPrimary, size: 42));
+          Center(
+              child:
+                  Icon(Icons.error, color: style.colors.onPrimary, size: 42));
     }
 
     return MouseRegion(
@@ -146,7 +148,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: style.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -168,7 +170,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: style.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -218,7 +220,10 @@ class _MobileControlsState extends State<MobileControls>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [style.transparent, style.onBackgroundOpacity60],
+            colors: [
+              style.colors.transparent,
+              style.colors.onBackgroundOpacity60
+            ],
           ),
         ),
         child: SafeArea(
@@ -261,8 +266,8 @@ class _MobileControlsState extends State<MobileControls>
 
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: style.onBackgroundOpacity88,
-      iconColor: style.onPrimary,
+      backgroundColor: style.colors.onBackgroundOpacity88,
+      iconColor: style.colors.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,
       show: !_dragging && !_hideStuff,
@@ -298,7 +303,7 @@ class _MobileControlsState extends State<MobileControls>
           child: Center(
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -322,14 +327,14 @@ class _MobileControlsState extends State<MobileControls>
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: style.onPrimaryOpacity20,
+              color: style.colors.onPrimaryOpacity20,
               fontWeight: FontWeight.normal,
             ),
           )
         ],
         style: TextStyle(
           fontSize: 14.0,
-          color: style.onPrimary,
+          color: style.colors.onPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -356,10 +361,10 @@ class _MobileControlsState extends State<MobileControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: style.secondary,
-              handleColor: style.secondary,
-              bufferedColor: style.background.withOpacity(0.5),
-              backgroundColor: style.primary.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );

@@ -61,7 +61,7 @@ class CameraSwitchView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: CameraSwitchController(Get.find(), camera: camera),
@@ -97,7 +97,7 @@ class CameraSwitchView extends StatelessWidget {
                               height: 250,
                               width: 370,
                               decoration: BoxDecoration(
-                                color: style.primary,
+                                color: style.colors.secondary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: local == null

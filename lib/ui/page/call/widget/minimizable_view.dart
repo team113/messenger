@@ -100,8 +100,10 @@ class _MinimizableViewState extends State<MinimizableView>
       borderRadius: BorderRadius.circular(10.0),
       boxShadow: <BoxShadow>[
         CustomBoxShadow(
-          color:
-              Theme.of(router.context!).extension<Style>()!.onPrimaryOpacity90,
+          color: Theme.of(router.context!)
+              .extension<Style>()!
+              .colors
+              .onPrimaryOpacity90,
           blurRadius: 10.0,
           offset: const Offset(0, 0),
         )

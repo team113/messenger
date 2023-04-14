@@ -212,7 +212,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           final TextStyle? thin = Theme.of(context)
               .textTheme
               .bodySmall
-              ?.copyWith(color: style.onBackground);
+              ?.copyWith(color: style.colors.onBackground);
 
           if (b is ContextMenuButton) {
             return Row(
@@ -267,7 +267,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               }
             },
             child: Container(
-              color: style.transparent,
+              color: style.colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

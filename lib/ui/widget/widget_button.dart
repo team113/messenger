@@ -47,7 +47,7 @@ class WidgetButton extends StatelessWidget {
         onTap: onPressed,
         behavior: behavior,
         child: Container(
-          color: style.transparent,
+          color: style.colors.transparent,
           child: child,
         ),
       ),

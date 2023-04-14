@@ -160,8 +160,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       duration: 200.milliseconds,
                       decoration: BoxDecoration(
                         color: animated
-                            ? style.backgroundAuxiliaryLight
-                            : style.transparent,
+                            ? style.colors.backgroundAuxiliaryLight
+                            : style.colors.transparent,
                       ),
                       width: animated
                           ? MediaQuery.of(context).size.width - 20
@@ -302,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: style.secondaryHighlightShinier,
+                    color: style.colors.secondaryHighlightShinier,
                   ),
                 );
               }
@@ -320,7 +320,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: style.onBackgroundOpacity25,
+                            color: style.colors.onBackgroundOpacity25,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -358,7 +358,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     state,
                                     style:
                                         context.textTheme.bodySmall?.copyWith(
-                                      color: style.onBackgroundOpacity98,
+                                      color: style.colors.onBackgroundOpacity98,
                                     ),
                                   ),
                                   if (withDots) const AnimatedDots(),
@@ -377,7 +377,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    color: style.primaryHighlight,
+                    color: style.colors.primaryHighlight,
                     size: 66,
                     duration: const Duration(milliseconds: 4500),
                   ),
@@ -442,7 +442,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: style.onBackgroundOpacity67)
+                ? Container(color: style.colors.onBackgroundOpacity67)
                 : null,
           ),
         );
@@ -662,8 +662,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? style.onSecondaryOpacity90
-                          : style.onSecondaryOpacity60,
+                          ? style.colors.onSecondaryOpacity90
+                          : style.colors.onSecondaryOpacity60,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),
@@ -687,7 +687,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: style.onPrimaryOpacity40,
+                                  color: style.colors.onPrimaryOpacity40,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -766,7 +766,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Combines all the stackable content into [Scaffold].
     Widget scaffold = Scaffold(
-      backgroundColor: style.primaryBackgroundLight,
+      backgroundColor: style.colors.primaryBackgroundLight,
       body: Stack(
         children: [
           ...content,
@@ -839,12 +839,12 @@ Widget _chat(BuildContext context, CallController c) {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
-          color: style.transparent,
+          color: style.colors.transparent,
         ),
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
-          color: style.onSecondaryOpacity50,
+          color: style.colors.onSecondaryOpacity50,
           child: InkWell(
             borderRadius: style.cardRadius,
             onTap: () => c.openAddMember(context),
@@ -868,7 +868,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
-                                    ?.copyWith(color: style.onPrimary),
+                                    ?.copyWith(color: style.colors.onPrimary),
                               ),
                             ),
                             Text(
@@ -876,7 +876,7 @@ Widget _chat(BuildContext context, CallController c) {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
-                                  ?.copyWith(color: style.onPrimary),
+                                  ?.copyWith(color: style.colors.onPrimary),
                             ),
                           ],
                         ),
@@ -897,7 +897,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(color: style.onPrimary),
+                                    ?.copyWith(color: style.colors.onPrimary),
                               ),
                               const Spacer(),
                               Text(
@@ -908,7 +908,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(color: style.onPrimary),
+                                    ?.copyWith(color: style.colors.onPrimary),
                               ),
                             ],
                           ),

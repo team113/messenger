@@ -41,7 +41,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: style.onBackgroundOpacity94,
+            color: style.colors.onBackgroundOpacity94,
             height: 1,
             width: double.infinity,
           ),
@@ -54,11 +54,12 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(color: style.primaryHighlightDarkest, width: 0.5),
+        border:
+            Border.all(color: style.colors.primaryHighlightDarkest, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.onBackgroundOpacity81,
+            color: style.colors.onBackgroundOpacity81,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -96,7 +97,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       width: double.infinity,
       height: 1,
-      color: style.primaryHighlightDark,
+      color: style.colors.primaryHighlightDark,
     );
   }
 }
@@ -158,8 +159,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
             color: isMouseOver
                 ? context.isMobile
                     ? style.contextMenuHoveredColor
-                    : style.secondary
-                : style.transparent,
+                    : style.colors.primary
+                : style.colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -167,7 +168,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               if (widget.leading != null) ...[
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: IconThemeData(color: style.secondaryHighlight),
+                    iconTheme:
+                        IconThemeData(color: style.colors.secondaryHighlight),
                   ),
                   child: widget.leading!,
                 ),
@@ -177,8 +179,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 widget.label,
                 style: style.boldBody.copyWith(
                   color: (isMouseOver && !context.isMobile)
-                      ? style.onPrimary
-                      : style.onBackground,
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -188,7 +190,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 const Spacer(),
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: IconThemeData(color: style.secondaryHighlight),
+                    iconTheme:
+                        IconThemeData(color: style.colors.secondaryHighlight),
                   ),
                   child: widget.trailing!,
                 ),

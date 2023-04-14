@@ -291,7 +291,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                       margin: const EdgeInsets.only(bottom: 7),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: style.primaryOpacity20,
+                        color: style.colors.primaryOpacity20,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -318,7 +318,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                           MaterialState.disabled
                                         })!.copyWith(
                                           fontSize: 13,
-                                          color: style.onPrimary,
+                                          color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,

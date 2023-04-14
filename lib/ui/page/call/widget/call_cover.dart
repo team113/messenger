@@ -58,14 +58,14 @@ class CallCoverWidget extends StatelessWidget {
 
             final Color gradient;
 
-            final List<Color> avatarColors = style.avatarColors;
-
             if (color != null) {
-              gradient = avatarColors[color % avatarColors.length];
+              gradient = style
+                  .colors.userColors[color % style.colors.userColors.length];
             } else if (title != null) {
-              gradient = avatarColors[(title.hashCode) % avatarColors.length];
+              gradient = style.colors.userColors[
+                  (title.hashCode) % style.colors.userColors.length];
             } else {
-              gradient = style.primaryBackgroundLightest;
+              gradient = style.colors.primaryBackgroundLightest;
             }
 
             return Container(
@@ -86,7 +86,7 @@ class CallCoverWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),
-                        color: style.onPrimary,
+                        color: style.colors.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
 

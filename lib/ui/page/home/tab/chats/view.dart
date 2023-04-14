@@ -72,8 +72,8 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? style.primaryHighlight
-                    : style.primaryHighlight,
+                    ? style.colors.primaryHighlight
+                    : style.colors.transparent,
               );
             }),
             Obx(() {
@@ -82,10 +82,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(
-                          color: style.secondary,
-                          width: 2,
-                        )
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;
@@ -239,7 +236,7 @@ class ChatsTabView extends StatelessWidget {
                           center = Center(
                             key: UniqueKey(),
                             child: ColoredBox(
-                              color: style.transparent,
+                              color: style.colors.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -310,8 +307,7 @@ class ChatsTabView extends StatelessWidget {
                                       Text(
                                         'label_required'.l10n,
                                         style: TextStyle(
-                                          color: style.primary,
-                                        ),
+                                            color: style.colors.secondary),
                                       ),
                                     ],
                                   );
@@ -357,7 +353,7 @@ class ChatsTabView extends StatelessWidget {
                                         text,
                                         style:
                                             style.systemMessageStyle.copyWith(
-                                          color: style.onBackground,
+                                          color: style.colors.onBackground,
                                           fontSize: 15,
                                         ),
                                       ),
@@ -381,7 +377,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.transparent,
+                            color: style.colors.transparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -446,7 +442,7 @@ class ChatsTabView extends StatelessWidget {
                                               .category.name.capitalizeFirst!,
                                           style:
                                               style.systemMessageStyle.copyWith(
-                                            color: style.onBackground,
+                                            color: style.colors.onBackground,
                                             fontSize: 15,
                                           ),
                                         ),
@@ -495,7 +491,7 @@ class ChatsTabView extends StatelessWidget {
                             key: UniqueKey(),
                             child: ColoredBox(
                               key: const Key('Loading'),
-                              color: style.transparent,
+                              color: style.colors.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -595,8 +591,9 @@ class ChatsTabView extends StatelessWidget {
                                             final double elevation =
                                                 lerpDouble(0, 6, t)!;
                                             final Color color = Color.lerp(
-                                              style.transparent,
-                                              style.onBackgroundOpacity81,
+                                              style.colors.transparent,
+                                              style
+                                                  .colors.onBackgroundOpacity81,
                                               t,
                                             )!;
 
@@ -750,7 +747,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: style.onBackgroundOpacity81,
+                  color: style.colors.onBackgroundOpacity81,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
@@ -790,7 +787,7 @@ class ChatsTabView extends StatelessWidget {
               shadows: [
                 CustomBoxShadow(
                   blurRadius: 8,
-                  color: style.onBackgroundOpacity88,
+                  color: style.colors.onBackgroundOpacity88,
                   blurStyle: BlurStyle.outer,
                 ),
               ],
@@ -814,10 +811,10 @@ class ChatsTabView extends StatelessWidget {
                   'btn_close'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(color: style.onBackground),
+                  style: TextStyle(color: style.colors.onBackground),
                 ),
                 onPressed: c.closeGroupCreating,
-                color: style.onPrimary,
+                color: style.colors.onPrimary,
               ),
               const SizedBox(width: 10),
               button(
@@ -825,10 +822,10 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(color: style.onPrimary),
+                  style: TextStyle(color: style.colors.onPrimary),
                 ),
                 onPressed: c.createGroup,
-                color: style.secondary,
+                color: style.colors.primary,
               ),
             ],
           ),
@@ -849,7 +846,7 @@ class ChatsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.onBackgroundOpacity88,
+        color: style.colors.onBackgroundOpacity88,
         blurStyle: BlurStyle.outer,
       ),
     ];
@@ -871,10 +868,10 @@ class ChatsTabView extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(color: style.onBackground),
+                style: TextStyle(color: style.colors.onBackground),
               ),
               onPressed: c.toggleSelecting,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               shadows: shadows,
             ),
           ),
@@ -889,14 +886,14 @@ class ChatsTabView extends StatelessWidget {
                   maxLines: 1,
                   style: TextStyle(
                     color: c.selectedChats.isEmpty
-                        ? style.onBackground
-                        : style.onPrimary,
+                        ? style.colors.onBackground
+                        : style.colors.onPrimary,
                   ),
                 ),
                 onPressed: c.selectedChats.isEmpty
                     ? null
                     : () => _hideChats(context, c),
-                color: style.secondary,
+                color: style.colors.primary,
                 shadows: shadows,
               ),
             );

@@ -140,12 +140,12 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.onBackgroundOpacity44,
+                color: style.colors.onBackgroundOpacity44,
                 child: Padding(
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: style.primaryHighlight,
+                      color: style.colors.primaryHighlight,
                       size: 100 / 1.5,
                       duration: const Duration(milliseconds: 4500),
                     ),
@@ -157,7 +157,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.onBackgroundOpacity25,
+                color: style.colors.onBackgroundOpacity25,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -183,7 +183,7 @@ class ParticipantWidget extends StatelessWidget {
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: style.primaryOpacity20,
+              backgroundColor: style.colors.primaryOpacity20,
               child: SvgLoader.asset(
                 'assets/icons/hand_up.svg',
                 width: 90,
@@ -318,7 +318,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           style: context.theme.outlinedButtonTheme.style!.textStyle!
               .resolve({MaterialState.disabled})!.copyWith(
             fontSize: 15,
-            color: style.onPrimary,
+            color: style.colors.onPrimary,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -334,7 +334,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               CustomBoxShadow(
-                color: style.onBackgroundOpacity88,
+                color: style.colors.onBackgroundOpacity88,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -347,8 +347,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? style.onSecondaryOpacity30
-                    : style.onSecondary,
+                    ? style.colors.onSecondaryOpacity30
+                    : style.colors.onSecondary,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -426,8 +426,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border:
-                    Border.all(color: style.onBackgroundOpacity81, width: 0.5),
+                border: Border.all(
+                    color: style.colors.onBackgroundOpacity81, width: 0.5),
               ),
               child: const IgnorePointer(),
             ),

@@ -54,7 +54,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: style.onPrimary,
+        backgroundColor: style.colors.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -77,7 +77,7 @@ abstract class ModalPopup {
                       width: 60,
                       height: 3,
                       decoration: BoxDecoration(
-                        color: style.primaryHighlightDarkest,
+                        color: style.colors.primaryHighlightDarkest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -112,7 +112,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: style.onPrimary,
+                color: style.colors.onPrimary,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
@@ -159,7 +159,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_back_ios_new,
                   size: 14,
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             )
@@ -175,7 +175,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.close,
                   size: 18,
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             )

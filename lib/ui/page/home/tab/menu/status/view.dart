@@ -55,7 +55,7 @@ class StatusView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: StatusController(Get.find()),
@@ -114,7 +114,7 @@ class StatusView extends StatelessWidget {
                           child: Text(
                             'label_presence'.l10n,
                             style: style.systemMessageStyle.copyWith(
-                              color: style.onBackground,
+                              color: style.colors.onBackground,
                               fontSize: 18,
                             ),
                           ),

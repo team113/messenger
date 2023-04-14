@@ -104,7 +104,7 @@ class _FieldButtonState extends State<FieldButton> {
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
                 ? style.cardHoveredColor
-                : widget.fillColor ?? style.onPrimary,
+                : widget.fillColor ?? style.colors.onPrimary,
           ),
         ),
       ),

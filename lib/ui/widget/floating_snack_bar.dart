@@ -61,7 +61,7 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: TextStyle(color: style.onBackground, fontSize: 15),
+          style: TextStyle(color: style.colors.onBackground, fontSize: 15),
         ),
       ),
     );
@@ -119,7 +119,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                     border: style.cardHoveredBorder,
                     boxShadow: [
                       BoxShadow(
-                        color: style.onBackgroundOpacity98,
+                        color: style.colors.onBackgroundOpacity98,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       ),

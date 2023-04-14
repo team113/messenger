@@ -47,7 +47,7 @@ class CallWindowSwitchView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -89,7 +89,7 @@ class CallWindowSwitchView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         color: selected
                             ? style.cardSelectedColor.withOpacity(0.8)
-                            : style.onPrimary.darken(0.05),
+                            : style.colors.onPrimary.darken(0.05),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () => c.setPopupsEnabled(i == 0),
@@ -121,7 +121,7 @@ class CallWindowSwitchView extends StatelessWidget {
                                             radius: 12,
                                             child: Icon(
                                               Icons.check,
-                                              color: style.onPrimary,
+                                              color: style.colors.onPrimary,
                                               size: 12,
                                             ),
                                           )

@@ -148,7 +148,9 @@ class _DesktopControlsState extends State<DesktopControls>
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
-          Center(child: Icon(Icons.error, color: style.onPrimary, size: 42));
+          Center(
+              child:
+                  Icon(Icons.error, color: style.colors.onPrimary, size: 42));
     }
 
     return MouseRegion(
@@ -270,7 +272,7 @@ class _DesktopControlsState extends State<DesktopControls>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: style.onBackgroundOpacity60,
+                color: style.colors.onBackgroundOpacity60,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -309,7 +311,7 @@ class _DesktopControlsState extends State<DesktopControls>
               widget.isFullscreen?.value == true
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               size: 21,
             ),
           ),
@@ -336,15 +338,15 @@ class _DesktopControlsState extends State<DesktopControls>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: style.onBackgroundOpacity88,
+                    color: style.colors.onBackgroundOpacity88,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     iconSize: 32,
                     icon: isFinished
-                        ? Icon(Icons.replay, color: style.onPrimary)
+                        ? Icon(Icons.replay, color: style.colors.onPrimary)
                         : AnimatedPlayPause(
-                            color: style.onPrimary,
+                            color: style.colors.onPrimary,
                             playing: _controller.value.isPlaying,
                           ),
                     onPressed: _playPause,
@@ -365,11 +367,11 @@ class _DesktopControlsState extends State<DesktopControls>
         onTap: _playPause,
         child: Container(
           height: _barHeight,
-          color: style.transparent,
+          color: style.colors.transparent,
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
-            color: style.onPrimary,
+            color: style.colors.onPrimary,
           ),
         ),
       ),
@@ -411,7 +413,7 @@ class _DesktopControlsState extends State<DesktopControls>
             height: _barHeight,
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -452,7 +454,7 @@ class _DesktopControlsState extends State<DesktopControls>
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: style.onBackgroundOpacity60,
+                          color: style.colors.onBackgroundOpacity60,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(
@@ -489,7 +491,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: TextStyle(fontSize: 14.0, color: style.onPrimary),
+      style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
     );
   }
 
@@ -513,10 +515,10 @@ class _DesktopControlsState extends State<DesktopControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: style.secondary,
-              handleColor: style.secondary,
-              bufferedColor: style.background.withOpacity(0.5),
-              backgroundColor: style.primary.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );

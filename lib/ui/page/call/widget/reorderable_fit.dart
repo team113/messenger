@@ -660,8 +660,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? style.transparent
-                            : widget.hoverColor ?? style.transparent,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -688,8 +688,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? style.transparent
-                            : widget.hoverColor ?? style.transparent,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -1151,7 +1151,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: style.transparent,
+                color: style.colors.transparent,
               ),
             ),
             child: KeyedSubtree(

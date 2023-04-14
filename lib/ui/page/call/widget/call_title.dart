@@ -86,7 +86,7 @@ class CallTitle extends StatelessWidget {
           Text(
             title ?? ('dot'.l10n * 3),
             style: context.textTheme.headlineMedium?.copyWith(
-              color: style.onPrimary,
+              color: style.colors.onPrimary,
               fontSize: 27,
               fontWeight: FontWeight.bold,
             ),
@@ -101,7 +101,7 @@ class CallTitle extends StatelessWidget {
                 Text(
                   state!,
                   style: context.textTheme.headlineMedium
-                      ?.copyWith(color: style.onPrimary),
+                      ?.copyWith(color: style.colors.onPrimary),
                 ),
                 if (withDots) const AnimatedDots(),
               ],

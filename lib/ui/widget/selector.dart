@@ -118,7 +118,7 @@ class Selector<T> extends StatefulWidget {
       return showModalBottomSheet(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: style.onPrimary,
+        backgroundColor: style.colors.onPrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -198,7 +198,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: style.primaryHighlightDarkest,
+                  color: style.colors.primaryHighlightDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -224,8 +224,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                       selectionOverlay: Container(
                         margin:
                             const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration:
-                            BoxDecoration(color: style.onSecondaryOpacity20),
+                        decoration: BoxDecoration(
+                            color: style.colors.onSecondaryOpacity20),
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
@@ -256,8 +256,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              style.onPrimary,
-                              style.transparent,
+                              style.colors.onPrimary,
+                              style.colors.transparent,
                             ],
                           ),
                         ),
@@ -273,8 +273,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              style.transparent,
-                              style.onPrimary,
+                              style.colors.transparent,
+                              style.colors.onPrimary,
                             ],
                           ),
                         ),
@@ -370,10 +370,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: style.onPrimary,
+            color: style.colors.onPrimary,
             child: InkWell(
-              hoverColor: style.onSecondaryOpacity20,
-              highlightColor: style.onPrimaryOpacity90,
+              hoverColor: style.colors.onSecondaryOpacity20,
+              highlightColor: style.colors.onPrimaryOpacity90,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -431,8 +431,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  style.onPrimary,
-                                  style.transparent,
+                                  style.colors.onPrimary,
+                                  style.colors.transparent,
                                 ],
                               ),
                             ),
@@ -451,8 +451,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  style.transparent,
-                                  style.onPrimary,
+                                  style.colors.transparent,
+                                  style.colors.onPrimary,
                                 ],
                               ),
                             ),

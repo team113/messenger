@@ -159,8 +159,8 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: style.onBackgroundOpacity67,
-                            color: style.onPrimary,
+                            shadowColor: style.colors.onBackgroundOpacity67,
+                            color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
@@ -176,8 +176,8 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: style.transparent,
-                              highlightColor: style.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -232,7 +232,7 @@ class _ChatViewState extends State<ChatView>
                                       height: 32,
                                       width: 32,
                                       decoration: BoxDecoration(
-                                        color: style.declineColor,
+                                        color: style.colors.declineColor,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
@@ -483,7 +483,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: style.onBackgroundOpacity74,
+                                color: style.colors.onBackgroundOpacity74,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -495,14 +495,15 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: style.onBackgroundOpacity74,
+                                          color: style
+                                              .colors.onBackgroundOpacity74,
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
                                           child: Icon(
                                             Icons.add_rounded,
                                             size: 50,
-                                            color: style.onPrimary,
+                                            color: style.colors.onPrimary,
                                           ),
                                         ),
                                       ),
@@ -757,7 +758,7 @@ class _ChatViewState extends State<ChatView>
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: Center(
                   child: ColoredBox(
-                    color: style.transparent,
+                    color: style.colors.transparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),
@@ -824,7 +825,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.secondary),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -848,7 +849,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.secondary),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -1048,7 +1049,7 @@ class _ChatViewState extends State<ChatView>
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: style.onBackgroundOpacity88,
+                color: style.colors.onBackgroundOpacity88,
               ),
             ],
           ),
@@ -1086,7 +1087,7 @@ class _ChatViewState extends State<ChatView>
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: style.secondary,
+                                color: style.colors.primary,
                               ),
                             ),
                           ),

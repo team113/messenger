@@ -37,15 +37,16 @@ class AddUserListTile extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: style.onBackground);
+        .resolve({MaterialState.disabled})!.copyWith(
+            color: style.colors.onBackground);
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: style.acceptAuxilaryColor,
-        child: Icon(Icons.check, color: style.onPrimary),
+        backgroundColor: style.colors.acceptAuxiliaryColor,
+        child: Icon(Icons.check, color: style.colors.onPrimary),
       ),
       selected: true,
-      selectedTileColor: style.onBackgroundOpacity94,
+      selectedTileColor: style.colors.onBackgroundOpacity94,
       title: Text(user.name?.val ?? user.num.val, style: font17),
       onTap: onTap,
     );

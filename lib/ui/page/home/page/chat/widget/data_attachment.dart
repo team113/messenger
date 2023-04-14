@@ -67,16 +67,16 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: style.secondary,
+                    color: style.colors.primary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      style.secondary,
-                      style.secondary,
-                      style.backgroundAuxiliaryLighter,
+                      style.colors.primary,
+                      style.colors.primary,
+                      style.colors.backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
@@ -103,12 +103,12 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: style.secondary,
+                color: style.colors.primary,
               ),
               child: Center(
                 child: Icon(
                   Icons.insert_drive_file,
-                  color: style.onPrimary,
+                  color: style.colors.onPrimary,
                   size: 16,
                 ),
               ),
@@ -124,11 +124,11 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? style.backgroundAuxiliaryLighter
-                    : style.transparent,
+                    ? style.colors.backgroundAuxiliaryLighter
+                    : style.colors.transparent,
                 border: Border.all(
                   width: 2,
-                  color: style.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               child: Center(
@@ -149,7 +149,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               dimension: 18,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor: style.onPrimary,
+                backgroundColor: style.colors.onPrimary,
                 strokeWidth: 5,
               ),
             );
@@ -160,7 +160,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.check_circle,
               key: const Key('Sent'),
               size: 18,
-              color: style.acceptAuxilaryColor,
+              color: style.colors.acceptAuxiliaryColor,
             );
             break;
 
@@ -169,7 +169,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 18,
-              color: style.dangerColor,
+              color: style.colors.dangerColor,
             );
             break;
         }
@@ -186,7 +186,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: style.onBackgroundOpacity98,
+                color: style.colors.onBackgroundOpacity98,
               ),
               padding: const EdgeInsets.all(4),
               child: Row(
@@ -226,7 +226,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           overflow: TextOverflow.ellipsis,
                           style: style.boldBody.copyWith(
                             fontSize: 13,
-                            color: style.primary,
+                            color: style.colors.secondary,
                           ),
                         ),
                       ],

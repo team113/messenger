@@ -171,7 +171,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: style.onBackground
+                      color: style.colors.onBackground
                           .withOpacity(0.25 * _controller.value),
                     );
                   },
@@ -246,8 +246,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                               const SizedBox(width: 5),
                               Material(
                                 borderRadius: BorderRadius.circular(10),
-                                color: style.onPrimary,
-                                shadowColor: style.onBackgroundOpacity81,
+                                color: style.colors.onPrimary,
+                                shadowColor: style.colors.onBackgroundOpacity81,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,
@@ -303,8 +303,8 @@ class _AnimatedFabState extends State<AnimatedFab>
 
     return Material(
       type: MaterialType.circle,
-      color: style.onPrimary,
-      shadowColor: style.onBackgroundOpacity67,
+      color: style.colors.onPrimary,
+      shadowColor: style.colors.onBackgroundOpacity67,
       elevation: 6,
       child: InkWell(
         customBorder: const CircleBorder(),

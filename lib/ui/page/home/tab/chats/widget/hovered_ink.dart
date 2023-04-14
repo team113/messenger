@@ -109,7 +109,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
             borderRadius: widget.borderRadius,
             onTap: widget.onTap?.call,
             onHover: (v) => setState(() => hovered = v),
-            hoverColor: style.transparent,
+            hoverColor: style.colors.transparent,
             child: Stack(
               children: [
                 Center(child: widget.child),
@@ -126,7 +126,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                       ),
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.primaryHighlightDarkest,
+                          color: style.colors.primaryHighlightDarkest,
                           blurStyle: BlurStyle.outer,
                           blurRadius: 4,
                         ),

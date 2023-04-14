@@ -47,7 +47,7 @@ class ChangePasswordView extends StatelessWidget {
     final TextStyle? thin = Theme.of(context)
         .textTheme
         .bodyLarge
-        ?.copyWith(color: style.onBackground);
+        ?.copyWith(color: style.colors.onBackground);
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -72,7 +72,7 @@ class ChangePasswordView extends StatelessWidget {
                             : 'label_password_changed'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: style.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                     ),
@@ -82,10 +82,10 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: thin?.copyWith(color: style.onPrimary),
+                        style: thin?.copyWith(color: style.colors.onPrimary),
                       ),
                       onPressed: Navigator.of(context).pop,
-                      color: style.secondary,
+                      color: style.colors.primary,
                     ),
                   ],
                 ),
@@ -168,12 +168,13 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
-                            color:
-                                enabled ? style.onPrimary : style.onBackground,
+                            color: enabled
+                                ? style.colors.onPrimary
+                                : style.colors.onBackground,
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,
-                        color: style.secondary,
+                        color: style.colors.primary,
                       );
                     }),
                   ],

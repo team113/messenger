@@ -56,7 +56,7 @@ class CustomNavigationBar extends StatelessWidget {
         boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: style.onBackgroundOpacity88,
+            color: style.colors.onBackgroundOpacity88,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -91,18 +91,18 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             InkResponse(
-                              hoverColor: style.transparent,
-                              highlightColor: style.transparent,
-                              splashColor: style.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
+                              splashColor: style.colors.transparent,
                               onTap: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
-                                color: style.transparent,
+                                color: style.colors.transparent,
                                 child: Center(
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(
-                                      badgeColor:
-                                          b.badgeColor ?? style.dangerColor,
+                                      badgeColor: b.badgeColor ??
+                                          style.colors.dangerColor,
                                     ),
                                     badgeContent: b.badge == null
                                         ? null
@@ -110,7 +110,7 @@ class CustomNavigationBar extends StatelessWidget {
                                             b.badge!,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: style.onPrimary,
+                                              color: style.colors.onPrimary,
                                               fontSize: 11,
                                             ),
                                           ),
