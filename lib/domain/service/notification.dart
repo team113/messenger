@@ -213,7 +213,6 @@ class NotificationService extends DisposableService {
             largeIcon:
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
           ),
-          // TODO: Setup custom notification sound for iOS.
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
