@@ -59,9 +59,7 @@ class NotificationService extends DisposableService {
         onDidReceiveLocalNotification,
   }) async {
     PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) {
-      _focused = v;
-    });
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
     if (PlatformUtils.isWeb) {

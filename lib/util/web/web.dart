@@ -551,7 +551,7 @@ class WebUtils {
   /// Resets favicon to default.
   static void resetIcon() {
     html.ElementList<html.LinkElement> links =
-        html.querySelectorAll("link[rel~='icon']");
+        html.querySelectorAll("link[rel*='icon']");
 
     for (var e in links) {
       e.href = e.href.replaceFirst('icons/alert/', 'icons/');
