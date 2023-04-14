@@ -186,6 +186,8 @@ class ParticipantView extends StatelessWidget {
 /// Returns a visual representation of the provided [user].
 class _UserWidget extends StatelessWidget {
   final ParticipantController c;
+
+  /// [OngoingCall] this modal is bound to.
   final RxUser user;
 
   /// [OngoingCall] this modal is bound to.
