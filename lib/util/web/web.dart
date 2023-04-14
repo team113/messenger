@@ -554,7 +554,7 @@ class WebUtils {
   }
 
   /// Sets the favicon being used to an alert style.
-  static void setAlertIcon() {
+  static void setAlertFavicon() {
     for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
       if (!e.href.contains('icons/alert/')) {
         e.href = e.href.replaceFirst('icons/', 'icons/alert/');
@@ -563,7 +563,7 @@ class WebUtils {
   }
 
   /// Sets the favicon being used to the default style.
-  static void resetIcon() {
+  static void setDefaultFavicon() {
     for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
       e.href = e.href.replaceFirst('icons/alert/', 'icons/');
     }
