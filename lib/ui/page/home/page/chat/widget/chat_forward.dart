@@ -371,9 +371,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     children: files
                         .map(
                           (e) => ChatItemWidget.fileAttachment(
-                            context,
                             e,
-                            fromMe: widget.authorId == widget.me,
                             onFileTap: (a) => widget.onFileTap?.call(msg, a),
                           ),
                         )
@@ -660,9 +658,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 children: files
                     .map(
                       (e) => ChatItemWidget.fileAttachment(
-                        context,
                         e,
-                        fromMe: widget.authorId == widget.me,
                         onFileTap: (a) => widget.onFileTap?.call(item, a),
                       ),
                     )

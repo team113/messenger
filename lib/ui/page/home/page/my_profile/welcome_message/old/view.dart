@@ -174,11 +174,7 @@ class WelcomeMessageView extends StatelessWidget {
                         child: Column(
                           children: files
                               .map(
-                                (e) => ChatItemWidget.fileAttachment(
-                                  context,
-                                  e,
-                                  fromMe: true,
-                                ),
+                                (e) => ChatItemWidget.fileAttachment(e),
                               )
                               .toList(),
                         ),

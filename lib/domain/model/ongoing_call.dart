@@ -27,7 +27,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
-import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -151,6 +150,8 @@ class OngoingCall {
         outputDevice = RxnString(mediaSettings?.outputDevice) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
+
+    members[_me] = CallMember.me(_me, isConnected: true);
 
     if (withAudio) {
       audioState = Rx(LocalTrackState.enabling);
@@ -325,8 +326,6 @@ class OngoingCall {
         MessagePopup.error(e);
         return;
       }
-
-      members[_me] = CallMember.me(_me, isConnected: true);
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {

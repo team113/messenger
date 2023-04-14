@@ -54,6 +54,10 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
+      if (route.endsWith('/')) {
+        route = route.substring(0, route.length - 1);
+      }
+
       if (route == Routes.me) {
         pages.add(const _CustomPage(
           key: ValueKey('MyProfilePage'),

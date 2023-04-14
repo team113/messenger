@@ -1430,13 +1430,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: Column(
                         children: files
-                            .map(
-                              (e) => ChatItemWidget.fileAttachment(
-                                context,
-                                e,
-                                fromMe: true,
-                              ),
-                            )
+                            .map((e) => ChatItemWidget.fileAttachment(e))
                             .toList(),
                       ),
                     ),

@@ -25,6 +25,7 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -349,9 +350,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Returns a visual representation of the provided file-[Attachment].
   static Widget fileAttachment(
-    BuildContext context,
     Attachment e, {
-    required bool fromMe,
     void Function(FileAttachment)? onFileTap,
   }) {
     return DataAttachment(
@@ -905,7 +904,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool isError = msg.status.value == SendingStatus.error;
     final bool isSending = msg.status.value == SendingStatus.sending;
 
-    final bool timeInBubble = msg.attachments.isNotEmpty;
+    // final bool timeInBubble = msg.attachments.isNotEmpty;
+    final bool timeInBubble = _text == null && media.isNotEmpty;
 
     // const Color paidColor = Color(0xFFF19CBB);
     // const Color paidColor = Color(0xFF8383ff);
@@ -967,7 +967,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? Theme.of(context).colorScheme.secondary
                     : isError
                         ? Colors.red
-                        : Theme.of(context).colorScheme.primary,
+                        : timeInBubble
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.primary,
                 size: 12,
               ),
             const SizedBox(width: 3),
@@ -975,7 +977,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           SelectionContainer.disabled(
             child: Text(
               DateFormat.Hm().format(msg.at.val.toLocal()),
-              style: style.systemMessageStyle.copyWith(fontSize: 11),
+              style: style.systemMessageStyle.copyWith(
+                color: timeInBubble ? Colors.white : null,
+                fontSize: 11,
+              ),
             ),
           ),
         ],
@@ -1106,6 +1111,84 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ],
               ),
             ),
+          if (media.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: msg.repliesTo.isNotEmpty ||
+                        (!_fromMe &&
+                            widget.chat.value?.isGroup == true &&
+                            widget.avatar)
+                    ? Radius.zero
+                    : const Radius.circular(15),
+                topRight: msg.repliesTo.isNotEmpty ||
+                        (!_fromMe &&
+                            widget.chat.value?.isGroup == true &&
+                            widget.avatar)
+                    ? Radius.zero
+                    : const Radius.circular(15),
+                bottomLeft:
+                    _text != null ? Radius.zero : const Radius.circular(15),
+                bottomRight:
+                    _text != null ? Radius.zero : const Radius.circular(15),
+              ),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: _isRead || !_fromMe ? 1 : 0.55,
+                child: media.length == 1
+                    ? ChatItemWidget.mediaAttachment(
+                        context,
+                        media.first,
+                        media,
+                        filled: false,
+                        key: _galleryKeys[0],
+                        onError: widget.onAttachmentError,
+                        onGallery: widget.onGallery,
+                        autoLoad: widget.loadImages,
+                      )
+                    : SizedBox(
+                        width: media.length * 120,
+                        height: max(media.length * 60, 300),
+                        child: FitView(
+                          dividerColor: Colors.transparent,
+                          children: media
+                              .mapIndexed(
+                                (i, e) => ChatItemWidget.mediaAttachment(
+                                  context,
+                                  e,
+                                  media,
+                                  key: _galleryKeys[i],
+                                  onError: widget.onAttachmentError,
+                                  onGallery: widget.onGallery,
+                                  autoLoad: widget.loadImages,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+              ),
+            ),
+          if (files.isNotEmpty)
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                child: SelectionContainer.disabled(
+                  child: Column(
+                    children: [
+                      ...files.mapIndexed(
+                        (i, e) => ChatItemWidget.fileAttachment(
+                          e,
+                          onFileTap: widget.onFileTap,
+                        ),
+                      ),
+                      if (_text == null && !timeInBubble)
+                        Opacity(opacity: 0, child: _timestamp(msg)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           if (_text != null)
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
@@ -1118,8 +1201,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           widget.avatar
                       ? 0
                       : 10,
-                  12,
-                  files.isEmpty ? 10 : 0,
+                  12, 10,
+                  // files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
                   // text,
@@ -1171,86 +1254,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
-          if (files.isNotEmpty)
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: Column(
-                  children: files
-                      .map(
-                        (e) => ChatItemWidget.fileAttachment(
-                          context,
-                          e,
-                          fromMe: _fromMe,
-                          onFileTap: widget.onFileTap,
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            ),
-          if (media.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: _text != null ||
-                        msg.repliesTo.isNotEmpty ||
-                        (!_fromMe &&
-                            widget.chat.value?.isGroup == true &&
-                            widget.avatar)
-                    ? Radius.zero
-                    : files.isEmpty
-                        ? const Radius.circular(15)
-                        : Radius.zero,
-                topRight: _text != null ||
-                        msg.repliesTo.isNotEmpty ||
-                        (!_fromMe &&
-                            widget.chat.value?.isGroup == true &&
-                            widget.avatar)
-                    ? Radius.zero
-                    : files.isEmpty
-                        ? const Radius.circular(15)
-                        : Radius.zero,
-                bottomLeft: const Radius.circular(15),
-                bottomRight: const Radius.circular(15),
-              ),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: _isRead || !_fromMe ? 1 : 0.55,
-                child: media.length == 1
-                    ? ChatItemWidget.mediaAttachment(
-                        context,
-                        media.first,
-                        media,
-                        filled: false,
-                        key: _galleryKeys[0],
-                        onError: widget.onAttachmentError,
-                        onGallery: widget.onGallery,
-                        autoLoad: widget.loadImages,
-                      )
-                    : SizedBox(
-                        width: media.length * 120,
-                        height: max(media.length * 60, 300),
-                        child: FitView(
-                          dividerColor: Colors.transparent,
-                          children: media
-                              .mapIndexed(
-                                (i, e) => ChatItemWidget.mediaAttachment(
-                                  context,
-                                  e,
-                                  media,
-                                  key: _galleryKeys[i],
-                                  onError: widget.onAttachmentError,
-                                  onGallery: widget.onGallery,
-                                  autoLoad: widget.loadImages,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-              ),
-            ),
         ];
 
         return Container(
@@ -1278,21 +1281,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     right: timeInBubble ? 4 : 8,
                     bottom: 4,
                     child: timeInBubble
-                        ? Container(
-                            padding: const EdgeInsets.only(
-                              left: 5,
-                              right: 5,
-                              top: 2,
-                              bottom: 2,
+                        ? ConditionalBackdropFilter(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.only(
+                                left: 5,
+                                right: 5,
+                                top: 2,
+                                bottom: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                // color: Colors.white.withOpacity(0.9),
+                                // color: _fromMe
+                                //     ? style.readMessageColor
+                                //     : style.messageColor,
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: timeline,
                             ),
-                            decoration: BoxDecoration(
-                              // color: Colors.white.withOpacity(0.9),
-                              color: _fromMe
-                                  ? style.readMessageColor
-                                  : style.messageColor,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: timeline,
                           )
                         : timeline,
                   )
@@ -1367,11 +1374,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: message.withVideo
                 ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_video2${isMissed && !_fromMe ? '_red' : ''}.svg',
                     height: 13 * 1.4,
                   )
                 : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_audio2${isMissed && !_fromMe ? '_red' : ''}.svg',
                     height: 15 * 1.4,
                   ),
           ),

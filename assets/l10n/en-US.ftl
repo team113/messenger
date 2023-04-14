@@ -227,6 +227,16 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_recovery_code_body =  Gapopa recovery code is: {$token}
+    Valid until {$expires_at}.
+
+    {$domain}
+email_recovery_code_subject = Gapopa recovery code
+email_verification_code_body = Gapopa verification code is: {$token}
+    Valid until {$expires_at}.
+
+    {$domain}
+email_verification_code_subject = Gapopa verification code
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
