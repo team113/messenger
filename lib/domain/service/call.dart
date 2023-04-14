@@ -82,7 +82,12 @@ class CallService extends DisposableService {
         withVideo: withVideo,
         withScreen: withScreen,
       );
-      call.value.connect(this);
+
+      if (isClosed) {
+        call.value.dispose();
+      } else {
+        call.value.connect(this);
+      }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -127,7 +132,11 @@ class CallService extends DisposableService {
         );
       }
 
-      call?.value.connect(this);
+      if (isClosed) {
+        call?.value.dispose();
+      } else {
+        call?.value.connect(this);
+      }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.

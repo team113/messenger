@@ -573,6 +573,8 @@ class RecentChatTile extends StatelessWidget {
 
                   return Text('label_group_created_by'.l10nfmt(args));
                 });
+              } else if (chat.isMonolog) {
+                content = Text('label_monolog_created'.l10n);
               } else {
                 content = Text('label_dialog_created'.l10n);
               }
@@ -786,9 +788,10 @@ class RecentChatTile extends StatelessWidget {
         item = chat.lastItem;
       }
 
-      if (item != null && item.authorId == me) {
+      if (item != null && item.authorId == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
-        final bool isRead = chat.isRead(item, me) && isSent;
+        final bool isRead =
+            chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;

@@ -78,7 +78,7 @@ class MyProfileView extends StatelessWidget {
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
-                return const CustomProgressIndicator();
+                return const Center(child: CustomProgressIndicator());
               }
 
               return Scrollbar(

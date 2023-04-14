@@ -55,7 +55,7 @@ class SearchUserTile extends StatelessWidget {
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
       final bool selected = router.routes.lastWhereOrNull((e) =>
-              e.startsWith('${Routes.chat}/$chatId') ||
+              e.startsWith('${Routes.chats}/$chatId') ||
               e.startsWith('${Routes.user}/$userId')) !=
           null;
 

@@ -15,29 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:messenger/store/chat_rx.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
-import '/util/new_type.dart';
-import 'version.dart';
+void main() {
+  test('ListInsertAfter.insertAfter correctly inserts elements', () async {
+    final List list = [];
 
-part 'chat.g.dart';
-
-/// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
-class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
-}
-
-/// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends NewType<String> {
-  RecentChatsCursor(String val) : super(val);
-}
-
-/// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
-class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
+    expect(list..insertAfter(0, (p) => p < 0), [0]);
+    expect(list..insertAfter(1, (p) => p < 1), [0, 1]);
+    expect(list..insertAfter(2, (p) => p < 2), [0, 1, 2]);
+    expect(list..insertAfter(3, (p) => p < 3), [0, 1, 2, 3]);
+    expect(list..insertAfter(-1, (p) => p < -1), [-1, 0, 1, 2, 3]);
+    expect(list..insertAfter(10, (p) => p < 10), [-1, 0, 1, 2, 3, 10]);
+    expect(list..insertAfter(5, (p) => p < 5), [-1, 0, 1, 2, 3, 5, 10]);
+  });
 }
