@@ -80,7 +80,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 _PrimaryButton(
-                  key: const Key('Proceed'),
+                  key: const Key('ProceedRecovery'),
                   title: 'btn_proceed'.l10n,
                   onPressed:
                       c.recovery.isEmpty.value ? null : c.recovery.submit,
@@ -117,7 +117,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 _PrimaryButton(
-                  key: const Key('Proceed'),
+                  key: const Key('ProceedRecoveryCode'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.recoveryCode.isEmpty.value
                       ? null
@@ -176,7 +176,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 _PrimaryButton(
-                  key: const Key('Proceed'),
+                  key: const Key('ProceedRecoveryPassword'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.newPassword.isEmpty.value ||
                           c.repeatPassword.isEmpty.value
