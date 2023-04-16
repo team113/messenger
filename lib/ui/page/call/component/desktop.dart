@@ -366,6 +366,10 @@ class DesktopCall extends StatelessWidget {
           // Sliding from the top info header.
           if (WebUtils.isPopup)
             Obx(() {
+              if (!c.fullscreen.value) {
+                return const SizedBox();
+              }
+
               return Align(
                 alignment: Alignment.topCenter,
                 child: AnimatedSlider(
@@ -374,8 +378,7 @@ class DesktopCall extends StatelessWidget {
                   beginOffset: const Offset(0, -1),
                   endOffset: const Offset(0, 0),
                   isOpen: c.state.value == OngoingCallState.active &&
-                      c.showHeader.value &&
-                      c.fullscreen.value,
+                      c.showHeader.value,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
