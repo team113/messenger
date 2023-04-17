@@ -626,11 +626,11 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: (selection) {
+            onCopy: (text) {
               if (c.selection.value?.plainText.isNotEmpty == true) {
                 c.copyText(c.selection.value!.plainText);
               } else {
-                c.copyText(selection);
+                c.copyText(text);
               }
             },
             onRepliedTap: (q) async {
@@ -723,11 +723,11 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
-            onCopy: (selection) {
+            onCopy: (text) {
               if (c.selection.value?.plainText.isNotEmpty == true) {
                 c.copyText(c.selection.value!.plainText);
               } else {
-                c.copyText(selection);
+                c.copyText(text);
               }
             },
             onGallery: c.calculateGallery,

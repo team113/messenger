@@ -1560,32 +1560,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
-    buildItem(menu) => Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            builder(PlatformUtils.isMobile ? menu : false),
-            if (avatars.isNotEmpty)
-              Transform.translate(
-                offset: Offset(-12, -widget.margin.bottom),
-                child: WidgetButton(
-                  onPressed: () => MessageInfo.show(
-                    context,
-                    reads: reads ?? [],
-                    id: widget.item.value.id,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: avatars,
-                    ),
+    // Builds the provided [builder] and the [avatars], if any.
+    Widget child(bool menu) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          builder(menu),
+          if (avatars.isNotEmpty)
+            Transform.translate(
+              offset: Offset(-12, -widget.margin.bottom),
+              child: WidgetButton(
+                onPressed: () => MessageInfo.show(
+                  context,
+                  reads: reads ?? [],
+                  id: widget.item.value.id,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: avatars,
                   ),
                 ),
               ),
-          ],
-        );
+            ),
+        ],
+      );
+    }
 
     return SwipeableStatus(
       animation: widget.animation,
@@ -1886,8 +1889,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: PlatformUtils.isMobile ? buildItem : null,
-                        child: PlatformUtils.isMobile ? null : buildItem(false),
+                        builder: PlatformUtils.isMobile ? child : null,
+                        child: PlatformUtils.isMobile ? null : child(false),
                       ),
                     ),
                   );
