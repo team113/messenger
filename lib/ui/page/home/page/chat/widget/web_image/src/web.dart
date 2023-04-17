@@ -15,11 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:ui' as ui;
 
-import 'package:flutter/widgets.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '/util/platform_utils.dart';
 
 /// Web [html.ImageElement] used to show images natively.
 ///
@@ -27,11 +32,16 @@ import 'package:flutter/widgets.dart';
 class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
+    this.onForbidden,
     Key? key,
   }) : super(key: key);
 
   /// URL of the image to display.
   final String src;
+
+  /// Callback, called when loading an image from the provided [src] fails with
+  /// a forbidden network error.
+  final Future<void> Function()? onForbidden;
 
   @override
   State<WebImage> createState() => _WebImageState();
@@ -43,32 +53,93 @@ class _WebImageState extends State<WebImage> {
   /// Native [html.ImageElement] itself.
   html.ImageElement? _element;
 
+  /// Indicator whether the image to display is fully loaded.
+  bool _isLoaded = false;
+
+  /// Unique identifier for a platform view.
+  late int _elementId;
+
+  /// Subscription for [html.ImageElement.onLoad] stream.
+  StreamSubscription? _loadSubscription;
+
+  /// Subscription for [html.ImageElement.onError] stream.
+  StreamSubscription? _errorSubscription;
+
   @override
   void initState() {
+    _initImageElement();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(WebImage oldWidget) {
+    if (oldWidget.src != widget.src) {
+      _element?.removeAttribute('src');
+      _element?.remove();
+      _initImageElement();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _loadSubscription?.cancel();
+    _errorSubscription?.cancel();
+    _element?.removeAttribute('src');
+    _element?.remove();
+
+    super.dispose();
+  }
+
+  void _initImageElement() {
+    _elementId = platformViewsRegistry.getNextPlatformViewId();
+
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
-      '__webImageViewType__${widget.src}__',
+      '${_elementId}__webImageViewType__${widget.src}__',
       (int viewId) {
         _element = html.ImageElement(src: widget.src)
           ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
+
+        _loadSubscription?.cancel();
+        _loadSubscription = _element?.onLoad.listen((_) {
+          if (mounted) {
+            setState(() => _isLoaded = true);
+          }
+        });
+
+        _errorSubscription?.cancel();
+        _errorSubscription = _element?.onError.listen((_) async {
+          try {
+            await PlatformUtils.dio.head(widget.src);
+          } catch (e) {
+            if (e is DioError) {
+              if (e.response?.statusCode == 403) {
+                await widget.onForbidden?.call();
+              }
+            }
+          }
+        });
+
         return _element!;
       },
     );
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _element?.removeAttribute('src');
-    _element?.remove();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: '__webImageViewType__${widget.src}__');
+    return Stack(
+      children: [
+        Opacity(
+          opacity: _isLoaded ? 1 : 0,
+          child: HtmlElementView(
+              viewType: '${_elementId}__webImageViewType__${widget.src}__'),
+        ),
+        if (!_isLoaded) const Center(child: CircularProgressIndicator()),
+      ],
+    );
   }
 }

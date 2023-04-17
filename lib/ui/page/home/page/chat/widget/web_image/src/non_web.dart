@@ -23,11 +23,16 @@ import 'package:flutter/widgets.dart';
 class WebImage extends StatelessWidget {
   const WebImage(
     this.src, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+    this.onForbidden,
+  });
 
   /// URL of the image to display.
   final String src;
+
+  /// Callback, called when loading an image from the provided [src] fails with
+  /// a forbidden network error.
+  final Future<void> Function()? onForbidden;
 
   @override
   Widget build(BuildContext context) => Image.network(src);

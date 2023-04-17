@@ -586,7 +586,17 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _toggleFullscreen();
                     },
                     child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
+                        ? IgnorePointer(
+                            child: WebImage(
+                              e.link,
+                              onForbidden: () async {
+                                await e.onError?.call();
+                                if (mounted) {
+                                  setState(() {});
+                                }
+                              },
+                            ),
+                          )
                         : RetryImage(
                             e.link,
                             checksum: e.checksum,
