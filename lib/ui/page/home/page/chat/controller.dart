@@ -80,7 +80,7 @@ enum ConfirmAction {
   sendMessage,
 }
 
-/// Controller of the [Routes.chat] page.
+/// Controller of the [Routes.chats] page.
 class ChatController extends GetxController {
   ChatController(
     this.id,
@@ -357,6 +357,11 @@ class ChatController extends GetxController {
 
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
+            if (send.replied.any((e) => e is ChatCall)) {
+              MessagePopup.error('err_cant_forward_calls'.l10n);
+              return;
+            }
+
             bool? result = await ChatForwardView.show(
               router.context!,
               id,
@@ -1168,7 +1173,7 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
-    Clipboard.setData(ClipboardData(text: text));
+    PlatformUtils.copy(text: text);
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 

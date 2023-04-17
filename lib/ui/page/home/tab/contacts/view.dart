@@ -233,6 +233,7 @@ class ContactsTabView extends StatelessWidget {
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
+                      key: const Key('SearchScrollable'),
                       controller: c.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
@@ -520,7 +521,7 @@ class ContactsTabView extends StatelessWidget {
         enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
             ? (child) => WidgetButton(
-                  // TODO: Open [Routes.contact] page when it's implemented.
+                  // TODO: Open [Routes.contacts] page when it's implemented.
                   onPressed: () => router.user(contact.user.value!.id),
                   child: avatarBuilder?.call(child) ?? child,
                 )
@@ -528,7 +529,7 @@ class ContactsTabView extends StatelessWidget {
         onTap: c.selecting.value
             ? () => c.selectContact(contact)
             : contact.contact.value.users.isNotEmpty
-                // TODO: Open [Routes.contact] page when it's implemented.
+                // TODO: Open [Routes.contacts] page when it's implemented.
                 ? () => router.user(contact.user.value!.id)
                 : null,
         actions: [

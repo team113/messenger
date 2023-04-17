@@ -73,7 +73,7 @@ class ChatRepository extends DisposableInterface
     this._userRepo,
     this._sessionLocal,
     this._monologLocal, {
-    this.me,
+    required this.me,
   });
 
   /// Callback, called when an [User] identified by the provided [userId] is
@@ -81,7 +81,7 @@ class ChatRepository extends DisposableInterface
   late final Future<void> Function(ChatId id, UserId userId) onMemberRemoved;
 
   /// [UserId] of the currently authenticated [MyUser].
-  final UserId? me;
+  final UserId me;
 
   @override
   final Rx<RxStatus> status = Rx(RxStatus.empty());
@@ -148,7 +148,7 @@ class ChatRepository extends DisposableInterface
   RxBool get isReady => _isReady;
 
   @override
-  ChatId get monolog => _monologLocal.get() ?? ChatId.local(me!);
+  ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
   Future<void> init({
@@ -443,10 +443,10 @@ class ChatRepository extends DisposableInterface
 
         // Delete the local [Chat]-monolog from [Hive], since it won't be
         // removed as is will be hidden right away.
-        remove(id);
+        await remove(id);
 
         id = monolog.chat.value.id;
-        _monologLocal.set(id);
+        await _monologLocal.set(id);
       }
 
       await _graphQlProvider.hideChat(id);
@@ -1444,21 +1444,20 @@ class ChatRepository extends DisposableInterface
   /// [responderId] and the authenticated [MyUser].
   Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
+
+    final List<RxUser?> users = [
+      await _userRepo.get(me),
+      if (responderId != me) await _userRepo.get(responderId)
+    ];
+
     final ChatData chatData = ChatData(
       HiveChat(
         Chat(
           chatId,
-          members: [
-            if (responderId != me)
-              ChatMember(
-                (await _userRepo.get(responderId))!.user.value,
-                PreciseDateTime.now(),
-              ),
-            ChatMember(
-              (await _userRepo.get(me!))!.user.value,
-              PreciseDateTime.now(),
-            ),
-          ],
+          members: users
+              .whereNotNull()
+              .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
+              .toList(),
           kindIndex: ChatKind.values
               .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
         ),
@@ -1478,7 +1477,7 @@ class ChatRepository extends DisposableInterface
     if (monolog.isLocal) {
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
-        await _createLocalDialog(me!);
+        await _createLocalDialog(me);
       } else {
         _monologLocal.set(query.id);
       }

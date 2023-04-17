@@ -23,7 +23,7 @@ import '/domain/model/contact.dart';
 
 export 'view.dart';
 
-/// Controller of the [Routes.contact] page.
+/// Controller of the [Routes.contacts] page.
 class ContactController extends GetxController {
   ContactController(this.id, this._contactService);
 

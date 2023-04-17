@@ -57,7 +57,7 @@ import 'widget/custom_drop_target.dart';
 import 'widget/paid_notification.dart';
 import 'widget/swipeable_status.dart';
 
-/// View of the [Routes.chat] page.
+/// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
   const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 

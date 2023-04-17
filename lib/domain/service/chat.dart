@@ -152,7 +152,7 @@ class ChatService extends DisposableService {
 
     if (userId == me) {
       chat = chats.remove(chatId);
-      if (router.route.startsWith('${Routes.chat}/$chatId')) {
+      if (router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
     }
@@ -301,7 +301,7 @@ class ChatService extends DisposableService {
   /// If [userId] is [me], then removes the specified [Chat] from the [chats].
   Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
     if (userId == me) {
-      if (router.route.startsWith('${Routes.chat}/$id')) {
+      if (router.route.startsWith('${Routes.chats}/$id')) {
         router.home();
       }
       await _chatRepository.remove(id);
@@ -333,13 +333,13 @@ extension ChatIsRoute on Chat {
     final UserId? member =
         members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
 
-    final bool byId = route.startsWith('${Routes.chat}/$id');
+    final bool byId = route.startsWith('${Routes.chats}/$id');
     final bool byUser = isDialog &&
         member != null &&
-        route.startsWith('${Routes.chat}/${ChatId.local(member)}');
+        route.startsWith('${Routes.chats}/${ChatId.local(member)}');
     final bool byMonolog = isMonolog &&
         me != null &&
-        route.startsWith('${Routes.chat}/${ChatId.local(me)}');
+        route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 
     return byId || byUser || byMonolog;
   }

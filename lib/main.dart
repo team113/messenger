@@ -150,7 +150,7 @@ Future<void> main() async {
 /// Must be a top level function.
 void onNotificationResponse(NotificationResponse response) {
   if (response.payload != null) {
-    if (response.payload!.startsWith(Routes.chat)) {
+    if (response.payload!.startsWith(Routes.chats)) {
       router.go(response.payload!);
     }
   }

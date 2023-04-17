@@ -2198,6 +2198,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&
@@ -2206,18 +2207,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,

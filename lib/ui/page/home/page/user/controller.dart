@@ -285,7 +285,11 @@ class UserController extends GetxController {
 
   /// Opens a [Chat]-dialog with this [user].
   void openChat() {
-    router.chat(user!.user.value.dialog, push: true);
+    if (user?.id == me) {
+      router.chat(_chatService.monolog, push: true);
+    } else {
+      router.chat(user!.user.value.dialog, push: true);
+    }
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.

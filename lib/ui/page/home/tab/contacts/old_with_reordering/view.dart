@@ -477,7 +477,7 @@ class ContactsTabView extends StatelessWidget {
             darken: 0,
             folded: favorite,
             onTap: contact.contact.value.users.isNotEmpty
-                // TODO: Open [Routes.contact] page when it's implemented.
+                // TODO: Open [Routes.contacts] page when it's implemented.
                 ? () => router.user(contact.user.value!.id)
                 : null,
             actions: [

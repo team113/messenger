@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,43 +32,43 @@ import 'svg/svg.dart';
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
   const ReactiveTextField({
-    Key? key,
+    super.key,
     required this.state,
     this.dense,
     this.enabled = true,
+    this.fillColor = Colors.white,
+    this.filled,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
+    this.focusNode,
     this.formatters,
     this.hint,
     this.icon,
     this.label,
+    this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
     this.obscure = false,
     this.onChanged,
+    this.onSuffixPressed,
+    this.padding,
+    this.prefix,
+    this.prefixIcon,
+    this.prefixIconColor,
+    this.prefixStyle,
+    this.prefixText,
+    this.readOnly = false,
     this.style,
     this.suffix,
-    this.prefix,
     this.suffixColor,
     this.suffixSize,
     this.suffixText,
+    this.textAlign = TextAlign.start,
+    this.textInputAction,
     this.trailing,
     this.trailingWidth = 24,
-    this.type,
-    this.padding,
-    this.minLines,
-    this.maxLines = 1,
-    this.textInputAction,
-    this.onSuffixPressed,
-    this.prefixText,
-    this.prefixStyle,
-    this.filled,
     this.treatErrorAsStatus = true,
-    this.prefixIcon,
-    this.prefixIconColor,
-    this.focusNode,
-    this.textAlign = TextAlign.start,
-    this.fillColor = Colors.white,
-    this.maxLength,
-    this.readOnly = false,
-    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
-  }) : super(key: key);
+    this.type,
+  });
 
   /// Reactive state of this [ReactiveTextField].
   final ReactiveFieldState state;
@@ -453,7 +455,15 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        changed.value = controller.text != (_previousSubmit ?? '');
+
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(debounce, () {
+          if (_previousText != controller.text) {
+            _previousText = controller.text;
+            onChanged?.call(this);
+          }
+        });
       });
     }
 
@@ -472,6 +482,9 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
+
+  /// [Duration] to debounce the [onChanged] calls with.
+  static const Duration debounce = Duration(milliseconds: 500);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -516,6 +529,9 @@ class TextFieldState extends ReactiveFieldState {
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   String? _previousSubmit;
+
+  /// [Timer] debouncing the [onChanged] callback.
+  Timer? _debounceTimer;
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
@@ -573,5 +589,6 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    _debounceTimer?.cancel();
   }
 }

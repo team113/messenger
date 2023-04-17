@@ -30,6 +30,7 @@ import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/chat.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';

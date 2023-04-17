@@ -600,7 +600,6 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
-        secondaryBottomShifted = secondaryBottom.value;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -1690,8 +1689,8 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Scales secondary by [secondaryRatio] according to the [constraints] and
-  /// [_lastConstraints] difference.
+  /// Scales secondary according to the [constraints] and [_lastConstraints]
+  /// difference.
   void scaleSecondary(BoxConstraints constraints) {
     if (_lastConstraints == constraints) {
       return;
@@ -2016,7 +2015,7 @@ class CallController extends GetxController {
 
       switch (member.owner) {
         case MediaOwnerKind.local:
-          if (isGroup) {
+          if (isGroup || isMonolog) {
             switch (participant.source) {
               case MediaSourceKind.Device:
                 locals.add(participant);

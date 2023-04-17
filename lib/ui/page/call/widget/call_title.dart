@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -27,7 +25,6 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
-import 'conditional_backdrop.dart';
 
 /// [AvatarWidget] with caption and subtitle texts used to display
 /// [ChatCall.caller] and [OngoingCall] state.

@@ -134,9 +134,7 @@ class ParticipantWidget extends StatelessWidget {
               child = Container();
             } else if (participant.member.isRedialing.isTrue) {
               child = Container(
-                key: Key(
-                  'ParticipantRedialing_${participant.member.id}',
-                ),
+                key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
                 color: Colors.black.withOpacity(0.4),
@@ -195,11 +193,11 @@ class ParticipantWidget extends StatelessWidget {
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
-    Key? key,
+    super.key,
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
-  }) : super(key: key);
+  });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
   final Participant participant;
@@ -236,7 +234,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      List<Widget> additionally = [];
+      final List<Widget> additionally = [];
 
       if (isAudioDisabled) {
         additionally.add(

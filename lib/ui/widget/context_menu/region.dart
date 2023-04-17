@@ -262,7 +262,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         _darkened = true;
       }
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
 
       _entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
@@ -282,7 +284,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
               ContextMenuRegion.displayed.value = null;
 
-              setState(() {});
+              if (mounted) {
+                setState(() {});
+              }
             },
             child: Container(
               color: Colors.transparent,
@@ -309,7 +313,5 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
-
-    setState(() {});
   }
 }

@@ -30,8 +30,8 @@ import '/domain/model/contact.dart';
 import '/l10n/l10n.dart';
 import 'controller.dart';
 
-// TODO: Implement [Routes.contact] page.
-/// View of the [Routes.contact] page.
+// TODO: Implement [Routes.contacts] page.
+/// View of the [Routes.contacts] page.
 class ContactView extends StatelessWidget {
   const ContactView(this.id, {Key? key}) : super(key: key);
 
