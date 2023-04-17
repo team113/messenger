@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Chat-monolog. ([#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+- Web:
+    - Unread chats badge on favicon. ([#403])
 
 ### Changed
 
@@ -64,6 +66,7 @@ All user visible changes to this project will be documented in this file. This p
 [#388]: /../../pull/388
 [#393]: /../../pull/393
 [#399]: /../../pull/399
+[#403]: /../../pull/403
 
 
 
