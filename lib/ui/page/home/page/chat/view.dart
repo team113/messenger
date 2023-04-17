@@ -112,7 +112,7 @@ class _ChatViewState extends State<ChatView>
         void onDetailsTap() {
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
@@ -139,6 +139,8 @@ class _ChatViewState extends State<ChatView>
               body: const Center(child: CustomProgressIndicator()),
             );
           }
+
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
@@ -191,7 +193,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    _chatSubtitle(c),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -997,7 +999,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.keepTyping,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
       );

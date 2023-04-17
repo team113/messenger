@@ -909,8 +909,9 @@ class ChatController extends GetxController {
 
             elements[_bottomLoader!.id] = _bottomLoader!;
 
-            if (listController.position.pixels >=
-                listController.position.maxScrollExtent - 100) {
+            if (listController.hasClients &&
+                listController.position.pixels >=
+                    listController.position.maxScrollExtent - 100) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 listController.sliverController.animateToIndex(
                   elements.length - 1,
@@ -1452,7 +1453,7 @@ extension ChatViewExt on Chat {
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.l10n;
+        title = name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
       case ChatKind.dialog:

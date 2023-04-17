@@ -86,6 +86,13 @@ class AuthService extends GetxService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
+  /// Indicates whether the [credentials] require a refresh.
+  bool get _shouldRefresh =>
+      credentials.value?.session.expireAt
+          .subtract(_accessTokenMinTtl)
+          .isBefore(PreciseDateTime.now().toUtc()) ==
+      true;
+
   @override
   void onClose() {
     _storageSubscription?.cancel();
@@ -117,34 +124,29 @@ class AuthService extends GetxService {
     Session? session = creds?.session;
     RememberedSession? remembered = creds?.rememberedSession;
 
-    // Listen to the [Credentials] changes if this window is a popup.
-    if (WebUtils.isPopup) {
-      _storageSubscription = WebUtils.onStorageChange.listen((e) {
-        if (e.key == 'credentials') {
-          if (e.newValue == null) {
-            _authRepository.token = null;
-            credentials.value = null;
-            _status.value = RxStatus.empty();
-          } else {
-            Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+    // Listen to the [Credentials] changes.
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      if (e.key == 'credentials') {
+        if (e.newValue != null) {
+          Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+          if (creds.session.token != credentials.value?.session.token &&
+              creds.userId == credentials.value?.userId) {
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
             _status.value = RxStatus.success();
           }
-
-          if (_tokenGuard.isLocked) {
-            _tokenGuard.release();
+        } else {
+          if (!WebUtils.isPopup) {
+            router.go(_unauthorized());
           }
         }
-      });
-    } else {
-      // Update the [Credentials] otherwise.
-      WebUtils.credentials = creds;
-      _sessionSubscription = _sessionProvider.boxEvents
-          .listen((e) => WebUtils.credentials = e.value?.credentials);
-      WebUtils.removeAllCalls();
-    }
+      }
+    });
+
+    WebUtils.credentials = creds;
+    _sessionSubscription = _sessionProvider.boxEvents
+        .listen((e) => WebUtils.credentials = e.value?.credentials);
 
     if (session == null) {
       return _unauthorized();
@@ -321,15 +323,17 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
-    bool alreadyRenewing = _tokenGuard.isLocked;
+    if (WebUtils.credentialsUpdating) {
+      // Wait until the [Credentials] are done updating in another tab.
+      await Future.delayed(5.seconds);
 
-    // Acquire the lock if this window is a popup.
-    if (WebUtils.isPopup) {
-      // The lock will be release once new [Credentials] are acquired via the
-      // [WebUtils.onStorageChange] stream.
-      await _tokenGuard.acquire();
-      alreadyRenewing = true;
+      if (!_shouldRefresh) {
+        // [Credentials] are successfully updated.
+        return;
+      }
     }
+
+    final bool alreadyRenewing = _tokenGuard.isLocked;
 
     // Do not perform renew since some other task has already renewed it. But
     // still wait for the lock to be sure that session was renewed when current
@@ -337,6 +341,7 @@ class AuthService extends GetxService {
     return _tokenGuard.protect(() async {
       if (!alreadyRenewing) {
         try {
+          WebUtils.credentialsUpdating = true;
           Credentials data = await _authRepository
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
@@ -346,6 +351,8 @@ class AuthService extends GetxService {
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
           rethrow;
+        } finally {
+          WebUtils.credentialsUpdating = false;
         }
       }
     });
@@ -363,11 +370,7 @@ class AuthService extends GetxService {
     _refreshTimer?.cancel();
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.rememberedSession != null &&
-          credentials.value?.session.expireAt
-                  .subtract(_accessTokenMinTtl)
-                  .isBefore(PreciseDateTime.now().toUtc()) ==
-              true) {
+      if (credentials.value?.rememberedSession != null && _shouldRefresh) {
         renewSession();
       }
     });
