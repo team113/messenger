@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -14,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+// ignore_for_file: library_private_types_in_public_api
 
 import 'dart:math';
 
@@ -589,132 +592,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   Widget build(BuildContext context) {
-    /// Returns a visual representation of the [_ReorderableItem] with provided
-    /// [index].
-    Widget cell(int index, [bool withOverlay = true]) {
-      var item = _items[index];
-      return Stack(
-        children: [
-          if (widget.decoratorBuilder != null)
-            widget.decoratorBuilder!.call(item.item),
-          KeyedSubtree(
-            key: item.cellKey,
-            child: item.entry != null
-                ? SizedBox(
-                    width: widget.wrapSize,
-                    height: widget.wrapSize,
-                  )
-                : _ReorderableDraggable<T>(
-                    item: item.item,
-                    itemBuilder: (o) => KeyedSubtree(
-                      key: item.itemKey,
-                      child: widget.itemBuilder(o),
-                    ),
-                    itemConstraints: widget.itemConstraints,
-                    useLongPress: widget.useLongPress,
-                    cellKey: item.cellKey,
-                    sharedKey: item.sharedKey,
-                    enabled:
-                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
-                            (widget.allowDraggingLast || _items.length != 1),
-                    onDragEnd: (d) {
-                      widget.onDragEnd?.call(item.item);
-                      if (_doughDragged != null) {
-                        _animateReturn(item, d);
-                        _doughDragged = null;
-                      }
-                    },
-                    onDragStarted: () {
-                      item.dragStartedRect = item.cellKey.globalPaintBounds;
-                      widget.onDragStarted?.call(item.item);
-                    },
-                    onDragCompleted: () =>
-                        widget.onDragCompleted?.call(item.item),
-                    onDraggableCanceled: (d) {
-                      widget.onDraggableCanceled?.call(item.item);
-                      if (_doughDragged != null) {
-                        _animateReturn(item, d);
-                        _doughDragged = null;
-                      }
-                    },
-                    onDoughBreak: () {
-                      _doughDragged = item;
-                      widget.onDoughBreak?.call(item.item);
-                      _audioPlayer?.play(
-                        AssetSource('audio/pop.mp3'),
-                        volume: 0.3,
-                        position: Duration.zero,
-                        mode: PlayerMode.lowLatency,
-                      );
-                    },
-                  ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: DragTarget<T>(
-                  builder: (context, candidates, rejected) {
-                    return IgnorePointer(
-                      child: Container(
-                        color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
-                      ),
-                    );
-                  },
-                  onLeave: widget.onLeave,
-                  onWillAccept: (b) {
-                    if (b != item.item &&
-                        (widget.onWillAccept?.call(b) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b);
-                      if (i != -1) {
-                        _onWillAccept(b!, index, i);
-                      }
-
-                      return true;
-                    }
-
-                    return false;
-                  },
-                  onAccept: (o) => _onAccept(o, index, index),
-                ),
-              ),
-              Expanded(
-                child: DragTarget<T>(
-                  builder: (context, candidates, rejected) {
-                    return IgnorePointer(
-                      child: Container(
-                        color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
-                      ),
-                    );
-                  },
-                  onLeave: widget.onLeave,
-                  onWillAccept: (b) {
-                    if (b != item.item &&
-                        (widget.onWillAccept?.call(b) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b);
-                      if (i != -1) {
-                        _onWillAccept(b!, index, i);
-                      }
-
-                      return true;
-                    }
-
-                    return false;
-                  },
-                  onAccept: (o) => _onAccept(o, index, index + 1),
-                ),
-              ),
-            ],
-          ),
-          if (withOverlay && widget.overlayBuilder != null)
-            widget.overlayBuilder!.call(item.item),
-        ],
-      );
-    }
-
     /// Creates a column of a row at [rowIndex] index.
     List<Widget> createColumn(int rowIndex, Widget Function(int) builder) {
       final List<Widget> column = [];
@@ -821,12 +698,64 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                               (i, e) => SizedBox(
                                 width: widget.wrapSize,
                                 height: widget.wrapSize,
-                                child: cell(i, false),
+                                child: CellWidget(
+                                  items: _items,
+                                  index: i,
+                                  withOverlay: false,
+                                  decoratorBuilder: widget.decoratorBuilder,
+                                  wrapSize: widget.wrapSize,
+                                  itemBuilder: widget.itemBuilder,
+                                  itemConstraints: widget.itemConstraints,
+                                  useLongPress: widget.useLongPress,
+                                  allowDraggingLast: widget.allowDraggingLast,
+                                  onDragEnd: widget.onDragEnd,
+                                  doughDragged: _doughDragged,
+                                  animateReturn: _animateReturn,
+                                  onDragStarted: widget.onDragStarted,
+                                  onDragCompleted: widget.onDragCompleted,
+                                  onDraggableCanceled:
+                                      widget.onDraggableCanceled,
+                                  onDoughBreak: widget.onDoughBreak,
+                                  audioPlayer: _audioPlayer,
+                                  hoverColor: widget.hoverColor,
+                                  onLeave: widget.onLeave,
+                                  onWillAccept: _onWillAccept,
+                                  onWillAcceptCallback: widget.onWillAccept,
+                                  onAccept: _onAccept,
+                                  overlayBuilder: widget.overlayBuilder,
+                                ),
                               ),
                             )
                             .toList(),
                       )
-                    : Column(children: createRows((i) => cell(i, false))),
+                    : Column(
+                        children: createRows(
+                        (i) => CellWidget(
+                          items: _items,
+                          index: i,
+                          withOverlay: false,
+                          decoratorBuilder: widget.decoratorBuilder,
+                          wrapSize: widget.wrapSize,
+                          itemBuilder: widget.itemBuilder,
+                          itemConstraints: widget.itemConstraints,
+                          useLongPress: widget.useLongPress,
+                          allowDraggingLast: widget.allowDraggingLast,
+                          onDragEnd: widget.onDragEnd,
+                          doughDragged: _doughDragged,
+                          animateReturn: _animateReturn,
+                          onDragStarted: widget.onDragStarted,
+                          onDragCompleted: widget.onDragCompleted,
+                          onDraggableCanceled: widget.onDraggableCanceled,
+                          onDoughBreak: widget.onDoughBreak,
+                          audioPlayer: _audioPlayer,
+                          hoverColor: widget.hoverColor,
+                          onLeave: widget.onLeave,
+                          onWillAccept: _onWillAccept,
+                          onWillAcceptCallback: widget.onWillAccept,
+                          onAccept: _onAccept,
+                          overlayBuilder: widget.overlayBuilder,
+                        ),
+                      )),
               ),
             ),
           ),
@@ -1253,4 +1182,180 @@ class _ReorderableItem<T> {
   @override
   bool operator ==(Object other) =>
       other is _ReorderableItem<T> && other.item == item;
+}
+
+/// Returns a visual representation of the [_ReorderableItem] with provided
+/// [index].
+class CellWidget<T extends Object> extends StatelessWidget {
+  final List<_ReorderableItem<T>> items;
+  final int index;
+  final bool withOverlay;
+  final Widget Function(T)? decoratorBuilder;
+  final double? wrapSize;
+  final Widget Function(T) itemBuilder;
+  final BoxConstraints? Function(T)? itemConstraints;
+  final bool useLongPress;
+  final bool allowDraggingLast;
+  final dynamic Function(T)? onDragEnd;
+  _ReorderableItem<T>? doughDragged;
+  final void Function(_ReorderableItem<T> to, Offset d) animateReturn;
+  final dynamic Function(T)? onDragStarted;
+  final dynamic Function(T)? onDragCompleted;
+  final dynamic Function(T)? onDraggableCanceled;
+  final void Function(T)? onDoughBreak;
+  final AudioPlayer? audioPlayer;
+  final Color hoverColor;
+  final void Function(T?)? onLeave;
+  final void Function(T object, int i, int to) onWillAccept;
+  final bool Function(T?)? onWillAcceptCallback;
+  final void Function(T object, int i, int to) onAccept;
+  final Widget Function(T)? overlayBuilder;
+  CellWidget({
+    Key? key,
+    required this.items,
+    required this.index,
+    this.withOverlay = true,
+    required this.decoratorBuilder,
+    required this.wrapSize,
+    required this.itemBuilder,
+    required this.itemConstraints,
+    required this.useLongPress,
+    required this.allowDraggingLast,
+    required this.onDragEnd,
+    required this.doughDragged,
+    required this.animateReturn,
+    required this.onDragStarted,
+    required this.onDragCompleted,
+    required this.onDraggableCanceled,
+    required this.onDoughBreak,
+    required this.audioPlayer,
+    required this.hoverColor,
+    required this.onLeave,
+    required this.onWillAccept,
+    required this.onWillAcceptCallback,
+    required this.onAccept,
+    required this.overlayBuilder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var item = items[index];
+    return Stack(
+      children: [
+        if (decoratorBuilder != null) decoratorBuilder!.call(item.item),
+        KeyedSubtree(
+          key: item.cellKey,
+          child: item.entry != null
+              ? SizedBox(
+                  width: wrapSize,
+                  height: wrapSize,
+                )
+              : _ReorderableDraggable<T>(
+                  item: item.item,
+                  itemBuilder: (o) => KeyedSubtree(
+                    key: item.itemKey,
+                    child: itemBuilder(o),
+                  ),
+                  itemConstraints: itemConstraints,
+                  useLongPress: useLongPress,
+                  cellKey: item.cellKey,
+                  sharedKey: item.sharedKey,
+                  enabled: items.map((e) => e.entry).whereNotNull().isEmpty &&
+                      (allowDraggingLast || items.length != 1),
+                  onDragEnd: (d) {
+                    onDragEnd?.call(item.item);
+                    if (doughDragged != null) {
+                      animateReturn(item, d);
+                      doughDragged = null;
+                    }
+                  },
+                  onDragStarted: () {
+                    item.dragStartedRect = item.cellKey.globalPaintBounds;
+                    onDragStarted?.call(item.item);
+                  },
+                  onDragCompleted: () => onDragCompleted?.call(item.item),
+                  onDraggableCanceled: (d) {
+                    onDraggableCanceled?.call(item.item);
+                    if (doughDragged != null) {
+                      animateReturn(item, d);
+                      doughDragged = null;
+                    }
+                  },
+                  onDoughBreak: () {
+                    doughDragged = item;
+                    onDoughBreak?.call(item.item);
+                    audioPlayer?.play(
+                      AssetSource('audio/pop.mp3'),
+                      volume: 0.3,
+                      position: Duration.zero,
+                      mode: PlayerMode.lowLatency,
+                    );
+                  },
+                ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: DragTarget<T>(
+                builder: (context, candidates, rejected) {
+                  return IgnorePointer(
+                    child: Container(
+                      color: candidates.isEmpty
+                          ? const Color(0x00000000)
+                          : hoverColor,
+                    ),
+                  );
+                },
+                onLeave: onLeave,
+                onWillAccept: (b) {
+                  if (b != item.item &&
+                      (onWillAcceptCallback?.call(b) ?? true)) {
+                    int i = items.indexWhere((e) => e.item == b);
+                    if (i != -1) {
+                      onWillAccept(b!, index, i);
+                    }
+
+                    return true;
+                  }
+
+                  return false;
+                },
+                onAccept: (o) => onAccept(o, index, index),
+              ),
+            ),
+            Expanded(
+              child: DragTarget<T>(
+                builder: (context, candidates, rejected) {
+                  return IgnorePointer(
+                    child: Container(
+                      color: candidates.isEmpty
+                          ? const Color(0x00000000)
+                          : hoverColor,
+                    ),
+                  );
+                },
+                onLeave: onLeave,
+                onWillAccept: (b) {
+                  if (b != item.item &&
+                      (onWillAcceptCallback?.call(b) ?? true)) {
+                    int i = items.indexWhere((e) => e.item == b);
+                    if (i != -1) {
+                      onWillAccept(b!, index, i);
+                    }
+
+                    return true;
+                  }
+
+                  return false;
+                },
+                onAccept: (o) => onAccept(o, index, index + 1),
+              ),
+            ),
+          ],
+        ),
+        if (withOverlay && overlayBuilder != null)
+          overlayBuilder!.call(item.item),
+      ],
+    );
+  }
 }
