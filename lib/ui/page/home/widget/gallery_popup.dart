@@ -416,262 +416,26 @@ class _GalleryPopupState extends State<GalleryPopup>
                     });
               },
             ),
-            ..._buildInterface(),
+            _BuildInterface(
+              page: _page,
+              children: widget.children,
+              fading: _fading,
+              displayLeft: _displayLeft,
+              showControls: _showControls,
+              node: node,
+              pageController: _pageController,
+              displayRight: _displayRight,
+              displayClose: _displayClose,
+              dismiss: _dismiss,
+              onTrashPressed: widget.onTrashPressed,
+              displayFullscreen: _displayFullscreen,
+              toggleFullscreen: _toggleFullscreen,
+              isFullscreen: _isFullscreen,
+            ),
           ],
         );
       },
     );
-  }
-
-  /// Returns the [List] of [GalleryPopup] interface [Widget]s.
-  List<Widget> _buildInterface() {
-    bool left = _page > 0;
-    bool right = _page < widget.children.length - 1;
-
-    final fade = Tween(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fading,
-        curve: const Interval(0, 0.5, curve: Curves.ease),
-      ),
-    );
-
-    final List<Widget> widgets = [];
-
-    if (!PlatformUtils.isMobile) {
-      widgets.addAll([
-        if (widget.children.length > 1) ...[
-          FadeTransition(
-            opacity: fade,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 250),
-                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: WidgetButton(
-                    onPressed: left
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page - 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      width: 60 + 16,
-                      height: double.infinity,
-                      child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_left_rounded,
-                                color: left ? Colors.white : Colors.grey,
-                                size: 36,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          FadeTransition(
-            opacity: fade,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 250),
-                opacity: (_displayRight && right) || _showControls ? 1 : 0,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: WidgetButton(
-                    onPressed: right
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page + 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      width: 60 + 16,
-                      height: double.infinity,
-                      child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_right_rounded,
-                                color: right ? Colors.white : Colors.grey,
-                                size: 36,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8, top: 8),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 250),
-                opacity: (_displayClose || _showControls) ? 1 : 0,
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
-                    onPressed: _dismiss,
-                    withBlur: true,
-                    child: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (widget.onTrashPressed == null)
-          FadeTransition(
-            opacity: fade,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 8),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 250),
-                  opacity: (_displayFullscreen || _showControls) ? 1 : 0,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RoundFloatingButton(
-                      color: const Color(0x794E5A78),
-                      onPressed: _toggleFullscreen,
-                      withBlur: true,
-                      assetWidth: 22,
-                      asset: _isFullscreen.value
-                          ? 'fullscreen_exit_white'
-                          : 'fullscreen_enter_white',
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Column(
-            children: [
-              MouseRegion(
-                opaque: false,
-                onEnter: (d) => setState(() => _displayFullscreen = true),
-                onExit: (d) => setState(() => _displayFullscreen = false),
-                child: const SizedBox(width: 100, height: 100),
-              ),
-              Expanded(
-                child: MouseRegion(
-                  opaque: false,
-                  onEnter: (d) => setState(() => _displayLeft = true),
-                  onExit: (d) => setState(() => _displayLeft = false),
-                  child: const SizedBox(width: 100),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Column(
-            children: [
-              MouseRegion(
-                opaque: false,
-                onEnter: (d) => setState(() => _displayClose = true),
-                onExit: (d) => setState(() => _displayClose = false),
-                child: const SizedBox(width: 100, height: 100),
-              ),
-              Expanded(
-                child: MouseRegion(
-                  opaque: false,
-                  onEnter: (d) => setState(() => _displayRight = true),
-                  onExit: (d) => setState(() => _displayRight = false),
-                  child: const SizedBox(width: 100),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ]);
-    }
-
-    widgets.addAll([
-      if (widget.onTrashPressed != null)
-        SafeArea(
-          child: FadeTransition(
-            opacity: fade,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 8),
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
-                    onPressed: () {
-                      widget.onTrashPressed?.call(_page);
-                      _dismiss();
-                    },
-                    withBlur: true,
-                    assetWidth: 27.21,
-                    asset: 'delete',
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-    ]);
-
-    return widgets;
   }
 
   /// Starts a dismiss animation.
@@ -1192,5 +956,300 @@ class _PageViewState extends State<_PageView> {
         );
       }).toList(),
     );
+  }
+}
+
+/// Returns the [List] of [GalleryPopup] interface [Widget]s.
+class _BuildInterface extends StatefulWidget {
+  final int page;
+  final List<GalleryItem> children;
+  final AnimationController fading;
+  bool displayLeft;
+  final bool showControls;
+  final FocusNode node;
+  final PageController pageController;
+  bool displayRight;
+  bool displayClose;
+  final void Function() dismiss;
+  final void Function(int)? onTrashPressed;
+  bool displayFullscreen;
+  final void Function() toggleFullscreen;
+  final RxBool isFullscreen;
+  _BuildInterface({
+    Key? key,
+    required this.page,
+    required this.children,
+    required this.fading,
+    required this.displayLeft,
+    required this.showControls,
+    required this.node,
+    required this.pageController,
+    required this.displayRight,
+    required this.displayClose,
+    required this.dismiss,
+    required this.onTrashPressed,
+    required this.displayFullscreen,
+    required this.toggleFullscreen,
+    required this.isFullscreen,
+  }) : super(key: key);
+
+  @override
+  State<_BuildInterface> createState() => _BuildInterfaceState();
+}
+
+class _BuildInterfaceState extends State<_BuildInterface> {
+  @override
+  Widget build(BuildContext context) {
+    bool left = widget.page > 0;
+    bool right = widget.page < widget.children.length - 1;
+
+    final fade = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: widget.fading,
+        curve: const Interval(0, 0.5, curve: Curves.ease),
+      ),
+    );
+
+    final List<Widget> widgets = [];
+
+    if (!PlatformUtils.isMobile) {
+      widgets.addAll([
+        if (widget.children.length > 1) ...[
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity:
+                    (widget.displayLeft && left) || widget.showControls ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: left
+                        ? () {
+                            widget.node.requestFocus();
+                            widget.pageController.animateToPage(
+                              widget.page - 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_left_rounded,
+                                color: left ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (widget.displayRight && right) || widget.showControls
+                    ? 1
+                    : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: right
+                        ? () {
+                            widget.node.requestFocus();
+                            widget.pageController.animateToPage(
+                              widget.page + 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_right_rounded,
+                                color: right ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8, top: 8),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (widget.displayClose || widget.showControls) ? 1 : 0,
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: RoundFloatingButton(
+                    color: const Color(0x794E5A78),
+                    onPressed: widget.dismiss,
+                    withBlur: true,
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (widget.onTrashPressed == null)
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity:
+                      (widget.displayFullscreen || widget.showControls) ? 1 : 0,
+                  child: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: const Color(0x794E5A78),
+                      onPressed: widget.toggleFullscreen,
+                      withBlur: true,
+                      assetWidth: 22,
+                      asset: widget.isFullscreen.value
+                          ? 'fullscreen_exit_white'
+                          : 'fullscreen_enter_white',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => widget.displayFullscreen = true),
+                onExit: (d) => setState(() => widget.displayFullscreen = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => widget.displayLeft = true),
+                  onExit: (d) => setState(() => widget.displayLeft = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => widget.displayClose = true),
+                onExit: (d) => setState(() => widget.displayClose = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => widget.displayRight = true),
+                  onExit: (d) => setState(() => widget.displayRight = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]);
+    }
+
+    widgets.addAll([
+      if (widget.onTrashPressed != null)
+        SafeArea(
+          child: FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: RoundFloatingButton(
+                    color: const Color(0x794E5A78),
+                    onPressed: () {
+                      widget.onTrashPressed?.call(widget.page);
+                      widget.dismiss();
+                    },
+                    withBlur: true,
+                    assetWidth: 27.21,
+                    asset: 'delete',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+    ]);
+
+    return Stack(children: widgets);
   }
 }
