@@ -30,6 +30,7 @@ import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/util/android_utils.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -207,7 +208,7 @@ class NotificationService extends DisposableService {
         NotificationDetails(
           android: AndroidNotificationDetails(
             'com.team113.messenger',
-            'Gapopa',
+            'Default',
             playSound: playSound,
             sound: const RawResourceAndroidNotificationSound('notification'),
             largeIcon:
@@ -334,8 +335,21 @@ class NotificationService extends DisposableService {
         }
       });
 
-      final NotificationSettings settings =
+      if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+        await AndroidUtils.createNotificationChanel(
+          id: 'com.team113.messenger',
+          name: 'Default',
+          sound: 'notification',
+        );
+      }
+
+      NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
+
+      // First attempt always failed on the first startup.
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+        settings = await FirebaseMessaging.instance.requestPermission();
+      }
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         _token = await FirebaseMessaging.instance.getToken(

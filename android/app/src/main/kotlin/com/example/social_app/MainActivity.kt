@@ -19,49 +19,51 @@
 
 package com.team113.messenger
 
-import android.app.AlertDialog
-import android.content.Context
-import android.content.ContextWrapper
-import android.content.DialogInterface
-import android.content.DialogInterface.OnClickListener
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.ContentResolver
 import android.content.Intent
-import android.content.IntentFilter
+import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.provider.Settings
-import androidx.annotation.NonNull
 import androidx.core.view.WindowCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
-import android.view.WindowManager
-import android.app.KeyguardManager
 
-class MainActivity: FlutterActivity() {
-    private val UTILS_CHANNEL = "team113.flutter.dev/android_utils"
+class MainActivity : FlutterActivity() {
+    private val utilsChanel = "team113.flutter.dev/android_utils"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            UTILS_CHANNEL,
-        ).setMethodCallHandler {
-            call, result ->
+            utilsChanel,
+        ).setMethodCallHandler { call, result ->
             if (call.method == "canDrawOverlays") {
                 result.success(canDrawOverlays())
             } else if (call.method == "openOverlaySettings") {
                 openOverlaySettings()
                 result.success(null)
-            } else if (call.method == "foregroundFromLockscreen") {
-                foregroundFromLockscreen()
-                result.success(null)
+            } else if (call.method == "createNotificationChannel") {
+                val argData =
+                    call.arguments as java.util.HashMap<String, String>
+                val completed = createNotificationChannel(argData)
+                if (completed) {
+                    result.success(null)
+                } else {
+                    result.error("Error Code", "Error Message", null)
+                }
             } else {
                 result.notImplemented()
             }
@@ -69,54 +71,68 @@ class MainActivity: FlutterActivity() {
     }
 
     /**
-     * Inicates whether the device has a persmission to draw overlays or not.
+     * Indicates whether the device has a permission to draw overlays or not.
      *
      * @return `true` if draw overlays permission is given, otherwise `false`.
      */
     private fun canDrawOverlays(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if ("xiaomi" == Build.MANUFACTURER.toLowerCase(Locale.ROOT)) {
-                return Settings.canDrawOverlays(this);
-            }
+        if ("xiaomi" == Build.MANUFACTURER.lowercase(Locale.ROOT)) {
+            return Settings.canDrawOverlays(this)
         }
 
-        return true;
+        return true
     }
 
     /**
      * Opens overlay settings of this device.
      */
     private fun openOverlaySettings() {
-        if ("xiaomi" == Build.MANUFACTURER.toLowerCase(Locale.ROOT)) {
+        if ("xiaomi" == Build.MANUFACTURER.lowercase(Locale.ROOT)) {
             val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
-            intent.setClassName("com.miui.securitycenter",
-                "com.miui.permcenter.permissions.PermissionsEditorActivity")
-            intent.putExtra("extra_pkgname", getPackageName())
+            intent.setClassName(
+                "com.miui.securitycenter",
+                "com.miui.permcenter.permissions.PermissionsEditorActivity"
+            )
+            intent.putExtra("extra_pkgname", packageName)
             startActivity(intent)
         } else {
             val overlaySettings = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + getPackageName()),
+                Uri.parse("package:$packageName"),
             )
             startActivityForResult(overlaySettings, 251)
         }
     }
 
     /**
-     * Requests the device to open this activity from a lockscreen.
+     * Creates a new [NotificationChannel]
      */
-    private fun foregroundFromLockscreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-            val keyguardManager: KeyguardManager? =
-                getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager?
-            if (keyguardManager != null)
-                keyguardManager.requestDismissKeyguard(this, null)
+    private fun createNotificationChannel(arguments: HashMap<String, String>): Boolean {
+        val completed: Boolean
+        if (VERSION.SDK_INT >= VERSION_CODES.O) {
+            val id = arguments["id"]
+            val name = arguments["name"]
+            val descriptionText = arguments["description"]
+            val sound = arguments["sound"]
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val mChannel = NotificationChannel(id, name, importance)
+            mChannel.description = descriptionText
+
+            val soundUri =
+                Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + applicationContext.packageName + "/raw/" + sound)
+            val att = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+
+            mChannel.setSound(soundUri, att)
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(mChannel)
+            completed = true
         } else {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+            completed = false
         }
+        return completed
     }
 }

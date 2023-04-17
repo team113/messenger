@@ -178,7 +178,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
               'okButton': 'btn_allow'.l10n,
               'foregroundService': {
                 'channelId': 'com.team113.messenger',
-                'channelName': 'Foreground calls service',
+                'channelName': 'Default',
                 'notificationTitle': 'My app is running on background',
                 'notificationIcon': 'mipmap/ic_notification_launcher',
               },
