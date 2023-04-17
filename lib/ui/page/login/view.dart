@@ -305,7 +305,6 @@ class _PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedRoundedButton(
-      key: key,
       maxWidth: double.infinity,
       title: Text(
         title ?? '',
