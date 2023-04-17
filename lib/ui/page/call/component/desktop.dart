@@ -1293,11 +1293,10 @@ Widget _primaryView(CallController c) {
                     c.hoveredRenderer.value = null;
                     c.isCursorHidden.value = false;
                   },
-                  child: AnimatedSwitcher(
+                  child: AnimatedOpacity(
                     duration: 200.milliseconds,
-                    child: c.draggedRenderer.value == data.participant
-                        ? Container()
-                        : ContextMenuRegion(
+                    opacity: c.draggedRenderer.value == data.participant ? 0 : 1,
+                    child: ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
                             actions: [

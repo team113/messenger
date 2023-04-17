@@ -663,11 +663,25 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     );
                   },
                   onLeave: widget.onLeave,
+                  onMove: (b) {
+                    if (_doughDragged?.item == b.data &&
+                        b.data != item.item &&
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
+                      int i = _items.indexWhere((e) => e.item == b.data);
+                      if (i != -1) {
+                        _onWillAccept(b.data, index, i);
+                      }
+                    }
+                  },
                   onWillAccept: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        if (_doughDragged?.item != b) {
+                          return false;
+                        }
+
                         _onWillAccept(b!, index, i);
                       }
 
@@ -691,11 +705,25 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     );
                   },
                   onLeave: widget.onLeave,
+                  onMove: (b) {
+                    if (_doughDragged?.item == b.data &&
+                        b.data != item.item &&
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
+                      int i = _items.indexWhere((e) => e.item == b.data);
+                      if (i != -1) {
+                        _onWillAccept(b.data, index, i);
+                      }
+                    }
+                  },
                   onWillAccept: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        if (_doughDragged?.item != b) {
+                          return false;
+                        }
+
                         _onWillAccept(b!, index, i);
                       }
 
@@ -888,49 +916,40 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     widget.onAdded?.call(object, to);
   }
 
-  /// Reorders the [object] from [i] into [to] position, if [_items] contains
-  /// the item, otherwise just marks its position.
+  /// Reorders the [object] from [i] into [to] position.
   void _onWillAccept(T object, int i, int to) {
-    int index = _items.indexWhere((e) => e.item == object);
-    if (index != -1) {
-      var from = _items[i];
-      var to = _items[index];
+    var from = _items[i];
+    var toItem = _items[to];
 
-      Rect beginRect = from.cellKey.globalPaintBounds!;
-      Rect endRect = to.cellKey.globalPaintBounds!;
+    Rect beginRect = from.cellKey.globalPaintBounds!;
+    Rect endRect = toItem.cellKey.globalPaintBounds!;
 
-      if (beginRect != endRect) {
-        Offset offset = widget.onOffset?.call() ?? Offset.zero;
-        beginRect = beginRect.shift(offset);
-        endRect = endRect.shift(offset);
+    if (beginRect != endRect) {
+      Offset offset = widget.onOffset?.call() ?? Offset.zero;
+      beginRect = beginRect.shift(offset);
+      endRect = endRect.shift(offset);
 
-        if (from.entry != null && from.entryKey.currentState != null) {
-          from.entryKey.currentState!.setState(() {
-            from.entryKey.currentState!.rect = endRect;
-          });
-        } else {
-          from.entry = OverlayEntry(builder: (context) {
-            return AnimatedTransition(
-              key: from.entryKey,
-              beginRect: beginRect,
-              endRect: endRect,
-              onEnd: () {
-                setState(() => from.entry = null);
-              },
-              child: widget.itemBuilder(from.item),
-            );
-          });
-        }
+      if (from.entry != null && from.entryKey.currentState != null) {
+        from.entryKey.currentState!.updateRect(endRect);
+      } else {
+        from.entry = OverlayEntry(builder: (context) {
+          return AnimatedTransition(
+            key: from.entryKey,
+            beginRect: beginRect,
+            endRect: endRect,
+            onEnd: () {
+              setState(() => from.entry = null);
+            },
+            child: widget.itemBuilder(from.item),
+          );
+        });
       }
-
-      _items[i] = to;
-      _items[index] = from;
-
-      widget.onReorder?.call(object, i);
-    } else {
-      _positions[object.hashCode] = to;
-      widget.onAdded?.call(object, to);
     }
+
+    _items[i] = toItem;
+    _items[to] = from;
+
+    widget.onReorder?.call(object, i);
 
     setState(() {});
   }
@@ -950,9 +969,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       endRect = endRect.shift(offset);
 
       if (to.entry != null && to.entryKey.currentState != null) {
-        to.entryKey.currentState!.setState(() {
-          to.entryKey.currentState!.rect = endRect;
-        });
+        to.entryKey.currentState!.updateRect(endRect);
       } else {
         to.entry = OverlayEntry(builder: (context) {
           return AnimatedTransition(

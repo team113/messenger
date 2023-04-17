@@ -58,6 +58,11 @@ class AnimatedTransitionState extends State<AnimatedTransition>
   /// [Rect] that [AnimatedTransition.child] occupies.
   late Rect rect;
 
+  /// Indicator whether the [rect] updated in the current frame.
+  ///
+  /// Used to disable [AnimatedTransition.onEnd] callback calling if `true`.
+  bool _updated = false;
+
   @override
   void initState() {
     rect = widget.beginRect;
@@ -78,10 +83,28 @@ class AnimatedTransitionState extends State<AnimatedTransition>
           rect: rect,
           duration: widget.duration,
           curve: widget.curve ?? Curves.linear,
-          onEnd: widget.onEnd,
+          onEnd: () {
+            if (!_updated) {
+              widget.onEnd?.call();
+            }
+          },
           child: widget.child,
         ),
       ],
     );
+  }
+
+  /// Updates the [rect] value with the provided [Rect].
+  void updateRect(Rect rect) {
+    if (mounted && this.rect != rect) {
+      setState(() {
+        this.rect = rect;
+        _updated = true;
+      });
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _updated = false;
+      });
+    }
   }
 }
