@@ -664,6 +664,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   },
                   onLeave: widget.onLeave,
                   onMove: (b) {
+                    // Reorder the items, if it is [_doughDragged] and accepted.
                     if (_doughDragged?.item == b.data &&
                         b.data != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
@@ -678,6 +679,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        // If this item is not the [_doughDragged], then ignore
+                        // it.
                         if (_doughDragged?.item != b) {
                           return false;
                         }
@@ -706,6 +709,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   },
                   onLeave: widget.onLeave,
                   onMove: (b) {
+                    // Reorder the items, if it is [_doughDragged] and accepted.
                     if (_doughDragged?.item == b.data &&
                         b.data != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
@@ -720,6 +724,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        // If this item is not the [_doughDragged], then ignore
+                        // it.
                         if (_doughDragged?.item != b) {
                           return false;
                         }
@@ -918,36 +924,34 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   /// Reorders the [object] from [i] into [to] position.
   void _onWillAccept(T object, int i, int to) {
-    var from = _items[i];
-    var toItem = _items[to];
+    final _ReorderableItem<T> start = _items[i];
+    final _ReorderableItem<T> end = _items[to];
 
-    Rect beginRect = from.cellKey.globalPaintBounds!;
-    Rect endRect = toItem.cellKey.globalPaintBounds!;
+    Rect beginRect = start.cellKey.globalPaintBounds!;
+    Rect endRect = end.cellKey.globalPaintBounds!;
 
     if (beginRect != endRect) {
       Offset offset = widget.onOffset?.call() ?? Offset.zero;
       beginRect = beginRect.shift(offset);
       endRect = endRect.shift(offset);
 
-      if (from.entry != null && from.entryKey.currentState != null) {
-        from.entryKey.currentState!.updateRect(endRect);
+      if (start.entry != null && start.entryKey.currentState != null) {
+        start.entryKey.currentState?.rect = endRect;
       } else {
-        from.entry = OverlayEntry(builder: (context) {
+        start.entry = OverlayEntry(builder: (context) {
           return AnimatedTransition(
-            key: from.entryKey,
+            key: start.entryKey,
             beginRect: beginRect,
             endRect: endRect,
-            onEnd: () {
-              setState(() => from.entry = null);
-            },
-            child: widget.itemBuilder(from.item),
+            onEnd: () => setState(() => start.entry = null),
+            child: widget.itemBuilder(start.item),
           );
         });
       }
     }
 
-    _items[i] = toItem;
-    _items[to] = from;
+    _items[i] = end;
+    _items[to] = start;
 
     widget.onReorder?.call(object, i);
 
@@ -969,7 +973,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       endRect = endRect.shift(offset);
 
       if (to.entry != null && to.entryKey.currentState != null) {
-        to.entryKey.currentState!.updateRect(endRect);
+        to.entryKey.currentState?.rect = endRect;
       } else {
         to.entry = OverlayEntry(builder: (context) {
           return AnimatedTransition(

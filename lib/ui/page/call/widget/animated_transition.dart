@@ -21,14 +21,14 @@ import 'package:flutter/scheduler.dart';
 /// Animated rectangular transform of the provided [child].
 class AnimatedTransition extends StatefulWidget {
   const AnimatedTransition({
-    Key? key,
+    super.key,
     required this.beginRect,
     required this.endRect,
     required this.child,
     this.onEnd,
     this.curve,
     this.duration = const Duration(milliseconds: 200),
-  }) : super(key: key);
+  });
 
   /// Initial [Rect] this [child] takes.
   final Rect beginRect;
@@ -56,19 +56,34 @@ class AnimatedTransition extends StatefulWidget {
 class AnimatedTransitionState extends State<AnimatedTransition>
     with SingleTickerProviderStateMixin {
   /// [Rect] that [AnimatedTransition.child] occupies.
-  late Rect rect;
+  late Rect _rect;
 
-  /// Indicator whether the [rect] updated in the current frame.
+  /// Indicator whether the [_rect] has been already updated in the current
+  /// frame.
   ///
-  /// Used to disable [AnimatedTransition.onEnd] callback calling if `true`.
+  /// Used to fix possible double [AnimatedTransition.onEnd] callback invoking.
   bool _updated = false;
+
+  /// Sets the provided [rect] as the current of this [AnimatedTransition].
+  set rect(Rect rect) {
+    if (mounted && _rect != rect) {
+      setState(() {
+        _rect = rect;
+        _updated = true;
+      });
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _updated = false;
+      });
+    }
+  }
 
   @override
   void initState() {
-    rect = widget.beginRect;
+    _rect = widget.beginRect;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        setState(() => rect = widget.endRect);
+        setState(() => _rect = widget.endRect);
       }
     });
 
@@ -80,31 +95,13 @@ class AnimatedTransitionState extends State<AnimatedTransition>
     return Stack(
       children: [
         AnimatedPositioned.fromRect(
-          rect: rect,
+          rect: _rect,
           duration: widget.duration,
           curve: widget.curve ?? Curves.linear,
-          onEnd: () {
-            if (!_updated) {
-              widget.onEnd?.call();
-            }
-          },
+          onEnd: _updated ? null : widget.onEnd,
           child: widget.child,
         ),
       ],
     );
-  }
-
-  /// Updates the [rect] value with the provided [Rect].
-  void updateRect(Rect rect) {
-    if (mounted && this.rect != rect) {
-      setState(() {
-        this.rect = rect;
-        _updated = true;
-      });
-
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _updated = false;
-      });
-    }
   }
 }
