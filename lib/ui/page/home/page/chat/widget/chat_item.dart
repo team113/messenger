@@ -1454,7 +1454,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 future: widget.getUser?.call(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return AvatarFromRxUser(user: snapshot.data, radius: 10);
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
                   }
                   return AvatarWidget.fromUser(user, radius: 10);
                 },
@@ -1592,7 +1592,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.authorId, push: true),
                           child:
-                              AvatarFromRxUser(user: widget.user, radius: 17),
+                              AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )
                       : const SizedBox(width: 34),
                 ),

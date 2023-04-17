@@ -50,7 +50,7 @@ class AddContactListTile extends StatelessWidget {
                 backgroundColor: Colors.green,
                 child: Icon(Icons.check, color: Colors.white),
               )
-            : AvatarFromRxContact(contact: contact),
+            : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),

@@ -967,7 +967,7 @@ class _MobileChatWidget extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
                 child: Row(
                   children: [
-                    AvatarFromRxChat(chat: chat, radius: 30),
+                    AvatarWidget.fromRxChat(chat, radius: 30),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(

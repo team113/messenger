@@ -83,7 +83,7 @@ class UserView extends StatelessWidget {
                       shadowColor: const Color(0x55000000),
                       color: Colors.white,
                       child: Center(
-                        child: AvatarFromRxUser(user: c.user, radius: 17),
+                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -203,8 +203,8 @@ class UserView extends StatelessWidget {
                                       ),
                                     );
                                   },
-                            child: AvatarFromRxUser(
-                              user: c.user,
+                            child: AvatarWidget.fromRxUser(
+                              c.user,
                               key: c.avatarKey,
                               radius: 100,
                               badge: false,
@@ -385,7 +385,6 @@ class _ActionWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: _DenseWidget(
         child: FieldButton(
-          key: key,
           onPressed: onPressed,
           text: text ?? '',
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),

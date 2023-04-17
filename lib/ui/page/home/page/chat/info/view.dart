@@ -80,7 +80,7 @@ class ChatInfoView extends StatelessWidget {
                     shadowColor: const Color(0x55000000),
                     color: Colors.white,
                     child: Center(
-                      child: AvatarFromRxChat(chat: c.chat, radius: 17),
+                      child: AvatarWidget.fromRxChat(c.chat, radius: 17),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -428,8 +428,8 @@ class _AvatarWidget extends StatelessWidget {
                         ),
                       );
                     },
-              child: AvatarFromRxChat(
-                chat: c.chat,
+              child: AvatarWidget.fromRxChat(
+                c.chat,
                 key: c.avatarKey,
                 radius: 100,
               ),

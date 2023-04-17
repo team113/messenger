@@ -62,7 +62,6 @@ class AssetWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return svgFromAsset(
       asset,
-      key: key,
       alignment: alignment,
       fit: fit,
       height: height,
