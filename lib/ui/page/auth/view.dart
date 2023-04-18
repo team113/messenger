@@ -284,7 +284,7 @@ class AuthView extends StatelessWidget {
   }
 }
 
-/// Displaying the logo, which can be static or animated.
+/// Displaying an animated logo.
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo(
     this.c, {
