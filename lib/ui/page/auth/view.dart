@@ -84,8 +84,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
-        AnimatedLogo(controller: c);
-
         // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
@@ -157,7 +155,7 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          LanguagePopUpWidget(c: c),
+          LanguagePopUpWidget(c),
         ];
 
         return Stack(
@@ -194,7 +192,7 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            Flexible(child: AnimatedLogo(controller: c)),
+                            Flexible(child: AnimatedLogo(c)),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,
@@ -286,11 +284,15 @@ class AuthView extends StatelessWidget {
   }
 }
 
-/// Responsible for displaying the logo, which can be static or animated.
+/// Displaying the logo, which can be static or animated.
 class AnimatedLogo extends StatelessWidget {
-  final AuthController controller;
+  const AnimatedLogo(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
 
-  const AnimatedLogo({Key? key, required this.controller}) : super(key: key);
+  /// Responsible for calling the method that promotes logo animation.
+  final AuthController c;
 
   @override
   Widget build(BuildContext context) {
@@ -314,11 +316,11 @@ class AnimatedLogo extends StatelessWidget {
                                 StateMachineController.fromArtboard(
                                     a, 'Machine');
                             a.addController(machine!);
-                            controller.blink =
+                            c.blink =
                                 machine.findInput<bool>('blink') as SMITrigger?;
                             Future.delayed(
                               const Duration(milliseconds: 500),
-                              controller.animate,
+                              c.animate,
                             );
                           }
                         },
@@ -327,9 +329,9 @@ class AnimatedLogo extends StatelessWidget {
                   : Obx(() {
                       return AssetWidget(
                         asset:
-                            'assets/images/logo/head000${controller.logoFrame.value}.svg',
+                            'assets/images/logo/head000${c.logoFrame.value}.svg',
                         placeholderBuilder: (context) =>
-                            PlaceholderWidget(controller: controller),
+                            const PlaceholderWidget(),
                         height: 140,
                       );
                     }),
@@ -342,9 +344,7 @@ class AnimatedLogo extends StatelessWidget {
 /// [Placeholder] widget that is used in the application as a
 /// stub for other interface elements when these elements are not loaded yet.
 class PlaceholderWidget extends StatelessWidget {
-  final AuthController controller;
-  const PlaceholderWidget({Key? key, required this.controller})
-      : super(key: key);
+  const PlaceholderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -365,8 +365,13 @@ class PlaceholderWidget extends StatelessWidget {
 /// Language selector that can be used to select a language and display
 /// the currently selected language.
 class LanguagePopUpWidget extends StatelessWidget {
+  const LanguagePopUpWidget(
+    this.c, {
+    super.key,
+  });
+
+  /// Responsible for displaying the language.
   final AuthController c;
-  const LanguagePopUpWidget({super.key, required this.c});
 
   @override
   Widget build(BuildContext context) {
