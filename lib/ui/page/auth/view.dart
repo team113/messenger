@@ -286,6 +286,7 @@ class AuthView extends StatelessWidget {
   }
 }
 
+/// Responsible for displaying the logo, which can be static or animated.
 class AnimatedLogo extends StatelessWidget {
   final AuthController controller;
 
@@ -338,6 +339,8 @@ class AnimatedLogo extends StatelessWidget {
   }
 }
 
+/// [Placeholder] widget that is used in the application as a
+/// stub for other interface elements when these elements are not loaded yet.
 class PlaceholderWidget extends StatelessWidget {
   final AuthController controller;
   const PlaceholderWidget({Key? key, required this.controller})
@@ -359,7 +362,8 @@ class PlaceholderWidget extends StatelessWidget {
   }
 }
 
-// Language selection popup.
+/// Language selector that can be used to select a language and display
+/// the currently selected language.
 class LanguagePopUpWidget extends StatelessWidget {
   final AuthController c;
   const LanguagePopUpWidget({super.key, required this.c});
