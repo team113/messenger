@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -48,27 +49,6 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    Widget header(
-      String text, {
-      EdgeInsets padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
-    }) {
-      return Padding(
-        padding: padding,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
-            ),
-          ),
-        ),
-      );
-    }
-
     return GetBuilder(
       init: CallSettingsController(
         _call,
@@ -85,10 +65,9 @@ class CallSettingsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 12),
-                  header('label_media'.l10n),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  SettingsHeaderWidget(text: 'label_media'.l10n),
+                  _DenseWidget(
+                    child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
                           context,
@@ -121,9 +100,8 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  _DenseWidget(
+                    child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
                           context,
@@ -156,9 +134,8 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  _DenseWidget(
+                    child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
                           context,
@@ -191,10 +168,9 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  header('label_calls'.l10n),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  SettingsHeaderWidget(text: 'label_calls'.l10n),
+                  _DenseWidget(
+                    child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
                         child: ReactiveTextField(
@@ -221,11 +197,51 @@ class CallSettingsView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Dense [Padding] wrapper.
-  Widget _dense(BuildContext context, Widget child) => Padding(
-        padding: ModalPopup.padding(context)
-            .add(const EdgeInsets.fromLTRB(8, 4, 8, 4)),
-        child: child,
-      );
+class SettingsHeaderWidget extends StatelessWidget {
+  final String text;
+  final EdgeInsets padding;
+  const SettingsHeaderWidget({
+    Key? key,
+    required this.text,
+    this.padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: padding,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: style.systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dense [Padding] wrapper.
+class _DenseWidget extends StatelessWidget {
+  final Widget child;
+  const _DenseWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: ModalPopup.padding(context)
+          .add(const EdgeInsets.fromLTRB(8, 4, 8, 4)),
+      child: child,
+    );
+  }
 }
