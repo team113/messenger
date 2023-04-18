@@ -66,6 +66,7 @@ import 'package:messenger/ui/page/home/page/chat/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../extension/find.dart';
 import '../mock/overflow_error.dart';
 import 'chat_reply_message_test.mocks.dart';
 
@@ -444,10 +445,10 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
-    var message = find.text('text message￼', skipOffstage: false);
-    expect(message, findsOneWidget);
+    var message = find.richText('text message', skipOffstage: false);
+    expect(message.length, 1);
 
-    await tester.longPress(message);
+    await tester.longPress(message.first);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('ReplyButton')));
@@ -459,7 +460,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('CancelReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.longPress(message);
+    await tester.longPress(message.first);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(
@@ -469,7 +470,7 @@ void main() async {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('reply message￼', skipOffstage: false), findsOneWidget);
+    expect(find.richText('reply message', skipOffstage: false).length, 1);
 
     await Get.deleteAll(force: true);
   });
