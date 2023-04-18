@@ -138,6 +138,12 @@ class ChatRepository extends DisposableInterface
   /// [Chat]-monolog was hidden.
   bool _monologShouldBeHidden = false;
 
+  /// [ChatFavoritePosition] of the local [Chat]-monolog.
+  ///
+  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
+  /// adding a local [Chat]-monolog to favorites.
+  ChatFavoritePosition? _localMonologFavoritePosition;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -898,11 +904,32 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = newPosition);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
+    if (id.isLocal && id.userId == me) {
+      try {
+        _localMonologFavoritePosition = newPosition;
+        id =
+            _chat(await _graphQlProvider.createMonologChat(null)).chat.value.id;
+        await _monologLocal.set(id);
+      } catch (e) {
+        _localMonologFavoritePosition = null;
+        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+        chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+        rethrow;
+      }
+    }
+
     try {
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      if (id == monolog) {
+        final HiveChat? hiveChat = _chatLocal.get(id);
+        hiveChat?.value.favoritePosition = oldPosition;
+        await hiveChat?.save();
+      } else {
+        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+        chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      }
+
       rethrow;
     }
   }
@@ -1226,9 +1253,15 @@ class ChatRepository extends DisposableInterface
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
-          if (event.chat.chat.value.isMonolog && _monologShouldBeHidden) {
-            _monologShouldBeHidden = false;
-            break;
+          if (event.chat.chat.value.isMonolog) {
+            if (_monologShouldBeHidden) {
+              _monologShouldBeHidden = false;
+              break;
+            } else if (_localMonologFavoritePosition != null) {
+              event.chat.chat.value.favoritePosition =
+                  _localMonologFavoritePosition;
+              _localMonologFavoritePosition = null;
+            }
           }
 
           _putEntry(event.chat);
