@@ -186,7 +186,11 @@ class _DataAttachmentState extends State<DataAttachment> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
+                border: Border.all(
+                  color: Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ),
+                // color: Colors.black.withOpacity(0.03),
               ),
               padding: const EdgeInsets.all(4),
               child: Row(

@@ -72,9 +72,7 @@ class AnimatedTransitionState extends State<AnimatedTransition>
         _updated = true;
       });
 
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _updated = false;
-      });
+      SchedulerBinding.instance.addPostFrameCallback((_) => _updated = false);
     }
   }
 
@@ -98,7 +96,11 @@ class AnimatedTransitionState extends State<AnimatedTransition>
           rect: _rect,
           duration: widget.duration,
           curve: widget.curve ?? Curves.linear,
-          onEnd: _updated ? null : widget.onEnd,
+          onEnd: () {
+            if (!_updated) {
+              widget.onEnd?.call();
+            }
+          },
           child: widget.child,
         ),
       ],
