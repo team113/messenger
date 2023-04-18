@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// TODO: Remove when flutter/flutter#124859 is fixed:
+// TODO: Remove and use [find.text] when flutter/flutter#124859 is fixed:
 //       https://github.com/flutter/flutter/issues/124859
 /// Extension adding method to find text inside [RichText].
 extension RichTextExtension on CommonFinders {
