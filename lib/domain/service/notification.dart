@@ -179,6 +179,7 @@ class NotificationService extends DisposableService {
             image,
             'notification_image_${DateTime.now()}',
             null,
+            temporaryDirectory: true,
           );
 
           if (file != null) {
