@@ -296,8 +296,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                         children: [
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
-                            SvgLoader.asset(
-                              'assets/icons/microphone_off_small.svg',
+                            const AssetWidget(
+                              asset: 'assets/icons/microphone_off_small.svg',
                               width: 11,
                             ),
                           Flexible(
