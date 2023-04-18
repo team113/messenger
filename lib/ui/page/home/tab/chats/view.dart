@@ -24,6 +24,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -491,7 +492,15 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      if (c.chats.none((e) => !e.id.isLocal)) {
+                      if (c.chats.none(
+                        (e) {
+                          final bool isHidden = e.chat.value.isHidden &&
+                              !e.chat.value.isRoute(router.route, c.me);
+
+                          return (!e.id.isLocal || e.chat.value.isMonolog) &&
+                              !isHidden;
+                        },
+                      )) {
                         if (!c.chatsReady.value) {
                           child = Center(
                             key: UniqueKey(),
@@ -521,7 +530,13 @@ class ChatsTabView extends StatelessWidget {
                               final List<RxChat> chats = [];
 
                               for (RxChat e in c.chats) {
-                                if (!e.id.isLocal || e.messages.isNotEmpty) {
+                                final bool isHidden = e.chat.value.isHidden &&
+                                    !e.chat.value.isRoute(router.route, c.me);
+
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !isHidden) {
                                   if (e.chat.value.ongoingCall != null) {
                                     inCall.add(e);
                                   } else if (e.chat.value.favoritePosition !=
@@ -544,7 +559,9 @@ class ChatsTabView extends StatelessWidget {
 
                                 return RecentChatTile(
                                   e,
-                                  key: Key('RecentChat_${e.id}'),
+                                  key: e.chat.value.isMonolog
+                                      ? const Key('ChatMonolog')
+                                      : Key('RecentChat_${e.id}'),
                                   me: c.me,
                                   blocked: e.blacklisted,
                                   selected: selected,
@@ -557,11 +574,17 @@ class ChatsTabView extends StatelessWidget {
                                       : avatarBuilder,
                                   onJoin: () => c.joinCall(e.id),
                                   onDrop: () => c.dropCall(e.id),
-                                  onLeave: () => c.leaveChat(e.id),
+                                  onLeave: e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.leaveChat(e.id),
                                   onHide: () => c.hideChat(e.id),
                                   inCall: () => c.inCall(e.id),
-                                  onMute: () => c.muteChat(e.id),
-                                  onUnmute: () => c.unmuteChat(e.id),
+                                  onMute: e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.muteChat(e.id),
+                                  onUnmute: e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.unmuteChat(e.id),
                                   onFavorite: () => c.favoriteChat(e.id),
                                   onUnfavorite: () => c.unfavoriteChat(e.id),
                                   onSelect: c.toggleSelecting,

@@ -270,7 +270,11 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        router.chat(user.user.value.dialog);
+        if (user.id == me) {
+          router.chat(_chatService.monolog, push: true);
+        } else {
+          router.chat(user.user.value.dialog);
+        }
       }
     }
   }
@@ -293,7 +297,7 @@ class ChatsTabController extends GetxController {
   Future<void> leaveChat(ChatId id) async {
     try {
       await _chatService.removeChatMember(id, me!);
-      if (router.route == '${Routes.chat}/$id') {
+      if (router.route == '${Routes.chats}/$id') {
         router.pop();
       }
     } on RemoveChatMemberException catch (e) {
