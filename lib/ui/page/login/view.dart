@@ -173,7 +173,7 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: AssetWidget(
+                  trailing: SvgImage.asset(
                     asset:
                         'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
@@ -187,7 +187,7 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: AssetWidget(
+                  trailing: SvgImage.asset(
                     asset:
                         'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
@@ -246,7 +246,7 @@ class LoginView extends StatelessWidget {
                       obscure: c.obscurePassword.value,
                       onSuffixPressed: c.obscurePassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: AssetWidget(
+                      trailing: SvgImage.asset(
                         asset:
                             'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,

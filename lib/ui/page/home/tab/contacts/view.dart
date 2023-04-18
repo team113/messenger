@@ -110,14 +110,14 @@ class ContactsTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.search.value != null || c.selecting.value) {
-                  child = const AssetWidget(
+                  child = SvgImage.asset(
                     asset: 'assets/icons/close_primary.svg',
-                    key: Key('CloseSearch'),
+                    key: const Key('CloseSearch'),
                     height: 15,
                     width: 15,
                   );
                 } else {
-                  child = AssetWidget(
+                  child = SvgImage.asset(
                     asset:
                         'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                     key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
@@ -162,7 +162,7 @@ class ContactsTabView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     height: double.infinity,
-                    child: const AssetWidget(
+                    child: SvgImage.asset(
                       asset: 'assets/icons/search.svg',
                       width: 17.77,
                     ),
@@ -537,7 +537,7 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: AssetWidget(
+              child: SvgImage.asset(
                 asset: 'assets/icons/muted.svg',
                 key: Key('MuteIndicator_${contact.id}'),
                 width: 19.99,

@@ -199,7 +199,7 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('ContactsButton'),
                                 child: tab(
                                   tab: HomeTab.contacts,
-                                  child: const AssetWidget(
+                                  child: SvgImage.asset(
                                     asset: 'assets/icons/contacts.svg',
                                     width: 30,
                                     height: 30,
@@ -225,16 +225,16 @@ class _HomeViewState extends State<HomeView> {
                                       final Widget child;
 
                                       if (c.myUser.value?.muted != null) {
-                                        child = const AssetWidget(
+                                        child = SvgImage.asset(
                                           asset: 'assets/icons/chats_muted.svg',
-                                          key: Key('Muted'),
+                                          key: const Key('Muted'),
                                           width: 36.06,
                                           height: 30,
                                         );
                                       } else {
-                                        child = const AssetWidget(
+                                        child = SvgImage.asset(
                                           asset: 'assets/icons/chats.svg',
-                                          key: Key('Unmuted'),
+                                          key: const Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,
                                         );
@@ -372,10 +372,10 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              const Positioned.fill(
-                child: AssetWidget(
+              Positioned.fill(
+                child: SvgImage.asset(
                   asset: 'assets/images/background_light.svg',
-                  key: Key('DefaultBackground'),
+                  key: const Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,

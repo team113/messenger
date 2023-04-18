@@ -139,10 +139,11 @@ class _CarouselGalleryState extends State<CarouselGallery> {
               ),
               items: widget.items?.isNotEmpty != true
                   ? [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 50),
-                        child: AssetWidget(
-                            asset: 'assets/images/logo/logo0000.svg'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        child: SvgImage.asset(
+                          asset: 'assets/images/logo/logo0000.svg',
+                        ),
                       ),
                     ]
                   : widget.items!

@@ -42,7 +42,7 @@ class CallCoverWidget extends StatelessWidget {
     return Stack(
       children: [
         if (cover == null)
-          const AssetWidget(
+          SvgImage.asset(
             asset: 'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,

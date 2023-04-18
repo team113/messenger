@@ -83,8 +83,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                   ),
                 ),
-                child: const Center(
-                  child: AssetWidget(
+                child: Center(
+                  child: SvgImage.asset(
                     asset: 'assets/icons/cancel.svg',
                     width: 11,
                     height: 11,
@@ -129,8 +129,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              child: const Center(
-                child: AssetWidget(
+              child: Center(
+                child: SvgImage.asset(
                   asset: 'assets/icons/arrow_down.svg',
                   width: 10.55,
                   height: 14,

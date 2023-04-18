@@ -17,27 +17,24 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/my_profile/language/controller.dart';
+import '/ui/page/auth/widget/animated_logo.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
-  const AuthView({Key? key}) : super(key: key);
+  const AuthView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +57,10 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: AssetWidget(asset: e)))
+              .map((e) => Offstage(child: SvgImage.asset(asset: e)))
               .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: AssetWidget(asset: e)))
+              .map((e) => Offstage(child: SvgImage.asset(asset: e)))
               .toList(),
           const SizedBox(height: 30),
           Text(
@@ -93,8 +90,10 @@ class AuthView extends StatelessWidget {
               'btn_start'.l10n,
               style: const TextStyle(color: Colors.white),
             ),
-            leading: const AssetWidget(
-                asset: 'assets/icons/start.svg', width: 25 * 0.7),
+            leading: SvgImage.asset(
+              asset: 'assets/icons/start.svg',
+              width: 25 * 0.7,
+            ),
             onPressed: c.register,
             color: Theme.of(context).colorScheme.secondary,
           ),
@@ -102,7 +101,7 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
-            leading: const AssetWidget(
+            leading: SvgImage.asset(
               asset: 'assets/icons/sign_in.svg',
               width: 20 * 0.7,
             ),
@@ -112,9 +111,9 @@ class AuthView extends StatelessWidget {
           if (isIosWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              leading: const Padding(
-                padding: EdgeInsets.only(bottom: 3 * 0.7),
-                child: AssetWidget(
+              leading: Padding(
+                padding: const EdgeInsets.only(bottom: 3 * 0.7),
+                child: SvgImage.asset(
                   asset: 'assets/icons/apple.svg',
                   width: 22 * 0.7,
                 ),
@@ -124,9 +123,9 @@ class AuthView extends StatelessWidget {
           if (isAndroidWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
-              leading: const Padding(
-                padding: EdgeInsets.only(left: 2 * 0.7),
-                child: AssetWidget(
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 2 * 0.7),
+                child: SvgImage.asset(
                   asset: 'assets/icons/google.svg',
                   width: 22 * 0.7,
                 ),
@@ -137,17 +136,17 @@ class AuthView extends StatelessWidget {
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
               leading: PlatformUtils.isMacOS
-                  ? const AssetWidget(
+                  ? SvgImage.asset(
                       asset: 'assets/icons/apple.svg',
                       width: 22 * 0.7,
                     )
                   : (PlatformUtils.isWindows)
-                      ? const AssetWidget(
+                      ? SvgImage.asset(
                           asset: 'assets/icons/windows.svg',
                           width: 22 * 0.7,
                         )
                       : (PlatformUtils.isLinux)
-                          ? const AssetWidget(
+                          ? SvgImage.asset(
                               asset: 'assets/icons/linux.svg',
                               width: 22 * 0.7,
                             )
@@ -155,7 +154,7 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          LanguagePopUpWidget(c),
+          CupertinoPopUp(c),
         ];
 
         return Stack(
@@ -168,8 +167,8 @@ class AuthView extends StatelessWidget {
                 color: const Color(0xFFF6F8F9),
               ),
             ),
-            const IgnorePointer(
-              child: AssetWidget(
+            IgnorePointer(
+              child: SvgImage.asset(
                 asset: 'assets/images/background_light.svg',
                 width: double.infinity,
                 height: double.infinity,
@@ -280,114 +279,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 18),
         ],
       ),
-    );
-  }
-}
-
-/// Displaying an animated logo.
-class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
-
-  /// Responsible for calling the method that promotes logo animation.
-  final AuthController c;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      const double height = 250;
-      return ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 350),
-          child: AnimatedSize(
-            curve: Curves.ease,
-            duration: const Duration(milliseconds: 200),
-            child: SizedBox(
-              height: constraints.maxHeight >= height ? height : 140,
-              child: constraints.maxHeight >= height
-                  ? Container(
-                      key: const ValueKey('logo'),
-                      child: RiveAnimation.asset(
-                        'assets/images/logo/logo.riv',
-                        onInit: (a) {
-                          if (!Config.disableInfiniteAnimations) {
-                            final StateMachineController? machine =
-                                StateMachineController.fromArtboard(
-                                    a, 'Machine');
-                            a.addController(machine!);
-                            c.blink =
-                                machine.findInput<bool>('blink') as SMITrigger?;
-                            Future.delayed(
-                              const Duration(milliseconds: 500),
-                              c.animate,
-                            );
-                          }
-                        },
-                      ),
-                    )
-                  : Obx(() {
-                      return AssetWidget(
-                        asset:
-                            'assets/images/logo/head000${c.logoFrame.value}.svg',
-                        placeholderBuilder: (context) =>
-                            const PlaceholderWidget(),
-                        height: 140,
-                      );
-                    }),
-            ),
-          ));
-    });
-  }
-}
-
-/// [Placeholder] widget that is used in the application as a
-/// stub for other interface elements when these elements are not loaded yet.
-class PlaceholderWidget extends StatelessWidget {
-  const PlaceholderWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const double height = 250;
-    return LayoutBuilder(builder: (context, constraints) {
-      return SizedBox(
-        height: constraints.maxHeight > 250
-            ? height
-            : constraints.maxHeight <= 140
-                ? 140
-                : height,
-        child: const Center(child: CustomProgressIndicator()),
-      );
-    });
-  }
-}
-
-/// Language selector that can be used to select a language and display
-/// the currently selected language.
-class LanguagePopUpWidget extends StatelessWidget {
-  const LanguagePopUpWidget(
-    this.c, {
-    super.key,
-  });
-
-  /// Responsible for displaying the language.
-  final AuthController c;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? thin =
-        context.textTheme.bodySmall?.copyWith(color: Colors.black);
-    final Color primary = Theme.of(context).colorScheme.primary;
-    return CupertinoButton(
-      key: c.languageKey,
-      child: Text(
-        'label_language_entry'.l10nfmt({
-          'code': L10n.chosen.value!.locale.countryCode,
-          'name': L10n.chosen.value!.name,
-        }),
-        style: thin?.copyWith(fontSize: 13, color: primary),
-      ),
-      onPressed: () => LanguageSelectionView.show(context, null),
     );
   }
 }
