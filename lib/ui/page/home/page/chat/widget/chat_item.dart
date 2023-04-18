@@ -899,7 +899,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           menu ? null : () => widget.onRepliedTap?.call(e),
                       child: _repliedMessage(
                         e,
-                        timestamp: i == msg.repliesTo.length - 1 &&
+                        timestamp: widget.timestamp &&
+                            i == msg.repliesTo.length - 1 &&
                             _text == null &&
                             msg.attachments.isEmpty,
                       ),
@@ -982,7 +983,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           onFileTap: widget.onFileTap,
                         ),
                       ),
-                      if (_text == null && !timeInBubble)
+                      if (widget.timestamp && !timeInBubble)
                         Opacity(opacity: 0, child: _timestamp(msg)),
                     ],
                   ),
