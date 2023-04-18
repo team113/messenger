@@ -52,8 +52,6 @@
   <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
 
-  <link rel="icon" type="image/pg" href="favicon/png" />
-
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
   <style type="text/css">
@@ -197,15 +195,6 @@
           );
         });
       }
-    } else {
-      window.addEventListener('beforeunload', function (e) {
-        window.localStorage.removeItem('credentials');
-        for (var key in localStorage) {
-          if (key.startsWith('call_')) {
-            window.localStorage.removeItem(key);
-          }
-        }
-      });
     }
   </script>
 </head>
