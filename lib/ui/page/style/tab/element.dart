@@ -74,13 +74,17 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
                 child: const AssetWidget(
-                    asset: 'assets/images/logo/logo0000.svg', height: 350),
+                  asset: 'assets/images/logo/logo0000.svg',
+                  height: 350,
+                ),
               ),
               element(
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
                 child: const AssetWidget(
-                    asset: 'assets/images/logo/head0000.svg', height: 160),
+                  asset: 'assets/images/logo/head0000.svg',
+                  height: 160,
+                ),
               ),
               element(
                 background: true,
@@ -96,7 +100,9 @@ class ElementStyleTabView extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                   ),
                   leading: const AssetWidget(
-                      asset: 'assets/icons/start.svg', width: 25),
+                    asset: 'assets/icons/start.svg',
+                    width: 25,
+                  ),
                   onPressed: () {},
                   gradient: const LinearGradient(
                     colors: [Color(0xFF03A803), Color(0xFF20CD66)],
@@ -111,7 +117,9 @@ class ElementStyleTabView extends StatelessWidget {
                   title: const Text('Sign in'),
                   subtitle: const Text('or register'),
                   leading: const AssetWidget(
-                      asset: 'assets/icons/sign_in.svg', width: 20),
+                    asset: 'assets/icons/sign_in.svg',
+                    width: 20,
+                  ),
                   onPressed: () {},
                 ),
               ),
@@ -124,8 +132,10 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('App Store'),
                   leading: const Padding(
                     padding: EdgeInsets.only(bottom: 3),
-                    child:
-                        AssetWidget(asset: 'assets/icons/apple.svg', width: 22),
+                    child: AssetWidget(
+                      asset: 'assets/icons/apple.svg',
+                      width: 22,
+                    ),
                   ),
                   onPressed: () {},
                 ),
@@ -140,7 +150,9 @@ class ElementStyleTabView extends StatelessWidget {
                   leading: const Padding(
                     padding: EdgeInsets.only(left: 2),
                     child: AssetWidget(
-                        asset: 'assets/icons/google.svg', width: 22),
+                      asset: 'assets/icons/google.svg',
+                      width: 22,
+                    ),
                   ),
                   onPressed: () {},
                 ),
@@ -153,7 +165,9 @@ class ElementStyleTabView extends StatelessWidget {
                   title: const Text('Download'),
                   subtitle: const Text('application'),
                   leading: const AssetWidget(
-                      asset: 'assets/icons/linux.svg', width: 22),
+                    asset: 'assets/icons/linux.svg',
+                    width: 22,
+                  ),
                   onPressed: () {},
                 ),
               ),
@@ -165,7 +179,9 @@ class ElementStyleTabView extends StatelessWidget {
                   title: const Text('Download'),
                   subtitle: const Text('application'),
                   leading: const AssetWidget(
-                      asset: 'assets/icons/windows.svg', width: 22),
+                    asset: 'assets/icons/windows.svg',
+                    width: 22,
+                  ),
                   onPressed: () {},
                 ),
               ),
@@ -495,7 +511,9 @@ class ElementStyleTabView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const AssetWidget(
-                          asset: 'assets/icons/drag_n_drop.svg', width: 44),
+                        asset: 'assets/icons/drag_n_drop.svg',
+                        width: 44,
+                      ),
                       const SizedBox(height: 5),
                       Text(
                         'Drop any\nvideo here',

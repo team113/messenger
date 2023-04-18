@@ -98,7 +98,9 @@ class MessageInfo extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       const AssetWidget(
-                          asset: 'assets/icons/copy.svg', height: 12),
+                        asset: 'assets/icons/copy.svg',
+                        height: 12,
+                      ),
                     ],
                   ),
                 ),

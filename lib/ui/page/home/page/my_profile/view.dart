@@ -326,7 +326,9 @@ Widget _name(MyProfileController c) {
               child: Transform.scale(
                 scale: 1.15,
                 child: const AssetWidget(
-                    asset: 'assets/icons/copy.svg', height: 15),
+                  asset: 'assets/icons/copy.svg',
+                  height: 15,
+                ),
               ),
             ),
     ),
@@ -425,7 +427,9 @@ Widget _link(BuildContext context, MyProfileController c) {
                   child: Transform.scale(
                     scale: 1.15,
                     child: const AssetWidget(
-                        asset: 'assets/icons/copy.svg', height: 15),
+                      asset: 'assets/icons/copy.svg',
+                      height: 15,
+                    ),
                   ),
                 ),
           label: '${Config.origin}/',
@@ -858,7 +862,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
               child: Transform.scale(
                 scale: 1.15,
                 child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg', height: 14),
+                  asset: 'assets/icons/delete.svg',
+                  height: 14,
+                ),
               ),
             ),
             onPressed: () => AddPhoneView.show(
@@ -941,7 +947,9 @@ Widget _danger(BuildContext context, MyProfileController c) {
             child: Transform.scale(
               scale: 1.15,
               child: const AssetWidget(
-                  asset: 'assets/icons/delete.svg', height: 14),
+                asset: 'assets/icons/delete.svg',
+                height: 14,
+              ),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),

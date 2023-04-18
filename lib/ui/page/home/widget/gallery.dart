@@ -142,7 +142,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 50),
                         child: AssetWidget(
-                            asset: 'assets/images/logo/logo0000.svg'),
+                          asset: 'assets/images/logo/logo0000.svg',
+                        ),
                       ),
                     ]
                   : widget.items!

@@ -899,7 +899,10 @@ class MessageFieldView extends StatelessWidget {
         children: [
           const SizedBox(width: 12),
           const AssetWidget(
-              asset: 'assets/icons/edit.svg', width: 17, height: 17),
+            asset: 'assets/icons/edit.svg',
+            width: 17,
+            height: 17,
+          ),
           Expanded(
             child: Container(
               decoration: BoxDecoration(

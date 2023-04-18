@@ -374,7 +374,9 @@ class ChatInfoView extends StatelessWidget {
                   child: Transform.scale(
                     scale: 1.15,
                     child: const AssetWidget(
-                        asset: 'assets/icons/copy.svg', height: 15),
+                      asset: 'assets/icons/copy.svg',
+                      height: 15,
+                    ),
                   ),
                 ),
         ),
@@ -644,7 +646,9 @@ class ChatInfoView extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: const AssetWidget(
-                      asset: 'assets/icons/delete.svg', height: 14),
+                    asset: 'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -671,7 +675,9 @@ class ChatInfoView extends StatelessWidget {
                   child: Transform.scale(
                     scale: 1.15,
                     child: const AssetWidget(
-                        asset: 'assets/icons/delete.svg', height: 14),
+                      asset: 'assets/icons/delete.svg',
+                      height: 14,
+                    ),
                   ),
                 ),
                 style:
@@ -723,7 +729,9 @@ class ChatInfoView extends StatelessWidget {
               child: Transform.scale(
                 scale: 1.15,
                 child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg', height: 14),
+                  asset: 'assets/icons/delete.svg',
+                  height: 14,
+                ),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -740,7 +748,9 @@ class ChatInfoView extends StatelessWidget {
               child: Transform.scale(
                 scale: 1.15,
                 child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg', height: 14),
+                  asset: 'assets/icons/delete.svg',
+                  height: 14,
+                ),
               ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -757,7 +767,9 @@ class ChatInfoView extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: const AssetWidget(
-                      asset: 'assets/icons/delete.svg', height: 14),
+                    asset: 'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -773,7 +785,9 @@ class ChatInfoView extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: const AssetWidget(
-                      asset: 'assets/icons/delete.svg', height: 14),
+                    asset: 'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -789,7 +803,9 @@ class ChatInfoView extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: const AssetWidget(
-                      asset: 'assets/icons/delete.svg', height: 14),
+                    asset: 'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
