@@ -35,6 +35,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporaryDirectory = false,
   }) async =>
       File('test/path');
 
