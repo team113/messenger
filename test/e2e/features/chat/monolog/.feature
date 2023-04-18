@@ -39,6 +39,12 @@ Feature: Monolog
     And I tap `Approve` button
     Then monolog is indeed remote
 
+  Scenario: User adds local chat monolog to favorites
+    When I open chat's info
+    And I tap `FavoriteChatButton` button
+    Then chat monolog is indeed remote
+    And I see monolog as favorite
+
   Scenario: User hides local monolog
     When I open chat's info
     And I scroll `ChatInfoScrollable` until `HideChatButton` is present
