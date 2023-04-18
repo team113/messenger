@@ -814,40 +814,40 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
-        msg.repliesTo.isNotEmpty) {
-      for (ChatItemQuote reply in msg.repliesTo) {
-        if (reply is ChatMessageQuote) {
-          if (reply.text != null && reply.attachments.isNotEmpty) {
-            avatarOffset += 54 + 54 + 4;
-          } else if (reply.text == null && reply.attachments.isNotEmpty) {
-            avatarOffset += 90;
-          } else if (reply.text != null) {
-            if (msg.attachments.isEmpty && _text == null) {
-              avatarOffset += 59 - 5;
-            } else {
-              avatarOffset += 55 - 4 + 8;
-            }
-          }
-        }
+    // if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
+    //     msg.repliesTo.isNotEmpty) {
+    //   for (ChatItemQuote reply in msg.repliesTo) {
+    //     if (reply is ChatMessageQuote) {
+    //       if (reply.text != null && reply.attachments.isNotEmpty) {
+    //         avatarOffset += 54 + 54 + 4;
+    //       } else if (reply.text == null && reply.attachments.isNotEmpty) {
+    //         avatarOffset += 90;
+    //       } else if (reply.text != null) {
+    //         if (msg.attachments.isEmpty && _text == null) {
+    //           avatarOffset += 59 - 5;
+    //         } else {
+    //           avatarOffset += 55 - 4 + 8;
+    //         }
+    //       }
+    //     }
 
-        if (reply is ChatCallQuote) {
-          if (msg.attachments.isEmpty && _text == null) {
-            avatarOffset += 59 - 4;
-          } else {
-            avatarOffset += 55 - 4 + 8;
-          }
-        }
+    //     if (reply is ChatCallQuote) {
+    //       if (msg.attachments.isEmpty && _text == null) {
+    //         avatarOffset += 59 - 4;
+    //       } else {
+    //         avatarOffset += 55 - 4 + 8;
+    //       }
+    //     }
 
-        if (reply is ChatInfoQuote) {
-          if (msg.attachments.isEmpty && _text == null) {
-            avatarOffset += 59 - 5;
-          } else {
-            avatarOffset += 55 - 4 + 8;
-          }
-        }
-      }
-    }
+    //     if (reply is ChatInfoQuote) {
+    //       if (msg.attachments.isEmpty && _text == null) {
+    //         avatarOffset += 59 - 5;
+    //       } else {
+    //         avatarOffset += 55 - 4 + 8;
+    //       }
+    //     }
+    //   }
+    // }
 
     final Color background;
     final Border border;
@@ -991,47 +991,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       (menu) {
         final List<Widget> children = [
-          if (msg.repliesTo.isNotEmpty)
-            ...msg.repliesTo.mapIndexed((i, e) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: e.author == widget.me
-                      ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
-                      : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
-                  borderRadius: i == 0
-                      ? BorderRadius.only(
-                          topLeft: const Radius.circular(15),
-                          topRight: const Radius.circular(15),
-                          bottomLeft: msg.repliesTo.length == 1 && _text == null
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                          bottomRight:
-                              msg.repliesTo.length == 1 && _text == null
-                                  ? const Radius.circular(15)
-                                  : Radius.zero,
-                        )
-                      : i == msg.repliesTo.length - 1 && _text == null
-                          ? const BorderRadius.only(
-                              bottomLeft: Radius.circular(15),
-                              bottomRight: Radius.circular(15),
-                            )
-                          : BorderRadius.zero,
-                ),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
-                  ),
-                ),
-              );
-            }),
           if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
             Padding(
               padding: EdgeInsets.fromLTRB(
@@ -1196,11 +1155,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   12,
-                  !_fromMe &&
-                          widget.chat.value?.isGroup == true &&
-                          widget.avatar
-                      ? 0
-                      : 10,
+                  (media.isNotEmpty && files.isEmpty) ||
+                          (msg.attachments.isEmpty &&
+                              (_fromMe || widget.chat.value?.isGroup != true))
+                      ? 10
+                      : 0,
+                  // !_fromMe &&
+                  //         widget.chat.value?.isGroup == true &&
+                  //         widget.avatar
+                  //     ? 0
+                  //     : 10,
                   12, 10,
                   // files.isEmpty ? 10 : 0,
                 ),
@@ -1211,7 +1175,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       // text.linkify(),
                       // TextSpan(text: text),
                       _text!,
-                      if (widget.displayTime && !timeInBubble)
+                      if (widget.displayTime &&
+                          !timeInBubble &&
+                          msg.repliesTo.isEmpty)
                         if (_fromMe)
                           const WidgetSpan(
                             child: SizedBox(width: 42, height: 20),
@@ -1254,6 +1220,58 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
+          if (msg.repliesTo.isNotEmpty)
+            ...msg.repliesTo.mapIndexed((i, e) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: e.author == widget.me
+                      ? _isRead || !_fromMe
+                          ? const Color(0xFFDBEAFD)
+                          : const Color(0xFFE6F1FE)
+                      : _isRead || !_fromMe
+                          ? const Color(0xFFF9F9F9)
+                          : const Color(0xFFFFFFFF),
+                  borderRadius: i == msg.repliesTo.length - 1 &&
+                          !(widget.displayTime || widget.paid)
+                      ? BorderRadius.only(
+                          bottomLeft: const Radius.circular(15),
+                          bottomRight: const Radius.circular(15),
+                          topLeft: msg.repliesTo.length == 1 && _text == null
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                          topRight: msg.repliesTo.length == 1 && _text == null
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                        )
+                      : i == 0 && _text == null
+                          ? const BorderRadius.only(
+                              bottomLeft: Radius.circular(15),
+                              bottomRight: Radius.circular(15),
+                            )
+                          : BorderRadius.zero,
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: _isRead || !_fromMe ? 1 : 0.55,
+                  child: WidgetButton(
+                    onPressed: () => widget.onRepliedTap?.call(e),
+                    child: _repliedMessage(e),
+                  ),
+                ),
+              );
+            }),
+          if (msg.repliesTo.isNotEmpty && (widget.displayTime || widget.paid))
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 2),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  timeline,
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ),
         ];
 
         return Container(
@@ -1276,7 +1294,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   ),
                 ),
-                if (widget.displayTime || widget.paid)
+                if ((widget.displayTime || widget.paid) &&
+                    msg.repliesTo.isEmpty)
                   Positioned(
                     right: timeInBubble ? 4 : 8,
                     bottom: 4,
