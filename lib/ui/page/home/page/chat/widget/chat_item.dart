@@ -1130,12 +1130,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
                     child: message.withVideo
-                        ? SvgLoader.asset(
-                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        ? AssetWidget(
+                            asset:
+                                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 13 * 1.4,
                           )
-                        : SvgLoader.asset(
-                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        : AssetWidget(
+                            asset:
+                                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 15 * 1.4,
                           ),
                   ),
@@ -1325,12 +1327,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: call?.withVideo == true
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                ? AssetWidget(
+                    asset:
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                : AssetWidget(
+                    asset:
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
@@ -1627,8 +1631,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/copy_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
                               onPressed: () => widget.onCopy
@@ -1640,8 +1644,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/reply.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/reply.svg',
                                 height: 18,
                               ),
                               onPressed: widget.onReply,
@@ -1652,8 +1656,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/forward.svg',
+                                trailing: const AssetWidget(
+                                  asset: 'assets/icons/forward.svg',
                                   height: 18,
                                 ),
                                 onPressed: () async {
@@ -1673,8 +1677,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/edit.svg',
+                                trailing: const AssetWidget(
+                                  asset: 'assets/icons/edit.svg',
                                   height: 18,
                                 ),
                                 onPressed: widget.onEdit,
@@ -1684,8 +1688,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
                               onPressed: () async {
@@ -1730,8 +1734,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/send_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
                               ),
@@ -1742,8 +1746,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
                               ),
