@@ -358,6 +358,10 @@ class ChatRepository extends DisposableInterface
         }
       }
 
+      if (item.chatId.isLocal) {
+        rxChat = await ensureRemoteDialog(item.chatId);
+      }
+
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
