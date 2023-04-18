@@ -41,9 +41,9 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -84,12 +84,12 @@ class CallWindowSwitchView extends StatelessWidget {
                       return Material(
                         borderRadius: BorderRadius.circular(10),
                         color: selected
-                            ? colorScheme.secondary
+                            ? colors.secondary
                             : Colors.white.darken(0.05),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           hoverColor: selected
-                              ? colorScheme.secondary
+                              ? colors.secondary
                               : Colors.white.darken(0.08),
                           onTap: () => c.setPopupsEnabled(i == 0),
                           child: Padding(
@@ -105,9 +105,8 @@ class CallWindowSwitchView extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: selected
-                                          ? colorScheme.onSecondary
-                                          : null,
+                                      color:
+                                          selected ? colors.onSecondary : null,
                                     ),
                                   ),
                                 ),
@@ -123,7 +122,7 @@ class CallWindowSwitchView extends StatelessWidget {
                                             radius: 12,
                                             child: Icon(
                                               Icons.check,
-                                              color: colorScheme.secondary,
+                                              color: colors.secondary,
                                               size: 12,
                                             ),
                                           )

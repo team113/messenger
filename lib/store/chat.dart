@@ -101,9 +101,6 @@ class ChatRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [isReady] value.
-  final RxBool _isReady = RxBool(false);
-
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
@@ -145,9 +142,6 @@ class ChatRepository extends DisposableInterface
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  RxBool get isReady => _isReady;
-
-  @override
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
@@ -164,7 +158,6 @@ class ChatRepository extends DisposableInterface
           entry.init();
         }
       }
-      _isReady.value = true;
     }
 
     status.value =
@@ -192,7 +185,6 @@ class ChatRepository extends DisposableInterface
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
-      _isReady.value = true;
       status.value = RxStatus.success();
     } on OperationCanceledException catch (_) {
       // No-op.

@@ -30,9 +30,8 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [contacts] value is fetched.
-  RxBool get isReady => _contactRepository.isReady;
+  /// Returns the [RxStatus] of the [contacts] and [favorites] initialization.
+  Rx<RxStatus> get status => _contactRepository.status;
 
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -41,9 +40,6 @@ class ContactService extends DisposableService {
   /// Returns the current reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
-
-  /// Returns the status of the [contacts] and [favorites] fetching.
-  Rx<RxStatus> get status => _contactRepository.status;
 
   @override
   void onInit() {

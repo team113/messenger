@@ -32,11 +32,8 @@ abstract class AbstractContactRepository {
   /// Returns reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites;
 
-  /// Indicates whether this repository was initialized and [contacts] can be
-  /// used.
-  RxBool get isReady;
-
-  /// Returns the status of the [contacts] and [favorites] fetching.
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [contacts] and [favorites].
   Rx<RxStatus> get status;
 
   /// Initializes this repository.

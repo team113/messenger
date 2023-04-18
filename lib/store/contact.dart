@@ -52,16 +52,13 @@ class ContactRepository implements AbstractContactRepository {
   );
 
   @override
-  final RxBool isReady = RxBool(false);
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
-
-  @override
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -94,14 +91,13 @@ class ContactRepository implements AbstractContactRepository {
           favorites[c.value.id] = entry;
         }
       }
-
-      isReady.value = true;
-    } else {
-      isReady.value = _sessionLocal.getChatContactsListVersion() != null;
     }
 
-    status.value =
-        _contactLocal.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+    status.value = _contactLocal.isEmpty
+        ? _sessionLocal.getChatContactsListVersion() != null
+            ? RxStatus.loadingMore()
+            : RxStatus.loading()
+        : RxStatus.loadingMore();
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -321,7 +317,6 @@ class ContactRepository implements AbstractContactRepository {
           _putChatContact(c);
         }
 
-        isReady.value = true;
         status.value = RxStatus.success();
         break;
 

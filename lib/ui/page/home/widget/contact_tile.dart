@@ -116,7 +116,7 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
       key: contact != null || user != null
@@ -129,7 +129,7 @@ class ContactTile extends StatelessWidget {
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
-          selectedColor: colorScheme.secondary,
+          selectedColor: colors.secondary,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
@@ -138,7 +138,7 @@ class ContactTile extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-          selectedHoverColor: colorScheme.secondary,
+          selectedHoverColor: colors.secondary,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
@@ -191,9 +191,7 @@ class ContactTile extends StatelessWidget {
                                   .textTheme
                                   .headlineSmall
                                   ?.copyWith(
-                                    color: selected
-                                        ? colorScheme.onSecondary
-                                        : null,
+                                    color: selected ? colors.onSecondary : null,
                                   ),
                             ),
                           ),
@@ -212,7 +210,10 @@ class ContactTile extends StatelessWidget {
     );
   }
 
-  /// Returns the [child] for which a long press does nothing.
+  /// Returns the [child].
+  ///
+  /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
+  /// for discarding long presses on its [child].
   static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
         onLongPress: () {},
         child: child,

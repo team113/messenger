@@ -54,7 +54,7 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -69,10 +69,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(
-                    color: colorScheme.secondary,
-                    width: 2,
-                  )
+                ? Border.all(color: colors.secondary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -102,8 +99,23 @@ class ContactsTabView extends StatelessWidget {
               } else if (c.selecting.value) {
                 child = Text('label_select_contacts'.l10n);
               } else {
-                final bool isLoading = c.fetching.value == null &&
-                    (c.status.value.isLoadingMore || !c.status.value.isSuccess);
+                final Widget synchronization;
+
+                if (c.fetching.value == null &&
+                    (c.status.value.isLoadingMore ||
+                        !c.status.value.isSuccess)) {
+                  synchronization = Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Center(
+                      child: Text(
+                        'label_synchronization'.l10n,
+                        style: TextStyle(fontSize: 13, color: colors.primary),
+                      ),
+                    ),
+                  );
+                } else {
+                  synchronization = const SizedBox.shrink();
+                }
 
                 child = Column(
                   mainAxisSize: MainAxisSize.min,
@@ -112,20 +124,7 @@ class ContactsTabView extends StatelessWidget {
                     AnimatedSizeAndFade(
                       sizeDuration: const Duration(milliseconds: 300),
                       fadeDuration: const Duration(milliseconds: 300),
-                      child: isLoading
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Center(
-                                child: Text(
-                                  'label_synchronization'.l10n,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: colorScheme.primary,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
+                      child: synchronization,
                     ),
                   ],
                 );
@@ -200,7 +199,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
-            if (!c.contactsReady.value) {
+            if (c.status.value.isLoading) {
               return const Center(child: CustomProgressIndicator());
             }
 
@@ -485,7 +484,7 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return Obx(() {
       bool favorite = c.favorites.contains(contact);
@@ -495,13 +494,13 @@ class ContactsTabView extends StatelessWidget {
               ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
           true;
 
-      final bool invert = selected || c.selectedContacts.contains(contact.id);
+      final bool inverted = selected || c.selectedContacts.contains(contact.id);
 
       return ContactTile(
         key: Key('Contact_${contact.id}'),
         contact: contact,
         folded: favorite,
-        selected: invert,
+        selected: inverted,
         enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
             ? (child) => WidgetButton(
@@ -553,8 +552,7 @@ class ContactsTabView extends StatelessWidget {
                 return Text(
                   subtitle,
                   style: TextStyle(
-                    color:
-                        invert ? colorScheme.onSecondary : colorScheme.primary,
+                    color: inverted ? colors.onSecondary : colors.primary,
                   ),
                 );
               }
@@ -574,7 +572,7 @@ class ContactsTabView extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: SvgLoader.asset(
-                invert
+                inverted
                     ? 'assets/icons/muted_light.svg'
                     : 'assets/icons/muted.svg',
                 key: Key('MuteIndicator_${contact.id}'),
@@ -592,8 +590,7 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
                 Icons.block,
-                color:
-                    invert ? colorScheme.onSecondary : const Color(0xFFC0C0C0),
+                color: inverted ? colors.onSecondary : const Color(0xFFC0C0C0),
                 size: 20,
               ),
             );
@@ -608,7 +605,6 @@ class ContactsTabView extends StatelessWidget {
               child: SelectedDot(
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
-                invert: true,
                 isRoute: selected,
               ),
             );

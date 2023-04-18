@@ -41,7 +41,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
-        final ColorScheme colorScheme = Theme.of(context).colorScheme;
+        final ColorScheme colors = Theme.of(context).colorScheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -124,7 +124,7 @@ class MenuTabView extends StatelessWidget {
                   VoidCallback? onTap,
                 }) {
                   return Obx(() {
-                    final bool invert = tab == router.profileSection.value &&
+                    final bool inverted = tab == router.profileSection.value &&
                         router.route == Routes.me;
 
                     return Padding(
@@ -141,9 +141,8 @@ class MenuTabView extends StatelessWidget {
                           child: Material(
                             type: MaterialType.card,
                             borderRadius: style.cardRadius,
-                            color: invert
-                                ? colorScheme.secondary
-                                : style.cardColor,
+                            color:
+                                inverted ? colors.secondary : style.cardColor,
                             child: InkWell(
                               borderRadius: style.cardRadius,
                               onTap: onTap ??
@@ -155,8 +154,8 @@ class MenuTabView extends StatelessWidget {
                                     }
                                     router.me();
                                   },
-                              hoverColor: invert
-                                  ? colorScheme.secondary
+                              hoverColor: inverted
+                                  ? colors.secondary
                                   : style.cardColor.darken(0.03),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
@@ -165,9 +164,9 @@ class MenuTabView extends StatelessWidget {
                                     const SizedBox(width: 12),
                                     Icon(
                                       icon,
-                                      color: invert
-                                          ? colorScheme.onSecondary
-                                          : colorScheme.secondary,
+                                      color: inverted
+                                          ? colors.onSecondary
+                                          : colors.secondary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(
@@ -184,8 +183,8 @@ class MenuTabView extends StatelessWidget {
                                                 .textTheme
                                                 .headlineSmall!
                                                 .copyWith(
-                                                  color: invert
-                                                      ? colorScheme.onSecondary
+                                                  color: inverted
+                                                      ? colors.onSecondary
                                                       : null,
                                                 ),
                                             child: Text(title),
@@ -195,8 +194,8 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              color: invert
-                                                  ? colorScheme.onSecondary
+                                              color: inverted
+                                                  ? colors.onSecondary
                                                   : null,
                                             ),
                                             child: Text(subtitle),

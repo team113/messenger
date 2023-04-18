@@ -48,9 +48,9 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -88,12 +88,12 @@ class LanguageSelectionView extends StatelessWidget {
                           child: Material(
                             borderRadius: BorderRadius.circular(10),
                             color: selected
-                                ? colorScheme.secondary
+                                ? colors.secondary
                                 : Colors.white.darken(0.05),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(10),
                               hoverColor: selected
-                                  ? colorScheme.secondary
+                                  ? colors.secondary
                                   : Colors.white.darken(0.08),
                               onTap: () => c.selected.value = e,
                               child: Padding(
@@ -109,7 +109,7 @@ class LanguageSelectionView extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 17,
                                         color: selected
-                                            ? colorScheme.onSecondary
+                                            ? colors.onSecondary
                                             : null,
                                       ),
                                     ),
@@ -125,7 +125,7 @@ class LanguageSelectionView extends StatelessWidget {
                                                 radius: 12,
                                                 child: Icon(
                                                   Icons.check,
-                                                  color: colorScheme.secondary,
+                                                  color: colors.secondary,
                                                   size: 12,
                                                 ),
                                               )
@@ -162,7 +162,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: colorScheme.secondary,
+                  color: colors.secondary,
                 ),
               ),
               const SizedBox(height: 16),

@@ -90,7 +90,7 @@ class ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
@@ -103,7 +103,7 @@ class ChatTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: colorScheme.secondary,
+            selectedColor: colors.secondary,
             unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
@@ -112,7 +112,7 @@ class ChatTile extends StatelessWidget {
             borderRadius: style.cardRadius,
             onTap: onTap,
             unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-            selectedHoverColor: colorScheme.secondary,
+            selectedHoverColor: colors.secondary,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
@@ -145,7 +145,7 @@ class ChatTile extends StatelessWidget {
                                             .headlineSmall
                                             ?.copyWith(
                                               color: selected
-                                                  ? colorScheme.onSecondary
+                                                  ? colors.onSecondary
                                                   : null,
                                             ),
                                       );

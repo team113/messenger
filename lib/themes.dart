@@ -61,11 +61,15 @@ class Themes {
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
-            cardHoveredBorder:
-                Border.all(color: const Color(0xFFCAE6FE), width: 0.5),
+            cardHoveredBorder: Border.all(
+              color: const Color(0xFFCAE6FE),
+              width: 0.5,
+            ),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedBorder:
-                Border.all(color: const Color(0xFF58A6EF), width: 0.5),
+            cardSelectedBorder: Border.all(
+              color: const Color(0xFF58A6EF),
+              width: 0.5,
+            ),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),

@@ -407,9 +407,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [_text] and [_galleryKeys].
   Worker? _worker;
 
-  /// [RegExp] detecting separate numbers.
-  static final RegExp _numberRegex = RegExp(r'\d');
-
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -1095,8 +1092,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    final String? longTime = time?.replaceAll(_numberRegex, '0');
-
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = _fromMe
@@ -1161,26 +1156,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           const SizedBox(width: 8),
                           Padding(
                             padding: const EdgeInsets.only(bottom: 1),
-                            child: Stack(
-                              children: [
-                                Opacity(
-                                  opacity: 0,
-                                  child: Text(
-                                    longTime!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style:
-                                        Theme.of(context).textTheme.titleSmall,
-                                  ),
-                                ),
-                                Text(
-                                  time,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                ),
-                              ],
-                            ),
+                            child: Text(
+                              time,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ).fixedDigits(),
                           ),
                         ],
                       ],
@@ -2041,5 +2022,39 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
+  }
+}
+
+/// Extension adding a fixed-length digits [Text] transformer.
+extension FixedDigitsExtension on Text {
+  /// [RegExp] detecting numbers.
+  static final RegExp _regex = RegExp(r'\d');
+
+  /// Returns a [Text] guaranteed to have fixed width of digits in it.
+  Widget fixedDigits() {
+    Text copyWith(String string) {
+      return Text(
+        string,
+        style: style,
+        strutStyle: strutStyle,
+        textAlign: textAlign,
+        textDirection: textDirection,
+        locale: locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaleFactor: textScaleFactor,
+        maxLines: maxLines,
+        textWidthBasis: textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      );
+    }
+
+    return Stack(
+      children: [
+        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
+        copyWith(data!),
+      ],
+    );
   }
 }
