@@ -22,8 +22,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../routes.dart';
-import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title_common.dart';
@@ -36,7 +34,6 @@ import '../widget/desktop_scaler.dart';
 import '../widget/desktop_secondary_target.dart';
 import '../widget/hint.dart';
 import '../widget/scaler.dart';
-import '../widget/tooltip_button.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
