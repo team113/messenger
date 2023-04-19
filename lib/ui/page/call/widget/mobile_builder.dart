@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 import '../controller.dart';
 
 import 'animated_cliprrect.dart';
-import 'mobile_stack.dart';
+import 'participant.dart';
 
 /// Builds the [Participant] with a [AnimatedClipRRect].
 class MobileBuilder extends StatelessWidget {
@@ -64,6 +64,50 @@ class MobileBuilder extends StatelessWidget {
           c: c,
         ),
       ),
+    );
+  }
+}
+
+/// Сreating overlapping [Widget]'s of various functionality.
+class StackWidget extends StatelessWidget {
+  const StackWidget({
+    Key? key,
+    required this.e,
+    required this.muted,
+    required this.animated,
+    required this.c,
+  }) : super(key: key);
+
+  /// Separate call entity participating in a call.
+  final Participant e;
+
+  /// Mute switching.
+  final bool muted;
+
+  /// Animated switching.
+  final bool animated;
+
+  /// Controller of an [OngoingCall] overlay.
+  final CallController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        const ParticipantDecoratorWidget(),
+        IgnorePointer(
+          child: ParticipantWidget(
+            e,
+            offstageUntilDetermined: true,
+          ),
+        ),
+        ParticipantOverlayWidget(
+          e,
+          muted: muted,
+          hovered: animated,
+          preferBackdrop: !c.minimized.value,
+        ),
+      ],
     );
   }
 }
