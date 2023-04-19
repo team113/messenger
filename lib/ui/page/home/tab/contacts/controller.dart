@@ -86,7 +86,8 @@ class ContactsTabController extends GetxController {
   /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
-  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  /// [Timer] displaying the [contacts] and [favorites] being fetched when it
+  /// becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
   );

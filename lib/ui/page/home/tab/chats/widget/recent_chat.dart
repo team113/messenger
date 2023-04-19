@@ -734,7 +734,7 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds a [ChatItem.status] visual representation.
-  Widget _status(BuildContext context, bool invert) {
+  Widget _status(BuildContext context, bool inverted) {
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return Obx(() {
@@ -766,12 +766,12 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? invert
+                ? inverted
                     ? colors.onSecondary
                     : colors.secondary
                 : isError
                     ? Colors.red
-                    : invert
+                    : inverted
                         ? colors.onSecondary
                         : colors.primary,
             size: 16,
@@ -784,7 +784,7 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter(BuildContext context, bool invert) {
+  Widget _counter(BuildContext context, bool inverted) {
     return Obx(() {
       final ColorScheme colors = Theme.of(context).colorScheme;
 
@@ -800,7 +800,7 @@ class RecentChatTile extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: muted
-                ? invert
+                ? inverted
                     ? colors.onSecondary
                     : const Color(0xFFC0C0C0)
                 : Colors.red,
@@ -813,7 +813,7 @@ class RecentChatTile extends StatelessWidget {
                 : '${rxChat.unreadCount.value}',
             style: TextStyle(
               color: muted
-                  ? invert
+                  ? inverted
                       ? colors.primary
                       : Colors.white
                   : Colors.white,
