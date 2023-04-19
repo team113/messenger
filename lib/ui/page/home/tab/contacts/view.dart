@@ -100,10 +100,7 @@ class ContactsTabView extends StatelessWidget {
                 child = Text('label_select_contacts'.l10n);
               } else {
                 final Widget synchronization;
-
-                if (c.fetching.value == null &&
-                    (c.status.value.isLoadingMore ||
-                        !c.status.value.isSuccess)) {
+                if (c.fetching.value == null && c.status.value.isLoadingMore) {
                   synchronization = Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Center(
@@ -565,7 +562,8 @@ class ContactsTabView extends StatelessWidget {
           Obx(() {
             final dialog = contact.user.value?.dialog.value;
 
-            if (dialog?.chat.value.muted == null) {
+            if (dialog?.chat.value.muted == null ||
+                contact.user.value?.user.value.isBlacklisted != null) {
               return const SizedBox();
             }
 
@@ -605,7 +603,7 @@ class ContactsTabView extends StatelessWidget {
               child: SelectedDot(
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
-                isRoute: selected,
+                invertedUnselected: selected,
               ),
             );
           }),

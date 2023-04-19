@@ -206,6 +206,10 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
+
                           final List<Widget> children;
 
                           if (c.chat!.chat.value.ongoingCall == null) {

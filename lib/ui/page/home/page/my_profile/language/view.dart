@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
@@ -82,61 +82,14 @@ class LanguageSelectionView extends StatelessWidget {
                       final Language e = L10n.languages[i];
 
                       return Obx(() {
-                        final bool selected = c.selected.value == e;
-                        return SizedBox(
+                        return RectangleButton(
                           key: Key('Language_${e.locale.languageCode}'),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(10),
-                            color: selected
-                                ? colors.secondary
-                                : Colors.white.darken(0.05),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              hoverColor: selected
-                                  ? colors.secondary
-                                  : Colors.white.darken(0.08),
-                              onTap: () => c.selected.value = e,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'label_language_entry'.l10nfmt({
-                                        'code':
-                                            e.locale.languageCode.toUpperCase(),
-                                        'name': e.name,
-                                      }),
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: selected
-                                            ? colors.onSecondary
-                                            : null,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: selected
-                                            ? CircleAvatar(
-                                                backgroundColor: Colors.white,
-                                                radius: 12,
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: colors.secondary,
-                                                  size: 12,
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          label: 'label_language_entry'.l10nfmt({
+                            'code': e.locale.languageCode.toUpperCase(),
+                            'name': e.name,
+                          }),
+                          selected: c.selected.value == e,
+                          onPressed: () => c.selected.value = e,
                         );
                       });
                     },
@@ -153,7 +106,7 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(color: colors.onSecondary),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {

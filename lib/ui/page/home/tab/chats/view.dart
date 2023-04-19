@@ -133,8 +133,7 @@ class ChatsTabView extends StatelessWidget {
                       final Widget synchronization;
 
                       if (c.fetching.value == null &&
-                          (c.status.value.isLoadingMore ||
-                              !c.status.value.isSuccess)) {
+                          c.status.value.isLoadingMore) {
                         synchronization = Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: Center(
@@ -621,7 +620,7 @@ class ChatsTabView extends StatelessWidget {
                                         SelectedDot(
                                           selected: selected,
                                           size: 20,
-                                          isRoute: e.chat.value
+                                          invertedUnselected: e.chat.value
                                               .isRoute(router.route, null),
                                         )
                                       ]

@@ -175,9 +175,8 @@ class RecentChatTile extends StatelessWidget {
                           : const Color(0xFFC0C0C0),
                       size: 20,
                     ),
-                    if (chat.muted == null) const SizedBox(width: 5),
-                  ],
-                  if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                  ] else if (chat.muted != null) ...[
                     const SizedBox(width: 5),
                     SvgLoader.asset(
                       inverted
