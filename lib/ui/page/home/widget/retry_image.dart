@@ -210,7 +210,7 @@ class _RetryImageState extends State<RetryImage> {
 
       if (_isSvg) {
         return SvgImage.bytes(
-          _image!,
+          bytes: _image!,
           width: widget.width,
           height: widget.height,
           fit: widget.fit ?? BoxFit.contain,
