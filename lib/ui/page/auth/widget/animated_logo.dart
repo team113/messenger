@@ -33,6 +33,8 @@ class AnimatedLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthController c = Get.find<AuthController>();
+    final String logoFrameValue =
+        'assets/images/logo/head000${c.logoFrame.value}.svg';
     final Widget child;
     const double height = 250;
     const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
@@ -48,7 +50,7 @@ class AnimatedLogo extends StatelessWidget {
     } else {
       child = Obx(() {
         return SvgImage.asset(
-          'assets/images/logo/head000${c.logoFrame.value}.svg',
+          logoFrameValue,
           height: 140,
           placeholderBuilder: (context) {
             return LayoutBuilder(builder: (context, constraints) {
