@@ -186,8 +186,8 @@ class SecondaryView extends StatelessWidget {
                   () => c.secondaryAlignment.value == null
                       ? DesktopBuildDragHandle(
                           c,
-                          width: width,
                           height: height,
+                          width: width,
                           alignment: Alignment.centerLeft,
                         )
                       : Container(),
@@ -202,10 +202,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.centerRight)
+                          width: width,
+                          alignment: Alignment.centerRight,
+                        )
                       : Container(),
                 )),
 
@@ -218,10 +220,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.bottomCenter)
+                          width: width,
+                          alignment: Alignment.bottomCenter,
+                        )
                       : Container(),
                 )),
 
@@ -234,10 +238,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.topCenter)
+                          width: width,
+                          alignment: Alignment.topCenter,
+                        )
                       : Container(),
                 )),
 
@@ -250,10 +256,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.topLeft)
+                          width: width,
+                          alignment: Alignment.topLeft,
+                        )
                       : Container(),
                 )),
 
@@ -266,10 +274,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.topRight)
+                          width: width,
+                          alignment: Alignment.topRight,
+                        )
                       : Container(),
                 )),
 
@@ -282,10 +292,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.bottomLeft)
+                          width: width,
+                          alignment: Alignment.bottomLeft,
+                        )
                       : Container(),
                 )),
 
@@ -298,10 +310,12 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => c.secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(c,
-                          width: width,
+                      ? DesktopBuildDragHandle(
+                          c,
                           height: height,
-                          alignment: Alignment.bottomRight)
+                          width: width,
+                          alignment: Alignment.bottomRight,
+                        )
                       : Container(),
                 )),
 
@@ -619,8 +633,8 @@ class SecondaryView extends StatelessWidget {
                   () => c.secondaryAlignment.value == Alignment.centerRight
                       ? DesktopBuildDragHandle(
                           c,
-                          width: width,
                           height: height,
+                          width: width,
                           alignment: Alignment.centerLeft,
                         )
                       : Container(),
@@ -637,8 +651,8 @@ class SecondaryView extends StatelessWidget {
                   () => c.secondaryAlignment.value == Alignment.centerLeft
                       ? DesktopBuildDragHandle(
                           c,
-                          width: width,
                           height: height,
+                          width: width,
                           alignment: Alignment.centerRight,
                         )
                       : Container(),
@@ -655,8 +669,8 @@ class SecondaryView extends StatelessWidget {
                   () => c.secondaryAlignment.value == Alignment.topCenter
                       ? DesktopBuildDragHandle(
                           c,
-                          width: width,
                           height: height,
+                          width: width,
                           alignment: Alignment.bottomCenter,
                         )
                       : Container(),
@@ -673,8 +687,8 @@ class SecondaryView extends StatelessWidget {
                   () => c.secondaryAlignment.value == Alignment.bottomCenter
                       ? DesktopBuildDragHandle(
                           c,
-                          width: width,
                           height: height,
+                          width: width,
                           alignment: Alignment.topCenter,
                         )
                       : Container(),
