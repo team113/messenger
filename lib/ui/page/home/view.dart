@@ -200,7 +200,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgImage.asset(
-                                    asset: 'assets/icons/contacts.svg',
+                                    'assets/icons/contacts.svg',
                                     width: 30,
                                     height: 30,
                                   ),
@@ -226,14 +226,14 @@ class _HomeViewState extends State<HomeView> {
 
                                       if (c.myUser.value?.muted != null) {
                                         child = SvgImage.asset(
-                                          asset: 'assets/icons/chats_muted.svg',
+                                          'assets/icons/chats_muted.svg',
                                           key: const Key('Muted'),
                                           width: 36.06,
                                           height: 30,
                                         );
                                       } else {
                                         child = SvgImage.asset(
-                                          asset: 'assets/icons/chats.svg',
+                                          'assets/icons/chats.svg',
                                           key: const Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,
@@ -374,7 +374,7 @@ class _HomeViewState extends State<HomeView> {
             children: [
               Positioned.fill(
                 child: SvgImage.asset(
-                  asset: 'assets/images/background_light.svg',
+                  'assets/images/background_light.svg',
                   key: const Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,

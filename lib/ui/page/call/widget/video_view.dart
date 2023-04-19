@@ -297,7 +297,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
                             SvgImage.asset(
-                              asset: 'assets/icons/microphone_off_small.svg',
+                              'assets/icons/microphone_off_small.svg',
                               width: 11,
                             ),
                           Flexible(

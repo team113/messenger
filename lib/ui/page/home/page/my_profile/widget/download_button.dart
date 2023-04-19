@@ -73,7 +73,7 @@ class DownloadButton extends StatelessWidget {
               child: Transform.scale(
                 scale: 2,
                 child: SvgImage.asset(
-                  asset: 'assets/icons/$asset.svg',
+                  'assets/icons/$asset.svg',
                   width: width == null ? null : width! / 2,
                   height: height == null ? null : height! / 2,
                 ),
@@ -83,7 +83,7 @@ class DownloadButton extends StatelessWidget {
         offset: const Offset(0, -1),
         child: Transform.scale(
           scale: 1.15,
-          child: SvgImage.asset(asset: 'assets/icons/copy.svg', height: 15),
+          child: SvgImage.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),

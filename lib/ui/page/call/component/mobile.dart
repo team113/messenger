@@ -62,7 +62,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     // Call stackable content.
     List<Widget> content = [
       SvgImage.asset(
-        asset: 'assets/images/background_dark.svg',
+        'assets/images/background_dark.svg',
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.cover,

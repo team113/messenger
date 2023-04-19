@@ -131,7 +131,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 height: max(widget.assetWidth, 60),
                 child: Center(
                   child: SvgImage.asset(
-                    asset: 'assets/icons/${widget.asset}.svg',
+                    'assets/icons/${widget.asset}.svg',
                     width: widget.assetWidth,
                   ),
                 ),

@@ -43,7 +43,7 @@ class CallCoverWidget extends StatelessWidget {
       children: [
         if (cover == null)
           SvgImage.asset(
-            asset: 'assets/images/background_dark.svg',
+            'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

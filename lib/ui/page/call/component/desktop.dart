@@ -60,7 +60,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Call stackable content.
       List<Widget> content = [
         SvgImage.asset(
-          asset: 'assets/images/background_dark.svg',
+          'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
           fit: BoxFit.cover,
@@ -1181,8 +1181,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           ? 'btn_fullscreen_exit'.l10n
                           : 'btn_fullscreen_enter'.l10n,
                       child: SvgImage.asset(
-                        asset:
-                            'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
+                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
                       ),
                     ),
@@ -1730,7 +1729,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           children: [
                             Container(color: const Color(0xFF0A1724)),
                             SvgImage.asset(
-                              asset: 'assets/images/background_dark.svg',
+                              'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
@@ -2078,7 +2077,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     InkResponse(
                                       onTap: isAnyDrag ? null : c.focusAll,
                                       child: SvgImage.asset(
-                                        asset: 'assets/icons/close.svg',
+                                        'assets/icons/close.svg',
                                         height: 10.25,
                                       ),
                                     ),

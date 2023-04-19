@@ -154,7 +154,7 @@ class ChatsTabView extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 20, right: 12),
                             height: double.infinity,
                             child: SvgImage.asset(
-                              asset: 'assets/icons/search.svg',
+                              'assets/icons/search.svg',
                               width: 17.77,
                             ),
                           ),
@@ -168,19 +168,19 @@ class ChatsTabView extends StatelessWidget {
 
                       if (c.searching.value) {
                         child = SvgImage.asset(
-                          asset: 'assets/icons/close_primary.svg',
+                          'assets/icons/close_primary.svg',
                           key: const Key('CloseSearch'),
                           height: 15,
                         );
                       } else {
                         child = c.groupCreating.value || c.selecting.value
                             ? SvgImage.asset(
-                                asset: 'assets/icons/close_primary.svg',
+                                'assets/icons/close_primary.svg',
                                 key: const Key('CloseGroupSearching'),
                                 height: 15,
                               )
                             : SvgImage.asset(
-                                asset: 'assets/icons/group.svg',
+                                'assets/icons/group.svg',
                                 key: const Key('CreateGroup'),
                                 width: 21.77,
                                 height: 18.44,

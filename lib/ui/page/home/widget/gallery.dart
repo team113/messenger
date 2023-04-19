@@ -142,7 +142,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 50),
                         child: SvgImage.asset(
-                          asset: 'assets/images/logo/logo0000.svg',
+                          'assets/images/logo/logo0000.svg',
                         ),
                       ),
                     ]

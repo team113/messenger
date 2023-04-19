@@ -73,8 +73,7 @@ class IntroductionView extends StatelessWidget {
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
-                    asset:
-                        'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
@@ -88,8 +87,7 @@ class IntroductionView extends StatelessWidget {
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
-                    asset:
-                        'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
@@ -188,7 +186,7 @@ class IntroductionView extends StatelessWidget {
                             label: 'label_num'.l10n,
                             share: 'Gapopa ID: ${c.myUser.value?.num.val}',
                             trailing: SvgImage.asset(
-                              asset: 'assets/icons/share.svg',
+                              'assets/icons/share.svg',
                               width: 18,
                             ),
                             style: thin,

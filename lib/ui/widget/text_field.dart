@@ -191,7 +191,7 @@ class ReactiveTextField extends StatelessWidget {
                       child: ElasticAnimatedSwitcher(
                         child: state.status.value.isLoading
                             ? SvgImage.asset(
-                                asset: 'assets/icons/timer.svg',
+                                'assets/icons/timer.svg',
                                 width: 17,
                                 height: 17,
                               )
