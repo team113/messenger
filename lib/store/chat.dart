@@ -364,6 +364,7 @@ class ChatRepository extends DisposableInterface
         }
       }
 
+      // If this [item] is posted in a local [Chat], then make it remote first.
       if (item.chatId.isLocal) {
         rxChat = await ensureRemoteDialog(item.chatId);
       }
@@ -907,8 +908,7 @@ class ChatRepository extends DisposableInterface
     if (id.isLocal && id.userId == me) {
       try {
         _localMonologFavoritePosition = newPosition;
-        id =
-            _chat(await _graphQlProvider.createMonologChat(null)).chat.value.id;
+        id = (await _graphQlProvider.createMonologChat(null)).id;
         await _monologLocal.set(id);
       } catch (e) {
         _localMonologFavoritePosition = null;

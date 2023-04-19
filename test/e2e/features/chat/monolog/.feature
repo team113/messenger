@@ -42,7 +42,7 @@ Feature: Monolog
   Scenario: User adds local chat monolog to favorites
     When I open chat's info
     And I tap `FavoriteChatButton` button
-    Then chat monolog is indeed remote
+    Then monolog is indeed remote
     And I see monolog as favorite
 
   Scenario: User hides local monolog
