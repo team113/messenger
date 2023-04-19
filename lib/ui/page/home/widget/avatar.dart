@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -159,43 +160,6 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
       );
-
-  /// Creates an [AvatarWidget] from the specified reactive [user].
-  static Widget fromRxUser(
-    RxUser? user, {
-    Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-    bool badge = true,
-  }) {
-    if (user == null) {
-      return AvatarWidget.fromUser(
-        user?.user.value,
-        key: key,
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(
-      () => AvatarWidget(
-        key: key,
-        isOnline: badge && user.user.value.online == true,
-        isAway: user.user.value.presence == Presence.away,
-        avatar: user.user.value.avatar,
-        title: user.user.value.name?.val ?? user.user.value.num.val,
-        color: user.user.value.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      ),
-    );
-  }
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
@@ -489,5 +453,52 @@ extension BrightnessColorExtension on Color {
         hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
+  }
+}
+
+/// Creates an [AvatarWidget] from the specified reactive [user].
+class AvatarFromRxUser extends StatelessWidget {
+  final RxUser? user;
+  final double? radius;
+  final double? maxRadius;
+  final double? minRadius;
+  final double opacity;
+  final bool badge;
+  const AvatarFromRxUser({
+    Key? key,
+    required this.user,
+    required this.radius,
+    this.maxRadius,
+    this.minRadius,
+    this.opacity = 1,
+    this.badge = true,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    if (user == null) {
+      return AvatarWidget.fromUser(
+        user?.user.value,
+        key: key,
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(
+      () => AvatarWidget(
+        key: key,
+        isOnline: badge && user!.user.value.online == true,
+        isAway: user!.user.value.presence == Presence.away,
+        avatar: user!.user.value.avatar,
+        title: user!.user.value.name?.val ?? user!.user.value.num.val,
+        color: user!.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      ),
+    );
   }
 }

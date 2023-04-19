@@ -289,7 +289,7 @@ class AuthView extends StatelessWidget {
 class AnimatedLogo extends StatelessWidget {
   final AuthController controller;
 
-  const AnimatedLogo({Key? key, required this.controller}) : super(key: key);
+  const AnimatedLogo({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
