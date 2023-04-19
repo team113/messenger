@@ -20,24 +20,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 // TODO: Remove and use [find.text] when flutter/flutter#124859 is fixed:
 //       https://github.com/flutter/flutter/issues/124859
-/// Extension adding method to find text inside [RichText].
+/// Extension adding finder for a [RichText].
 extension RichTextExtension on CommonFinders {
-  /// Finds [RichText] widgets containing string equal to the [text] argument.
-  List<Finder> richText(String text, {bool skipOffstage = true}) {
-    final Finder finders = find.byType(RichText, skipOffstage: skipOffstage);
-
-    final int length = finders.evaluate().length;
-    final List<Finder> result = [];
-    for (int i = 0; i < length; i++) {
-      final Finder finder = finders.at(i);
-      final RichText richText = finder.evaluate().first.widget as RichText;
-      if (richText.text is TextSpan &&
-          (richText.text as TextSpan).toPlainText().replaceAll('￼', '') ==
-              text) {
-        result.add(finder);
-      }
-    }
-
-    return result;
+  /// Returns a [Finder] matching a [RichText] with the provided [text], if any.
+  Finder richText(String text, {bool skipOffstage = true}) {
+    return find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is RichText &&
+          widget.text.toPlainText(includePlaceholders: false) == text,
+      skipOffstage: skipOffstage,
+    );
   }
 }
