@@ -154,7 +154,9 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          CupertinoPopUp(c),
+          CupertinoPopUp(
+            key: c.languageKey,
+          ),
         ];
 
         return Stack(
@@ -191,7 +193,7 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            Flexible(child: AnimatedLogo(c)),
+                            const Flexible(child: AnimatedLogo()),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,

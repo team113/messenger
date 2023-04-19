@@ -19,20 +19,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
+import '../../../../config.dart';
 import '../controller.dart';
-import '/config.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Displaying an animated logo.
+/// Logo with animation.
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo(this.c, {super.key});
-
-  /// Responsible for calling the method that promotes logo animation.
-  final AuthController c;
+  const AnimatedLogo({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final AuthController c = Get.find<AuthController>();
     final Widget child;
     const double height = 250;
     const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
@@ -42,18 +42,7 @@ class AnimatedLogo extends StatelessWidget {
         key: const ValueKey('logo'),
         child: RiveAnimation.asset(
           'assets/images/logo/logo.riv',
-          onInit: (a) {
-            if (!Config.disableInfiniteAnimations) {
-              final StateMachineController? machine =
-                  StateMachineController.fromArtboard(a, 'Machine');
-              a.addController(machine!);
-              c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-              Future.delayed(
-                const Duration(milliseconds: 500),
-                c.animate,
-              );
-            }
-          },
+          onInit: (a) => _onInit,
         ),
       );
     } else {
@@ -90,5 +79,18 @@ class AnimatedLogo extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+void _onInit(Artboard a, AuthController c) {
+  if (!Config.disableInfiniteAnimations) {
+    final StateMachineController? machine =
+        StateMachineController.fromArtboard(a, 'Machine');
+    a.addController(machine!);
+    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      c.animate,
+    );
   }
 }

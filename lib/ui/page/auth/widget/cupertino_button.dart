@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -20,30 +21,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '../controller.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 
 /// Language selector that can be used to select a language and display
 /// the currently selected language.
 class CupertinoPopUp extends StatelessWidget {
-  const CupertinoPopUp(this.c, {super.key});
-
-  /// Responsible for displaying the language.
-  final AuthController c;
+  const CupertinoPopUp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        context.textTheme.bodySmall?.copyWith(color: Colors.black);
-    final Color primary = Theme.of(context).colorScheme.primary;
+    final TextStyle? thin = context.textTheme.bodySmall
+        ?.copyWith(fontSize: 13, color: Theme.of(context).colorScheme.primary);
     return CupertinoButton(
-      key: c.languageKey,
+      key: UniqueKey(),
       child: Text(
         'label_language_entry'.l10nfmt({
           'code': L10n.chosen.value!.locale.countryCode,
           'name': L10n.chosen.value!.name,
         }),
-        style: thin?.copyWith(fontSize: 13, color: primary),
+        style: thin,
       ),
       onPressed: () => LanguageSelectionView.show(context, null),
     );
