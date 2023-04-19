@@ -69,6 +69,9 @@ class NotificationService extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
+  /// [List] of the showed notifications tags.
+  List<String> showedNotifications = [];
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
@@ -135,6 +138,15 @@ class NotificationService extends DisposableService {
     bool playSound = true,
     String? image,
   }) async {
+    if (tag != null) {
+      if (showedNotifications.contains(tag)) {
+        showedNotifications.remove(tag);
+        return;
+      } else {
+        showedNotifications.add(tag);
+      }
+    }
+
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
     if (_focused && payload == router.route) return;
@@ -203,7 +215,7 @@ class NotificationService extends DisposableService {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(
-        Random().nextInt(1 << 31),
+        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
         title,
         body,
         NotificationDetails(
@@ -214,6 +226,7 @@ class NotificationService extends DisposableService {
             sound: const RawResourceAndroidNotificationSound('notification'),
             largeIcon:
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
+            tag: tag,
           ),
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
@@ -332,6 +345,7 @@ class NotificationService extends DisposableService {
             body: event.notification!.body,
             payload: '${Routes.chats}/${event.data['chatId']}',
             image: event.notification!.android?.imageUrl,
+            tag: event.notification?.android?.tag ?? event.data['chatItemId'],
           );
         }
       });

@@ -1549,20 +1549,6 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
   }
 }
 
-/// Extension adding indication whether a [FileAttachment] represents a video.
-extension FileAttachmentIsVideo on FileAttachment {
-  /// Indicates whether this [FileAttachment] represents a video.
-  bool get isVideo {
-    String file = filename.toLowerCase();
-    return file.endsWith('.mp4') ||
-        file.endsWith('.mov') ||
-        file.endsWith('.webm') ||
-        file.endsWith('.mkv') ||
-        file.endsWith('.flv') ||
-        file.endsWith('.3gp');
-  }
-}
-
 /// Extension adding an indicator whether a [ChatItem] is editable.
 extension IsChatItemEditable on ChatItem {
   /// Indicates whether this [ChatItem] is editable.

@@ -62,7 +62,11 @@ class MainActivity : FlutterActivity() {
                 if (completed) {
                     result.success(null)
                 } else {
-                    result.error("Error Code", "Error Message", null)
+                    result.error(
+                        "CreateNotificationChannelError",
+                        "NotificationChannel not created",
+                        null,
+                    )
                 }
             } else {
                 result.notImplemented()
@@ -91,7 +95,7 @@ class MainActivity : FlutterActivity() {
             val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
             intent.setClassName(
                 "com.miui.securitycenter",
-                "com.miui.permcenter.permissions.PermissionsEditorActivity"
+                "com.miui.permcenter.permissions.PermissionsEditorActivity",
             )
             intent.putExtra("extra_pkgname", packageName)
             startActivity(intent)

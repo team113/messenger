@@ -28,7 +28,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show NotificationResponse;
+    show
+        ActiveNotification,
+        FlutterLocalNotificationsPlugin,
+        NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -156,6 +159,24 @@ void handleMessage(RemoteMessage message) {
 /// Must be a top level function.
 @pragma('vm:entry-point')
 Future<void> backgroundHandler(RemoteMessage message) async {
+  final String? title = message.notification?.title;
+  final String? body =
+      message.notification?.body?.replaceAll(RegExp(r'[\u2068\u2069]'), '');
+
+  if (PlatformUtils.isIOS && title != null && body != null) {
+    final plugin = FlutterLocalNotificationsPlugin();
+    final List<ActiveNotification> notifications =
+        await plugin.getActiveNotifications();
+
+    final ActiveNotification? notification = notifications.firstWhereOrNull(
+      (e) => e.id != 0 && e.title == title && e.body == body,
+    );
+
+    if (notification != null) {
+      plugin.cancel(notification.id);
+    }
+  }
+
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
@@ -212,7 +233,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 
         callKeep.displayIncomingCall(
           message.data['chatId'],
-          message.notification?.title ?? 'gapopa',
+          title ?? 'gapopa',
           handleType: 'generic',
         );
 

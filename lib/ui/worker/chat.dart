@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
@@ -27,10 +28,12 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -40,12 +43,16 @@ import '/util/platform_utils.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
+    this._userService,
     this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
+
+  /// [User]s service fetching the [User]s.
+  final UserService _userService;
 
   /// [MyUserService] used to getting [MyUser.muted] status.
   final MyUserService _myUserService;
@@ -94,16 +101,14 @@ class ChatWorker extends DisposableService {
       }
     });
 
-    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-      PlatformUtils.isFocused.then((value) => _focused = value);
+    PlatformUtils.isFocused.then((value) => _focused = value);
 
-      _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
-        _focused = focused;
-        if (_focused) {
-          _flashed = false;
-        }
-      });
-    }
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
+      _focused = focused;
+      if (_focused && PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+        _flashed = false;
+      }
+    });
 
     super.onReady();
   }
@@ -120,7 +125,9 @@ class ChatWorker extends DisposableService {
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
     // Display a new group chat notification.
-    if (viaSubscription && c.chat.value.isGroup) {
+    if (viaSubscription &&
+        c.chat.value.isGroup &&
+        _myUser.value?.muted == null) {
       bool newChat = false;
 
       if (c.chat.value.lastItem is ChatInfo) {
@@ -133,26 +140,23 @@ class ChatWorker extends DisposableService {
                       .difference(msg.at.val)
                       .compareTo(newMessageThreshold) <=
                   -1;
-        }
-      } else if (c.chat.value.lastItem == null) {
-        // The chat was created just now.
-        newChat = DateTime.now()
-                .difference(c.chat.value.updatedAt.val)
-                .compareTo(newMessageThreshold) <=
-            -1;
-      }
 
-      if (newChat) {
-        if (_myUser.value?.muted == null) {
-          _notificationService.show(
-            c.title.value,
-            body: 'label_you_were_added_to_group'.l10n,
-            payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original.url,
-            tag: c.chat.value.id.val,
-          );
+          if (newChat) {
+            if (_focused) {
+              _notificationService.show(
+                c.title.value,
+                body: 'fcm_user_added_you_to_group'.l10nfmt({
+                  'authorName': msg.author.name?.val ?? 'x',
+                  'authorNum': msg.author.num.val,
+                }),
+                payload: '${Routes.chats}/${c.chat.value.id}',
+                icon: c.avatar.value?.original.url,
+                tag: '${c.chat.value.id.val}_${c.chat.value.lastItem?.id}',
+              );
+            }
 
-          _flashTaskbarIcon();
+            _flashTaskbarIcon();
+          }
         }
       }
     }
@@ -160,7 +164,7 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onNotification: (body, tag) async {
-        if (_myUser.value?.muted == null) {
+        if (_myUser.value?.muted == null && _focused) {
           await _notificationService.show(
             c.title.value,
             body: body,
@@ -173,6 +177,7 @@ class ChatWorker extends DisposableService {
         }
       },
       me: () => _chatService.me,
+      getUser: (id) => _userService.get(id),
     );
   }
 
@@ -203,10 +208,11 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?)? onNotification,
     UserId? Function()? me,
+    required Future<RxUser?> Function(UserId) getUser,
   }) : updatedAt = PreciseDateTime.now() {
     worker = ever(
       c,
-      (Chat chat) {
+      (Chat chat) async {
         if (chat.lastItem != null) {
           if (chat.lastItem!.at.isAfter(updatedAt) &&
               DateTime.now()
@@ -216,21 +222,55 @@ class _ChatWatchData {
               chat.lastItem!.authorId != me?.call() &&
               chat.muted == null) {
             final StringBuffer body = StringBuffer();
+            final ChatItem lastItem = chat.lastItem!;
 
-            if (chat.lastItem is ChatMessage) {
-              var msg = chat.lastItem as ChatMessage;
-              if (msg.text != null) {
-                body.write(msg.text?.val);
-                if (msg.attachments.isNotEmpty) {
-                  body.write('\n');
+            if (lastItem is ChatMessage ||
+                (lastItem is ChatForward &&
+                    lastItem.quote.original is ChatMessage)) {
+              final msg = lastItem is ChatMessage
+                  ? lastItem
+                  : (lastItem as ChatForward).quote.original as ChatMessage;
+              final RxUser? author = await getUser(msg.authorId);
+
+              if (author != null) {
+                final String userName = author.user.value.name?.val ?? 'x';
+                final String userNum = author.user.value.num.val;
+
+                if (msg.text != null) {
+                  if (chat.isGroup) {
+                    body.write(
+                      'fcm_group_message'.l10nfmt({
+                        'text': msg.text!.val,
+                        'userName': userName,
+                        'userNum': userNum,
+                      }),
+                    );
+                  } else {
+                    body.write(
+                      'fcm_dialog_message'.l10nfmt({'text': msg.text!.val}),
+                    );
+                  }
+                } else if (msg.attachments.isNotEmpty) {
+                  final String kind = msg.attachments.first is ImageAttachment
+                      ? 'image'
+                      : (msg.attachments.first as FileAttachment).isVideo
+                          ? 'video'
+                          : 'file';
+
+                  if (chat.isGroup) {
+                    body.write(
+                      'fcm_group_attachment'.l10nfmt({
+                        'userName': userName,
+                        'userNum': userNum,
+                        'kind': kind,
+                      }),
+                    );
+                  } else {
+                    body.write(
+                      'fcm_dialog_attachment'.l10nfmt({'kind': kind}),
+                    );
+                  }
                 }
-              }
-
-              if (msg.attachments.isNotEmpty) {
-                body.write(
-                  'label_attachments'
-                      .l10nfmt({'count': msg.attachments.length}),
-                );
               }
             } else if (chat.lastItem is ChatInfo) {
               final ChatInfo msg = chat.lastItem as ChatInfo;
@@ -245,15 +285,20 @@ class _ChatWatchData {
 
                   if (msg.authorId == action.user.id) {
                     body.write(
-                      'label_was_added'.l10nfmt(
-                        {'author': '${action.user.name ?? action.user.num}'},
+                      'fcm_user_joined_group_by_link'.l10nfmt(
+                        {
+                          'authorName': action.user.name?.val ?? 'x',
+                          'authorNum': action.user.num.val,
+                        },
                       ),
                     );
                   } else {
                     body.write(
-                      'label_user_added_user'.l10nfmt({
-                        'author': msg.author.name?.val ?? msg.author.num.val,
-                        'user': action.user.name?.val ?? action.user.num.val,
+                      'fcm_user_added_user'.l10nfmt({
+                        'authorName': msg.author.name?.val ?? 'x',
+                        'authorNum': msg.author.num.val,
+                        'userName': action.user.name?.val ?? 'x',
+                        'userNum': action.user.num.val,
                       }),
                     );
                   }
@@ -264,15 +309,20 @@ class _ChatWatchData {
 
                   if (msg.authorId == action.user.id) {
                     body.write(
-                      'label_was_removed'.l10nfmt(
-                        {'author': '${action.user.name ?? action.user.num}'},
+                      'fcm_user_left_group'.l10nfmt(
+                        {
+                          'authorName': action.user.name?.val ?? 'x',
+                          'authorNum': action.user.num.val,
+                        },
                       ),
                     );
                   } else {
                     body.write(
-                      'label_user_removed_user'.l10nfmt({
-                        'author': msg.author.name?.val ?? msg.author.num.val,
-                        'user': action.user.name?.val ?? action.user.num.val,
+                      'fcm_user_removed_user'.l10nfmt({
+                        'authorName': msg.author.name?.val ?? 'x',
+                        'authorNum': msg.author.num.val,
+                        'userName': action.user.name?.val ?? 'x',
+                        'userNum': action.user.num.val,
                       }),
                     );
                   }
@@ -305,12 +355,13 @@ class _ChatWatchData {
                   }
                   break;
               }
-            } else if (chat.lastItem is ChatForward) {
-              body.write('label_forwarded_message'.l10n);
             }
 
             if (body.isNotEmpty) {
-              onNotification?.call(body.toString(), chat.lastItem?.id.val);
+              onNotification?.call(
+                body.toString(),
+                '${chat.id.val}_${chat.lastItem?.id.val}',
+              );
             }
           }
 

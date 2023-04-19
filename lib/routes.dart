@@ -640,7 +640,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
-            deps.put(UserService(userRepository));
+            UserService userService = deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
@@ -657,13 +657,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             ));
 
-            if (!PlatformUtils.pushNotifications) {
-              deps.put(ChatWorker(
-                chatService,
-                myUserService,
-                Get.find(),
-              ));
-            }
+            deps.put(ChatWorker(
+              chatService,
+              userService,
+              myUserService,
+              Get.find(),
+            ));
 
             deps.put(MyUserWorker(myUserService));
 

@@ -108,6 +108,17 @@ class FileAttachment extends Attachment {
   /// Indicates whether this [FileAttachment] is downloading.
   bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
 
+  /// Indicates whether this [FileAttachment] represents a video.
+  bool get isVideo {
+    String file = filename.toLowerCase();
+    return file.endsWith('.mp4') ||
+        file.endsWith('.mov') ||
+        file.endsWith('.webm') ||
+        file.endsWith('.mkv') ||
+        file.endsWith('.flv') ||
+        file.endsWith('.3gp');
+  }
+
   // TODO: Compare hashes.
   /// Initializes the [downloadStatus].
   Future<void> init() async {
