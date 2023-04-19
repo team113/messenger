@@ -1131,13 +1131,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
                     child: message.withVideo
                         ? SvgImage.asset(
-                            asset:
-                                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 13 * 1.4,
                           )
                         : SvgImage.asset(
-                            asset:
-                                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 15 * 1.4,
                           ),
                   ),
@@ -1328,13 +1326,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: call?.withVideo == true
                 ? SvgImage.asset(
-                    asset:
-                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
                 : SvgImage.asset(
-                    asset:
-                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
@@ -1632,7 +1628,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
                               trailing: SvgImage.asset(
-                                asset: 'assets/icons/copy_small.svg',
+                                'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
                               onPressed: () => widget.onCopy
@@ -1645,7 +1641,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
                               trailing: SvgImage.asset(
-                                asset: 'assets/icons/reply.svg',
+                                'assets/icons/reply.svg',
                                 height: 18,
                               ),
                               onPressed: widget.onReply,
@@ -1657,7 +1653,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
                                 trailing: SvgImage.asset(
-                                  asset: 'assets/icons/forward.svg',
+                                  'assets/icons/forward.svg',
                                   height: 18,
                                 ),
                                 onPressed: () async {
@@ -1678,7 +1674,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgImage.asset(
-                                  asset: 'assets/icons/edit.svg',
+                                  'assets/icons/edit.svg',
                                   height: 18,
                                 ),
                                 onPressed: widget.onEdit,
@@ -1689,7 +1685,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgImage.asset(
-                                asset: 'assets/icons/delete_small.svg',
+                                'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
                               onPressed: () async {
@@ -1735,7 +1731,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
                               trailing: SvgImage.asset(
-                                asset: 'assets/icons/send_small.svg',
+                                'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
                               ),
@@ -1747,7 +1743,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgImage.asset(
-                                asset: 'assets/icons/delete_small.svg',
+                                'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
                               ),

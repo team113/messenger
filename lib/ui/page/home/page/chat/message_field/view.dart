@@ -449,7 +449,7 @@ class MessageFieldView extends StatelessWidget {
               height: 56,
               child: Center(
                 child: SvgImage.asset(
-                  asset: 'assets/icons/attach.svg',
+                  'assets/icons/attach.svg',
                   height: 22,
                   width: 22,
                 ),
@@ -494,13 +494,13 @@ class MessageFieldView extends StatelessWidget {
                       duration: 300.milliseconds,
                       child: c.forwarding.value
                           ? SvgImage.asset(
-                              asset: 'assets/icons/forward.svg',
+                              'assets/icons/forward.svg',
                               width: 26,
                               height: 22,
                             )
                           : SvgImage.asset(
+                              'assets/icons/send.svg',
                               key: sendKey ?? const Key('Send'),
-                              asset: 'assets/icons/send.svg',
                               height: 22.85,
                               width: 25.18,
                             ),
@@ -735,7 +735,7 @@ class MessageFieldView extends StatelessWidget {
                               ),
                               alignment: Alignment.center,
                               child: SvgImage.asset(
-                                asset: 'assets/icons/close_primary.svg',
+                                'assets/icons/close_primary.svg',
                                 width: 7,
                                 height: 7,
                               ),
@@ -853,13 +853,11 @@ class MessageFieldView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: item.withVideo
                 ? SvgImage.asset(
-                    asset:
-                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
                 : SvgImage.asset(
-                    asset:
-                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
@@ -898,7 +896,7 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgImage.asset(asset: 'assets/icons/edit.svg', width: 17, height: 17),
+          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -1018,7 +1016,7 @@ class MessageFieldView extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: SvgImage.asset(
-                        asset: 'assets/icons/close_primary.svg',
+                        'assets/icons/close_primary.svg',
                         width: 7,
                         height: 7,
                       ),

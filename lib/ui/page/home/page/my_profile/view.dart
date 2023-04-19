@@ -325,8 +325,7 @@ Widget _name(MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child:
-                    SvgImage.asset(asset: 'assets/icons/copy.svg', height: 15),
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
     ),
@@ -355,7 +354,7 @@ Widget _status(MyProfileController c) {
               child: Transform.scale(
                 scale: 1.15,
                 child: SvgImage.asset(
-                  asset: 'assets/icons/copy.svg',
+                  'assets/icons/copy.svg',
                   height: 15,
                 ),
               ),
@@ -424,8 +423,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgImage.asset(
-                        asset: 'assets/icons/copy.svg', height: 15),
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
           label: '${Config.origin}/',
@@ -495,7 +493,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                   child: Transform.scale(
                     scale: 1.15,
                     child: SvgImage.asset(
-                      asset: 'assets/icons/copy.svg',
+                      'assets/icons/copy.svg',
                       height: 15,
                     ),
                   ),
@@ -603,7 +601,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 child: Transform.scale(
                   scale: 1.15,
                   child: SvgImage.asset(
-                    asset: 'assets/icons/delete.svg',
+                    'assets/icons/delete.svg',
                     height: 14,
                   ),
                 ),
@@ -695,7 +693,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               child: Transform.scale(
                 scale: 1.15,
                 child: SvgImage.asset(
-                  asset: 'assets/icons/delete.svg',
+                  'assets/icons/delete.svg',
                   height: 14,
                 ),
               ),
@@ -761,7 +759,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 child: Transform.scale(
                   scale: 1.15,
                   child: SvgImage.asset(
-                    asset: 'assets/icons/delete.svg',
+                    'assets/icons/delete.svg',
                     height: 14,
                   ),
                 ),
@@ -857,8 +855,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset(
-                    asset: 'assets/icons/delete.svg', height: 14),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddPhoneView.show(
@@ -940,8 +937,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child:
-                  SvgImage.asset(asset: 'assets/icons/delete.svg', height: 14),
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
@@ -1015,7 +1011,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                       Positioned.fill(
                         child: c.background.value == null
                             ? SvgImage.asset(
-                                asset: 'assets/images/background_light.svg',
+                                'assets/images/background_light.svg',
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,

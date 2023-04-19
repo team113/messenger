@@ -60,10 +60,10 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(asset: e)))
+              .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(asset: e)))
+              .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           const SizedBox(height: 30),
           Text(
@@ -128,8 +128,7 @@ class AuthView extends StatelessWidget {
                         )
                       : Obx(() {
                           return SvgImage.asset(
-                            asset:
-                                'assets/images/logo/head000${c.logoFrame.value}.svg',
+                            'assets/images/logo/head000${c.logoFrame.value}.svg',
                             placeholderBuilder: (context) => placeholder,
                             height: 140,
                           );
@@ -161,7 +160,7 @@ class AuthView extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             leading: SvgImage.asset(
-              asset: 'assets/icons/start.svg',
+              'assets/icons/start.svg',
               width: 25 * 0.7,
             ),
             onPressed: c.register,
@@ -172,7 +171,7 @@ class AuthView extends StatelessWidget {
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
             leading: SvgImage.asset(
-              asset: 'assets/icons/sign_in.svg',
+              'assets/icons/sign_in.svg',
               width: 20 * 0.7,
             ),
             onPressed: () => LoginView.show(context),
@@ -184,7 +183,7 @@ class AuthView extends StatelessWidget {
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child: SvgImage.asset(
-                  asset: 'assets/icons/apple.svg',
+                  'assets/icons/apple.svg',
                   width: 22 * 0.7,
                 ),
               ),
@@ -196,7 +195,7 @@ class AuthView extends StatelessWidget {
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child: SvgImage.asset(
-                  asset: 'assets/icons/google.svg',
+                  'assets/icons/google.svg',
                   width: 22 * 0.7,
                 ),
               ),
@@ -207,17 +206,17 @@ class AuthView extends StatelessWidget {
               title: Text('btn_download'.l10n),
               leading: PlatformUtils.isMacOS
                   ? SvgImage.asset(
-                      asset: 'assets/icons/apple.svg',
+                      'assets/icons/apple.svg',
                       width: 22 * 0.7,
                     )
                   : (PlatformUtils.isWindows)
                       ? SvgImage.asset(
-                          asset: 'assets/icons/windows.svg',
+                          'assets/icons/windows.svg',
                           width: 22 * 0.7,
                         )
                       : (PlatformUtils.isLinux)
                           ? SvgImage.asset(
-                              asset: 'assets/icons/linux.svg',
+                              'assets/icons/linux.svg',
                               width: 22 * 0.7,
                             )
                           : null,
@@ -239,7 +238,7 @@ class AuthView extends StatelessWidget {
             ),
             IgnorePointer(
               child: SvgImage.asset(
-                asset: 'assets/images/background_light.svg',
+                'assets/images/background_light.svg',
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,

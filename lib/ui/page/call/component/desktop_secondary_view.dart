@@ -157,7 +157,7 @@ class SecondaryView extends StatelessWidget {
                             children: [
                               Container(color: const Color(0xFF0A1724)),
                               SvgImage.asset(
-                                asset: 'assets/images/background_dark.svg',
+                                'assets/images/background_dark.svg',
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
@@ -589,7 +589,7 @@ class SecondaryView extends StatelessWidget {
                                       InkResponse(
                                         onTap: isAnyDrag ? null : c.focusAll,
                                         child: SvgImage.asset(
-                                          asset: 'assets/icons/close.svg',
+                                          'assets/icons/close.svg',
                                           height: 10.25,
                                         ),
                                       ),

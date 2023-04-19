@@ -161,8 +161,7 @@ class _TitleBarWidget extends StatelessWidget {
                           ? 'btn_fullscreen_exit'.l10n
                           : 'btn_fullscreen_enter'.l10n,
                       child: SvgImage.asset(
-                        asset:
-                            'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
+                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
                       ),
                     ),

@@ -85,8 +85,8 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context that sets tight layout constraints.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.asset({
-    required String asset,
+  factory SvgImage.asset(
+    String asset, {
     Key? key,
     Alignment alignment = Alignment.center,
     BoxFit fit = BoxFit.contain,
@@ -115,8 +115,8 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context setting layout constraints tightly.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.file({
-    required File file,
+  factory SvgImage.file(
+    File file, {
     Key? key,
     Alignment alignment = Alignment.center,
     BoxFit fit = BoxFit.contain,
@@ -127,8 +127,8 @@ class SvgImage extends StatelessWidget {
     bool excludeFromSemantics = false,
   }) {
     return SvgImage._(
-      key: key,
       file: file,
+      key: key,
       alignment: alignment,
       fit: fit,
       width: width,
@@ -145,8 +145,8 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context setting layout constraints tightly.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.bytes({
-    required Uint8List bytes,
+  factory SvgImage.bytes(
+    Uint8List bytes, {
     Key? key,
     Alignment alignment = Alignment.center,
     BoxFit fit = BoxFit.contain,
@@ -157,8 +157,8 @@ class SvgImage extends StatelessWidget {
     bool excludeFromSemantics = false,
   }) {
     return SvgImage._(
-      key: key,
       bytes: bytes,
+      key: key,
       alignment: alignment,
       fit: fit,
       width: width,

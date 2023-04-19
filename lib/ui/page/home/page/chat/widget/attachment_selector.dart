@@ -104,7 +104,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
         child: SvgImage.asset(
-          asset: 'assets/icons/make_photo.svg',
+          'assets/icons/make_photo.svg',
           width: 60,
           height: 60,
         ),
@@ -114,7 +114,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
           child: SvgImage.asset(
-            asset: 'assets/icons/video_on.svg',
+            'assets/icons/video_on.svg',
             width: 60,
             height: 60,
           ),
@@ -123,7 +123,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
         child: SvgImage.asset(
-          asset: 'assets/icons/gallery.svg',
+          'assets/icons/gallery.svg',
           width: 60,
           height: 60,
         ),
@@ -132,7 +132,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         text: 'label_file'.l10n,
         onPressed: onPickFile,
         child: SvgImage.asset(
-          asset: 'assets/icons/file.svg',
+          'assets/icons/file.svg',
           width: 60,
           height: 60,
         ),

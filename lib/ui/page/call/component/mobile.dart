@@ -74,7 +74,7 @@ class MobileCall extends StatelessWidget {
       // Call stackable content.
       List<Widget> content = [
         SvgImage.asset(
-          asset: 'assets/images/background_dark.svg',
+          'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
           fit: BoxFit.cover,
