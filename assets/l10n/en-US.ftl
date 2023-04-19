@@ -823,3 +823,7 @@ label_welcome_message_description = Greeting is automatically displayed to the u
 label_no_welcome_message = Welcome message has not been added
 label_paid_audio_call = Paid audio call
 label_paid_video_call = Paid video call
+label_forwarded_messages = {$count ->
+        [one] Forwarded message
+       *[other] Forwarded messages
+    }

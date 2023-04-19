@@ -253,7 +253,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
 
-    Color color = widget.user?.user.value.id == widget.me
+    final Color color = widget.user?.user.value.id == widget.me
         ? Theme.of(context).colorScheme.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
@@ -268,65 +268,97 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: ClipRRect(
               clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
               borderRadius: BorderRadius.circular(15),
-              // child: IntrinsicWidth(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: _fromMe
-                      ? _isRead
-                          ? style.readMessageColor
-                          : style.unreadMessageColor
-                      : style.messageColor,
-                  borderRadius: BorderRadius.circular(15),
-                  border: _fromMe
-                      ? _isRead
-                          ? style.secondaryBorder
-                          : Border.all(
-                              color: const Color(0xFFDAEDFF),
-                              width: 0.5,
-                            )
-                      : style.primaryBorder,
-                ),
-                child: Obx(() {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (widget.note.value != null) ..._note(menu),
-                      if (widget.note.value == null &&
-                          !_fromMe &&
-                          widget.chat.value?.isGroup == true)
+              child: IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                            ? style.readMessageColor
+                            : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? _isRead
+                            ? style.secondaryBorder
+                            : Border.all(
+                                color: const Color(0xFFDAEDFF),
+                                width: 0.5,
+                              )
+                        : style.primaryBorder,
+                  ),
+                  child: Obx(() {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.note.value != null) ..._note(menu),
+                        if (widget.note.value == null &&
+                            !_fromMe &&
+                            widget.chat.value?.isGroup == true)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 4, 9, 4),
+                            child: Text(
+                              widget.user?.user.value.name?.val ??
+                                  widget.user?.user.value.num.val ??
+                                  'dot'.l10n * 3,
+                              style: style.boldBody.copyWith(color: color),
+                            ),
+                          ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 4, 9, 4),
                           child: Text(
-                            widget.user?.user.value.name?.val ??
-                                widget.user?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            style: style.boldBody.copyWith(color: color),
+                            'label_forwarded_messages'
+                                .l10nfmt({'count': widget.forwards.length}),
+                            style: style.boldBody.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
-                      ...widget.forwards.mapIndexed(
-                        (i, e) => ClipRRect(
-                          clipBehavior: i == widget.forwards.length - 1
-                              ? Clip.antiAlias
-                              : Clip.none,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: i == widget.forwards.length - 1
-                                ? const Radius.circular(15)
-                                : Radius.zero,
-                            bottomRight: i == widget.forwards.length - 1
-                                ? const Radius.circular(15)
-                                : Radius.zero,
+                        ...widget.forwards.mapIndexed(
+                          (i, e) => ClipRRect(
+                            clipBehavior: i == widget.forwards.length - 1
+                                ? Clip.antiAlias
+                                : Clip.none,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: i == widget.forwards.length - 1
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
+                              bottomRight: i == widget.forwards.length - 1
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
+                            ),
+                            child: _forwardedMessage(e, menu),
                           ),
-                          child: _forwardedMessage(e, menu),
                         ),
-                      ),
-                    ],
-                  );
-                }),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: 8,
+                            bottom: 4,
+                            top: 2,
+                          ),
+                          child: Row(
+                            children: [
+                              const Spacer(),
+                              Text(
+                                DateFormat.Hm().format(
+                                  (widget.note.value?.value.at ??
+                                          widget.forwards.last.value.at)
+                                      .val
+                                      .toLocal(),
+                                ),
+                                style: style.systemMessageStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
               ),
-              // ),
             ),
           ),
         );
@@ -490,10 +522,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         content = Text('err_unknown'.l10n, style: style.boldBody);
       }
 
+      final bool fromMe = quote.author == widget.me;
+
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.04),
+          // color: fromMe
+          //     ? style.readMessageColor.darken(0.03)
+          //     : style.messageColor.darken(0.03),
+
           borderRadius: style.cardRadius,
           border: Border.all(
             color: Colors.black.withOpacity(0.1),
@@ -509,7 +547,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                Color color = snapshot.data?.user.value.id == widget.me
+                final Color color = snapshot.data?.user.value.id == widget.me
                     ? Theme.of(context).colorScheme.secondary
                     : AvatarWidget.colors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
@@ -571,12 +609,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  content,
+                                  Flexible(child: content),
                                   const SizedBox(width: 4),
                                   Transform.translate(
-                                    offset: Offset(0, 4),
+                                    offset: const Offset(0, 4),
                                     child: Text(
-                                      '12:02',
+                                      '${'label_date_ymd'.l10nfmt({
+                                            'year': quote.at.val.year
+                                                .toString()
+                                                .padLeft(4, '0'),
+                                            'month': quote.at.val.month
+                                                .toString()
+                                                .padLeft(2, '0'),
+                                            'day': quote.at.val.day
+                                                .toString()
+                                                .padLeft(2, '0'),
+                                          })} ${DateFormat.Hm().format(quote.at.val.toLocal())}',
                                       style: style.systemMessageStyle,
                                     ),
                                   ),
@@ -716,16 +764,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 TextSpan(
                   children: [
                     text,
-                    const WidgetSpan(child: SizedBox(width: 4)),
-                    WidgetSpan(
-                      child: Transform.translate(
-                        offset: Offset(0, 4),
-                        child: Text(
-                          '12:02',
-                          style: style.systemMessageStyle,
-                        ),
-                      ),
-                    ),
+                    // const WidgetSpan(child: SizedBox(width: 4)),
+                    // WidgetSpan(
+                    //   child: Transform.translate(
+                    //     offset: Offset(0, 4),
+                    //     child: Text(
+                    //       '12:02',
+                    //       style: style.systemMessageStyle,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
                 selectable: PlatformUtils.isDesktop || menu,
