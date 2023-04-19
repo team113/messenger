@@ -209,7 +209,7 @@ class _RetryImageState extends State<RetryImage> {
       Widget image;
 
       if (_isSvg) {
-        return BytesWidget(
+        return SvgImage.bytes(
           bytes: _image!,
           width: widget.width,
           height: widget.height,
@@ -288,12 +288,12 @@ class _RetryImageState extends State<RetryImage> {
                                 ),
                               ],
                             ),
-                            child: const AssetWidget(
+                            child: SvgImage.asset(
                               asset: 'assets/icons/download.svg',
                               height: 40,
                             ),
                           )
-                        : const AssetWidget(
+                        : SvgImage.asset(
                             asset: 'assets/icons/close_primary.svg',
                             height: 13,
                           ),
