@@ -776,15 +776,1325 @@ class DesktopCall extends StatelessWidget {
           );
         }
 
-        // If the call popup is not [minimized], then return the [scaffold].
-        return DesktopScaffoldWidget(
-          c,
-          content: content,
-          ui: ui,
-        );
-      },
+      // If the call popup is not [minimized], then return the [scaffold].
+      return scaffold;
+    },
+  );
+}
+
+/// Title bar of the call containing information about the call and control
+/// buttons.
+Widget _titleBar(BuildContext context, CallController c) => Obx(() {
+      return Container(
+        key: const ValueKey('TitleBar'),
+        color: const Color(0xFF162636),
+        height: CallController.titleHeight,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Handles double tap to toggle fullscreen.
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onDoubleTap: c.toggleFullscreen,
+            ),
+
+            // Left part of the title bar that displays the recipient or
+            // the caller, its avatar and the call's state.
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: c.size.width - 60),
+                child: InkWell(
+                  onTap: WebUtils.isPopup
+                      ? null
+                      : () {
+                          router.chat(c.chatId.value);
+                          if (c.fullscreen.value) {
+                            c.toggleFullscreen();
+                          }
+                        },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(width: 10),
+                      AvatarWidget.fromRxChat(c.chat.value, radius: 8),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          'label_call_title'.l10nfmt(c.titleArguments),
+                          style: context.textTheme.bodyLarge?.copyWith(
+                            fontSize: 13,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Right part of the title bar that displays buttons.
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 3),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TooltipButton(
+                      onTap: c.toggleFullscreen,
+                      hint: c.fullscreen.value
+                          ? 'btn_fullscreen_exit'.l10n
+                          : 'btn_fullscreen_enter'.l10n,
+                      child: SvgLoader.asset(
+                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
+                        width: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+
+/// [ReorderableFit] of the [CallController.primary] participants.
+Widget _primaryView(CallController c) {
+  return Obx(() {
+    void onDragEnded(_DragData d) {
+      c.primaryDrags.value = 0;
+      c.draggedRenderer.value = null;
+      c.doughDraggedRenderer.value = null;
+      c.hoveredRenderer.value = d.participant;
+      c.hoveredRendererTimeout = 5;
+      c.isCursorHidden.value = false;
+    }
+
+    return Stack(
+      children: [
+        ReorderableFit<_DragData>(
+          key: const Key('PrimaryFitView'),
+          allowEmptyTarget: true,
+          onAdded: (d, i) => c.focus(d.participant),
+          onWillAccept: (d) {
+            if (d?.chatId == c.chatId.value) {
+              if (d?.participant.member.id.userId != c.me.id.userId ||
+                  d?.participant.video.value?.source !=
+                      MediaSourceKind.Display) {
+                c.primaryTargets.value = 1;
+              }
+
+              return true;
+            }
+
+            return false;
+          },
+          onLeave: (b) => c.primaryTargets.value = 0,
+          onDragStarted: (r) {
+            c.draggedRenderer.value = r.participant;
+            c.showDragAndDropVideosHint = false;
+            c.primaryDrags.value = 1;
+            c.keepUi(false);
+          },
+          onOffset: () {
+            if (c.minimized.value && !c.fullscreen.value) {
+              return Offset(-c.left.value, -c.top.value - 30);
+            } else if (!WebUtils.isPopup) {
+              return const Offset(0, -30);
+            }
+
+            return Offset.zero;
+          },
+          onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+          onDragEnd: onDragEnded,
+          onDragCompleted: onDragEnded,
+          onDraggableCanceled: onDragEnded,
+          overlayBuilder: (_DragData data) {
+            var participant = data.participant;
+
+            return LayoutBuilder(builder: (context, constraints) {
+              return Obx(() {
+                bool? muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
+
+                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                    c.primaryDrags.value != 0 ||
+                    c.secondaryDragged.value;
+
+                bool isHovered = c.hoveredRenderer.value == participant &&
+                    !anyDragIsHappening;
+
+                BoxFit? fit = participant.video.value?.renderer.value == null
+                    ? null
+                    : c.rendererBoxFit[participant
+                            .video.value?.renderer.value!.track
+                            .id()] ??
+                        RtcVideoView.determineBoxFit(
+                          participant.video.value?.renderer.value
+                              as RtcVideoRenderer,
+                          participant.source,
+                          constraints,
+                          context,
+                        );
+
+                return MouseRegion(
+                  opaque: false,
+                  onEnter: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onHover: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onExit: (d) {
+                    c.hoveredRendererTimeout = 0;
+                    c.hoveredRenderer.value = null;
+                    c.isCursorHidden.value = false;
+                  },
+                  child: AnimatedOpacity(
+                    duration: 200.milliseconds,
+                    opacity:
+                        c.draggedRenderer.value == data.participant ? 0 : 1,
+                    child: ContextMenuRegion(
+                      key: ObjectKey(participant),
+                      preventContextMenu: true,
+                      actions: [
+                        if (participant.video.value?.renderer.value !=
+                            null) ...[
+                          if (participant.source == MediaSourceKind.Device)
+                            ContextMenuButton(
+                              label: fit == null || fit == BoxFit.cover
+                                  ? 'btn_call_do_not_cut_video'.l10n
+                                  : 'btn_call_cut_video'.l10n,
+                              onPressed: () {
+                                c.rendererBoxFit[participant
+                                        .video.value!.renderer.value!.track
+                                        .id()] =
+                                    fit == null || fit == BoxFit.cover
+                                        ? BoxFit.contain
+                                        : BoxFit.cover;
+                                if (c.focused.isNotEmpty) {
+                                  c.focused.refresh();
+                                } else {
+                                  c.remotes.refresh();
+                                  c.locals.refresh();
+                                }
+                              },
+                            ),
+                        ],
+                        if (c.primary.length == 1)
+                          ContextMenuButton(
+                            label: 'btn_call_uncenter'.l10n,
+                            onPressed: c.focusAll,
+                          )
+                        else
+                          ContextMenuButton(
+                            label: 'btn_call_center'.l10n,
+                            onPressed: () => c.center(participant),
+                          ),
+                        if (participant.member.id != c.me.id) ...[
+                          if (participant
+                                  .video.value?.direction.value.isEmitting ??
+                              false)
+                            ContextMenuButton(
+                              label: participant.video.value?.renderer.value !=
+                                      null
+                                  ? 'btn_call_disable_video'.l10n
+                                  : 'btn_call_enable_video'.l10n,
+                              onPressed: () =>
+                                  c.toggleVideoEnabled(participant),
+                            ),
+                          if (participant
+                                  .audio.value?.direction.value.isEmitting ??
+                              false)
+                            ContextMenuButton(
+                              label: (participant.audio.value?.direction.value
+                                          .isEnabled ==
+                                      true)
+                                  ? 'btn_call_disable_audio'.l10n
+                                  : 'btn_call_enable_audio'.l10n,
+                              onPressed: () =>
+                                  c.toggleAudioEnabled(participant),
+                            ),
+                          if (participant.member.isRedialing.isFalse)
+                            ContextMenuButton(
+                              label: 'btn_call_remove_participant'.l10n,
+                              onPressed: () => c.removeChatCallMember(
+                                participant.member.id.userId,
+                              ),
+                            ),
+                        ] else ...[
+                          ContextMenuButton(
+                            label: c.videoState.value.isEnabled
+                                ? 'btn_call_video_off'.l10n
+                                : 'btn_call_video_on'.l10n,
+                            onPressed: c.toggleVideo,
+                          ),
+                          ContextMenuButton(
+                            label: c.audioState.value.isEnabled
+                                ? 'btn_call_audio_off'.l10n
+                                : 'btn_call_audio_on'.l10n,
+                            onPressed: c.toggleAudio,
+                          ),
+                        ],
+                      ],
+                      child: IgnorePointer(
+                        child: ParticipantOverlayWidget(
+                          participant,
+                          key: ObjectKey(participant),
+                          muted: muted,
+                          hovered: isHovered,
+                          preferBackdrop:
+                              !c.minimized.value || c.fullscreen.value,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              });
+            });
+          },
+          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: (_DragData data) {
+            final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+            return BoxConstraints(maxWidth: size, maxHeight: size);
+          },
+          itemBuilder: (_DragData data) {
+            var participant = data.participant;
+            return Obx(() {
+              return ParticipantWidget(
+                participant,
+                key: ObjectKey(participant),
+                offstageUntilDetermined: true,
+                respectAspectRatio: true,
+                borderRadius: BorderRadius.zero,
+                onSizeDetermined: participant.video.value?.renderer.refresh,
+                fit: c.rendererBoxFit[
+                    participant.video.value?.renderer.value?.track.id() ?? ''],
+                expanded: c.doughDraggedRenderer.value == participant,
+              );
+            });
+          },
+          children: c.primary.map((e) => _DragData(e, c.chatId.value)).toList(),
+        ),
+        IgnorePointer(
+          child: Obx(() {
+            return AnimatedSwitcher(
+              duration: 200.milliseconds,
+              child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
+                  ? Container(
+                      color: const Color(0x40000000),
+                      child: Center(
+                        child: AnimatedDelayedScale(
+                          duration: const Duration(milliseconds: 300),
+                          beginScale: 1,
+                          endScale: 1.06,
+                          child: ConditionalBackdropFilter(
+                            condition: !c.minimized.value || c.fullscreen.value,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: !c.minimized.value || c.fullscreen.value
+                                    ? const Color(0x40000000)
+                                    : const Color(0x90000000),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Icon(
+                                  Icons.add_rounded,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : null,
+            );
+          }),
+        ),
+      ],
     );
-  }
+  });
+}
+
+/// [ReorderableFit] of the [CallController.secondary] participants.
+Widget _secondaryView(CallController c, BuildContext context) {
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(size: c.size),
+    child: Obx(() {
+      if (c.secondary.isEmpty) {
+        return Container();
+      }
+
+      // [BorderRadius] to decorate the secondary panel with.
+      final BorderRadius borderRadius = BorderRadius.circular(10);
+
+      double? left, right;
+      double? top, bottom;
+      Axis? axis;
+
+      if (c.secondaryAlignment.value == Alignment.centerRight) {
+        top = 0;
+        right = 0;
+        axis = Axis.horizontal;
+      } else if (c.secondaryAlignment.value == Alignment.centerLeft) {
+        top = 0;
+        left = 0;
+        axis = Axis.horizontal;
+      } else if (c.secondaryAlignment.value == Alignment.topCenter) {
+        top = 0;
+        left = 0;
+        axis = Axis.vertical;
+      } else if (c.secondaryAlignment.value == Alignment.bottomCenter) {
+        bottom = 0;
+        left = 0;
+        axis = Axis.vertical;
+      } else {
+        left = c.secondaryLeft.value;
+        top = c.secondaryTop.value;
+        right = c.secondaryRight.value;
+        bottom = c.secondaryBottom.value;
+
+        axis = null;
+      }
+
+      double width, height;
+      if (axis == Axis.horizontal) {
+        width = c.secondaryWidth.value;
+        height = c.size.height;
+      } else if (axis == Axis.vertical) {
+        width = c.size.width;
+        height = c.secondaryHeight.value;
+      } else {
+        width = c.secondaryWidth.value;
+        height = c.secondaryHeight.value;
+      }
+
+      Widget buildDragHandle(Alignment alignment) {
+        // Returns a [Scaler] scaling the secondary view.
+        Widget scaler({
+          Key? key,
+          MouseCursor cursor = MouseCursor.defer,
+          Function(double, double)? onDrag,
+          double? width,
+          double? height,
+        }) {
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) {
+                  c.updateSecondaryAttach();
+                },
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
+        }
+
+        Widget widget = Container();
+
+        if (alignment == Alignment.centerLeft) {
+          widget = scaler(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.left,
+              dx: dx,
+            ),
+          );
+        } else if (alignment == Alignment.centerRight) {
+          widget = scaler(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.right,
+              dx: -dx,
+            ),
+          );
+        } else if (alignment == Alignment.bottomCenter) {
+          widget = scaler(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.topCenter) {
+          widget = scaler(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topLeft) {
+          widget = scaler(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topRight) {
+          widget = scaler(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomLeft) {
+          widget = scaler(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomRight) {
+          widget = scaler(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: -dy,
+            ),
+          );
+        }
+
+        return Align(alignment: alignment, child: widget);
+      }
+
+      Widget positionedBoilerplate(Widget child) {
+        return Positioned(
+          left: left == null ? null : (left - Scaler.size / 2),
+          right: right == null ? null : (right - Scaler.size / 2),
+          top: top == null ? null : (top - Scaler.size / 2),
+          bottom: bottom == null ? null : (bottom - Scaler.size / 2),
+          child: SizedBox(
+            width: width + Scaler.size,
+            height: height + Scaler.size,
+            child: child,
+          ),
+        );
+      }
+
+      void onDragEnded(_DragData d) {
+        c.secondaryDrags.value = 0;
+        c.draggedRenderer.value = null;
+        c.doughDraggedRenderer.value = null;
+        c.hoveredRenderer.value = d.participant;
+        c.hoveredRendererTimeout = 5;
+        c.isCursorHidden.value = false;
+      }
+
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          // Secondary panel shadow.
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: IgnorePointer(
+              child: Obx(() {
+                if (c.secondaryAlignment.value == null) {
+                  return Container(
+                    width: width,
+                    height: height,
+                    decoration: BoxDecoration(
+                      boxShadow: const [
+                        CustomBoxShadow(
+                          color: Color(0x44000000),
+                          blurRadius: 9,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                      borderRadius: borderRadius,
+                    ),
+                  );
+                }
+
+                return Container();
+              }),
+            ),
+          ),
+
+          // Secondary panel background.
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: IgnorePointer(
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: Obx(() {
+                  if (c.secondaryAlignment.value == null) {
+                    return IgnorePointer(
+                      child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: Stack(
+                          children: [
+                            Container(color: const Color(0xFF0A1724)),
+                            SvgLoader.asset(
+                              'assets/images/background_dark.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(color: const Color(0x11FFFFFF)),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Container();
+                }),
+              ),
+            ),
+          ),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.centerLeft)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.centerRight)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.bottomCenter)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.topCenter)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.topLeft)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.topRight)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.bottomLeft)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == null
+                ? buildDragHandle(Alignment.bottomRight)
+                : Container(),
+          )),
+
+          // Secondary panel itself.
+          ReorderableFit<_DragData>(
+            key: const Key('SecondaryFitView'),
+            onAdded: (d, i) => c.unfocus(d.participant),
+            onWillAccept: (d) {
+              if (d?.chatId == c.chatId.value) {
+                c.secondaryTargets.value = 1;
+                return true;
+              }
+
+              return false;
+            },
+            onLeave: (b) => c.secondaryTargets.value = 0,
+            onDragStarted: (r) {
+              c.draggedRenderer.value = r.participant;
+              c.showDragAndDropVideosHint = false;
+              c.secondaryDrags.value = 1;
+              c.displayMore.value = false;
+              c.keepUi(false);
+            },
+            onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+            onDragEnd: onDragEnded,
+            onDragCompleted: onDragEnded,
+            onDraggableCanceled: onDragEnded,
+            axis: axis,
+            width: width,
+            height: height,
+            left: left,
+            top: top,
+            right: right,
+            bottom: bottom,
+            onOffset: () {
+              if (c.minimized.value && !c.fullscreen.value) {
+                return Offset(-c.left.value, -c.top.value - 30);
+              } else if (!WebUtils.isPopup) {
+                return const Offset(0, -30);
+              }
+
+              return Offset.zero;
+            },
+            overlayBuilder: (_DragData data) {
+              var participant = data.participant;
+
+              return Obx(() {
+                bool muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
+
+                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                    c.primaryDrags.value != 0 ||
+                    c.secondaryDragged.value;
+
+                bool isHovered = c.hoveredRenderer.value == participant &&
+                    !anyDragIsHappening;
+
+                return MouseRegion(
+                  opaque: false,
+                  onEnter: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onHover: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onExit: (d) {
+                    c.hoveredRendererTimeout = 0;
+                    c.hoveredRenderer.value = null;
+                    c.isCursorHidden.value = false;
+                  },
+                  child: AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: c.draggedRenderer.value == data.participant
+                        ? Container()
+                        : ContextMenuRegion(
+                            key: ObjectKey(participant),
+                            preventContextMenu: true,
+                            actions: [
+                              ContextMenuButton(
+                                label: 'btn_call_center'.l10n,
+                                onPressed: () => c.center(participant),
+                              ),
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
+                                  ),
+                              ] else ...[
+                                ContextMenuButton(
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: c.toggleVideo,
+                                ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: c.toggleAudio,
+                                ),
+                              ],
+                            ],
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
+                            ),
+                          ),
+                  ),
+                );
+              });
+            },
+            decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+            itemConstraints: (_DragData data) {
+              final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+              return BoxConstraints(maxWidth: size, maxHeight: size);
+            },
+            itemBuilder: (_DragData data) {
+              var participant = data.participant;
+              return Obx(
+                () => ParticipantWidget(
+                  participant,
+                  key: ObjectKey(participant),
+                  offstageUntilDetermined: true,
+                  respectAspectRatio: true,
+                  borderRadius: BorderRadius.zero,
+                  expanded: c.doughDraggedRenderer.value == participant,
+                ),
+              );
+            },
+            children:
+                c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
+            borderRadius:
+                c.secondaryAlignment.value == null ? borderRadius : null,
+          ),
+
+          // Discards the pointer when hovered over videos.
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: MouseRegion(
+              opaque: false,
+              cursor: SystemMouseCursors.basic,
+              child:
+                  IgnorePointer(child: SizedBox(width: width, height: height)),
+            ),
+          ),
+
+          // Sliding from top draggable title bar.
+          Positioned(
+            key: c.secondaryKey,
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: Obx(() {
+              bool isAnyDrag =
+                  c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
+
+              return SizedBox(
+                width: width,
+                height: height,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    height: 30,
+                    child: MouseRegion(
+                      cursor: isAnyDrag
+                          ? MouseCursor.defer
+                          : SystemMouseCursors.grab,
+                      child: GestureDetector(
+                        onPanStart: (d) {
+                          c.secondaryBottomShifted = null;
+                          c.secondaryDragged.value = true;
+                          c.displayMore.value = false;
+                          c.keepUi(false);
+
+                          c.calculateSecondaryPanning(d.globalPosition);
+
+                          if (c.secondaryAlignment.value != null) {
+                            c.secondaryAlignment.value = null;
+                            c.updateSecondaryOffset(d.globalPosition);
+                          } else {
+                            c.secondaryLeft.value ??= c.size.width -
+                                c.secondaryWidth.value -
+                                (c.secondaryRight.value ?? 0);
+                            c.secondaryTop.value ??= c.size.height -
+                                c.secondaryHeight.value -
+                                (c.secondaryBottom.value ?? 0);
+                            c.applySecondaryConstraints();
+                          }
+
+                          c.secondaryRight.value = null;
+                          c.secondaryBottom.value = null;
+                        },
+                        onPanUpdate: (d) {
+                          c.updateSecondaryOffset(d.globalPosition);
+                          c.applySecondaryConstraints();
+                        },
+                        onPanEnd: (d) {
+                          c.secondaryDragged.value = false;
+                          if (c.possibleSecondaryAlignment.value != null) {
+                            c.secondaryAlignment.value =
+                                c.possibleSecondaryAlignment.value;
+                            c.possibleSecondaryAlignment.value = null;
+                            c.applySecondaryConstraints();
+                          } else {
+                            c.updateSecondaryAttach();
+                          }
+                        },
+                        child: AnimatedOpacity(
+                          duration: 200.milliseconds,
+                          key: const ValueKey('TitleBar'),
+                          opacity: c.secondaryHovered.value ? 1 : 0,
+                          child: ClipRRect(
+                            borderRadius: c.secondaryAlignment.value == null
+                                ? BorderRadius.only(
+                                    topLeft: borderRadius.topLeft,
+                                    topRight: borderRadius.topRight,
+                                  )
+                                : BorderRadius.zero,
+                            child: ConditionalBackdropFilter(
+                              condition: PlatformUtils.isWeb &&
+                                  (c.minimized.isFalse || c.fullscreen.isTrue),
+                              child: Container(
+                                color: PlatformUtils.isWeb
+                                    ? const Color(0x9D165084)
+                                    : const Color(0xE9165084),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 7),
+                                    const Expanded(
+                                      child: Text(
+                                        'Draggable',
+                                        style: TextStyle(color: Colors.white),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    InkResponse(
+                                      onTap: isAnyDrag ? null : c.focusAll,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/close.svg',
+                                        height: 10.25,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == Alignment.centerRight
+                ? buildDragHandle(Alignment.centerLeft)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == Alignment.centerLeft
+                ? buildDragHandle(Alignment.centerRight)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == Alignment.topCenter
+                ? buildDragHandle(Alignment.bottomCenter)
+                : Container(),
+          )),
+
+          positionedBoilerplate(Obx(
+            () => c.secondaryAlignment.value == Alignment.bottomCenter
+                ? buildDragHandle(Alignment.topCenter)
+                : Container(),
+          )),
+
+          // Secondary panel drag target indicator.
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: IgnorePointer(
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: c.primaryDrags.value != 0 &&
+                            c.secondaryTargets.value != 0
+                        ? Container(
+                            color: const Color(0x40000000),
+                            child: Center(
+                              child: AnimatedDelayedScale(
+                                duration: const Duration(
+                                  milliseconds: 300,
+                                ),
+                                beginScale: 1,
+                                endScale: 1.06,
+                                child: ConditionalBackdropFilter(
+                                  condition:
+                                      !c.minimized.value || c.fullscreen.value,
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: !c.minimized.value ||
+                                              c.fullscreen.value
+                                          ? const Color(0x40000000)
+                                          : const Color(0x90000000),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : null,
+                  );
+                }),
+              ),
+            ),
+          ),
+
+          // Secondary panel border.
+          Positioned(
+            left: left == null ? null : (left - Scaler.size / 2),
+            right: right == null ? null : (right - Scaler.size / 2),
+            top: top == null ? null : (top - Scaler.size / 2),
+            bottom: bottom == null ? null : (bottom - Scaler.size / 2),
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (p) => c.secondaryHovered.value = true,
+              onHover: (p) => c.secondaryHovered.value = true,
+              onExit: (p) => c.secondaryHovered.value = false,
+              child: SizedBox(
+                width: width + Scaler.size,
+                height: height + Scaler.size,
+                child: Obx(() {
+                  return Stack(
+                    children: [
+                      IgnorePointer(
+                        child: AnimatedContainer(
+                          duration: 200.milliseconds,
+                          margin: const EdgeInsets.all(Scaler.size / 2),
+                          decoration: ShapeDecoration(
+                            shape: c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0
+                                ? c.secondaryAlignment.value == null
+                                    ? RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: borderRadius,
+                                      )
+                                    : Border(
+                                        top: c.secondaryAlignment.value ==
+                                                Alignment.bottomCenter
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 1,
+                                              )
+                                            : BorderSide.none,
+                                        left: c.secondaryAlignment.value ==
+                                                Alignment.centerRight
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 1,
+                                              )
+                                            : BorderSide.none,
+                                        right: c.secondaryAlignment.value ==
+                                                Alignment.centerLeft
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 1,
+                                              )
+                                            : BorderSide.none,
+                                        bottom: c.secondaryAlignment.value ==
+                                                Alignment.topCenter
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 1,
+                                              )
+                                            : BorderSide.none,
+                                      )
+                                : c.secondaryAlignment.value == null
+                                    ? RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0),
+                                          width: 1,
+                                        ),
+                                        borderRadius: borderRadius,
+                                      )
+                                    : Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0),
+                                        width: 1,
+                                      ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          ),
+        ],
+      );
+    }),
+  );
+}
+
+/// [DragTarget] of an empty [_secondaryView].
+Widget _secondaryTarget(CallController c) {
+  return Obx(() {
+    Axis secondaryAxis =
+        c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
+
+    // Pre-calculate the [ReorderableFit]'s size.
+    double panelSize = max(
+      ReorderableFit.calculateSize(
+        maxSize: c.size.shortestSide / 4,
+        constraints: Size(c.size.width, c.size.height - 45),
+        axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
+        length: c.secondary.length,
+      ),
+      130,
+    );
+
+    return AnimatedSwitcher(
+      key: const Key('SecondaryTargetAnimatedSwitcher'),
+      duration: 200.milliseconds,
+      child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
+          ? Align(
+              alignment: secondaryAxis == Axis.horizontal
+                  ? Alignment.centerRight
+                  : Alignment.topCenter,
+              child: SizedBox(
+                width: secondaryAxis == Axis.horizontal
+                    ? panelSize / 1.6
+                    : double.infinity,
+                height: secondaryAxis == Axis.horizontal
+                    ? double.infinity
+                    : panelSize / 1.6,
+                child: DragTarget<_DragData>(
+                  onWillAccept: (d) => d?.chatId == c.chatId.value,
+                  onAccept: (_DragData d) {
+                    if (secondaryAxis == Axis.horizontal) {
+                      c.secondaryAlignment.value = Alignment.centerRight;
+                    } else {
+                      c.secondaryAlignment.value = Alignment.topCenter;
+                    }
+                    c.unfocus(d.participant);
+                  },
+                  builder: (context, candidate, rejected) {
+                    return Obx(() {
+                      return IgnorePointer(
+                        child: AnimatedSwitcher(
+                          key: const Key('SecondaryTargetAnimatedSwitcher'),
+                          duration: 200.milliseconds,
+                          child: c.primaryDrags.value >= 1
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                    left: secondaryAxis == Axis.horizontal
+                                        ? 1
+                                        : 0,
+                                    bottom:
+                                        secondaryAxis == Axis.vertical ? 1 : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      left: secondaryAxis == Axis.horizontal
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                      bottom: secondaryAxis == Axis.vertical
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                    ),
+                                    boxShadow: const [
+                                      CustomBoxShadow(
+                                        color: Color(0x33000000),
+                                        blurRadius: 8,
+                                        blurStyle: BlurStyle.outer,
+                                      )
+                                    ],
+                                  ),
+                                  child: ConditionalBackdropFilter(
+                                    child: AnimatedContainer(
+                                      duration: 300.milliseconds,
+                                      color: candidate.isNotEmpty
+                                          ? const Color(0x10FFFFFF)
+                                          : const Color(0x00FFFFFF),
+                                      child: Center(
+                                        child: SizedBox(
+                                          width:
+                                              secondaryAxis == Axis.horizontal
+                                                  ? min(panelSize, 150 + 44)
+                                                  : null,
+                                          height:
+                                              secondaryAxis == Axis.horizontal
+                                                  ? null
+                                                  : min(panelSize, 150 + 44),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AnimatedScale(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves.ease,
+                                                scale: candidate.isNotEmpty
+                                                    ? 1.06
+                                                    : 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0x40000000),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  ),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Icon(
+                                                      Icons.add_rounded,
+                                                      size: 35,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(key: UniqueKey()),
+                        ),
+                      );
+                    });
+                  },
+                ),
+              ),
+            )
+          : Container(),
+    );
+  });
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
