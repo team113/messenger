@@ -953,11 +953,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       _text!,
                       if (widget.timestamp && files.isEmpty && !timeInBubble)
                         WidgetSpan(
-                          child: Opacity(
-                            key: const Key('WidgetSpan'),
-                            opacity: 0,
-                            child: _timestamp(msg),
-                          ),
+                          child: Opacity(opacity: 0, child: _timestamp(msg)),
                         ),
                     ],
                   ),
