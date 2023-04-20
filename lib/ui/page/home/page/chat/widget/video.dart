@@ -172,9 +172,9 @@ class _VideoState extends State<Video> {
         autoInitialize: true,
         showControlsOnInitialize: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: style.colors.primaryHighlight,
-          handleColor: style.colors.primaryHighlight,
-          bufferedColor: style.colors.onPrimary,
+          playedColor: style.colors.primaryHighlight!,
+          handleColor: style.colors.primaryHighlight!,
+          bufferedColor: style.colors.onPrimary!,
           backgroundColor: style.colors.onPrimaryOpacity50!,
         ),
         customControls: PlatformUtils.isMobile

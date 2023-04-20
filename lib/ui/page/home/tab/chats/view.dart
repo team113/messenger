@@ -83,7 +83,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(color: style.colors.primary, width: 2)
+                      ? Border.all(color: style.colors.primary!, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;

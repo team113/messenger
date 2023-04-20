@@ -687,7 +687,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: style.colors.onPrimaryOpacit60,
+                                  color: style.colors.onPrimaryOpacity60,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),

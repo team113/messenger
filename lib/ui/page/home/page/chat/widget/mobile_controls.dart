@@ -361,10 +361,10 @@ class _MobileControlsState extends State<MobileControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: style.colors.primary,
-              handleColor: style.colors.primary,
-              bufferedColor: style.colors.background.withOpacity(0.5),
-              backgroundColor: style.colors.secondary.withOpacity(0.5),
+              playedColor: style.colors.primary!,
+              handleColor: style.colors.primary!,
+              bufferedColor: style.colors.background!.withOpacity(0.5),
+              backgroundColor: style.colors.secondary!.withOpacity(0.5),
             ),
       ),
     );

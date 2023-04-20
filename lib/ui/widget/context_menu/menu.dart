@@ -55,7 +55,7 @@ class ContextMenu extends StatelessWidget {
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
         border: Border.all(
-            color: style.colors.secondaryHighlightDarkest, width: 0.5),
+            color: style.colors.secondaryHighlightDarkest!, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,

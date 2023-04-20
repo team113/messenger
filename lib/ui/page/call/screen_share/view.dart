@@ -106,7 +106,7 @@ class ScreenShareView extends StatelessWidget {
                                       c.renderers[e]!,
                                       border: c.selected.value == e
                                           ? Border.all(
-                                              color: style.colors.primary,
+                                              color: style.colors.primary!,
                                               width: 4,
                                             )
                                           : null,

@@ -225,8 +225,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                       fontSize: 13,
                       color: style.colors.onPrimary,
                       shadows: [
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        Shadow(
+                            blurRadius: 6, color: style.colors.onBackground!),
+                        Shadow(
+                            blurRadius: 6, color: style.colors.onBackground!),
                       ],
                     ),
                   ),

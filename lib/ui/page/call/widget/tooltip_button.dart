@@ -64,8 +64,8 @@ class TooltipButton extends StatelessWidget {
               fontSize: 13,
               color: style.colors.onPrimary,
               shadows: [
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
+                Shadow(blurRadius: 6, color: style.colors.onBackground!),
+                Shadow(blurRadius: 6, color: style.colors.onBackground!),
               ],
             ),
             decoration: const BoxDecoration(),

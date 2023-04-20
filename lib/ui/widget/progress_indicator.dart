@@ -121,7 +121,7 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
   final Color? backgroundColor;
 
   /// Progress arc's color as an animated value.
-  final Color valueColor;
+  final Color? valueColor;
 
   /// Progress value.
   final double? value;
@@ -162,7 +162,7 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = valueColor
+      ..color = valueColor!
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
     if (backgroundColor != null) {
@@ -281,7 +281,7 @@ class _CircularProgressIndicatorState
   }
 
   /// Returns the [Color] of the progress indicator.
-  Color _getValueColor(BuildContext context, {Color? defaultColor}) {
+  Color? _getValueColor(BuildContext context, {Color? defaultColor}) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return widget.valueColor?.value ??

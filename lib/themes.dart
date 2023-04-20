@@ -35,7 +35,7 @@ class Themes {
       onPrimaryOpacity25: const Color(0x40FFFFFF),
       onPrimaryOpacity40: const Color(0x66FFFFFF),
       onPrimaryOpacity50: const Color(0x80FFFFFF),
-      onPrimaryOpacit60: const Color(0x99FFFFFF),
+      onPrimaryOpacity60: const Color(0x99FFFFFF),
       onPrimaryOpacity80: const Color(0xCCFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFF5F5F5),
@@ -107,23 +107,23 @@ class Themes {
               secondaryHighlight: colors.secondaryHighlight,
               secondaryHighlightDark: colors.secondaryHighlightDark,
               secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
-              secondaryOpacity87:
-                  colors.secondaryOpacity87 ?? colors.primary.withOpacity(0.87),
-              secondaryOpacity73:
-                  colors.secondaryOpacity73 ?? colors.primary.withOpacity(0.73),
+              secondaryOpacity87: colors.secondaryOpacity87 ??
+                  colors.primary!.withOpacity(0.87),
+              secondaryOpacity73: colors.secondaryOpacity73 ??
+                  colors.primary!.withOpacity(0.73),
               onPrimary: colors.onPrimary,
               onPrimaryOpacity7: colors.onPrimaryOpacity7 ??
-                  colors.onPrimary.withOpacity(0.07),
+                  colors.onPrimary!.withOpacity(0.07),
               onPrimaryOpacity25: colors.onPrimaryOpacity25 ??
-                  colors.onPrimary.withOpacity(0.25),
+                  colors.onPrimary!.withOpacity(0.25),
               onPrimaryOpacity40: colors.onPrimaryOpacity40 ??
-                  colors.onPrimary.withOpacity(0.40),
+                  colors.onPrimary!.withOpacity(0.40),
               onPrimaryOpacity50: colors.onPrimaryOpacity50 ??
-                  colors.onPrimary.withOpacity(0.50),
-              onPrimaryOpacit60: colors.onPrimaryOpacit60 ??
-                  colors.onPrimary.withOpacity(0.60),
+                  colors.onPrimary!.withOpacity(0.50),
+              onPrimaryOpacity60: colors.onPrimaryOpacity60 ??
+                  colors.onPrimary!.withOpacity(0.60),
               onPrimaryOpacity80: colors.onPrimaryOpacity80 ??
-                  colors.onPrimary.withOpacity(0.80),
+                  colors.onPrimary!.withOpacity(0.80),
               secondary: colors.secondary,
               primaryHighlight: colors.primaryHighlight,
               primaryHighlightShiny: colors.primaryHighlightShiny,
@@ -131,15 +131,15 @@ class Themes {
               primaryHighlightShiniest: colors.primaryHighlightShiniest,
               onSecondary: colors.onSecondary,
               onSecondaryOpacity88: colors.onSecondaryOpacity88 ??
-                  colors.onSecondary.withOpacity(0.88),
+                  colors.onSecondary!.withOpacity(0.88),
               onSecondaryOpacity60: colors.onSecondaryOpacity60 ??
-                  colors.onSecondary.withOpacity(0.60),
+                  colors.onSecondary!.withOpacity(0.60),
               onSecondaryOpacity50: colors.onSecondaryOpacity50 ??
-                  colors.onSecondary.withOpacity(0.50),
+                  colors.onSecondary!.withOpacity(0.50),
               onSecondaryOpacity30: colors.onSecondaryOpacity30 ??
-                  colors.onSecondary.withOpacity(0.30),
+                  colors.onSecondary!.withOpacity(0.30),
               onSecondaryOpacity20: colors.onSecondaryOpacity20 ??
-                  colors.onSecondary.withOpacity(0.20),
+                  colors.onSecondary!.withOpacity(0.20),
               background: colors.background,
               backgroundAuxiliary: colors.backgroundAuxiliary,
               backgroundAuxiliaryLight: colors.backgroundAuxiliaryLight,
@@ -147,25 +147,25 @@ class Themes {
               backgroundAuxiliaryLightest: colors.backgroundAuxiliaryLightest,
               onBackground: colors.onBackground,
               onBackgroundOpacity2: colors.onBackgroundOpacity2 ??
-                  colors.onBackground.withOpacity(0.025),
+                  colors.onBackground!.withOpacity(0.025),
               onBackgroundOpacity7: colors.onBackgroundOpacity7 ??
-                  colors.onBackground.withOpacity(0.07),
+                  colors.onBackground!.withOpacity(0.07),
               onBackgroundOpacity13: colors.onBackgroundOpacity13 ??
-                  colors.onBackground.withOpacity(0.13),
+                  colors.onBackground!.withOpacity(0.13),
               onBackgroundOpacity20: colors.onBackgroundOpacity20 ??
-                  colors.onBackground.withOpacity(0.2),
+                  colors.onBackground!.withOpacity(0.2),
               onBackgroundOpacity27: colors.onBackgroundOpacity27 ??
-                  colors.onBackground.withOpacity(0.27),
+                  colors.onBackground!.withOpacity(0.27),
               onBackgroundOpacity33: colors.onBackgroundOpacity33 ??
-                  colors.onBackground.withOpacity(0.33),
+                  colors.onBackground!.withOpacity(0.33),
               onBackgroundOpacity40: colors.onBackgroundOpacity40 ??
-                  colors.onBackground.withOpacity(0.4),
+                  colors.onBackground!.withOpacity(0.4),
               onBackgroundOpacity50: colors.onBackgroundOpacity50 ??
-                  colors.onBackground.withOpacity(0.5),
+                  colors.onBackground!.withOpacity(0.5),
               onBackgroundOpacity56: colors.onBackgroundOpacity56 ??
-                  colors.onBackground.withOpacity(0.56),
+                  colors.onBackground!.withOpacity(0.56),
               onBackgroundOpacity63: colors.onBackgroundOpacity63 ??
-                  colors.onBackground.withOpacity(0.63),
+                  colors.onBackground!.withOpacity(0.63),
               transparent: colors.transparent,
               acceptColor: colors.acceptColor,
               acceptAuxiliaryColor: colors.acceptAuxiliaryColor,
@@ -175,26 +175,26 @@ class Themes {
               userColors: colors.userColors,
             ),
             barrierColor: colors.onBackgroundOpacity63 ??
-                colors.onBackground.withOpacity(0.63),
+                colors.onBackground!.withOpacity(0.63),
             boldBody: textStyle.copyWith(
               color: colors.onBackground,
               fontSize: 17,
             ),
             cardBlur: 5,
             cardBorder: Border.all(
-              color: colors.secondaryHighlight,
+              color: colors.secondaryHighlight!,
               width: 0.5,
             ),
-            cardColor: colors.onPrimary.withOpacity(0.95),
+            cardColor: colors.onPrimary!.withOpacity(0.95),
             cardHoveredBorder: Border.all(
-              color: colors.primaryHighlightShiniest,
+              color: colors.primaryHighlightShiniest!,
               width: 0.5,
             ),
-            cardHoveredColor: colors.primaryHighlightShiniest,
+            cardHoveredColor: colors.primaryHighlightShiniest!,
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: colors.primaryHighlightShinier,
-            contextMenuBackgroundColor: colors.secondaryHighlight,
-            contextMenuHoveredColor: colors.secondaryHighlightDark,
+            cardSelectedColor: colors.primaryHighlightShinier!,
+            contextMenuBackgroundColor: colors.secondaryHighlight!,
+            contextMenuHoveredColor: colors.secondaryHighlightDark!,
             contextMenuRadius: BorderRadius.circular(10),
             linkStyle: TextStyle(
               color: colors.primaryHighlight,
@@ -203,27 +203,27 @@ class Themes {
             ),
             messageColor: Colors.white,
             primaryBorder: Border.all(
-              color: colors.secondaryHighlightDark,
+              color: colors.secondaryHighlightDark!,
               width: 0.5,
             ),
-            readMessageColor: colors.primaryHighlightShiniest,
+            readMessageColor: colors.primaryHighlightShiniest!,
             secondaryBorder: Border.all(
-              color: colors.primaryHighlightShinier,
+              color: colors.primaryHighlightShinier!,
               width: 0.5,
             ),
             sidebarColor:
-                colors.onPrimaryOpacity40 ?? colors.onPrimary.withOpacity(0.6),
+                colors.onPrimaryOpacity40 ?? colors.onPrimary!.withOpacity(0.6),
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlight,
+              color: colors.secondaryHighlight!,
               width: 0.5,
             ),
-            systemMessageColor: colors.secondaryHighlight.withOpacity(0.95),
+            systemMessageColor: colors.secondaryHighlight!.withOpacity(0.95),
             systemMessageStyle: textStyle.copyWith(
               color: colors.secondary,
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-            unreadMessageColor: colors.primaryHighlightShiniest,
+            unreadMessageColor: colors.primaryHighlightShiniest!,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -343,25 +343,25 @@ class Themes {
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
                   width: 2,
-                  color: colors.secondaryHighlightDark,
+                  color: colors.secondaryHighlightDark!,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
+                  color: colors.secondaryHighlightDark!,
                 ),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
+                  color: colors.secondaryHighlightDark!,
                 ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
+                  color: colors.secondaryHighlightDark!,
                 ),
               ),
             ),
@@ -402,7 +402,7 @@ class Themes {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            side: BorderSide(width: 1, color: colors.secondary),
+            side: BorderSide(width: 1, color: colors.secondary!),
             textStyle: textStyle.copyWith(
               color: colors.secondary,
               fontSize: 17,
@@ -610,7 +610,7 @@ class Style extends ThemeExtension<Style> {
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity40,
     Color? onPrimaryOpacity50,
-    Color? onPrimaryOpacit60,
+    Color? onPrimaryOpacity60,
     Color? onPrimaryOpacity80,
     Color? secondary,
     Color? secondaryNative,
@@ -706,58 +706,7 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      colors: Palette(
-        primary: colors.primary,
-        primaryHighlight: colors.primaryHighlight,
-        primaryHighlightShiny: colors.primaryHighlightShiny,
-        primaryHighlightShinier: colors.primaryHighlightShinier,
-        primaryHighlightShiniest: colors.primaryHighlightShiniest,
-        onPrimary: colors.onPrimary,
-        onPrimaryOpacity7: colors.onPrimaryOpacity7,
-        onPrimaryOpacity25: colors.onPrimaryOpacity25,
-        onPrimaryOpacity40: colors.onPrimaryOpacity40,
-        onPrimaryOpacity50: colors.onPrimaryOpacity50,
-        onPrimaryOpacit60: colors.onPrimaryOpacit60,
-        onPrimaryOpacity80: colors.onPrimaryOpacity80,
-        secondary: colors.secondary,
-        secondaryHighlight: colors.secondaryHighlight,
-        secondaryHighlightDark: colors.secondaryHighlightDark,
-        secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
-        secondaryBackground: colors.secondaryBackground,
-        secondaryBackgroundLight: colors.secondaryBackgroundLight,
-        secondaryBackgroundLightest: colors.secondaryBackgroundLightest,
-        secondaryOpacity73: colors.secondaryOpacity73,
-        secondaryOpacity87: colors.secondaryOpacity87,
-        onSecondary: colors.onSecondary,
-        onSecondaryOpacity88: colors.onSecondaryOpacity88,
-        onSecondaryOpacity60: colors.onSecondaryOpacity60,
-        onSecondaryOpacity50: colors.onSecondaryOpacity50,
-        onSecondaryOpacity30: colors.onSecondaryOpacity30,
-        onSecondaryOpacity20: colors.onSecondaryOpacity20,
-        background: colors.background,
-        backgroundAuxiliary: colors.backgroundAuxiliary,
-        backgroundAuxiliaryLight: colors.backgroundAuxiliaryLight,
-        backgroundAuxiliaryLighter: colors.backgroundAuxiliaryLighter,
-        backgroundAuxiliaryLightest: colors.backgroundAuxiliaryLightest,
-        onBackground: colors.onBackground,
-        onBackgroundOpacity2: colors.onBackgroundOpacity2,
-        onBackgroundOpacity7: colors.onBackgroundOpacity7,
-        onBackgroundOpacity13: colors.onBackgroundOpacity13,
-        onBackgroundOpacity20: colors.onBackgroundOpacity20,
-        onBackgroundOpacity27: colors.onBackgroundOpacity27,
-        onBackgroundOpacity33: colors.onBackgroundOpacity33,
-        onBackgroundOpacity40: colors.onBackgroundOpacity40,
-        onBackgroundOpacity56: colors.onBackgroundOpacity56,
-        onBackgroundOpacity63: colors.onBackgroundOpacity63,
-        onBackgroundOpacity50: colors.onBackgroundOpacity50,
-        transparent: colors.transparent,
-        acceptColor: colors.acceptColor,
-        acceptAuxiliaryColor: colors.acceptAuxiliaryColor,
-        declineColor: colors.declineColor,
-        dangerColor: colors.dangerColor,
-        warningColor: colors.warningColor,
-        userColors: colors.userColors,
-      ),
+      colors: Palette.lerpColors(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
@@ -821,7 +770,7 @@ class Palette {
     this.onPrimaryOpacity25,
     this.onPrimaryOpacity40,
     this.onPrimaryOpacity50,
-    this.onPrimaryOpacit60,
+    this.onPrimaryOpacity60,
     this.onPrimaryOpacity80,
     required this.secondary,
     required this.primaryHighlight,
@@ -860,27 +809,27 @@ class Palette {
   });
 
   /// Main [Color] of the application, used to highlight the active interface elements.
-  final Color primary;
+  final Color? primary;
 
   /// Background [Color] for elements associated with the [primary] color.
   /// For example, the background for buttons, pop-ups, dialog boxes, etc.
-  final Color secondaryBackground;
+  final Color? secondaryBackground;
 
   /// Light shade of the primary background [Color].
-  final Color secondaryBackgroundLight;
+  final Color? secondaryBackgroundLight;
 
   /// Lightest shade of the primary background [Color].
-  final Color secondaryBackgroundLightest;
+  final Color? secondaryBackgroundLightest;
 
   /// [Color] for highlighting UI elements, used to highlight the active elements.
-  final Color secondaryHighlight;
+  final Color? secondaryHighlight;
 
   /// Dark shade of the accent [Color]. Used to create contrast and depth effect.
-  final Color secondaryHighlightDark;
+  final Color? secondaryHighlightDark;
 
   /// Darkest shade of the main accent [Color]. It is used to emphasize buttons, labels,
   /// or other user interface elements that should be highlighted and easily visible to the user.
-  final Color secondaryHighlightDarkest;
+  final Color? secondaryHighlightDarkest;
 
   /// 20% opacity of the [primary] color.
   /// Used for - [handRaisedIcon], [element], etc.
@@ -892,7 +841,7 @@ class Palette {
 
   ///  [Color] that is used for elements that are displayed on top
   /// of the main color of the application, for example, text on buttons and icons.
-  final Color onPrimary;
+  final Color? onPrimary;
 
   /// 90% opacity of the [onPrimary] color.
   /// Used for - [_secondaryTarget] boxes, [DecorationTween], etc.
@@ -912,7 +861,7 @@ class Palette {
 
   /// 40% opacity of the [onPrimary] color.
   /// Used for - [MobileCall] boxes, etc.
-  final Color? onPrimaryOpacit60;
+  final Color? onPrimaryOpacity60;
 
   /// 20% opacity of the [onPrimary] color.
   /// Used for - [MobileControls] text, etc.
@@ -920,26 +869,26 @@ class Palette {
 
   /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
   /// For example, for lists, the background of some elements and other additional interface elements.
-  final Color secondary;
+  final Color? secondary;
 
   /// Highlight [Color] of the secondary element.
   /// Used to highlight secondary elements when hovering or when activated.
-  final Color primaryHighlight;
+  final Color? primaryHighlight;
 
   /// Glowing tone of secondary [Color] that is used to draw the user's attention
   /// to an area of the screen that contains important information.
-  final Color primaryHighlightShiny;
+  final Color? primaryHighlightShiny;
 
   /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
-  final Color primaryHighlightShinier;
+  final Color? primaryHighlightShinier;
 
   /// Most brilliant and contrasting secondary highlight [Color].
   /// Can be used as a background or to highlight certain elements.
-  final Color primaryHighlightShiniest;
+  final Color? primaryHighlightShiniest;
 
   /// [Color] that is displayed on a secondary color background
   /// is used as an accent color for the interface and does not cause eye strain.
-  final Color onSecondary;
+  final Color? onSecondary;
 
   /// 90% opacity of the [onSecondary] color.
   /// Used for - [CallController.panel] box, [SlidingUpPanel], etc.
@@ -962,25 +911,25 @@ class Palette {
   final Color? onSecondaryOpacity20;
 
   /// Used to set the background [Color] for the overall look.
-  final Color background;
+  final Color? background;
 
   /// [Color] responsible for the helper background color.
   /// It acts as an alternative for background in case we need to highlight
   /// some interface element using a background color other than the main one.
-  final Color backgroundAuxiliary;
+  final Color? backgroundAuxiliary;
 
   /// Slightly lighter [Color] than the standard [backgroundAuxiliary] color.
-  final Color backgroundAuxiliaryLight;
+  final Color? backgroundAuxiliaryLight;
 
   /// [Color] represents an even lighter shade than the standard [backgroundAuxiliary] color.
-  final Color backgroundAuxiliaryLighter;
+  final Color? backgroundAuxiliaryLighter;
 
   /// Lightest possible shade of the [Color] for the [backgroundAuxiliary] color.
-  final Color backgroundAuxiliaryLightest;
+  final Color? backgroundAuxiliaryLightest;
 
   /// Neutral [Color] that does not compete with the main content of the application.
   /// For example for text, BoxShadow's, etc.
-  final Color onBackground;
+  final Color? onBackground;
 
   /// 98% opacity of the [onBackground] color.
   /// Used for - [mobileCall], [ColoredBox], etc.
@@ -1028,23 +977,116 @@ class Palette {
 
   /// Used as an affirmative [Color] for visual confirmation of the action.
   /// For example, for the "Accept call" buttons.
-  final Color acceptColor;
+  final Color? acceptColor;
 
   /// [Color] is used as an auxiliary color to display pleasant action confirmation messages.
-  final Color acceptAuxiliaryColor;
+  final Color? acceptAuxiliaryColor;
 
   /// Used to indicate the color of rejection or rejection in various elements of the user interface.
   /// For example, on the "Cancel call" button.
-  final Color declineColor;
+  final Color? declineColor;
 
   /// [Color] used to indicate dangerous or critical elements in the user interface,
   /// such as error messages or warnings about a potential threat.
-  final Color dangerColor;
+  final Color? dangerColor;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
-  final Color warningColor;
+  final Color? warningColor;
 
   /// [Colors] refer to the range of colors that can be used for a profile picture.
   /// These colors may predefined or customizable and are selected to help differentiate between users or to provide a visual cue for different types of accounts.
-  final List<Color> userColors;
+  final List<Color?> userColors;
+
+  static Palette lerpColors(Palette? color, Palette? other, double t) {
+    return Palette(
+      primary: Color.lerp(color!.primary, other!.primary, t),
+      primaryHighlight:
+          Color.lerp(color.primaryHighlight, other.primaryHighlight, t),
+      primaryHighlightShiny: Color.lerp(
+          color.primaryHighlightShiny, other.primaryHighlightShiny, t),
+      primaryHighlightShinier: Color.lerp(
+          color.primaryHighlightShinier, other.primaryHighlightShinier, t),
+      primaryHighlightShiniest: Color.lerp(
+          color.primaryHighlightShiniest, other.primaryHighlightShiniest, t),
+      onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t),
+      onPrimaryOpacity7:
+          Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t),
+      onPrimaryOpacity25:
+          Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t),
+      onPrimaryOpacity40:
+          Color.lerp(color.onPrimaryOpacity40, other.onPrimaryOpacity40, t),
+      onPrimaryOpacity50:
+          Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t),
+      onPrimaryOpacity60:
+          Color.lerp(color.onPrimaryOpacity60, other.onPrimaryOpacity60, t),
+      onPrimaryOpacity80:
+          Color.lerp(color.onPrimaryOpacity80, other.onPrimaryOpacity80, t),
+      secondary: Color.lerp(color.secondary, other.secondary, t),
+      secondaryHighlight:
+          Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t),
+      secondaryHighlightDark: Color.lerp(
+          color.secondaryHighlightDark, other.secondaryHighlightDark, t),
+      secondaryHighlightDarkest: Color.lerp(
+          color.secondaryHighlightDarkest, other.secondaryHighlightDarkest, t),
+      secondaryBackground:
+          Color.lerp(color.secondaryBackground, other.secondaryBackground, t),
+      secondaryBackgroundLight: Color.lerp(
+          color.secondaryBackgroundLight, other.secondaryBackgroundLight, t),
+      secondaryBackgroundLightest: Color.lerp(color.secondaryBackgroundLightest,
+          other.secondaryBackgroundLightest, t),
+      secondaryOpacity73:
+          Color.lerp(color.secondaryOpacity73, other.secondaryOpacity73, t),
+      secondaryOpacity87:
+          Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t),
+      onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t),
+      onSecondaryOpacity88:
+          Color.lerp(color.onSecondaryOpacity88, other.onSecondaryOpacity88, t),
+      onSecondaryOpacity60:
+          Color.lerp(color.onSecondaryOpacity60, other.onSecondaryOpacity60, t),
+      onSecondaryOpacity50:
+          Color.lerp(color.onSecondaryOpacity50, other.onSecondaryOpacity50, t),
+      onSecondaryOpacity30:
+          Color.lerp(color.onSecondaryOpacity30, other.onSecondaryOpacity30, t),
+      onSecondaryOpacity20:
+          Color.lerp(color.onSecondaryOpacity20, other.onSecondaryOpacity20, t),
+      background: Color.lerp(color.background, other.background, t),
+      backgroundAuxiliary:
+          Color.lerp(color.backgroundAuxiliary, other.backgroundAuxiliary, t),
+      backgroundAuxiliaryLight: Color.lerp(
+          color.backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t),
+      backgroundAuxiliaryLighter: Color.lerp(color.backgroundAuxiliaryLighter,
+          other.backgroundAuxiliaryLighter, t),
+      backgroundAuxiliaryLightest: Color.lerp(color.backgroundAuxiliaryLightest,
+          other.backgroundAuxiliaryLightest, t),
+      onBackground: Color.lerp(color.onBackground, other.onBackground, t),
+      onBackgroundOpacity2:
+          Color.lerp(color.onBackgroundOpacity2, other.onBackgroundOpacity2, t),
+      onBackgroundOpacity7:
+          Color.lerp(color.onBackgroundOpacity7, other.onBackgroundOpacity7, t),
+      onBackgroundOpacity13: Color.lerp(
+          color.onBackgroundOpacity13, other.onBackgroundOpacity13, t),
+      onBackgroundOpacity20: Color.lerp(
+          color.onBackgroundOpacity20, other.onBackgroundOpacity20, t),
+      onBackgroundOpacity27: Color.lerp(
+          color.onBackgroundOpacity27, other.onBackgroundOpacity27, t),
+      onBackgroundOpacity33: Color.lerp(
+          color.onBackgroundOpacity33, other.onBackgroundOpacity33, t),
+      onBackgroundOpacity40: Color.lerp(
+          color.onBackgroundOpacity40, other.onBackgroundOpacity40, t),
+      onBackgroundOpacity56: Color.lerp(
+          color.onBackgroundOpacity56, other.onBackgroundOpacity56, t),
+      onBackgroundOpacity63: Color.lerp(
+          color.onBackgroundOpacity63, other.onBackgroundOpacity63, t),
+      onBackgroundOpacity50: Color.lerp(
+          color.onBackgroundOpacity50, other.onBackgroundOpacity50, t),
+      transparent: Color.lerp(color.transparent, other.transparent, t),
+      acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t),
+      acceptAuxiliaryColor:
+          Color.lerp(color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t),
+      declineColor: Color.lerp(color.declineColor, other.declineColor, t),
+      dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t),
+      warningColor: Color.lerp(color.warningColor, other.warningColor, t),
+      userColors: [],
+    );
+  }
 }

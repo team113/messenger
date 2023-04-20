@@ -354,7 +354,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               animation: _fading,
               builder: (context, child) => Container(
                 color:
-                    style.colors.onBackground.withOpacity(0.9 * _fading.value),
+                    style.colors.onBackground!.withOpacity(0.9 * _fading.value),
               ),
             ),
             AnimatedBuilder(

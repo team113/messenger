@@ -2212,7 +2212,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 ? c.secondaryAlignment.value == null
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
-                                          color: style.colors.secondary,
+                                          color: style.colors.secondary!,
                                           width: 1,
                                         ),
                                         borderRadius: borderRadius,
@@ -2221,28 +2221,28 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                         top: c.secondaryAlignment.value ==
                                                 Alignment.bottomCenter
                                             ? BorderSide(
-                                                color: style.colors.secondary,
+                                                color: style.colors.secondary!,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         left: c.secondaryAlignment.value ==
                                                 Alignment.centerRight
                                             ? BorderSide(
-                                                color: style.colors.secondary,
+                                                color: style.colors.secondary!,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         right: c.secondaryAlignment.value ==
                                                 Alignment.centerLeft
                                             ? BorderSide(
-                                                color: style.colors.secondary,
+                                                color: style.colors.secondary!,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         bottom: c.secondaryAlignment.value ==
                                                 Alignment.topCenter
                                             ? BorderSide(
-                                                color: style.colors.secondary,
+                                                color: style.colors.secondary!,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
@@ -2250,14 +2250,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 : c.secondaryAlignment.value == null
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
-                                          color: style.colors.secondary
+                                          color: style.colors.secondary!
                                               .withOpacity(0),
                                           width: 1,
                                         ),
                                         borderRadius: borderRadius,
                                       )
                                     : Border.all(
-                                        color: style.colors.secondary
+                                        color: style.colors.secondary!
                                             .withOpacity(0),
                                         width: 1,
                                       ),
@@ -2339,13 +2339,13 @@ Widget _secondaryTarget(CallController c) {
                                     border: Border(
                                       left: secondaryAxis == Axis.horizontal
                                           ? BorderSide(
-                                              color: style.colors.secondary,
+                                              color: style.colors.secondary!,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                       bottom: secondaryAxis == Axis.vertical
                                           ? BorderSide(
-                                              color: style.colors.secondary,
+                                              color: style.colors.secondary!,
                                               width: 1,
                                             )
                                           : BorderSide.none,

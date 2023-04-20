@@ -89,7 +89,7 @@ class CallWindowSwitchView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         color: selected
                             ? style.cardSelectedColor.withOpacity(0.8)
-                            : style.colors.onPrimary.darken(0.05),
+                            : style.colors.onPrimary!.darken(0.05),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () => c.setPopupsEnabled(i == 0),
