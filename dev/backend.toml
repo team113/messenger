@@ -10,7 +10,7 @@ verify_cert = false
 
 [fcm]
 files_url = "http://localhost/files"
-delay = "2500ms"
+delay = "3s"
 
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]

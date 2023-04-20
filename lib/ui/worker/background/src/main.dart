@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 
 /// Background service iOS handler.
 ///
@@ -174,22 +175,7 @@ class _BackgroundService {
   Future<void> _initCallKeep() async {
     await _callKeep.setup(
       null,
-      {
-        'ios': {'appName': 'Gapopa'},
-        'android': {
-          'alertTitle': 'label_call_permissions_title'.l10n,
-          'alertDescription': 'label_call_permissions_description'.l10n,
-          'cancelButton': 'btn_dismiss'.l10n,
-          'okButton': 'btn_allow'.l10n,
-          'foregroundService': {
-            'channelId': 'com.team113.messenger',
-            'channelName': 'Default',
-            'notificationTitle': 'My app is running on background',
-            'notificationIcon': 'mipmap/ic_notification_launcher',
-          },
-          'additionalPermissions': <String>[],
-        },
-      },
+      PlatformUtils.callKeepConfig,
       backgroundMode: true,
     );
 

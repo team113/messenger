@@ -333,7 +333,7 @@ class NotificationService extends DisposableService {
       NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
 
-      // First attempt always failed on the first startup.
+      // First attempt always failed on the first startup on Android.
       if (settings.authorizationStatus != AuthorizationStatus.authorized) {
         settings = await FirebaseMessaging.instance.requestPermission();
       }

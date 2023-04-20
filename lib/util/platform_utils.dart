@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +31,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
@@ -201,6 +203,24 @@ class PlatformUtilsImpl {
     _downloadDirectory = '$path${Config.downloads}';
     return _downloadDirectory!;
   }
+
+  /// Configuration used to initialize the [FlutterCallkeep].
+  Map<String, dynamic> get callKeepConfig => {
+        'ios': {'appName': 'Gapopa'},
+        'android': {
+          'alertTitle': 'label_call_permissions_title'.l10n,
+          'alertDescription': 'label_call_permissions_description'.l10n,
+          'cancelButton': 'btn_dismiss'.l10n,
+          'okButton': 'btn_allow'.l10n,
+          'foregroundService': {
+            'channelId': 'com.team113.messenger',
+            'channelName': 'Default',
+            'notificationTitle': 'My app is running on background',
+            'notificationIcon': 'mipmap/ic_notification_launcher',
+          },
+          'additionalPermissions': <String>[],
+        },
+      };
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {

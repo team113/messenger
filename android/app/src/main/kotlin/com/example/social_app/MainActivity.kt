@@ -109,7 +109,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Creates a new [NotificationChannel]
+     * Creates a new [NotificationChannel] with the provided parameters.
      */
     private fun createNotificationChannel(arguments: HashMap<String, String>): Boolean {
         val completed: Boolean
@@ -119,8 +119,8 @@ class MainActivity : FlutterActivity() {
             val descriptionText = arguments["description"]
             val sound = arguments["sound"]
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val mChannel = NotificationChannel(id, name, importance)
-            mChannel.description = descriptionText
+            val nChannel = NotificationChannel(id, name, importance)
+            nChannel.description = descriptionText
 
             val soundUri =
                 Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + applicationContext.packageName + "/raw/" + sound)
@@ -129,10 +129,10 @@ class MainActivity : FlutterActivity() {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .build()
 
-            mChannel.setSound(soundUri, att)
+            nChannel.setSound(soundUri, att)
             val notificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(mChannel)
+            notificationManager.createNotificationChannel(nChannel)
             completed = true
         } else {
             completed = false
