@@ -84,4 +84,7 @@ abstract class AbstractSettingsRepository {
   /// Returns the [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
   Rect? getCallRect(ChatId id);
+
+  /// Sets the [ApplicationSettings.timelineEnabled] value.
+  Future<void> setTimelineEnabled(bool enabled);
 }

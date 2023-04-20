@@ -378,6 +378,7 @@ label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
+label_as_timeline = As timeline
 label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
@@ -476,6 +477,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
+label_display_timestamps = Display time stamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -522,6 +524,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Hint from Gapopa
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
+label_in_message = In message
 label_incoming_call = Incoming call
 label_introduction_description =
     Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
@@ -672,6 +675,7 @@ label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
+label_timeline_style = Timeline style
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
