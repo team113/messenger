@@ -504,14 +504,15 @@ class ChatsTabController extends GetxController {
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
     // [chats] are guaranteed to have favorite [Chat]s on the top.
-    final int length =
-        chats.where((e) => e.chat.value.favoritePosition != null).length;
+    final List<RxChat> chats =
+        this.chats.where((e) => e.chat.value.favoritePosition != null).toList()
+          ..sort(
+            (a, b) => a.chat.value.favoritePosition!
+                .compareTo(b.chat.value.favoritePosition!),
+          );
 
-    final List<RxChat> notInCall = chats
-        .where((e) =>
-            e.chat.value.favoritePosition != null &&
-            e.chat.value.ongoingCall == null)
-        .toList();
+    final List<RxChat> notInCall =
+        chats.where((e) => e.chat.value.ongoingCall == null).toList();
 
     int indexTo = chats.indexWhere((e) =>
             e.chat.value.id ==
@@ -525,8 +526,8 @@ class ChatsTabController extends GetxController {
 
     if (indexTo <= 0) {
       position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (indexTo >= length) {
-      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
+    } else if (indexTo >= chats.length) {
+      position = chats[chats.length - 1].chat.value.favoritePosition!.val * 2;
     } else {
       position = (chats[indexTo].chat.value.favoritePosition!.val +
               chats[indexTo - 1].chat.value.favoritePosition!.val) /
@@ -620,6 +621,18 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      } else if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall != null) {
+        return a.chat.value.ongoingCall!.at
+            .compareTo(b.chat.value.ongoingCall!.at);
+      }
+
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -698,10 +711,10 @@ class _ChatSortingData {
       chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != updatedAt || hasCall != hasCall) {
+        if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
-          hasCall = hasCall;
+          this.hasCall = hasCall;
         }
       },
     );

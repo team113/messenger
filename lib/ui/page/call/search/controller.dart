@@ -319,6 +319,10 @@ class SearchController extends GetxController {
         } else if (a.chat.value.ongoingCall == null &&
             b.chat.value.ongoingCall != null) {
           return 1;
+        } else if (a.chat.value.ongoingCall != null &&
+            b.chat.value.ongoingCall != null) {
+          return a.chat.value.ongoingCall!.at
+              .compareTo(b.chat.value.ongoingCall!.at);
         }
 
         if (a.chat.value.favoritePosition != null &&
