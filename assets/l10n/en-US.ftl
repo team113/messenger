@@ -313,6 +313,81 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
+fcm_dialog_message = {$text}
+fcm_dialog_title =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_group_attachment =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }: {$kind ->
+        [image] [Image]
+        [video] [Video]
+       *[file] [File]
+    }
+fcm_group_message =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }: {$text}
+fcm_group_title =
+    {$user1Name ->
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
+       *[other] {$user1Name}
+    }{$user2Name ->
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] {$user2Num}
+            }
+       *[other] , {$user2Name}
+    }{$user3Name ->
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] {$user3Num}
+            }
+       *[other] , {$user3Name}
+    } {$moreMembers ->
+        [yes] ...
+       *[no] {""}
+    }
+fcm_incoming_call = Incoming call
+fcm_user_added_user =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } added {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_user_added_you_to_group =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } added you to group
+fcm_user_joined_group_by_link =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } joined group by link
+fcm_user_left_group =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } left the group
+fcm_user_removed_user =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } removed {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
 label_a_of_b = {$a} of {$b}
 label_account_created = Account is created
 label_actions = Actions
