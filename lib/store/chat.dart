@@ -300,7 +300,7 @@ class ChatRepository extends DisposableInterface
 
     if (chatId.isLocal) {
       local = await rxChat?.postChatMessage(
-        existingDateTime: PreciseDateTime.now().add(10.seconds),
+        existingDateTime: PreciseDateTime.now().toUtc().add(10.seconds),
         text: text,
         attachments: attachments,
         repliesTo: repliesTo,

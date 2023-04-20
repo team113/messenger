@@ -130,6 +130,7 @@ class ChatWorker extends DisposableService {
           newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
               action.user.id == _chatService.me &&
               DateTime.now()
+                      .toUtc()
                       .difference(msg.at.val)
                       .compareTo(newMessageThreshold) <=
                   -1;
@@ -203,13 +204,14 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?)? onNotification,
     UserId? Function()? me,
-  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
+  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now().toUtc() {
     worker = ever(
       c,
       (Chat chat) {
         if (chat.lastItem != null) {
           if (chat.lastItem!.at.isAfter(updatedAt) &&
               DateTime.now()
+                      .toUtc()
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&

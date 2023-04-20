@@ -55,9 +55,9 @@ class Chat extends HiveObject {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
-  })  : createdAt = createdAt ?? PreciseDateTime.now(),
-        updatedAt = updatedAt ?? PreciseDateTime.now(),
-        lastDelivery = lastDelivery ?? PreciseDateTime.now();
+  })  : createdAt = createdAt ?? PreciseDateTime.now().toUtc(),
+        updatedAt = updatedAt ?? PreciseDateTime.now().toUtc(),
+        lastDelivery = lastDelivery ?? PreciseDateTime.now().toUtc();
 
   /// Unique ID of this [Chat].
   @HiveField(0)

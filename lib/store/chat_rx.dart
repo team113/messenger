@@ -282,7 +282,7 @@ class HiveRxChat extends RxChat {
           ChatItemId.local(),
           id,
           me ?? const UserId('dummy'),
-          PreciseDateTime.now(),
+          PreciseDateTime.now().toUtc(),
           text: text,
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
           attachments: attachments,
@@ -954,7 +954,7 @@ class HiveRxChat extends RxChat {
 
               if (chat.value.isGroup) {
                 chatEntity.value.ongoingCall!.conversationStartedAt =
-                    PreciseDateTime.now();
+                    PreciseDateTime.now().toUtc();
               }
 
               _chatRepository.addCall(event.call);
@@ -1022,7 +1022,7 @@ class HiveRxChat extends RxChat {
 
                 if (ids != null && ids.length >= 2) {
                   chatEntity.value.ongoingCall?.conversationStartedAt =
-                      PreciseDateTime.now();
+                      PreciseDateTime.now().toUtc();
                 }
               }
               break;

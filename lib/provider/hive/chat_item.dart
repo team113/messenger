@@ -161,7 +161,7 @@ class HiveChatMessage extends HiveChatItem {
           existingId ?? ChatItemId.local(),
           chatId,
           me,
-          existingDateTime ?? PreciseDateTime.now(),
+          existingDateTime ?? PreciseDateTime.now().toUtc(),
           text: text,
           repliesTo: repliesTo,
           attachments: attachments,

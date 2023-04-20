@@ -147,7 +147,7 @@ class UserRepository implements AbstractUserRepository {
     if (user?.user.value.isBlacklisted == null) {
       user?.user.value.isBlacklisted = BlacklistRecord(
         reason: reason,
-        at: PreciseDateTime.now(),
+        at: PreciseDateTime.now().toUtc(),
       );
       user?.user.refresh();
     }

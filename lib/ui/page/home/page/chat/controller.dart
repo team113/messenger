@@ -768,9 +768,9 @@ class ChatController extends GetxController {
               const Duration(seconds: 1),
               (_) {
                 if (chat.ongoingCall!.conversationStartedAt != null) {
-                  duration.value = DateTime.now().difference(
-                    chat.ongoingCall!.conversationStartedAt!.val,
-                  );
+                  duration.value = DateTime.now().toUtc().difference(
+                        chat.ongoingCall!.conversationStartedAt!.val,
+                      );
                 }
               },
             );
@@ -904,7 +904,7 @@ class ChatController extends GetxController {
             _bottomLoader = LoaderElement(
               (chat?.messages.lastOrNull?.value.at
                       .add(const Duration(microseconds: 1)) ??
-                  PreciseDateTime.now()),
+                  PreciseDateTime.now().toUtc()),
             );
 
             elements[_bottomLoader!.id] = _bottomLoader!;
@@ -1572,7 +1572,7 @@ extension IsChatItemEditable on ChatItem {
         bool isRead = chat.isRead(this, me);
         return at
                 .add(ChatController.editMessageTimeout)
-                .isAfter(PreciseDateTime.now()) ||
+                .isAfter(PreciseDateTime.now().toUtc()) ||
             !isRead;
       }
     }

@@ -768,7 +768,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.online = false;
           put((u) => u
             ..online = false
-            ..lastSeenAt = PreciseDateTime.now());
+            ..lastSeenAt = PreciseDateTime.now().toUtc());
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:

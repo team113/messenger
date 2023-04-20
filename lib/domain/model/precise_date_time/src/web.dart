@@ -25,6 +25,10 @@ class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(DateTime val, {this.microsecond = 0}) : super(val);
 
+  /// Microseconds of this [PreciseDateTime].
+  ///
+  /// Stored independently from [DateTime], since on Web its microseconds are
+  /// ignored.
   final int microsecond;
 
   /// Returns the number of microseconds since the "Unix epoch"
@@ -213,12 +217,14 @@ class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
   final typeId = ModelTypeId.preciseDateTime;
 
   @override
-  PreciseDateTime read(BinaryReader reader) =>
-      PreciseDateTime(reader.read() as DateTime, microsecond: reader.readInt());
+  PreciseDateTime read(BinaryReader reader) => PreciseDateTime(
+        DateTime.fromMillisecondsSinceEpoch(reader.readInt(), isUtc: true),
+        microsecond: reader.readInt(),
+      );
 
   @override
   void write(BinaryWriter writer, PreciseDateTime obj) {
-    writer.write(obj.val);
+    writer.writeInt(obj.val.millisecondsSinceEpoch);
     writer.writeInt(obj.microsecond);
   }
 }

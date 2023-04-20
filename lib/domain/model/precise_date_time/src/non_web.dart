@@ -194,7 +194,7 @@ class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
 
   @override
   PreciseDateTime read(BinaryReader reader) => PreciseDateTime(
-        DateTime.fromMicrosecondsSinceEpoch(reader.readInt()),
+        DateTime.fromMicrosecondsSinceEpoch(reader.readInt(), isUtc: true),
       );
 
   @override
