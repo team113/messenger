@@ -26,17 +26,24 @@ import '/ui/widget/svg/svg.dart';
 
 /// Logo with animation.
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({
-    super.key,
-  });
+  const AnimatedLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
+    /// Instance of the [AuthController] class in the current context.
     final AuthController c = Get.find<AuthController>();
+
+    /// Value of the current frame when displaying the logo.
     final String logoFrameValue =
         'assets/images/logo/head000${c.logoFrame.value}.svg';
+
+    /// Instance of the Widget class.
     final Widget child;
+
+    /// [SizedBox] limitation.
     const double height = 250;
+
+    /// [LayoutBuilder] limitation.
     const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
 
     if (constraints.maxHeight >= height) {

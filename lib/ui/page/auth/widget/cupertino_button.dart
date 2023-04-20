@@ -32,6 +32,7 @@ class CupertinoPopUp extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle? thin = context.textTheme.bodySmall
         ?.copyWith(fontSize: 13, color: Theme.of(context).colorScheme.primary);
+
     return CupertinoButton(
       key: UniqueKey(),
       child: Text(
