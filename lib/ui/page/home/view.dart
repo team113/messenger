@@ -234,50 +234,52 @@ class _HomeViewState extends State<HomeView> {
                                       child: Stack(
                                         children: [
                                           SvgLoader.asset(
-                                            'assets/icons/balance9.svg',
-                                            width: 30,
-                                            height: 30,
+                                            'assets/icons/balance10.svg',
+                                            width: 42 * 0.9375,
+                                            height: 32 * 0.9375,
                                           ),
                                           // SvgLoader.asset(
                                           //   'assets/icons/balance.svg',
                                           //   width: 30,
                                           //   height: 30,
                                           // ),
-                                          Positioned.fill(
-                                            child: Center(
-                                              child: Obx(() {
-                                                if (!c.displayFunds) {
-                                                  return Transform.translate(
-                                                    offset: const Offset(-1, 0),
-                                                    child: SvgLoader.asset(
-                                                      'assets/icons/currency_white.svg',
-                                                      height: 13,
-                                                    ),
-                                                  );
-                                                }
+                                          if (false)
+                                            Positioned.fill(
+                                              child: Center(
+                                                child: Obx(() {
+                                                  if (!c.displayFunds) {
+                                                    return Transform.translate(
+                                                      offset:
+                                                          const Offset(-1, 0),
+                                                      child: SvgLoader.asset(
+                                                        'assets/icons/currency_white.svg',
+                                                        height: 13,
+                                                      ),
+                                                    );
+                                                  }
 
-                                                return Text(
-                                                  c.displayFunds
-                                                      ? _balance(
-                                                          c.balance.value)
-                                                      : '\$',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    // color: c.displayFunds
-                                                    //     // ? Colors.black
-                                                    //     ? Colors.white
-                                                    //     : const Color(
-                                                    //         0xFFF8B64C),
-                                                    fontSize: c.displayFunds
-                                                        ? 12
-                                                        : 15,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                  textScaleFactor: 1,
-                                                );
-                                              }),
+                                                  return Text(
+                                                    c.displayFunds
+                                                        ? _balance(
+                                                            c.balance.value)
+                                                        : '\$',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      // color: c.displayFunds
+                                                      //     // ? Colors.black
+                                                      //     ? Colors.white
+                                                      //     : const Color(
+                                                      //         0xFFF8B64C),
+                                                      fontSize: c.displayFunds
+                                                          ? 12
+                                                          : 15,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                    textScaleFactor: 1,
+                                                  );
+                                                }),
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -292,8 +294,8 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/savings7.svg',
-                                    width: 30,
+                                    'assets/icons/partner7.svg',
+                                    width: 37,
                                     height: 30,
                                   ),
                                   // child: CircleAvatar(
@@ -317,9 +319,9 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.public,
                                   child: SvgLoader.asset(
-                                    'assets/icons/publics5.svg',
-                                    width: 30,
-                                    height: 30,
+                                    'assets/icons/publics10.svg',
+                                    width: 32,
+                                    height: 32,
                                   ),
                                 ),
                               ),

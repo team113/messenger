@@ -1070,6 +1070,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ],
               ),
             ),
+          if (msg.repliesTo.isNotEmpty)
+            ...msg.repliesTo.mapIndexed((i, e) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.04),
+                  borderRadius: style.cardRadius,
+                  border: Border.fromBorderSide(BorderSide(
+                    color: Colors.black.withOpacity(0.1),
+                    width: 0.5,
+                  )),
+                  // color: e.author == widget.me
+                  //     ? _isRead || !_fromMe
+                  //         ? const Color(0xFFDBEAFD)
+                  //         : const Color(0xFFE6F1FE)
+                  //     : _isRead || !_fromMe
+                  //         ? const Color(0xFFF9F9F9)
+                  //         : const Color(0xFFFFFFFF),
+                  // borderRadius: i == msg.repliesTo.length - 1 &&
+                  //         !(widget.displayTime || widget.paid)
+                  //     ? BorderRadius.only(
+                  //         bottomLeft: const Radius.circular(15),
+                  //         bottomRight: const Radius.circular(15),
+                  //         topLeft: msg.repliesTo.length == 1 && _text == null
+                  //             ? const Radius.circular(15)
+                  //             : Radius.zero,
+                  //         topRight: msg.repliesTo.length == 1 && _text == null
+                  //             ? const Radius.circular(15)
+                  //             : Radius.zero,
+                  //       )
+                  //     : i == 0 && _text == null
+                  //         ? const BorderRadius.only(
+                  //             bottomLeft: Radius.circular(15),
+                  //             bottomRight: Radius.circular(15),
+                  //           )
+                  //         : BorderRadius.zero,
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: _isRead || !_fromMe ? 1 : 0.55,
+                  child: WidgetButton(
+                    onPressed: () => widget.onRepliedTap?.call(e),
+                    child: _repliedMessage(e),
+                  ),
+                ),
+              );
+            }),
           if (media.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.only(
@@ -1148,24 +1196,31 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
-          if (_text != null)
+          if (_text != null || (widget.displayTime && msg.attachments.isEmpty))
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.7,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   12,
-                  (media.isNotEmpty && files.isEmpty) ||
-                          (msg.attachments.isEmpty &&
-                              (_fromMe || widget.chat.value?.isGroup != true))
-                      ? 10
-                      : 0,
-                  // !_fromMe &&
-                  //         widget.chat.value?.isGroup == true &&
-                  //         widget.avatar
-                  //     ? 0
-                  //     : 10,
-                  12, 10,
+                  // (media.isNotEmpty && files.isEmpty) ||
+                  //         (msg.attachments.isEmpty &&
+                  //             (_fromMe || widget.chat.value?.isGroup != true))
+                  //     ? _text != null
+                  //         ? 10
+                  //         : 0
+                  //     : 0,
+                  !_fromMe &&
+                          widget.chat.value?.isGroup == true &&
+                          widget.avatar
+                      ? 0
+                      : _text != null
+                          ? msg.repliesTo.isNotEmpty
+                              ? 0
+                              : 10
+                          : 0,
+                  12,
+                  _text != null ? 10 : 0,
                   // files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
@@ -1174,10 +1229,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     children: [
                       // text.linkify(),
                       // TextSpan(text: text),
-                      _text!,
-                      if (widget.displayTime &&
-                          !timeInBubble &&
-                          msg.repliesTo.isEmpty)
+                      if (_text != null) _text!,
+                      if (widget.displayTime && !timeInBubble)
                         if (_fromMe)
                           const WidgetSpan(
                             child: SizedBox(width: 42, height: 20),
@@ -1220,58 +1273,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
-          if (msg.repliesTo.isNotEmpty)
-            ...msg.repliesTo.mapIndexed((i, e) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: e.author == widget.me
-                      ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
-                      : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
-                  borderRadius: i == msg.repliesTo.length - 1 &&
-                          !(widget.displayTime || widget.paid)
-                      ? BorderRadius.only(
-                          bottomLeft: const Radius.circular(15),
-                          bottomRight: const Radius.circular(15),
-                          topLeft: msg.repliesTo.length == 1 && _text == null
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                          topRight: msg.repliesTo.length == 1 && _text == null
-                              ? const Radius.circular(15)
-                              : Radius.zero,
-                        )
-                      : i == 0 && _text == null
-                          ? const BorderRadius.only(
-                              bottomLeft: Radius.circular(15),
-                              bottomRight: Radius.circular(15),
-                            )
-                          : BorderRadius.zero,
-                ),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
-                  ),
-                ),
-              );
-            }),
-          if (msg.repliesTo.isNotEmpty && (widget.displayTime || widget.paid))
-            Padding(
-              padding: const EdgeInsets.only(top: 2, bottom: 2),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  timeline,
-                  const SizedBox(width: 8),
-                ],
-              ),
-            ),
+
+          // if (msg.repliesTo.isNotEmpty && (widget.displayTime || widget.paid))
+          //   Padding(
+          //     padding: const EdgeInsets.only(top: 2, bottom: 2),
+          //     child: Row(
+          //       children: [
+          //         const Spacer(),
+          //         timeline,
+          //         const SizedBox(width: 8),
+          //       ],
+          //     ),
+          //   ),
         ];
 
         return Container(
@@ -1294,8 +1307,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   ),
                 ),
-                if ((widget.displayTime || widget.paid) &&
-                    msg.repliesTo.isEmpty)
+                if (widget.displayTime || widget.paid)
                   Positioned(
                     right: timeInBubble ? 4 : 8,
                     bottom: 4,
@@ -1886,45 +1898,39 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     AvatarWidget.colors.length];
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(width: 12),
-            Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
-                ),
-                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      snapshot.data?.user.value.name?.val ??
-                          snapshot.data?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
-                    ),
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: content,
-                      ),
-                    ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(mainAxisSize: MainAxisSize.min, children: additional),
-                    ],
-                  ],
-                ),
-              ),
+        return ClipRRect(
+          borderRadius: style.cardRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(width: 2, color: color)),
             ),
-          ],
+            margin: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+            padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  snapshot.data?.user.value.name?.val ??
+                      snapshot.data?.user.value.num.val ??
+                      'dot'.l10n * 3,
+                  style: style.boldBody.copyWith(color: color),
+                ),
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: content,
+                  ),
+                ],
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(mainAxisSize: MainAxisSize.min, children: additional),
+                ],
+              ],
+            ),
+          ),
         );
       },
     );
