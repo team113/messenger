@@ -24,8 +24,9 @@ import '/l10n/l10n.dart';
 
 /// Language selection popup.
 class CupertinoPopUp extends StatelessWidget {
-  const CupertinoPopUp({super.key, required this.onPressed});
+  const CupertinoPopUp({super.key, this.onPressed});
 
+  /// Locale change.
   final void Function()? onPressed;
 
   @override
@@ -35,7 +36,7 @@ class CupertinoPopUp extends StatelessWidget {
 
     return CupertinoButton(
       key: UniqueKey(),
-      onPressed: onPressed,
+      onPressed: onPressed ?? () {},
       child: Text(
         'label_language_entry'.l10nfmt({
           'code': L10n.chosen.value!.locale.countryCode,
@@ -43,7 +44,6 @@ class CupertinoPopUp extends StatelessWidget {
         }),
         style: thin,
       ),
-      // onPressed: () ,
     );
   }
 }
