@@ -103,7 +103,7 @@ class _MinimizableViewState extends State<MinimizableView>
           color: Theme.of(router.context!)
               .extension<Style>()!
               .colors
-              .onPrimaryOpacity90,
+              .onPrimaryOpacity7!,
           blurRadius: 10.0,
           offset: const Offset(0, 0),
         )

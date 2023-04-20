@@ -224,7 +224,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: style.colors.onBackgroundOpacity60,
+                color: style.colors.onBackgroundOpacity40,
               ),
             );
           }
@@ -307,7 +307,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity81,
+                          color: style.colors.onBackgroundOpacity20!,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -415,7 +415,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity81,
+                      color: style.colors.onBackgroundOpacity20!,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -430,7 +430,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: candidate.any((e) => e?.c == c)
-                            ? style.colors.onSecondaryOpacity90
+                            ? style.colors.onSecondaryOpacity88
                             : style.colors.onSecondaryOpacity60,
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -601,7 +601,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(color: style.colors.onBackgroundOpacity67)
+                  ? Container(color: style.colors.onBackgroundOpacity33)
                   : null,
             );
           }),
@@ -672,7 +672,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity81,
+                        color: style.colors.onBackgroundOpacity20!,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -878,7 +878,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity81,
+                        color: style.colors.onBackgroundOpacity20!,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1434,7 +1434,7 @@ Widget _primaryView(CallController c) {
               duration: 200.milliseconds,
               child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
                   ? Container(
-                      color: style.colors.onBackgroundOpacity74,
+                      color: style.colors.onBackgroundOpacity27,
                       child: Center(
                         child: AnimatedDelayedScale(
                           duration: const Duration(milliseconds: 300),
@@ -1447,8 +1447,8 @@ Widget _primaryView(CallController c) {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: !c.minimized.value || c.fullscreen.value
-                                    ? style.colors.onBackgroundOpacity74
-                                    : style.colors.onBackgroundOpacity44,
+                                    ? style.colors.onBackgroundOpacity27
+                                    : style.colors.onBackgroundOpacity56,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -1703,7 +1703,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     decoration: BoxDecoration(
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity74,
+                          color: style.colors.onBackgroundOpacity27!,
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -1742,7 +1742,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               height: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                            Container(color: style.colors.onPrimaryOpacity90),
+                            Container(color: style.colors.onPrimaryOpacity7),
                           ],
                         ),
                       ),
@@ -2070,7 +2070,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               child: Container(
                                 color: PlatformUtils.isWeb
                                     ? style.colors.onSecondaryOpacity60
-                                    : style.colors.onSecondaryOpacity90,
+                                    : style.colors.onSecondaryOpacity88,
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),
@@ -2145,7 +2145,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
                         ? Container(
-                            color: style.colors.onBackgroundOpacity74,
+                            color: style.colors.onBackgroundOpacity27,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(
@@ -2162,8 +2162,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       borderRadius: BorderRadius.circular(16),
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
-                                          ? style.colors.onBackgroundOpacity74
-                                          : style.colors.onBackgroundOpacity44,
+                                          ? style.colors.onBackgroundOpacity27
+                                          : style.colors.onBackgroundOpacity56,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
@@ -2353,7 +2353,7 @@ Widget _secondaryTarget(CallController c) {
                                     boxShadow: [
                                       CustomBoxShadow(
                                         color:
-                                            style.colors.onBackgroundOpacity81,
+                                            style.colors.onBackgroundOpacity20!,
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )
@@ -2363,7 +2363,7 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? style.colors.onPrimaryOpacity90
+                                          ? style.colors.onPrimaryOpacity7
                                           : style.colors.transparent,
                                       child: Center(
                                         child: SizedBox(
@@ -2392,7 +2392,7 @@ Widget _secondaryTarget(CallController c) {
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                     color: style.colors
-                                                        .onBackgroundOpacity74,
+                                                        .onBackgroundOpacity27,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             16),

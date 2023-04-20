@@ -215,7 +215,7 @@ class ParticipantView extends StatelessWidget {
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
                   color: inCall
                       ? isRedialed
-                          ? style.colors.primaryBackgroundLightest
+                          ? style.colors.secondaryBackgroundLightest
                           : style.colors.dangerColor
                       : style.colors.primary,
                   type: MaterialType.circle,

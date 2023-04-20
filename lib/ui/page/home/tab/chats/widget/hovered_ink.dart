@@ -126,7 +126,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                       ),
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.colors.primaryHighlightDarkest,
+                          color: style.colors.secondaryHighlightDarkest,
                           blurStyle: BlurStyle.outer,
                           blurRadius: 4,
                         ),

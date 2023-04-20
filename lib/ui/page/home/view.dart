@@ -213,7 +213,7 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? style.colors.primaryHighlightDarkest
+                                    ? style.colors.secondaryHighlightDarkest
                                     : style.colors.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
@@ -399,7 +399,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: ColoredBox(color: style.colors.onBackgroundOpacity94),
+                child: ColoredBox(color: style.colors.onBackgroundOpacity7!),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -418,7 +418,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     Expanded(
                       child:
-                          ColoredBox(color: style.colors.onBackgroundOpacity98),
+                          ColoredBox(color: style.colors.onBackgroundOpacity2!),
                     ),
                   ],
                 ),

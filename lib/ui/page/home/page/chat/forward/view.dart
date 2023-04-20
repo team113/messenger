@@ -146,7 +146,7 @@ class ChatForwardView extends StatelessWidget {
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(
-                            color: style.colors.onBackgroundOpacity74,
+                            color: style.colors.onBackgroundOpacity27,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(milliseconds: 300),
@@ -157,7 +157,7 @@ class ChatForwardView extends StatelessWidget {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
-                                      color: style.colors.onBackgroundOpacity74,
+                                      color: style.colors.onBackgroundOpacity27,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),

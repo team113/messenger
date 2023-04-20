@@ -65,7 +65,7 @@ class CallCoverWidget extends StatelessWidget {
               gradient = style.colors.userColors[
                   (title.hashCode) % style.colors.userColors.length];
             } else {
-              gradient = style.colors.primaryBackgroundLightest;
+              gradient = style.colors.secondaryBackgroundLightest;
             }
 
             return Container(

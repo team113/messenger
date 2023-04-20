@@ -45,7 +45,7 @@ class HintWidget extends StatelessWidget {
 
     return Card(
       elevation: 8,
-      shadowColor: style.colors.onBackgroundOpacity74,
+      shadowColor: style.colors.onBackgroundOpacity27,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
@@ -76,7 +76,7 @@ class HintWidget extends StatelessWidget {
                         : 'label_hint_from_gapopa'.l10n,
                     style: TextStyle(
                       fontSize: 13,
-                      color: style.colors.primaryOpacity15,
+                      color: style.colors.secondaryOpacity73,
                     ),
                   ),
                 ),
@@ -87,7 +87,7 @@ class HintWidget extends StatelessWidget {
                     child: Icon(
                       Icons.close,
                       size: 16,
-                      color: style.colors.primaryOpacity15,
+                      color: style.colors.secondaryOpacity73,
                     ),
                   ),
                 ),
@@ -102,7 +102,7 @@ class HintWidget extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 13,
-                  color: style.colors.primaryOpacity15,
+                  color: style.colors.secondaryOpacity73,
                 ),
               ),
             ),

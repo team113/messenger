@@ -302,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: style.colors.secondaryHighlightShinier,
+                    color: style.colors.primaryHighlightShinier,
                   ),
                 );
               }
@@ -320,7 +320,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: style.colors.onBackgroundOpacity25,
+                            color: style.colors.onBackgroundOpacity63,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -358,7 +358,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     state,
                                     style:
                                         context.textTheme.bodySmall?.copyWith(
-                                      color: style.colors.onBackgroundOpacity98,
+                                      color: style.colors.onBackgroundOpacity2,
                                     ),
                                   ),
                                   if (withDots) const AnimatedDots(),
@@ -377,7 +377,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    color: style.colors.primaryHighlight,
+                    color: style.colors.secondaryHighlight,
                     size: 66,
                     duration: const Duration(milliseconds: 4500),
                   ),
@@ -442,7 +442,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: style.colors.onBackgroundOpacity67)
+                ? Container(color: style.colors.onBackgroundOpacity33)
                 : null,
           ),
         );
@@ -662,8 +662,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? style.colors.onSecondaryOpacity90
-                          : style.colors.onSecondaryOpacity60,
+                          ? style.colors.onSecondaryOpacity88!
+                          : style.colors.onSecondaryOpacity60!,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),
@@ -687,7 +687,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 width: 60,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: style.colors.onPrimaryOpacity40,
+                                  color: style.colors.onPrimaryOpacit60,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -766,7 +766,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Combines all the stackable content into [Scaffold].
     Widget scaffold = Scaffold(
-      backgroundColor: style.colors.primaryBackgroundLight,
+      backgroundColor: style.colors.secondaryBackgroundLight,
       body: Stack(
         children: [
           ...content,

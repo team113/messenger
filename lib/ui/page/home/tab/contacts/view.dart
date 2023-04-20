@@ -182,7 +182,7 @@ class ContactsTabView extends StatelessWidget {
                   key: UniqueKey(),
                   child: ColoredBox(
                     key: const Key('Loading'),
-                    color: style.colors.transparent,
+                    color: style.colors.transparent!,
                     child: const CustomProgressIndicator(),
                   ),
                 );
@@ -287,7 +287,7 @@ class ContactsTabView extends StatelessWidget {
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
                                     style.colors.transparent,
-                                    style.colors.onBackgroundOpacity81,
+                                    style.colors.onBackgroundOpacity20,
                                     t,
                                   )!;
 
@@ -421,7 +421,7 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? style.colors.primaryHighlight
+                        ? style.colors.secondaryHighlight
                         : style.colors.transparent,
                   );
                 }),
@@ -551,7 +551,7 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
                 Icons.block,
-                color: style.colors.primaryHighlightDarkest,
+                color: style.colors.secondaryHighlightDarkest,
                 size: 20,
               ),
             );
@@ -582,7 +582,7 @@ class ContactsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.colors.onBackgroundOpacity88,
+        color: style.colors.onBackgroundOpacity13!,
         blurStyle: BlurStyle.outer,
       ),
     ];

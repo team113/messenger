@@ -81,7 +81,7 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: style.colors.onBackgroundOpacity67,
+                      shadowColor: style.colors.onBackgroundOpacity33,
                       color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
@@ -485,7 +485,7 @@ class UserView extends StatelessWidget {
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: style.colors.onBackgroundOpacity88,
+                color: style.colors.onBackgroundOpacity13!,
               ),
             ],
           ),

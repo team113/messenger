@@ -96,8 +96,8 @@ class MessageFieldView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity67,
-      iconTheme: IconThemeData(color: style.colors.secondaryHighlight),
+      shadowColor: style.colors.onBackgroundOpacity33,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -138,7 +138,7 @@ class MessageFieldView extends StatelessWidget {
                 boxShadow: [
                   CustomBoxShadow(
                     blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity88,
+                    color: style.colors.onBackgroundOpacity13!,
                   ),
                 ],
               ),
@@ -300,7 +300,7 @@ class MessageFieldView extends StatelessWidget {
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
                     style.colors.transparent,
-                    style.colors.onBackgroundOpacity81,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -356,7 +356,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: style.colors.onPrimaryOpacity60,
+            color: style.colors.onPrimaryOpacity40,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -683,7 +683,7 @@ class MessageFieldView extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: style.colors.primaryHighlight,
+            color: style.colors.secondaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -796,8 +796,8 @@ class MessageFieldView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? style.colors.onPrimaryOpacity75
-                    : style.colors.onBackgroundOpacity98,
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
@@ -807,7 +807,7 @@ class MessageFieldView extends StatelessWidget {
                       Icons.file_copy,
                       color: fromMe
                           ? style.colors.onPrimary
-                          : style.colors.primaryHighlightDarkest,
+                          : style.colors.secondaryHighlightDarkest,
                       size: 16,
                     )
                   : RetryImage(
@@ -992,7 +992,7 @@ class MessageFieldView extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
-          color: style.colors.primaryHighlight,
+          color: style.colors.secondaryHighlight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(

@@ -272,7 +272,7 @@ class _DesktopControlsState extends State<DesktopControls>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: style.colors.onBackgroundOpacity60,
+                color: style.colors.onBackgroundOpacity40,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -338,7 +338,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: style.colors.onBackgroundOpacity88,
+                    color: style.colors.onBackgroundOpacity13,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
@@ -454,7 +454,7 @@ class _DesktopControlsState extends State<DesktopControls>
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity60,
+                          color: style.colors.onBackgroundOpacity40,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(

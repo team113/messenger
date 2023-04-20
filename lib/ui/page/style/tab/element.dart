@@ -47,7 +47,7 @@ class ElementStyleTabView extends StatelessWidget {
       bool background = false,
       String? asset,
     }) {
-      final Color backgroundColor = style.colors.primaryBackgroundLight;
+      final Color backgroundColor = style.colors.secondaryBackgroundLight;
 
       return Column(
         children: [
@@ -194,10 +194,10 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Перетягиваемая панель окна звонка.',
                 child: Container(
-                  color: style.colors.primaryBackground,
+                  color: style.colors.secondaryBackground,
                   height: 45,
                   child: Material(
-                    color: style.colors.primaryBackground,
+                    color: style.colors.secondaryBackground,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -224,7 +224,7 @@ class ElementStyleTabView extends StatelessWidget {
                                             ?.copyWith(
                                           fontSize: 17,
                                           color: style
-                                              .colors.primaryHighlightDarkest,
+                                              .colors.secondaryHighlightDarkest,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -242,15 +242,15 @@ class ElementStyleTabView extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  style.colors.transparent,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.primaryBackground,
-                                  style.colors.transparent,
+                                  style.colors.transparent!,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.transparent!,
                                 ],
                               ),
                             ),
@@ -260,7 +260,8 @@ class ElementStyleTabView extends StatelessWidget {
                                 Text(
                                   '10:04',
                                   style: context.textTheme.bodyLarge?.copyWith(
-                                    color: style.colors.primaryHighlightDarkest,
+                                    color:
+                                        style.colors.secondaryHighlightDarkest,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
@@ -397,7 +398,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_on',
                   onPressed: () {},
                   hint: 'Turn video off',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -408,7 +409,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_off',
                   onPressed: () {},
                   hint: 'Turn video on',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -419,7 +420,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_on',
                   onPressed: () {},
                   hint: 'Mute',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -430,7 +431,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_off',
                   onPressed: () {},
                   hint: 'Unmute',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -441,7 +442,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_on',
                   onPressed: () {},
                   hint: 'Share screen',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -452,7 +453,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_off',
                   onPressed: () {},
                   hint: 'Stop sharing',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -462,7 +463,7 @@ class ElementStyleTabView extends StatelessWidget {
                   child: RoundFloatingButton(
                     asset: 'speaker_on',
                     onPressed: () {},
-                    color: style.colors.primaryOpacity20,
+                    color: style.colors.secondaryOpacity87,
                   )),
               element(
                 background: true,
@@ -471,7 +472,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'speaker_off',
                   onPressed: () {},
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -481,7 +482,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_front',
                   onPressed: () {},
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -491,7 +492,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_back',
                   onPressed: () {},
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               element(
@@ -512,7 +513,7 @@ class ElementStyleTabView extends StatelessWidget {
                       Text(
                         'Drop any\nvideo here',
                         style: context.textTheme.bodyLarge?.copyWith(
-                          color: style.colors.primaryHighlightDarkest,
+                          color: style.colors.secondaryHighlightDarkest,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -660,18 +661,18 @@ class ElementStyleTabView extends StatelessWidget {
                   labelStyle: const TextStyle(fontSize: 17),
                   closedIcon: Icon(
                     Icons.more_horiz,
-                    color: style.colors.secondaryHighlight,
+                    color: style.colors.primaryHighlight,
                     size: 30,
                   ),
                   openedIcon: Icon(
                     Icons.close,
-                    color: style.colors.secondaryHighlight,
+                    color: style.colors.primaryHighlight,
                     size: 30,
                   ),
                   actions: [
                     AnimatedFabAction(
                       icon: Icon(Icons.call,
-                          color: style.colors.secondaryHighlight),
+                          color: style.colors.primaryHighlight),
                       label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
@@ -679,7 +680,7 @@ class ElementStyleTabView extends StatelessWidget {
                     AnimatedFabAction(
                       icon: Icon(
                         Icons.video_call,
-                        color: style.colors.secondaryHighlight,
+                        color: style.colors.primaryHighlight,
                       ),
                       label: 'label_video_call'.l10n,
                       onTap: () {},
@@ -687,27 +688,27 @@ class ElementStyleTabView extends StatelessWidget {
                     ),
                     AnimatedFabAction(
                       icon: Icon(Icons.person,
-                          color: style.colors.secondaryHighlight),
+                          color: style.colors.primaryHighlight),
                       label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: Icon(
                         Icons.attachment,
-                        color: style.colors.secondaryHighlight,
+                        color: style.colors.primaryHighlight,
                       ),
                       label: 'label_file'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: Icon(Icons.photo,
-                          color: style.colors.secondaryHighlight),
+                          color: style.colors.primaryHighlight),
                       label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: Icon(Icons.camera,
-                          color: style.colors.secondaryHighlight),
+                          color: style.colors.primaryHighlight),
                       label: 'label_camera'.l10n,
                       onTap: () {},
                     ),
@@ -724,7 +725,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'settings',
                   onPressed: () {},
                   hint: 'Settings',
-                  color: style.colors.primaryOpacity20,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
               const SizedBox(height: 60),

@@ -76,8 +76,9 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: color ?? style.colors.primaryHighlightDarkest,
-          backgroundColor: backgroundColor ?? style.colors.primaryHighlightDark,
+          color: color ?? style.colors.secondaryHighlightDarkest,
+          backgroundColor:
+              backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,
           strokeWidth: strokeWidth,
         ),

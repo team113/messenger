@@ -198,7 +198,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: style.colors.primaryHighlightDarkest,
+                  color: style.colors.secondaryHighlightDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -257,7 +257,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                             end: Alignment.bottomCenter,
                             colors: [
                               style.colors.onPrimary,
-                              style.colors.transparent,
+                              style.colors.transparent!,
                             ],
                           ),
                         ),
@@ -273,7 +273,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              style.colors.transparent,
+                              style.colors.transparent!,
                               style.colors.onPrimary,
                             ],
                           ),
@@ -373,7 +373,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             color: style.colors.onPrimary,
             child: InkWell(
               hoverColor: style.colors.onSecondaryOpacity20,
-              highlightColor: style.colors.onPrimaryOpacity90,
+              highlightColor: style.colors.onPrimaryOpacity7,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -432,7 +432,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   style.colors.onPrimary,
-                                  style.colors.transparent,
+                                  style.colors.transparent!,
                                 ],
                               ),
                             ),
@@ -451,7 +451,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  style.colors.transparent,
+                                  style.colors.transparent!,
                                   style.colors.onPrimary,
                                 ],
                               ),

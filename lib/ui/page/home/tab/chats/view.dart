@@ -73,7 +73,7 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? style.colors.primaryHighlight
+                    ? style.colors.secondaryHighlight
                     : const Color(0x00EBEBEB),
               );
             }),
@@ -237,7 +237,7 @@ class ChatsTabView extends StatelessWidget {
                           center = Center(
                             key: UniqueKey(),
                             child: ColoredBox(
-                              color: style.colors.transparent,
+                              color: style.colors.transparent!,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -378,7 +378,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.colors.transparent,
+                            color: style.colors.transparent!,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -500,7 +500,7 @@ class ChatsTabView extends StatelessWidget {
                             key: UniqueKey(),
                             child: ColoredBox(
                               key: const Key('Loading'),
-                              color: style.colors.transparent,
+                              color: style.colors.transparent!,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -616,7 +616,7 @@ class ChatsTabView extends StatelessWidget {
                                             final Color color = Color.lerp(
                                               style.colors.transparent,
                                               style
-                                                  .colors.onBackgroundOpacity81,
+                                                  .colors.onBackgroundOpacity20,
                                               t,
                                             )!;
 
@@ -770,7 +770,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: style.colors.onBackgroundOpacity81,
+                  color: style.colors.onBackgroundOpacity20,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
@@ -810,7 +810,7 @@ class ChatsTabView extends StatelessWidget {
               shadows: [
                 CustomBoxShadow(
                   blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity88,
+                  color: style.colors.onBackgroundOpacity13!,
                   blurStyle: BlurStyle.outer,
                 ),
               ],
@@ -869,7 +869,7 @@ class ChatsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.colors.onBackgroundOpacity88,
+        color: style.colors.onBackgroundOpacity13!,
         blurStyle: BlurStyle.outer,
       ),
     ];

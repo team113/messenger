@@ -167,7 +167,7 @@ class RecentChatTile extends StatelessWidget {
                     const SizedBox(width: 5),
                     Icon(
                       Icons.block,
-                      color: style.colors.primaryHighlightDarkest,
+                      color: style.colors.secondaryHighlightDarkest,
                       size: 20,
                     ),
                     if (chat.muted == null) const SizedBox(width: 5),
@@ -453,7 +453,7 @@ class RecentChatTile extends StatelessWidget {
             child: Icon(
               Icons.call,
               size: 16,
-              color: style.colors.primaryBackgroundLightest,
+              color: style.colors.secondaryBackgroundLightest,
             ),
           );
 
@@ -849,7 +849,7 @@ class RecentChatTile extends StatelessWidget {
             shape: BoxShape.circle,
             color: chat.muted == null
                 ? style.colors.dangerColor
-                : style.colors.primaryHighlightDarkest,
+                : style.colors.secondaryHighlightDarkest,
           ),
           alignment: Alignment.center,
           child: Text(

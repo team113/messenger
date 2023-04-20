@@ -41,7 +41,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: style.colors.onBackgroundOpacity94,
+            color: style.colors.onBackgroundOpacity7,
             height: 1,
             width: double.infinity,
           ),
@@ -54,12 +54,12 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border:
-            Border.all(color: style.colors.primaryHighlightDarkest, width: 0.5),
+        border: Border.all(
+            color: style.colors.secondaryHighlightDarkest, width: 0.5),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.colors.onBackgroundOpacity81,
+            color: style.colors.onBackgroundOpacity20!,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -97,7 +97,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       width: double.infinity,
       height: 1,
-      color: style.colors.primaryHighlightDark,
+      color: style.colors.secondaryHighlightDark,
     );
   }
 }
@@ -169,7 +169,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme:
-                        IconThemeData(color: style.colors.secondaryHighlight),
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.leading!,
                 ),
@@ -191,7 +191,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme:
-                        IconThemeData(color: style.colors.secondaryHighlight),
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.trailing!,
                 ),

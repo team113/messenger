@@ -161,7 +161,7 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: style.colors.onBackgroundOpacity67,
+                            shadowColor: style.colors.onBackgroundOpacity33,
                             color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
@@ -495,7 +495,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: style.colors.onBackgroundOpacity74,
+                                color: style.colors.onBackgroundOpacity27,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -508,7 +508,7 @@ class _ChatViewState extends State<ChatView>
                                           borderRadius:
                                               BorderRadius.circular(16),
                                           color: style
-                                              .colors.onBackgroundOpacity74,
+                                              .colors.onBackgroundOpacity27,
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
@@ -770,7 +770,7 @@ class _ChatViewState extends State<ChatView>
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent,
+                    color: style.colors.transparent!,
                     child: const CustomProgressIndicator(),
                   ),
                 ),
@@ -1061,7 +1061,7 @@ class _ChatViewState extends State<ChatView>
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: style.colors.onBackgroundOpacity88,
+                color: style.colors.onBackgroundOpacity13!,
               ),
             ],
           ),

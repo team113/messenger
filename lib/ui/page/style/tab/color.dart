@@ -117,27 +117,27 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ),
           color(
             'Фон текста и обводки.',
-            style.colors.primaryBackground,
+            style.colors.secondaryBackground,
           ),
           color(
             'Цвет заднего фона звонка.',
-            style.colors.primaryBackgroundLight,
+            style.colors.secondaryBackgroundLight,
           ),
           color(
             'Цвет заднего фона аватара, кнопок звонка.',
-            style.colors.primaryBackgroundLightest,
+            style.colors.secondaryBackgroundLightest,
           ),
           color(
             'Цвет колеса загрузки.',
-            style.colors.primaryHighlight,
+            style.colors.secondaryHighlight,
           ),
           color(
             'Цвет кнопок навигационной панели.',
-            style.colors.primaryHighlightDark,
+            style.colors.secondaryHighlightDark,
           ),
           color(
             'Цвет надписей и иконок над задним фоном звонка.',
-            style.colors.primaryHighlightDarkest,
+            style.colors.secondaryHighlightDarkest,
           ),
           color(
             'Цвет, использующийся в левой части страницы профиля.',
@@ -145,19 +145,19 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ),
           color(
             'Цвет выпадающего меню.',
-            style.colors.secondaryHighlight,
+            style.colors.primaryHighlight,
           ),
           color(
             'Цвет кнопок "Подробнее" и "Забыл пароль".',
-            style.colors.secondaryHighlightShiny,
+            style.colors.primaryHighlightShiny,
           ),
           color(
             'Цвет затемнения основного вида при неактивном вызове.',
-            style.colors.secondaryHighlightShinier,
+            style.colors.primaryHighlightShinier,
           ),
           color(
             'Цвет сообщения в чате.',
-            style.colors.secondaryHighlightShiniest,
+            style.colors.primaryHighlightShiniest,
           ),
           color(
             'Цвет кнопок в звонке.',

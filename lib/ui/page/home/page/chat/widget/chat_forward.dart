@@ -494,10 +494,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: msg.quote.author == widget.me
               ? _isRead || !_fromMe
-                  ? style.colors.secondaryHighlightShiniest
+                  ? style.colors.primaryHighlightShiniest
                   : style.colors.backgroundAuxiliaryLighter
               : _isRead || !_fromMe
-                  ? style.colors.primaryHighlight
+                  ? style.colors.secondaryHighlight
                   : style.colors.onPrimary,
         ),
         child: AnimatedOpacity(

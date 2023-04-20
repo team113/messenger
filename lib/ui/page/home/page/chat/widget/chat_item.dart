@@ -1119,7 +1119,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: style.colors.onBackgroundOpacity98,
+                color: style.colors.onBackgroundOpacity2,
               ),
               padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
               child: Row(
@@ -1228,8 +1228,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
                   color: fromMe
-                      ? style.colors.onPrimaryOpacity75
-                      : style.colors.onBackgroundOpacity98,
+                      ? style.colors.onPrimaryOpacity25
+                      : style.colors.onBackgroundOpacity2,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
@@ -1239,7 +1239,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         Icons.file_copy,
                         color: fromMe
                             ? style.colors.onPrimary
-                            : style.colors.primaryHighlightDarkest,
+                            : style.colors.secondaryHighlightDarkest,
                         size: 28,
                       )
                     : RetryImage(
@@ -1266,8 +1266,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? style.colors.onPrimaryOpacity75
-                    : style.colors.onBackgroundOpacity98,
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,

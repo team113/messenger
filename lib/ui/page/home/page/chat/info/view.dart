@@ -78,7 +78,7 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: style.colors.onBackgroundOpacity67,
+                    shadowColor: style.colors.onBackgroundOpacity33,
                     color: style.colors.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
@@ -306,7 +306,7 @@ class ChatInfoView extends StatelessWidget {
                           height: 200,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity88,
+                            color: style.colors.onBackgroundOpacity13,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )
@@ -440,7 +440,7 @@ class ChatInfoView extends StatelessWidget {
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                            color: style.colors.secondaryHighlightShiny),
+                            color: style.colors.primaryHighlightShiny),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],

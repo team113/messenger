@@ -91,7 +91,7 @@ class _ScalerState extends State<Scaler> {
         child: Container(
           width: widget.width,
           height: widget.height,
-          color: style.colors.secondaryHighlight,
+          color: style.colors.primaryHighlight,
         ),
       ),
     );
