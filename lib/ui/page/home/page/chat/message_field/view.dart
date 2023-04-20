@@ -942,9 +942,9 @@ class MessageFieldView extends StatelessWidget {
         builder: (context, snapshot) {
           final Color? color = snapshot.data?.user.value.id == c.me
               ? style.colors.primary
-              : style.colors.userColors[
+              : style.colors.userColors![
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      style.colors.userColors.length];
+                      style.colors.userColors!.length];
 
           return Container(
             key: Key('Reply_${c.replied.indexOf(item)}'),

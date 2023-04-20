@@ -756,39 +756,39 @@ class Style extends ThemeExtension<Style> {
 /// Set of properties representing the colors of the application.
 class Palette {
   Palette({
-    required this.primary,
-    required this.secondaryBackground,
-    required this.secondaryBackgroundLight,
-    required this.secondaryBackgroundLightest,
-    required this.secondaryHighlight,
-    required this.secondaryHighlightDark,
-    required this.secondaryHighlightDarkest,
-    required this.secondaryOpacity87,
-    required this.secondaryOpacity73,
-    required this.onPrimary,
+    this.primary,
+    this.secondaryBackground,
+    this.secondaryBackgroundLight,
+    this.secondaryBackgroundLightest,
+    this.secondaryHighlight,
+    this.secondaryHighlightDark,
+    this.secondaryHighlightDarkest,
+    this.secondaryOpacity87,
+    this.secondaryOpacity73,
+    this.onPrimary,
     this.onPrimaryOpacity7,
     this.onPrimaryOpacity25,
     this.onPrimaryOpacity40,
     this.onPrimaryOpacity50,
     this.onPrimaryOpacity60,
     this.onPrimaryOpacity80,
-    required this.secondary,
-    required this.primaryHighlight,
-    required this.primaryHighlightShiny,
-    required this.primaryHighlightShinier,
-    required this.primaryHighlightShiniest,
-    required this.onSecondary,
+    this.secondary,
+    this.primaryHighlight,
+    this.primaryHighlightShiny,
+    this.primaryHighlightShinier,
+    this.primaryHighlightShiniest,
+    this.onSecondary,
     this.onSecondaryOpacity88,
     this.onSecondaryOpacity60,
     this.onSecondaryOpacity50,
     this.onSecondaryOpacity30,
     this.onSecondaryOpacity20,
-    required this.background,
-    required this.backgroundAuxiliary,
-    required this.backgroundAuxiliaryLight,
-    required this.backgroundAuxiliaryLighter,
-    required this.backgroundAuxiliaryLightest,
-    required this.onBackground,
+    this.background,
+    this.backgroundAuxiliary,
+    this.backgroundAuxiliaryLight,
+    this.backgroundAuxiliaryLighter,
+    this.backgroundAuxiliaryLightest,
+    this.onBackground,
     this.onBackgroundOpacity2,
     this.onBackgroundOpacity7,
     this.onBackgroundOpacity13,
@@ -799,13 +799,13 @@ class Palette {
     this.onBackgroundOpacity50,
     this.onBackgroundOpacity56,
     this.onBackgroundOpacity63,
-    required this.transparent,
-    required this.acceptColor,
-    required this.acceptAuxiliaryColor,
-    required this.declineColor,
-    required this.dangerColor,
-    required this.warningColor,
-    required this.userColors,
+    this.transparent,
+    this.acceptColor,
+    this.acceptAuxiliaryColor,
+    this.declineColor,
+    this.dangerColor,
+    this.warningColor,
+    this.userColors,
   });
 
   /// Main [Color] of the application, used to highlight the active interface elements.
@@ -995,98 +995,9 @@ class Palette {
 
   /// [Colors] refer to the range of colors that can be used for a profile picture.
   /// These colors may predefined or customizable and are selected to help differentiate between users or to provide a visual cue for different types of accounts.
-  final List<Color?> userColors;
+  final List<Color?>? userColors;
 
   static Palette lerpColors(Palette? color, Palette? other, double t) {
-    return Palette(
-      primary: Color.lerp(color!.primary, other!.primary, t),
-      primaryHighlight:
-          Color.lerp(color.primaryHighlight, other.primaryHighlight, t),
-      primaryHighlightShiny: Color.lerp(
-          color.primaryHighlightShiny, other.primaryHighlightShiny, t),
-      primaryHighlightShinier: Color.lerp(
-          color.primaryHighlightShinier, other.primaryHighlightShinier, t),
-      primaryHighlightShiniest: Color.lerp(
-          color.primaryHighlightShiniest, other.primaryHighlightShiniest, t),
-      onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t),
-      onPrimaryOpacity7:
-          Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t),
-      onPrimaryOpacity25:
-          Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t),
-      onPrimaryOpacity40:
-          Color.lerp(color.onPrimaryOpacity40, other.onPrimaryOpacity40, t),
-      onPrimaryOpacity50:
-          Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t),
-      onPrimaryOpacity60:
-          Color.lerp(color.onPrimaryOpacity60, other.onPrimaryOpacity60, t),
-      onPrimaryOpacity80:
-          Color.lerp(color.onPrimaryOpacity80, other.onPrimaryOpacity80, t),
-      secondary: Color.lerp(color.secondary, other.secondary, t),
-      secondaryHighlight:
-          Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t),
-      secondaryHighlightDark: Color.lerp(
-          color.secondaryHighlightDark, other.secondaryHighlightDark, t),
-      secondaryHighlightDarkest: Color.lerp(
-          color.secondaryHighlightDarkest, other.secondaryHighlightDarkest, t),
-      secondaryBackground:
-          Color.lerp(color.secondaryBackground, other.secondaryBackground, t),
-      secondaryBackgroundLight: Color.lerp(
-          color.secondaryBackgroundLight, other.secondaryBackgroundLight, t),
-      secondaryBackgroundLightest: Color.lerp(color.secondaryBackgroundLightest,
-          other.secondaryBackgroundLightest, t),
-      secondaryOpacity73:
-          Color.lerp(color.secondaryOpacity73, other.secondaryOpacity73, t),
-      secondaryOpacity87:
-          Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t),
-      onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t),
-      onSecondaryOpacity88:
-          Color.lerp(color.onSecondaryOpacity88, other.onSecondaryOpacity88, t),
-      onSecondaryOpacity60:
-          Color.lerp(color.onSecondaryOpacity60, other.onSecondaryOpacity60, t),
-      onSecondaryOpacity50:
-          Color.lerp(color.onSecondaryOpacity50, other.onSecondaryOpacity50, t),
-      onSecondaryOpacity30:
-          Color.lerp(color.onSecondaryOpacity30, other.onSecondaryOpacity30, t),
-      onSecondaryOpacity20:
-          Color.lerp(color.onSecondaryOpacity20, other.onSecondaryOpacity20, t),
-      background: Color.lerp(color.background, other.background, t),
-      backgroundAuxiliary:
-          Color.lerp(color.backgroundAuxiliary, other.backgroundAuxiliary, t),
-      backgroundAuxiliaryLight: Color.lerp(
-          color.backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t),
-      backgroundAuxiliaryLighter: Color.lerp(color.backgroundAuxiliaryLighter,
-          other.backgroundAuxiliaryLighter, t),
-      backgroundAuxiliaryLightest: Color.lerp(color.backgroundAuxiliaryLightest,
-          other.backgroundAuxiliaryLightest, t),
-      onBackground: Color.lerp(color.onBackground, other.onBackground, t),
-      onBackgroundOpacity2:
-          Color.lerp(color.onBackgroundOpacity2, other.onBackgroundOpacity2, t),
-      onBackgroundOpacity7:
-          Color.lerp(color.onBackgroundOpacity7, other.onBackgroundOpacity7, t),
-      onBackgroundOpacity13: Color.lerp(
-          color.onBackgroundOpacity13, other.onBackgroundOpacity13, t),
-      onBackgroundOpacity20: Color.lerp(
-          color.onBackgroundOpacity20, other.onBackgroundOpacity20, t),
-      onBackgroundOpacity27: Color.lerp(
-          color.onBackgroundOpacity27, other.onBackgroundOpacity27, t),
-      onBackgroundOpacity33: Color.lerp(
-          color.onBackgroundOpacity33, other.onBackgroundOpacity33, t),
-      onBackgroundOpacity40: Color.lerp(
-          color.onBackgroundOpacity40, other.onBackgroundOpacity40, t),
-      onBackgroundOpacity56: Color.lerp(
-          color.onBackgroundOpacity56, other.onBackgroundOpacity56, t),
-      onBackgroundOpacity63: Color.lerp(
-          color.onBackgroundOpacity63, other.onBackgroundOpacity63, t),
-      onBackgroundOpacity50: Color.lerp(
-          color.onBackgroundOpacity50, other.onBackgroundOpacity50, t),
-      transparent: Color.lerp(color.transparent, other.transparent, t),
-      acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t),
-      acceptAuxiliaryColor:
-          Color.lerp(color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t),
-      declineColor: Color.lerp(color.declineColor, other.declineColor, t),
-      dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t),
-      warningColor: Color.lerp(color.warningColor, other.warningColor, t),
-      userColors: [],
-    );
+    return Palette();
   }
 }

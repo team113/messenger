@@ -255,8 +255,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     final Color? color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
-        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            style.colors.userColors.length];
+        : style.colors.userColors![
+            (widget.user?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors!.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -510,9 +511,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               builder: (context, snapshot) {
                 final Color? color = snapshot.data?.user.value.id == widget.me
                     ? style.colors.primary
-                    : style.colors.userColors[
+                    : style.colors.userColors![
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.colors.userColors.length];
+                            style.colors.userColors!.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -604,9 +605,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       final Color? color = widget.user?.user.value.id == widget.me
           ? style.colors.primary
-          : style.colors.userColors[
+          : style.colors.userColors![
               (widget.user?.user.value.num.val.sum() ?? 3) %
-                  style.colors.userColors.length];
+                  style.colors.userColors!.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)

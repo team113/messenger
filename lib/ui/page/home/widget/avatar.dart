@@ -341,10 +341,10 @@ class AvatarWidget extends StatelessWidget {
 
       if (color != null) {
         gradient =
-            style.colors.userColors[color! % style.colors.userColors.length];
+            style.colors.userColors![color! % style.colors.userColors!.length];
       } else if (title != null) {
         gradient = style.colors
-            .userColors[(title!.hashCode) % style.colors.userColors.length];
+            .userColors![(title!.hashCode) % style.colors.userColors!.length];
       } else {
         gradient = style.colors.secondaryBackgroundLightest;
       }

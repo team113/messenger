@@ -186,7 +186,7 @@ class ElementStyleTabView extends StatelessWidget {
                   spacing: 2,
                   runSpacing: 2,
                   children: List.generate(
-                    style.colors.userColors.length,
+                    style.colors.userColors!.length,
                     (i) => AvatarWidget(title: 'Иван Иванович', color: i),
                   ),
                 ),

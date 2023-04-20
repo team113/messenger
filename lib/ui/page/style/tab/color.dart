@@ -57,7 +57,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
     Widget userColors() {
       return ListView.builder(
-        itemCount: style.colors.userColors.length,
+        itemCount: style.colors.userColors!.length,
         itemBuilder: (context, index) {
           return SizedBox(
             height: 138,
@@ -65,13 +65,13 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             child: Column(
               children: [
                 Caption(
-                  style.colors.userColors[index]!.toHex(),
+                  style.colors.userColors![index]!.toHex(),
                   color: isDarkMode
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
                 ),
                 _Colored(
-                  color: style.colors.userColors[index],
+                  color: style.colors.userColors![index],
                   outline: isDarkMode
                       ? style.colors.onPrimary
                       : style.colors.onBackground,

@@ -803,8 +803,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Color? color = _fromMe
         ? style.colors.primary
-        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            style.colors.userColors.length];
+        : style.colors.userColors![
+            (widget.user?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors!.length];
 
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
@@ -1094,8 +1095,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Color? color = _fromMe
         ? style.colors.primary
-        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            style.colors.userColors.length];
+        : style.colors.userColors![
+            (widget.user?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors!.length];
 
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
@@ -1363,9 +1365,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       builder: (context, snapshot) {
         final Color? color = snapshot.data?.user.value.id == widget.me
             ? style.colors.primary
-            : style.colors.userColors[
+            : style.colors.userColors![
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors.length];
+                    style.colors.userColors!.length];
 
         return Row(
           mainAxisSize: MainAxisSize.min,
