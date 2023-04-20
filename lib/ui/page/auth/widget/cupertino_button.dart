@@ -21,12 +21,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/my_profile/language/controller.dart';
 
-/// Language selector that can be used to select a language and display
-/// the currently selected language.
+/// Language selection popup.
 class CupertinoPopUp extends StatelessWidget {
-  const CupertinoPopUp({super.key});
+  const CupertinoPopUp({super.key, required this.onPressed});
+
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +35,7 @@ class CupertinoPopUp extends StatelessWidget {
 
     return CupertinoButton(
       key: UniqueKey(),
+      onPressed: onPressed,
       child: Text(
         'label_language_entry'.l10nfmt({
           'code': L10n.chosen.value!.locale.countryCode,
@@ -42,7 +43,7 @@ class CupertinoPopUp extends StatelessWidget {
         }),
         style: thin,
       ),
-      onPressed: () => LanguageSelectionView.show(context, null),
+      // onPressed: () ,
     );
   }
 }

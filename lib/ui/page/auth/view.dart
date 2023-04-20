@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../home/page/my_profile/language/view.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/auth/widget/animated_logo.dart';
@@ -156,6 +157,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 20),
           CupertinoPopUp(
             key: c.languageKey,
+            onPressed: () => LanguageSelectionView.show(context, null),
           ),
         ];
 
