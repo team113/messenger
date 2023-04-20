@@ -294,8 +294,8 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/partner7.svg',
-                                    width: 37,
+                                    'assets/icons/partner8.svg',
+                                    width: 40,
                                     height: 30,
                                   ),
                                   // child: CircleAvatar(
