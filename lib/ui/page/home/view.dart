@@ -235,8 +235,8 @@ class _HomeViewState extends State<HomeView> {
                                         children: [
                                           SvgLoader.asset(
                                             'assets/icons/balance10.svg',
-                                            width: 42 * 0.9375,
-                                            height: 32 * 0.9375,
+                                            width: 42,
+                                            height: 35,
                                           ),
                                           // SvgLoader.asset(
                                           //   'assets/icons/balance.svg',
@@ -294,9 +294,9 @@ class _HomeViewState extends State<HomeView> {
                                 child: tab(
                                   tab: HomeTab.contacts,
                                   child: SvgLoader.asset(
-                                    'assets/icons/partner8.svg',
+                                    'assets/icons/partner9.svg',
                                     width: 40,
-                                    height: 30,
+                                    height: 29,
                                   ),
                                   // child: CircleAvatar(
                                   //   radius: 15,
