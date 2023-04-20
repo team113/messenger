@@ -53,9 +53,6 @@ class NotificationService extends DisposableService {
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
 
-  /// [AudioPlayer] playing a notification sound.
-  AudioPlayer? _audioPlayer;
-
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
@@ -98,7 +95,6 @@ class NotificationService extends DisposableService {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
-    _initAudio();
     _initLocalNotifications(onLocalNotificationResponse);
 
     try {
@@ -121,7 +117,6 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
-    _audioPlayer?.dispose();
     AudioCache.instance.clear('audio/notification.mp3');
   }
 
@@ -135,7 +130,6 @@ class NotificationService extends DisposableService {
     String? payload,
     String? icon,
     String? tag,
-    bool playSound = true,
     String? image,
   }) async {
     if (tag != null) {
@@ -150,21 +144,6 @@ class NotificationService extends DisposableService {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
     if (_focused && payload == router.route) return;
-
-    // Android plays the notification sound itself when showing a notification.
-    if (playSound && !PlatformUtils.isAndroid) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
-    }
 
     Uint8List? imageBytes;
     String? imagePath;
@@ -222,11 +201,13 @@ class NotificationService extends DisposableService {
           android: AndroidNotificationDetails(
             'com.team113.messenger',
             'Default',
-            playSound: playSound,
             sound: const RawResourceAndroidNotificationSound('notification'),
             largeIcon:
                 imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
             tag: tag,
+          ),
+          linux: LinuxNotificationDetails(
+            sound: AssetsLinuxSound('audio/notification.mp3'),
           ),
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
@@ -260,16 +241,6 @@ class NotificationService extends DisposableService {
           _language,
         );
       }
-    }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-      await AudioCache.instance.loadAll(['audio/notification.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
     }
   }
 
@@ -345,7 +316,8 @@ class NotificationService extends DisposableService {
             body: event.notification!.body,
             payload: '${Routes.chats}/${event.data['chatId']}',
             image: event.notification!.android?.imageUrl,
-            tag: event.notification?.android?.tag ?? event.data['chatItemId'],
+            tag: event.notification?.android?.tag ??
+                '${event.data['chatId']}_${event.data['chatItemId']}',
           );
         }
       });

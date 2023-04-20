@@ -142,7 +142,7 @@ class ChatWorker extends DisposableService {
                   -1;
 
           if (newChat) {
-            if (_focused) {
+            if (!PlatformUtils.isMobile || _focused) {
               _notificationService.show(
                 c.title.value,
                 body: 'fcm_user_added_you_to_group'.l10nfmt({

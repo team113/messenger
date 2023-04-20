@@ -88,17 +88,21 @@ class CallWorker extends DisposableService {
   /// [Timer] used to [Vibration.vibrate] every 500 milliseconds.
   Timer? _vibrationTimer;
 
-  /// [StreamSubscription] to the data coming from the [_background] service.
-  StreamSubscription? _onDataReceived;
-
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get _myUser => _myUserService.myUser;
-
   /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
   Timer? _fadeTimer;
+
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -178,7 +182,7 @@ class CallWorker extends DisposableService {
               });
 
               // Show a notification of an incoming call.
-              if (!outgoing && !PlatformUtils.pushNotifications) {
+              if (!outgoing && !PlatformUtils.isMobile && !_focused) {
                 if (_myUser.value?.muted == null) {
                   _chatService.get(c.chatId.value).then((RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
@@ -191,7 +195,6 @@ class CallWorker extends DisposableService {
                         body: title == null ? null : 'label_incoming_call'.l10n,
                         payload: '${Routes.chats}/${c.chatId}',
                         icon: chat?.avatar.value?.original.url,
-                        playSound: false,
                       );
                     }
                   });
@@ -284,6 +287,10 @@ class CallWorker extends DisposableService {
       });
     }
 
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
+      _focused = focused;
+    });
+
     super.onReady();
   }
 
@@ -296,6 +303,7 @@ class CallWorker extends DisposableService {
 
     _subscription.cancel();
     _storageSubscription?.cancel();
+    _onFocusChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
     _lifecycleWorker?.dispose();
 
@@ -303,8 +311,6 @@ class CallWorker extends DisposableService {
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
-
-    _onDataReceived?.cancel();
 
     super.onClose();
   }
