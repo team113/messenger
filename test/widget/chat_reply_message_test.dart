@@ -68,6 +68,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import 'chat_reply_message_test.mocks.dart';
+import 'extension/rich_text.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
@@ -456,7 +457,7 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
-    var message = find.text('text message', skipOffstage: false);
+    var message = find.richText('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
     await tester.longPress(message);
@@ -481,7 +482,7 @@ void main() async {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('reply message', skipOffstage: false), findsOneWidget);
+    expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });
