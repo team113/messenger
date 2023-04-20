@@ -515,10 +515,10 @@ class _DesktopControlsState extends State<DesktopControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: style.colors.primary!,
-              handleColor: style.colors.primary!,
-              bufferedColor: style.colors.background!.withOpacity(0.5),
-              backgroundColor: style.colors.secondary!.withOpacity(0.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );

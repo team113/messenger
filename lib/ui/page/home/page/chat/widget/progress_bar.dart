@@ -229,7 +229,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
         );
 
-      canvas.drawShadow(shadowPath, style.colors.onBackground!, 0.2, false);
+      canvas.drawShadow(shadowPath, style.colors.onBackground, 0.2, false);
     }
 
     canvas.drawCircle(

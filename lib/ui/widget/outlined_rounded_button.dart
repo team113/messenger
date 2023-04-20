@@ -105,7 +105,7 @@ class OutlinedRoundedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: style.colors.secondary!.withOpacity(0.02),
+          hoverColor: style.colors.secondary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,

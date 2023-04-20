@@ -909,7 +909,7 @@ class MessageFieldView extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
-                  left: BorderSide(width: 2, color: style.colors.primary!),
+                  left: BorderSide(width: 2, color: style.colors.primary),
                 ),
               ),
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -940,16 +940,16 @@ class MessageFieldView extends StatelessWidget {
       expanded = FutureBuilder<RxUser?>(
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
-          final Color? color = snapshot.data?.user.value.id == c.me
+          final Color color = snapshot.data?.user.value.id == c.me
               ? style.colors.primary
-              : style.colors.userColors![
+              : style.colors.userColors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      style.colors.userColors!.length];
+                      style.colors.userColors.length];
 
           return Container(
             key: Key('Reply_${c.replied.indexOf(item)}'),
             decoration: BoxDecoration(
-              border: Border(left: BorderSide(width: 2, color: color!)),
+              border: Border(left: BorderSide(width: 2, color: color)),
             ),
             margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             padding: const EdgeInsets.only(left: 8),

@@ -59,7 +59,7 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: style.colors.secondaryHighlightDark!.darken(darken),
+                    color: style.colors.secondaryHighlightDark.darken(darken),
                     width: 1,
                   ),
                 ),

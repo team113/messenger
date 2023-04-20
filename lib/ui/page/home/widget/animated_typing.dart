@@ -63,8 +63,8 @@ class _AnimatedTypingState extends State<AnimatedTyping>
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin = style.colors.primary!;
-        final Color end = style.colors.primaryHighlightShinier!;
+        final Color begin = style.colors.primary;
+        final Color end = style.colors.primaryHighlightShinier;
 
         const double size = 4;
         const double spacing = 1.6;

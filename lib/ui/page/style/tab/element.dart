@@ -47,7 +47,7 @@ class ElementStyleTabView extends StatelessWidget {
       bool background = false,
       String? asset,
     }) {
-      final Color backgroundColor = style.colors.secondaryBackgroundLight!;
+      final Color backgroundColor = style.colors.secondaryBackgroundLight;
 
       return Column(
         children: [
@@ -105,8 +105,8 @@ class ElementStyleTabView extends StatelessWidget {
                   onPressed: () {},
                   gradient: LinearGradient(
                     colors: [
-                      style.colors.acceptColor!,
-                      style.colors.acceptAuxiliaryColor!
+                      style.colors.acceptColor,
+                      style.colors.acceptAuxiliaryColor
                     ],
                   ),
                 ),
@@ -186,7 +186,7 @@ class ElementStyleTabView extends StatelessWidget {
                   spacing: 2,
                   runSpacing: 2,
                   children: List.generate(
-                    style.colors.userColors!.length,
+                    style.colors.userColors.length,
                     (i) => AvatarWidget(title: 'Иван Иванович', color: i),
                   ),
                 ),
@@ -242,15 +242,15 @@ class ElementStyleTabView extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  style.colors.transparent!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.secondaryBackground!,
-                                  style.colors.transparent!,
+                                  style.colors.transparent,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.secondaryBackground,
+                                  style.colors.transparent,
                                 ],
                               ),
                             ),

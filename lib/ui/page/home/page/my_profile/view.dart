@@ -973,7 +973,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                 ? isRead
                     ? style.secondaryBorder
                     : Border.all(
-                        color: style.colors.backgroundAuxiliaryLighter!,
+                        color: style.colors.backgroundAuxiliaryLighter,
                         width: 0.5,
                       )
                 : style.primaryBorder,

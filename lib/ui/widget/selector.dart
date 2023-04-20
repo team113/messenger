@@ -256,8 +256,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              style.colors.onPrimary!,
-                              style.colors.transparent!,
+                              style.colors.onPrimary,
+                              style.colors.transparent,
                             ],
                           ),
                         ),
@@ -273,8 +273,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              style.colors.transparent!,
-                              style.colors.onPrimary!,
+                              style.colors.transparent,
+                              style.colors.onPrimary,
                             ],
                           ),
                         ),
@@ -431,8 +431,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  style.colors.onPrimary!,
-                                  style.colors.transparent!,
+                                  style.colors.onPrimary,
+                                  style.colors.transparent,
                                 ],
                               ),
                             ),
@@ -451,8 +451,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  style.colors.transparent!,
-                                  style.colors.onPrimary!,
+                                  style.colors.transparent,
+                                  style.colors.onPrimary,
                                 ],
                               ),
                             ),

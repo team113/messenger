@@ -117,7 +117,7 @@ class MessageInfo extends StatelessWidget {
                   height: 50,
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(color: style.colors.primary!, width: 2)
+                        ? Border.all(color: style.colors.primary, width: 2)
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(

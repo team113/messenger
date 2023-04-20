@@ -171,7 +171,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: style.colors.onBackground!
+                      color: style.colors.onBackground
                           .withOpacity(0.25 * _controller.value),
                     );
                   },

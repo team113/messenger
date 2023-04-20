@@ -341,10 +341,10 @@ class AvatarWidget extends StatelessWidget {
 
       if (color != null) {
         gradient =
-            style.colors.userColors![color! % style.colors.userColors!.length];
+            style.colors.userColors[color! % style.colors.userColors.length];
       } else if (title != null) {
         gradient = style.colors
-            .userColors![(title!.hashCode) % style.colors.userColors!.length];
+            .userColors[(title!.hashCode) % style.colors.userColors.length];
       } else {
         gradient = style.colors.secondaryBackgroundLightest;
       }
@@ -359,7 +359,7 @@ class AvatarWidget extends StatelessWidget {
       return badges.Badge(
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
-          badgeColor: style.colors.onPrimary!,
+          badgeColor: style.colors.onPrimary,
           padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
@@ -388,7 +388,7 @@ class AvatarWidget extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [gradient!.lighten(), gradient],
+              colors: [gradient.lighten(), gradient],
             ),
             shape: BoxShape.circle,
           ),

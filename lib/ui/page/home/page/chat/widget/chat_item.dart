@@ -807,11 +807,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    final Color? color = _fromMe
+    final Color color = _fromMe
         ? style.colors.primary
-        : style.colors.userColors![
-            (widget.user?.user.value.num.val.sum() ?? 3) %
-                style.colors.userColors!.length];
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     double avatarOffset = 0;
     if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
@@ -1141,16 +1140,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    final Color? color = _fromMe
+    final Color color = _fromMe
         ? style.colors.primary
-        : style.colors.userColors![
-            (widget.user?.user.value.num.val.sum() ?? 3) %
-                style.colors.userColors!.length];
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     final Widget call = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.black.withOpacity(0.03),
+        color: style.colors.onBackground.withOpacity(0.03),
       ),
       padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
       child: Row(
@@ -1265,7 +1263,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ? _isRead
                     ? style.secondaryBorder
                     : Border.all(
-                        color: style.colors.backgroundAuxiliaryLighter!,
+                        color: style.colors.backgroundAuxiliaryLighter,
                         width: 0.5,
                       )
                 : style.primaryBorder,
@@ -1440,11 +1438,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        final Color? color = snapshot.data?.user.value.id == widget.me
+        final Color color = snapshot.data?.user.value.id == widget.me
             ? style.colors.primary
-            : style.colors.userColors![
+            : style.colors.userColors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors!.length];
+                    style.colors.userColors.length];
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -1456,7 +1454,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(left: BorderSide(width: 2, color: color!)),
+                      border: Border(left: BorderSide(width: 2, color: color)),
                     ),
                     margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
                     padding: const EdgeInsets.only(left: 8),

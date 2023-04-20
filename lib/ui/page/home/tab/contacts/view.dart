@@ -67,7 +67,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(color: style.colors.primary!, width: 2)
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -182,7 +182,7 @@ class ContactsTabView extends StatelessWidget {
                   key: UniqueKey(),
                   child: ColoredBox(
                     key: const Key('Loading'),
-                    color: style.colors.transparent!,
+                    color: style.colors.transparent,
                     child: const CustomProgressIndicator(),
                   ),
                 );

@@ -83,7 +83,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(color: style.colors.primary!, width: 2)
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;
@@ -237,7 +237,7 @@ class ChatsTabView extends StatelessWidget {
                           center = Center(
                             key: UniqueKey(),
                             child: ColoredBox(
-                              color: style.colors.transparent!,
+                              color: style.colors.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );
@@ -378,7 +378,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.colors.transparent!,
+                            color: style.colors.transparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -500,7 +500,7 @@ class ChatsTabView extends StatelessWidget {
                             key: UniqueKey(),
                             child: ColoredBox(
                               key: const Key('Loading'),
-                              color: style.colors.transparent!,
+                              color: style.colors.transparent,
                               child: const CustomProgressIndicator(),
                             ),
                           );

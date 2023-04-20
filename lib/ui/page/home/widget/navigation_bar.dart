@@ -102,7 +102,7 @@ class CustomNavigationBar extends StatelessWidget {
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(
                                       badgeColor: b.badgeColor ??
-                                          style.colors.dangerColor!,
+                                          style.colors.dangerColor,
                                     ),
                                     badgeContent: b.badge == null
                                         ? null

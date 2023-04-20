@@ -783,7 +783,7 @@ class _ChatViewState extends State<ChatView>
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent!,
+                    color: style.colors.transparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),

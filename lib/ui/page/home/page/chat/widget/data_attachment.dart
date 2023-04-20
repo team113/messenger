@@ -67,16 +67,16 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: style.colors.primary!,
+                    color: style.colors.primary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      style.colors.primary!,
-                      style.colors.primary!,
-                      style.colors.backgroundAuxiliaryLighter!,
+                      style.colors.primary,
+                      style.colors.primary,
+                      style.colors.backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
@@ -128,7 +128,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                     : style.colors.transparent,
                 border: Border.all(
                   width: 2,
-                  color: style.colors.primary!,
+                  color: style.colors.primary,
                 ),
               ),
               child: KeyedSubtree(

@@ -259,11 +259,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final Color? color = widget.user?.user.value.id == widget.me
+    final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
-        : style.colors.userColors![
-            (widget.user?.user.value.num.val.sum() ?? 3) %
-                style.colors.userColors!.length];
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -289,7 +288,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: style.colors.backgroundAuxiliaryLighter!,
+                                color: style.colors.backgroundAuxiliaryLighter,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -526,11 +525,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
-                final Color? color = snapshot.data?.user.value.id == widget.me
+                final Color color = snapshot.data?.user.value.id == widget.me
                     ? style.colors.primary
-                    : style.colors.userColors![
+                    : style.colors.userColors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.colors.userColors!.length];
+                            style.colors.userColors.length];
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -544,7 +543,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                left: BorderSide(width: 2, color: color!),
+                                left: BorderSide(width: 2, color: color),
                               ),
                             ),
                             margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
@@ -648,11 +647,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      final Color? color = widget.user?.user.value.id == widget.me
+      final Color color = widget.user?.user.value.id == widget.me
           ? style.colors.primary
-          : style.colors.userColors![
+          : style.colors.userColors[
               (widget.user?.user.value.num.val.sum() ?? 3) %
-                  style.colors.userColors!.length];
+                  style.colors.userColors.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
