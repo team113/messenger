@@ -1147,11 +1147,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             (widget.user?.user.value.num.val.sum() ?? 3) %
                 style.colors.userColors!.length];
 
-    final Color color = _fromMe
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
-
     final Widget call = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -1461,7 +1456,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(left: BorderSide(width: 2, color: color)),
+                      border: Border(left: BorderSide(width: 2, color: color!)),
                     ),
                     margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
                     padding: const EdgeInsets.only(left: 8),

@@ -544,7 +544,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                left: BorderSide(width: 2, color: color),
+                                left: BorderSide(width: 2, color: color!),
                               ),
                             ),
                             margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
