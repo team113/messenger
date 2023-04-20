@@ -54,6 +54,7 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 
@@ -69,8 +70,9 @@ class ChatForwardWidget extends StatefulWidget {
     this.reads = const [],
     this.loadImages = true,
     this.user,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -93,17 +95,11 @@ class ChatForwardWidget extends StatefulWidget {
   /// [ChatMessage] attached to these [forwards] as a note.
   final Rx<Rx<ChatItem>?> note;
 
-  /// [UserId] of the authenticated [MyUser].
-  final UserId me;
-
   /// [UserId] of the [user] who posted these [forwards].
   final UserId authorId;
 
-  /// Optional animation controlling a [SwipeableStatus].
-  final AnimationController? animation;
-
-  /// [User] posted these [forwards].
-  final RxUser? user;
+  /// [UserId] of the authenticated [MyUser].
+  final UserId me;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -111,6 +107,16 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
+
+  /// [User] posted these [forwards].
+  final RxUser? user;
+
+  /// Optional animation controlling a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatForwardWidget].
+  final bool timestamp;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -319,7 +325,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? const Radius.circular(15)
                                   : Radius.zero,
                             ),
-                            child: _forwardedMessage(e, menu),
+                            child: _forwardedMessage(
+                              e,
+                              menu,
+                              timestamp: widget.timestamp &&
+                                  i == widget.forwards.length - 1,
+                            ),
                           ),
                         ),
                       ],
@@ -335,7 +346,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns a visual representation of the provided [forward].
-  Widget _forwardedMessage(Rx<ChatItem> forward, bool menu) {
+  Widget _forwardedMessage(
+    Rx<ChatItem> forward,
+    bool menu, {
+    bool timestamp = false,
+  }) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItemQuote quote = msg.quote;
@@ -367,15 +382,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                  child: Column(
-                    children: files
-                        .map(
-                          (e) => ChatItemWidget.fileAttachment(
-                            e,
-                            onFileTap: (a) => widget.onFileTap?.call(msg, a),
-                          ),
-                        )
-                        .toList(),
+                  child: SelectionContainer.disabled(
+                    child: Column(
+                      children: files
+                          .map(
+                            (e) => ChatItemWidget.fileAttachment(
+                              e,
+                              onFileTap: (a) => widget.onFileTap?.call(msg, a),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
                 ),
               ),
@@ -515,64 +532,92 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
                             style.colors.userColors!.length];
 
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(width: 2, color: color!),
-                          ),
-                        ),
-                        margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(width: 2, color: color),
+                              ),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Transform.scale(
-                                  scaleX: -1,
-                                  child:
-                                      Icon(Icons.reply, size: 17, color: color),
+                                Row(
+                                  children: [
+                                    Transform.scale(
+                                      scaleX: -1,
+                                      child: Icon(
+                                        Icons.reply,
+                                        size: 17,
+                                        color: color,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: SelectionText(
+                                        snapshot.data?.user.value.name?.val ??
+                                            snapshot.data?.user.value.num.val ??
+                                            'dot'.l10n * 3,
+                                        selectable:
+                                            PlatformUtils.isDesktop || menu,
+                                        onChanged: (a) => _selection = a,
+                                        onSelecting: widget.onSelecting,
+                                        style: style.boldBody
+                                            .copyWith(color: color),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: SelectionText(
-                                    snapshot.data?.user.value.name?.val ??
-                                        snapshot.data?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                    selectable: PlatformUtils.isDesktop || menu,
-                                    onChanged: (a) => _selection = a,
-                                    onSelecting: widget.onSelecting,
-                                    style:
-                                        style.boldBody.copyWith(color: color),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  content,
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        msg.authorId == widget.me
+                                            ? CrossAxisAlignment.end
+                                            : CrossAxisAlignment.start,
+                                    children: additional,
                                   ),
-                                ),
+                                ],
                               ],
                             ),
-                            if (content != null) ...[
-                              const SizedBox(height: 2),
-                              content,
-                            ],
-                            if (additional.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: msg.authorId == widget.me
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                                children: additional,
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
+                      ],
+                    ),
+                    if (timestamp)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8, bottom: 4),
+                        child: Obx(() {
+                          final bool isMonolog =
+                              widget.chat.value?.isMonolog == true;
+
+                          return MessageTimestamp(
+                            at: forward.value.at,
+                            status: _fromMe ? forward.value.status.value : null,
+                            read: _isRead || isMonolog,
+                            delivered: widget.chat.value?.lastDelivery
+                                        .isBefore(forward.value.at) ==
+                                    false ||
+                                isMonolog,
+                          );
+                        }),
                       ),
-                    )
                   ],
                 );
               },
@@ -658,15 +703,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             opacity: _isRead || !_fromMe ? 1 : 0.55,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              child: Column(
-                children: files
-                    .map(
-                      (e) => ChatItemWidget.fileAttachment(
-                        e,
-                        onFileTap: (a) => widget.onFileTap?.call(item, a),
-                      ),
-                    )
-                    .toList(),
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: files
+                      .map(
+                        (e) => ChatItemWidget.fileAttachment(
+                          e,
+                          onFileTap: (a) => widget.onFileTap?.call(item, a),
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
             ),
           ),

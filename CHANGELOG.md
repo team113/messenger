@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
+        - Message timestamps. ([#399])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
@@ -64,6 +65,7 @@ All user visible changes to this project will be documented in this file. This p
 [#380]: /../../pull/380
 [#388]: /../../pull/388
 [#393]: /../../pull/393
+[#399]: /../../pull/399
 [#403]: /../../pull/403
 
 

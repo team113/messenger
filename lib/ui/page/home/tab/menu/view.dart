@@ -233,6 +233,14 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.chats:
+                    child = card(
+                      icon: Icons.chat_bubble,
+                      title: 'label_chats'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.calls:
                     if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                       child = card(

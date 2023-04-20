@@ -67,6 +67,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import 'chat_edit_message_test.mocks.dart';
+import 'extension/rich_text.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
@@ -359,7 +360,7 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    var message = find.text('edit message', skipOffstage: false);
+    var message = find.richText('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 10));
@@ -380,7 +381,7 @@ void main() async {
       find.text('edit message', skipOffstage: false),
       findsNothing,
     );
-    expect(find.text('new text', skipOffstage: false), findsOneWidget);
+    expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

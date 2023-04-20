@@ -131,11 +131,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                   color: style.colors.primary!,
                 ),
               ),
-              child: Center(
-                child: SvgLoader.asset(
-                  'assets/icons/arrow_down.svg',
-                  width: 10.55,
-                  height: 14,
+              child: KeyedSubtree(
+                key: const Key('Sent'),
+                child: Center(
+                  child: SvgLoader.asset(
+                    'assets/icons/arrow_down.svg',
+                    width: 10.55,
+                    height: 14,
+                  ),
                 ),
               ),
             );
