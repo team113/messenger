@@ -30,76 +30,75 @@ class AnimatedLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Instance of the [AuthController] class in the current context.
-    final AuthController c = Get.find<AuthController>();
+    return GetBuilder(
+        init: AuthController(Get.find()),
+        builder: (AuthController c) {
+          /// Value of the current frame when displaying the logo.
+          final String logoFrameValue =
+              'assets/images/logo/head000${c.logoFrame.value}.svg';
 
-    /// Value of the current frame when displaying the logo.
-    final String logoFrameValue =
-        'assets/images/logo/head000${c.logoFrame.value}.svg';
+          /// Instance of the Widget class.
+          final Widget child;
 
-    /// Instance of the Widget class.
-    final Widget child;
+          /// [SizedBox] limitation.
+          const double height = 250;
 
-    /// [SizedBox] limitation.
-    const double height = 250;
+          /// [LayoutBuilder] limitation.
+          const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
 
-    /// [LayoutBuilder] limitation.
-    const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
-
-    if (constraints.maxHeight >= height) {
-      child = Container(
-        key: const ValueKey('logo'),
-        child: RiveAnimation.asset(
-          'assets/images/logo/logo.riv',
-          onInit: (a) => _onInit,
-        ),
-      );
-    } else {
-      child = Obx(() {
-        return SvgImage.asset(
-          logoFrameValue,
-          height: 140,
-          placeholderBuilder: (context) {
-            return LayoutBuilder(builder: (context, constraints) {
-              return SizedBox(
-                height: constraints.maxHeight > 250
-                    ? height
-                    : constraints.maxHeight <= 140
-                        ? 140
-                        : height,
-                child: const Center(child: CustomProgressIndicator()),
+          if (constraints.maxHeight >= height) {
+            child = Container(
+              key: const ValueKey('logo'),
+              child: RiveAnimation.asset(
+                'assets/images/logo/logo.riv',
+                onInit: (a) {
+                  if (!Config.disableInfiniteAnimations) {
+                    final StateMachineController? machine =
+                        StateMachineController.fromArtboard(a, 'Machine');
+                    a.addController(machine!);
+                    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+                    Future.delayed(
+                      const Duration(milliseconds: 500),
+                      c.animate,
+                    );
+                  }
+                },
+              ),
+            );
+          } else {
+            child = Obx(() {
+              return SvgImage.asset(
+                logoFrameValue,
+                height: 140,
+                placeholderBuilder: (context) {
+                  return LayoutBuilder(builder: (context, constraints) {
+                    return SizedBox(
+                      height: constraints.maxHeight > 250
+                          ? height
+                          : constraints.maxHeight <= 140
+                              ? 140
+                              : height,
+                      child: const Center(child: CustomProgressIndicator()),
+                    );
+                  });
+                },
               );
             });
-          },
-        );
-      });
-    }
+          }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return ConstrainedBox(
-        constraints: constraints,
-        child: AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
-          child: SizedBox(
-            height: constraints.maxHeight >= height ? height : 140,
-            child: child,
-          ),
-        ),
-      );
-    });
-  }
-}
-
-void _onInit(Artboard a, AuthController c) {
-  if (!Config.disableInfiniteAnimations) {
-    final StateMachineController? machine =
-        StateMachineController.fromArtboard(a, 'Machine');
-    a.addController(machine!);
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-    Future.delayed(
-      const Duration(milliseconds: 500),
-      c.animate,
-    );
+          return LayoutBuilder(builder: (context, constraints) {
+            return ConstrainedBox(
+              constraints: constraints,
+              child: AnimatedSize(
+                curve: Curves.ease,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: constraints.maxHeight >= height ? height : 140,
+                  child: child,
+                ),
+              ),
+            );
+          });
+        });
   }
 }
