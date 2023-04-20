@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../controller.dart';
 import '/util/platform_utils.dart';
@@ -24,16 +25,12 @@ import 'desktop_scaler.dart';
 import 'scaler.dart';
 
 class DesktopBuildDragHandle extends StatelessWidget {
-  const DesktopBuildDragHandle(
-    this.c, {
+  const DesktopBuildDragHandle({
     Key? key,
     required this.alignment,
     required this.height,
     required this.width,
   }) : super(key: key);
-
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
 
   /// Alignment of the [SecondaryScalerWidget].
   final Alignment alignment;
@@ -46,120 +43,116 @@ class DesktopBuildDragHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget widget = Container();
+    return GetBuilder(
+      builder: (CallController c) {
+        Widget widget = Container();
 
-    if (alignment == Alignment.centerLeft) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          x: ScaleModeX.left,
-          dx: dx,
-        ),
-      );
-    } else if (alignment == Alignment.centerRight) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          x: ScaleModeX.right,
-          dx: -dx,
-        ),
-      );
-    } else if (alignment == Alignment.bottomCenter) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          dy: -dy,
-        ),
-      );
-    } else if (alignment == Alignment.topCenter) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          dy: dy,
-        ),
-      );
-    } else if (alignment == Alignment.topLeft) {
-      widget = SecondaryScalerWidget(
-        c,
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          x: ScaleModeX.left,
-          dx: dx,
-          dy: dy,
-        ),
-      );
-    } else if (alignment == Alignment.topRight) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          x: ScaleModeX.right,
-          dx: -dx,
-          dy: dy,
-        ),
-      );
-    } else if (alignment == Alignment.bottomLeft) {
-      widget = SecondaryScalerWidget(
-        c,
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          x: ScaleModeX.left,
-          dx: dx,
-          dy: -dy,
-        ),
-      );
-    } else if (alignment == Alignment.bottomRight) {
-      widget = SecondaryScalerWidget(
-        c,
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          x: ScaleModeX.right,
-          dx: -dx,
-          dy: -dy,
-        ),
-      );
-    }
+        if (alignment == Alignment.centerLeft) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.left,
+              dx: dx,
+            ),
+          );
+        } else if (alignment == Alignment.centerRight) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.right,
+              dx: -dx,
+            ),
+          );
+        } else if (alignment == Alignment.bottomCenter) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.topCenter) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topLeft) {
+          widget = SecondaryScalerWidget(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topRight) {
+          widget = SecondaryScalerWidget(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomLeft) {
+          widget = SecondaryScalerWidget(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomRight) {
+          widget = SecondaryScalerWidget(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: -dy,
+            ),
+          );
+        }
 
-    return Align(alignment: alignment, child: widget);
+        return Align(alignment: alignment, child: widget);
+      },
+    );
   }
 }

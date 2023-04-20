@@ -24,17 +24,13 @@ import 'scaler.dart';
 
 /// Returns a [Scaler] scaling the secondary view.
 class SecondaryScalerWidget extends StatelessWidget {
-  const SecondaryScalerWidget(
-    this.c, {
+  const SecondaryScalerWidget({
     Key? key,
     this.cursor = MouseCursor.defer,
     this.onDrag,
     this.width,
     this.height,
   }) : super(key: key);
-
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
 
   /// Interface for mouse cursor definitions
   final MouseCursor cursor;
@@ -50,36 +46,34 @@ class SecondaryScalerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return MouseRegion(
-        cursor: c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
-        child: Scaler(
-          key: key,
-          onDragUpdate: onDrag,
-          onDragEnd: (_) {
-            c.updateSecondaryAttach();
-          },
-          width: width ?? Scaler.size,
-          height: height ?? Scaler.size,
-        ),
-      );
+    return GetBuilder(builder: (CallController c) {
+      return Obx(() {
+        return MouseRegion(
+          cursor: c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
+          child: Scaler(
+            key: key,
+            onDragUpdate: onDrag,
+            onDragEnd: (_) {
+              c.updateSecondaryAttach();
+            },
+            width: width ?? Scaler.size,
+            height: height ?? Scaler.size,
+          ),
+        );
+      });
     });
   }
 }
 
 /// Returns a [Scaler] scaling the minimized view.
 class MinimizedScalerWidget extends StatelessWidget {
-  const MinimizedScalerWidget(
-    this.c, {
+  const MinimizedScalerWidget({
     Key? key,
     required this.onDrag,
     this.cursor = MouseCursor.defer,
     this.width,
     this.height,
   }) : super(key: key);
-
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
 
   /// Interface for mouse cursor definitions.
   final MouseCursor cursor;
@@ -95,17 +89,19 @@ class MinimizedScalerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: cursor,
-      child: Scaler(
-        key: key,
-        onDragUpdate: onDrag,
-        onDragEnd: (_) {
-          c.updateSecondaryAttach();
-        },
-        width: width ?? Scaler.size,
-        height: height ?? Scaler.size,
-      ),
-    );
+    return GetBuilder(builder: (CallController c) {
+      return MouseRegion(
+        cursor: cursor,
+        child: Scaler(
+          key: key,
+          onDragUpdate: onDrag,
+          onDragEnd: (_) {
+            c.updateSecondaryAttach();
+          },
+          width: width ?? Scaler.size,
+          height: height ?? Scaler.size,
+        ),
+      );
+    });
   }
 }

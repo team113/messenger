@@ -30,15 +30,11 @@ import '/util/web/non_web.dart';
 
 /// Combines all the stackable content into [Scaffold].
 class DesktopScaffoldWidget extends StatelessWidget {
-  const DesktopScaffoldWidget(
-    this.c, {
+  const DesktopScaffoldWidget({
     Key? key,
     required this.content,
     required this.ui,
   }) : super(key: key);
-
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
 
   /// Stackable content.
   final List<Widget> content;
@@ -48,38 +44,40 @@ class DesktopScaffoldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!WebUtils.isPopup)
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onPanUpdate: (d) {
-                c.left.value = c.left.value + d.delta.dx;
-                c.top.value = c.top.value + d.delta.dy;
-                c.applyConstraints(context);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: const [
-                    CustomBoxShadow(
-                      color: Color(0x33000000),
-                      blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
+    return GetBuilder(builder: (CallController c) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!WebUtils.isPopup)
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanUpdate: (d) {
+                  c.left.value = c.left.value + d.delta.dx;
+                  c.top.value = c.top.value + d.delta.dy;
+                  c.applyConstraints(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  child: _TitleBarWidget(c),
                 ),
-                child: _TitleBarWidget(c),
               ),
-            ),
-          Expanded(child: Stack(children: [...content, ...ui])),
-        ],
-      ),
-    );
+            Expanded(child: Stack(children: [...content, ...ui])),
+          ],
+        ),
+      );
+    });
   }
 }
 

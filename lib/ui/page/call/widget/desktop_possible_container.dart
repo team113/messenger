@@ -23,42 +23,40 @@ import '../widget/conditional_backdrop.dart';
 
 /// [_SecondaryView] possible alignment.
 class PossibleContainerWidget extends StatelessWidget {
-  const PossibleContainerWidget(
-    this.c, {
+  const PossibleContainerWidget({
     super.key,
   });
 
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      Alignment? alignment = c.possibleSecondaryAlignment.value;
-      if (alignment == null) {
-        return Container();
-      }
+    return GetBuilder(builder: (CallController c) {
+      return Obx(() {
+        Alignment? alignment = c.possibleSecondaryAlignment.value;
+        if (alignment == null) {
+          return Container();
+        }
 
-      double width = 10;
-      double height = 10;
+        double width = 10;
+        double height = 10;
 
-      if (alignment == Alignment.topCenter ||
-          alignment == Alignment.bottomCenter) {
-        width = double.infinity;
-      } else {
-        height = double.infinity;
-      }
+        if (alignment == Alignment.topCenter ||
+            alignment == Alignment.bottomCenter) {
+          width = double.infinity;
+        } else {
+          height = double.infinity;
+        }
 
-      return Align(
-        alignment: alignment,
-        child: ConditionalBackdropFilter(
-          child: Container(
-            height: height,
-            width: width,
-            color: const Color(0x4D165084),
+        return Align(
+          alignment: alignment,
+          child: ConditionalBackdropFilter(
+            child: Container(
+              height: height,
+              width: width,
+              color: const Color(0x4D165084),
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 }
