@@ -692,6 +692,7 @@ label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
+label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню

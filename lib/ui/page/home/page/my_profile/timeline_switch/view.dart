@@ -21,8 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -39,7 +38,6 @@ class TimelineSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
@@ -73,60 +71,12 @@ class TimelineSwitchView extends StatelessWidget {
                       final bool enabled =
                           (c.settings.value?.timelineEnabled ?? true);
 
-                      final bool selected;
-                      if (i == 0) {
-                        selected = enabled;
-                      } else {
-                        selected = !enabled;
-                      }
-
-                      return Material(
-                        borderRadius: BorderRadius.circular(10),
-                        color: selected
-                            ? style.cardSelectedColor.withOpacity(0.8)
-                            : Colors.white.darken(0.05),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10),
-                          onTap: () => c.setTimelineEnabled(i == 0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    i == 0
-                                        ? 'label_as_timeline'.l10n
-                                        : 'label_in_message'.l10n,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: selected
-                                        ? CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            radius: 12,
-                                            child: const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 12,
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      return RectangleButton(
+                        selected: (i == 0 && enabled) || (i == 1 && !enabled),
+                        onPressed: () => c.setTimelineEnabled(i == 0),
+                        label: i == 0
+                            ? 'label_as_timeline'.l10n
+                            : 'label_in_message'.l10n,
                       );
                     });
                   },
