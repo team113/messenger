@@ -150,6 +150,10 @@ class SettingsRepository extends DisposableInterface
   @override
   Rect? getCallRect(ChatId id) => _callRectLocal.get(id);
 
+  @override
+  Future<void> setTimelineEnabled(bool enabled) =>
+      _settingsLocal.setTimelineEnabled(enabled);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

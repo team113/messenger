@@ -1223,6 +1223,8 @@ class AwaitableTimer {
     _timer = Timer(d, () async {
       try {
         _completer.complete(await callback());
+      } on StateError {
+        // No-op, as [Future] is allowed to be completed.
       } catch (e, stackTrace) {
         _completer.completeError(e, stackTrace);
       }
