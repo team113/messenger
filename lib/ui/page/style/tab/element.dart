@@ -132,7 +132,10 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
-                    child: SvgImage.asset('assets/icons/apple.svg', width: 22),
+                    child: SvgImage.asset(
+                      'assets/icons/apple.svg',
+                      width: 22,
+                    ),
                   ),
                   onPressed: () {},
                 ),
@@ -146,7 +149,10 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
-                    child: SvgImage.asset('assets/icons/google.svg', width: 22),
+                    child: SvgImage.asset(
+                      'assets/icons/google.svg',
+                      width: 22,
+                    ),
                   ),
                   onPressed: () {},
                 ),

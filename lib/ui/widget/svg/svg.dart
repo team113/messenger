@@ -36,44 +36,14 @@ class SvgImage extends StatelessWidget {
     this.asset,
     this.file,
     this.bytes,
-    required this.alignment,
-    required this.fit,
+    this.alignment,
+    this.fit,
     this.width,
     this.height,
     this.placeholderBuilder,
     this.semanticsLabel,
-    this.excludeFromSemantics = false,
+    this.excludeFromSemantics,
   });
-
-  /// Relative path to the file of the resource containing the image.
-  final String? asset;
-
-  /// Reference to a file on the file system.
-  final File? file;
-
-  /// Array of bytes containing image data.
-  final Uint8List? bytes;
-
-  /// Image alignment.
-  final Alignment alignment;
-
-  /// Image scaling.
-  final BoxFit fit;
-
-  /// Image width.
-  final double? width;
-
-  /// Image height.
-  final double? height;
-
-  /// Сreates a temporary image when loading.
-  final WidgetBuilder? placeholderBuilder;
-
-  /// A text description of the image.
-  final String? semanticsLabel;
-
-  /// Indicating whether to exclude the image from the screen reader.
-  final bool excludeFromSemantics;
 
   /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
   ///
@@ -99,13 +69,13 @@ class SvgImage extends StatelessWidget {
     return SvgImage._(
       asset: asset,
       key: key,
-      alignment: Alignment.center,
-      fit: BoxFit.contain,
+      alignment: alignment,
+      fit: fit,
       width: width,
       height: height,
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
-      excludeFromSemantics: false,
+      excludeFromSemantics: excludeFromSemantics,
     );
   }
 
@@ -169,43 +139,73 @@ class SvgImage extends StatelessWidget {
     );
   }
 
+  /// Relative path to the file of the resource containing the image.
+  final String? asset;
+
+  /// Reference to a file on the file system.
+  final File? file;
+
+  /// Array of bytes containing image data.
+  final Uint8List? bytes;
+
+  /// Image alignment.
+  final Alignment? alignment;
+
+  /// Image scaling.
+  final BoxFit? fit;
+
+  /// Image width.
+  final double? width;
+
+  /// Image height.
+  final double? height;
+
+  /// Сreates a temporary image when loading.
+  final WidgetBuilder? placeholderBuilder;
+
+  /// A text description of the image.
+  final String? semanticsLabel;
+
+  /// Indicating whether to exclude the image from the screen reader.
+  final bool? excludeFromSemantics;
+
   @override
   Widget build(BuildContext context) {
     if (asset != null) {
       return svgFromAsset(
         asset!,
-        alignment: alignment,
-        fit: fit,
+        alignment: alignment!,
+        fit: fit!,
         width: width,
         height: height,
         placeholderBuilder: placeholderBuilder,
         semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
+        excludeFromSemantics: excludeFromSemantics!,
       );
     } else if (file != null) {
       return svgFromFile(
         file!,
-        alignment: alignment,
-        fit: fit,
+        alignment: alignment!,
+        fit: fit!,
         width: width,
         height: height,
         placeholderBuilder: placeholderBuilder,
         semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
+        excludeFromSemantics: excludeFromSemantics!,
       );
     } else if (bytes != null) {
       return svgFromBytes(
         bytes!,
-        alignment: alignment,
-        fit: fit,
+        alignment: alignment!,
+        fit: fit!,
         width: width,
         height: height,
         placeholderBuilder: placeholderBuilder,
         semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
+        excludeFromSemantics: excludeFromSemantics!,
       );
     } else {
-      return Container();
+      throw ArgumentError('SvgLoader: no asset, file or bytes was provided');
     }
   }
 }

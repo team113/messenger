@@ -706,7 +706,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: Colors.grey,
-          child: SvgImage.asset('assets/icons/file.svg', width: 30, height: 30),
+          child: SvgImage.asset(
+            'assets/icons/file.svg',
+            width: 30,
+            height: 30,
+          ),
         );
       }
     }
@@ -749,7 +753,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: Colors.grey,
-          child: SvgImage.asset('assets/icons/file.svg', width: 30, height: 30),
+          child: SvgImage.asset(
+            'assets/icons/file.svg',
+            width: 30,
+            height: 30,
+          ),
         );
       }
     }
