@@ -65,19 +65,18 @@ class SvgImage extends StatelessWidget {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-  }) {
-    return SvgImage._(
-      asset: asset,
-      key: key,
-      alignment: alignment,
-      fit: fit,
-      width: width,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
+  }) =>
+      SvgImage._(
+        asset: asset,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
 
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
@@ -95,19 +94,18 @@ class SvgImage extends StatelessWidget {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-  }) {
-    return SvgImage._(
-      bytes: bytes,
-      key: key,
-      alignment: alignment,
-      fit: fit,
-      width: width,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
+  }) =>
+      SvgImage._(
+        bytes: bytes,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
 
   /// Instantiates a widget rendering an SVG picture from a [File].
   ///
@@ -125,19 +123,18 @@ class SvgImage extends StatelessWidget {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-  }) {
-    return SvgImage._(
-      file: file,
-      key: key,
-      alignment: alignment,
-      fit: fit,
-      width: width,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
+  }) =>
+      SvgImage._(
+        file: file,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
 
   /// Relative path to the file of the resource containing the image.
   final String? asset;
