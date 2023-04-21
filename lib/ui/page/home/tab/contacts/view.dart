@@ -575,7 +575,7 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 inverted
                     ? 'assets/icons/muted_light.svg'
                     : 'assets/icons/muted.svg',
