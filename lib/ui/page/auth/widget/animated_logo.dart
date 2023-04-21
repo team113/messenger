@@ -65,7 +65,7 @@ class AnimatedLogo extends StatelessWidget {
         );
       } else {
         child = Obx(() {
-          return SvgImage.asset(
+          return SvgLoader.asset(
             logoFrameValue,
             height: 140,
             placeholderBuilder: (context) {

@@ -224,10 +224,10 @@ class ParticipantView extends StatelessWidget {
                       height: 30,
                       child: Center(
                         child: inCall && !isRedialed
-                            ? SvgImage.asset(
+                            ? SvgLoader.asset(
                                 'assets/icons/call_end.svg',
                               )
-                            : SvgImage.asset(
+                            : SvgLoader.asset(
                                 'assets/icons/audio_call_start.svg',
                                 width: 13,
                                 height: 13,
@@ -271,7 +271,7 @@ class ParticipantView extends StatelessWidget {
                       fontSize: 15,
                     ),
                   )
-                : SvgImage.asset(
+                : SvgLoader.asset(
                     'assets/icons/delete.svg',
                     height: 14 * 1.5,
                   ),

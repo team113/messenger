@@ -99,7 +99,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             );
           } else {
             if (attachment.file.isSvg) {
-              return SvgImage.bytes(
+              return SvgLoader.bytes(
                 attachment.file.bytes.value!,
                 width: widget.width,
                 height: widget.height,

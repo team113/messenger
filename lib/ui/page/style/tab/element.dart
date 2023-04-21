@@ -73,7 +73,7 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
-                child: SvgImage.asset(
+                child: SvgLoader.asset(
                   'assets/images/logo/logo0000.svg',
                   height: 350,
                 ),
@@ -81,7 +81,7 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
-                child: SvgImage.asset(
+                child: SvgLoader.asset(
                   'assets/images/logo/head0000.svg',
                   height: 160,
                 ),
@@ -99,7 +99,7 @@ class ElementStyleTabView extends StatelessWidget {
                     'no registration'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
-                  leading: SvgImage.asset(
+                  leading: SvgLoader.asset(
                     'assets/icons/start.svg',
                     width: 25,
                   ),
@@ -116,7 +116,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Sign in'),
                   subtitle: const Text('or register'),
-                  leading: SvgImage.asset(
+                  leading: SvgLoader.asset(
                     'assets/icons/sign_in.svg',
                     width: 20,
                   ),
@@ -132,7 +132,7 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
-                    child: SvgImage.asset(
+                    child: SvgLoader.asset(
                       'assets/icons/apple.svg',
                       width: 22,
                     ),
@@ -149,7 +149,7 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
-                    child: SvgImage.asset(
+                    child: SvgLoader.asset(
                       'assets/icons/google.svg',
                       width: 22,
                     ),
@@ -164,7 +164,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Download'),
                   subtitle: const Text('application'),
-                  leading: SvgImage.asset(
+                  leading: SvgLoader.asset(
                     'assets/icons/linux.svg',
                     width: 22,
                   ),
@@ -178,7 +178,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Download'),
                   subtitle: const Text('application'),
-                  leading: SvgImage.asset(
+                  leading: SvgLoader.asset(
                     'assets/icons/windows.svg',
                     width: 22,
                   ),
@@ -287,7 +287,7 @@ class ElementStyleTabView extends StatelessWidget {
                                   hint: 'btn_add_participant'.l10n,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 2),
-                                    child: SvgImage.asset(
+                                    child: SvgLoader.asset(
                                       'assets/icons/add_user.svg',
                                       width: 19,
                                     ),
@@ -300,7 +300,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     'settings.svg',
                                   ),
                                   hint: 'btn_call_settings'.l10n,
-                                  child: SvgImage.asset(
+                                  child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
                                     width: 16,
                                   ),
@@ -312,7 +312,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     'fullscreen_enter.svg',
                                   ),
                                   hint: 'Fullscreen mode',
-                                  child: SvgImage.asset(
+                                  child: SvgLoader.asset(
                                     'assets/icons/fullscreen_enter.svg',
                                     width: 14,
                                   ),
@@ -510,7 +510,7 @@ class ElementStyleTabView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SvgImage.asset(
+                      SvgLoader.asset(
                         'assets/icons/drag_n_drop.svg',
                         width: 44,
                       ),

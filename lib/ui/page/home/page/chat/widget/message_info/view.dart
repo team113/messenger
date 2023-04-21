@@ -97,7 +97,7 @@ class MessageInfo extends StatelessWidget {
                         style: thin?.copyWith(fontSize: 13),
                       ),
                       const SizedBox(width: 8),
-                      SvgImage.asset(
+                      SvgLoader.asset(
                         'assets/icons/copy.svg',
                         height: 12,
                       ),
@@ -143,7 +143,7 @@ class MessageInfo extends StatelessWidget {
                     leading: [
                       Padding(
                         padding: const EdgeInsets.only(left: 20, right: 12),
-                        child: SvgImage.asset(
+                        child: SvgLoader.asset(
                           'assets/icons/search.svg',
                           width: 17.77,
                         ),
@@ -159,7 +159,7 @@ class MessageInfo extends StatelessWidget {
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(left: 12, right: 18),
-                            child: SvgImage.asset(
+                            child: SvgLoader.asset(
                               'assets/icons/close_primary.svg',
                               height: 15,
                             ),

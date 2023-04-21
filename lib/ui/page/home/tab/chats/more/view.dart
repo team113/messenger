@@ -172,7 +172,7 @@ class ChatsMoreView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgImage.asset(
+                      child: SvgLoader.asset(
                         'assets/icons/copy.svg',
                         height: 15,
                       ),
