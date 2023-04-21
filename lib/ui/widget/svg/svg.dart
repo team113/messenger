@@ -88,7 +88,7 @@ class SvgImage extends StatelessWidget {
     Uint8List bytes, {
     Key? key,
     Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
+    BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
     WidgetBuilder? placeholderBuilder,
@@ -117,7 +117,7 @@ class SvgImage extends StatelessWidget {
     File file, {
     Key? key,
     Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
+    BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
     WidgetBuilder? placeholderBuilder,
