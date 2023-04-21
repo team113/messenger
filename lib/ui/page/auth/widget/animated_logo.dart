@@ -19,84 +19,95 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '../controller.dart';
-import '/config.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Logo with animation.
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({super.key});
+  const AnimatedLogo({
+    super.key,
+    this.onInit,
+    this.logoKey,
+    required this.riveAsset,
+    required this.svgAsset,
+    required this.svgAssetHeight,
+    required this.height,
+    required this.constraints,
+  });
+
+  /// Maximum width and height constraints of the [AnimatedLogo].
+  final BoxConstraints constraints;
+
+  /// Maximum [height] of the [AnimatedLogo] that can be displayed on the screen.
+  final double height;
+
+  /// [ValueKey] object that uniquely identifies the [Container]
+  /// that contains the [RiveAnimation] asset.
+  final ValueKey? logoKey;
+
+  /// Path of the [RiveAnimation] asset.
+  final String riveAsset;
+
+  /// Callback fired when [RiveAnimation] has initialized.
+  final void Function(Artboard)? onInit;
+
+  /// Path of the [SvgLoader] asset.
+  final String svgAsset;
+
+  /// Height of the [SvgLoader] asset.
+  final double svgAssetHeight;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (AuthController c) {
-      /// Value of the current frame when displaying the logo.
-      final String logoFrameValue =
-          'assets/images/logo/head000${c.logoFrame.value}.svg';
+    /// Type of logo that will be displayed on the screen.
+    ///
+    /// If the maximum height of [constraints] is greater than or equal to [height],
+    /// then a container with the [RiveAnimation.asset] animation is displayed.
+    /// If the maximum [height] of the restrictions is less than the [height],
+    /// then the SVG widget is displayed, loaded via [SvgLoader.asset].
+    final Widget child;
 
-      /// Instance of the Widget class.
-      final Widget child;
-
-      /// [SizedBox] limitation.
-      const double height = 250;
-
-      /// [LayoutBuilder] limitation.
-      const BoxConstraints constraints = BoxConstraints(maxHeight: 350);
-
-      if (constraints.maxHeight >= height) {
-        child = Container(
-          key: const ValueKey('logo'),
-          child: RiveAnimation.asset(
-            'assets/images/logo/logo.riv',
-            onInit: (a) {
-              if (!Config.disableInfiniteAnimations) {
-                final StateMachineController? machine =
-                    StateMachineController.fromArtboard(a, 'Machine');
-                a.addController(machine!);
-                c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-                Future.delayed(
-                  const Duration(milliseconds: 500),
-                  c.animate,
-                );
-              }
-            },
-          ),
-        );
-      } else {
-        child = Obx(() {
-          return SvgLoader.asset(
-            logoFrameValue,
-            height: 140,
-            placeholderBuilder: (context) {
-              return LayoutBuilder(builder: (context, constraints) {
-                return SizedBox(
-                  height: constraints.maxHeight > 250
-                      ? height
-                      : constraints.maxHeight <= 140
-                          ? 140
-                          : height,
-                  child: const Center(child: CustomProgressIndicator()),
-                );
-              });
-            },
-          );
-        });
-      }
-
-      return LayoutBuilder(builder: (context, constraints) {
-        return ConstrainedBox(
-          constraints: constraints,
-          child: AnimatedSize(
-            curve: Curves.ease,
-            duration: const Duration(milliseconds: 200),
-            child: SizedBox(
-              height: constraints.maxHeight >= height ? height : 140,
-              child: child,
-            ),
-          ),
+    if (constraints.maxHeight >= height) {
+      child = Container(
+        key: ValueKey(logoKey),
+        child: RiveAnimation.asset(
+          riveAsset,
+          onInit: onInit,
+        ),
+      );
+    } else {
+      child = Obx(() {
+        return SvgLoader.asset(
+          svgAsset,
+          height: svgAssetHeight,
+          placeholderBuilder: (context) {
+            return LayoutBuilder(builder: (context, constraints) {
+              return SizedBox(
+                height: constraints.maxHeight > 250
+                    ? height
+                    : constraints.maxHeight <= 140
+                        ? 140
+                        : height,
+                child: const Center(child: CustomProgressIndicator()),
+              );
+            });
+          },
         );
       });
+    }
+
+    return LayoutBuilder(builder: (context, constraints) {
+      return ConstrainedBox(
+        constraints: constraints,
+        child: AnimatedSize(
+          curve: Curves.ease,
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: constraints.maxHeight >= height ? height : 140,
+            child: child,
+          ),
+        ),
+      );
     });
   }
 }

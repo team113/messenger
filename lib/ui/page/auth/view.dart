@@ -17,14 +17,16 @@
 
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rive/rive.dart';
 
+import '../../../config.dart';
 import '../home/page/my_profile/language/view.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/auth/widget/animated_logo.dart';
-import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
@@ -81,6 +83,19 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 25),
         ];
+
+        // Language selection popup.
+        Widget language = CupertinoButton(
+          key: c.languageKey,
+          child: Text(
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
+            style: thin?.copyWith(fontSize: 13, color: primary),
+          ),
+          onPressed: () => LanguageSelectionView.show(context, null),
+        );
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -155,10 +170,7 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          CupertinoPopUp(
-            key: c.languageKey,
-            onPressed: () => LanguageSelectionView.show(context, null),
-          ),
+          language,
         ];
 
         return Stack(
@@ -195,7 +207,32 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            const Flexible(child: AnimatedLogo()),
+                            Flexible(
+                              child: AnimatedLogo(
+                                constraints:
+                                    const BoxConstraints(maxHeight: 350),
+                                height: 250,
+                                logoKey: const ValueKey('Logo'),
+                                svgAsset:
+                                    'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                svgAssetHeight: 140,
+                                riveAsset: 'assets/images/logo/logo.riv',
+                                onInit: (a) {
+                                  if (!Config.disableInfiniteAnimations) {
+                                    final StateMachineController? machine =
+                                        StateMachineController.fromArtboard(
+                                            a, 'Machine');
+                                    a.addController(machine!);
+                                    c.blink = machine.findInput<bool>('blink')
+                                        as SMITrigger?;
+                                    Future.delayed(
+                                      const Duration(milliseconds: 500),
+                                      c.animate,
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,
