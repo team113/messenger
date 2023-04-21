@@ -313,23 +313,6 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
-fcm_group_massage_start = {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    }:{" "}
-fcm_attachments = [{$count} attachments]{" "}
-fcm_images = [{ $count ->
-          [1] Image
-          *[other] {$count} images
-      }]{" "}
-fcm_videos = [{ $count ->
-         [1] Video
-         *[other] {$count} videos
-     }]{" "}
-fcm_files = [{ $count ->
-        [1] File
-        *[other] {$count} files
-    }]{" "}
 fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -349,13 +332,37 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } removed you from group
-fcm_dialog_message = {$text}
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    } { $attachmentsCount ->
+          [0] {""}
+          *[other] [{$attachmentsType ->
+               [image] { $attachmentsCount ->
+                           [1] Image
+                           *[other] {$attachmentsCount} images
+                       }
+               [video] { $attachmentsCount ->
+                           [1] Video
+                           *[other] {$attachmentsCount} videos
+                       }
+               [file] { $attachmentsCount ->
+                          [1] File
+                          *[other] {$attachmentsCount} files
+                      }
+              *[attachments] {$attachmentsCount} attachments
+        }]
+    } {$text}
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }
-fcm_group_message = {$text}
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->

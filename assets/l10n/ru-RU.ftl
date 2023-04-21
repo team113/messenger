@@ -315,31 +315,6 @@ err_you_already_has_unconfirmed_email = Вы имеете неподтвержд
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
-fcm_group_massage_start = {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    }:{" "}
-fcm_attachments = [{$count} { $count ->
-          [one] прикреплениe
-          [few] прикрепления
-          *[other] прикреплений
-      }]{" "}
-fcm_images = [{ $count ->
-          [1] Изображение
-          [one] {$count} изображение
-          [few] {$count} изображения
-          *[other] {$count} изображений
-      }]{" "}
-fcm_videos = [{ $count ->
-         [1] Видео
-         *[other] {$count} видео
-     }]{" "}
-fcm_files = [{ $count ->
-        [1] Файл
-        [one] {$count} файл
-        [few] {$count} файла
-        *[other] {$count} файлов
-    }]{" "}
 fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -359,13 +334,45 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } удалил Вас из групы
-fcm_dialog_message = {$text}
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+           { $userName ->
+               [x] {$userNum}
+               *[other] {$userName}
+           }:{" "}
+    } { $attachmentsCount ->
+          [0] {""}
+          *[other] [{ $attachmentsType ->
+              [image] { $attachmentsCount ->
+                          [1] Изображение
+                          [one] {$attachmentsCount} изображение
+                          [few] {$attachmentsCount} изображения
+                          *[other] {$attachmentsCount} изображений
+                      }
+              [video] { $attachmentsCount ->
+                          [1] Видео
+                          *[other] {$attachmentsCount} видео
+                      }
+              [file] { $attachmentsCount ->
+                         [1] Файл
+                         [one] {$attachmentsCount} файл
+                         [few] {$attachmentsCount} файла
+                         *[other] {$attachmentsCount} файлов
+                     }
+              *[attachments] { $attachmentsCount ->
+                                 [one] {$attachmentsCount} прикреплениe
+                                 [few] {$attachmentsCount} прикрепления
+                                 *[other] {$attachmentsCount} прикреплений
+                             }
+        }]
+    } {$text}
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }
-fcm_group_message = {$text}
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
