@@ -209,13 +209,9 @@ class AuthView extends StatelessWidget {
                             ...header,
                             Flexible(
                               child: AnimatedLogo(
-                                constraints:
-                                    const BoxConstraints(maxHeight: 350),
-                                height: 250,
                                 logoKey: const ValueKey('Logo'),
                                 svgAsset:
                                     'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                svgAssetHeight: 140,
                                 riveAsset: 'assets/images/logo/logo.riv',
                                 onInit: (a) {
                                   if (!Config.disableInfiniteAnimations) {

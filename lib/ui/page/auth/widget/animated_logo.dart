@@ -26,13 +26,13 @@ import '/ui/widget/svg/svg.dart';
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo({
     super.key,
-    this.onInit,
+    this.constraints = const BoxConstraints(maxHeight: 350),
+    this.height = 250,
     this.logoKey,
     required this.riveAsset,
+    this.onInit,
     required this.svgAsset,
-    required this.svgAssetHeight,
-    required this.height,
-    required this.constraints,
+    this.svgAssetHeight = 140,
   });
 
   /// Maximum width and height constraints of the [AnimatedLogo].
