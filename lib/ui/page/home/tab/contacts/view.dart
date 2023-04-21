@@ -382,6 +382,11 @@ class ContactsTabView extends StatelessWidget {
                                           ),
                                           index: i,
                                           enabled: !c.selecting.value,
+
+                                          // Use a dummy
+                                          // [GestureDetector.onLongPress]
+                                          // callback for discarding long
+                                          // presses on the [child].
                                           child: GestureDetector(
                                             onLongPress: () {},
                                             child: child,
@@ -603,7 +608,6 @@ class ContactsTabView extends StatelessWidget {
               child: SelectedDot(
                 selected: c.selectedContacts.contains(contact.id),
                 size: 22,
-                invertedUnselected: selected,
               ),
             );
           }),

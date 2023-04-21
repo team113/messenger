@@ -620,8 +620,6 @@ class ChatsTabView extends StatelessWidget {
                                         SelectedDot(
                                           selected: selected,
                                           size: 20,
-                                          invertedUnselected: e.chat.value
-                                              .isRoute(router.route, null),
                                         )
                                       ]
                                     : null,

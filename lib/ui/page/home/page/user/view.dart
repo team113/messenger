@@ -154,6 +154,7 @@ class UserView extends StatelessWidget {
                     }
 
                     return Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         if (constraints.maxWidth > 400) ...[
                           const SizedBox(width: 28),

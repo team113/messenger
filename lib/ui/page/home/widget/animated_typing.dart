@@ -30,7 +30,8 @@ class AnimatedTyping extends StatefulWidget {
   /// [Duration] over which the circles are animated.
   final Duration period;
 
-  /// Indicator whether of this [AnimatedTyping] should use the opposite color.
+  /// Indicator whether this [AnimatedTyping] should have inverted color
+  /// relative to its base one.
   final bool inverted;
 
   @override
