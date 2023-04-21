@@ -100,6 +100,7 @@ class ContactsTabView extends StatelessWidget {
                 child = Text('label_select_contacts'.l10n);
               } else {
                 final Widget synchronization;
+
                 if (c.fetching.value == null && c.status.value.isLoadingMore) {
                   synchronization = Padding(
                     padding: const EdgeInsets.only(top: 2),
