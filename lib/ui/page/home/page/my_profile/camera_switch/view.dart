@@ -96,9 +96,9 @@ class CameraSwitchView extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: local == null
-                                  ? const Center(
-                                      child: AssetWidget(
-                                        asset: 'assets/icons/no_video.svg',
+                                  ? Center(
+                                      child: SvgImage.asset(
+                                        'assets/icons/no_video.svg',
                                         width: 48.54,
                                         height: 42,
                                       ),

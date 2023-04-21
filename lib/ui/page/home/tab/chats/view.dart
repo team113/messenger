@@ -153,8 +153,8 @@ class ChatsTabView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.only(left: 20, right: 12),
                             height: double.infinity,
-                            child: const AssetWidget(
-                              asset: 'assets/icons/search.svg',
+                            child: SvgImage.asset(
+                              'assets/icons/search.svg',
                               width: 17.77,
                             ),
                           ),
@@ -167,21 +167,21 @@ class ChatsTabView extends StatelessWidget {
                       final Widget child;
 
                       if (c.searching.value) {
-                        child = const AssetWidget(
-                          asset: 'assets/icons/close_primary.svg',
-                          key: Key('CloseSearch'),
+                        child = SvgImage.asset(
+                          'assets/icons/close_primary.svg',
+                          key: const Key('CloseSearch'),
                           height: 15,
                         );
                       } else {
                         child = c.groupCreating.value || c.selecting.value
-                            ? const AssetWidget(
-                                asset: 'assets/icons/close_primary.svg',
-                                key: Key('CloseGroupSearching'),
+                            ? SvgImage.asset(
+                                'assets/icons/close_primary.svg',
+                                key: const Key('CloseGroupSearching'),
                                 height: 15,
                               )
-                            : const AssetWidget(
-                                asset: 'assets/icons/group.svg',
-                                key: Key('CreateGroup'),
+                            : SvgImage.asset(
+                                'assets/icons/group.svg',
+                                key: const Key('CreateGroup'),
                                 width: 21.77,
                                 height: 18.44,
                               );
