@@ -199,7 +199,7 @@ class NotificationService extends DisposableService {
         body,
         NotificationDetails(
           android: AndroidNotificationDetails(
-            'com.team113.messenger',
+            'default',
             'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
             largeIcon:
@@ -324,7 +324,7 @@ class NotificationService extends DisposableService {
 
       if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
         await AndroidUtils.createNotificationChanel(
-          id: 'com.team113.messenger',
+          id: 'default',
           name: 'Default',
           sound: 'notification',
         );

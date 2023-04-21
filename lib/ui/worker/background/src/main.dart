@@ -361,8 +361,8 @@ class _BackgroundService {
             name,
             const NotificationDetails(
               android: AndroidNotificationDetails(
-                'com.team113.messenger',
-                'Gapopa',
+                'default',
+                'Default',
               ),
             ),
             payload: '${Routes.chats}/$chatId',

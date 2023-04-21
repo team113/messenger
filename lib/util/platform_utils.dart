@@ -213,7 +213,7 @@ class PlatformUtilsImpl {
           'cancelButton': 'btn_dismiss'.l10n,
           'okButton': 'btn_allow'.l10n,
           'foregroundService': {
-            'channelId': 'com.team113.messenger',
+            'channelId': 'default',
             'channelName': 'Default',
             'notificationTitle': 'My app is running on background',
             'notificationIcon': 'mipmap/ic_notification_launcher',
