@@ -132,7 +132,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               child: KeyedSubtree(
                 key: const Key('Sent'),
                 child: Center(
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/arrow_down.svg',
                     width: 10.55,
                     height: 14,
