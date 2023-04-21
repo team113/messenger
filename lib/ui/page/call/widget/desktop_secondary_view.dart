@@ -19,10 +19,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
+import '/util/web/web_utils.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web.dart';
 import '../../../widget/context_menu/menu.dart';
 import '../../../widget/context_menu/region.dart';
 import '../../../widget/svg/svg.dart';

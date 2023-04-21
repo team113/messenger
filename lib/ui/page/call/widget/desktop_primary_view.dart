@@ -21,7 +21,7 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/l10n/l10n.dart';
 
 import '/domain/model/ongoing_call.dart';
-import '/util/web/web.dart';
+import '/util/web/web_utils.dart';
 import '../../../widget/context_menu/menu.dart';
 import '../../../widget/context_menu/region.dart';
 import '../component/desktop.dart';

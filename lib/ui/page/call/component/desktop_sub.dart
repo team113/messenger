@@ -25,7 +25,6 @@ import 'package:messenger/l10n/l10n.dart';
 import '/domain/model/ongoing_call.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/util/web/non_web.dart';
 import '../../../widget/svg/svg.dart';
 import '../../home/widget/animated_slider.dart';
 import '../../home/widget/avatar.dart';
@@ -36,6 +35,7 @@ import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'common.dart';
 import 'desktop.dart';
 
