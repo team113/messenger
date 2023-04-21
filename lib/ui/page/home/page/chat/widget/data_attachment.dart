@@ -86,9 +86,6 @@ class _DataAttachmentState extends State<DataAttachment> {
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/cancel.svg',
-                child: Center(
-                  child: SvgImage.asset(
-                    'assets/icons/cancel.svg',
                     width: 11,
                     height: 11,
                   ),

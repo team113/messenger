@@ -38,11 +38,6 @@ import '../widget/mobile_chat.dart';
 import '../widget/mobile_description.dart';
 import '../widget/mobile_padding.dart';
 import '../widget/mobile_scaffold.dart';
-import '../widget/mobile_builder.dart';
-import '../widget/mobile_buttons.dart';
-import '../widget/mobile_chat.dart';
-import '../widget/mobile_padding.dart';
-import '../widget/mobile_scaffold.dart';
 import '../widget/participant.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
@@ -80,6 +75,7 @@ class MobileCall extends StatelessWidget {
       List<Widget> content = [
         SvgImage.asset(
           'assets/images/background_dark.svg',
+        ),
         SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -613,7 +609,6 @@ class MobileCall extends StatelessWidget {
               const SizedBox(height: 32),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 366),
-                child: MobileChatWidget(c),
                 child: MobileChatWidget(c),
               ),
               const SizedBox(height: 15),
