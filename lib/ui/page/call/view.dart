@@ -48,7 +48,7 @@ class CallView extends StatelessWidget {
           c.minimized.value = false;
           return Stack(
             clipBehavior: Clip.hardEdge,
-            children: [DesktopCall(c)],
+            children: [DesktopCall(call: _call)],
           );
         }
 
@@ -64,7 +64,7 @@ class CallView extends StatelessWidget {
         if (c.isMobile) {
           return MobileCall(c);
         } else {
-          return DesktopCall(c);
+          return DesktopCall(call: _call);
         }
       },
     );

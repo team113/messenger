@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -28,10 +27,17 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
+import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/mobile_builder.dart';
+import '../widget/mobile_buttons.dart';
+import '../widget/mobile_chat.dart';
+import '../widget/mobile_description.dart';
+import '../widget/mobile_padding.dart';
+import '../widget/mobile_scaffold.dart';
 import '../widget/mobile_builder.dart';
 import '../widget/mobile_buttons.dart';
 import '../widget/mobile_chat.dart';
@@ -44,13 +50,8 @@ import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/call/widget/animated_cliprrect.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -77,6 +78,8 @@ class MobileCall extends StatelessWidget {
 
       // Call stackable content.
       List<Widget> content = [
+        SvgImage.asset(
+          'assets/images/background_dark.svg',
         SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -470,7 +473,7 @@ class MobileCall extends StatelessWidget {
                     right: 10,
                     top: c.size.height * 0.05,
                   ),
-                  child: CallTitleWidget(c),
+                  child: CallTitleCommon(c),
                 ),
               ),
             );
@@ -499,7 +502,7 @@ class MobileCall extends StatelessWidget {
                   if (PlatformUtils.isMobile)
                     MobilePaddingWidget(
                       child: c.videoState.value.isEnabled
-                          ? WithDescriptionWidget(
+                          ? Description(
                               description: AnimatedOpacity(
                                 opacity: c.isPanelOpen.value ? 1 : 0,
                                 duration: 200.milliseconds,
@@ -507,7 +510,7 @@ class MobileCall extends StatelessWidget {
                               ),
                               child: SwitchButton(c).build(),
                             )
-                          : WithDescriptionWidget(
+                          : Description(
                               description: AnimatedOpacity(
                                 opacity: c.isPanelOpen.value ? 1 : 0,
                                 duration: 200.milliseconds,
@@ -519,7 +522,7 @@ class MobileCall extends StatelessWidget {
                     ),
                   if (PlatformUtils.isDesktop)
                     MobilePaddingWidget(
-                        child: WithDescriptionWidget(
+                        child: Description(
                       description: AnimatedOpacity(
                         opacity: c.isPanelOpen.value ? 1 : 0,
                         duration: 200.milliseconds,
@@ -534,7 +537,7 @@ class MobileCall extends StatelessWidget {
                       child: ScreenButton(c).build(),
                     )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -548,7 +551,7 @@ class MobileCall extends StatelessWidget {
                     child: AudioButton(c).build(),
                   )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -562,7 +565,7 @@ class MobileCall extends StatelessWidget {
                     child: VideoButton(c).build(),
                   )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -576,12 +579,12 @@ class MobileCall extends StatelessWidget {
               MobileButtonsWidget(
                 children: [
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: Text('btn_participants_desc'.l10n),
                     child: ParticipantsButton(c).build(),
                   )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -592,14 +595,14 @@ class MobileCall extends StatelessWidget {
                     child: HandButton(c).build(),
                   )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: Text(c.isRemoteAudioEnabled.value
                         ? 'btn_call_remote_audio_off_desc'.l10n
                         : 'btn_call_remote_audio_on_desc'.l10n),
                     child: RemoteAudioButton(c).build(),
                   )),
                   MobilePaddingWidget(
-                      child: WithDescriptionWidget(
+                      child: Description(
                     description: Text(c.isRemoteVideoEnabled.value
                         ? 'btn_call_remote_video_off_desc'.l10n
                         : 'btn_call_remote_video_on_desc'.l10n),
@@ -610,6 +613,7 @@ class MobileCall extends StatelessWidget {
               const SizedBox(height: 32),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 366),
+                child: MobileChatWidget(c),
                 child: MobileChatWidget(c),
               ),
               const SizedBox(height: 15),

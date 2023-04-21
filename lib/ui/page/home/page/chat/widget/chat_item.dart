@@ -1405,8 +1405,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             child: call?.withVideo == true
                 ? SvgImage.asset(
                     'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                ? SvgImage.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
+                : SvgImage.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                 : SvgImage.asset(
                     'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
@@ -1746,6 +1750,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : 'btn_copy_text'.l10n,
                               trailing: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
+                              trailing: SvgImage.asset(
+                                'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
                               onPressed: () => widget.onCopy
@@ -1759,6 +1765,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : 'btn_reply_message'.l10n,
                               trailing: SvgImage.asset(
                                 'assets/icons/reply.svg',
+                              trailing: SvgImage.asset(
+                                'assets/icons/reply.svg',
                                 height: 18,
                               ),
                               onPressed: widget.onReply,
@@ -1769,6 +1777,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
+                                trailing: SvgImage.asset(
+                                  'assets/icons/forward.svg',
                                 trailing: SvgImage.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
@@ -1792,6 +1802,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgImage.asset(
                                   'assets/icons/edit.svg',
+                                trailing: SvgImage.asset(
+                                  'assets/icons/edit.svg',
                                   height: 18,
                                 ),
                                 onPressed: widget.onEdit,
@@ -1801,6 +1813,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
+                              trailing: SvgImage.asset(
+                                'assets/icons/delete_small.svg',
                               trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 18,
@@ -1849,6 +1863,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : 'btn_resend_message'.l10n,
                               trailing: SvgImage.asset(
                                 'assets/icons/send_small.svg',
+                              trailing: SvgImage.asset(
+                                'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
                               ),
@@ -1859,6 +1875,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
+                              trailing: SvgImage.asset(
+                                'assets/icons/delete_small.svg',
                               trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,

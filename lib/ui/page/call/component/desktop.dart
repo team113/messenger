@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -24,7 +25,14 @@ import 'package:get/get.dart';
 
 import '../controller.dart';
 import '../widget/call_cover.dart';
+import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/desktop_dock.dart';
+import '../widget/desktop_launchpad.dart';
+import '../widget/desktop_possible_container.dart';
+import '../widget/desktop_scaffold.dart';
+import '../widget/desktop_scaler.dart';
+import '../widget/desktop_secondary_target.dart';
 import '../widget/desktop_dock.dart';
 import '../widget/desktop_launchpad.dart';
 import '../widget/desktop_possible_container.dart';
@@ -45,18 +53,21 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'desktop_primary_view.dart';
+import 'desktop_secondary_view.dart';
 import 'common.dart';
 import 'desktop_primary_view.dart';
 import 'desktop_secondary_view.dart';
 
 /// Returns a desktop design of a [CallView].
 class DesktopCall extends StatelessWidget {
-  final CallController c;
-
-  const DesktopCall(
-    this.c, {
+  const DesktopCall({
     Key? key,
+    required this.call,
   }) : super(key: key);
+
+  /// Current [OngoingCall].
+  final Rx<OngoingCall> call;
 
   @override
   Widget build(BuildContext context) {
@@ -780,8 +791,10 @@ class DesktopCall extends StatelessWidget {
 /// [Draggable] data consisting of a [participant] and its [chatId].
 class DesktopDragData {
   const DesktopDragData(this.participant, this.chatId);
+class DesktopDragData {
+  const DesktopDragData(this.participant, this.chatId);
 
-  /// [Participant] this [_DragData] represents.
+  /// [Participant] this [_DesktopDragData] represents.
   final Participant participant;
 
   /// [ChatId] of the [CallView] this [participant] takes place in.
@@ -789,6 +802,7 @@ class DesktopDragData {
 
   @override
   bool operator ==(Object other) =>
+      other is DesktopDragData &&
       other is DesktopDragData &&
       participant == other.participant &&
       chatId == other.chatId;
