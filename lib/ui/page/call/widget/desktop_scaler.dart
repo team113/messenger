@@ -19,18 +19,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
-
 import 'scaler.dart';
 
 /// Returns a [Scaler] scaling the secondary view.
 class SecondaryScalerWidget extends StatelessWidget {
   const SecondaryScalerWidget({
-    Key? key,
+    super.key,
     this.cursor = MouseCursor.defer,
     this.onDrag,
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   /// Interface for mouse cursor definitions
   final MouseCursor cursor;

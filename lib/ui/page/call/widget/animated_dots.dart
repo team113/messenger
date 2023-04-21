@@ -24,10 +24,10 @@ import '/l10n/l10n.dart';
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedDots extends StatefulWidget {
   const AnimatedDots({
-    Key? key,
+    super.key,
     this.duration = const Duration(milliseconds: 250),
     this.color = Colors.white,
-  }) : super(key: key);
+  });
 
   /// [Duration] over which the count of dots is changed.
   final Duration duration;

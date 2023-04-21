@@ -24,14 +24,11 @@ import '../controller.dart';
 import '../component/desktop.dart';
 import '../widget/conditional_backdrop.dart';
 import '/themes.dart';
-
 import 'reorderable_fit.dart';
 
 /// [DragTarget] of an empty [_secondaryView].
 class SecondaryTargetWidget extends StatelessWidget {
-  const SecondaryTargetWidget({
-    Key? key,
-  }) : super(key: key);
+  const SecondaryTargetWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

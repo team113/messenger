@@ -19,19 +19,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
-
 import 'animated_cliprrect.dart';
 import 'participant.dart';
 
 /// Builds the [Participant] with a [AnimatedClipRRect].
 class MobileBuilder extends StatelessWidget {
-  const MobileBuilder({
-    Key? key,
-    required this.e,
-    required this.muted,
-    required this.animated,
-    required this.c,
-  }) : super(key: key);
+  const MobileBuilder(
+    this.e,
+    this.muted,
+    this.animated, {
+    super.key,
+  });
 
   /// Separate call entity participating in a call.
   final Participant e;
@@ -42,41 +40,33 @@ class MobileBuilder extends StatelessWidget {
   /// Animated switching.
   final bool animated;
 
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
-
   @override
   Widget build(BuildContext context) {
-    return AnimatedClipRRect(
-      key: Key(e.member.id.toString()),
-      borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
-      child: AnimatedContainer(
-        duration: 200.milliseconds,
-        decoration: BoxDecoration(
-          color: animated ? const Color(0xFF132131) : const Color(0x00132131),
-        ),
-        width: animated ? MediaQuery.of(context).size.width - 20 : null,
-        height: animated ? MediaQuery.of(context).size.height / 2 : null,
-        child: StackWidget(
-          e: e,
-          muted: muted,
-          animated: animated,
-          c: c,
-        ),
-      ),
+    return GetBuilder(
+      builder: (CallController c) {
+        return AnimatedClipRRect(
+          key: Key(e.member.id.toString()),
+          borderRadius:
+              animated ? BorderRadius.circular(10) : BorderRadius.zero,
+          child: AnimatedContainer(
+            duration: 200.milliseconds,
+            decoration: BoxDecoration(
+              color:
+                  animated ? const Color(0xFF132131) : const Color(0x00132131),
+            ),
+            width: animated ? MediaQuery.of(context).size.width - 20 : null,
+            height: animated ? MediaQuery.of(context).size.height / 2 : null,
+            child: StackWidget(e, muted, animated),
+          ),
+        );
+      },
     );
   }
 }
 
 /// Сreating overlapping [Widget]'s of various functionality.
 class StackWidget extends StatelessWidget {
-  const StackWidget({
-    Key? key,
-    required this.e,
-    required this.muted,
-    required this.animated,
-    required this.c,
-  }) : super(key: key);
+  const StackWidget(this.e, this.muted, this.animated, {super.key});
 
   /// Separate call entity participating in a call.
   final Participant e;
@@ -87,27 +77,28 @@ class StackWidget extends StatelessWidget {
   /// Animated switching.
   final bool animated;
 
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const ParticipantDecoratorWidget(),
-        IgnorePointer(
-          child: ParticipantWidget(
-            e,
-            offstageUntilDetermined: true,
-          ),
-        ),
-        ParticipantOverlayWidget(
-          e,
-          muted: muted,
-          hovered: animated,
-          preferBackdrop: !c.minimized.value,
-        ),
-      ],
+    return GetBuilder(
+      builder: (CallController c) {
+        return Stack(
+          children: [
+            const ParticipantDecoratorWidget(),
+            IgnorePointer(
+              child: ParticipantWidget(
+                e,
+                offstageUntilDetermined: true,
+              ),
+            ),
+            ParticipantOverlayWidget(
+              e,
+              muted: muted,
+              hovered: animated,
+              preferBackdrop: !c.minimized.value,
+            ),
+          ],
+        );
+      },
     );
   }
 }

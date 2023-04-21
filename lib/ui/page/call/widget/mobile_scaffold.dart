@@ -29,12 +29,12 @@ class MobileCallScaffoldWidget extends StatelessWidget {
   /// on the screen.
   final List<Widget> overlay;
 
-  const MobileCallScaffoldWidget({
-    Key? key,
-    required this.content,
-    required this.ui,
-    required this.overlay,
-  }) : super(key: key);
+  const MobileCallScaffoldWidget(
+    this.content,
+    this.ui,
+    this.overlay, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -23,7 +23,6 @@ import '../controller.dart';
 import '../widget/tooltip_button.dart';
 import '../../home/widget/avatar.dart';
 import '../../../widget/svg/svg.dart';
-
 import '/routes.dart';
 import '/themes.dart';
 import '/util/web/non_web.dart';
@@ -31,10 +30,10 @@ import '/util/web/non_web.dart';
 /// Combines all the stackable content into [Scaffold].
 class DesktopScaffoldWidget extends StatelessWidget {
   const DesktopScaffoldWidget({
-    Key? key,
+    super.key,
     required this.content,
     required this.ui,
-  }) : super(key: key);
+  });
 
   /// Stackable content.
   final List<Widget> content;

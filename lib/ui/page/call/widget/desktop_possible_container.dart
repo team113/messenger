@@ -23,9 +23,7 @@ import '../widget/conditional_backdrop.dart';
 
 /// [_SecondaryView] possible alignment.
 class PossibleContainerWidget extends StatelessWidget {
-  const PossibleContainerWidget({
-    super.key,
-  });
+  const PossibleContainerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

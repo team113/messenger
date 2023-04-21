@@ -20,17 +20,16 @@ import 'package:get/get.dart';
 
 import '../controller.dart';
 import '/util/platform_utils.dart';
-
 import 'desktop_scaler.dart';
 import 'scaler.dart';
 
 class DesktopBuildDragHandle extends StatelessWidget {
   const DesktopBuildDragHandle({
-    Key? key,
+    super.key,
     required this.alignment,
     required this.height,
     required this.width,
-  }) : super(key: key);
+  });
 
   /// Alignment of the [SecondaryScalerWidget].
   final Alignment alignment;

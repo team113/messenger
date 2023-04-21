@@ -30,9 +30,7 @@ import '/themes.dart';
 
 /// Builds the [Dock] containing the [CallController.buttons].
 class DockWidget extends StatelessWidget {
-  const DockWidget({
-    Key? key,
-  }) : super(key: key);
+  const DockWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

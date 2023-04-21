@@ -29,112 +29,110 @@ import '/themes.dart';
 
 /// Builds a tile representation of the [CallController.chat].
 class MobileChatWidget extends StatelessWidget {
-  const MobileChatWidget(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
-
-  /// Controller of an [OngoingCall] overlay.
-  final CallController c;
+  const MobileChatWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
-      final RxChat? chat = c.chat.value;
+    return GetBuilder(
+      builder: (CallController c) {
+        return Obx(() {
+          final Style style = Theme.of(context).extension<Style>()!;
+          final RxChat? chat = c.chat.value;
 
-      final Set<UserId> actualMembers =
-          c.members.keys.map((k) => k.userId).toSet();
+          final Set<UserId> actualMembers =
+              c.members.keys.map((k) => k.userId).toSet();
 
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: const Color(0x794E5A78),
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: () => c.openAddMember(context),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(chat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                color: Colors.transparent,
+              ),
+              child: Material(
+                type: MaterialType.card,
+                borderRadius: style.cardRadius,
+                color: const Color(0x794E5A78),
+                child: InkWell(
+                  borderRadius: style.cardRadius,
+                  onTap: () => c.openAddMember(context),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                    child: Row(
+                      children: [
+                        AvatarWidget.fromRxChat(chat, radius: 30),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  chat?.title.value ?? 'dot'.l10n * 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(color: Colors.white),
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      chat?.title.value ?? 'dot'.l10n * 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                  Text(
+                                    c.duration.value.hhMmSs(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(color: Colors.white),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                c.duration.value.hhMmSs(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: Colors.white),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      c.chat.value?.members.values
+                                              .firstWhereOrNull(
+                                                (e) => e.id != c.me.id.userId,
+                                              )
+                                              ?.user
+                                              .value
+                                              .status
+                                              ?.val ??
+                                          'label_online'.l10n,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      'label_a_of_b'.l10nfmt({
+                                        'a': '${actualMembers.length}',
+                                        'b': '${c.chat.value?.members.length}',
+                                      }),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Row(
-                              children: [
-                                Text(
-                                  c.chat.value?.members.values
-                                          .firstWhereOrNull(
-                                            (e) => e.id != c.me.id.userId,
-                                          )
-                                          ?.user
-                                          .value
-                                          .status
-                                          ?.val ??
-                                      'label_online'.l10n,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(color: Colors.white),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'label_a_of_b'.l10nfmt({
-                                    'a': '${actualMembers.length}',
-                                    'b': '${c.chat.value?.members.length}',
-                                  }),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      );
-    });
+          );
+        });
+      },
+    );
   }
 }

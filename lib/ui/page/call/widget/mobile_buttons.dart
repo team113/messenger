@@ -20,9 +20,9 @@ import 'package:flutter/material.dart';
 /// Displays a set of buttons in a row with a horizontal maximum width limit.
 class MobileButtonsWidget extends StatelessWidget {
   const MobileButtonsWidget({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   /// [Widget]'s that should be placed in the [MobileButtonsWidget].
   final List<Widget> children;

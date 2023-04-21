@@ -52,10 +52,7 @@ import 'desktop_secondary_view.dart';
 
 /// Returns a desktop design of a [CallView].
 class DesktopCall extends StatelessWidget {
-  const DesktopCall({
-    Key? key,
-    required this.call,
-  }) : super(key: key);
+  const DesktopCall(this.call, {super.key});
 
   /// Current [OngoingCall].
   final Rx<OngoingCall> call;
@@ -374,7 +371,7 @@ class DesktopCall extends StatelessWidget {
                                 right: 10,
                                 top: c.size.height * 0.05,
                               ),
-                              child: CallTitleCommon(c),
+                              child: const CallTitleCommon(),
                             ),
                           )
                         : Container(key: UniqueKey()),

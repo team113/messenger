@@ -28,9 +28,7 @@ import '/themes.dart';
 
 /// Builds the more panel containing the [CallController.panel].
 class LaunchpadWidget extends StatelessWidget {
-  const LaunchpadWidget({
-    Key? key,
-  }) : super(key: key);
+  const LaunchpadWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
