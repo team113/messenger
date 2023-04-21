@@ -404,7 +404,7 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth / 10;
+      final double badgeSize = maxWidth >= 40 ? maxWidth / 10 : maxWidth / 7.5;
 
       StorageFile? file;
 
@@ -436,14 +436,18 @@ class AvatarWidget extends StatelessWidget {
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isAway ? Colors.orange : Colors.green,
+            // color: isAway ? Colors.orange : Colors.green,
+            // ignore: prefer_const_constructors
+            color: isAway
+                ? Colors.orange
+                : const Color.fromARGB(255, 181, 225, 100),
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
         badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
         position: badges.BadgePosition.bottomEnd(
-          bottom: badgeSize / 3,
-          end: badgeSize / 3,
+          bottom: maxWidth >= 40 ? badgeSize / 3 : badgeSize / 5,
+          end: maxWidth >= 40 ? badgeSize / 3 : badgeSize / 5,
         ),
         child: Container(
           constraints: BoxConstraints(

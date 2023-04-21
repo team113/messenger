@@ -1017,10 +1017,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "43b6f79e9ed0a590e6624b4bf06b63509c12fa21a8f0efe053c34bb6812cf333"
+      sha256: a02ad9dc3331df96c6e6470f7d0d8dde3320ed828efa6e2caad92b5dc1baf7ae
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0-dev+rev.c59ab2a07046a06e8a69c72fe7a32630beca4f52"
+    version: "0.3.0-dev+rev.eb4d90e0bb6f33734dd240c753c0427c55ca7d80"
   meta:
     dependency: transitive
     description:

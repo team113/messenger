@@ -293,6 +293,8 @@ class ChatItemWidget extends StatefulWidget {
                     gallery.add(item!);
                   }
 
+                  print('showing $gallery');
+
                   GalleryPopup.show(
                     context: context,
                     gallery: GalleryPopup(
@@ -402,6 +404,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
   /// any.
   final List<TapGestureRecognizer> _recognizers = [];
+
+  bool _expandedReply = false;
 
   /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
   /// [ChatItemWidget].
@@ -798,13 +802,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Style style = Theme.of(context).extension<Style>()!;
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    List<Attachment> media = msg.attachments.where((e) {
+    final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
           (e is FileAttachment && e.isVideo) ||
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    List<Attachment> files = msg.attachments.where((e) {
+    final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
@@ -1116,8 +1120,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   duration: const Duration(milliseconds: 500),
                   opacity: _isRead || !_fromMe ? 1 : 0.55,
                   child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
+                    onPressed: _expandedReply
+                        ? null
+                        : () => widget.onRepliedTap?.call(e),
+                    child: _repliedMessage(e, menu),
                   ),
                 ),
               );
@@ -1295,19 +1301,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
           child: Stack(
             children: [
-              IntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: background,
-                    borderRadius: BorderRadius.circular(15),
-                    border: border,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: children,
-                  ),
+              // IntrinsicWidth(
+              //   child:
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: background,
+                  borderRadius: BorderRadius.circular(15),
+                  border: border,
                 ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+                // ),
               ),
               if (widget.timestamp || widget.paid)
                 Positioned(
@@ -1739,93 +1746,270 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item) {
+  Widget _repliedMessage(ChatItemQuote item, [bool menu = false]) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
 
+    bool timeInBubble = false;
+
     if (item is ChatMessageQuote) {
       if (item.attachments.isNotEmpty) {
-        additional = item.attachments
-            .map((a) {
-              ImageAttachment? image;
+        if (_expandedReply) {
+          final List<Attachment> media = item.attachments.where((e) {
+            return ((e is ImageAttachment) ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+          }).toList();
 
-              if (a is ImageAttachment) {
-                image = a;
-              }
+          final List<Attachment> files = item.attachments.where((e) {
+            return ((e is FileAttachment && !e.isVideo) ||
+                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+          }).toList();
 
-              return Container(
-                margin: const EdgeInsets.only(right: 2),
-                decoration: BoxDecoration(
-                  color: fromMe
-                      ? Colors.white.withOpacity(0.25)
-                      : Colors.black.withOpacity(0.03),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: 50,
-                height: 50,
-                child: image == null
-                    ? Icon(
-                        Icons.file_copy,
-                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                        size: 28,
-                      )
-                    : RetryImage(
-                        image.medium.url,
-                        checksum: image.medium.checksum,
-                        onForbidden: widget.onAttachmentError,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        borderRadius: BorderRadius.circular(10.0),
-                        cancelable: true,
+          additional = [
+            if (media.isNotEmpty)
+              media.length == 1
+                  ? SizedBox(
+                      width: 300,
+                      child: ChatItemWidget.mediaAttachment(
+                        context,
+                        media.first,
+                        media,
+                        filled: false,
+                        onError: widget.onAttachmentError,
+                        // onGallery: widget.onGallery,
                         autoLoad: widget.loadImages,
                       ),
-              );
-            })
-            .take(3)
-            .toList();
-
-        if (item.attachments.length > 3) {
-          final int count = (item.attachments.length - 3).clamp(1, 99);
-
-          additional.add(
-            Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.25)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              width: 50,
-              height: 50,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Text(
-                    '${'plus'.l10n}$count',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : SizedBox(
+                      width: media.length * 120,
+                      height: max(media.length * 60, 300),
+                      child: FitView(
+                        dividerColor: Colors.transparent,
+                        children: media
+                            .mapIndexed(
+                              (i, e) => ChatItemWidget.mediaAttachment(
+                                context,
+                                e,
+                                media,
+                                onError: widget.onAttachmentError,
+                                // onGallery: widget.onGallery,
+                                autoLoad: widget.loadImages,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+            if (files.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                child: SelectionContainer.disabled(
+                  child: SizedBox(
+                    // width: 300,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...files.mapIndexed(
+                          (i, e) => ChatItemWidget.fileAttachment(
+                            e,
+                            onFileTap: widget.onFileTap,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
+              )
+          ];
+
+          timeInBubble = media.isNotEmpty && item.text == null && files.isEmpty;
+        } else {
+          additional = [
+            LayoutBuilder(builder: (context, constraints) {
+              int take = constraints.maxWidth ~/ 52;
+              if (take <= item.attachments.length - 1) {
+                take -= 1;
+              }
+
+              final List<Widget> widgets = [];
+
+              widgets.addAll(item.attachments.map((a) {
+                ImageAttachment? image;
+
+                if (a is ImageAttachment) {
+                  image = a;
+                }
+
+                return Container(
+                  margin: const EdgeInsets.only(right: 2),
+                  decoration: BoxDecoration(
+                    color: fromMe
+                        ? Colors.white.withOpacity(0.25)
+                        : Colors.black.withOpacity(0.03),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: 50,
+                  height: 50,
+                  child: image == null
+                      ? Icon(
+                          Icons.file_copy,
+                          color:
+                              fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                          size: 28,
+                        )
+                      : RetryImage(
+                          image.medium.url,
+                          checksum: image.medium.checksum,
+                          onForbidden: widget.onAttachmentError,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          borderRadius: BorderRadius.circular(10.0),
+                          cancelable: true,
+                          autoLoad: widget.loadImages,
+                        ),
+                );
+              }).take(take));
+
+              if (item.attachments.length > take) {
+                final int count = (item.attachments.length - take).clamp(1, 99);
+
+                widgets.add(
+                  Container(
+                    margin: const EdgeInsets.only(right: 2),
+                    decoration: BoxDecoration(
+                      color: fromMe
+                          ? Colors.white.withOpacity(0.25)
+                          : Colors.black.withOpacity(0.03),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    width: 50,
+                    height: 50,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          '${'plus'.l10n}$count',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return Row(mainAxisSize: MainAxisSize.min, children: widgets);
+            }),
+          ];
+
+          // widgets.addAll(item.attachments.map((a) {
+          //   ImageAttachment? image;
+
+          //   if (a is ImageAttachment) {
+          //     image = a;
+          //   }
+
+          //   return Container(
+          //     margin: const EdgeInsets.only(right: 2),
+          //     decoration: BoxDecoration(
+          //       color: fromMe
+          //           ? Colors.white.withOpacity(0.25)
+          //           : Colors.black.withOpacity(0.03),
+          //       borderRadius: BorderRadius.circular(10),
+          //     ),
+          //     width: 50,
+          //     height: 50,
+          //     child: image == null
+          //         ? Icon(
+          //             Icons.file_copy,
+          //             color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+          //             size: 28,
+          //           )
+          //         : RetryImage(
+          //             image.medium.url,
+          //             checksum: image.medium.checksum,
+          //             onForbidden: widget.onAttachmentError,
+          //             fit: BoxFit.cover,
+          //             width: double.infinity,
+          //             height: double.infinity,
+          //             borderRadius: BorderRadius.circular(10.0),
+          //             cancelable: true,
+          //             autoLoad: widget.loadImages,
+          //           ),
+          //   );
+          // }).take(3));
+
+          // if (item.attachments.length > 3) {
+          //   final int count = (item.attachments.length - 3).clamp(1, 99);
+
+          //   widgets.add(
+          //     Container(
+          //       margin: const EdgeInsets.only(right: 2),
+          //       decoration: BoxDecoration(
+          //         color: fromMe
+          //             ? Colors.white.withOpacity(0.25)
+          //             : Colors.black.withOpacity(0.03),
+          //         borderRadius: BorderRadius.circular(10),
+          //       ),
+          //       width: 50,
+          //       height: 50,
+          //       child: Center(
+          //         child: Padding(
+          //           padding: const EdgeInsets.only(right: 4),
+          //           child: Text(
+          //             '${'plus'.l10n}$count',
+          //             style: TextStyle(
+          //               fontSize: 15,
+          //               color: Theme.of(context).colorScheme.primary,
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   );
+          // }
+
+          // additional = [Row(mainAxisSize: MainAxisSize.min, children: widgets)];
         }
       }
 
       if (item.text != null && item.text!.val.isNotEmpty) {
-        content = Text(
-          item.text!.val,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
-        );
+        if (_expandedReply) {
+          content = SelectionText.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: item.text!.val),
+                if (widget.timestamp && !timeInBubble)
+                  if (_fromMe)
+                    const WidgetSpan(
+                      child: SizedBox(width: 42, height: 20),
+                    )
+                  else
+                    const WidgetSpan(
+                      child: SizedBox(width: 30, height: 20),
+                    ),
+              ],
+            ),
+            selectable: PlatformUtils.isDesktop || menu,
+            onSelecting: widget.onSelecting,
+            onChanged: (a) => _selection = a,
+            style: style.boldBody,
+          );
+        } else {
+          content = SelectionContainer.disabled(
+            child: Text(
+              item.text!.val,
+              maxLines: _expandedReply ? null : 1,
+              style: style.boldBody,
+            ),
+          );
+        }
       }
     } else if (item is ChatCallQuote) {
       String title = 'label_chat_call_ended'.l10n;
@@ -1905,30 +2089,96 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             decoration: BoxDecoration(
               border: Border(left: BorderSide(width: 2, color: color)),
             ),
-            margin: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+            margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
             padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                Text(
-                  snapshot.data?.user.value.name?.val ??
-                      snapshot.data?.user.value.num.val ??
-                      'dot'.l10n * 3,
-                  style: style.boldBody.copyWith(color: color),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SelectionText(
+                            snapshot.data?.user.value.name?.val ??
+                                snapshot.data?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            selectable: _expandedReply,
+                            style: style.boldBody.copyWith(color: color),
+                          ),
+                        ),
+                        // const SizedBox(width: 4),
+                        // WidgetButton(
+                        //   onPressed: () {
+                        //     setState(() => _expandedReply = !_expandedReply);
+                        //   },
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.only(
+                        //       top: 4,
+                        //       bottom: 4,
+                        //       left: 8,
+                        //       right: 8,
+                        //     ),
+                        //     child: RotatedBox(
+                        //       quarterTurns: _expandedReply ? 2 : 0,
+                        //       child: SvgLoader.asset(
+                        //         'assets/icons/expand.svg',
+                        //         width: 12,
+                        //         height: 7,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                    if (additional.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      ...additional,
+                    ],
+                    if (content != null) ...[
+                      const SizedBox(height: 2),
+                      DefaultTextStyle.merge(
+                        maxLines: _expandedReply ? null : 1,
+                        overflow: _expandedReply ? null : TextOverflow.ellipsis,
+                        child: content,
+                      ),
+                    ],
+                  ],
                 ),
-                if (content != null) ...[
-                  const SizedBox(height: 2),
-                  DefaultTextStyle.merge(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    child: content,
-                  ),
-                ],
-                if (additional.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(mainAxisSize: MainAxisSize.min, children: additional),
-                ],
+                // if (_expandedReply && widget.timestamp)
+                //   Positioned(
+                //     right: timeInBubble ? 4 : 8,
+                //     bottom: 4,
+                //     child: timeInBubble
+                //         ? ConditionalBackdropFilter(
+                //             borderRadius: BorderRadius.circular(20),
+                //             child: Container(
+                //               padding: const EdgeInsets.only(
+                //                 left: 5,
+                //                 right: 5,
+                //                 top: 2,
+                //                 bottom: 2,
+                //               ),
+                //               decoration: BoxDecoration(
+                //                 // color: Colors.white.withOpacity(0.9),
+                //                 // color: _fromMe
+                //                 //     ? style.readMessageColor
+                //                 //     : style.messageColor,
+                //                 color: Colors.black.withOpacity(0.3),
+                //                 borderRadius: BorderRadius.circular(20),
+                //               ),
+                //               child: MessageTimestamp(
+                //                 at: item.at,
+                //                 color: Colors.white,
+                //               ),
+                //             ),
+                //           )
+                //         : Transform.translate(
+                //             offset: Offset(0, 8),
+                //             child: MessageTimestamp(at: item.at),
+                //           ),
+                //   ),
               ],
             ),
           ),

@@ -126,7 +126,7 @@ dependency_overrides:
   analyzer: ^5.4.0
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.8.0-dev+rev.5ef094710c5b08c6d99436bdc49e262e6d52d782
-  medea_jason: 0.3.0-dev+rev.c59ab2a07046a06e8a69c72fe7a32630beca4f52
+  medea_jason: 0.3.0-dev+rev.eb4d90e0bb6f33734dd240c753c0427c55ca7d80
 
 flutter:
   uses-material-design: true
