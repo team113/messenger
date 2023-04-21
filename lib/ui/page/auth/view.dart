@@ -210,6 +210,8 @@ class AuthView extends StatelessWidget {
                             Flexible(
                               child: AnimatedLogo(
                                 logoKey: const ValueKey('Logo'),
+                                animationDuration:
+                                    const Duration(milliseconds: 200),
                                 svgAsset:
                                     'assets/images/logo/head000${c.logoFrame.value}.svg',
                                 riveAsset: 'assets/images/logo/logo.riv',

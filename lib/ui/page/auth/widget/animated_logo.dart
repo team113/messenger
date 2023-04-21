@@ -33,6 +33,8 @@ class AnimatedLogo extends StatelessWidget {
     this.onInit,
     required this.svgAsset,
     this.svgAssetHeight = 140,
+    this.curve = Curves.ease,
+    required this.animationDuration,
   });
 
   /// Maximum width and height constraints of the [AnimatedLogo].
@@ -56,6 +58,12 @@ class AnimatedLogo extends StatelessWidget {
 
   /// Height of the [SvgLoader] asset.
   final double svgAssetHeight;
+
+  ///
+  final Curve curve;
+
+  ///
+  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +108,8 @@ class AnimatedLogo extends StatelessWidget {
       return ConstrainedBox(
         constraints: constraints,
         child: AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
+          curve: curve,
+          duration: animationDuration,
           child: SizedBox(
             height: constraints.maxHeight >= height ? height : 140,
             child: child,
