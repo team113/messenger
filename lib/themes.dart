@@ -62,11 +62,15 @@ class Themes {
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
-            cardHoveredBorder:
-                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
-            cardHoveredColor: const Color(0xFFF4F9FF),
+            cardHoveredBorder: Border.all(
+              color: const Color(0xFFDAEDFF),
+              width: 0.5,
+            ),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: const Color(0xFFD7ECFF),
+            cardSelectedBorder: Border.all(
+              color: const Color(0xFF58A6EF),
+              width: 0.5,
+            ),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
@@ -214,11 +218,7 @@ class Themes {
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  width: 1,
-                  color: colors.secondary,
-                  // color: Color(0xFFD0D0D0),
-                ),
+                borderSide: BorderSide(width: 1, color: colors.secondary),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -370,9 +370,8 @@ class Style extends ThemeExtension<Style> {
     required this.cardBorder,
     required this.cardColor,
     required this.cardHoveredBorder,
-    required this.cardHoveredColor,
     required this.cardRadius,
-    required this.cardSelectedColor,
+    required this.cardSelectedBorder,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
@@ -412,14 +411,11 @@ class Style extends ThemeExtension<Style> {
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
 
-  /// Background [Color] of hovered card-like [Widget]s.
-  final Color cardHoveredColor;
-
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
 
-  /// Background [Color] of selected card-like [Widget]s.
-  final Color cardSelectedColor;
+  /// [Border] to apply to selected card-like [Widget]s.
+  final Border cardSelectedBorder;
 
   /// Background [Color] of the [ContextMenu].
   final Color contextMenuBackgroundColor;
@@ -472,9 +468,8 @@ class Style extends ThemeExtension<Style> {
     Border? cardBorder,
     Color? cardColor,
     Border? cardHoveredBorder,
-    Color? cardHoveredColor,
     BorderRadius? cardRadius,
-    Color? cardSelectedColor,
+    Border? cardSelectedBorder,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
@@ -501,9 +496,8 @@ class Style extends ThemeExtension<Style> {
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
-      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardRadius: cardRadius ?? this.cardRadius,
-      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
+      cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
@@ -537,11 +531,9 @@ class Style extends ThemeExtension<Style> {
       callDock: Color.lerp(callDock, other.callDock, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
-      cardHoveredColor:
-          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
-      cardSelectedColor:
-          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
+      cardSelectedBorder:
+          Border.lerp(cardSelectedBorder, other.cardSelectedBorder, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
         other.contextMenuBackgroundColor,

@@ -54,6 +54,7 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 
@@ -69,8 +70,9 @@ class ChatForwardWidget extends StatefulWidget {
     this.reads = const [],
     this.loadImages = true,
     this.user,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -93,17 +95,11 @@ class ChatForwardWidget extends StatefulWidget {
   /// [ChatMessage] attached to these [forwards] as a note.
   final Rx<Rx<ChatItem>?> note;
 
-  /// [UserId] of the authenticated [MyUser].
-  final UserId me;
-
   /// [UserId] of the [user] who posted these [forwards].
   final UserId authorId;
 
-  /// Optional animation controlling a [SwipeableStatus].
-  final AnimationController? animation;
-
-  /// [User] posted these [forwards].
-  final RxUser? user;
+  /// [UserId] of the authenticated [MyUser].
+  final UserId me;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -111,6 +107,16 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
+
+  /// [User] posted these [forwards].
+  final RxUser? user;
+
+  /// Optional animation controlling a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatForwardWidget].
+  final bool timestamp;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -333,27 +339,28 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: _forwardedMessage(e, menu),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 8,
-                            bottom: 4,
-                            top: 2,
-                          ),
-                          child: Row(
-                            children: [
-                              const Spacer(),
-                              Text(
-                                DateFormat.Hm().format(
-                                  (widget.note.value?.value.at ??
-                                          widget.forwards.last.value.at)
-                                      .val
-                                      .toLocal(),
+                        if (widget.timestamp)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: 8,
+                              bottom: 4,
+                              top: 2,
+                            ),
+                            child: Row(
+                              children: [
+                                const Spacer(),
+                                Text(
+                                  DateFormat.Hm().format(
+                                    (widget.note.value?.value.at ??
+                                            widget.forwards.last.value.at)
+                                        .val
+                                        .toLocal(),
+                                  ),
+                                  style: style.systemMessageStyle,
                                 ),
-                                style: style.systemMessageStyle,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     );
                   }),

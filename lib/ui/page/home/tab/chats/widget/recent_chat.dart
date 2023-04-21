@@ -151,17 +151,18 @@ class RecentChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
+      final bool inverted = isRoute || selected;
 
       final bool paid = rxChat.chat.value.isDialog &&
           (myUser?.name?.val == 'alex2' ||
               myUser?.name?.val == 'kirey' ||
               chat.members.any((e) =>
                   e.user.name?.val == 'kirey' || e.user.name?.val == 'alex2'));
-
-      final bool invert = isRoute || selected;
 
       return ChatTile(
         chat: rxChat,
@@ -175,13 +176,13 @@ class RecentChatTile extends StatelessWidget {
                 )
             : (_, w) => avatarBuilder(w),
         status: [
-          _status(context, invert),
+          _status(context, inverted),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
             style: Theme.of(context)
                 .textTheme
                 .titleSmall
-                ?.copyWith(color: invert ? Colors.white : null),
+                ?.copyWith(color: inverted ? colors.onSecondary : null),
           ),
         ],
         subtitle: [
@@ -191,29 +192,32 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected, invert)),
+                Expanded(child: _subtitle(context, selected, inverted)),
                 if (trailing == null) ...[
-                  _ongoingCall(context, invert: invert, paid: paid),
+                  _ongoingCall(context, paid: paid),
                   if (blocked) ...[
                     const SizedBox(width: 5),
                     Icon(
                       Icons.block,
-                      color: invert ? Colors.white : const Color(0xFFC0C0C0),
+                      color: inverted
+                          ? colors.onSecondary
+                          : const Color(0xFFC0C0C0),
                       size: 20,
                     ),
-                    if (chat.muted == null) const SizedBox(width: 5),
-                  ],
-                  if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                  ] else if (chat.muted != null) ...[
                     const SizedBox(width: 5),
                     SvgLoader.asset(
-                      'assets/icons/muted.svg',
+                      inverted
+                          ? 'assets/icons/muted_light.svg'
+                          : 'assets/icons/muted.svg',
                       key: Key('MuteIndicator_${chat.id}'),
                       width: 19.99,
                       height: 15,
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _counter(),
+                  _counter(context, inverted),
                 ] else
                   ...trailing!,
               ],
@@ -286,11 +290,7 @@ class RecentChatTile extends StatelessWidget {
             trailing: const Icon(Icons.select_all),
           ),
         ],
-        selected: isRoute || selected,
-        // selected: paid,
-        // outlined: isRoute || selected,
-        // outlined: paid,
-        invert: invert,
+        selected: inverted,
         highlight: paid,
         enableContextMenu: enableContextMenu,
         onTap: onTap ??
@@ -305,7 +305,8 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context, bool selected, [bool invert = false]) {
+  Widget _subtitle(BuildContext context, bool selected, bool inverted) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -416,7 +417,7 @@ class RecentChatTile extends StatelessWidget {
               draft.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _attachment(e),
+                  child: _attachment(e, inverted: inverted),
                 );
               }),
             );
@@ -424,7 +425,7 @@ class RecentChatTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _attachment(draft.attachments.first),
+                child: _attachment(draft.attachments.first, inverted: inverted),
               ),
             );
           }
@@ -461,13 +462,13 @@ class RecentChatTile extends StatelessWidget {
                 Text(
                   'label_typing'.l10n,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: inverted ? colors.onSecondary : colors.secondary,
                   ),
                 ),
                 const SizedBox(width: 3),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: AnimatedTyping(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(inverted: inverted),
                 ),
               ],
             ),
@@ -484,14 +485,14 @@ class RecentChatTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: inverted ? Colors.white : colors.secondary,
                       ),
                     ),
                   ),
                   const SizedBox(width: 3),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: AnimatedTyping(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: AnimatedTyping(inverted: inverted),
                   ),
                 ],
               ),
@@ -500,9 +501,13 @@ class RecentChatTile extends StatelessWidget {
         }
       } else if (item != null) {
         if (item is ChatCall) {
-          const Widget widget = Padding(
-            padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
+          Widget widget = Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(
+              Icons.call,
+              size: 16,
+              color: inverted ? colors.onSecondary : const Color(0xFF666666),
+            ),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {
@@ -533,6 +538,7 @@ class RecentChatTile extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 2),
                     child: _attachment(
                       e,
+                      inverted: inverted,
                       onError: () => rxChat.updateAttachments(item!),
                     ),
                   );
@@ -544,6 +550,7 @@ class RecentChatTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 4),
                   child: _attachment(
                     item.attachments.first,
+                    inverted: inverted,
                     onError: () => rxChat.updateAttachments(item!),
                   ),
                 ),
@@ -784,7 +791,7 @@ class RecentChatTile extends StatelessWidget {
         style: Theme.of(context)
             .textTheme
             .titleSmall!
-            .copyWith(color: invert ? Colors.white : null),
+            .copyWith(color: inverted ? colors.onSecondary : null),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -792,7 +799,11 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds an [Attachment] visual representation.
-  Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
+  Widget _attachment(
+    Attachment e, {
+    bool inverted = false,
+    Future<void> Function()? onError,
+  }) {
     Widget? content;
 
     if (e is LocalAttachment) {
@@ -812,19 +823,19 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Colors.grey,
-            child: const Icon(
+            color: inverted ? Colors.white : Colors.grey,
+            child: Icon(
               Icons.video_file,
               size: 18,
-              color: Colors.white,
+              color: inverted ? Colors.grey : Colors.white,
             ),
           );
         }
       } else {
         content = Container(
-          color: Colors.grey,
+          color: inverted ? Colors.white : Colors.grey,
           child: SvgLoader.asset(
-            'assets/icons/file.svg',
+            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
             width: 30,
             height: 30,
           ),
@@ -862,19 +873,19 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: const Color(0xFFDFDFDF),
-            child: const Icon(
+            color: inverted ? Colors.white : Colors.grey,
+            child: Icon(
               Icons.video_file,
               size: 18,
-              color: Colors.white,
+              color: inverted ? Colors.grey : Colors.white,
             ),
           );
         }
       } else {
         content = Container(
-          color: const Color(0xFFDFDFDF),
+          color: inverted ? Colors.white : Colors.grey,
           child: SvgLoader.asset(
-            'assets/icons/file.svg',
+            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
             width: 30,
             height: 30,
           ),
@@ -897,7 +908,9 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds a [ChatItem.status] visual representation.
-  Widget _status(BuildContext context, bool invert) {
+  Widget _status(BuildContext context, bool inverted) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -927,14 +940,14 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? invert
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.secondary
+                ? inverted
+                    ? colors.onSecondary
+                    : colors.secondary
                 : isError
                     ? Colors.red
-                    : invert
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary,
+                    : inverted
+                        ? colors.onSecondary
+                        : colors.primary,
             size: 16,
           ),
         );
@@ -944,11 +957,56 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  Widget _ongoingCall(
-    BuildContext context, {
-    bool invert = false,
-    bool paid = false,
-  }) {
+  /// Returns a visual representation of the [Chat.unreadCount] counter.
+  Widget _counter(BuildContext context, bool inverted) {
+    return Obx(() {
+      final ColorScheme colors = Theme.of(context).colorScheme;
+
+      final Chat chat = rxChat.chat.value;
+      final bool muted = chat.muted != null;
+
+      if (rxChat.unreadCount.value > 0) {
+        return Container(
+          key: const Key('UnreadMessages'),
+          margin: const EdgeInsets.only(left: 4),
+          width: 23,
+          height: 23,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: muted
+                ? inverted
+                    ? colors.onSecondary
+                    : const Color(0xFFC0C0C0)
+                : Colors.red,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            // TODO: Implement and test notations like `4k`, `54m`, etc.
+            rxChat.unreadCount.value > 99
+                ? '99${'plus'.l10n}'
+                : '${rxChat.unreadCount.value}',
+            style: TextStyle(
+              color: muted
+                  ? inverted
+                      ? colors.primary
+                      : Colors.white
+                  : Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+
+      return const SizedBox(key: Key('NoUnreadMessages'));
+    });
+  }
+
+  /// Returns a visual representation of the [Chat.ongoingCall], if any.
+  Widget _ongoingCall(BuildContext context, {bool paid = false}) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -960,6 +1018,8 @@ class RecentChatTile extends StatelessWidget {
       // const Color paidColor = Color(0xFFe0f0ff);
       const Color paidColor = Color.fromRGBO(213, 232, 253, 1);
 
+      // Returns a rounded rectangular button representing an [OngoingCall]
+      // associated action.
       Widget button(bool active) {
         return DecoratedBox(
           key: active
@@ -993,15 +1053,17 @@ class RecentChatTile extends StatelessWidget {
                     PeriodicBuilder(
                       period: const Duration(seconds: 1),
                       builder: (_) {
+                        final Duration duration =
+                            DateTime.now().difference(chat.ongoingCall!.at.val);
+                        final String text = duration.hhMmSs();
+
                         return Text(
-                          DateTime.now()
-                              .difference(chat.ongoingCall!.at.val)
-                              .hhMmSs(),
+                          text,
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall
                               ?.copyWith(color: Colors.white),
-                        );
+                        ).fixedDigits();
                       },
                     )
                   ],
@@ -1019,109 +1081,6 @@ class RecentChatTile extends StatelessWidget {
           child: button(inCall?.call() == true),
         ),
       );
-
-      final Widget trailing = WidgetButton(
-        onPressed: inCall?.call() == true ? onDrop : onJoin,
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: inCall?.call() == true
-                ? Colors.red
-                : Theme.of(context).colorScheme.secondary,
-          ),
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 8),
-                Icon(
-                  inCall?.call() == true ? Icons.call_end : Icons.call,
-                  size: 16,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 8),
-                if (constraints.maxWidth > 110)
-                  Expanded(
-                    child: Text(
-                      inCall?.call() == true
-                          ? 'btn_call_end'.l10n
-                          : 'btn_join_call'.l10n,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: Colors.white),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                const SizedBox(width: 8),
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return Text(
-                      DateTime.now()
-                          .difference(chat.ongoingCall!.at.val)
-                          .hhMmSs(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: Colors.white),
-                    );
-                  },
-                ),
-                const SizedBox(width: 8),
-              ],
-            );
-          }),
-        ),
-      );
-
-      return DefaultTextStyle(
-        style: Theme.of(context)
-            .textTheme
-            .titleSmall!
-            .copyWith(color: invert ? Colors.white : null),
-        overflow: TextOverflow.ellipsis,
-        child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
-      );
-    });
-  }
-
-  /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter() {
-    return Obx(() {
-      final Chat chat = rxChat.chat.value;
-
-      if (rxChat.unreadCount.value > 0) {
-        return Container(
-          key: const Key('UnreadMessages'),
-          margin: const EdgeInsets.only(left: 4),
-          width: 23,
-          height: 23,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: chat.muted == null ? Colors.red : const Color(0xFFC0C0C0),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            // TODO: Implement and test notations like `4k`, `54m`, etc.
-            rxChat.unreadCount.value > 99
-                ? '99${'plus'.l10n}'
-                : '${rxChat.unreadCount.value}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.center,
-          ),
-        );
-      }
-
-      return const SizedBox(key: Key('NoUnreadMessages'));
     });
   }
 
@@ -1188,6 +1147,9 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns the [child].
+  ///
+  /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
+  /// for discarding long presses on its [child].
   static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
         onLongPress: () {},
         child: child,

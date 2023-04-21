@@ -93,7 +93,6 @@ class ChatsTabController extends GetxController {
   final RxBool groupCreating = RxBool(false);
 
   final Rx<LoaderElement?> loader = Rx(null);
-  late final Rx<Timer?> timer;
 
   /// Status of the [createGroup] progression.
   ///
@@ -112,6 +111,11 @@ class ChatsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
+
+  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -153,15 +157,11 @@ class ChatsTabController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
   Rx<RxStatus> get status => _chatService.status;
 
   @override
   void onInit() {
-    // chats = RxList<ListElement>(
-    //   _chatService.chats.values.map((e) => ChatElement(e)).toList(),
-    // );
     chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
@@ -169,46 +169,8 @@ class ChatsTabController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    timer = Rx(Timer(2.seconds, () => timer.value = null));
-    // chats.add(const LoaderElement());
-
-    // _timer = Timer(
-    //   2.seconds,
-    //   () {
-    //     if (!status.value.isSuccess || status.value.isLoadingMore) {
-    //       const LoaderElement element = LoaderElement();
-    //       chats.insert(0, element);
-
-    //       SchedulerBinding.instance.addPostFrameCallback((_) {
-    //         loader.value = element;
-    //       });
-
-    //       Worker? worker;
-    //       worker = ever(status, (RxStatus status) {
-    //         if (status.isSuccess && !status.isLoadingMore && worker != null) {
-    //           worker = null;
-    //           loader.value = null;
-
-    //           Future.delayed(
-    //             const Duration(milliseconds: 200),
-    //             () => chats.removeWhere((e) => e is LoaderElement),
-    //           );
-    //         }
-    //       });
-    //     }
-    //   },
-    // );
-
-    Future.delayed(30.seconds, () => loader.value = null);
-
     _sortChats();
 
-    // for (ListElement chat in chats) {
-    //   if (chat is ChatElement) {
-    //     _sortingData[chat.chat.chat.value.id] =
-    //         _ChatSortingData(chat.chat.chat, _sortChats);
-    //   }
-    // }
     for (RxChat chat in chats) {
       _sortingData[chat.chat.value.id] =
           _ChatSortingData(chat.chat, _sortChats);
@@ -305,6 +267,8 @@ class ChatsTabController extends GetxController {
       v.stopUpdates();
     }
 
+    fetching.value?.cancel();
+
     router.navigation.value = true;
 
     super.onClose();
@@ -324,7 +288,11 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        router.chat(user.user.value.dialog);
+        if (user.id == me) {
+          router.chat(_chatService.monolog, push: true);
+        } else {
+          router.chat(user.user.value.dialog);
+        }
       }
     }
   }

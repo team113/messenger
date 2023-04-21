@@ -658,14 +658,16 @@ class ChatController extends GetxController {
           // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
               previous.authorId == item.authorId &&
-              item.at.val.difference(previous.forwards.last.value.at.val) <
+              item.at.val
+                      .difference(previous.forwards.last.value.at.val)
+                      .abs() <
                   groupForwardThreshold &&
               previous.note.value == null) {
             insert = false;
             previous.note.value = e;
           } else if (next is ChatForwardElement &&
               next.authorId == item.authorId &&
-              next.forwards.last.value.at.val.difference(item.at.val) <
+              next.forwards.last.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold &&
               next.note.value == null) {
             insert = false;
@@ -695,7 +697,9 @@ class ChatController extends GetxController {
 
           if (previous is ChatForwardElement &&
               previous.authorId == item.authorId &&
-              item.at.val.difference(previous.forwards.last.value.at.val) <
+              item.at.val
+                      .difference(previous.forwards.last.value.at.val)
+                      .abs() <
                   groupForwardThreshold) {
             // Add this [ChatForward] to previous [ChatForwardElement], if it
             // was posted less than [groupForwardThreshold] ago.
@@ -712,7 +716,7 @@ class ChatController extends GetxController {
             elements.remove(previousKey);
           } else if (next is ChatForwardElement &&
               next.authorId == item.authorId &&
-              next.forwards.first.value.at.val.difference(item.at.val) <
+              next.forwards.first.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add this [ChatForward] to next [ChatForwardElement], if it was
             // posted less than [groupForwardThreshold] ago.
@@ -721,7 +725,7 @@ class ChatController extends GetxController {
             insert = false;
           } else if (next is ChatMessageElement &&
               next.item.value.authorId == item.authorId &&
-              next.item.value.at.val.difference(item.at.val) <
+              next.item.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add the next [ChatMessage] to this [ChatForwardElement.note], if
             // it was posted less than [groupForwardThreshold] ago.
@@ -1006,8 +1010,9 @@ class ChatController extends GetxController {
 
             elements[_bottomLoader!.id] = _bottomLoader!;
 
-            if (listController.position.pixels >=
-                listController.position.maxScrollExtent - 100) {
+            if (listController.hasClients &&
+                listController.position.pixels >=
+                    listController.position.maxScrollExtent - 100) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 listController.sliverController.animateToIndex(
                   elements.length - 1,
@@ -1569,7 +1574,7 @@ extension ChatViewExt on Chat {
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.l10n;
+        title = name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
       case ChatKind.dialog:

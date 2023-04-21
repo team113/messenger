@@ -38,13 +38,14 @@ class BalanceProviderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return SizedBox(
       height: 94,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: InkWellWithHover(
-          selectedColor: style.cardSelectedColor,
+          selectedColor: colors.secondary,
           unselectedColor: style.cardColor,
           selected: selected,
           hoveredBorder:
@@ -52,8 +53,8 @@ class BalanceProviderWidget extends StatelessWidget {
           border: selected ? style.primaryBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: style.cardSelectedColor,
+          unselectedHoverColor: style.cardColor.darken(0.03),
+          selectedHoverColor: colors.secondary,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
             child: Row(

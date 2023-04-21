@@ -132,7 +132,7 @@ class ScreenShareController extends GetxController {
 
     _localTracks.addAll(tracks);
 
-    // TODO: Wait for fix.
+    // TODO: Wait for fix? Fixed? Check.
     final LocalMediaTrack track =
         tracks.firstWhere((e) => e.kind() == MediaKind.Video);
 

@@ -63,6 +63,7 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -90,14 +91,9 @@ class ChatsTabView extends StatelessWidget {
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
-                  border: c.search.value == null &&
-                          !c.searching.value &&
-                          !c.selecting.value
-                      ? null
-                      : Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 2,
-                        ),
+                  border: c.search.value != null || c.selecting.value
+                      ? Border.all(color: colors.secondary, width: 2)
+                      : null,
                   title: Obx(() {
                     final Widget child;
 
@@ -141,9 +137,25 @@ class ChatsTabView extends StatelessWidget {
                       child =
                           Text('label_select_chats'.l10n, key: const Key('3'));
                     } else {
-                      final bool isLoading = c.timer.value == null &&
-                          (c.status.value.isLoadingMore ||
-                              !c.status.value.isSuccess);
+                      final Widget synchronization;
+
+                      if (c.fetching.value == null &&
+                          c.status.value.isLoadingMore) {
+                        synchronization = Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Center(
+                            child: Text(
+                              'label_synchronization'.l10n,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colors.primary,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        synchronization = const SizedBox.shrink();
+                      }
 
                       child = Column(
                         key: const Key('2'),
@@ -153,22 +165,7 @@ class ChatsTabView extends StatelessWidget {
                           AnimatedSizeAndFade(
                             sizeDuration: const Duration(milliseconds: 300),
                             fadeDuration: const Duration(milliseconds: 300),
-                            child: isLoading
-                                ? Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: Center(
-                                      child: Text(
-                                        'Синхронизация...',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox(width: double.infinity),
+                            child: synchronization,
                           ),
                         ],
                       );
@@ -262,6 +259,10 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
+                  if (c.status.value.isLoading) {
+                    return const Center(child: CustomProgressIndicator());
+                  }
+
                   final Widget? child;
 
                   if (c.groupCreating.value) {
@@ -302,12 +303,12 @@ class ChatsTabView extends StatelessWidget {
                           top: Radius.circular(40),
                         ),
                         child: ListView.builder(
+                          key: const Key('GroupCreating'),
                           controller: c.search.value!.controller,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
-                            final Widget child;
-
                             final ListElement element = c.elements[i];
+                            final Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -351,11 +352,8 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
+                                      style:
+                                          TextStyle(color: colors.onSecondary),
                                     ),
                                   ],
                                 );
@@ -420,99 +418,108 @@ class ChatsTabView extends StatelessWidget {
                       c.search.value?.search.isEmpty.value == false) {
                     if (c.search.value!.searchStatus.value.isLoading &&
                         c.elements.isEmpty) {
-                      child = const Center(
-                        key: Key('Loading'),
-                        child: CustomProgressIndicator(),
+                      child = Center(
+                        key: UniqueKey(),
+                        child: const ColoredBox(
+                          key: Key('Loading'),
+                          color: Colors.transparent,
+                          child: CustomProgressIndicator(),
+                        ),
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = SafeScrollbar(
                         controller: c.scrollController,
-                        child: ListView.builder(
+                        child: AnimationLimiter(
                           key: const Key('Search'),
-                          controller: c.scrollController,
-                          itemCount: c.elements.length,
-                          itemBuilder: (_, i) {
-                            final ListElement element = c.elements[i];
-                            final Widget child;
+                          child: ListView.builder(
+                            key: const Key('SearchScrollable'),
+                            controller: c.scrollController,
+                            itemCount: c.elements.length,
+                            itemBuilder: (_, i) {
+                              final ListElement element = c.elements[i];
+                              final Widget child;
 
-                            if (element is ChatElement) {
-                              final RxChat chat = element.chat;
-                              child = Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                ),
-                                child: Obx(() {
-                                  return RecentChatTile(
-                                    chat,
-                                    key: Key('SearchChat_${chat.id}'),
-                                    me: c.me,
-                                    myUser: c.myUser.value,
-                                    blocked: chat.blacklisted,
-                                    getUser: c.getUser,
-                                    onJoin: () => c.joinCall(chat.id),
-                                    onDrop: () => c.dropCall(chat.id),
-                                    inCall: () => c.inCall(chat.id),
-                                    onTap: c.selecting.value
-                                        ? () => c.selectChat(chat)
-                                        : null,
-                                  );
-                                }),
-                              );
-                            } else if (element is ContactElement) {
-                              child = SearchUserTile(
-                                key: Key('SearchContact_${element.contact.id}'),
-                                contact: element.contact,
-                                onTap: () =>
-                                    c.openChat(contact: element.contact),
-                              );
-                            } else if (element is UserElement) {
-                              child = SearchUserTile(
-                                key: Key('SearchUser_${element.user.id}'),
-                                user: element.user,
-                                onTap: () => c.openChat(user: element.user),
-                              );
-                            } else if (element is DividerElement) {
-                              child = Center(
-                                child: Container(
-                                  margin:
-                                      const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                                  width: double.infinity,
-                                  child: Center(
-                                    child: Text(
-                                      element.category.name.capitalizeFirst!,
-                                      style: style.systemMessageStyle.copyWith(
-                                        color: Colors.black,
-                                        fontSize: 15,
+                              if (element is ChatElement) {
+                                final RxChat chat = element.chat;
+                                child = Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  child: Obx(() {
+                                    return RecentChatTile(
+                                      chat,
+                                      key: Key('SearchChat_${chat.id}'),
+                                      me: c.me,
+                                      myUser: c.myUser.value,
+                                      blocked: chat.blacklisted,
+                                      getUser: c.getUser,
+                                      onJoin: () => c.joinCall(chat.id),
+                                      onDrop: () => c.dropCall(chat.id),
+                                      inCall: () => c.inCall(chat.id),
+                                      onTap: c.selecting.value
+                                          ? () => c.selectChat(chat)
+                                          : null,
+                                    );
+                                  }),
+                                );
+                              } else if (element is ContactElement) {
+                                child = SearchUserTile(
+                                  key: Key(
+                                      'SearchContact_${element.contact.id}'),
+                                  contact: element.contact,
+                                  onTap: () =>
+                                      c.openChat(contact: element.contact),
+                                );
+                              } else if (element is UserElement) {
+                                child = SearchUserTile(
+                                  key: Key('SearchUser_${element.user.id}'),
+                                  user: element.user,
+                                  onTap: () => c.openChat(user: element.user),
+                                );
+                              } else if (element is DividerElement) {
+                                child = Center(
+                                  child: Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        12, 10, 12, 6),
+                                    width: double.infinity,
+                                    child: Center(
+                                      child: Text(
+                                        element.category.name.capitalizeFirst!,
+                                        style:
+                                            style.systemMessageStyle.copyWith(
+                                          color: Colors.black,
+                                          fontSize: 15,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            } else {
-                              child = const SizedBox();
-                            }
+                                );
+                              } else {
+                                child = const SizedBox();
+                              }
 
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      top: i == 0 ? 3 : 0,
-                                      bottom:
-                                          i == c.elements.length - 1 ? 4 : 0,
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        top: i == 0 ? 3 : 0,
+                                        bottom:
+                                            i == c.elements.length - 1 ? 4 : 0,
+                                      ),
+                                      child: child,
                                     ),
-                                    child: child,
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       );
                     } else {
@@ -526,8 +533,16 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
                   } else {
-                    if (c.chats.none((e) => !e.id.isLocal)) {
-                      if (!c.chatsReady.value) {
+                    if (c.chats.none(
+                      (e) {
+                        final bool isHidden = e.chat.value.isHidden &&
+                            !e.chat.value.isRoute(router.route, c.me);
+
+                        return (!e.id.isLocal || e.chat.value.isMonolog) &&
+                            !isHidden;
+                      },
+                    )) {
+                      if (c.status.value.isLoadingMore) {
                         child = Center(
                           key: UniqueKey(),
                           child: const ColoredBox(
@@ -563,7 +578,13 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              if (!e.id.isLocal || e.messages.isNotEmpty) {
+                              final bool isHidden = e.chat.value.isHidden &&
+                                  !e.chat.value.isRoute(router.route, c.me);
+
+                              if ((!e.id.isLocal ||
+                                      e.messages.isNotEmpty ||
+                                      e.chat.value.isMonolog) &&
+                                  !isHidden) {
                                 if (e.chat.value.favoritePosition != null) {
                                   favorites.add(e);
                                 } else {
@@ -878,7 +899,8 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
+  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
+  /// [Chat]s manipulation.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
     const List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
@@ -957,7 +979,7 @@ class ChatsTabView extends StatelessWidget {
           return FieldButton(
             text: 'btn_clear_history'.l10n,
             onPressed: () => setState(() => clear = !clear),
-            trailing: SelectedDot(selected: clear, size: 22),
+            trailing: SelectedDot(selected: clear, size: 22, inverted: false),
           );
         })
       ],

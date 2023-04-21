@@ -108,9 +108,6 @@ class ContactsTabController extends GetxController {
   RxObsMap<ChatContactId, RxChatContact> get allFavorites =>
       _contactService.favorites;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get contactsReady => _contactService.isReady;
-
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override

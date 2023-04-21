@@ -85,6 +85,8 @@ class ApplicationSettings extends HiveObject {
   @HiveField(10)
   bool displayTransactions;
 
+  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
+  /// in a [Chat].
   @HiveField(11)
   bool timelineEnabled;
 }

@@ -126,9 +126,6 @@ class PublicsTabController extends GetxController {
 
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
-
   @override
   void onInit() {
     _searchWorker = ever(

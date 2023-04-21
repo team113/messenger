@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
@@ -63,7 +62,7 @@ class DownloadButton extends StatelessWidget {
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
       onTrailingPressed: () {
         if (link != null) {
-        PlatformUtils.copy(text: '${Config.origin}/artifacts/$link');
+          PlatformUtils.copy(text: '${Config.origin}/artifacts/$link');
           MessagePopup.success('label_copied'.l10n);
         }
       },

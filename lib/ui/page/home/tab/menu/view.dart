@@ -43,6 +43,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
+        final ColorScheme colors = Theme.of(context).colorScheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -183,6 +184,9 @@ class MenuTabView extends StatelessWidget {
                   VoidCallback? onTap,
                 }) {
                   return Obx(() {
+                    final bool inverted = tab == router.profileSection.value &&
+                        router.route == Routes.me;
+
                     return Padding(
                       key: key,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -197,10 +201,8 @@ class MenuTabView extends StatelessWidget {
                           child: Material(
                             type: MaterialType.card,
                             borderRadius: style.cardRadius,
-                            color: tab == router.profileSection.value &&
-                                    router.route == Routes.me
-                                ? style.cardSelectedColor
-                                : style.cardColor,
+                            color:
+                                inverted ? colors.secondary : style.cardColor,
                             child: InkWell(
                               borderRadius: style.cardRadius,
                               onTap: onTap ??
@@ -212,7 +214,9 @@ class MenuTabView extends StatelessWidget {
                                     }
                                     router.me();
                                   },
-                              hoverColor: style.cardHoveredColor,
+                              hoverColor: inverted
+                                  ? colors.secondary
+                                  : style.cardColor.darken(0.03),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
@@ -220,9 +224,9 @@ class MenuTabView extends StatelessWidget {
                                     const SizedBox(width: 12),
                                     Icon(
                                       icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: inverted
+                                          ? colors.onSecondary
+                                          : colors.secondary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(
@@ -237,13 +241,23 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headlineSmall!,
+                                                .headlineSmall!
+                                                .copyWith(
+                                                  color: inverted
+                                                      ? colors.onSecondary
+                                                      : null,
+                                                ),
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: inverted
+                                                  ? colors.onSecondary
+                                                  : null,
+                                            ),
                                             child: Text(subtitle),
                                           ),
                                         ],
@@ -299,7 +313,7 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       icon: Icons.chat_bubble,
                       title: 'label_chats'.l10n,
-                      subtitle: 'label_messages_displaying'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
                     );
                     break;
 

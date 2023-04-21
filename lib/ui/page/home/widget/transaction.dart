@@ -22,6 +22,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
 enum TransactionCurrency { dollar, inter }
@@ -39,26 +40,27 @@ class TransactionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    final Widget status;
-
-    if (transaction is IncomingTransaction) {
-      status = SvgLoader.asset(
-        'assets/icons/transaction_in.svg',
-        width: 20,
-        height: 20,
-      );
-    } else {
-      status = SvgLoader.asset(
-        'assets/icons/transaction_out.svg',
-        width: 20,
-        height: 20,
-      );
-    }
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return Obx(() {
       final bool selected =
           router.route == '${Routes.transaction}/${transaction.id}';
+
+      final Widget status;
+
+      if (transaction is IncomingTransaction) {
+        status = SvgLoader.asset(
+          'assets/icons/transaction_in.svg',
+          width: 20,
+          height: 20,
+        );
+      } else {
+        status = SvgLoader.asset(
+          'assets/icons/transaction_out.svg',
+          width: 20,
+          height: 20,
+        );
+      }
 
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
@@ -71,15 +73,15 @@ class TransactionWidget extends StatelessWidget {
           ),
           child: InkWellWithHover(
             borderRadius: style.cardRadius,
-            selectedColor: style.cardSelectedColor,
+            selectedColor: colors.secondary,
             unselectedColor: style.cardColor,
             onTap: () => router.transaction(transaction.id),
             selected: selected,
             hoveredBorder:
                 selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.cardSelectedColor,
+            unselectedHoverColor: style.cardColor.darken(0.03),
+            selectedHoverColor: colors.secondary,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
@@ -121,6 +123,9 @@ class TransactionWidget extends StatelessWidget {
                                             ?.copyWith(
                                               fontFamily: 'Gapopa',
                                               fontWeight: FontWeight.w300,
+                                              color: selected
+                                                  ? Colors.white
+                                                  : null,
                                             ),
                                       ),
                                     const WidgetSpan(child: SizedBox(width: 1)),
@@ -132,6 +137,7 @@ class TransactionWidget extends StatelessWidget {
                                       .textTheme
                                       .headlineSmall
                                       ?.copyWith(
+                                        color: selected ? Colors.white : null,
                                         fontWeight: FontWeight.w300,
                                       ),
                                 ),
@@ -139,24 +145,38 @@ class TransactionWidget extends StatelessWidget {
                             ),
                             Text(
                               transaction.at.toShort(),
-                              style: Theme.of(context).textTheme.titleSmall,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: selected ? Colors.white : null,
+                                  ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            const Expanded(child: Text('SWIFT transfer')),
+                            Expanded(
+                              child: Text(
+                                'SWIFT transfer',
+                                style: TextStyle(
+                                  color: selected ? Colors.white : null,
+                                ),
+                              ),
+                            ),
                             Text(
                               '${transaction.status.name.capitalizeFirst}',
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
                                   ?.copyWith(
-                                    color: transaction.status ==
-                                            TransactionStatus.failed
-                                        ? Colors.red
-                                        : null,
+                                    color: selected
+                                        ? Colors.white
+                                        : transaction.status ==
+                                                TransactionStatus.failed
+                                            ? Colors.red
+                                            : null,
                                     fontSize: 13,
                                   ),
                             ),

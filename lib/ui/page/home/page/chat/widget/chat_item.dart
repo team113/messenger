@@ -68,7 +68,6 @@ import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
-import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
@@ -82,8 +81,9 @@ class ChatItemWidget extends StatefulWidget {
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -97,7 +97,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onAttachmentError,
     this.onSelecting,
     this.paid = false,
-    this.displayTime = true,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -125,6 +124,13 @@ class ChatItemWidget extends StatefulWidget {
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatItemWidget].
+  final bool timestamp;
+
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
@@ -143,9 +149,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
   final void Function(String text)? onCopy;
-
-  /// Optional animation that controls a [SwipeableStatus].
-  final AnimationController? animation;
 
   /// Callback, called when a gallery list is required.
   ///
@@ -171,8 +174,6 @@ class ChatItemWidget extends StatefulWidget {
   final void Function(bool)? onSelecting;
 
   final bool paid;
-
-  final bool displayTime;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -905,7 +906,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool isSending = msg.status.value == SendingStatus.sending;
 
     // final bool timeInBubble = msg.attachments.isNotEmpty;
-    final bool timeInBubble = _text == null && media.isNotEmpty;
+
+    // Indicator whether the [_timestamp] should be displayed in a bubble above
+    // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
+    final bool timeInBubble = media.isNotEmpty;
 
     // const Color paidColor = Color(0xFFF19CBB);
     // const Color paidColor = Color(0xFF8383ff);
@@ -944,7 +948,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           ),
         ],
-        if (widget.paid && !_fromMe && widget.displayTime) ...[
+        if (widget.paid && !_fromMe && widget.timestamp) ...[
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             color: Theme.of(context).colorScheme.primary,
@@ -952,7 +956,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             width: 0.5,
           ),
         ],
-        if (widget.displayTime) ...[
+        if (widget.timestamp) ...[
           if (_fromMe) ...[
             if (isSent || isDelivered || isRead || isSending || isError)
               Icon(
@@ -1196,7 +1200,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
-          if (_text != null || (widget.displayTime && msg.attachments.isEmpty))
+          if (_text != null || (widget.timestamp && msg.attachments.isEmpty))
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.7,
@@ -1230,7 +1234,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       // text.linkify(),
                       // TextSpan(text: text),
                       if (_text != null) _text!,
-                      if (widget.displayTime && !timeInBubble)
+                      if (widget.timestamp && !timeInBubble)
                         if (_fromMe)
                           const WidgetSpan(
                             child: SizedBox(width: 42, height: 20),
@@ -1289,53 +1293,50 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-          child: FoldedWidget(
-            folded: false && widget.paid,
-            child: Stack(
-              children: [
-                IntrinsicWidth(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    decoration: BoxDecoration(
-                      color: background,
-                      borderRadius: BorderRadius.circular(15),
-                      border: border,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: children,
-                    ),
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: background,
+                    borderRadius: BorderRadius.circular(15),
+                    border: border,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
                   ),
                 ),
-                if (widget.displayTime || widget.paid)
-                  Positioned(
-                    right: timeInBubble ? 4 : 8,
-                    bottom: 4,
-                    child: timeInBubble
-                        ? ConditionalBackdropFilter(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                left: 5,
-                                right: 5,
-                                top: 2,
-                                bottom: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                // color: Colors.white.withOpacity(0.9),
-                                // color: _fromMe
-                                //     ? style.readMessageColor
-                                //     : style.messageColor,
-                                color: Colors.black.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: timeline,
+              ),
+              if (widget.timestamp || widget.paid)
+                Positioned(
+                  right: timeInBubble ? 4 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              left: 5,
+                              right: 5,
+                              top: 2,
+                              bottom: 2,
                             ),
-                          )
-                        : timeline,
-                  )
-              ],
-            ),
+                            decoration: BoxDecoration(
+                              // color: Colors.white.withOpacity(0.9),
+                              // color: _fromMe
+                              //     ? style.readMessageColor
+                              //     : style.messageColor,
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: timeline,
+                          ),
+                        )
+                      : timeline,
+                )
+            ],
           ),
         );
       },
@@ -1435,7 +1436,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleSmall,
-                    ),
+                    ).fixedDigits(),
                   ),
                 ],
               ],
@@ -1507,7 +1508,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                         ]
                       ],
-                      if (widget.paid && !_fromMe && widget.displayTime) ...[
+                      if (widget.paid && !_fromMe && widget.timestamp) ...[
                         WidgetSpan(
                           child: Transform.translate(
                             offset: const Offset(0, 4),
@@ -1520,7 +1521,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                         ),
                       ],
-                      if (widget.displayTime)
+                      if (widget.timestamp)
                         WidgetSpan(
                           child: Opacity(
                             opacity: 0,
@@ -1536,7 +1537,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ],
             ),
           ),
-          if (widget.displayTime)
+          if (widget.timestamp)
             Positioned(
               right: 8,
               bottom: 4,
@@ -2000,6 +2001,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool isMonolog = widget.chat.value?.isMonolog == true;
     final double swipeableWidth = _fromMe ? 65 : 50;
 
+    // Builds the provided [builder] and the [avatars], if any.
+    Widget child(bool menu) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          builder(menu),
+          if (avatars.isNotEmpty)
+            Transform.translate(
+              offset: Offset(-12, -widget.margin.bottom),
+              child: WidgetButton(
+                onPressed: () => MessageInfo.show(
+                  context,
+                  reads: reads ?? [],
+                  id: widget.item.value.id,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: avatars,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
@@ -2084,7 +2115,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisAlignment:
                 _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
-              if (_fromMe)
+              if (_fromMe && !widget.timestamp)
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
@@ -2123,7 +2154,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           child:
                               AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )
-                      : const SizedBox.square(dimension: 34),
+                      : const SizedBox(width: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
@@ -2303,33 +2334,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: (bool menu) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            builder(menu),
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => MessageInfo.show(
-                                    context,
-                                    reads: reads ?? [],
-                                    id: widget.item.value.id,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        builder: PlatformUtils.isMobile ? child : null,
+                        child: PlatformUtils.isMobile ? null : child(false),
                       ),
                     ),
                   );
@@ -2640,5 +2646,39 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
+  }
+}
+
+/// Extension adding a fixed-length digits [Text] transformer.
+extension FixedDigitsExtension on Text {
+  /// [RegExp] detecting numbers.
+  static final RegExp _regex = RegExp(r'\d');
+
+  /// Returns a [Text] guaranteed to have fixed width of digits in it.
+  Widget fixedDigits() {
+    Text copyWith(String string) {
+      return Text(
+        string,
+        style: style,
+        strutStyle: strutStyle,
+        textAlign: textAlign,
+        textDirection: textDirection,
+        locale: locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaleFactor: textScaleFactor,
+        maxLines: maxLines,
+        textWidthBasis: textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      );
+    }
+
+    return Stack(
+      children: [
+        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
+        copyWith(data!),
+      ],
+    );
   }
 }

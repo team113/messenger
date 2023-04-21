@@ -143,6 +143,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -185,427 +187,255 @@ class _ChatViewState extends State<ChatView>
                   //     child: child,
                   //   );
                   // }),
-                  LayoutBuilder(builder: (context, constraints) {
-                    return Scaffold(
-                      resizeToAvoidBottomInset: true,
-                      appBar: CustomAppBar(
-                        title: Row(
-                          children: [
-                            Material(
-                              elevation: 6,
-                              type: MaterialType.circle,
-                              shadowColor: const Color(0x55000000),
-                              color: Colors.white,
-                              child: InkWell(
-                                customBorder: const CircleBorder(),
-                                onTap: onDetailsTap,
-                                child: Center(
-                                  child: AvatarWidget.fromRxChat(
-                                    c.chat,
-                                    radius: 17,
-                                  ),
+                  Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    appBar: CustomAppBar(
+                      title: Row(
+                        children: [
+                          Material(
+                            elevation: 6,
+                            type: MaterialType.circle,
+                            shadowColor: const Color(0x55000000),
+                            color: Colors.white,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: onDetailsTap,
+                              child: Center(
+                                child: AvatarWidget.fromRxChat(
+                                  c.chat,
+                                  radius: 17,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: InkWell(
-                                splashFactory: NoSplash.splashFactory,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: onDetailsTap,
-                                child: DefaultTextStyle.merge(
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        c.chat!.title.value,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                      _chatSubtitle(c),
-                                    ],
-                                  ),
+                          ),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: InkWell(
+                              splashFactory: NoSplash.splashFactory,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: onDetailsTap,
+                              child: DefaultTextStyle.merge(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      c.chat!.title.value,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                    if (!isMonolog) _chatSubtitle(c),
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                        // background: c.paid
-                        //     ? const Color.fromARGB(255, 241, 250, 244)
-                        //     : null,
-                        padding: const EdgeInsets.only(left: 4, right: 20),
-                        leading: const [StyledBackButton()],
-                        actions: [
-                          // if (c.paid) ...[
-                          //   WidgetButton(
-                          //     onPressed: c.paid
-                          //         ? () {
-                          //             // c.paidDisclaimer.value = true;
-                          //             // c.confirmAction = null;
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                      // background: c.paid
+                      //     ? const Color.fromARGB(255, 241, 250, 244)
+                      //     : null,
+                      padding: const EdgeInsets.only(left: 4, right: 20),
+                      leading: const [StyledBackButton()],
+                      actions: [
+                        Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
 
-                          //             final Chat? chat = c.chat?.chat.value;
-                          //             if (chat?.isDialog == true &&
-                          //                 chat?.members.isNotEmpty == true) {
-                          //               router.user(
-                          //                 chat!.members
-                          //                         .firstWhereOrNull(
-                          //                             (e) => e.user.id != c.me)
-                          //                         ?.user
-                          //                         .id ??
-                          //                     chat.members.first.user.id,
-                          //                 push: true,
-                          //                 scrollToPaid: true,
-                          //               );
-                          //             }
-                          //           }
-                          //         : null,
-                          //     child: Transform.translate(
-                          //       offset: const Offset(0, 1),
-                          //       child: SvgLoader.asset(
-                          //         'assets/icons/get_paid7.svg',
-                          //         width: 20.8,
-                          //         height: 21.75,
-                          //       ),
-                          //     ),
-                          //   ),
-                          //   const SizedBox(width: 29),
-                          // ],
-                          if (c.chat!.chat.value.ongoingCall == null) ...[
-                            if (true ||
-                                !c.paid ||
-                                constraints.maxWidth > 400) ...[
+                          final List<Widget> children;
+
+                          if (c.chat!.chat.value.ongoingCall == null) {
+                            children = [
                               WidgetButton(
                                 onPressed: () => c.call(true),
                                 child: SvgLoader.asset(
-                                  // 'assets/icons/chat_video_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
                               ),
                               const SizedBox(width: 28),
-                            ],
-                            WidgetButton(
-                              key: const Key('AudioCall'),
-                              onPressed: () => c.call(false),
-                              child: SvgLoader.asset(
-                                // 'assets/icons/chat_audio_call${c.paid && c.paidDisclaimer.value ? '_disabled' : ''}.svg',
-                                'assets/icons/chat_audio_call.svg',
-                                height: 19,
+                              WidgetButton(
+                                key: const Key('AudioCall'),
+                                onPressed: () => c.call(false),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
                               ),
-                            ),
-                          ] else ...[
-                            AnimatedSwitcher(
-                              key: const Key('ActiveCallButton'),
-                              duration: 300.milliseconds,
-                              child: c.inCall
-                                  ? WidgetButton(
-                                      key: const Key('Drop'),
-                                      onPressed: c.dropCall,
-                                      child: Container(
-                                        height: 32,
-                                        width: 32,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: SvgLoader.asset(
-                                            'assets/icons/call_end.svg',
-                                            width: 32,
-                                            height: 32,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : WidgetButton(
-                                      key: const Key('Join'),
-                                      onPressed: c.joinCall,
-                                      child: Container(
-                                        height: 32,
-                                        width: 32,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: SvgLoader.asset(
-                                            'assets/icons/audio_call_start.svg',
-                                            width: 15,
-                                            height: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      body: Stack(
-                        children: [
-                          Listener(
-                            onPointerSignal: (s) {
-                              if (s is PointerScrollEvent &&
-                                  c.settings.value?.timelineEnabled == true) {
-                                if ((s.scrollDelta.dy.abs() < 3 &&
-                                        s.scrollDelta.dx.abs() > 3) ||
-                                    c.isHorizontalScroll.value) {
-                                  double value =
-                                      _animation.value + s.scrollDelta.dx / 100;
-                                  _animation.value = value.clamp(0, 1);
-
-                                  if (_animation.value == 0 ||
-                                      _animation.value == 1) {
-                                    _resetHorizontalScroll(c, 10.milliseconds);
-                                  } else {
-                                    _resetHorizontalScroll(c);
-                                  }
-                                }
-                              }
-                            },
-                            onPointerPanZoomUpdate: (s) {
-                              if (c.scrollOffset.dx.abs() < 7 &&
-                                  c.scrollOffset.dy.abs() < 7) {
-                                c.scrollOffset = c.scrollOffset.translate(
-                                  s.panDelta.dx.abs(),
-                                  s.panDelta.dy.abs(),
-                                );
-                              }
-                            },
-                            onPointerMove: (d) {
-                              if (c.scrollOffset.dx.abs() < 7 &&
-                                  c.scrollOffset.dy.abs() < 7) {
-                                c.scrollOffset = c.scrollOffset.translate(
-                                  d.delta.dx.abs(),
-                                  d.delta.dy.abs(),
-                                );
-                              }
-                            },
-                            onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                            onPointerCancel: (_) =>
-                                c.scrollOffset = Offset.zero,
-                            child: RawGestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              gestures: {
-                                if (c.isSelecting.isFalse)
-                                  AllowMultipleHorizontalDragGestureRecognizer:
-                                      GestureRecognizerFactoryWithHandlers<
-                                          AllowMultipleHorizontalDragGestureRecognizer>(
-                                    () =>
-                                        AllowMultipleHorizontalDragGestureRecognizer(),
-                                    (AllowMultipleHorizontalDragGestureRecognizer
-                                        instance) {
-                                      if (c.settings.value?.timelineEnabled ==
-                                          true) {
-                                        instance.onUpdate = (d) {
-                                          if (!c.isItemDragged.value &&
-                                              c.scrollOffset.dy.abs() < 7 &&
-                                              c.scrollOffset.dx.abs() > 7 &&
-                                              c.isSelecting.isFalse) {
-                                            double value = (_animation.value -
-                                                    d.delta.dx / 100)
-                                                .clamp(0, 1);
-
-                                            if (_animation.value != 1 &&
-                                                    value == 1 ||
-                                                _animation.value != 0 &&
-                                                    value == 0) {
-                                              HapticFeedback.selectionClick();
-                                            }
-
-                                            _animation.value =
-                                                value.clamp(0, 1);
-                                          }
-                                        };
-
-                                        instance.onEnd = (d) async {
-                                          c.scrollOffset = Offset.zero;
-                                          if (!c.isItemDragged.value &&
-                                              _animation.value != 1 &&
-                                              _animation.value != 0) {
-                                            if (_animation.value >= 0.5) {
-                                              await _animation.forward();
-                                              HapticFeedback.selectionClick();
-                                            } else {
-                                              await _animation.reverse();
-                                              HapticFeedback.selectionClick();
-                                            }
-                                          }
-                                        };
-                                      }
-                                    },
-                                  )
-                              },
-                              child: Column(
-                                children: [
-                                  Obx(() {
-                                    final Style style =
-                                        Theme.of(context).extension<Style>()!;
-
-                                    void onPressed() {
-                                      c.paidDisclaimerDismissed.value = false;
-                                      c.paidDisclaimer.value = true;
-
-                                      // if (c.feeElement != null) {
-                                      //   c.elements.remove(c.feeElement!.id);
-                                      //   c.feeElement = null;
-                                      // }
-
-                                      // c.feeElement = FeeElement(false);
-                                      // c.elements[c.feeElement!.id] =
-                                      //     c.feeElement!;
-                                      // c.listController.animateTo(
-                                      //   c.listController.offset + 100,
-                                      //   duration: 200.milliseconds,
-                                      //   curve: Curves.ease,
-                                      // );
-                                    }
-
-                                    bool dummy =
-                                        c.paidDisclaimerDismissed.value;
-
-                                    return Row(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            height: 40,
-                                            padding: const EdgeInsets.all(8),
-                                            margin: const EdgeInsets.only(
-                                              left: 6,
-                                              right: 6,
-                                              top: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              boxShadow: const [
-                                                CustomBoxShadow(
-                                                  blurRadius: 8,
-                                                  color: Color(0x22000000),
-                                                ),
-                                              ],
-                                              borderRadius: style.cardRadius,
-                                              border: style.systemMessageBorder,
-                                              // color: style.systemMessageColor,
-                                              color: Colors.white,
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                'Закреплено сообщений: 1/3',
-                                                style: style.systemMessageStyle
-                                                    .copyWith(
-                                                  fontSize: 15,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        AnimatedSize(
-                                          duration: 200.milliseconds,
-                                          child: WidgetButton(
-                                            onPressed: onPressed,
-                                            child: c.paidDisclaimerDismissed
-                                                        .value &&
-                                                    c.paid
-                                                ? Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                      12,
-                                                      8,
-                                                      12,
-                                                      8,
-                                                    ),
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                      left: 0,
-                                                      right: 6,
-                                                      top: 6,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: style
-                                                          .systemMessageBorder,
-                                                      // color: style
-                                                      //     .systemMessageColor,
-                                                      color: Colors.white,
-                                                      boxShadow: const [
-                                                        CustomBoxShadow(
-                                                          blurRadius: 8,
-                                                          color: Color(
-                                                            0x22000000,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: Center(
-                                                      child:
-                                                          Transform.translate(
-                                                        offset: Offset(
-                                                          -1,
-                                                          -4,
-                                                        ),
-                                                        // child: SvgLoader.asset(
-                                                        //   'assets/icons/currency.svg',
-                                                        //   width: 23.97,
-                                                        //   height: 26,
-                                                        // )
-                                                        child: Text(
-                                                          '¤',
-                                                          style: style
-                                                              .systemMessageStyle
-                                                              .copyWith(
-                                                            fontFamily:
-                                                                'Gapopa',
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            color: const Color(
-                                                              0xFFffcf78,
-                                                            ),
-                                                            // color:
-                                                            //     Theme.of(context)
-                                                            //         .colorScheme
-                                                            //         .secondary,
-                                                            // color: const Color(
-                                                            //     0xFF8383FF),
-                                                            fontSize: 21,
-                                                          ),
-                                                        ),
-                                                        // '\$',
-                                                        // style: style
-                                                        //     .systemMessageStyle
-                                                        //     .copyWith(
-                                                        //   fontSize: 15,
-                                                        //   color:
-                                                        //       Theme.of(context)
-                                                        //           .colorScheme
-                                                        //           .secondary,
-                                                        // ),
-                                                        // ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-
-                                    return AnimatedSizeAndFade.showHide(
-                                      show: c.paidDisclaimerDismissed.value &&
-                                          c.paid,
-                                      child: WidgetButton(
-                                        onPressed: onPressed,
+                            ];
+                          } else {
+                            children = [
+                              AnimatedSwitcher(
+                                key: const Key('ActiveCallButton'),
+                                duration: 300.milliseconds,
+                                child: c.inCall
+                                    ? WidgetButton(
+                                        key: const Key('Drop'),
+                                        onPressed: c.dropCall,
                                         child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/call_end.svg',
+                                              width: 32,
+                                              height: 32,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : WidgetButton(
+                                        key: const Key('Join'),
+                                        onPressed: c.joinCall,
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/audio_call_start.svg',
+                                              width: 15,
+                                              height: 15,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ];
+                          }
+
+                          return Row(children: children);
+                        }),
+                      ],
+                    ),
+                    body: Stack(
+                      children: [
+                        Listener(
+                          onPointerSignal:
+                              c.settings.value?.timelineEnabled == true
+                                  ? (s) {
+                                      if (s is PointerScrollEvent) {
+                                        if ((s.scrollDelta.dy.abs() < 3 &&
+                                                s.scrollDelta.dx.abs() > 3) ||
+                                            c.isHorizontalScroll.value) {
+                                          double value = _animation.value +
+                                              s.scrollDelta.dx / 100;
+                                          _animation.value = value.clamp(0, 1);
+
+                                          if (_animation.value == 0 ||
+                                              _animation.value == 1) {
+                                            _resetHorizontalScroll(
+                                                c, 10.milliseconds);
+                                          } else {
+                                            _resetHorizontalScroll(c);
+                                          }
+                                        }
+                                      }
+                                    }
+                                  : null,
+                          onPointerPanZoomUpdate: (s) {
+                            if (c.scrollOffset.dx.abs() < 7 &&
+                                c.scrollOffset.dy.abs() < 7) {
+                              c.scrollOffset = c.scrollOffset.translate(
+                                s.panDelta.dx.abs(),
+                                s.panDelta.dy.abs(),
+                              );
+                            }
+                          },
+                          onPointerMove: (d) {
+                            if (c.scrollOffset.dx.abs() < 7 &&
+                                c.scrollOffset.dy.abs() < 7) {
+                              c.scrollOffset = c.scrollOffset.translate(
+                                d.delta.dx.abs(),
+                                d.delta.dy.abs(),
+                              );
+                            }
+                          },
+                          onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                          onPointerCancel: (_) => c.scrollOffset = Offset.zero,
+                          child: RawGestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            gestures: {
+                              if (c.isSelecting.isFalse)
+                                AllowMultipleHorizontalDragGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                        AllowMultipleHorizontalDragGestureRecognizer>(
+                                  () =>
+                                      AllowMultipleHorizontalDragGestureRecognizer(),
+                                  (AllowMultipleHorizontalDragGestureRecognizer
+                                      instance) {
+                                    if (c.settings.value?.timelineEnabled ==
+                                        true) {
+                                      instance.onUpdate = (d) {
+                                        if (!c.isItemDragged.value &&
+                                            c.scrollOffset.dy.abs() < 7 &&
+                                            c.scrollOffset.dx.abs() > 7 &&
+                                            c.isSelecting.isFalse) {
+                                          double value = (_animation.value -
+                                                  d.delta.dx / 100)
+                                              .clamp(0, 1);
+
+                                          if (_animation.value != 1 &&
+                                                  value == 1 ||
+                                              _animation.value != 0 &&
+                                                  value == 0) {
+                                            HapticFeedback.selectionClick();
+                                          }
+
+                                          _animation.value = value.clamp(0, 1);
+                                        }
+                                      };
+
+                                      instance.onEnd = (d) async {
+                                        c.scrollOffset = Offset.zero;
+                                        if (!c.isItemDragged.value &&
+                                            _animation.value != 1 &&
+                                            _animation.value != 0) {
+                                          if (_animation.value >= 0.5) {
+                                            await _animation.forward();
+                                            HapticFeedback.selectionClick();
+                                          } else {
+                                            await _animation.reverse();
+                                            HapticFeedback.selectionClick();
+                                          }
+                                        }
+                                      };
+                                    }
+                                  },
+                                )
+                            },
+                            child: Column(
+                              children: [
+                                Obx(() {
+                                  final Style style =
+                                      Theme.of(context).extension<Style>()!;
+
+                                  void onPressed() {
+                                    c.paidDisclaimerDismissed.value = false;
+                                    c.paidDisclaimer.value = true;
+                                  }
+
+                                  bool dummy = c.paidDisclaimerDismissed.value;
+
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          height: 40,
                                           padding: const EdgeInsets.all(8),
                                           margin: const EdgeInsets.only(
                                             left: 6,
@@ -613,15 +443,22 @@ class _ChatViewState extends State<ChatView>
                                             top: 6,
                                           ),
                                           decoration: BoxDecoration(
+                                            boxShadow: const [
+                                              CustomBoxShadow(
+                                                blurRadius: 8,
+                                                color: Color(0x22000000),
+                                              ),
+                                            ],
                                             borderRadius: style.cardRadius,
                                             border: style.systemMessageBorder,
-                                            color: style.systemMessageColor,
+                                            color: Colors.white,
                                           ),
                                           child: Center(
                                             child: Text(
-                                              'Платный чат',
+                                              'Закреплено сообщений: 1/3',
                                               style: style.systemMessageStyle
                                                   .copyWith(
+                                                fontSize: 15,
                                                 color: Theme.of(context)
                                                     .colorScheme
                                                     .secondary,
@@ -630,552 +467,115 @@ class _ChatViewState extends State<ChatView>
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        // Required for the [Stack] to take [Scaffold]'s
-                                        // size.
-                                        IgnorePointer(
-                                          child: ContextMenuInterceptor(
-                                              child: Container()),
+                                      AnimatedSize(
+                                        duration: 200.milliseconds,
+                                        child: WidgetButton(
+                                          onPressed: onPressed,
+                                          child: c.paidDisclaimerDismissed
+                                                      .value &&
+                                                  c.paid
+                                              ? Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                    12,
+                                                    8,
+                                                    12,
+                                                    8,
+                                                  ),
+                                                  margin: const EdgeInsets.only(
+                                                    left: 0,
+                                                    right: 6,
+                                                    top: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: style
+                                                        .systemMessageBorder,
+                                                    // color: style
+                                                    //     .systemMessageColor,
+                                                    color: Colors.white,
+                                                    boxShadow: const [
+                                                      CustomBoxShadow(
+                                                        blurRadius: 8,
+                                                        color: Color(
+                                                          0x22000000,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Center(
+                                                    child: Transform.translate(
+                                                      offset: Offset(
+                                                        -1,
+                                                        -4,
+                                                      ),
+                                                      // child: SvgLoader.asset(
+                                                      //   'assets/icons/currency.svg',
+                                                      //   width: 23.97,
+                                                      //   height: 26,
+                                                      // )
+                                                      child: Text(
+                                                        '¤',
+                                                        style: style
+                                                            .systemMessageStyle
+                                                            .copyWith(
+                                                          fontFamily: 'Gapopa',
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          color: const Color(
+                                                            0xFFffcf78,
+                                                          ),
+                                                          // color:
+                                                          //     Theme.of(context)
+                                                          //         .colorScheme
+                                                          //         .secondary,
+                                                          // color: const Color(
+                                                          //     0xFF8383FF),
+                                                          fontSize: 21,
+                                                        ),
+                                                      ),
+                                                      // '\$',
+                                                      // style: style
+                                                      //     .systemMessageStyle
+                                                      //     .copyWith(
+                                                      //   fontSize: 15,
+                                                      //   color:
+                                                      //       Theme.of(context)
+                                                      //           .colorScheme
+                                                      //           .secondary,
+                                                      // ),
+                                                      // ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
                                         ),
-                                        Obx(() {
-                                          final Widget child = Scrollbar(
-                                            controller: c.listController,
-                                            child: FlutterListView(
-                                              key: const Key('MessagesList'),
-                                              controller: c.listController,
-                                              physics: c.isHorizontalScroll
-                                                          .isTrue ||
-                                                      (PlatformUtils
-                                                              .isDesktop &&
-                                                          c.isItemDragged
-                                                              .isTrue)
-                                                  ? const NeverScrollableScrollPhysics()
-                                                  : const BouncingScrollPhysics(),
-                                              delegate: FlutterListViewDelegate(
-                                                (context, i) =>
-                                                    _listElement(context, c, i),
-                                                childCount:
-                                                    // ignore: invalid_use_of_protected_member
-                                                    c.elements.value.length,
-                                                keepPosition: true,
-                                                onItemKey: (i) => c
-                                                    .elements.values
-                                                    .elementAt(i)
-                                                    .id
-                                                    .toString(),
-                                                onItemSticky: (i) => c
-                                                        .elements.values
-                                                        .elementAt(i)
-                                                    is DateTimeElement,
-                                                initIndex: c.initIndex,
-                                                initOffset: c.initOffset,
-                                                initOffsetBasedOnBottom: false,
-                                              ),
-                                            ),
-                                          );
-
-                                          if (PlatformUtils.isMobile) {
-                                            return child;
-                                          }
-
-                                          return SelectionArea(
-                                            onSelectionChanged: (a) =>
-                                                c.selection.value = a,
-                                            contextMenuBuilder: (_, __) =>
-                                                const SizedBox(),
-                                            selectionControls:
-                                                EmptyTextSelectionControls(),
-                                            child: ContextMenuInterceptor(
-                                              child: child,
-                                            ),
-                                          );
-                                        }),
-                                        Obx(() {
-                                          if ((c.chat!.status.value.isSuccess ||
-                                                  c.chat!.status.value
-                                                      .isEmpty) &&
-                                              c.chat!.messages.isEmpty) {
-                                            return Center(
-                                              child: Text(
-                                                  'label_no_messages'.l10n),
-                                            );
-                                          }
-                                          if (c.chat!.status.value.isLoading) {
-                                            return const Center(
-                                              child: CustomProgressIndicator(),
-                                            );
-                                          }
-
-                                          return const SizedBox();
-                                        }),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // Obx(() {
-                          //   final Widget child;
-                          //   if (c.paidDisclaimer.value) {
-                          //     final TextStyle? thin = Theme.of(context)
-                          //         .textTheme
-                          //         .bodyLarge
-                          //         ?.copyWith(color: Colors.black);
-
-                          //     final Style style =
-                          //         Theme.of(context).extension<Style>()!;
-
-                          //     child = Stack(
-                          //       key: const Key('Stack'),
-                          //       children: [
-                          //         GestureDetector(
-                          //           onTap: () => c.paidDisclaimer.value = false,
-                          //           child: Container(
-                          //             width: double.infinity,
-                          //             height: double.infinity,
-                          //             color: style.barrierColor,
-                          //           ),
-                          //         ),
-                          //         Align(
-                          //           alignment: context.isNarrow
-                          //               ? Alignment.bottomCenter
-                          //               : Alignment.center,
-                          //           child: Container(
-                          //             constraints: context.isNarrow
-                          //                 ? null
-                          //                 : const BoxConstraints(maxWidth: 380),
-                          //             width: double.infinity,
-                          //             margin: const EdgeInsets.symmetric(
-                          //               horizontal: 8,
-                          //               vertical: 3,
-                          //             ),
-                          //             padding: const EdgeInsets.all(10),
-                          //             decoration: BoxDecoration(
-                          //               color: Colors.white,
-                          //               borderRadius: style.cardRadius,
-                          //             ),
-                          //             child: Column(
-                          //               mainAxisSize: MainAxisSize.min,
-                          //               children: [
-                          //                 const SizedBox(height: 4),
-                          //                 ModalPopupHeader(
-                          //                   onClose: () =>
-                          //                       c.paidDisclaimer.value = false,
-                          //                   header: Center(
-                          //                     child: Text(
-                          //                       'label_paid_chat'.l10n,
-                          //                       style: thin?.copyWith(
-                          //                           fontSize: 18),
-                          //                     ),
-                          //                   ),
-                          //                 ),
-                          //                 const SizedBox(height: 13),
-                          //                 Flexible(
-                          //                   child: ListView(
-                          //                     padding:
-                          //                         const EdgeInsets.symmetric(
-                          //                       horizontal: 30,
-                          //                     ),
-                          //                     shrinkWrap: true,
-                          //                     children: [
-                          //                       Row(
-                          //                         children: [
-                          //                           Text(
-                          //                             'label_send_message'.l10n,
-                          //                             style: thin,
-                          //                           ),
-                          //                           const Spacer(),
-                          //                           RichText(
-                          //                             text: TextSpan(
-                          //                               children: [
-                          //                                 TextSpan(
-                          //                                   text: '¤',
-                          //                                   style:
-                          //                                       thin?.copyWith(
-                          //                                     height: 0.8,
-                          //                                     fontFamily:
-                          //                                         'InterRoboto',
-                          //                                     fontWeight:
-                          //                                         FontWeight
-                          //                                             .w300,
-                          //                                   ),
-                          //                                 ),
-                          //                                 const WidgetSpan(
-                          //                                   child: SizedBox(
-                          //                                     width: 1,
-                          //                                   ),
-                          //                                 ),
-                          //                                 TextSpan(
-                          //                                   text: '100',
-                          //                                   style: thin,
-                          //                                 ),
-                          //                               ],
-                          //                             ),
-                          //                           ),
-                          //                         ],
-                          //                       ),
-                          //                       const SizedBox(height: 12),
-                          //                       Row(
-                          //                         children: [
-                          //                           Text(
-                          //                             'label_make_call'.l10n,
-                          //                             style: thin,
-                          //                           ),
-                          //                           const Spacer(),
-                          //                           RichText(
-                          //                             text: TextSpan(
-                          //                               children: [
-                          //                                 TextSpan(
-                          //                                   text: '¤',
-                          //                                   style:
-                          //                                       thin?.copyWith(
-                          //                                     height: 0.8,
-                          //                                     fontFamily:
-                          //                                         'InterRoboto',
-                          //                                     fontWeight:
-                          //                                         FontWeight
-                          //                                             .w300,
-                          //                                   ),
-                          //                                 ),
-                          //                                 const WidgetSpan(
-                          //                                   child: SizedBox(
-                          //                                     width: 1,
-                          //                                   ),
-                          //                                 ),
-                          //                                 TextSpan(
-                          //                                   text: '10/min',
-                          //                                   style: thin,
-                          //                                 ),
-                          //                               ],
-                          //                             ),
-                          //                           ),
-                          //                         ],
-                          //                       ),
-                          //                     ],
-                          //                   ),
-                          //                 ),
-                          //                 const SizedBox(height: 25),
-                          //                 Padding(
-                          //                   padding: const EdgeInsets.symmetric(
-                          //                     horizontal: 30,
-                          //                   ),
-                          //                   child: Row(
-                          //                     children: [
-                          //                       if (context.isMobile) ...[
-                          //                         Expanded(
-                          //                           child:
-                          //                               OutlinedRoundedButton(
-                          //                             key: const Key('Close'),
-                          //                             maxWidth: double.infinity,
-                          //                             title: Text(
-                          //                                 'btn_close'.l10n),
-                          //                             onPressed: () {
-                          //                               c.paidDisclaimer.value =
-                          //                                   false;
-                          //                             },
-                          //                             color: const Color(
-                          //                                 0xFFEEEEEE),
-                          //                           ),
-                          //                         ),
-                          //                         const SizedBox(width: 10),
-                          //                       ],
-                          //                       Expanded(
-                          //                         child: OutlinedRoundedButton(
-                          //                           key: const Key('Accept'),
-                          //                           maxWidth: double.infinity,
-                          //                           title: Text(
-                          //                             'btn_proceed'.l10n,
-                          //                             style: thin?.copyWith(
-                          //                               color: Colors.white,
-                          //                             ),
-                          //                           ),
-                          //                           onPressed: () {
-                          //                             c.paidDisclaimer.value =
-                          //                                 false;
-                          //                             c.paidDisclaimerDismissed =
-                          //                                 true;
-
-                          //                             switch (c.confirmAction) {
-                          //                               case ConfirmAction
-                          //                                   .audioCall:
-                          //                                 c.call(false);
-                          //                                 break;
-
-                          //                               case ConfirmAction
-                          //                                   .videoCall:
-                          //                                 c.call(true);
-                          //                                 break;
-
-                          //                               case ConfirmAction
-                          //                                   .sendMessage:
-                          //                                 c.send.onSubmit
-                          //                                     ?.call();
-                          //                                 break;
-
-                          //                               case null:
-                          //                                 // No-op.
-                          //                                 break;
-                          //                             }
-                          //                           },
-                          //                           color: Theme.of(context)
-                          //                               .colorScheme
-                          //                               .secondary,
-                          //                         ),
-                          //                       ),
-                          //                     ],
-                          //                   ),
-                          //                 ),
-                          //                 const SizedBox(height: 16),
-                          //               ],
-                          //             ),
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     );
-                          //   } else {
-                          //     child = const SizedBox();
-                          //   }
-
-                          //   return AnimatedSwitcher(
-                          //     duration: 150.milliseconds,
-                          //     child: child,
-                          //   );
-                          // }),
-                        ],
-                      ),
-                      // floatingActionButtonLocation:
-                      //     FloatingActionButtonLocation.centerFloat,
-                      floatingActionButton: Obx(() {
-                        return SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: AnimatedSwitcher(
-                            duration: 200.milliseconds,
-                            child: c.canGoBack.isTrue
-                                ? FloatingActionButton.small(
-                                    onPressed: c.animateToBack,
-                                    child: const Icon(Icons.arrow_upward),
-                                  )
-                                : c.canGoDown.isTrue
-                                    ? FloatingActionButton.small(
-                                        onPressed: c.animateToBottom,
-                                        child: const Icon(Icons.arrow_downward),
-                                      )
-                                    : const SizedBox(),
-                          ),
-                        );
-                      }),
-                      bottomNavigationBar: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
-                        child:
-                            NotificationListener<SizeChangedLayoutNotification>(
-                          onNotification: (l) {
-                            Rect previous = c.bottomBarRect.value ??
-                                const Rect.fromLTWH(0, 0, 0, 55);
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              c.bottomBarRect.value =
-                                  c.bottomBarKey.globalPaintBounds;
-                              if (c.bottomBarRect.value != null &&
-                                  c.listController.position.maxScrollExtent >
-                                      0 &&
-                                  c.listController.position.pixels <
-                                      c.listController.position
-                                          .maxScrollExtent) {
-                                Rect current = c.bottomBarRect.value!;
-                                c.listController.jumpTo(
-                                  c.listController.position.pixels +
-                                      (current.height - previous.height),
-                                );
-                              }
-                            });
-
-                            return true;
-                          },
-                          child: SizeChangedLayoutNotifier(
-                            key: c.bottomBarKey,
-                            child: _bottomBar(c),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                  // Obx(() {
-                  //   return Align(
-                  //     alignment: Alignment.bottomCenter,
-                  //     child: AnimatedSizeAndFade.showHide(
-                  //       show: c.paidDisclaimer.value,
-                  //       child: PaidNotification(
-                  //         border: c.paidBorder.value
-                  //             ? Border.all(
-                  //                 color:
-                  //                     Theme.of(context).colorScheme.secondary,
-                  //                 width: 2,
-                  //               )
-                  //             : Border.all(
-                  //                 color: Colors.transparent,
-                  //                 width: 2,
-                  //               ),
-                  //         onPressed: () {
-                  //           c.paidDisclaimer.value = false;
-                  //           c.paidDisclaimerDismissed.value = true;
-                  //           c.paidBorder.value = false;
-                  //         },
-                  //       ),
-                  //     ),
-                  //   );
-                  // }),
-                  if (false)
-                    Obx(() {
-                      final Style style = Theme.of(context).extension<Style>()!;
-
-                      return Align(
-                        alignment: Alignment.bottomCenter,
-                        child: AnimatedSlider(
-                          isOpen: c.paidDisclaimer.value,
-                          duration: 300.milliseconds,
-                          translate: true,
-                          beginOffset: const Offset(0, 200),
-                          endOffset: const Offset(0, -60),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            margin: const EdgeInsets.only(
-                              top: 8,
-                              bottom: 8,
-                              left: 8,
-                              right: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: style.cardRadius,
-                              border: c.paidBorder.value
-                                  ? Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      width: 2,
-                                    )
-                                  : null,
-                              boxShadow: const [
-                                CustomBoxShadow(
-                                  blurRadius: 8,
-                                  color: Color(0x22000000),
-                                ),
-                              ],
-                            ),
-                            child: IntrinsicWidth(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  // Container(
-                                  //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  //   padding:
-                                  //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                                  //   decoration: BoxDecoration(
-                                  //     borderRadius: BorderRadius.only(
-                                  //       topLeft: style.cardRadius.topLeft,
-                                  //       topRight: style.cardRadius.topRight,
-                                  //     ),
-                                  //     color: style.readMessageColor,
-                                  //   ),
-                                  //   child: Text(
-                                  //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
-                                  //     // style: style.boldBody,
-                                  //     style: style.systemMessageStyle,
-                                  //   ),
-                                  // ),
-                                  // Container(
-                                  //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  //   padding:
-                                  //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                                  //   decoration: BoxDecoration(
-                                  //     borderRadius: BorderRadius.only(
-                                  //       topLeft: style.cardRadius.topLeft,
-                                  //       topRight: style.cardRadius.topRight,
-                                  //     ),
-                                  //     color: Colors.white,
-                                  //   ),
-                                  //   child: Text(
-                                  //     'Askldjskldjsqkdjqw',
-                                  //     style: style.boldBody,
-                                  //   ),
-                                  // ),
-                                  WidgetButton(
-                                    onPressed: () {
-                                      c.paidDisclaimer.value = false;
-                                      c.paidDisclaimerDismissed.value = true;
-                                      c.paidBorder.value = false;
-
-                                      // final theirFee = FeeElement(false);
-                                      // c.elements[theirFee.id] = theirFee;
-
-                                      // SchedulerBinding.instance
-                                      //     .addPostFrameCallback((_) {
-                                      //   c.listController.animateTo(
-                                      //     c.listController.offset + 150,
-                                      //     duration: 200.milliseconds,
-                                      //     curve: Curves.ease,
-                                      //   );
-                                      // });
-
-                                      // if (c.feeElement != null) {
-                                      //   c.elements.remove(c.feeElement!.id);
-                                      //   c.feeElement = null;
-                                      // }
-
-                                      switch (c.confirmAction) {
-                                        case ConfirmAction.audioCall:
-                                          c.call(false);
-                                          break;
-
-                                        case ConfirmAction.videoCall:
-                                          c.call(true);
-                                          break;
-
-                                        case ConfirmAction.sendMessage:
-                                          c.send.onSubmit?.call();
-                                          break;
-
-                                        case null:
-                                          // No-op.
-                                          break;
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        18,
-                                        18,
-                                        18,
-                                        18,
                                       ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: style.cardRadius,
-                                        // borderRadius: BorderRadius.only(
-                                        //   bottomLeft: style.cardRadius.bottomLeft,
-                                        //   bottomRight:
-                                        //       style.cardRadius.bottomRight,
-                                        // ),
-                                        border: style.systemMessageBorder,
-                                        color: style.systemMessageColor,
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          // Text(
-                                          //   'Платный чат',
-                                          //   style: style.systemMessageStyle,
-                                          // ),
-                                          // const SizedBox(height: 8),
-                                          Text(
-                                            'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
-                                            style: style.systemMessageStyle,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Принять и продолжить',
+                                    ],
+                                  );
+
+                                  return AnimatedSizeAndFade.showHide(
+                                    show: c.paidDisclaimerDismissed.value &&
+                                        c.paid,
+                                    child: WidgetButton(
+                                      onPressed: onPressed,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        margin: const EdgeInsets.only(
+                                          left: 6,
+                                          right: 6,
+                                          top: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: style.cardRadius,
+                                          border: style.systemMessageBorder,
+                                          color: style.systemMessageColor,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'Платный чат',
                                             style: style.systemMessageStyle
                                                 .copyWith(
                                               color: Theme.of(context)
@@ -1183,55 +583,149 @@ class _ChatViewState extends State<ChatView>
                                                   .secondary,
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ),
+                                  );
+                                }),
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      // Required for the [Stack] to take [Scaffold]'s
+                                      // size.
+                                      IgnorePointer(
+                                        child: ContextMenuInterceptor(
+                                            child: Container()),
+                                      ),
+                                      Obx(() {
+                                        final Widget child = Scrollbar(
+                                          controller: c.listController,
+                                          child: FlutterListView(
+                                            key: const Key('MessagesList'),
+                                            controller: c.listController,
+                                            physics: c.isHorizontalScroll
+                                                        .isTrue ||
+                                                    (PlatformUtils.isDesktop &&
+                                                        c.isItemDragged.isTrue)
+                                                ? const NeverScrollableScrollPhysics()
+                                                : const BouncingScrollPhysics(),
+                                            delegate: FlutterListViewDelegate(
+                                              (context, i) =>
+                                                  _listElement(context, c, i),
+                                              childCount:
+                                                  // ignore: invalid_use_of_protected_member
+                                                  c.elements.value.length,
+                                              keepPosition: true,
+                                              onItemKey: (i) => c
+                                                  .elements.values
+                                                  .elementAt(i)
+                                                  .id
+                                                  .toString(),
+                                              onItemSticky: (i) =>
+                                                  c.elements.values.elementAt(i)
+                                                      is DateTimeElement,
+                                              initIndex: c.initIndex,
+                                              initOffset: c.initOffset,
+                                              initOffsetBasedOnBottom: false,
+                                            ),
+                                          ),
+                                        );
+
+                                        if (PlatformUtils.isMobile) {
+                                          return child;
+                                        }
+
+                                        return SelectionArea(
+                                          onSelectionChanged: (a) =>
+                                              c.selection.value = a,
+                                          contextMenuBuilder: (_, __) =>
+                                              const SizedBox(),
+                                          selectionControls:
+                                              EmptyTextSelectionControls(),
+                                          child: ContextMenuInterceptor(
+                                            child: child,
+                                          ),
+                                        );
+                                      }),
+                                      Obx(() {
+                                        if ((c.chat!.status.value.isSuccess ||
+                                                c.chat!.status.value.isEmpty) &&
+                                            c.chat!.messages.isEmpty) {
+                                          return Center(
+                                            child: Text(
+                                              key: const Key('NoMessages'),
+                                              'label_no_messages'.l10n,
+                                            ),
+                                          );
+                                        }
+                                        if (c.chat!.status.value.isLoading) {
+                                          return const Center(
+                                            child: CustomProgressIndicator(),
+                                          );
+                                        }
+
+                                        return const SizedBox();
+                                      }),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                    floatingActionButton: Obx(() {
+                      return SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: AnimatedSwitcher(
+                          duration: 200.milliseconds,
+                          child: c.canGoBack.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBack,
+                                  child: const Icon(Icons.arrow_upward),
+                                )
+                              : c.canGoDown.isTrue
+                                  ? FloatingActionButton.small(
+                                      onPressed: c.animateToBottom,
+                                      child: const Icon(Icons.arrow_downward),
+                                    )
+                                  : const SizedBox(),
+                        ),
                       );
                     }),
-                  // Obx(() {
-                  //   final Style style = Theme.of(context).extension<Style>()!;
+                    bottomNavigationBar: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+                      child:
+                          NotificationListener<SizeChangedLayoutNotification>(
+                        onNotification: (l) {
+                          Rect previous = c.bottomBarRect.value ??
+                              const Rect.fromLTWH(0, 0, 0, 55);
+                          SchedulerBinding.instance.addPostFrameCallback((_) {
+                            c.bottomBarRect.value =
+                                c.bottomBarKey.globalPaintBounds;
+                            if (c.bottomBarRect.value != null &&
+                                c.listController.position.maxScrollExtent > 0 &&
+                                c.listController.position.pixels <
+                                    c.listController.position.maxScrollExtent) {
+                              Rect current = c.bottomBarRect.value!;
+                              c.listController.jumpTo(
+                                c.listController.position.pixels +
+                                    (current.height - previous.height),
+                              );
+                            }
+                          });
 
-                  //   return AnimatedPositioned(
-                  //     duration: 300.milliseconds,
-                  //     curve: Curves.ease,
-                  //     top: c.paidDisclaimer.value ? null : 60,
-                  //     bottom: c.paidDisclaimer.value ? 60 : null,
-                  //     child: AnimatedContainer(
-                  //       duration: 300.milliseconds,
-                  //       curve: Curves.ease,
-                  //       child: Column(
-                  //         children: [
-                  //           WidgetButton(
-                  //             onPressed: () {
-                  //               c.paidDisclaimer.value = false;
-                  //             },
-                  //             child: Container(
-                  //               decoration: BoxDecoration(
-                  //                 borderRadius: BorderRadius.only(
-                  //                   bottomLeft: style.cardRadius.bottomLeft,
-                  //                   bottomRight: style.cardRadius.bottomRight,
-                  //                 ),
-                  //                 border: style.systemMessageBorder,
-                  //                 color: style.systemMessageColor,
-                  //               ),
-                  //               child: Text(
-                  //                 'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
-                  //                 style: style.systemMessageStyle,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   );
-                  // }),
-
+                          return true;
+                        },
+                        child: SizeChangedLayoutNotifier(
+                          key: c.bottomBarKey,
+                          child: _bottomBar(c),
+                        ),
+                      ),
+                    ),
+                  ),
                   IgnorePointer(
                     child: Obx(() {
                       return AnimatedSwitcher(
@@ -1314,11 +808,11 @@ class _ChatViewState extends State<ChatView>
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       bool nextSame = false;
@@ -1326,11 +820,11 @@ class _ChatViewState extends State<ChatView>
         nextSame = (next is ChatMessageElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (next is ChatCallElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       return Padding(
@@ -1358,7 +852,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
-            displayTime: c.settings.value?.timelineEnabled != true,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
@@ -1368,11 +862,11 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: (s) {
-              if (c.selection.value == null) {
-                c.copyText(s);
-              } else {
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
                 c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
               }
             },
             onRepliedTap: (q) async {
@@ -1415,6 +909,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () async {
               final List<Future> futures = [];
 
@@ -1464,7 +959,13 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
-            onCopy: c.copyText,
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
@@ -1492,6 +993,7 @@ class _ChatViewState extends State<ChatView>
 
               await Future.delayed(Duration.zero);
             },
+            onSelecting: (s) => c.isSelecting.value = s,
           ),
         ),
       );

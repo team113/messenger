@@ -48,7 +48,6 @@ class ChatTile extends StatefulWidget {
     this.folded = false,
     this.special = false,
     this.highlight = false,
-    this.invert = false,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
@@ -97,7 +96,6 @@ class ChatTile extends StatefulWidget {
   final bool folded;
   final bool special;
   final bool highlight;
-  final bool invert;
 
   @override
   State<ChatTile> createState() => _ChatTileState();
@@ -112,6 +110,7 @@ class _ChatTileState extends State<ChatTile> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     // const Color unselected = Color.fromARGB(255, 248, 255, 250);
     const Color unselected = Color.fromARGB(255, 241, 250, 244);
@@ -293,8 +292,8 @@ class _ChatTileState extends State<ChatTile> {
                                               .textTheme
                                               .headlineSmall
                                               ?.copyWith(
-                                                color: widget.invert
-                                                    ? Colors.white
+                                                color: widget.selected
+                                                    ? colors.onSecondary
                                                     : null,
                                               ),
                                         );
@@ -321,4 +320,7 @@ class _ChatTileState extends State<ChatTile> {
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

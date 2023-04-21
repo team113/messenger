@@ -24,18 +24,18 @@ import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [CallWindowSwitchView].
-class CallWindowSwitchController extends GetxController {
-  CallWindowSwitchController(this._settingsRepository);
+/// Controller of a [TimelineSwitchView].
+class TimelineSwitchController extends GetxController {
+  TimelineSwitchController(this._settingsRepository);
 
-  /// Settings repository updating the [ApplicationSettings.enablePopups].
+  /// Settings repository updating the [ApplicationSettings.timelineEnabled].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Sets the [ApplicationSettings.enablePopups] value.
+  /// Sets the [ApplicationSettings.timelineEnabled] value.
   Future<void> setTimelineEnabled(bool enabled) =>
       _settingsRepository.setTimelineEnabled(enabled);
 }

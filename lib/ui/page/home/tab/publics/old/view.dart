@@ -585,473 +585,470 @@ class PublicsTabView extends StatelessWidget {
                 ],
               ),
               body: Obx(() {
-                if (c.chatsReady.value) {
-                  Widget? center;
+                Widget? center;
 
-                  if (c.query.isNotEmpty != true &&
-                      (c.chats.isEmpty &&
-                          c.users.isEmpty &&
-                          c.contacts.isEmpty)) {
-                    center = Center(child: Text('label_no_chats'.l10n));
-                  } else if (c.query.isNotEmpty == true &&
-                      c.chats.isEmpty &&
-                      c.contacts.isEmpty &&
-                      c.users.isEmpty) {
-                    if (c.searchStatus.value.isSuccess) {
-                      center = Center(child: Text('No user found'.l10n));
-                    } else {
-                      center = const Center(child: CustomProgressIndicator());
-                    }
+                if (c.query.isNotEmpty != true &&
+                    (c.chats.isEmpty &&
+                        c.users.isEmpty &&
+                        c.contacts.isEmpty)) {
+                  center = Center(child: Text('label_no_chats'.l10n));
+                } else if (c.query.isNotEmpty == true &&
+                    c.chats.isEmpty &&
+                    c.contacts.isEmpty &&
+                    c.users.isEmpty) {
+                  if (c.searchStatus.value.isSuccess) {
+                    center = Center(child: Text('No user found'.l10n));
                   } else {
-                    if ((!c.searching.value ||
-                            c.query.value?.isEmpty != false) &&
-                        !c.groupCreating.value) {
-                      center = AnimationLimiter(
-                        child: ListView.builder(
-                          controller: ScrollController(),
-                          itemCount: c.chats.length,
-                          itemBuilder: (BuildContext context, int i) {
-                            RxChat e = c.sortedChats[i];
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50.0,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      top: i == 0 ? 5 : 0,
-                                      left: 10,
-                                      right: 10,
-                                      bottom: i == c.chats.length - 1 ? 5 : 0,
-                                    ),
-                                    child: buildChatTile(context, c, e),
+                    center = const Center(child: CustomProgressIndicator());
+                  }
+                } else {
+                  if ((!c.searching.value || c.query.value?.isEmpty != false) &&
+                      !c.groupCreating.value) {
+                    center = AnimationLimiter(
+                      child: ListView.builder(
+                        controller: ScrollController(),
+                        itemCount: c.chats.length,
+                        itemBuilder: (BuildContext context, int i) {
+                          RxChat e = c.sortedChats[i];
+                          return AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50.0,
+                              child: FadeInAnimation(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    top: i == 0 ? 5 : 0,
+                                    left: 10,
+                                    right: 10,
+                                    bottom: i == c.chats.length - 1 ? 5 : 0,
                                   ),
+                                  child: buildChatTile(context, c, e),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      );
-                    }
-                  }
-
-                  ThemeData theme = Theme.of(context);
-                  final TextStyle? thin =
-                      theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
-                  Style style = Theme.of(context).extension<Style>()!;
-
-                  Widget chip(Widget child) {
-                    return DefaultTextStyle(
-                      style: style.systemMessageStyle.copyWith(
-                        fontSize: 11,
-                        color: Colors.black,
-                      ),
-                      maxLines: 1,
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-                        // margin: const EdgeInsets.only(right: 2),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          // border: style.systemMessageBorder,
-                          color: Colors.white,
-                        ),
-                        child: child,
+                            ),
+                          );
+                        },
                       ),
                     );
                   }
+                }
 
-                  return Column(
-                    children: [
-                      AnimatedSizeAndFade.showHide(
-                        fadeDuration: 300.milliseconds,
-                        sizeDuration: 300.milliseconds,
-                        show: false,
-                        // show: c.groupCreating.value,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            shadowColor: const Color(0x55000000),
-                            iconTheme: const IconThemeData(color: Colors.blue),
-                            inputDecorationTheme: InputDecorationTheme(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusColor: Colors.white,
-                              fillColor: Colors.white,
-                              hoverColor: Colors.transparent,
-                              filled: true,
-                              isDense: true,
-                              contentPadding: EdgeInsets.fromLTRB(
-                                15,
-                                PlatformUtils.isDesktop ? 30 : 23,
-                                15,
-                                0,
-                              ),
-                            ),
-                          ),
-                          child: Container(
-                            margin: const EdgeInsets.fromLTRB(10, 12, 10, 2),
-                            child: ReactiveTextField(
-                              state: c.search,
-                              hint: 'Search',
-                              maxLines: 1,
-                              filled: true,
-                              // dense: true,
-                              // padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
-                              onChanged: () => c.query.value = c.search.text,
-                            ),
-                          ),
-                        ),
+                ThemeData theme = Theme.of(context);
+                final TextStyle? thin =
+                    theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
+                Style style = Theme.of(context).extension<Style>()!;
+
+                Widget chip(Widget child) {
+                  return DefaultTextStyle(
+                    style: style.systemMessageStyle.copyWith(
+                      fontSize: 11,
+                      color: Colors.black,
+                    ),
+                    maxLines: 1,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                      // margin: const EdgeInsets.only(right: 2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        // border: style.systemMessageBorder,
+                        color: Colors.white,
                       ),
-                      // AnimatedSizeAndFade.showHide(
-                      //   fadeDuration: 300.milliseconds,
-                      //   sizeDuration: 300.milliseconds,
-                      //   show:
-                      //       (c.searching.value && c.query.isNotEmpty == true ||
-                      //           c.groupCreating.value),
-                      //   child: Container(
-                      // margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
-                      // height: 30,
-                      //     child: Row(
-                      //       mainAxisAlignment: c.groupCreating.value
-                      //           ? MainAxisAlignment.start
-                      //           : MainAxisAlignment.spaceEvenly,
-                      //       children: [
-                      //         if (c.groupCreating.value)
-                      //           const SizedBox(width: 10),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(0),
-                      //           child: Obx(() {
-                      //             return chip(
-                      //               Text(
-                      //                 'Chats',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 0
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ),
-                      //             );
-                      //           }),
-                      //         ),
-                      //         const SizedBox(width: 8),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(1),
-                      //           child: Obx(() {
-                      //             return chip(
-                      //               Text(
-                      //                 'Contacts',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 1
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ),
-                      //             );
-                      //           }),
-                      //         ),
-                      //         const SizedBox(width: 8),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(2),
-                      //           child: Obx(() {
-                      //             return chip(Text(
-                      //               'Users',
-                      //               style:
-                      //                   style.systemMessageTextStyle.copyWith(
-                      //                 fontSize: 15,
-                      //                 color: c.selected.value == 2
-                      //                     ? const Color(0xFF63B4FF)
-                      //                     : Colors.black,
-                      //               ),
-                      //             ));
-                      //           }),
-                      //         ),
-                      //         if (!c.groupCreating.value) ...[
-                      //           const SizedBox(width: 8),
-                      //           WidgetButton(
-                      //             onPressed: () => c.jumpTo(2),
-                      //             child: Obx(() {
-                      //               return chip(Text(
-                      //                 'Messages',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 3
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ));
-                      //             }),
-                      //           ),
-                      //         ] else ...[
-                      //           const Spacer(),
-                      //           Obx(() {
-                      //             return Row(
-                      //               mainAxisSize: MainAxisSize.min,
-                      //               children: [
-                      //                 // Text(
-                      //                 //   'Selected: ',
-                      //                 //   style: thin?.copyWith(fontSize: 15),
-                      //                 // ),
-                      //                 chip(Container(
-                      //                   constraints:
-                      //                       const BoxConstraints(minWidth: 10),
-                      //                   child: Center(
-                      //                     child: Text(
-                      //                       '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
-                      //                       style: thin?.copyWith(fontSize: 15),
-                      //                     ),
-                      //                   ),
-                      //                 )),
-                      //               ],
-                      //             );
-                      //           }),
-                      //           const SizedBox(width: 10),
-                      //         ],
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
-                      Expanded(
-                        child: center ??
-                            ContextMenuInterceptor(
-                              child: FlutterListView(
-                                controller: c.controller,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) {
-                                    ListElement element = c.elements[i];
-                                    Widget child = const SizedBox();
-
-                                    if (element is ChatElement) {
-                                      if (c.groupCreating.value) {
-                                        child = Obx(() {
-                                          return selectedChat(
-                                            chat: element.chat,
-                                            selected: c.selectedChats
-                                                .contains(element.chat),
-                                            onTap: () =>
-                                                c.selectChat(element.chat),
-                                          );
-                                        });
-                                      } else {
-                                        child = Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 10,
-                                            right: 10,
-                                          ),
-                                          child: buildChatTile(
-                                            context,
-                                            c,
-                                            element.chat,
-                                          ),
-                                        );
-                                      }
-                                    } else if (element is ContactElement) {
-                                      if (c.groupCreating.value) {
-                                        child = Obx(() {
-                                          return selectedTile(
-                                            contact: element.contact,
-                                            selected: c.selectedContacts
-                                                .contains(element.contact),
-                                            onTap: () => c
-                                                .selectContact(element.contact),
-                                          );
-                                        });
-                                      } else {
-                                        child = tile(
-                                          contact: element.contact,
-                                          onTap: () {
-                                            c.openChat(
-                                              contact: element.contact,
-                                            );
-                                          },
-                                        );
-                                      }
-                                    } else if (element is UserElement) {
-                                      if (c.groupCreating.value) {
-                                        child = Obx(() {
-                                          return selectedTile(
-                                            user: element.user,
-                                            selected: c.selectedUsers
-                                                .contains(element.user),
-                                            onTap: () =>
-                                                c.selectUser(element.user),
-                                          );
-                                        });
-                                      } else {
-                                        child = tile(
-                                          user: element.user,
-                                          onTap: () {
-                                            c.openChat(user: element.user);
-                                          },
-                                        );
-                                      }
-                                    } else if (element is MyUserElement) {
-                                      child = Obx(() {
-                                        return selectedTile(
-                                          myUser: c.myUser.value,
-                                          selected: true,
-                                          subtitle: [
-                                            const SizedBox(height: 5),
-                                            const Text(
-                                              'Required',
-                                              style: TextStyle(
-                                                  color: Color(0xFF888888)),
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                    } else if (element is DividerElement) {
-                                      child = Center(
-                                        child: Container(
-                                          margin: const EdgeInsets.fromLTRB(
-                                            10,
-                                            2,
-                                            10,
-                                            2,
-                                          ),
-                                          padding: const EdgeInsets.fromLTRB(
-                                            12,
-                                            10,
-                                            12,
-                                            6,
-                                          ),
-                                          width: double.infinity,
-                                          // decoration: BoxDecoration(
-                                          //   borderRadius:
-                                          //       BorderRadius.circular(15),
-                                          //   border: style.systemMessageBorder,
-                                          //   color: style.systemMessageColor,
-                                          // ),
-                                          child: Center(
-                                            child: Text(
-                                              element.category.name
-                                                  .capitalizeFirst!,
-                                              style: style.systemMessageStyle
-                                                  .copyWith(
-                                                color: Colors.black,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-
-                                      // return Container(
-                                      //   margin: const EdgeInsets.fromLTRB(
-                                      //     0,
-                                      //     20,
-                                      //     0,
-                                      //     4,
-                                      //   ),
-                                      //   child: Row(
-                                      //     children: [
-                                      //       const SizedBox(width: 8),
-                                      //       Expanded(
-                                      //         child: Container(
-                                      //           width: double.infinity,
-                                      //           padding:
-                                      //               const EdgeInsets.fromLTRB(
-                                      //             12,
-                                      //             8,
-                                      //             12,
-                                      //             8,
-                                      //           ),
-                                      //           child: Row(
-                                      //             children: [
-                                      //               Expanded(
-                                      //                 child: Container(
-                                      //                   height: 0.5,
-                                      //                   color: const Color(
-                                      //                     0xFF000000,
-                                      //                   ),
-                                      //                 ),
-                                      //               ),
-                                      //               const SizedBox(width: 10),
-                                      //               Text(
-                                      //                 element.category.name
-                                      //                     .capitalizeFirst!,
-                                      //                 style: const TextStyle(
-                                      //                   fontSize: 13,
-                                      //                   color:
-                                      //                       Color(0xFF000000),
-                                      //                 ),
-                                      //               ),
-                                      //               const SizedBox(width: 10),
-                                      //               Expanded(
-                                      //                 child: Container(
-                                      //                   height: 0.5,
-                                      //                   color: const Color(
-                                      //                     0xFF000000,
-                                      //                   ),
-                                      //                 ),
-                                      //               ),
-                                      //             ],
-                                      //           ),
-                                      //         ),
-                                      //       ),
-                                      //       const SizedBox(width: 8),
-                                      //     ],
-                                      //   ),
-                                      // );
-                                    }
-
-                                    return Padding(
-                                      padding: EdgeInsets.only(
-                                        top: i == 0 ? 3 : 0,
-                                        bottom:
-                                            i == c.elements.length - 1 ? 4 : 0,
-                                      ),
-                                      child: child,
-                                    );
-                                  },
-                                  childCount: c.elements.length,
-                                ),
-                              ),
-                            ),
-                      ),
-                    ],
-                  );
-
-                  return ContextMenuInterceptor(
-                    child: AnimationLimiter(
-                      child: ListView.builder(
-                        controller: ScrollController(),
-                        itemCount:
-                            c.chats.length + c.contacts.length + c.users.length,
-                        itemBuilder: (BuildContext context, int i) {
-                          return Container();
-                        },
-                      ),
+                      child: child,
                     ),
                   );
                 }
+
+                return Column(
+                  children: [
+                    AnimatedSizeAndFade.showHide(
+                      fadeDuration: 300.milliseconds,
+                      sizeDuration: 300.milliseconds,
+                      show: false,
+                      // show: c.groupCreating.value,
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          shadowColor: const Color(0x55000000),
+                          iconTheme: const IconThemeData(color: Colors.blue),
+                          inputDecorationTheme: InputDecorationTheme(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusColor: Colors.white,
+                            fillColor: Colors.white,
+                            hoverColor: Colors.transparent,
+                            filled: true,
+                            isDense: true,
+                            contentPadding: EdgeInsets.fromLTRB(
+                              15,
+                              PlatformUtils.isDesktop ? 30 : 23,
+                              15,
+                              0,
+                            ),
+                          ),
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(10, 12, 10, 2),
+                          child: ReactiveTextField(
+                            state: c.search,
+                            hint: 'Search',
+                            maxLines: 1,
+                            filled: true,
+                            // dense: true,
+                            // padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(fontSize: 17),
+                            onChanged: () => c.query.value = c.search.text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // AnimatedSizeAndFade.showHide(
+                    //   fadeDuration: 300.milliseconds,
+                    //   sizeDuration: 300.milliseconds,
+                    //   show:
+                    //       (c.searching.value && c.query.isNotEmpty == true ||
+                    //           c.groupCreating.value),
+                    //   child: Container(
+                    // margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
+                    // height: 30,
+                    //     child: Row(
+                    //       mainAxisAlignment: c.groupCreating.value
+                    //           ? MainAxisAlignment.start
+                    //           : MainAxisAlignment.spaceEvenly,
+                    //       children: [
+                    //         if (c.groupCreating.value)
+                    //           const SizedBox(width: 10),
+                    //         WidgetButton(
+                    //           onPressed: () => c.jumpTo(0),
+                    //           child: Obx(() {
+                    //             return chip(
+                    //               Text(
+                    //                 'Chats',
+                    //                 style:
+                    //                     style.systemMessageTextStyle.copyWith(
+                    //                   fontSize: 15,
+                    //                   color: c.selected.value == 0
+                    //                       ? const Color(0xFF63B4FF)
+                    //                       : Colors.black,
+                    //                 ),
+                    //               ),
+                    //             );
+                    //           }),
+                    //         ),
+                    //         const SizedBox(width: 8),
+                    //         WidgetButton(
+                    //           onPressed: () => c.jumpTo(1),
+                    //           child: Obx(() {
+                    //             return chip(
+                    //               Text(
+                    //                 'Contacts',
+                    //                 style:
+                    //                     style.systemMessageTextStyle.copyWith(
+                    //                   fontSize: 15,
+                    //                   color: c.selected.value == 1
+                    //                       ? const Color(0xFF63B4FF)
+                    //                       : Colors.black,
+                    //                 ),
+                    //               ),
+                    //             );
+                    //           }),
+                    //         ),
+                    //         const SizedBox(width: 8),
+                    //         WidgetButton(
+                    //           onPressed: () => c.jumpTo(2),
+                    //           child: Obx(() {
+                    //             return chip(Text(
+                    //               'Users',
+                    //               style:
+                    //                   style.systemMessageTextStyle.copyWith(
+                    //                 fontSize: 15,
+                    //                 color: c.selected.value == 2
+                    //                     ? const Color(0xFF63B4FF)
+                    //                     : Colors.black,
+                    //               ),
+                    //             ));
+                    //           }),
+                    //         ),
+                    //         if (!c.groupCreating.value) ...[
+                    //           const SizedBox(width: 8),
+                    //           WidgetButton(
+                    //             onPressed: () => c.jumpTo(2),
+                    //             child: Obx(() {
+                    //               return chip(Text(
+                    //                 'Messages',
+                    //                 style:
+                    //                     style.systemMessageTextStyle.copyWith(
+                    //                   fontSize: 15,
+                    //                   color: c.selected.value == 3
+                    //                       ? const Color(0xFF63B4FF)
+                    //                       : Colors.black,
+                    //                 ),
+                    //               ));
+                    //             }),
+                    //           ),
+                    //         ] else ...[
+                    //           const Spacer(),
+                    //           Obx(() {
+                    //             return Row(
+                    //               mainAxisSize: MainAxisSize.min,
+                    //               children: [
+                    //                 // Text(
+                    //                 //   'Selected: ',
+                    //                 //   style: thin?.copyWith(fontSize: 15),
+                    //                 // ),
+                    //                 chip(Container(
+                    //                   constraints:
+                    //                       const BoxConstraints(minWidth: 10),
+                    //                   child: Center(
+                    //                     child: Text(
+                    //                       '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
+                    //                       style: thin?.copyWith(fontSize: 15),
+                    //                     ),
+                    //                   ),
+                    //                 )),
+                    //               ],
+                    //             );
+                    //           }),
+                    //           const SizedBox(width: 10),
+                    //         ],
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    Expanded(
+                      child: center ??
+                          ContextMenuInterceptor(
+                            child: FlutterListView(
+                              controller: c.controller,
+                              delegate: FlutterListViewDelegate(
+                                (context, i) {
+                                  ListElement element = c.elements[i];
+                                  Widget child = const SizedBox();
+
+                                  if (element is ChatElement) {
+                                    if (c.groupCreating.value) {
+                                      child = Obx(() {
+                                        return selectedChat(
+                                          chat: element.chat,
+                                          selected: c.selectedChats
+                                              .contains(element.chat),
+                                          onTap: () =>
+                                              c.selectChat(element.chat),
+                                        );
+                                      });
+                                    } else {
+                                      child = Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                        ),
+                                        child: buildChatTile(
+                                          context,
+                                          c,
+                                          element.chat,
+                                        ),
+                                      );
+                                    }
+                                  } else if (element is ContactElement) {
+                                    if (c.groupCreating.value) {
+                                      child = Obx(() {
+                                        return selectedTile(
+                                          contact: element.contact,
+                                          selected: c.selectedContacts
+                                              .contains(element.contact),
+                                          onTap: () =>
+                                              c.selectContact(element.contact),
+                                        );
+                                      });
+                                    } else {
+                                      child = tile(
+                                        contact: element.contact,
+                                        onTap: () {
+                                          c.openChat(
+                                            contact: element.contact,
+                                          );
+                                        },
+                                      );
+                                    }
+                                  } else if (element is UserElement) {
+                                    if (c.groupCreating.value) {
+                                      child = Obx(() {
+                                        return selectedTile(
+                                          user: element.user,
+                                          selected: c.selectedUsers
+                                              .contains(element.user),
+                                          onTap: () =>
+                                              c.selectUser(element.user),
+                                        );
+                                      });
+                                    } else {
+                                      child = tile(
+                                        user: element.user,
+                                        onTap: () {
+                                          c.openChat(user: element.user);
+                                        },
+                                      );
+                                    }
+                                  } else if (element is MyUserElement) {
+                                    child = Obx(() {
+                                      return selectedTile(
+                                        myUser: c.myUser.value,
+                                        selected: true,
+                                        subtitle: [
+                                          const SizedBox(height: 5),
+                                          const Text(
+                                            'Required',
+                                            style: TextStyle(
+                                                color: Color(0xFF888888)),
+                                          ),
+                                        ],
+                                      );
+                                    });
+                                  } else if (element is DividerElement) {
+                                    child = Center(
+                                      child: Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                          10,
+                                          2,
+                                          10,
+                                          2,
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(
+                                          12,
+                                          10,
+                                          12,
+                                          6,
+                                        ),
+                                        width: double.infinity,
+                                        // decoration: BoxDecoration(
+                                        //   borderRadius:
+                                        //       BorderRadius.circular(15),
+                                        //   border: style.systemMessageBorder,
+                                        //   color: style.systemMessageColor,
+                                        // ),
+                                        child: Center(
+                                          child: Text(
+                                            element
+                                                .category.name.capitalizeFirst!,
+                                            style: style.systemMessageStyle
+                                                .copyWith(
+                                              color: Colors.black,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+
+                                    // return Container(
+                                    //   margin: const EdgeInsets.fromLTRB(
+                                    //     0,
+                                    //     20,
+                                    //     0,
+                                    //     4,
+                                    //   ),
+                                    //   child: Row(
+                                    //     children: [
+                                    //       const SizedBox(width: 8),
+                                    //       Expanded(
+                                    //         child: Container(
+                                    //           width: double.infinity,
+                                    //           padding:
+                                    //               const EdgeInsets.fromLTRB(
+                                    //             12,
+                                    //             8,
+                                    //             12,
+                                    //             8,
+                                    //           ),
+                                    //           child: Row(
+                                    //             children: [
+                                    //               Expanded(
+                                    //                 child: Container(
+                                    //                   height: 0.5,
+                                    //                   color: const Color(
+                                    //                     0xFF000000,
+                                    //                   ),
+                                    //                 ),
+                                    //               ),
+                                    //               const SizedBox(width: 10),
+                                    //               Text(
+                                    //                 element.category.name
+                                    //                     .capitalizeFirst!,
+                                    //                 style: const TextStyle(
+                                    //                   fontSize: 13,
+                                    //                   color:
+                                    //                       Color(0xFF000000),
+                                    //                 ),
+                                    //               ),
+                                    //               const SizedBox(width: 10),
+                                    //               Expanded(
+                                    //                 child: Container(
+                                    //                   height: 0.5,
+                                    //                   color: const Color(
+                                    //                     0xFF000000,
+                                    //                   ),
+                                    //                 ),
+                                    //               ),
+                                    //             ],
+                                    //           ),
+                                    //         ),
+                                    //       ),
+                                    //       const SizedBox(width: 8),
+                                    //     ],
+                                    //   ),
+                                    // );
+                                  }
+
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      top: i == 0 ? 3 : 0,
+                                      bottom:
+                                          i == c.elements.length - 1 ? 4 : 0,
+                                    ),
+                                    child: child,
+                                  );
+                                },
+                                childCount: c.elements.length,
+                              ),
+                            ),
+                          ),
+                    ),
+                  ],
+                );
+
+                return ContextMenuInterceptor(
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                      controller: ScrollController(),
+                      itemCount:
+                          c.chats.length + c.contacts.length + c.users.length,
+                      itemBuilder: (BuildContext context, int i) {
+                        return Container();
+                      },
+                    ),
+                  ),
+                );
 
                 return const Center(child: CustomProgressIndicator());
               }),

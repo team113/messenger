@@ -1225,7 +1225,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
           child: Padding(
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
-              'label_timeline_displaying'.l10n,
+              'label_display_timestamps'.l10n,
               style: style.systemMessageStyle.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 fontSize: 15,
@@ -1240,8 +1240,8 @@ Widget _chats(BuildContext context, MyProfileController c) {
         Obx(() {
           return FieldButton(
             text: (c.settings.value?.timelineEnabled ?? true)
-                ? 'label_compact_timeline'.l10n
-                : 'label_detailed_timeline'.l10n,
+                ? 'label_as_timeline'.l10n
+                : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
