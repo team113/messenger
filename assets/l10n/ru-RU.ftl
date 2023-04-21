@@ -315,32 +315,57 @@ err_you_already_has_unconfirmed_email = Вы имеете неподтвержд
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
-fcm_dialog_attachment =
-    {$kind ->
-        [image] [Изображение]
-        [video] [Видео]
-       *[file] [Файл]
-    }
+fcm_group_massage_start = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }:
+fcm_attachments = [{$count} { $count ->
+          [one] прикреплениe
+          [few] прикрепления
+          *[other] прикреплений
+      }]
+fcm_images = [{ $count ->
+          [1] Изображение
+          [one] {$count} изображение
+          [few] {$count} изображения
+          *[other] {$count} изображений
+      }]
+fcm_videos = [{ $count ->
+         [1] Видео
+         *[other] {$count} видео
+     }]
+fcm_files = [{ $count ->
+        [1] Файл
+        [one] {$count} файл
+        [few] {$count} файла
+        *[other] {$count} файлов
+    }]
+fcm_group_avatar_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] изменил изображение групы
+         *[delete] удалил изображение групы
+      }
+fcm_group_name_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] изменил название групы на {$groupName}
+         *[delete] удалил название групы
+      }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } удалил Вас из групы
 fcm_dialog_message = {$text}
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }
-fcm_group_attachment =
-    {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    }: {$kind ->
-        [image] [Изображение]
-        [video] [Видео]
-       *[file] [Файл]
-    }
-fcm_group_message =
-    {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    }: {$text}
+fcm_group_message = {$text}
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
