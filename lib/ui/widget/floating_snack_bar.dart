@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 
 /// Animated message briefly displayed at the bottom of the screen.
 ///
@@ -113,7 +114,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: style.cardHoveredColor,
+                    color: style.cardColor.darken(0.03),
                     border: style.cardHoveredBorder,
                     boxShadow: [
                       BoxShadow(

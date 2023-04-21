@@ -148,24 +148,35 @@ class UserView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (constraints.maxWidth > 400) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgImage.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgImage.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
+                  Obx(() {
+                    if (c.isBlacklisted != null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (constraints.maxWidth > 400) ...[
+                          const SizedBox(width: 28),
+                          WidgetButton(
+                            onPressed: () => c.call(true),
+                            child: SvgLoader.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: () => c.call(false),
+                          child: SvgLoader.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
               body: Scrollbar(
@@ -311,6 +322,10 @@ class UserView extends StatelessWidget {
         if (c.user?.user.value.dialog.isLocal == false &&
             c.user?.dialog.value != null) ...[
           Obx(() {
+            if (c.isBlacklisted != null) {
+              return const SizedBox.shrink();
+            }
+
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
