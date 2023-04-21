@@ -79,36 +79,6 @@ class SvgImage extends StatelessWidget {
     );
   }
 
-  /// Instantiates a widget rendering an SVG picture from a [File].
-  ///
-  /// Either the [width] and [height] arguments should be specified, or the
-  /// widget should be placed in a context setting layout constraints tightly.
-  /// Otherwise, the image dimensions will change as the image is loaded, which
-  /// will result in ugly layout changes.
-  factory SvgImage.file(
-    File file, {
-    Key? key,
-    Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
-    double? width,
-    double? height,
-    WidgetBuilder? placeholderBuilder,
-    String? semanticsLabel,
-    bool excludeFromSemantics = false,
-  }) {
-    return SvgImage._(
-      file: file,
-      key: key,
-      alignment: alignment,
-      fit: fit,
-      width: width,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
-
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
   /// Either the [width] and [height] arguments should be specified, or the
@@ -128,6 +98,36 @@ class SvgImage extends StatelessWidget {
   }) {
     return SvgImage._(
       bytes: bytes,
+      key: key,
+      alignment: alignment,
+      fit: fit,
+      width: width,
+      height: height,
+      placeholderBuilder: placeholderBuilder,
+      semanticsLabel: semanticsLabel,
+      excludeFromSemantics: excludeFromSemantics,
+    );
+  }
+
+  /// Instantiates a widget rendering an SVG picture from a [File].
+  ///
+  /// Either the [width] and [height] arguments should be specified, or the
+  /// widget should be placed in a context setting layout constraints tightly.
+  /// Otherwise, the image dimensions will change as the image is loaded, which
+  /// will result in ugly layout changes.
+  factory SvgImage.file(
+    File file, {
+    Key? key,
+    Alignment alignment = Alignment.center,
+    BoxFit fit = BoxFit.contain,
+    double? width,
+    double? height,
+    WidgetBuilder? placeholderBuilder,
+    String? semanticsLabel,
+    bool excludeFromSemantics = false,
+  }) {
+    return SvgImage._(
+      file: file,
       key: key,
       alignment: alignment,
       fit: fit,
@@ -182,9 +182,9 @@ class SvgImage extends StatelessWidget {
         semanticsLabel: semanticsLabel,
         excludeFromSemantics: excludeFromSemantics!,
       );
-    } else if (file != null) {
-      return svgFromFile(
-        file!,
+    } else if (bytes != null) {
+      return svgFromBytes(
+        bytes!,
         alignment: alignment!,
         fit: fit!,
         width: width,
@@ -193,9 +193,9 @@ class SvgImage extends StatelessWidget {
         semanticsLabel: semanticsLabel,
         excludeFromSemantics: excludeFromSemantics!,
       );
-    } else if (bytes != null) {
-      return svgFromBytes(
-        bytes!,
+    } else if (file != null) {
+      return svgFromFile(
+        file!,
         alignment: alignment!,
         fit: fit!,
         width: width,
