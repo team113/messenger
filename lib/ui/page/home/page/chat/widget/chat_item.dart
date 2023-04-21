@@ -63,6 +63,7 @@ import 'animated_offset.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 
@@ -78,8 +79,9 @@ class ChatItemWidget extends StatefulWidget {
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -119,6 +121,13 @@ class ChatItemWidget extends StatefulWidget {
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatItemWidget].
+  final bool timestamp;
+
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
@@ -137,9 +146,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
   final void Function(String text)? onCopy;
-
-  /// Optional animation that controls a [SwipeableStatus].
-  final AnimationController? animation;
 
   /// Callback, called when a gallery list is required.
   ///
@@ -844,6 +850,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    // Indicator whether the [_timestamp] should be displayed in a bubble above
+    // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
+    final bool timeInBubble = media.isNotEmpty;
+
     return _rounded(
       context,
       (menu) {
@@ -887,7 +897,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: WidgetButton(
                       onPressed:
                           menu ? null : () => widget.onRepliedTap?.call(e),
-                      child: _repliedMessage(e),
+                      child: _repliedMessage(
+                        e,
+                        timestamp: widget.timestamp &&
+                            i == msg.repliesTo.length - 1 &&
+                            _text == null &&
+                            msg.attachments.isEmpty,
+                      ),
                     ),
                   ),
                 ),
@@ -931,8 +947,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
-                  _text!,
                   key: Key('Text_${widget.item.value.id}'),
+                  TextSpan(
+                    children: [
+                      _text!,
+                      if (widget.timestamp && files.isEmpty && !timeInBubble)
+                        WidgetSpan(
+                          child: Opacity(opacity: 0, child: _timestamp(msg)),
+                        ),
+                    ],
+                  ),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
@@ -946,15 +970,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: Column(
-                  children: files
-                      .map(
-                        (e) => ChatItemWidget.fileAttachment(
+                child: SelectionContainer.disabled(
+                  child: Column(
+                    children: [
+                      ...files.mapIndexed(
+                        (i, e) => ChatItemWidget.fileAttachment(
                           e,
                           onFileTap: widget.onFileTap,
                         ),
-                      )
-                      .toList(),
+                      ),
+                      if (widget.timestamp && !timeInBubble)
+                        Opacity(opacity: 0, child: _timestamp(msg)),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1022,27 +1050,47 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-          child: IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: _fromMe
-                    ? _isRead
-                        ? style.readMessageColor
-                        : style.unreadMessageColor
-                    : style.messageColor,
-                borderRadius: BorderRadius.circular(15),
-                border: _fromMe
-                    ? _isRead
-                        ? style.secondaryBorder
-                        : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                    : style.primaryBorder,
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                            ? style.readMessageColor
+                            : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? _isRead
+                            ? style.secondaryBorder
+                            : Border.all(
+                                color: const Color(0xFFDAEDFF), width: 0.5)
+                        : style.primaryBorder,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              ),
-            ),
+              if (widget.timestamp)
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: _timestamp(msg),
+                        )
+                      : _timestamp(msg),
+                )
+            ],
           ),
         );
       },
@@ -1099,82 +1147,110 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
+    final Widget call = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.black.withOpacity(0.03),
+      ),
+      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: message.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 13 * 1.4,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 15 * 1.4,
+                  ),
+          ),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.boldBody,
+                  ),
+                ),
+                if (time != null) ...[
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: Text(
+                      time,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+    );
+
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
       opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                child: Text(
-                  widget.user?.user.value.name?.val ??
-                      widget.user?.user.value.num.val ??
-                      'dot'.l10n * 3,
-                  style: style.boldBody.copyWith(color: color),
-                ),
-              ),
-            const SizedBox(height: 4),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
-              ),
-              padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                    child: message.withVideo
-                        ? AssetWidget(
-                            asset:
-                                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 13 * 1.4,
-                          )
-                        : AssetWidget(
-                            asset:
-                                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 15 * 1.4,
-                          ),
-                  ),
-                  Flexible(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.boldBody,
-                          ),
-                        ),
-                        if (time != null) ...[
-                          const SizedBox(width: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 1),
-                            child: Text(
-                              time,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                          ),
-                        ],
-                      ],
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                ],
-              ),
+                const SizedBox(height: 4),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(child: call),
+                      if (widget.timestamp)
+                        WidgetSpan(
+                          child: Opacity(
+                            opacity: 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _timestamp(widget.item.value),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (widget.timestamp)
+            Positioned(
+              right: 8,
+              bottom: 4,
+              child: _timestamp(widget.item.value),
+            )
+        ],
       ),
     );
 
@@ -1207,7 +1283,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item) {
+  Widget _repliedMessage(ChatItemQuote item, {bool timestamp = false}) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
@@ -1375,36 +1451,45 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           children: [
             const SizedBox(width: 12),
             Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
-                ),
-                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      snapshot.data?.user.value.name?.val ??
-                          snapshot.data?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(width: 2, color: color)),
                     ),
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: content,
-                      ),
-                    ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(mainAxisSize: MainAxisSize.min, children: additional),
-                    ],
-                  ],
-                ),
+                    margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          snapshot.data?.user.value.name?.val ??
+                              snapshot.data?.user.value.num.val ??
+                              'dot'.l10n * 3,
+                          style: style.boldBody.copyWith(color: color),
+                        ),
+                        if (content != null) ...[
+                          const SizedBox(height: 2),
+                          DefaultTextStyle.merge(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: content,
+                          ),
+                        ],
+                        if (additional.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: additional,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (timestamp)
+                    Opacity(opacity: 0, child: _timestamp(widget.item.value)),
+                ],
               ),
             ),
           ],
@@ -1432,7 +1517,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           e.memberId != widget.item.value.authorId,
     );
 
-    bool isSent = item.status.value == SendingStatus.sent;
+    final bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -1474,6 +1559,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    // Builds the provided [builder] and the [avatars], if any.
+    Widget child(bool menu) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          builder(menu),
+          if (avatars.isNotEmpty)
+            Transform.translate(
+              offset: Offset(-12, -widget.margin.bottom),
+              child: WidgetButton(
+                onPressed: () => MessageInfo.show(
+                  context,
+                  reads: reads ?? [],
+                  id: widget.item.value.id,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: avatars,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
@@ -1485,7 +1600,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1555,7 +1670,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisAlignment:
                 _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
-              if (_fromMe)
+              if (_fromMe && !widget.timestamp)
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
@@ -1773,33 +1888,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: (bool menu) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            builder(menu),
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => MessageInfo.show(
-                                    context,
-                                    reads: reads ?? [],
-                                    id: widget.item.value.id,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        builder: PlatformUtils.isMobile ? child : null,
+                        child: PlatformUtils.isMobile ? null : child(false),
                       ),
                     ),
                   );
@@ -1810,6 +1900,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       ),
     );
+  }
+
+  /// Builds a [MessageTimestamp] of the provided [item].
+  Widget _timestamp(ChatItem item) {
+    return Obx(() {
+      final bool isMonolog = widget.chat.value?.isMonolog == true;
+
+      return KeyedSubtree(
+        key: Key('MessageStatus_${item.id}'),
+        child: MessageTimestamp(
+          at: item.at,
+          status: _fromMe ? item.status.value : null,
+          read: _isRead || isMonolog,
+          delivered:
+              widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+                  isMonolog,
+        ),
+      );
+    });
   }
 
   /// Populates the [_worker] invoking the [_populateSpans] and
