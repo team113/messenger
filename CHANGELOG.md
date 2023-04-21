@@ -38,6 +38,8 @@ All user visible changes to this project will be documented in this file. This p
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
+    - Chats tab:
+        - Inverted selected chat colors. ([#405])
 
 ### Fixed
 
@@ -67,6 +69,7 @@ All user visible changes to this project will be documented in this file. This p
 [#393]: /../../pull/393
 [#399]: /../../pull/399
 [#403]: /../../pull/403
+[#405]: /../../pull/405
 
 
 
