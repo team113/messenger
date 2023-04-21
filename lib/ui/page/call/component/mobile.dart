@@ -32,12 +32,6 @@ import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
-import '../widget/mobile_builder.dart';
-import '../widget/mobile_buttons.dart';
-import '../widget/mobile_chat.dart';
-import '../widget/mobile_description.dart';
-import '../widget/mobile_padding.dart';
-import '../widget/mobile_scaffold.dart';
 import '../widget/participant.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
@@ -54,6 +48,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
+import 'mobile_sub.dart';
 
 /// Returns a mobile design of a [CallView].
 class MobileCall extends StatelessWidget {

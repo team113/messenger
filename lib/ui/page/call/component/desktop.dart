@@ -27,12 +27,8 @@ import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/desktop_dock.dart';
-import '../widget/desktop_launchpad.dart';
-import '../widget/desktop_possible_container.dart';
-import '../widget/desktop_scaffold.dart';
-import '../widget/desktop_scaler.dart';
-import '../widget/desktop_secondary_target.dart';
+import '../widget/desktop_primary_view.dart';
+import '../widget/desktop_secondary_view.dart';
 import '../widget/hint.dart';
 import '../widget/scaler.dart';
 import '/domain/model/avatar.dart';
@@ -47,8 +43,7 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'desktop_primary_view.dart';
-import 'desktop_secondary_view.dart';
+import 'desktop_sub.dart';
 
 /// Returns a desktop design of a [CallView].
 class DesktopCall extends StatelessWidget {

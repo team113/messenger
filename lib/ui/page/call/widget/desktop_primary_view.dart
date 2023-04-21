@@ -20,17 +20,17 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '../controller.dart';
-import '../widget/animated_delayed_scale.dart';
-import '../widget/conditional_backdrop.dart';
-import '../widget/participant.dart';
-import '../widget/reorderable_fit.dart';
-import '../widget/video_view.dart';
+import '/domain/model/ongoing_call.dart';
+import '/util/web/web.dart';
 import '../../../widget/context_menu/menu.dart';
 import '../../../widget/context_menu/region.dart';
-import '/domain/model/ongoing_call.dart';
-import '/util/web/non_web.dart';
-import 'desktop.dart';
+import '../component/desktop.dart';
+import '../controller.dart';
+import 'animated_delayed_scale.dart';
+import 'conditional_backdrop.dart';
+import 'participant.dart';
+import 'reorderable_fit.dart';
+import 'video_view.dart';
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 class PrimaryView extends StatelessWidget {

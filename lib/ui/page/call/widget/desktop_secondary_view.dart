@@ -19,21 +19,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '../controller.dart';
-import '../widget/animated_delayed_scale.dart';
-import '../widget/conditional_backdrop.dart';
-import '../widget/desktop_build_drag_handle.dart';
-import '../widget/participant.dart';
-import '../widget/reorderable_fit.dart';
-import '../widget/scaler.dart';
-import '../../../widget/context_menu/menu.dart';
-import '../../../widget/context_menu/region.dart';
-import '../../../widget/svg/svg.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/util/platform_utils.dart';
-import '/util/web/non_web.dart';
-import 'desktop.dart';
+import '/util/web/web.dart';
+import '../../../widget/context_menu/menu.dart';
+import '../../../widget/context_menu/region.dart';
+import '../../../widget/svg/svg.dart';
+import '../component/desktop.dart';
+import '../component/desktop_sub.dart';
+import '../controller.dart';
+import 'animated_delayed_scale.dart';
+import 'conditional_backdrop.dart';
+import 'participant.dart';
+import 'reorderable_fit.dart';
+import 'scaler.dart';
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 class SecondaryView extends StatelessWidget {
