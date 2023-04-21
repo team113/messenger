@@ -59,10 +59,10 @@ class AnimatedLogo extends StatelessWidget {
   /// Height of the [SvgLoader] asset.
   final double svgAssetHeight;
 
-  ///
+  /// Type of [Curve] animation of the [AnimatedLogo].
   final Curve curve;
 
-  ///
+  /// Duration of [Curve] animation.
   final Duration animationDuration;
 
   @override
