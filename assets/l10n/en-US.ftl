@@ -316,20 +316,20 @@ err_you_are_not_member = Not a member
 fcm_group_massage_start = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
-    }:
-fcm_attachments = [{$count} ttachments]
+    }:{" "}
+fcm_attachments = [{$count} attachments]{" "}
 fcm_images = [{ $count ->
           [1] Image
           *[other] {$count} images
-      }]
+      }]{" "}
 fcm_videos = [{ $count ->
          [1] Video
          *[other] {$count} videos
-     }]
+     }]{" "}
 fcm_files = [{ $count ->
         [1] File
         *[other] {$count} files
-    }]
+    }]{" "}
 fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
