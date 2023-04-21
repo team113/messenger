@@ -205,7 +205,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics!,
       );
     } else {
-      throw ArgumentError('SvgLoader: no asset, file or bytes was provided');
+      throw ArgumentError('SvgImage: no asset, file or bytes was provided');
     }
   }
 }

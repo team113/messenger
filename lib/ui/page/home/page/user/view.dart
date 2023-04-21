@@ -160,7 +160,7 @@ class UserView extends StatelessWidget {
                           const SizedBox(width: 28),
                           WidgetButton(
                             onPressed: () => c.call(true),
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/chat_video_call.svg',
                               height: 17,
                             ),
@@ -169,7 +169,7 @@ class UserView extends StatelessWidget {
                         const SizedBox(width: 28),
                         WidgetButton(
                           onPressed: () => c.call(false),
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/chat_audio_call.svg',
                             height: 19,
                           ),
