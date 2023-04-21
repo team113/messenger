@@ -672,6 +672,7 @@ label_sound_and_vibrations = Sound and vibration
 label_status = Status
 label_storage = Storage
 label_subtitle_participants = participants
+label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
