@@ -34,7 +34,7 @@ class AnimatedLogo extends StatelessWidget {
     required this.svgAsset,
     this.svgAssetHeight = 140,
     this.curve = Curves.ease,
-    required this.animationDuration,
+    this.animationDuration = const Duration(milliseconds: 200),
   });
 
   /// Maximum width and height constraints of the [AnimatedLogo].
@@ -59,10 +59,10 @@ class AnimatedLogo extends StatelessWidget {
   /// Height of the [SvgLoader] asset.
   final double svgAssetHeight;
 
-  /// Type of [Curve] animation of the [AnimatedLogo].
+  /// Type of [Curve] when changing the size of the [SizedBox] to match the size of the [AnimatedLogo].
   final Curve curve;
 
-  /// Duration of [Curve] animation.
+  /// [Duration] when changing the size of the [SizedBox] to match the size of the [AnimatedLogo].
   final Duration animationDuration;
 
   @override
