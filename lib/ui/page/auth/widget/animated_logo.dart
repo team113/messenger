@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
+import 'package:rive/rive.dart';
 
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
