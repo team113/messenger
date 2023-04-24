@@ -21,8 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
@@ -49,7 +48,7 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
@@ -83,56 +82,14 @@ class LanguageSelectionView extends StatelessWidget {
                       final Language e = L10n.languages[i];
 
                       return Obx(() {
-                        final bool selected = c.selected.value == e;
-                        return SizedBox(
+                        return RectangleButton(
                           key: Key('Language_${e.locale.languageCode}'),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(10),
-                            color: selected
-                                ? style.cardSelectedColor.withOpacity(0.8)
-                                : Colors.white.darken(0.05),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => c.selected.value = e,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'label_language_entry'.l10nfmt({
-                                        'code':
-                                            e.locale.languageCode.toUpperCase(),
-                                        'name': e.name,
-                                      }),
-                                      style: const TextStyle(fontSize: 17),
-                                    ),
-                                    const Spacer(),
-                                    SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: selected
-                                            ? CircleAvatar(
-                                                backgroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
-                                                radius: 12,
-                                                child: const Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 12,
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          label: 'label_language_entry'.l10nfmt({
+                            'code': e.locale.languageCode.toUpperCase(),
+                            'name': e.name,
+                          }),
+                          selected: c.selected.value == e,
+                          onPressed: () => c.selected.value = e,
                         );
                       });
                     },
@@ -149,7 +106,7 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(color: colors.onSecondary),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {
@@ -158,7 +115,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: colors.secondary,
                 ),
               ),
               const SizedBox(height: 16),

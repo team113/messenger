@@ -475,6 +475,7 @@ label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
+label_as_timeline = Как таймлайн
 label_attachments = [{$count} { $count ->
     [1] прикрепление
     [few] прикрепления
@@ -575,6 +576,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -621,6 +623,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
+label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
@@ -772,9 +775,11 @@ label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
+label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
+label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный

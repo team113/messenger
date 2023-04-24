@@ -16,38 +16,26 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-/// Mocked [PlatformUtilsImpl] to use in the tests.
-class PlatformUtilsMock extends PlatformUtilsImpl {
-  /// [String] set in a mocked [Clipboard].
-  String? clipboard;
+import '/domain/model/application_settings.dart';
+import '/domain/repository/settings.dart';
 
-  @override
-  Future<File?> download(
-    String url,
-    String filename,
-    int? size, {
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-    bool temporaryDirectory = false,
-  }) async {
-    int total = 100;
-    for (int count = 0; count <= total; count++) {
-      if (cancelToken?.isCancelled == true) {
-        break;
-      }
-      await Future.delayed(50.milliseconds);
-      onReceiveProgress?.call(count, total);
-    }
+export 'view.dart';
 
-    return File('test/path');
-  }
+/// Controller of a [TimelineSwitchView].
+class TimelineSwitchController extends GetxController {
+  TimelineSwitchController(this._settingsRepository);
 
-  @override
-  void copy({String? text}) => clipboard = text;
+  /// Settings repository updating the [ApplicationSettings.timelineEnabled].
+  final AbstractSettingsRepository _settingsRepository;
+
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
+
+  /// Sets the [ApplicationSettings.timelineEnabled] value.
+  Future<void> setTimelineEnabled(bool enabled) =>
+      _settingsRepository.setTimelineEnabled(enabled);
 }

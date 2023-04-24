@@ -105,6 +105,7 @@ enum ProfileTab {
   signing,
   link,
   background,
+  chats,
   calls,
   media,
   notifications,
