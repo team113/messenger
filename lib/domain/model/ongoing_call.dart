@@ -858,7 +858,7 @@ class OngoingCall {
   Future<void> enumerateDevices() async {
     try {
       devices.value = (await MediaUtils.mediaManager?.enumerateDevices() ?? [])
-          .whereNot((e) => e.deviceId().isEmpty)
+          .where((e) => e.deviceId().isNotEmpty)
           .toList();
 
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {

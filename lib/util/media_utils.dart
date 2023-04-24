@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'log.dart';
@@ -35,8 +34,6 @@ class MediaUtils {
   /// [StreamController] of the [MediaDeviceDetails]s updating in the
   /// [MediaManagerHandle.onDeviceChange].
   static StreamController<List<MediaDeviceDetails>>? _devicesController;
-
-  static List<LocalMediaTrack> _tracks = [];
 
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
@@ -67,7 +64,7 @@ class MediaUtils {
         print('_devicesController!.add');
         _devicesController!.add(
           (await mediaManager?.enumerateDevices() ?? [])
-              .whereNot((e) => e.deviceId().isEmpty)
+              .where((e) => e.deviceId().isNotEmpty)
               .toList(),
         );
       });
@@ -82,21 +79,6 @@ class MediaUtils {
     TrackPreferences? screen,
   }) async {
     final List<LocalMediaTrack> tracks = [];
-
-    // if (audio != null) {
-    //   final LocalMediaTrack? track = _tracks.firstWhereOrNull(
-    //     (e) =>
-    //         e.kind() == MediaKind.Audio &&
-    //         e.mediaSourceKind() == MediaSourceKind.Device &&
-    //         (audio!.device == null || e.getTrack().deviceId() == audio.device),
-    //   );
-
-    //   if (track != null) {
-    //     print('[MediaUtils] Re-use audio track: $track');
-    //     tracks.add(track);
-    //     audio = null;
-    //   }
-    // }
 
     if (audio != null || video != null || screen != null) {
       final List<LocalMediaTrack> local =
@@ -118,7 +100,7 @@ class MediaUtils {
     MediaDeviceKind? kind,
   ]) async {
     return (await mediaManager?.enumerateDevices() ?? [])
-        .whereNot((e) => e.deviceId().isEmpty)
+        .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
         .toList();
   }

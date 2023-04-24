@@ -383,7 +383,6 @@ final Widget child;
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
                 child: AnimatedSwitcher(
-                  opacity: hovered || additionally.isNotEmpty ? 1 : 0,
                   duration: const Duration(milliseconds: 150),
                   layoutBuilder: (current, previous) => Stack(
                     alignment: Alignment.center,
