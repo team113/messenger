@@ -46,6 +46,7 @@ class SelectedDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return SizedBox(
       width: 30,

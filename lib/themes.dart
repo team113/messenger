@@ -28,6 +28,7 @@ class Themes {
       primary: const Color(0xFF63B4FF),
       primaryHighlight: Colors.blue,
       primaryHighlightShiny: const Color(0xFF00A3FF),
+      primaryHighlightShinyAuxiliary: const Color(0xFF58A6EF),
       primaryHighlightShinier: const Color(0xFFB6DCFF),
       primaryHighlightShiniest: const Color(0xFFDBEAFD),
       onPrimary: Colors.white,
@@ -127,6 +128,8 @@ class Themes {
               secondary: colors.secondary,
               primaryHighlight: colors.primaryHighlight,
               primaryHighlightShiny: colors.primaryHighlightShiny,
+              primaryHighlightShinyAuxiliary:
+                  colors.primaryHighlightShinyAuxiliary,
               primaryHighlightShinier: colors.primaryHighlightShinier,
               primaryHighlightShiniest: colors.primaryHighlightShiniest,
               onSecondary: colors.onSecondary,
@@ -181,26 +184,27 @@ class Themes {
               fontSize: 17,
             ),
             cardBlur: 5,
-            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
-            cardColor: Colors.white.withOpacity(0.95),
+            cardBorder:
+                Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+            cardColor: colors.onPrimary.withOpacity(0.95),
             cardHoveredBorder: Border.all(
-              color: const Color(0xFFCAE6FE),
+              color: colors.primaryHighlightShiniest,
               width: 0.5,
             ),
             cardRadius: BorderRadius.circular(14),
             cardSelectedBorder: Border.all(
-              color: const Color(0xFF58A6EF),
+              color: colors.primaryHighlightShinyAuxiliary,
               width: 0.5,
             ),
-            contextMenuBackgroundColor: const Color(0xFFF2F2F2),
-            contextMenuHoveredColor: const Color(0xFFE5E7E9),
+            contextMenuBackgroundColor: colors.secondaryHighlight,
+            contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
             linkStyle: TextStyle(
               color: colors.primaryHighlight,
               decoration: TextDecoration.underline,
               decorationThickness: 2,
             ),
-            messageColor: Colors.white,
+            messageColor: colors.onPrimary,
             primaryBorder: Border.all(
               color: colors.secondaryHighlightDark,
               width: 0.5,
@@ -311,7 +315,8 @@ class Themes {
                 fontSize: 15,
                 fontWeight: FontWeight.w300,
               ),
-              errorStyle: textStyle.copyWith(color: Colors.red, fontSize: 13),
+              errorStyle:
+                  textStyle.copyWith(color: colors.dangerColor, fontSize: 13),
               helperStyle: textStyle.copyWith(
                 color: colors.secondaryHighlightDarkest,
                 fontSize: 15,
@@ -721,6 +726,7 @@ class Palette {
     required this.secondary,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
+    required this.primaryHighlightShinyAuxiliary,
     required this.primaryHighlightShinier,
     required this.primaryHighlightShiniest,
     required this.onSecondary,
@@ -837,6 +843,8 @@ class Palette {
   /// Glowing tone of secondary [Color] that is used to draw the user's attention
   /// to an area of the screen that contains important information.
   final Color primaryHighlightShiny;
+
+  final Color primaryHighlightShinyAuxiliary;
 
   /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
   final Color primaryHighlightShinier;
@@ -992,6 +1000,10 @@ class Palette {
               as Color,
       primaryHighlightShiny: Color.lerp(
           color.primaryHighlightShiny, other.primaryHighlightShiny, t) as Color,
+      primaryHighlightShinyAuxiliary: Color.lerp(
+          color.primaryHighlightShinyAuxiliary,
+          other.primaryHighlightShinyAuxiliary,
+          t) as Color,
       primaryHighlightShinier: Color.lerp(
               color.primaryHighlightShinier, other.primaryHighlightShinier, t)
           as Color,

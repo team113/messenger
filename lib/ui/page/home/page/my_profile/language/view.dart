@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -48,7 +49,8 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
@@ -106,7 +108,7 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: colors.onSecondary),
+                    style: thin?.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () {
                     if (c.selected.value != null) {
@@ -115,7 +117,7 @@ class LanguageSelectionView extends StatelessWidget {
 
                     Navigator.of(context).pop();
                   },
-                  color: colors.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

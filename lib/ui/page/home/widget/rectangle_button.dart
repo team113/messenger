@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Rectangular filled selectable button.
@@ -45,6 +46,7 @@ class RectangleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
