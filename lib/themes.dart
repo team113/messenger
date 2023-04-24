@@ -595,51 +595,6 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
-    Color? primary,
-    Color? secondaryBackground,
-    Color? secondaryBackgroundLight,
-    Color? secondaryBackgroundLighter,
-    Color? secondaryBackgroundLightest,
-    Color? secondaryHighlight,
-    Color? secondaryHighlightDark,
-    Color? secondaryHighlightDarkest,
-    Color? secondaryOpacity87,
-    Color? secondaryOpacity73,
-    Color? onPrimary,
-    Color? onPrimaryOpacity7,
-    Color? onPrimaryOpacity25,
-    Color? onPrimaryOpacity40,
-    Color? onPrimaryOpacity50,
-    Color? onPrimaryOpacity60,
-    Color? onPrimaryOpacity80,
-    Color? secondary,
-    Color? secondaryNative,
-    Color? primaryHighlight,
-    Color? primaryHighlightShiny,
-    Color? primaryHighlightShinier,
-    Color? primaryHighlightShiniest,
-    Color? onSecondary,
-    Color? onSecondaryOpacity88,
-    Color? onSecondaryOpacity60,
-    Color? onSecondaryOpacity50,
-    Color? onSecondaryOpacity30,
-    Color? onSecondaryOpacity20,
-    Color? background,
-    Color? backgroundAuxiliary,
-    Color? backgroundAuxiliaryLight,
-    Color? backgroundAuxiliaryLighter,
-    Color? backgroundAuxiliaryLightest,
-    Color? onBackground,
-    Color? onBackgroundOpacity2,
-    Color? onBackgroundOpacity7,
-    Color? onBackgroundOpacity13,
-    Color? onBackgroundOpacity20,
-    Color? onBackgroundOpacity27,
-    Color? onBackgroundOpacity33,
-    Color? onBackgroundOpacity40,
-    Color? onBackgroundOpacity50,
-    Color? onBackgroundOpacity56,
-    Color? onBackgroundOpacity63,
     Color? transparent,
     Color? acceptColor,
     Color? acceptAuxiliaryColor,
@@ -706,7 +661,7 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      colors: Palette.lerpColors(colors, other.colors, t),
+      colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
@@ -812,6 +767,7 @@ class Palette {
   final Color primary;
 
   /// Background [Color] for elements associated with the [primary] color.
+  ///
   /// For example, the background for buttons, pop-ups, dialog boxes, etc.
   final Color secondaryBackground;
 
@@ -827,51 +783,63 @@ class Palette {
   /// Dark shade of the accent [Color]. Used to create contrast and depth effect.
   final Color secondaryHighlightDark;
 
-  /// Darkest shade of the main accent [Color]. It is used to emphasize buttons, labels,
-  /// or other user interface elements that should be highlighted and easily visible to the user.
+  /// Darkest shade of the main accent [Color].
+  ///
+  /// It is used to emphasize buttons, labels, or other user interface elements
+  /// that should be highlighted and easily visible to the user.
   final Color secondaryHighlightDarkest;
 
   /// 20% opacity of the [primary] color.
+  ///
   /// Used for - [handRaisedIcon], [element], etc.
   final Color? secondaryOpacity87;
 
   /// 15% opacity of the [primary] color.
+  ///
   /// Used for - [HintWidget] elements.
   final Color? secondaryOpacity73;
 
-  ///  [Color] that is used for elements that are displayed on top
+  /// [Color] that is used for elements that are displayed on top
   /// of the main color of the application, for example, text on buttons and icons.
   final Color onPrimary;
 
   /// 90% opacity of the [onPrimary] color.
+  ///
   /// Used for - [_secondaryTarget] boxes, [DecorationTween], etc.
   final Color? onPrimaryOpacity7;
 
   /// 75% opacity of the [onPrimary] color.
+  ///
   /// Used for - [BoxDecoration].
   final Color? onPrimaryOpacity25;
 
   /// 60% opacity of the [onPrimary] color.
+  ///
   /// Used for - [MessageFieldView] containers.
   final Color? onPrimaryOpacity40;
 
   /// 50% opacity of the [onPrimary] color.
+  ///
   /// Used for - [AcceptVideoButton], [ChewieProgressColors] etc.
   final Color? onPrimaryOpacity50;
 
   /// 40% opacity of the [onPrimary] color.
+  ///
   /// Used for - [MobileCall] boxes, etc.
   final Color? onPrimaryOpacity60;
 
   /// 20% opacity of the [onPrimary] color.
+  ///
   /// Used for - [MobileControls] text, etc.
   final Color? onPrimaryOpacity80;
 
   /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
+  ///
   /// For example, for lists, the background of some elements and other additional interface elements.
   final Color secondary;
 
   /// Highlight [Color] of the secondary element.
+  ///
   /// Used to highlight secondary elements when hovering or when activated.
   final Color primaryHighlight;
 
@@ -883,6 +851,7 @@ class Palette {
   final Color primaryHighlightShinier;
 
   /// Most brilliant and contrasting secondary highlight [Color].
+  ///
   /// Can be used as a background or to highlight certain elements.
   final Color primaryHighlightShiniest;
 
@@ -891,22 +860,27 @@ class Palette {
   final Color onSecondary;
 
   /// 90% opacity of the [onSecondary] color.
+  ///
   /// Used for - [CallController.panel] box, [SlidingUpPanel], etc.
   final Color? onSecondaryOpacity88;
 
   /// 60% opacity of the [onSecondary] color.
+  ///
   /// Used for - [launchpad] box, [SlidingUpPanel], etc.
   final Color? onSecondaryOpacity60;
 
   /// 50% opacity of the [onSecondary] color.
+  ///
   /// Used for - [CallButton], [chat] card, [GalleryPopup] interface, etc.
   final Color? onSecondaryOpacity50;
 
   /// 30% opacity of the [onSecondary] color.
+  ///
   /// Used for - [possibleContainer], [ParticipantOverlayWidget] tooltip, etc.
   final Color? onSecondaryOpacity30;
 
   /// 20% opacity of the [onSecondary] color.
+  ///
   /// Used for - [DockedPanelPadding], [Selector] hover, etc.
   final Color? onSecondaryOpacity20;
 
@@ -914,6 +888,7 @@ class Palette {
   final Color background;
 
   /// [Color] responsible for the helper background color.
+  ///
   /// It acts as an alternative for background in case we need to highlight
   /// some interface element using a background color other than the main one.
   final Color backgroundAuxiliary;
@@ -928,54 +903,67 @@ class Palette {
   final Color backgroundAuxiliaryLightest;
 
   /// Neutral [Color] that does not compete with the main content of the application.
+  ///
   /// For example for text, BoxShadow's, etc.
   final Color onBackground;
 
   /// 98% opacity of the [onBackground] color.
+  ///
   /// Used for - [mobileCall], [ColoredBox], etc.
   final Color? onBackgroundOpacity2;
 
   /// 94% opacity of the [onBackground] color.
+  ///
   /// Used for - [HomeView.background], [AddContactListTile] selectedTileColor, etc.
   final Color? onBackgroundOpacity7;
 
   /// 88% opacity of the [onBackground] color.
+  ///
   /// Used for - [BlockedField], [SendField], [DesktopControls] buildHitArea, etc.
   final Color? onBackgroundOpacity13;
 
   /// 81% opacity of the [onBackground] color.
+  ///
   /// Used for - [ParticipantDecoratorWidget], [CustomBoxShadow], etc.
   final Color? onBackgroundOpacity20;
 
   /// 74% opacity of the [onBackground] color.
+  ///
   /// Used for - [desktopCall] Secondary panel shadow, [HintWidget] card shadow, etc.
   final Color? onBackgroundOpacity27;
 
   /// 67% opacity of the [onBackground] color.
+  ///
   /// Used for - [ChatView] id, [ChatInfoView], etc.
   final Color? onBackgroundOpacity33;
 
   /// 60% opacity of the [onBackground] color.
+  ///
   /// Used for - mobile and desktop [ChatView] bottom bar, etc.
   final Color? onBackgroundOpacity40;
 
   /// 50% opacity of the [onBackground] color.
+  ///
   /// Used for - [MessageFieldView] attachment.
   final Color? onBackgroundOpacity50;
 
   /// 44% opacity of the [onBackground] color.
+  ///
   /// Used for - [CallView] primary view, [ParticipantRedialing], etc.
   final Color? onBackgroundOpacity56;
 
   /// 25% opacity of the [onBackground] color.
+  ///
   /// Used for - [ParticipantConnecting].
   final Color? onBackgroundOpacity63;
 
   /// Сompletely transparent [Color] that has no visible saturation or brightness.
+  ///
   /// It is used to indicate the absence of a color or background of the element on which it is used.
   final Color transparent;
 
   /// Used as an affirmative [Color] for visual confirmation of the action.
+  ///
   /// For example, for the "Accept call" buttons.
   final Color acceptColor;
 
@@ -983,6 +971,7 @@ class Palette {
   final Color acceptAuxiliaryColor;
 
   /// Used to indicate the color of rejection or rejection in various elements of the user interface.
+  ///
   /// For example, on the "Cancel call" button.
   final Color declineColor;
 
@@ -994,10 +983,13 @@ class Palette {
   final Color warningColor;
 
   /// [Colors] refer to the range of colors that can be used for a profile picture.
-  /// These colors may predefined or customizable and are selected to help differentiate between users or to provide a visual cue for different types of accounts.
+  ///
+  /// These colors may predefined or customizable and are selected to help differentiate
+  /// between users or to provide a visual cue for different types of accounts.
   final List<Color> userColors;
 
-  static Palette lerpColors(Palette color, Palette? other, double t) {
+  /// New [Palette] object that represents the result of the interpolation.
+  static Palette lerp(Palette color, Palette? other, double t) {
     if (other is! Palette) {
       return color;
     }
