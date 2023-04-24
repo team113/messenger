@@ -318,7 +318,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         ),
       );
 
-final Widget child;
+      final Widget child;
 
       if (hovered || additionally.isNotEmpty) {
         child = Container(

@@ -226,7 +226,7 @@ class WebUtils {
   static void setDefaultFavicon() {
     // No-op.
   }
-  
+
   /// Sets callback to be fired whenever Rust code panics.
   static void onPanic(void Function(String)? cb) => jason.onPanic(cb);
 }
