@@ -699,7 +699,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
+                ),
               ),
             ),
             onPressed: () => AddEmailView.show(
@@ -941,10 +944,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgLoader.asset(
-                'assets/icons/delete.svg',
-                height: 14,
-              ),
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
