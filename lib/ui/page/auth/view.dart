@@ -159,10 +159,7 @@ class AuthView extends StatelessWidget {
               'btn_start'.l10n,
               style: const TextStyle(color: Colors.white),
             ),
-            leading: SvgImage.asset(
-              'assets/icons/start.svg',
-              width: 25 * 0.7,
-            ),
+            leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
             color: Theme.of(context).colorScheme.secondary,
           ),
@@ -170,10 +167,8 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
-            leading: SvgImage.asset(
-              'assets/icons/sign_in.svg',
-              width: 20 * 0.7,
-            ),
+            leading:
+                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
@@ -182,10 +177,8 @@ class AuthView extends StatelessWidget {
               title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                child: SvgImage.asset(
-                  'assets/icons/apple.svg',
-                  width: 22 * 0.7,
-                ),
+                child:
+                    SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
               ),
               onPressed: () => _download(context),
             ),
@@ -194,10 +187,8 @@ class AuthView extends StatelessWidget {
               title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
-                child: SvgImage.asset(
-                  'assets/icons/google.svg',
-                  width: 22 * 0.7,
-                ),
+                child:
+                    SvgImage.asset('assets/icons/google.svg', width: 22 * 0.7),
               ),
               onPressed: () => _download(context),
             ),
@@ -205,10 +196,7 @@ class AuthView extends StatelessWidget {
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
               leading: PlatformUtils.isMacOS
-                  ? SvgImage.asset(
-                      'assets/icons/apple.svg',
-                      width: 22 * 0.7,
-                    )
+                  ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
                   : (PlatformUtils.isWindows)
                       ? SvgImage.asset(
                           'assets/icons/windows.svg',

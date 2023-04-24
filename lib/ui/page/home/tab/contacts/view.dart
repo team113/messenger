@@ -186,10 +186,8 @@ class ContactsTabView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     height: double.infinity,
-                    child: SvgImage.asset(
-                      'assets/icons/search.svg',
-                      width: 17.77,
-                    ),
+                    child:
+                        SvgImage.asset('assets/icons/search.svg', width: 17.77),
                   ),
                 );
               }),

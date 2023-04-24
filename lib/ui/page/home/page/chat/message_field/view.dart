@@ -896,11 +896,7 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgImage.asset(
-            'assets/icons/edit.svg',
-            width: 17,
-            height: 17,
-          ),
+          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
