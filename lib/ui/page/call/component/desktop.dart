@@ -43,6 +43,7 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'common.dart';
 import 'desktop_sub.dart';
 
 /// Returns a desktop design of a [CallView].
@@ -63,6 +64,25 @@ class DesktopCall extends StatelessWidget {
           Get.find(),
         ),
         builder: (CallController c) {
+          final bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+
+          final bool isIncoming = c.state.value != OngoingCallState.active &&
+              c.state.value != OngoingCallState.joining &&
+              !isOutgoing;
+
+          final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+
+          final bool showBottomUi = (c.showUi.isTrue ||
+              c.draggedButton.value != null ||
+              c.state.value != OngoingCallState.active ||
+              (c.state.value == OngoingCallState.active &&
+                  c.locals.isEmpty &&
+                  c.remotes.isEmpty &&
+                  c.focused.isEmpty &&
+                  c.paneled.isEmpty));
+
           return LayoutBuilder(
             builder: (context, constraints) {
               // Call stackable content.
@@ -102,20 +122,6 @@ class DesktopCall extends StatelessWidget {
                             child: Stack(
                               children: [
                                 Obx(() {
-                                  final bool isOutgoing = (c.outgoing ||
-                                          c.state.value ==
-                                              OngoingCallState.local) &&
-                                      !c.started;
-
-                                  final bool isIncoming = c.state.value !=
-                                          OngoingCallState.active &&
-                                      c.state.value !=
-                                          OngoingCallState.joining &&
-                                      !isOutgoing;
-
-                                  final bool isDialog =
-                                      c.chat.value?.chat.value.isDialog == true;
-
                                   final Widget child;
 
                                   if (!isIncoming) {
@@ -261,9 +267,49 @@ class DesktopCall extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           verticalDirection: VerticalDirection.up,
-                          children: const [
-                            DockWidget(),
-                            LaunchpadWidget(),
+                          children: [
+                            DockWidget(
+                              dockKey: c.dockKey,
+                              animatedSliderListener: () => Future.delayed(
+                                Duration.zero,
+                                c.relocateSecondary,
+                              ),
+                              onEnter: (d) => c.keepUi(true),
+                              onHover: (d) => c.keepUi(true),
+                              onExit: c.showUi.value && !c.displayMore.value
+                                  ? (d) => c.keepUi(false)
+                                  : (d) => c.keepUi(),
+                              isOutgoing: isOutgoing,
+                              answer: isIncoming,
+                              showBottomUi: showBottomUi,
+                              dockItems: c.buttons,
+                              dockItemBuilder: (e) => e.build(
+                                hinted: c.draggedButton.value == null,
+                              ),
+                              dockOnReorder: (buttons) {
+                                c.buttons.clear();
+                                c.buttons.addAll(buttons);
+                                c.relocateSecondary();
+                              },
+                              dockOnDragStarted: (b) {
+                                c.showDragAndDropButtonsHint = false;
+                                c.draggedButton.value = b;
+                              },
+                              dockOnDragEnded: (_) =>
+                                  c.draggedButton.value = null,
+                              dockOnLeave: (_) => c.displayMore.value = true,
+                              dockOnWillAccept: (d) => d?.c == c,
+                              acceptAudioButton: AcceptAudioButton(
+                                c,
+                                highlight: !c.withVideo,
+                              ).build(),
+                              acceptVideoButton: AcceptVideoButton(
+                                c,
+                                highlight: c.withVideo,
+                              ).build(),
+                              declineButton: DeclineButton(c).build(),
+                            ),
+                            const LaunchpadWidget(),
                           ],
                         ),
                       ),
