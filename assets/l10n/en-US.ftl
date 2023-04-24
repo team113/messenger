@@ -340,7 +340,7 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
-    } { $attachmentsCount ->
+    }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
                [image] { $attachmentsCount ->
@@ -357,7 +357,13 @@ fcm_message =
                       }
               *[attachments] {$attachmentsCount} attachments
         }]
-    } {$text}
+    }{ $textLength ->
+        [0] {""}
+        *[other] { $attachmentsCount ->
+            [0] {$text}
+            *[other] {" "}{$text}
+        }
+    }
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
