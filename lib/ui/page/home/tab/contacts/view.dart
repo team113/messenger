@@ -136,8 +136,8 @@ class ContactsTabView extends StatelessWidget {
 
                 if (c.search.value != null || c.selecting.value) {
                   child = SvgLoader.asset(
-                    'assets/icons/close_primary.svg',
                     key: const Key('CloseSearch'),
+                    'assets/icons/close_primary.svg',
                     height: 15,
                     width: 15,
                   );

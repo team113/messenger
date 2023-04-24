@@ -97,10 +97,7 @@ class MessageInfo extends StatelessWidget {
                         style: thin?.copyWith(fontSize: 13),
                       ),
                       const SizedBox(width: 8),
-                      SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 12,
-                      ),
+                      SvgLoader.asset('assets/icons/copy.svg', height: 12),
                     ],
                   ),
                 ),

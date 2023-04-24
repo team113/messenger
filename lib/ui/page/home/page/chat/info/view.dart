@@ -638,10 +638,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -667,10 +664,8 @@ class ChatInfoView extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
+                    child:
+                        SvgLoader.asset('assets/icons/delete.svg', height: 14),
                   ),
                 ),
                 style:

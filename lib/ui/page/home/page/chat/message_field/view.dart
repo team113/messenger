@@ -499,8 +499,8 @@ class MessageFieldView extends StatelessWidget {
                               height: 22,
                             )
                           : SvgLoader.asset(
-                              'assets/icons/send.svg',
                               key: sendKey ?? const Key('Send'),
+                              'assets/icons/send.svg',
                               height: 22.85,
                               width: 25.18,
                             ),
@@ -896,11 +896,7 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgLoader.asset(
-            'assets/icons/edit.svg',
-            width: 17,
-            height: 17,
-          ),
+          SvgLoader.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(

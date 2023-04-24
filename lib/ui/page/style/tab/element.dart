@@ -73,18 +73,14 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
-                child: SvgLoader.asset(
-                  'assets/images/logo/logo0000.svg',
-                  height: 350,
-                ),
+                child: SvgLoader.asset('assets/images/logo/logo0000.svg',
+                    height: 350),
               ),
               element(
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
-                child: SvgLoader.asset(
-                  'assets/images/logo/head0000.svg',
-                  height: 160,
-                ),
+                child: SvgLoader.asset('assets/images/logo/head0000.svg',
+                    height: 160),
               ),
               element(
                 background: true,
@@ -99,10 +95,7 @@ class ElementStyleTabView extends StatelessWidget {
                     'no registration'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
-                  leading: SvgLoader.asset(
-                    'assets/icons/start.svg',
-                    width: 25,
-                  ),
+                  leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
                   onPressed: () {},
                   gradient: const LinearGradient(
                     colors: [Color(0xFF03A803), Color(0xFF20CD66)],
@@ -116,10 +109,8 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Sign in'),
                   subtitle: const Text('or register'),
-                  leading: SvgLoader.asset(
-                    'assets/icons/sign_in.svg',
-                    width: 20,
-                  ),
+                  leading:
+                      SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                   onPressed: () {},
                 ),
               ),
@@ -132,10 +123,7 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
-                    child: SvgLoader.asset(
-                      'assets/icons/apple.svg',
-                      width: 22,
-                    ),
+                    child: SvgLoader.asset('assets/icons/apple.svg', width: 22),
                   ),
                   onPressed: () {},
                 ),
@@ -149,10 +137,8 @@ class ElementStyleTabView extends StatelessWidget {
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
-                    child: SvgLoader.asset(
-                      'assets/icons/google.svg',
-                      width: 22,
-                    ),
+                    child:
+                        SvgLoader.asset('assets/icons/google.svg', width: 22),
                   ),
                   onPressed: () {},
                 ),
@@ -164,10 +150,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Download'),
                   subtitle: const Text('application'),
-                  leading: SvgLoader.asset(
-                    'assets/icons/linux.svg',
-                    width: 22,
-                  ),
+                  leading: SvgLoader.asset('assets/icons/linux.svg', width: 22),
                   onPressed: () {},
                 ),
               ),
@@ -178,10 +161,8 @@ class ElementStyleTabView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   title: const Text('Download'),
                   subtitle: const Text('application'),
-                  leading: SvgLoader.asset(
-                    'assets/icons/windows.svg',
-                    width: 22,
-                  ),
+                  leading:
+                      SvgLoader.asset('assets/icons/windows.svg', width: 22),
                   onPressed: () {},
                 ),
               ),
@@ -510,10 +491,8 @@ class ElementStyleTabView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SvgLoader.asset(
-                        'assets/icons/drag_n_drop.svg',
-                        width: 44,
-                      ),
+                      SvgLoader.asset('assets/icons/drag_n_drop.svg',
+                          width: 44),
                       const SizedBox(height: 5),
                       Text(
                         'Drop any\nvideo here',
