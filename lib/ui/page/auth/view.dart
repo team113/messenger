@@ -240,6 +240,7 @@ class AuthView extends StatelessWidget {
 
   void _onInit(Artboard a) {
     final AuthController c = AuthController(Get.find());
+
     if (!Config.disableInfiniteAnimations) {
       final StateMachineController? machine =
           StateMachineController.fromArtboard(a, 'Machine');
