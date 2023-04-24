@@ -44,6 +44,7 @@ import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
 import 'tab/balance/view.dart';
 import 'tab/publics/view.dart';
+import 'widget/animated_button.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -188,21 +189,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
-                          return Obx(() {
-                            return AnimatedScale(
-                              duration: 150.milliseconds,
-                              scale: c.page.value == tab ? 1.2 : 1,
-                              child: AnimatedOpacity(
-                                duration: 150.milliseconds,
-                                opacity: c.page.value == tab ? 1 : 0.7,
-                                child: child,
-                              ),
-                            );
-                          });
-                        }
-
                         String _balance(double balance) {
                           if (balance < 1000) {
                             return balance.toInt().toString();
@@ -222,67 +208,34 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('BalanceButton'),
                                 child: RmbDetector(
                                   onPressed: () => FundsMoreView.show(context),
-                                  child: tab(
-                                    tab: HomeTab.funds,
-                                    child: Container(
-                                      // width: 30,
-                                      // height: 30,
-                                      // decoration: const BoxDecoration(
-                                      //   shape: BoxShape.circle,
-                                      //   color: Color(0xFF03a803),
-                                      // ),
-                                      child: Stack(
-                                        children: [
-                                          SvgLoader.asset(
-                                            'assets/icons/balance13.svg',
-                                            width: 36,
-                                            height: 27,
-                                          ),
-                                          // SvgLoader.asset(
-                                          //   'assets/icons/balance.svg',
-                                          //   width: 30,
-                                          //   height: 30,
-                                          // ),
-                                          if (false)
-                                            Positioned.fill(
-                                              child: Center(
-                                                child: Obx(() {
-                                                  if (!c.displayFunds) {
-                                                    return Transform.translate(
-                                                      offset:
-                                                          const Offset(-1, 0),
-                                                      child: SvgLoader.asset(
-                                                        'assets/icons/currency_white.svg',
-                                                        height: 13,
-                                                      ),
-                                                    );
-                                                  }
-
-                                                  return Text(
-                                                    c.displayFunds
-                                                        ? _balance(
-                                                            c.balance.value)
-                                                        : '\$',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      // color: c.displayFunds
-                                                      //     // ? Colors.black
-                                                      //     ? Colors.white
-                                                      //     : const Color(
-                                                      //         0xFFF8B64C),
-                                                      fontSize: c.displayFunds
-                                                          ? 12
-                                                          : 15,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    textScaleFactor: 1,
-                                                  );
-                                                }),
-                                              ),
-                                            ),
-                                        ],
+                                  child: Stack(
+                                    children: [
+                                      SvgLoader.asset(
+                                        'assets/icons/balance13.svg',
+                                        height: 26,
                                       ),
-                                    ),
+                                      Positioned.fill(
+                                        child: Center(
+                                          child: Obx(() {
+                                            if (!c.displayFunds) {
+                                              return const SizedBox();
+                                            }
+
+                                            return Text(
+                                              c.displayFunds
+                                                  ? _balance(c.balance.value)
+                                                  : '\$',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              textScaleFactor: 1,
+                                            );
+                                          }),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -291,38 +244,18 @@ class _HomeViewState extends State<HomeView> {
                                 badge: c.displayTransactions
                                     ? '${c.transactions.length}'
                                     : null,
-                                child: tab(
-                                  tab: HomeTab.contacts,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/partner13.svg',
-                                    width: 34.13,
-                                    height: 32,
-                                  ),
-                                  // child: CircleAvatar(
-                                  //   radius: 15,
-                                  //   child: Icon(
-                                  //     Icons.savings,
-                                  //     color: Theme.of(context)
-                                  //         .colorScheme
-                                  //         .secondary,
-                                  //   ),
-                                  // )
-                                  // child: SvgLoader.asset(
-                                  //   'assets/icons/contacts.svg',
-                                  //   width: 30,
-                                  //   height: 30,
-                                  // ),
+                                child: SvgLoader.asset(
+                                  'assets/icons/partner13.svg',
+                                  width: 34.13,
+                                  height: 32,
                                 ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
-                                child: tab(
-                                  tab: HomeTab.public,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/publics11.svg',
-                                    width: 32,
-                                    height: 30,
-                                  ),
+                                child: SvgLoader.asset(
+                                  'assets/icons/publics12.svg',
+                                  width: 32,
+                                  height: 30,
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -338,33 +271,30 @@ class _HomeViewState extends State<HomeView> {
                                     HapticFeedback.lightImpact();
                                     ChatsMoreView.show(context);
                                   },
-                                  child: tab(
-                                    tab: HomeTab.chats,
-                                    child: Obx(() {
-                                      final Widget child;
+                                  child: Obx(() {
+                                    final Widget child;
 
-                                      if (c.myUser.value?.muted != null) {
-                                        child = SvgLoader.asset(
-                                          'assets/icons/chats_muted2.svg',
-                                          key: const Key('Muted'),
-                                          width: 36.06,
-                                          height: 30,
-                                        );
-                                      } else {
-                                        child = SvgLoader.asset(
-                                          'assets/icons/chats5.svg',
-                                          key: const Key('Unmuted'),
-                                          width: 37.5,
-                                          height: 32,
-                                        );
-                                      }
-
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: child,
+                                    if (c.myUser.value?.muted != null) {
+                                      child = SvgLoader.asset(
+                                        'assets/icons/chats_muted2.svg',
+                                        key: const Key('Muted'),
+                                        width: 36.06,
+                                        height: 30,
                                       );
-                                    }),
-                                  ),
+                                    } else {
+                                      child = SvgLoader.asset(
+                                        'assets/icons/chats5.svg',
+                                        key: const Key('Unmuted'),
+                                        width: 37.5,
+                                        height: 32,
+                                      );
+                                    }
+
+                                    return AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: child,
+                                    );
+                                  }),
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -377,12 +307,9 @@ class _HomeViewState extends State<HomeView> {
                                   child: Padding(
                                     key: c.profileKey,
                                     padding: const EdgeInsets.only(bottom: 2),
-                                    child: tab(
-                                      tab: HomeTab.menu,
-                                      child: AvatarWidget.fromMyUser(
-                                        c.myUser.value,
-                                        radius: 15,
-                                      ),
+                                    child: AvatarWidget.fromMyUser(
+                                      c.myUser.value,
+                                      radius: 15,
                                     ),
                                   ),
                                 ),

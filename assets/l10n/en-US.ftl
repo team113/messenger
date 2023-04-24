@@ -832,3 +832,8 @@ label_forwarded_messages = {$count ->
         [one] Forwarded message
        *[other] Forwarded messages
     }
+label_days_ago = {$days ->
+        [zero] {$hour}:{$minute}
+        [one] {$days} day
+        *[other] {$days} days
+    }

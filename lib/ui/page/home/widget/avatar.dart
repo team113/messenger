@@ -438,16 +438,15 @@ class AvatarWidget extends StatelessWidget {
             shape: BoxShape.circle,
             // color: isAway ? Colors.orange : Colors.green,
             // ignore: prefer_const_constructors
-            color: isAway
-                ? Colors.orange
-                : const Color.fromARGB(255, 181, 225, 100),
+            color: isAway ? Colors.orange : Colors.green,
+            // : const Color.fromARGB(255, 181, 225, 100),
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
         badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
         position: badges.BadgePosition.bottomEnd(
-          bottom: maxWidth >= 40 ? badgeSize / 3 : badgeSize / 5,
-          end: maxWidth >= 40 ? badgeSize / 3 : badgeSize / 5,
+          bottom: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
+          end: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
         ),
         child: Container(
           constraints: BoxConstraints(

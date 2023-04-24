@@ -920,7 +920,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // const Color paidColor = Color(0xFF30d5c8);
     // const Color paidColor = Color.fromRGBO(99, 173, 118, 1);
 
-    const Color paidColor = Color(0xFFb68ad1);
+    // const Color paidColor = Color(0xFFb68ad1);
+    const Color paidColor = Color(0xFF7eae76);
 
     // final Color paidColor = Theme.of(context).colorScheme.secondary;
 
@@ -997,7 +998,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (menu) {
+      (menu, constraints) {
         final List<Widget> children = [
           if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
             Padding(
@@ -1123,7 +1124,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     onPressed: _expandedReply
                         ? null
                         : () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e, menu),
+                    child: _repliedMessage(e, constraints, menu),
                   ),
                 ),
               );
@@ -1301,20 +1302,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
           child: Stack(
             children: [
-              // IntrinsicWidth(
-              //   child:
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: background,
-                  borderRadius: BorderRadius.circular(15),
-                  border: border,
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: background,
+                    borderRadius: BorderRadius.circular(15),
+                    border: border,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
-                ),
-                // ),
               ),
               if (widget.timestamp || widget.paid)
                 Positioned(
@@ -1454,7 +1454,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ),
     );
 
-    const Color paidColor = Color(0xFFb68ad1);
+    // const Color paidColor = Color(0xFFb68ad1);
+    const Color paidColor = Color(0xFF7eae76);
 
     final Widget child = AnimatedOpacity(
       duration: const Duration(milliseconds: 500),
@@ -1556,7 +1557,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (_) => Padding(
+      (_, __) => Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
@@ -1746,7 +1747,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item, [bool menu = false]) {
+  Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints,
+      [bool menu = false]) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
@@ -1827,86 +1829,87 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
           timeInBubble = media.isNotEmpty && item.text == null && files.isEmpty;
         } else {
-          additional = [
-            LayoutBuilder(builder: (context, constraints) {
-              int take = constraints.maxWidth ~/ 52;
-              if (take <= item.attachments.length - 1) {
-                take -= 1;
-              }
+          // additional = [
+          // LayoutBuilder(builder: (context, constraints) {
+          int take = constraints.maxWidth ~/ 52;
+          if (take <= item.attachments.length - 1) {
+            take -= 1;
+          }
 
-              final List<Widget> widgets = [];
+          final List<Widget> widgets = [];
 
-              widgets.addAll(item.attachments.map((a) {
-                ImageAttachment? image;
+          widgets.addAll(item.attachments.map((a) {
+            ImageAttachment? image;
 
-                if (a is ImageAttachment) {
-                  image = a;
-                }
+            if (a is ImageAttachment) {
+              image = a;
+            }
 
-                return Container(
-                  margin: const EdgeInsets.only(right: 2),
-                  decoration: BoxDecoration(
-                    color: fromMe
-                        ? Colors.white.withOpacity(0.25)
-                        : Colors.black.withOpacity(0.03),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  width: 50,
-                  height: 50,
-                  child: image == null
-                      ? Icon(
-                          Icons.file_copy,
-                          color:
-                              fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                          size: 28,
-                        )
-                      : RetryImage(
-                          image.medium.url,
-                          checksum: image.medium.checksum,
-                          onForbidden: widget.onAttachmentError,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          borderRadius: BorderRadius.circular(10.0),
-                          cancelable: true,
-                          autoLoad: widget.loadImages,
-                        ),
-                );
-              }).take(take));
-
-              if (item.attachments.length > take) {
-                final int count = (item.attachments.length - take).clamp(1, 99);
-
-                widgets.add(
-                  Container(
-                    margin: const EdgeInsets.only(right: 2),
-                    decoration: BoxDecoration(
-                      color: fromMe
-                          ? Colors.white.withOpacity(0.25)
-                          : Colors.black.withOpacity(0.03),
-                      borderRadius: BorderRadius.circular(10),
+            return Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.25)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 50,
+              height: 50,
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      size: 28,
+                    )
+                  : RetryImage(
+                      image.medium.url,
+                      checksum: image.medium.checksum,
+                      onForbidden: widget.onAttachmentError,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: BorderRadius.circular(10.0),
+                      cancelable: true,
+                      autoLoad: widget.loadImages,
                     ),
-                    width: 50,
-                    height: 50,
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          '${'plus'.l10n}$count',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
+            );
+          }).take(take));
+
+          if (item.attachments.length > take) {
+            final int count = (item.attachments.length - take).clamp(1, 99);
+
+            widgets.add(
+              Container(
+                margin: const EdgeInsets.only(right: 2),
+                decoration: BoxDecoration(
+                  color: fromMe
+                      ? Colors.white.withOpacity(0.25)
+                      : Colors.black.withOpacity(0.03),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                width: 50,
+                height: 50,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Text(
+                      '${'plus'.l10n}$count',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
-                );
-              }
+                ),
+              ),
+            );
+          }
 
-              return Row(mainAxisSize: MainAxisSize.min, children: widgets);
-            }),
-          ];
+          additional = [Row(mainAxisSize: MainAxisSize.min, children: widgets)];
+
+          // return Row(mainAxisSize: MainAxisSize.min, children: widgets);
+          // }),
+          // ];
 
           // widgets.addAll(item.attachments.map((a) {
           //   ImageAttachment? image;
@@ -2190,7 +2193,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool menu) builder, {
+    Widget Function(bool menu, BoxConstraints constraints) builder, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
@@ -2252,12 +2255,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final double swipeableWidth = _fromMe ? 65 : 50;
 
     // Builds the provided [builder] and the [avatars], if any.
-    Widget child(bool menu) {
+    Widget child(bool menu, BoxConstraints constraints) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          builder(menu),
+          builder(menu, constraints),
           if (avatars.isNotEmpty)
             Transform.translate(
               offset: Offset(-12, -widget.margin.bottom),
@@ -2584,8 +2587,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: PlatformUtils.isMobile ? child : null,
-                        child: PlatformUtils.isMobile ? null : child(false),
+                        builder: PlatformUtils.isMobile
+                            ? (menu) => child(menu, constraints)
+                            : null,
+                        child: PlatformUtils.isMobile
+                            ? null
+                            : child(false, constraints),
                       ),
                     ),
                   );

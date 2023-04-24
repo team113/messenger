@@ -176,6 +176,7 @@ class RecentChatTile extends StatelessWidget {
                 )
             : (_, w) => avatarBuilder(w),
         status: [
+          const SizedBox(width: 4),
           _status(context, inverted),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
@@ -1183,6 +1184,7 @@ extension DateTimeToShort on DateTime {
 
       return '$hour:$minute';
     } else {
+      return 'label_days_ago'.l10nfmt({'days': differenceInDays});
       return 'label_short_weekday'.l10nfmt({'weekday': weekday});
     }
   }

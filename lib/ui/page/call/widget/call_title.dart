@@ -101,7 +101,8 @@ class CallTitle extends StatelessWidget {
               decoration: BoxDecoration(
                 // color: const Color(0xFFFFFFFF),
                 color: withDecoration
-                    ? const Color(0xFFB68AD1)
+                    // ? const Color(0xFFB68AD1)
+                    ? const Color(0xFF7eae76)
                     : const Color(0x00B68AD1),
                 borderRadius: BorderRadius.circular(20),
               ),
