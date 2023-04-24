@@ -168,6 +168,11 @@ class SvgImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      asset != null || bytes != null || file != null,
+      'SvgImage: no asset, file or bytes was provided',
+    );
+
     if (asset != null) {
       return svgFromAsset(
         asset!,
@@ -202,7 +207,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics!,
       );
     } else {
-      throw ArgumentError('SvgImage: no asset, file or bytes was provided');
+      return Container();
     }
   }
 }

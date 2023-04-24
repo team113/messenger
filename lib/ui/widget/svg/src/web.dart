@@ -54,7 +54,7 @@ Widget svgFromAsset(
   String path = package == null ? asset : 'packages/$package/$asset';
   return _BrowserSvg(
     key: key,
-    loader: _AssetSvgImage(path),
+    loader: _AssetSvgLoader(path),
     alignment: alignment,
     excludeFromSemantics: excludeFromSemantics,
     fit: fit,
@@ -84,7 +84,7 @@ Widget svgFromBytes(
 }) =>
     _BrowserSvg(
       key: key,
-      loader: _BytesSvgImage(bytes),
+      loader: _BytesSvgLoader(bytes),
       alignment: alignment,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
@@ -113,7 +113,7 @@ Widget svgFromFile(
 }) =>
     _BrowserSvg(
       key: key,
-      loader: _FileSvgImage(file),
+      loader: _FileSvgLoader(file),
       alignment: alignment,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
@@ -124,14 +124,14 @@ Widget svgFromFile(
     );
 
 /// SVG picture loader.
-abstract class _SvgImage {
+abstract class _SvgLoader {
   /// Returns an [Uint8List] of the SVG file this loader represents.
   FutureOr<Uint8List> load();
 }
 
 /// SVG picture loader from an asset.
-class _AssetSvgImage implements _SvgImage {
-  const _AssetSvgImage(this.asset);
+class _AssetSvgLoader implements _SvgLoader {
+  const _AssetSvgLoader(this.asset);
 
   /// Asset path of the SVG picture.
   final String asset;
@@ -166,15 +166,15 @@ class _AssetSvgImage implements _SvgImage {
 
   @override
   bool operator ==(Object other) =>
-      other is _AssetSvgImage && other.asset == asset;
+      other is _AssetSvgLoader && other.asset == asset;
 
   @override
   int get hashCode => asset.hashCode;
 }
 
 /// SVG picture loader from raw bytes.
-class _BytesSvgImage implements _SvgImage {
-  _BytesSvgImage(this.bytes);
+class _BytesSvgLoader implements _SvgLoader {
+  _BytesSvgLoader(this.bytes);
 
   /// Bytes of the SVG picture.
   final Uint8List bytes;
@@ -184,8 +184,8 @@ class _BytesSvgImage implements _SvgImage {
 }
 
 /// SVG picture loader from a [File].
-class _FileSvgImage implements _SvgImage {
-  _FileSvgImage(this.file);
+class _FileSvgLoader implements _SvgLoader {
+  _FileSvgLoader(this.file);
 
   /// [File] to load the SVG picture from.
   final File file;
@@ -210,7 +210,7 @@ class _BrowserSvg extends StatefulWidget {
   }) : super(key: key);
 
   /// Loader to load the SVG from.
-  final _SvgImage loader;
+  final _SvgLoader loader;
 
   /// If specified, the width to use for the SVG. If unspecified, the SVG
   /// will take the width of its parent.
