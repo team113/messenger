@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
@@ -84,19 +83,6 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 25),
         ];
-
-        // // Language selection popup.
-        // Widget language = CupertinoButton(
-        //   key: c.languageKey,
-        //   child: Text(
-        //     'label_language_entry'.l10nfmt({
-        //       'code': L10n.chosen.value!.locale.countryCode,
-        //       'name': L10n.chosen.value!.name,
-        //     }),
-        //     style: thin?.copyWith(fontSize: 13, color: primary),
-        //   ),
-        //   onPressed: () => LanguageSelectionView.show(context, null),
-        // );
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -182,6 +168,7 @@ class AuthView extends StatelessWidget {
 
         final String svgAsset =
             'assets/images/logo/head000${c.logoFrame.value}.svg';
+
         const String riveAsset = 'assets/images/logo/logo.riv';
 
         return Stack(
