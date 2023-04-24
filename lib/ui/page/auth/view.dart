@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '../home/page/my_profile/language/controller.dart';
