@@ -41,7 +41,6 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
-        final ColorScheme colors = Theme.of(context).colorScheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -141,8 +140,9 @@ class MenuTabView extends StatelessWidget {
                           child: Material(
                             type: MaterialType.card,
                             borderRadius: style.cardRadius,
-                            color:
-                                inverted ? colors.secondary : style.cardColor,
+                            color: inverted
+                                ? style.colors.primary
+                                : style.cardColor,
                             child: InkWell(
                               borderRadius: style.cardRadius,
                               onTap: onTap ??
@@ -155,7 +155,7 @@ class MenuTabView extends StatelessWidget {
                                     router.me();
                                   },
                               hoverColor: inverted
-                                  ? colors.secondary
+                                  ? style.colors.primary
                                   : style.cardColor.darken(0.03),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
@@ -165,8 +165,8 @@ class MenuTabView extends StatelessWidget {
                                     Icon(
                                       icon,
                                       color: inverted
-                                          ? colors.onSecondary
-                                          : colors.secondary,
+                                          ? style.colors.onPrimary
+                                          : style.colors.primary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(
@@ -184,7 +184,7 @@ class MenuTabView extends StatelessWidget {
                                                 .headlineSmall!
                                                 .copyWith(
                                                   color: inverted
-                                                      ? colors.onSecondary
+                                                      ? style.colors.onPrimary
                                                       : null,
                                                 ),
                                             child: Text(title),
@@ -195,7 +195,7 @@ class MenuTabView extends StatelessWidget {
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               color: inverted
-                                                  ? colors.onSecondary
+                                                  ? style.colors.onPrimary
                                                   : null,
                                             ),
                                             child: Text(subtitle),

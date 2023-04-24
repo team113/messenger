@@ -1121,7 +1121,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
             child: Text(
               'label_display_timestamps'.l10n,
               style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: style.colors.secondary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -1138,7 +1138,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(color: style.colors.primary),
           );
         }),
       ),

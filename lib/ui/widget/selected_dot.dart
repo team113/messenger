@@ -45,7 +45,6 @@ class SelectedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
     final Style style = Theme.of(context).extension<Style>()!;
 
     return SizedBox(
@@ -56,11 +55,12 @@ class SelectedDot extends StatelessWidget {
             ? CircleAvatar(
                 key: const Key('Selected'),
                 backgroundColor:
-                    inverted ? colors.onSecondary : colors.secondary,
+                    inverted ? style.colors.onPrimary : style.colors.primary,
                 radius: size / 2,
                 child: Icon(
                   Icons.check,
-                  color: inverted ? colors.secondary : colors.onSecondary,
+                  color:
+                      inverted ? style.colors.primary : style.colors.onPrimary,
                   size: 14,
                 ),
               )

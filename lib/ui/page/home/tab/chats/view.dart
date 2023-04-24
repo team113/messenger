@@ -56,7 +56,6 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -85,7 +84,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(color: colors.secondary, width: 2)
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;
@@ -141,7 +140,7 @@ class ChatsTabView extends StatelessWidget {
                               'label_synchronization'.l10n,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: colors.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                           ),
@@ -272,9 +271,9 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         center = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       }
@@ -343,8 +342,9 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style:
-                                          TextStyle(color: colors.onSecondary),
+                                      style: TextStyle(
+                                        color: style.colors.onPrimary,
+                                      ),
                                     ),
                                   ],
                                 );
@@ -389,7 +389,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Text(
                                       text,
                                       style: style.systemMessageStyle.copyWith(
-                                        color: Colors.black,
+                                        color: style.colors.onBackground,
                                         fontSize: 15,
                                       ),
                                     ),
@@ -411,10 +411,10 @@ class ChatsTabView extends StatelessWidget {
                         c.elements.isEmpty) {
                       child = Center(
                         key: UniqueKey(),
-                        child: const ColoredBox(
-                          key: Key('Loading'),
-                          color: Colors.transparent,
-                          child: CustomProgressIndicator(),
+                        child: ColoredBox(
+                          key: const Key('Loading'),
+                          color: style.colors.transparent,
+                          child: const CustomProgressIndicator(),
                         ),
                       );
                     } else if (c.elements.isNotEmpty) {
@@ -477,7 +477,7 @@ class ChatsTabView extends StatelessWidget {
                                         element.category.name.capitalizeFirst!,
                                         style:
                                             style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
+                                          color: style.colors.onBackground,
                                           fontSize: 15,
                                         ),
                                       ),
@@ -531,10 +531,10 @@ class ChatsTabView extends StatelessWidget {
                       if (c.status.value.isLoadingMore) {
                         child = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            key: Key('Loading'),
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            key: const Key('Loading'),
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       } else {

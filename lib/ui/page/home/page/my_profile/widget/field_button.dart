@@ -35,7 +35,7 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
-    this.fillColor,
+    this.fillColor = Colors.white,
   });
 
   /// Optional label of this [FieldButton].

@@ -45,12 +45,12 @@ class RectangleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected ? colors.secondary : Colors.white.darken(0.05),
+      color:
+          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -65,7 +65,7 @@ class RectangleButton extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
-                    color: selected ? colors.onSecondary : null,
+                    color: selected ? style.colors.onPrimary : null,
                   ),
                 ),
               ),
@@ -78,11 +78,11 @@ class RectangleButton extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor: colors.onSecondary,
+                            backgroundColor: style.colors.onPrimary,
                             radius: 12,
                             child: Icon(
                               Icons.check,
-                              color: colors.secondary,
+                              color: style.colors.primary,
                               size: 12,
                             ),
                           )

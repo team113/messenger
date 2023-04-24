@@ -1026,7 +1026,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: Colors.transparent,
+                          dividerColor: style.colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
@@ -1081,7 +1081,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? Container(
                           padding: const EdgeInsets.only(left: 4, right: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: style.colors.onPrimary.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: _timestamp(msg),

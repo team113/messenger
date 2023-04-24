@@ -245,8 +245,8 @@ class _ChatViewState extends State<ChatView>
                                         child: Container(
                                           height: 32,
                                           width: 32,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
+                                          decoration: BoxDecoration(
+                                            color: style.colors.dangerColor,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(

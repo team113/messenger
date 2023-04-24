@@ -54,7 +54,6 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -69,7 +68,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(color: colors.secondary, width: 2)
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -107,7 +106,10 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: TextStyle(fontSize: 13, color: colors.primary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: style.colors.secondary,
+                        ),
                       ),
                     ),
                   );
@@ -487,9 +489,9 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
     return Obx(() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       bool favorite = c.favorites.contains(contact);
 
       final bool selected = router.routes
@@ -555,7 +557,9 @@ class ContactsTabView extends StatelessWidget {
                 return Text(
                   subtitle,
                   style: TextStyle(
-                    color: inverted ? colors.onSecondary : colors.primary,
+                    color: inverted
+                        ? style.colors.onPrimary
+                        : style.colors.secondary,
                   ),
                 );
               }
@@ -594,7 +598,8 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
                 Icons.block,
-                color: inverted ? colors.onSecondary : const Color(0xFFC0C0C0),
+                color:
+                    inverted ? style.colors.onPrimary : const Color(0xFFC0C0C0),
                 size: 20,
               ),
             );

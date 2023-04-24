@@ -350,10 +350,10 @@ class _CircularProgressIndicatorDefaultsM2 extends ProgressIndicatorThemeData {
   final BuildContext context;
 
   /// Default [ColorScheme].
-  late final ColorScheme _colors = Theme.of(context).colorScheme;
+  late final Style _colors = Theme.of(context).extension<Style>()!;
 
   @override
-  Color get color => _colors.primary;
+  Color get color => _colors.colors.secondary;
 }
 
 /// Hand coded defaults based on Material Design 3.
