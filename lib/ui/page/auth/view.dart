@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '../home/page/my_profile/language/controller.dart';
@@ -173,6 +174,10 @@ class AuthView extends StatelessWidget {
           language,
         ];
 
+        final String svgAsset =
+            'assets/images/logo/head000${c.logoFrame.value}.svg';
+        const String riveAsset = 'assets/images/logo/logo.riv';
+
         return Stack(
           key: const Key('AuthView'),
           children: [
@@ -210,23 +215,9 @@ class AuthView extends StatelessWidget {
                             Flexible(
                               child: AnimatedLogo(
                                 logoKey: const ValueKey('Logo'),
-                                svgAsset:
-                                    'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                riveAsset: 'assets/images/logo/logo.riv',
-                                onInit: (a) {
-                                  if (!Config.disableInfiniteAnimations) {
-                                    final StateMachineController? machine =
-                                        StateMachineController.fromArtboard(
-                                            a, 'Machine');
-                                    a.addController(machine!);
-                                    c.blink = machine.findInput<bool>('blink')
-                                        as SMITrigger?;
-                                    Future.delayed(
-                                      const Duration(milliseconds: 500),
-                                      c.animate,
-                                    );
-                                  }
-                                },
+                                svgAsset: svgAsset,
+                                riveAsset: riveAsset,
+                                onInit: _onInit,
                               ),
                             ),
                             ...footer,
@@ -245,6 +236,20 @@ class AuthView extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _onInit(Artboard a) {
+    final AuthController c = AuthController(Get.find());
+    if (!Config.disableInfiniteAnimations) {
+      final StateMachineController? machine =
+          StateMachineController.fromArtboard(a, 'Machine');
+      a.addController(machine!);
+      c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        c.animate,
+      );
+    }
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
