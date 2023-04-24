@@ -83,6 +83,12 @@ class ChatRepository extends DisposableInterface
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
 
+  /// [ChatFavoritePosition] of the local [Chat]-monolog.
+  ///
+  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
+  /// adding a local [Chat]-monolog to favorites.
+  ChatFavoritePosition? localMonologFavoritePosition;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -137,12 +143,6 @@ class ChatRepository extends DisposableInterface
   /// Used to prevent the [Chat]-monolog from re-appearing if the local
   /// [Chat]-monolog was hidden.
   bool _monologShouldBeHidden = false;
-
-  /// [ChatFavoritePosition] of the local [Chat]-monolog.
-  ///
-  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
-  /// adding a local [Chat]-monolog to favorites.
-  ChatFavoritePosition? _localMonologFavoritePosition;
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -905,30 +905,23 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = newPosition);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
-    if (id.isLocal && id.userId == me) {
-      try {
-        _localMonologFavoritePosition = newPosition;
-        id = (await _graphQlProvider.createMonologChat(null)).id;
-        await _monologLocal.set(id);
-      } catch (e) {
-        _localMonologFavoritePosition = null;
-        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-        chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-        rethrow;
-      }
-    }
-
     try {
+      if (id.isLocal && id.userId == me) {
+        localMonologFavoritePosition = newPosition;
+        final HiveRxChat chat = await ensureRemoteMonolog();
+        await favoriteChat(chat.id, position);
+        return;
+      }
+
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
-      if (id == monolog) {
-        final HiveChat? hiveChat = _chatLocal.get(id);
-        hiveChat?.value.favoritePosition = oldPosition;
-        await hiveChat?.save();
-      } else {
-        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-        chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      if (chat?.chat.value.isMonolog == true &&
+          localMonologFavoritePosition != null) {
+        localMonologFavoritePosition = null;
       }
+
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
       rethrow;
     }
@@ -1198,8 +1191,13 @@ class ChatRepository extends DisposableInterface
           entry.init();
           entry.subscribe();
         } else {
-          chat.chat.value = event.value.value;
-          chat.chat.refresh();
+          if (chat.chat.value.isMonolog &&
+              localMonologFavoritePosition != null) {
+            localMonologFavoritePosition = null;
+          } else {
+            chat.chat.value = event.value.value;
+            chat.chat.refresh();
+          }
         }
       }
     }
@@ -1257,10 +1255,8 @@ class ChatRepository extends DisposableInterface
             if (_monologShouldBeHidden) {
               _monologShouldBeHidden = false;
               break;
-            } else if (_localMonologFavoritePosition != null) {
-              event.chat.chat.value.favoritePosition =
-                  _localMonologFavoritePosition;
-              _localMonologFavoritePosition = null;
+            } else if (localMonologFavoritePosition != null) {
+              break;
             }
           }
 
@@ -1333,7 +1329,19 @@ class ChatRepository extends DisposableInterface
 
           if (localChat != null) {
             chats.move(localId, data.chat.value.id);
+
+            bool isFavoritedLocalMonolog = data.chat.value.isMonolog &&
+                localMonologFavoritePosition != null;
+            if (isFavoritedLocalMonolog) {
+              data.chat.value.favoritePosition = localMonologFavoritePosition;
+            }
+
             await localChat.updateChat(data.chat.value);
+
+            if (isFavoritedLocalMonolog) {
+              data.chat.value.favoritePosition = null;
+            }
+
             entry = localChat;
           }
 

@@ -798,6 +798,11 @@ class HiveRxChat extends RxChat {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
+      if (chat.value.isMonolog &&
+          _chatRepository.localMonologFavoritePosition != null) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
       BoxEvent event = _localSubscription!.current;
       int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
