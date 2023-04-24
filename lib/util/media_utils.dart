@@ -73,12 +73,28 @@ class MediaUtils {
     return _devicesController!.stream;
   }
 
+  /// Returns [LocalMediaTrack]s of the [audio], [video] and [screen] devices.
   static Future<List<LocalMediaTrack>> getTracks({
     TrackPreferences? audio,
     TrackPreferences? video,
     TrackPreferences? screen,
   }) async {
     final List<LocalMediaTrack> tracks = [];
+
+    // if (audio != null) {
+    //   final LocalMediaTrack? track = _tracks.firstWhereOrNull(
+    //     (e) =>
+    //         e.kind() == MediaKind.Audio &&
+    //         e.mediaSourceKind() == MediaSourceKind.Device &&
+    //         (audio!.device == null || e.getTrack().deviceId() == audio.device),
+    //   );
+
+    //   if (track != null) {
+    //     print('[MediaUtils] Re-use audio track: $track');
+    //     tracks.add(track);
+    //     audio = null;
+    //   }
+    // }
 
     if (audio != null || video != null || screen != null) {
       final List<LocalMediaTrack> local =
@@ -142,6 +158,7 @@ class MediaUtils {
   }
 }
 
+/// A [LocalMediaTrack] reference.
 class TrackPreferences {
   const TrackPreferences({
     this.device,
@@ -149,7 +166,16 @@ class TrackPreferences {
     this.framerate,
   });
 
+  /// ID of a device.
   final String? device;
+
+  /// [FacingMode] of this [TrackPreferences].
+  ///
+  /// Used only for video tracks.
   final FacingMode? facingMode;
+
+  /// Framerate of this [TrackPreferences].
+  ///
+  /// Used only for screen tracks.
   final int? framerate;
 }
