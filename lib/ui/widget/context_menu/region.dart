@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
@@ -137,7 +138,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         children: [
           builder(),
           Positioned.fill(
-            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
+            child: ColoredBox(
+              color: style.cardColor.darken(0.03).withOpacity(0.4),
+            ),
           ),
         ],
       );
@@ -239,7 +242,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         _darkened = true;
       }
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
 
       _entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
@@ -257,7 +262,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 _darkened = false;
               }
 
-              setState(() {});
+              if (mounted) {
+                setState(() {});
+              }
             },
             child: Container(
               color: Colors.transparent,

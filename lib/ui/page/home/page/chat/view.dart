@@ -55,7 +55,7 @@ import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
 
-/// View of the [Routes.chat] page.
+/// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
   const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
@@ -112,7 +112,7 @@ class _ChatViewState extends State<ChatView>
         void onDetailsTap() {
           Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
@@ -139,6 +139,8 @@ class _ChatViewState extends State<ChatView>
               body: const Center(child: CustomProgressIndicator()),
             );
           }
+
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
@@ -184,12 +186,14 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    _chatSubtitle(c),
+                                    Obx(() {
+                                      return Text(
+                                        c.chat!.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      );
+                                    }),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -201,91 +205,107 @@ class _ChatViewState extends State<ChatView>
                       padding: const EdgeInsets.only(left: 4, right: 20),
                       leading: const [StyledBackButton()],
                       actions: [
-                        if (c.chat!.chat.value.ongoingCall == null) ...[
-                          WidgetButton(
-                            onPressed: () => c.call(true),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
-                            ),
-                          ),
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            key: const Key('AudioCall'),
-                            onPressed: () => c.call(false),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call.svg',
-                              height: 19,
-                            ),
-                          ),
-                        ] else ...[
-                          AnimatedSwitcher(
-                            key: const Key('ActiveCallButton'),
-                            duration: 300.milliseconds,
-                            child: c.inCall
-                                ? WidgetButton(
-                                    key: const Key('Drop'),
-                                    onPressed: c.dropCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/call_end.svg',
-                                          width: 32,
+                        Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final List<Widget> children;
+
+                          if (c.chat!.chat.value.ongoingCall == null) {
+                            children = [
+                              WidgetButton(
+                                onPressed: () => c.call(true),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
+                                ),
+                              ),
+                              const SizedBox(width: 28),
+                              WidgetButton(
+                                key: const Key('AudioCall'),
+                                onPressed: () => c.call(false),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
+                              ),
+                            ];
+                          } else {
+                            children = [
+                              AnimatedSwitcher(
+                                key: const Key('ActiveCallButton'),
+                                duration: 300.milliseconds,
+                                child: c.inCall
+                                    ? WidgetButton(
+                                        key: const Key('Drop'),
+                                        onPressed: c.dropCall,
+                                        child: Container(
                                           height: 32,
+                                          width: 32,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/call_end.svg',
+                                              width: 32,
+                                              height: 32,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : WidgetButton(
+                                        key: const Key('Join'),
+                                        onPressed: c.joinCall,
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: SvgLoader.asset(
+                                              'assets/icons/audio_call_start.svg',
+                                              width: 15,
+                                              height: 15,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                : WidgetButton(
-                                    key: const Key('Join'),
-                                    onPressed: c.joinCall,
-                                    child: Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/audio_call_start.svg',
-                                          width: 15,
-                                          height: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ],
+                              ),
+                            ];
+                          }
+
+                          return Row(children: children);
+                        }),
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
+                      onPointerSignal: c.settings.value?.timelineEnabled == true
+                          ? (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
 
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 10.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
+                          : null,
                       onPointerPanZoomUpdate: (s) {
                         if (c.scrollOffset.dx.abs() < 7 &&
                             c.scrollOffset.dy.abs() < 7) {
@@ -309,7 +329,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse)
+                          if (c.settings.value?.timelineEnabled == true &&
+                              c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -557,11 +578,11 @@ class _ChatViewState extends State<ChatView>
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
                 previous.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       bool nextSame = false;
@@ -569,11 +590,11 @@ class _ChatViewState extends State<ChatView>
         nextSame = (next is ChatMessageElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30)) ||
+                    const Duration(minutes: 5)) ||
             (next is ChatCallElement &&
                 next.item.value.authorId == e.value.authorId &&
                 e.value.at.val.difference(next.item.value.at.val) <=
-                    const Duration(minutes: 30));
+                    const Duration(minutes: 5));
       }
 
       return Padding(
@@ -599,6 +620,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
@@ -608,9 +630,13 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
             onRepliedTap: (q) async {
               if (q.original != null) {
                 await c.animateTo(q.original!.id);
@@ -651,6 +677,7 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () async {
               final List<Future> futures = [];
 
@@ -691,18 +718,22 @@ class _ChatViewState extends State<ChatView>
                       .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
-                for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.send.replied.insert(0, e.value);
-                }
-
                 if (element.note.value != null) {
                   c.send.replied.insert(0, element.note.value!.value);
                 }
+
+                for (Rx<ChatItem> e in element.forwards) {
+                  c.send.replied.insert(0, e.value);
+                }
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
@@ -985,7 +1016,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.keepTyping,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
         canForward: true,
       );

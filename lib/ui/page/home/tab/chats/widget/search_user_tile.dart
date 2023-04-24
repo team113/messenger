@@ -55,7 +55,7 @@ class SearchUserTile extends StatelessWidget {
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
       final bool selected = router.routes.lastWhereOrNull((e) =>
-              e.startsWith('${Routes.chat}/$chatId') ||
+              e.startsWith('${Routes.chats}/$chatId') ||
               e.startsWith('${Routes.user}/$userId')) !=
           null;
 
@@ -74,17 +74,21 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: const TextStyle(color: Color(0xFF888888)),
+              style: TextStyle(
+                color: selected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.primary,
+              ),
             ),
           ],
           trailing: [
             if (user?.user.value.isBlacklisted != null ||
                 contact?.user.value?.user.value.isBlacklisted != null)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: Color(0xFFC0C0C0),
+                  color: selected ? Colors.white : const Color(0xFFC0C0C0),
                   size: 20,
                 ),
               )

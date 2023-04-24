@@ -116,6 +116,7 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
       key: contact != null || user != null
@@ -128,16 +129,16 @@ class ContactTile extends StatelessWidget {
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
-          selectedColor: style.cardSelectedColor,
+          selectedColor: colors.secondary,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
-              selected ? style.primaryBorder : style.cardHoveredBorder,
-          border: selected ? style.primaryBorder : style.cardBorder,
+              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          border: selected ? style.cardSelectedBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor.darken(darken),
-          selectedHoverColor: style.cardSelectedColor,
+          unselectedHoverColor: style.cardColor.darken(darken + 0.03),
+          selectedHoverColor: colors.secondary,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
@@ -177,8 +178,6 @@ class ContactTile extends StatelessWidget {
                           Expanded(
                             child: Text(
                               contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
                                   user?.user.value.name?.val ??
                                   user?.user.value.num.val ??
                                   myUser?.name?.val ??
@@ -188,7 +187,12 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    color: selected ? colors.onSecondary : null,
+                                  ),
                             ),
                           ),
                         ],
@@ -207,5 +211,11 @@ class ContactTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  ///
+  /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
+  /// for discarding long presses on its [child].
+  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
+        onLongPress: () {},
+        child: child,
+      );
 }

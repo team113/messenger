@@ -72,7 +72,7 @@ class ChatDirectLinkController extends GetxController {
     }
   }
 
-  /// Uses the [slug] and redirects to the fetched [Routes.chat] page on
+  /// Uses the [slug] and redirects to the fetched [Routes.chats] page on
   /// success.
   Future<void> _useChatDirectLink() async {
     try {

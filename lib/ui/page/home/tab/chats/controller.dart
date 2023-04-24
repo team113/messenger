@@ -110,6 +110,11 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -150,8 +155,8 @@ class ChatsTabController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  Rx<RxStatus> get status => _chatService.status;
 
   @override
   void onInit() {
@@ -251,6 +256,8 @@ class ChatsTabController extends GetxController {
       v.stopUpdates();
     }
 
+    fetching.value?.cancel();
+
     router.navigation.value = true;
 
     super.onClose();
@@ -270,7 +277,11 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        router.chat(user.user.value.dialog);
+        if (user.id == me) {
+          router.chat(_chatService.monolog, push: true);
+        } else {
+          router.chat(user.user.value.dialog);
+        }
       }
     }
   }
@@ -293,7 +304,7 @@ class ChatsTabController extends GetxController {
   Future<void> leaveChat(ChatId id) async {
     try {
       await _chatService.removeChatMember(id, me!);
-      if (router.route == '${Routes.chat}/$id') {
+      if (router.route == '${Routes.chats}/$id') {
         router.pop();
       }
     } on RemoveChatMemberException catch (e) {

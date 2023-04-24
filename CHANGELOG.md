@@ -17,10 +17,14 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
+        - Clickable links and emails. ([#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
+        - Chat-monolog. ([#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+- Web:
+    - Unread chats badge on favicon. ([#403])
 
 ### Changed
 
@@ -28,11 +32,20 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
+        - Message timestamps. ([#399])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
-        - Proportionally resizing secondary panel. ([#356], [#258])
+        - Proportionally resizing secondary panel. ([#393], [#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
+    - Chats tab:
+        - Inverted selected chat colors. ([#405])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Change password modal flickering. ([#380], [#377])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
@@ -42,12 +55,21 @@ All user visible changes to this project will be documented in this file. This p
 [#270]: /../../pull/270
 [#281]: /../../issues/281
 [#286]: /../../pull/286
+[#326]: /../../issues/326
+[#333]: /../../pull/333
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
 [#375]: /../../pull/375
+[#377]: /../../issues/377
+[#380]: /../../pull/380
+[#388]: /../../pull/388
+[#393]: /../../pull/393
+[#399]: /../../pull/399
+[#403]: /../../pull/403
+[#405]: /../../pull/405
 
 
 

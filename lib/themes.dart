@@ -61,14 +61,23 @@ class Themes {
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
-            cardHoveredBorder:
-                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
-            cardHoveredColor: const Color(0xFFF4F9FF),
+            cardHoveredBorder: Border.all(
+              color: const Color(0xFFCAE6FE),
+              width: 0.5,
+            ),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: const Color(0xFFD7ECFF),
+            cardSelectedBorder: Border.all(
+              color: const Color(0xFF58A6EF),
+              width: 0.5,
+            ),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            linkStyle: const TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+              decorationThickness: 2,
+            ),
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
@@ -276,7 +285,7 @@ class Themes {
         radioTheme: ThemeData.light().radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
-              return const Color(0xFF63B4FF);
+              return Colors.white;
             }
 
             return colors.primary;
@@ -342,12 +351,12 @@ class Style extends ThemeExtension<Style> {
     required this.cardBorder,
     required this.cardColor,
     required this.cardHoveredBorder,
-    required this.cardHoveredColor,
     required this.cardRadius,
-    required this.cardSelectedColor,
+    required this.cardSelectedBorder,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.linkStyle,
     required this.messageColor,
     required this.primaryBorder,
     required this.readMessageColor,
@@ -377,14 +386,11 @@ class Style extends ThemeExtension<Style> {
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
 
-  /// Background [Color] of hovered card-like [Widget]s.
-  final Color cardHoveredColor;
-
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
 
-  /// Background [Color] of selected card-like [Widget]s.
-  final Color cardSelectedColor;
+  /// [Border] to apply to selected card-like [Widget]s.
+  final Border cardSelectedBorder;
 
   /// Background [Color] of the [ContextMenu].
   final Color contextMenuBackgroundColor;
@@ -394,6 +400,9 @@ class Style extends ThemeExtension<Style> {
 
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
+
+  /// [TextStyle] to apply to a link.
+  final TextStyle linkStyle;
 
   /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
   final Color messageColor;
@@ -432,12 +441,12 @@ class Style extends ThemeExtension<Style> {
     Border? cardBorder,
     Color? cardColor,
     Border? cardHoveredBorder,
-    Color? cardHoveredColor,
     BorderRadius? cardRadius,
-    Color? cardSelectedColor,
+    Border? cardSelectedBorder,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
+    TextStyle? linkStyle,
     Color? messageColor,
     Border? primaryBorder,
     Color? readMessageColor,
@@ -455,14 +464,14 @@ class Style extends ThemeExtension<Style> {
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
-      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardRadius: cardRadius ?? this.cardRadius,
-      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
+      cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      linkStyle: linkStyle ?? this.linkStyle,
       messageColor: messageColor ?? this.messageColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       readMessageColor: readMessageColor ?? this.readMessageColor,
@@ -489,11 +498,9 @@ class Style extends ThemeExtension<Style> {
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
-      cardHoveredColor:
-          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
-      cardSelectedColor:
-          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
+      cardSelectedBorder:
+          Border.lerp(cardSelectedBorder, other.cardSelectedBorder, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
         other.contextMenuBackgroundColor,
@@ -506,6 +513,7 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      linkStyle: TextStyle.lerp(linkStyle, other.linkStyle, t)!,
       messageColor: Color.lerp(messageColor, other.messageColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       readMessageColor:

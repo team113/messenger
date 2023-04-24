@@ -66,6 +66,15 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static set credentialsUpdating(bool updating) {
+    // No-op.
+  }
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static bool get credentialsUpdating => false;
+
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
@@ -208,6 +217,16 @@ class WebUtils {
     // No-op.
   }
 
+  /// Sets the favicon being used to an alert style.
+  static void setAlertFavicon() {
+    // No-op.
+  }
+
+  /// Sets the favicon being used to the default style.
+  static void setDefaultFavicon() {
+    // No-op.
+  }
+  
   /// Sets callback to be fired whenever Rust code panics.
   static void onPanic(void Function(String)? cb) => jason.onPanic(cb);
 }

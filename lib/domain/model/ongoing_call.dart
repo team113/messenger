@@ -151,6 +151,8 @@ class OngoingCall {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
+    members[_me] = CallMember.me(_me, isConnected: true);
+
     if (withAudio) {
       audioState = Rx(LocalTrackState.enabling);
     } else {
@@ -322,8 +324,6 @@ class OngoingCall {
     if (_background) {
       _background = false;
 
-      members[_me] = CallMember.me(_me, isConnected: true);
-
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         print('[$runtimeType] onDeviceChange');
         final List<MediaDeviceDetails> previous =
@@ -437,6 +437,12 @@ class OngoingCall {
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
               calls.getChat(chatId.value).then((v) {
+                if (!connected) {
+                  // [OngoingCall] might have been disposed or disconnected
+                  // while this [Future] was executing.
+                  return;
+                }
+
                 if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
@@ -645,6 +651,10 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() {
+    _heartbeat?.cancel();
+    _membersSubscription?.cancel();
+    connected = false;
+
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
       if (!_background) {
