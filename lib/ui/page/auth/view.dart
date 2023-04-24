@@ -34,6 +34,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
@@ -84,18 +85,18 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
-        // Language selection popup.
-        Widget language = CupertinoButton(
-          key: c.languageKey,
-          child: Text(
-            'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
-          ),
-          onPressed: () => LanguageSelectionView.show(context, null),
-        );
+        // // Language selection popup.
+        // Widget language = CupertinoButton(
+        //   key: c.languageKey,
+        //   child: Text(
+        //     'label_language_entry'.l10nfmt({
+        //       'code': L10n.chosen.value!.locale.countryCode,
+        //       'name': L10n.chosen.value!.name,
+        //     }),
+        //     style: thin?.copyWith(fontSize: 13, color: primary),
+        //   ),
+        //   onPressed: () => LanguageSelectionView.show(context, null),
+        // );
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -170,7 +171,13 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          language,
+          CupertinoTextButton(
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
+            onPressed: () => LanguageSelectionView.show(context, null),
+          ),
         ];
 
         final String svgAsset =
