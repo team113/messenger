@@ -129,6 +129,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
       final Style style = Theme.of(context).extension<Style>()!;
+      final ColorScheme colors = Theme.of(context).colorScheme;
 
       return Padding(
         padding: ModalPopup.padding(context),
@@ -136,10 +137,13 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           type: MaterialType.card,
           borderRadius: style.cardRadius,
           color: _variant == variant
-              ? style.cardSelectedColor.withOpacity(0.8)
+              ? colors.secondary
               : style.cardColor.darken(0.05),
           child: InkWell(
             onTap: () => setState(() => _variant = variant),
+            hoverColor: _variant == variant
+                ? colors.secondary
+                : style.cardColor.darken(0.08),
             borderRadius: style.cardRadius,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
@@ -148,7 +152,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                   Expanded(
                     child: DefaultTextStyle.merge(
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: style.colors.onBackground, fontSize: 18),
+                            color: _variant == variant
+                                ? colors.onSecondary
+                                : Colors.black,
+                            fontSize: 18,
+                          ),
                       child: variant.child,
                     ),
                   ),

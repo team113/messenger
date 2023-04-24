@@ -27,6 +27,7 @@ class SelectedDot extends StatelessWidget {
     this.selected = false,
     this.size = 24,
     this.darken = 0,
+    this.inverted = true,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -38,9 +39,13 @@ class SelectedDot extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [SelectedDot].
   final double darken;
 
+  /// Indicator whether this [SelectedDot] should have inverted color relative
+  /// to its base one when [selected] is `true`.
+  final bool inverted;
+
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return SizedBox(
       width: 30,
@@ -49,10 +54,14 @@ class SelectedDot extends StatelessWidget {
         child: selected
             ? CircleAvatar(
                 key: const Key('Selected'),
-                backgroundColor: style.colors.primary,
+                backgroundColor:
+                    inverted ? colors.onSecondary : colors.secondary,
                 radius: size / 2,
-                child:
-                    Icon(Icons.check, color: style.colors.onPrimary, size: 14),
+                child: Icon(
+                  Icons.check,
+                  color: inverted ? colors.secondary : colors.onSecondary,
+                  size: 14,
+                ),
               )
             : Container(
                 key: const Key('Unselected'),

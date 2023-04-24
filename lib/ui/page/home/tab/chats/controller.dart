@@ -110,6 +110,11 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -150,8 +155,8 @@ class ChatsTabController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  Rx<RxStatus> get status => _chatService.status;
 
   @override
   void onInit() {
@@ -250,6 +255,8 @@ class ChatsTabController extends GetxController {
     for (RxUser v in _recipients) {
       v.stopUpdates();
     }
+
+    fetching.value?.cancel();
 
     router.navigation.value = true;
 

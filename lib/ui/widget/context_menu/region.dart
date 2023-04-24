@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
@@ -138,7 +139,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         children: [
           builder(),
           Positioned.fill(
-            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
+            child: ColoredBox(
+              color: style.cardColor.darken(0.03).withOpacity(0.4),
+            ),
           ),
         ],
       );

@@ -77,7 +77,11 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: TextStyle(color: style.colors.secondary),
+              style: TextStyle(
+                color: selected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.primary,
+              ),
             ),
           ],
           trailing: [
@@ -87,7 +91,7 @@ class SearchUserTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: style.colors.secondaryHighlightDarkest,
+                  color: selected ? Colors.white : const Color(0xFFC0C0C0),
                   size: 20,
                 ),
               )
