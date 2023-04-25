@@ -370,6 +370,14 @@ class AvatarWidget extends StatelessWidget {
     Color(0xFF16712D),
     Color(0xFFFF5B89),
     Color(0xFF332FD0),
+    Color(0xFFB96215),
+    Color(0xFF00BF79),
+    Color(0xFF00ACCF),
+    Color(0xFFED36FF),
+    Color(0xFF00CC25),
+    Color(0xFFFF1008),
+    Color(0xFFCB9F7A),
+    Color(0xFFFFCE45),
   ];
 
   /// Returns minimum diameter of the avatar.

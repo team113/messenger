@@ -34,27 +34,27 @@ import 'controller.dart';
 /// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
 ///
 /// Intended to be displayed with the [show] method.
-class PartnerMoreView extends StatelessWidget {
-  const PartnerMoreView({super.key});
+class BalanceMoreView extends StatelessWidget {
+  const BalanceMoreView({super.key});
 
   /// Displays a [ChatsMoreView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const PartnerMoreView());
+    return ModalPopup.show(context: context, child: const BalanceMoreView());
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      key: const Key('PartnerMoreView'),
-      init: PartnerMoreController(Get.find()),
-      builder: (PartnerMoreController c) {
+      key: const Key('BalanceMoreView'),
+      init: BalanceMoreController(Get.find()),
+      builder: (BalanceMoreController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'label_display_transactions'.l10n,
+                  'label_display_balance'.l10n,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge
@@ -68,7 +68,7 @@ class PartnerMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  _transactions(context, c),
+                  _balance(context, c),
                   const SizedBox(height: 4),
                 ],
               ),
@@ -99,7 +99,8 @@ class PartnerMoreView extends StatelessWidget {
     );
   }
 
-  Widget _transactions(BuildContext context, PartnerMoreController c) {
+  /// Returns a [Switch] toggling [MyUser.muted].
+  Widget _balance(BuildContext context, BalanceMoreController c) {
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -107,9 +108,9 @@ class PartnerMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: (c.displayTransactions
-                        ? 'label_transactions_enabled'
-                        : 'label_transactions_disabled')
+                text: (c.displayFunds
+                        ? 'label_balance_enabled'
+                        : 'label_balance_disabled')
                     .l10n,
                 editable: false,
               ),
@@ -129,8 +130,8 @@ class PartnerMoreView extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.displayTransactions,
-                    onChanged: c.setDisplayTransactions,
+                    value: c.displayFunds,
+                    onChanged: c.setDisplayFunds,
                   ),
                 ),
               ),

@@ -80,6 +80,8 @@ class ChatsTabController extends GetxController {
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
+  late final SearchController search2;
+
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
@@ -243,6 +245,18 @@ class ChatsTabController extends GetxController {
           break;
       }
     });
+
+    search2 = SearchController(
+      _chatService,
+      _userService,
+      _contactService,
+      categories: const [
+        SearchCategory.recent,
+        SearchCategory.chat,
+        SearchCategory.contact,
+        SearchCategory.user,
+      ],
+    )..onInit();
 
     super.onInit();
   }

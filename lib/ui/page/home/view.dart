@@ -38,6 +38,7 @@ import 'tab/chats/controller.dart';
 import 'tab/chats/more/view.dart';
 import 'tab/chats_contacts/view.dart';
 import 'tab/contacts/controller.dart';
+import 'tab/balance/more/view.dart';
 import 'tab/partner/more/view.dart';
 import 'tab/partner/view.dart';
 import 'tab/menu/controller.dart';
@@ -200,7 +201,8 @@ class _HomeViewState extends State<HomeView> {
                               CustomNavigationBarItem(
                                 key: const Key('BalanceButton'),
                                 child: RmbDetector(
-                                  onPressed: () => FundsMoreView.show(context),
+                                  onPressed: () =>
+                                      BalanceMoreView.show(context),
                                   child: WalletWidget(
                                     balance: c.balance.value,
                                     visible: c.displayFunds,
@@ -212,18 +214,25 @@ class _HomeViewState extends State<HomeView> {
                                 badge: c.displayTransactions
                                     ? '${c.transactions.length}'
                                     : null,
-                                child: SvgLoader.asset(
-                                  'assets/icons/partner13.svg',
-                                  width: 34.13,
-                                  height: 32,
+                                child: RmbDetector(
+                                  onPressed: () =>
+                                      PartnerMoreView.show(context),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/partner14.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
                                 ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
-                                child: SvgLoader.asset(
-                                  'assets/icons/publics12.svg',
-                                  width: 32,
-                                  height: 30,
+                                child: Transform.translate(
+                                  offset: const Offset(0, 0),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/publics13.svg',
+                                    width: 32,
+                                    height: 31,
+                                  ),
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -250,11 +259,14 @@ class _HomeViewState extends State<HomeView> {
                                         height: 30,
                                       );
                                     } else {
-                                      child = SvgLoader.asset(
-                                        'assets/icons/chats5.svg',
-                                        key: const Key('Unmuted'),
-                                        width: 37.5,
-                                        height: 32,
+                                      child = Transform.translate(
+                                        offset: const Offset(0, 0.5),
+                                        child: SvgLoader.asset(
+                                          'assets/icons/chats6.svg',
+                                          key: const Key('Unmuted'),
+                                          width: 39.26,
+                                          height: 33.5,
+                                        ),
                                       );
                                     }
 
@@ -272,13 +284,10 @@ class _HomeViewState extends State<HomeView> {
                                     HapticFeedback.lightImpact();
                                     StatusView.show(context);
                                   },
-                                  child: Padding(
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
                                     key: c.profileKey,
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
-                                    ),
+                                    radius: 16,
                                   ),
                                 ),
                               ),

@@ -188,12 +188,19 @@ class ChatsTabView extends StatelessWidget {
                           key: const Key('SearchButton'),
                           onPressed: c.searching.value ? null : c.startSearch,
                           child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
-                            height: double.infinity,
-                            child: SvgLoader.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
+                            padding: const EdgeInsets.only(
+                              left: 20 / 1.5,
+                              right: 12 / 1.5,
                             ),
+                            height: double.infinity,
+                            child: Icon(
+                              Icons.more_horiz,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            // child: SvgLoader.asset(
+                            //   'assets/icons/search.svg',
+                            //   width: 17.77,
+                            // ),
                           ),
                         ),
                       );
@@ -644,12 +651,118 @@ class ChatsTabView extends StatelessWidget {
                               });
                             }
 
+                            final Widget search = Container(
+                              // color: Colors.red,
+                              width: double.infinity,
+                              height: 40,
+                              margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                              child: CustomAppBar(
+                                safeArea: false,
+                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                border: c.search2.search.isFocused.value
+                                    ? Border.all(
+                                        color: colors.secondary,
+                                        width: 2,
+                                      )
+                                    : null,
+                                title: Theme(
+                                  data: MessageFieldView.theme(context),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: Transform.translate(
+                                      offset: const Offset(0, 1),
+                                      child: ReactiveTextField(
+                                        key: const Key('SearchField'),
+                                        state: c.search2.search,
+                                        hint: 'label_search'.l10n,
+                                        maxLines: 1,
+                                        filled: false,
+                                        dense: true,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                        ),
+                                        style: style.boldBody
+                                            .copyWith(fontSize: 15),
+                                        onChanged: () => c.search2.query.value =
+                                            c.search2.search.text,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                leading: [
+                                  WidgetButton(
+                                    key: const Key('SearchButton'),
+                                    onPressed: c.searching.value
+                                        ? null
+                                        : c.startSearch,
+                                    child: Container(
+                                      padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 12,
+                                      ),
+                                      height: double.infinity,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/search_14.svg',
+                                        // width: 17.77,
+                                        height: 13.5,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                                actions: [
+                                  Obx(() {
+                                    final Widget child;
+
+                                    if (c.search2.search.isEmpty.value) {
+                                      child = const SizedBox();
+                                    } else {
+                                      child = WidgetButton(
+                                        key: const Key('CloseSearchButton'),
+                                        onPressed: () {
+                                          c.search2.search.clear();
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.only(
+                                            left: 12,
+                                            right: 18,
+                                          ),
+                                          height: double.infinity,
+                                          child: SvgLoader.asset(
+                                            'assets/icons/close_primary.svg',
+                                            key: const Key('CloseSearch'),
+                                            height: 12,
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return AnimatedSwitcher(
+                                      duration: 250.milliseconds,
+                                      child: child,
+                                    );
+                                  }),
+                                ],
+                              ),
+                            );
+
                             return CustomScrollView(
                               controller: c.scrollController,
                               slivers: [
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
                                     top: CustomAppBar.height,
+                                    left: 10,
+                                    right: 10,
+                                    bottom: 2,
+                                  ),
+                                  sliver: SliverToBoxAdapter(
+                                    child: search,
+                                  ),
+                                ),
+                                SliverPadding(
+                                  padding: const EdgeInsets.only(
                                     left: 10,
                                     right: 10,
                                   ),

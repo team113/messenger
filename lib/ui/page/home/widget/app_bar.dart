@@ -36,6 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.background,
     this.border,
     this.onBottom,
+    this.safeArea = true,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
   });
 
@@ -61,6 +62,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final void Function()? onBottom;
 
+  final bool safeArea;
+
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -69,6 +72,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _bar(context);
+
     return Stack(
       children: [
         if (onBottom != null)
@@ -166,30 +171,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _bar(BuildContext context, [List<Widget> bottom = const []]) {
+  Widget _bar(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final double top = MediaQuery.of(context).padding.top;
-
-    final Widget row = Padding(
-      padding: padding ?? EdgeInsets.zero,
-      child: Row(
-        children: [
-          ...leading,
-          Expanded(
-            child: DefaultTextStyle.merge(
-              style: Theme.of(context).appBarTheme.titleTextStyle,
-              child: Center(child: title ?? const SizedBox.shrink()),
-            ),
-          ),
-          ...actions,
-        ],
-      ),
-    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (top != 0)
+        if (safeArea && top != 0)
           Container(
             height: top,
             width: double.infinity,
@@ -200,7 +189,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             padding: margin,
             child: Container(
               // height: CustomAppBar.height,
-              constraints: BoxConstraints(minHeight: height),
+              constraints: const BoxConstraints(minHeight: height),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
                 boxShadow: const [

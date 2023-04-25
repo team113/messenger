@@ -20,17 +20,15 @@ import 'package:get/get.dart';
 import '/domain/repository/settings.dart';
 
 /// Controller of a [ChatsMoreView].
-class PartnerMoreController extends GetxController {
-  PartnerMoreController(this._settingsRepository);
+class BalanceMoreController extends GetxController {
+  BalanceMoreController(this._settingsRepository);
 
   final AbstractSettingsRepository _settingsRepository;
 
   final RxBool displayIncome = RxBool(true);
 
-  bool get displayTransactions =>
-      _settingsRepository.applicationSettings.value?.displayTransactions ??
-      true;
+  bool get displayFunds =>
+      _settingsRepository.applicationSettings.value?.displayFunds ?? true;
 
-  void setDisplayTransactions(bool b) =>
-      _settingsRepository.setDisplayTransactions(b);
+  void setDisplayFunds(bool b) => _settingsRepository.setDisplayFunds(b);
 }

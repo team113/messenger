@@ -56,7 +56,7 @@ class CustomNavigationBar extends StatelessWidget {
       return AnimatedScale(
         duration: const Duration(milliseconds: 150),
         curve: Curves.bounceInOut,
-        scale: selected ? 1.2 : 1,
+        scale: selected ? 1.1 : 1,
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
           opacity: selected ? 1 : 0.7,

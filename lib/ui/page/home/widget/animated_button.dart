@@ -55,7 +55,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
           //       (constraints.maxWidth / 4),
           // );
 
-          print(_shift);
+          // print(_shift);
 
           setState(() {});
         },

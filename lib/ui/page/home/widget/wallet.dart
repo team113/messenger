@@ -24,21 +24,26 @@ class WalletWidget extends StatelessWidget {
         icon = 'wallet3';
         width = 36;
         height = 31;
-      } else {
-        icon = 'wallet4';
-        width = 35;
-        height = 26;
-      }
 
-      overlay = Transform.translate(
-        offset: Offset(0, balance > 0 ? 2 : 0),
-        child: Text(
-          _balance(balance),
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-          textAlign: TextAlign.center,
-          textScaleFactor: 1,
-        ),
-      );
+        overlay = Transform.translate(
+          offset: Offset(0, balance > 0 ? 2 : 0),
+          child: Text(
+            _balance(balance),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            textAlign: TextAlign.center,
+            textScaleFactor: 1,
+          ),
+        );
+      } else {
+        // icon = 'wallet4';
+        // width = 35;
+        // height = 26;
+        icon = 'wallet1';
+        width = 36;
+        height = 26;
+
+        overlay = const SizedBox();
+      }
     } else {
       if (balance > 0) {
         icon = 'wallet2';
