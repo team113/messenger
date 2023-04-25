@@ -926,7 +926,6 @@ class ChatsTabView extends StatelessWidget {
                 style: TextStyle(color: style.colors.onBackground),
               ),
               onPressed: c.toggleSelecting,
-              color: style.colors.onPrimary,
               shadows: shadows,
             ),
           ),

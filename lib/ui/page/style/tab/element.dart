@@ -92,7 +92,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка начать общение.',
                 asset: 'assets/icons/start.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: Text(
                     'Start chatting'.l10n,
                     style: TextStyle(color: style.colors.onPrimary),
@@ -116,7 +115,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка войти.',
                 asset: 'assets/icons/sign_in.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: const Text('Sign in'),
                   subtitle: const Text('or register'),
                   leading:
@@ -129,7 +127,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка загрузки App Store.',
                 asset: 'assets/icons/apple.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: const Text('Download'),
                   subtitle: const Text('App Store'),
                   leading: Padding(
@@ -144,7 +141,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка загрузки Google Play.',
                 asset: 'assets/icons/google.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: const Text('Download'),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
@@ -160,7 +156,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка загрузки Linux.',
                 asset: 'assets/icons/linux.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: const Text('Download'),
                   subtitle: const Text('application'),
                   leading: SvgLoader.asset('assets/icons/linux.svg', width: 22),
@@ -172,7 +167,6 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Кнопка загрузки Windows.',
                 asset: 'assets/icons/windows.svg',
                 child: OutlinedRoundedButton(
-                  color: style.colors.onPrimary,
                   title: const Text('Download'),
                   subtitle: const Text('application'),
                   leading:
