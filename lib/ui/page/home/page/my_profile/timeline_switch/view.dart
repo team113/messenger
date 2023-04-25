@@ -25,18 +25,15 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for updating the [ApplicationSettings.enablePopups] value.
+/// View for updating the [ApplicationSettings.timelineEnabled] value.
 ///
 /// Intended to be displayed with the [show] method.
-class CallWindowSwitchView extends StatelessWidget {
-  const CallWindowSwitchView({super.key});
+class TimelineSwitchView extends StatelessWidget {
+  const TimelineSwitchView({super.key});
 
-  /// Displays a [CallWindowSwitchView] wrapped in a [ModalPopup].
+  /// Displays a [TimelineSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      child: const CallWindowSwitchView(),
-    );
+    return ModalPopup.show(context: context, child: const TimelineSwitchView());
   }
 
   @override
@@ -45,8 +42,8 @@ class CallWindowSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: CallWindowSwitchController(Get.find()),
-      builder: (CallWindowSwitchController c) {
+      init: TimelineSwitchController(Get.find()),
+      builder: (TimelineSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
           sizeDuration: const Duration(milliseconds: 250),
@@ -57,7 +54,7 @@ class CallWindowSwitchView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_calls'.l10n,
+                    'label_display_timestamps'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -71,21 +68,15 @@ class CallWindowSwitchView extends StatelessWidget {
                   itemCount: 2,
                   itemBuilder: (_, i) {
                     return Obx(() {
-                      final bool selected;
-                      if (i == 0) {
-                        selected =
-                            (c.settings.value?.enablePopups ?? true) == true;
-                      } else {
-                        selected =
-                            (c.settings.value?.enablePopups ?? true) == false;
-                      }
+                      final bool enabled =
+                          (c.settings.value?.timelineEnabled ?? true);
 
                       return RectangleButton(
+                        selected: (i == 0 && enabled) || (i == 1 && !enabled),
+                        onPressed: () => c.setTimelineEnabled(i == 0),
                         label: i == 0
-                            ? 'label_open_calls_in_window'.l10n
-                            : 'label_open_calls_in_app'.l10n,
-                        selected: selected,
-                        onPressed: () => c.setPopupsEnabled(i == 0),
+                            ? 'label_as_timeline'.l10n
+                            : 'label_in_message'.l10n,
                       );
                     });
                   },
