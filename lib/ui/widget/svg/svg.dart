@@ -185,16 +185,14 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics!,
       );
     } else if (bytes != null) {
-      return svgFromBytes(
-        bytes!,
-        alignment: alignment!,
-        fit: fit!,
-        width: width,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics!,
-      );
+      return svgFromBytes(bytes!,
+          alignment: alignment!,
+          fit: fit!,
+          width: width,
+          height: height,
+          placeholderBuilder: placeholderBuilder,
+          semanticsLabel: semanticsLabel,
+          excludeFromSemantics: excludeFromSemantics!);
     } else if (file != null) {
       return svgFromFile(
         file!,
