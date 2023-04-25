@@ -18,11 +18,11 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
+import '/domain/model/ongoing_call.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '../../../widget/svg/svg.dart';
@@ -45,7 +45,6 @@ class DesktopBuildDragHandle extends StatelessWidget {
     this.width, {
     super.key,
     required this.alignment,
-    this.onDrag,
   });
 
   /// Alignment of the [SecondaryScalerWidget].
@@ -57,249 +56,254 @@ class DesktopBuildDragHandle extends StatelessWidget {
   /// Width of the [SecondaryScalerWidget].
   final double width;
 
-  ///
-  final dynamic Function(double, double)? onDrag;
-
   @override
   Widget build(BuildContext context) {
-    Widget widget = Container();
+    return GetBuilder(
+      builder: (CallController c) {
+        Widget widget = Container();
 
-    if (alignment == Alignment.centerLeft) {
-      widget = SecondaryScalerWidget(
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.centerRight) {
-      widget = SecondaryScalerWidget(
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.bottomCenter) {
-      widget = SecondaryScalerWidget(
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.topCenter) {
-      widget = SecondaryScalerWidget(
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.topLeft) {
-      widget = SecondaryScalerWidget(
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.topRight) {
-      widget = SecondaryScalerWidget(
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.bottomLeft) {
-      widget = SecondaryScalerWidget(
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onDrag,
-      );
-    } else if (alignment == Alignment.bottomRight) {
-      widget = SecondaryScalerWidget(
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onDrag,
-      );
-    }
+        if (alignment == Alignment.centerLeft) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.left,
+              dx: dx,
+            ),
+          );
+        } else if (alignment == Alignment.centerRight) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeLeftRight,
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.right,
+              dx: -dx,
+            ),
+          );
+        } else if (alignment == Alignment.bottomCenter) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.topCenter) {
+          widget = SecondaryScalerWidget(
+            cursor: SystemMouseCursors.resizeUpDown,
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topLeft) {
+          widget = SecondaryScalerWidget(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.topRight) {
+          widget = SecondaryScalerWidget(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomLeft) {
+          widget = SecondaryScalerWidget(
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: -dy,
+            ),
+          );
+        } else if (alignment == Alignment.bottomRight) {
+          widget = SecondaryScalerWidget(
+            // TODO: https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: -dy,
+            ),
+          );
+        }
 
-    return Align(alignment: alignment, child: widget);
+        return Align(alignment: alignment, child: widget);
+      },
+    );
   }
 }
 
 /// Builds the [Dock] containing the [CallController.buttons].
 class DockWidget extends StatelessWidget {
-  const DockWidget({
-    super.key,
-    required this.isOutgoing,
-    required this.showBottomUi,
-    required this.answer,
-    this.animatedSliderListener,
-    this.onEnter,
-    this.onHover,
-    this.onExit,
-    this.dockKey,
-    this.acceptAudioButton,
-    this.acceptVideoButton,
-    this.declineButton,
-    required this.dockItems,
-    required this.dockItemBuilder,
-    this.dockOnReorder,
-    this.dockOnDragStarted,
-    this.dockOnDragEnded,
-    this.dockOnLeave,
-    this.dockOnWillAccept,
-  });
-
-  ///
-  final bool isOutgoing;
-
-  ///
-  final bool showBottomUi;
-
-  ///
-  final void Function()? animatedSliderListener;
-
-  ///
-  final void Function(PointerEnterEvent)? onEnter;
-
-  ///
-  final void Function(PointerHoverEvent)? onHover;
-
-  ///
-  final void Function(PointerExitEvent)? onExit;
-
-  ///
-  final Key? dockKey;
-
-  ///
-  final bool answer;
-
-  ///
-  final Widget? acceptAudioButton;
-
-  ///
-  final Widget? acceptVideoButton;
-
-  ///
-  final Widget? declineButton;
-
-  ///
-  final List<CallButton> dockItems;
-
-  ///
-  final Widget Function(CallButton) dockItemBuilder;
-
-  ///
-  final dynamic Function(List<CallButton>)? dockOnReorder;
-
-  ///
-  final dynamic Function(CallButton)? dockOnDragStarted;
-
-  ///
-  final dynamic Function(CallButton)? dockOnDragEnded;
-
-  ///
-  final dynamic Function(CallButton?)? dockOnLeave;
-
-  ///
-  final bool Function(CallButton?)? dockOnWillAccept;
+  const DockWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return AnimatedPadding(
-        key: const Key('DockedAnimatedPadding'),
-        padding: const EdgeInsets.only(bottom: 5),
-        curve: Curves.ease,
-        duration: 200.milliseconds,
-        child: AnimatedSwitcher(
-          key: const Key('DockedAnimatedSwitcher'),
+    return GetBuilder(builder: (CallController c) {
+      return Obx(() {
+        final bool isOutgoing =
+            (c.outgoing || c.state.value == OngoingCallState.local) &&
+                !c.started;
+
+        bool showBottomUi = (c.showUi.isTrue ||
+            c.draggedButton.value != null ||
+            c.state.value != OngoingCallState.active ||
+            (c.state.value == OngoingCallState.active &&
+                c.locals.isEmpty &&
+                c.remotes.isEmpty &&
+                c.focused.isEmpty &&
+                c.paneled.isEmpty));
+
+        return AnimatedPadding(
+          key: const Key('DockedAnimatedPadding'),
+          padding: const EdgeInsets.only(bottom: 5),
+          curve: Curves.ease,
           duration: 200.milliseconds,
-          child: AnimatedSlider(
-            key: const Key('DockedPanelPadding'),
-            isOpen: showBottomUi,
-            duration: 400.milliseconds,
-            translate: false,
-            listener: animatedSliderListener,
-            child: MouseRegion(
-              onEnter: onEnter,
-              onHover: onHover,
-              onExit: onExit,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: const [
-                    CustomBoxShadow(
-                      color: Color(0x33000000),
-                      blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-                margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                child: ConditionalBackdropFilter(
-                  key: dockKey,
-                  borderRadius: BorderRadius.circular(30),
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0x301D6AAE),
-                      borderRadius: BorderRadius.circular(30),
+          child: AnimatedSwitcher(
+            key: const Key('DockedAnimatedSwitcher'),
+            duration: 200.milliseconds,
+            child: AnimatedSlider(
+              key: const Key('DockedPanelPadding'),
+              isOpen: showBottomUi,
+              duration: 400.milliseconds,
+              translate: false,
+              listener: () =>
+                  Future.delayed(Duration.zero, c.relocateSecondary),
+              child: MouseRegion(
+                onEnter: (d) => c.keepUi(true),
+                onHover: (d) => c.keepUi(true),
+                onExit: c.showUi.value && !c.displayMore.value
+                    ? (d) => c.keepUi(false)
+                    : (d) => c.keepUi(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                  child: ConditionalBackdropFilter(
+                    key: c.dockKey,
+                    borderRadius: BorderRadius.circular(30),
+                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0x301D6AAE),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 13,
+                        horizontal: 5,
+                      ),
+                      child: Obx(() {
+                        final bool answer =
+                            (c.state.value != OngoingCallState.joining &&
+                                c.state.value != OngoingCallState.active &&
+                                !isOutgoing);
+
+                        if (answer) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 11),
+                              SizedBox.square(
+                                dimension: CallController.buttonSize,
+                                child: AcceptAudioButton(
+                                  c,
+                                  highlight: !c.withVideo,
+                                ).build(),
+                              ),
+                              const SizedBox(width: 24),
+                              SizedBox.square(
+                                dimension: CallController.buttonSize,
+                                child: AcceptVideoButton(
+                                  c,
+                                  highlight: c.withVideo,
+                                ).build(),
+                              ),
+                              const SizedBox(width: 24),
+                              SizedBox.square(
+                                dimension: CallController.buttonSize,
+                                child: DeclineButton(c).build(),
+                              ),
+                              const SizedBox(width: 11),
+                            ],
+                          );
+                        } else {
+                          return Dock<CallButton>(
+                            items: c.buttons,
+                            itemWidth: CallController.buttonSize,
+                            itemBuilder: (e) => e.build(
+                              hinted: c.draggedButton.value == null,
+                            ),
+                            onReorder: (buttons) {
+                              c.buttons.clear();
+                              c.buttons.addAll(buttons);
+                              c.relocateSecondary();
+                            },
+                            onDragStarted: (b) {
+                              c.showDragAndDropButtonsHint = false;
+                              c.draggedButton.value = b;
+                            },
+                            onDragEnded: (_) => c.draggedButton.value = null,
+                            onLeave: (_) => c.displayMore.value = true,
+                            onWillAccept: (d) => d?.c == c,
+                          );
+                        }
+                      }),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 13,
-                      horizontal: 5,
-                    ),
-                    child: Obx(() {
-                      if (answer) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 11),
-                            SizedBox.square(
-                              dimension: CallController.buttonSize,
-                              child: acceptAudioButton,
-                            ),
-                            const SizedBox(width: 24),
-                            SizedBox.square(
-                              dimension: CallController.buttonSize,
-                              child: acceptVideoButton,
-                            ),
-                            const SizedBox(width: 24),
-                            SizedBox.square(
-                              dimension: CallController.buttonSize,
-                              child: declineButton,
-                            ),
-                            const SizedBox(width: 11),
-                          ],
-                        );
-                      } else {
-                        return Dock<CallButton>(
-                          items: dockItems,
-                          itemWidth: CallController.buttonSize,
-                          itemBuilder: dockItemBuilder,
-                          onReorder: dockOnReorder,
-                          onDragStarted: dockOnDragStarted,
-                          onDragEnded: dockOnDragEnded,
-                          onLeave: dockOnLeave,
-                          onWillAccept: dockOnWillAccept,
-                        );
-                      }
-                    }),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 }

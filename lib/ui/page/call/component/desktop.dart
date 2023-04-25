@@ -29,6 +29,7 @@ import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/desktop_primary_view.dart';
 import '../widget/desktop_secondary_view.dart';
+import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/scaler.dart';
 import '/domain/model/avatar.dart';
@@ -267,49 +268,9 @@ class DesktopCall extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           verticalDirection: VerticalDirection.up,
-                          children: [
-                            DockWidget(
-                              dockKey: c.dockKey,
-                              animatedSliderListener: () => Future.delayed(
-                                Duration.zero,
-                                c.relocateSecondary,
-                              ),
-                              onEnter: (d) => c.keepUi(true),
-                              onHover: (d) => c.keepUi(true),
-                              onExit: c.showUi.value && !c.displayMore.value
-                                  ? (d) => c.keepUi(false)
-                                  : (d) => c.keepUi(),
-                              isOutgoing: isOutgoing,
-                              answer: isIncoming,
-                              showBottomUi: showBottomUi,
-                              dockItems: c.buttons,
-                              dockItemBuilder: (e) => e.build(
-                                hinted: c.draggedButton.value == null,
-                              ),
-                              dockOnReorder: (buttons) {
-                                c.buttons.clear();
-                                c.buttons.addAll(buttons);
-                                c.relocateSecondary();
-                              },
-                              dockOnDragStarted: (b) {
-                                c.showDragAndDropButtonsHint = false;
-                                c.draggedButton.value = b;
-                              },
-                              dockOnDragEnded: (_) =>
-                                  c.draggedButton.value = null,
-                              dockOnLeave: (_) => c.displayMore.value = true,
-                              dockOnWillAccept: (d) => d?.c == c,
-                              acceptAudioButton: AcceptAudioButton(
-                                c,
-                                highlight: !c.withVideo,
-                              ).build(),
-                              acceptVideoButton: AcceptVideoButton(
-                                c,
-                                highlight: c.withVideo,
-                              ).build(),
-                              declineButton: DeclineButton(c).build(),
-                            ),
-                            const LaunchpadWidget(),
+                          children: const [
+                            DockWidget(),
+                            LaunchpadWidget(),
                           ],
                         ),
                       ),
