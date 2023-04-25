@@ -50,6 +50,7 @@ import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 import 'widget/rmb_detector.dart';
+import 'widget/wallet.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
@@ -189,14 +190,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        String _balance(double balance) {
-                          if (balance < 1000) {
-                            return balance.toInt().toString();
-                          } else {
-                            return '${balance ~/ 1000}k';
-                          }
-                        }
-
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -208,34 +201,9 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('BalanceButton'),
                                 child: RmbDetector(
                                   onPressed: () => FundsMoreView.show(context),
-                                  child: Stack(
-                                    children: [
-                                      SvgLoader.asset(
-                                        'assets/icons/balance13.svg',
-                                        height: 26,
-                                      ),
-                                      Positioned.fill(
-                                        child: Center(
-                                          child: Obx(() {
-                                            if (!c.displayFunds) {
-                                              return const SizedBox();
-                                            }
-
-                                            return Text(
-                                              c.displayFunds
-                                                  ? _balance(c.balance.value)
-                                                  : '\$',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                              textScaleFactor: 1,
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ],
+                                  child: WalletWidget(
+                                    balance: c.balance.value,
+                                    visible: c.displayFunds,
                                   ),
                                 ),
                               ),
