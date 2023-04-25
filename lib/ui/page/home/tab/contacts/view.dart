@@ -630,7 +630,7 @@ class ContactsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.colors.onBackgroundOpacity13!,
+        color: style.colors.onBackgroundOpacity13,
         blurStyle: BlurStyle.outer,
       ),
     ];

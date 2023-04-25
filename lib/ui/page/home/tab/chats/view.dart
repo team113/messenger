@@ -842,7 +842,7 @@ class ChatsTabView extends StatelessWidget {
               shadows: [
                 CustomBoxShadow(
                   blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13!,
+                  color: style.colors.onBackgroundOpacity13,
                   blurStyle: BlurStyle.outer,
                 ),
               ],
@@ -901,7 +901,7 @@ class ChatsTabView extends StatelessWidget {
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: style.colors.onBackgroundOpacity13!,
+        color: style.colors.onBackgroundOpacity13,
         blurStyle: BlurStyle.outer,
       ),
     ];

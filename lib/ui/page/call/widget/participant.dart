@@ -334,7 +334,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               CustomBoxShadow(
-                color: style.colors.onBackgroundOpacity13!,
+                color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -427,7 +427,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: style.colors.onBackgroundOpacity20!, width: 0.5),
+                    color: style.colors.onBackgroundOpacity20, width: 0.5),
               ),
               child: const IgnorePointer(),
             ),

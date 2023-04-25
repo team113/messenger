@@ -307,7 +307,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity20!,
+                          color: style.colors.onBackgroundOpacity20,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -415,7 +415,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity20!,
+                      color: style.colors.onBackgroundOpacity20,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -672,7 +672,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity20!,
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -878,7 +878,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity20!,
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1703,7 +1703,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     decoration: BoxDecoration(
                       boxShadow: [
                         CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity27!,
+                          color: style.colors.onBackgroundOpacity27,
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -2353,7 +2353,7 @@ Widget _secondaryTarget(CallController c) {
                                     boxShadow: [
                                       CustomBoxShadow(
                                         color:
-                                            style.colors.onBackgroundOpacity20!,
+                                            style.colors.onBackgroundOpacity20,
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )

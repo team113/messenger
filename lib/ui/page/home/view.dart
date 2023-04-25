@@ -399,7 +399,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: ColoredBox(color: style.colors.onBackgroundOpacity7!),
+                child: ColoredBox(color: style.colors.onBackgroundOpacity7),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -418,7 +418,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     Expanded(
                       child:
-                          ColoredBox(color: style.colors.onBackgroundOpacity2!),
+                          ColoredBox(color: style.colors.onBackgroundOpacity2),
                     ),
                   ],
                 ),

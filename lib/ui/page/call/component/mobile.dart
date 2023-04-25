@@ -662,8 +662,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? style.colors.onSecondaryOpacity88!
-                          : style.colors.onSecondaryOpacity60!,
+                          ? style.colors.onSecondaryOpacity88
+                          : style.colors.onSecondaryOpacity60,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),

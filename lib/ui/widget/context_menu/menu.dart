@@ -59,7 +59,7 @@ class ContextMenu extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.colors.onBackgroundOpacity20!,
+            color: style.colors.onBackgroundOpacity20,
             blurStyle: BlurStyle.outer,
           )
         ],

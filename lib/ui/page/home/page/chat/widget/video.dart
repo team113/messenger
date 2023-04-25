@@ -175,7 +175,7 @@ class _VideoState extends State<Video> {
           playedColor: style.colors.primaryHighlight,
           handleColor: style.colors.primaryHighlight,
           bufferedColor: style.colors.onPrimary,
-          backgroundColor: style.colors.onPrimaryOpacity50!,
+          backgroundColor: style.colors.onPrimaryOpacity50,
         ),
         customControls: PlatformUtils.isMobile
             ? const MobileControls()

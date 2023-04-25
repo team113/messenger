@@ -195,7 +195,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity27!,
+                      color: style.colors.onBackgroundOpacity27,
                       blurRadius: 9,
                       blurStyle: BlurStyle.outer,
                     )

@@ -37,7 +37,7 @@ class ReactiveTextField extends StatelessWidget {
     required this.state,
     this.dense,
     this.enabled = true,
-    this.fillColor = Colors.white,
+    this.fillColor,
     this.filled,
     this.formatters,
     this.hint,

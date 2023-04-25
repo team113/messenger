@@ -222,7 +222,7 @@ class _MobileControlsState extends State<MobileControls>
             end: Alignment.bottomCenter,
             colors: [
               style.colors.transparent,
-              style.colors.onBackgroundOpacity40!
+              style.colors.onBackgroundOpacity40
             ],
           ),
         ),
@@ -266,7 +266,7 @@ class _MobileControlsState extends State<MobileControls>
 
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: style.colors.onBackgroundOpacity13!,
+      backgroundColor: style.colors.onBackgroundOpacity13,
       iconColor: style.colors.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,
