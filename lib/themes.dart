@@ -720,12 +720,12 @@ class Palette {
 
   /// 60% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MobileCall] boxes, etc.
+  /// Used for - [MobileCall] boxes.
   final Color onPrimaryOpacity60;
 
   /// 80% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MobileControls] text, etc.
+  /// Used for - [MobileControls] text.
   final Color onPrimaryOpacity80;
 
   /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
@@ -742,6 +742,9 @@ class Palette {
   /// to an area of the screen that contains important information.
   final Color primaryHighlightShiny;
 
+  /// Highlight [Color] to draw attention to specific elements in the UI.
+  ///
+  /// Used for - [cardSelectedBorder].
   final Color primaryHighlightShinyAuxiliary;
 
   /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
