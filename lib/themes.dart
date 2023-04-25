@@ -658,12 +658,14 @@ class Palette {
         onBackgroundOpacity56 = onBackground.withOpacity(0.56),
         onBackgroundOpacity63 = onBackground.withOpacity(0.63);
 
-  /// Main [Color] of the application, used to highlight the active interface elements.
+  /// Main [Color] of the application.
+  ///
+  /// Used to highlight the active interface elements.
   final Color primary;
 
-  /// Background [Color] for elements associated with the [primary] color.
+  /// Background [Color] of elements associated with the [primary] color.
   ///
-  /// For example, the background for buttons, pop-ups, dialog boxes, etc.
+  /// Used for - button background, pop-ups, dialog boxes, etc.
   final Color secondaryBackground;
 
   /// Light shade of the primary background [Color].
@@ -680,7 +682,7 @@ class Palette {
 
   /// Darkest shade of the main accent [Color].
   ///
-  /// It is used to emphasize buttons, labels, or other user interface elements
+  /// Used to emphasize buttons, labels, or other user interface elements
   /// that should be highlighted and easily visible to the user.
   final Color secondaryHighlightDarkest;
 
@@ -695,7 +697,9 @@ class Palette {
   final Color secondaryOpacity73;
 
   /// [Color] that is used for elements that are displayed on top
-  /// of the main color of the application, for example, text on buttons and icons.
+  /// of the main color of the application.
+  ///
+  /// Used for - text on buttons and icons.
   final Color onPrimary;
 
   /// 7% opacity of the [onPrimary] color.
@@ -730,7 +734,7 @@ class Palette {
 
   /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
   ///
-  /// For example, for lists, the background of some elements and other additional interface elements.
+  /// Used for - lists, the background of some elements and other additional interface elements.
   final Color secondary;
 
   /// Highlight [Color] of the secondary element.
@@ -752,11 +756,12 @@ class Palette {
 
   /// Most brilliant and contrasting secondary highlight [Color].
   ///
-  /// Can be used as a background or to highlight certain elements.
+  /// Used as a background or to highlight certain elements.
   final Color primaryHighlightShiniest;
 
-  /// [Color] that is displayed on a secondary color background
-  /// is used as an accent color for the interface and does not cause eye strain.
+  /// [Color] that is displayed on a secondary color background.
+  ///
+  /// Used as an accent color for the interface and does not cause eye strain.
   final Color onSecondary;
 
   /// 88% opacity of the [onSecondary] color.
@@ -789,7 +794,7 @@ class Palette {
 
   /// [Color] responsible for the helper background color.
   ///
-  /// It acts as an alternative for background in case we need to highlight
+  /// Used for alternative background in case we need to highlight
   /// some interface element using a background color other than the main one.
   final Color backgroundAuxiliary;
 
@@ -859,10 +864,10 @@ class Palette {
 
   /// Сompletely transparent [Color] that has no visible saturation or brightness.
   ///
-  /// It is used to indicate the absence of a color or background of the element on which it is used.
+  /// Used to indicate the absence of a color or background of the element on which it is used.
   final Color transparent;
 
-  /// Used as an affirmative [Color] for visual confirmation of the action.
+  /// Indicator of an affirmative color to visually confirm elements of the user interface.
   ///
   /// For example, for the "Accept call" buttons.
   final Color acceptColor;
@@ -870,13 +875,14 @@ class Palette {
   /// [Color] is used as an auxiliary color to display pleasant action confirmation messages.
   final Color acceptAuxiliaryColor;
 
-  /// Used to indicate the color of rejection or rejection in various elements of the user interface.
+  /// Indicator of rejection or cancellation in various elements of the user interface.
   ///
   /// For example, on the "Cancel call" button.
   final Color declineColor;
 
-  /// [Color] used to indicate dangerous or critical elements in the user interface,
-  /// such as error messages or warnings about a potential threat.
+  /// [Color] used to indicate dangerous or critical elements in the user interface.
+  ///
+  /// Used for error messages or warnings about a potential threat.
   final Color dangerColor;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
@@ -884,11 +890,11 @@ class Palette {
 
   /// [Colors] refer to the range of colors that can be used for a profile picture.
   ///
-  /// These colors may predefined or customizable and are selected to help differentiate
+  /// These colors may predefine or customizable and are selected to help differentiate
   /// between users or to provide a visual cue for different types of accounts.
   final List<Color> userColors;
 
-  /// Linearly interpolates between two [Palette] objects based on a given [t] value.
+  /// Linear interpolation between two [Palette] objects based on a given [t] value.
   static Palette? lerp(Palette color, Palette? other, double t) {
     if (other is! Palette) {
       return color;
