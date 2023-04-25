@@ -43,7 +43,10 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics,
-  });
+  }) : assert(
+          asset != null || file != null || bytes != null,
+          'SvgImage: no asset, file or bytes was provided',
+        );
 
   /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
   ///
@@ -168,11 +171,6 @@ class SvgImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(
-      asset != null || bytes != null || file != null,
-      'SvgImage: no asset, file or bytes was provided',
-    );
-
     if (asset != null) {
       return svgFromAsset(
         asset!,
