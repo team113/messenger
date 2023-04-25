@@ -348,16 +348,28 @@ class AvatarWidget extends StatelessWidget {
 
   /// Avatar color swatches.
   static const List<Color> colors = [
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.cyan,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.amber,
-    Colors.orange,
-    Colors.deepOrange,
+    // Colors.purple,
+    // Colors.deepPurple,
+    // Colors.indigo,
+    // Colors.blue,
+    // Colors.cyan,
+    // Colors.lightGreen,
+    // Colors.lime,
+    // Colors.amber,
+    // Colors.orange,
+    // Colors.deepOrange,
+    Color(0xFFD2B334),
+    Color(0xFF2192FF),
+    Color(0xFF9C27B0),
+    Color(0xFFFF9800),
+    Color(0xFF0094A7),
+    Color(0xFF7F81FF),
+    Color(0xFFFF5722),
+    Color(0xFFC70100),
+    Color(0xFF8BC34A),
+    Color(0xFF16712D),
+    Color(0xFFFF5B89),
+    Color(0xFF332FD0),
   ];
 
   /// Returns minimum diameter of the avatar.
