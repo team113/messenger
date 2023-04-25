@@ -29,7 +29,6 @@ import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/desktop_primary_view.dart';
 import '../widget/desktop_secondary_view.dart';
-import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/scaler.dart';
 import '/domain/model/avatar.dart';
@@ -44,7 +43,6 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'common.dart';
 import 'desktop_sub.dart';
 
 /// Returns a desktop design of a [CallView].
@@ -65,25 +63,6 @@ class DesktopCall extends StatelessWidget {
           Get.find(),
         ),
         builder: (CallController c) {
-          final bool isOutgoing =
-              (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
-
-          final bool isIncoming = c.state.value != OngoingCallState.active &&
-              c.state.value != OngoingCallState.joining &&
-              !isOutgoing;
-
-          final bool isDialog = c.chat.value?.chat.value.isDialog == true;
-
-          final bool showBottomUi = (c.showUi.isTrue ||
-              c.draggedButton.value != null ||
-              c.state.value != OngoingCallState.active ||
-              (c.state.value == OngoingCallState.active &&
-                  c.locals.isEmpty &&
-                  c.remotes.isEmpty &&
-                  c.focused.isEmpty &&
-                  c.paneled.isEmpty));
-
           return LayoutBuilder(
             builder: (context, constraints) {
               // Call stackable content.
@@ -123,6 +102,20 @@ class DesktopCall extends StatelessWidget {
                             child: Stack(
                               children: [
                                 Obx(() {
+                                  final bool isOutgoing = (c.outgoing ||
+                                          c.state.value ==
+                                              OngoingCallState.local) &&
+                                      !c.started;
+
+                                  final bool isIncoming = c.state.value !=
+                                          OngoingCallState.active &&
+                                      c.state.value !=
+                                          OngoingCallState.joining &&
+                                      !isOutgoing;
+
+                                  final bool isDialog =
+                                      c.chat.value?.chat.value.isDialog == true;
+
                                   final Widget child;
 
                                   if (!isIncoming) {
