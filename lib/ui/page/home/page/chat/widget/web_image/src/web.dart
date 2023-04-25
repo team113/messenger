@@ -24,17 +24,22 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Web [html.ImageElement] used to show images natively.
+/// Wrapper using exponential backoff algorithm to re-fetch the [src] in case an
+/// error loading an image into [_HtmlImage].
+///
+/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
+/// errors.
 ///
 /// Uses [Image.network] on non-web platforms.
 class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
+    super.key,
     this.onForbidden,
-    Key? key,
-  }) : super(key: key);
+  });
 
   /// URL of the image to display.
   final String src;
@@ -47,9 +52,104 @@ class WebImage extends StatefulWidget {
   State<WebImage> createState() => _WebImageState();
 }
 
-/// State of a [WebImage] used to register and remove the actual HTML element
-/// representing an image.
+/// State of a [WebImage] used to run the [_backoff] operation.
 class _WebImageState extends State<WebImage> {
+  /// [CancelToken] canceling the [_backoff] operation.
+  CancelToken _cancelToken = CancelToken();
+
+  /// Indicator whether [_backoff] operation is running.
+  bool _isBackoffRunnung = false;
+
+  @override
+  void didUpdateWidget(WebImage oldWidget) {
+    if (oldWidget.src != widget.src) {
+      _cancelToken.cancel();
+      _cancelToken = CancelToken();
+      _isBackoffRunnung = false;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _cancelToken.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isBackoffRunnung) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return IgnorePointer(
+      child: _HtmlImage(
+        src: widget.src,
+        onError: _backoff,
+      ),
+    );
+  }
+
+  /// Retries itself to upload the image into [_HtmlImage] using exponential
+  /// backoff algorithm on a failure.
+  Future<void> _backoff() async {
+    if (mounted) {
+      setState(() => _isBackoffRunnung = true);
+    }
+
+    try {
+      await Backoff.run(
+        () async {
+          Response? data;
+
+          try {
+            data = await PlatformUtils.dio.head(widget.src);
+          } on DioError catch (e) {
+            if (e.response?.statusCode == 403) {
+              await widget.onForbidden?.call();
+              _cancelToken.cancel();
+            }
+          }
+
+          if (data?.data != null && data!.statusCode == 200) {
+            if (mounted) {
+              setState(() => _isBackoffRunnung = false);
+            }
+          } else {
+            throw Exception('Image is not loaded');
+          }
+        },
+        _cancelToken,
+      );
+    } on OperationCanceledException {
+      // No-op.
+    }
+  }
+}
+
+/// Web [html.ImageElement] used to show images natively.
+class _HtmlImage extends StatefulWidget {
+  const _HtmlImage({
+    required this.src,
+    this.onError,
+  });
+
+  /// URL of the image to display.
+  final String src;
+
+  /// Callback, called when image to display loading failed.
+  final VoidCallback? onError;
+
+  @override
+  State<_HtmlImage> createState() => _HtmlImageState();
+}
+
+/// State of a [_HtmlImage] used to register and remove the actual HTML element
+/// representing an image.
+class _HtmlImageState extends State<_HtmlImage> {
   /// Native [html.ImageElement] itself.
   html.ImageElement? _element;
 
@@ -72,7 +172,7 @@ class _WebImageState extends State<WebImage> {
   }
 
   @override
-  void didUpdateWidget(WebImage oldWidget) {
+  void didUpdateWidget(_HtmlImage oldWidget) {
     if (oldWidget.src != widget.src) {
       _element?.removeAttribute('src');
       _element?.remove();
@@ -92,6 +192,21 @@ class _WebImageState extends State<WebImage> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Opacity(
+          opacity: _isLoaded ? 1 : 0,
+          child: HtmlElementView(
+              viewType: '${_elementId}__webImageViewType__${widget.src}__'),
+        ),
+        if (!_isLoaded) const Center(child: CircularProgressIndicator()),
+      ],
+    );
+  }
+
+  /// Registers the actual HTML element representing an image.
   void _initImageElement() {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
 
@@ -104,42 +219,22 @@ class _WebImageState extends State<WebImage> {
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
 
+        _isLoaded = _element?.complete == true;
+
         _loadSubscription?.cancel();
         _loadSubscription = _element?.onLoad.listen((_) {
-          if (mounted) {
+          if (!_isLoaded && mounted) {
             setState(() => _isLoaded = true);
           }
         });
 
         _errorSubscription?.cancel();
         _errorSubscription = _element?.onError.listen((_) async {
-          try {
-            await PlatformUtils.dio.head(widget.src);
-          } catch (e) {
-            if (e is DioError) {
-              if (e.response?.statusCode == 403) {
-                await widget.onForbidden?.call();
-              }
-            }
-          }
+          widget.onError?.call();
         });
 
         return _element!;
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Opacity(
-          opacity: _isLoaded ? 1 : 0,
-          child: HtmlElementView(
-              viewType: '${_elementId}__webImageViewType__${widget.src}__'),
-        ),
-        if (!_isLoaded) const Center(child: CircularProgressIndicator()),
-      ],
     );
   }
 }
