@@ -1862,6 +1862,8 @@ class Track {
   }
 }
 
+/// Extension adding an ability to querying the [MediaDeviceDetails] by
+/// [MediaDeviceKind].
 extension DevicesList on List<MediaDeviceDetails> {
   /// Returns a new [Iterable] with [MediaDeviceDetails]s of
   /// [MediaDeviceKind.VideoInput].
