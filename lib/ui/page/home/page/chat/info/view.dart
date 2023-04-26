@@ -104,7 +104,7 @@ class ChatInfoView extends StatelessWidget {
                               ),
                               if (c.chat?.chat.value.muted != null) ...[
                                 const SizedBox(width: 5),
-                                SvgLoader.asset(
+                                SvgImage.asset(
                                   'assets/icons/muted.svg',
                                   width: 19.99 * 0.6,
                                   height: 15 * 0.6,
@@ -127,7 +127,7 @@ class ChatInfoView extends StatelessWidget {
                   onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/chat.svg',
                       width: 20.12,
                       height: 21.62,
@@ -139,7 +139,7 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
+                      child: SvgImage.asset(
                         'assets/icons/chat_video_call.svg',
                         height: 17,
                       ),
@@ -148,7 +148,7 @@ class ChatInfoView extends StatelessWidget {
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/chat_audio_call.svg',
                       height: 19,
                     ),
@@ -170,7 +170,7 @@ class ChatInfoView extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/call_end.svg',
                                   width: 22,
                                   height: 22,
@@ -189,7 +189,7 @@ class ChatInfoView extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/audio_call_start.svg',
                                   width: 10,
                                   height: 10,
@@ -372,7 +372,7 @@ class ChatInfoView extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
         ),
@@ -408,10 +408,8 @@ class ChatInfoView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
+                      child:
+                          SvgImage.asset('assets/icons/copy.svg', height: 15),
                     ),
                   ),
             label: '${Config.origin}/',
@@ -561,7 +559,7 @@ class ChatInfoView extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Center(
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/call_end.svg',
                             width: 22,
                             height: 22,
@@ -580,7 +578,7 @@ class ChatInfoView extends StatelessWidget {
                           width: 22,
                           height: 22,
                           child: Center(
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/audio_call_start.svg',
                               width: 10,
                               height: 10,
@@ -604,7 +602,7 @@ class ChatInfoView extends StatelessWidget {
                   WidgetButton(
                     key: const Key('DeleteMemberButton'),
                     onPressed: () => _removeChatMember(c, context, e),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/delete.svg',
                       height: 14 * 1.5,
                     ),
@@ -638,7 +636,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: style.colors.primary),
@@ -665,7 +663,7 @@ class ChatInfoView extends StatelessWidget {
                   child: Transform.scale(
                     scale: 1.15,
                     child:
-                        SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                        SvgImage.asset('assets/icons/delete.svg', height: 14),
                   ),
                 ),
                 style: TextStyle(color: style.colors.primary),
@@ -687,12 +685,12 @@ class ChatInfoView extends StatelessWidget {
                   child: Transform.scale(
                     scale: 1.15,
                     child: muted
-                        ? SvgLoader.asset(
+                        ? SvgImage.asset(
                             'assets/icons/btn_mute.svg',
                             width: 18.68,
                             height: 15,
                           )
-                        : SvgLoader.asset(
+                        : SvgImage.asset(
                             'assets/icons/btn_unmute.svg',
                             width: 17.86,
                             height: 15,
@@ -714,7 +712,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: style.colors.primary),
@@ -730,7 +728,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             style: TextStyle(color: style.colors.primary),
@@ -746,7 +744,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: style.colors.primary),
@@ -761,7 +759,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: style.colors.primary),
@@ -776,7 +774,7 @@ class ChatInfoView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               style: TextStyle(color: style.colors.primary),

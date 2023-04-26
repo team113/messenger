@@ -53,13 +53,13 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Name of the asset to place into the [SvgLoader.asset].
+  /// Name of the asset to place into the [SvgImage.asset].
   final String? asset;
 
   /// Width of the [asset].
   final double assetWidth;
 
-  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  /// Optional [Widget] to replace the default [SvgImage.asset].
   final Widget? child;
 
   /// Background color of the button.
@@ -133,7 +133,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 width: max(widget.assetWidth, 60),
                 height: max(widget.assetWidth, 60),
                 child: Center(
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/${widget.asset}.svg',
                     width: widget.assetWidth,
                   ),

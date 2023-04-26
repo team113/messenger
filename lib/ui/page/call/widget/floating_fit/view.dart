@@ -219,7 +219,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 child: Stack(
                   children: [
                     Container(color: style.colors.backgroundAuxiliary),
-                    SvgLoader.asset(
+                    SvgImage.asset(
                       'assets/images/background_dark.svg',
                       width: double.infinity,
                       height: double.infinity,

@@ -101,7 +101,7 @@ class CameraSwitchView extends StatelessWidget {
                               ),
                               child: local == null
                                   ? Center(
-                                      child: SvgLoader.asset(
+                                      child: SvgImage.asset(
                                         'assets/icons/no_video.svg',
                                         width: 48.54,
                                         height: 42,
