@@ -712,7 +712,7 @@ class Palette {
 
   /// Highlight [Color] to draw attention to specific elements in the UI.
   ///
-  /// Used for - [cardSelectedBorder].
+  /// Used for - cardSelectedBorder.
   final Color primaryHighlightShinyAuxiliary;
 
   /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
@@ -731,7 +731,7 @@ class Palette {
 
   /// 7% opacity of the [onPrimary] color.
   ///
-  /// Used for - [_secondaryTarget] boxes, [DecorationTween], etc.
+  /// Used for - secondaryTarget boxes, [DecorationTween], etc.
   final Color onPrimaryOpacity7;
 
   /// 25% opacity of the [onPrimary] color.
@@ -741,22 +741,22 @@ class Palette {
 
   /// 40% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MessageFieldView] containers.
+  /// Used for - MessageFieldView containers.
   final Color onPrimaryOpacity40;
 
   /// 50% opacity of the [onPrimary] color.
   ///
-  /// Used for - [AcceptVideoButton], [ChewieProgressColors] etc.
+  /// Used for - AcceptVideoButton, ChewieProgressColors etc.
   final Color onPrimaryOpacity50;
 
   /// 60% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MobileCall] boxes.
+  /// Used for - MobileCall boxes.
   final Color onPrimaryOpacity60;
 
   /// 80% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MobileControls] text.
+  /// Used for - MobileControls text.
   final Color onPrimaryOpacity80;
 
   /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
@@ -791,12 +791,12 @@ class Palette {
 
   /// 87% opacity of the [primary] color.
   ///
-  /// Used for - [handRaisedIcon], [element], etc.
+  /// Used for - handRaisedIcon, element, etc.
   final Color secondaryOpacity87;
 
   /// 73% opacity of the [primary] color.
   ///
-  /// Used for - [HintWidget] elements.
+  /// Used for - HintWidget elements.
   final Color secondaryOpacity73;
 
   /// [Color] that is displayed on a secondary color background.
@@ -806,27 +806,27 @@ class Palette {
 
   /// 88% opacity of the [onSecondary] color.
   ///
-  /// Used for - [CallController.panel] box, [SlidingUpPanel], etc.
+  /// Used for - CallController.panel box, SlidingUpPanel, etc.
   final Color onSecondaryOpacity88;
 
   /// 60% opacity of the [onSecondary] color.
   ///
-  /// Used for - [launchpad] box, [SlidingUpPanel], etc.
+  /// Used for - launchpad box, SlidingUpPanel, etc.
   final Color onSecondaryOpacity60;
 
   /// 50% opacity of the [onSecondary] color.
   ///
-  /// Used for - [CallButton], [chat] card, [GalleryPopup] interface, etc.
+  /// Used for - CallButton, chat card, GalleryPopup interface, etc.
   final Color onSecondaryOpacity50;
 
   /// 30% opacity of the [onSecondary] color.
   ///
-  /// Used for - [possibleContainer], [ParticipantOverlayWidget] tooltip, etc.
+  /// Used for - possibleContainer, ParticipantOverlayWidget tooltip, etc.
   final Color onSecondaryOpacity30;
 
   /// 20% opacity of the [onSecondary] color.
   ///
-  /// Used for - [DockedPanelPadding], [Selector] hover, etc.
+  /// Used for - DockedPanelPadding, Selector hover, etc.
   final Color onSecondaryOpacity20;
 
   /// Used to set the background [Color] for the overall look.
@@ -854,52 +854,52 @@ class Palette {
 
   /// 2% opacity of the [onBackground] color.
   ///
-  /// Used for - [mobileCall], [ColoredBox], etc.
+  /// Used for - mobileCall, [ColoredBox], etc.
   final Color onBackgroundOpacity2;
 
   /// 7% opacity of the [onBackground] color.
   ///
-  /// Used for - [HomeView.background], [AddContactListTile] selectedTileColor, etc.
+  /// Used for - HomeView.background, AddContactListTile, selectedTileColor, etc.
   final Color onBackgroundOpacity7;
 
   /// 13% opacity of the [onBackground] color.
   ///
-  /// Used for - [BlockedField], [SendField], [DesktopControls] buildHitArea, etc.
+  /// Used for - BlockedField, SendField, DesktopControls, buildHitArea, etc.
   final Color onBackgroundOpacity13;
 
   /// 20% opacity of the [onBackground] color.
   ///
-  /// Used for - [ParticipantDecoratorWidget], [CustomBoxShadow], etc.
+  /// Used for - ParticipantDecoratorWidget, [CustomBoxShadow], etc.
   final Color onBackgroundOpacity20;
 
   /// 27% opacity of the [onBackground] color.
   ///
-  /// Used for - [desktopCall] Secondary panel shadow, [HintWidget] card shadow, etc.
+  /// Used for - desktopCall Secondary panel shadow, HintWidget, card shadow, etc.
   final Color onBackgroundOpacity27;
 
   /// 33% opacity of the [onBackground] color.
   ///
-  /// Used for - [ChatView] id, [ChatInfoView], etc.
+  /// Used for - ChatView id, ChatInfoView, etc.
   final Color onBackgroundOpacity33;
 
   /// 40% opacity of the [onBackground] color.
   ///
-  /// Used for - mobile and desktop [ChatView] bottom bar, etc.
+  /// Used for - mobile and desktop ChatView, bottom bar, etc.
   final Color onBackgroundOpacity40;
 
   /// 50% opacity of the [onBackground] color.
   ///
-  /// Used for - [MessageFieldView] attachment.
+  /// Used for - MessageFieldView attachment.
   final Color onBackgroundOpacity50;
 
   /// 56% opacity of the [onBackground] color.
   ///
-  /// Used for - [CallView] primary view, [ParticipantRedialing], etc.
+  /// Used for - CallView primary view, ParticipantRedialing, etc.
   final Color onBackgroundOpacity56;
 
   /// 63% opacity of the [onBackground] color.
   ///
-  /// Used for - [ParticipantConnecting].
+  /// Used for - ParticipantConnecting.
   final Color onBackgroundOpacity63;
 
   /// Сompletely transparent [Color] that has no visible saturation or brightness.
