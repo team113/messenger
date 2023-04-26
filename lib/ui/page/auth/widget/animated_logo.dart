@@ -59,7 +59,7 @@ class AnimatedLogo extends StatelessWidget {
           onInit: onInit,
         );
       } else {
-        child = SvgLoader.asset(
+        child = SvgImage.asset(
           svgAsset,
           height: 140,
           placeholderBuilder: (context) {
