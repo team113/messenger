@@ -1251,9 +1251,6 @@ Widget _primaryView(CallController c) {
 
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
-                bool? muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled
-                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1387,7 +1384,6 @@ Widget _primaryView(CallController c) {
                         child: ParticipantOverlayWidget(
                           participant,
                           key: ObjectKey(participant),
-                          muted: muted,
                           hovered: isHovered,
                           preferBackdrop:
                               !c.minimized.value || c.fullscreen.value,
@@ -1839,9 +1835,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool? muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled
-                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1934,7 +1927,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               child: ParticipantOverlayWidget(
                                 participant,
                                 key: ObjectKey(participant),
-                                muted: muted,
                                 hovered: isHovered,
                                 preferBackdrop:
                                     !c.minimized.value || c.fullscreen.value,

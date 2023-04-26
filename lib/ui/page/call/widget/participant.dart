@@ -191,18 +191,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
     super.key,
-    this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
   });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
   final Participant participant;
-
-  /// Indicator whether this video should display `muted` icon or not.
-  ///
-  /// If `null`, then displays [Participant.audio] muted status.
-  final bool? muted;
 
   /// Indicator whether this [ParticipantOverlayWidget] is being hovered meaning
   /// its label should be visible.
@@ -219,7 +213,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
-        isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
+        isMuted = participant.audio.value?.isMuted.value ?? true;
       }
 
       bool isVideoDisabled = participant.video.value?.renderer.value == null &&
