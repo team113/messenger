@@ -318,83 +318,83 @@ err_you_already_has_unconfirmed_phone = Вы имеете неподтвержд
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 fcm_dialog_attachment =
-    { $kind ->
+    {$kind ->
         [image] [Изображение]
         [video] [Видео]
         *[file] [Файл]
     }
 fcm_dialog_message = {$text}
 fcm_dialog_title =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
 fcm_group_attachment =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
-    }: { $kind ->
+    }: {$kind ->
         [image] [Изображение]
         [video] [Видео]
         *[file] [Файл]
     }
 fcm_group_message =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }: {$text}
 fcm_group_title =
-    { $user1Name ->
-        [x] { $user1Num ->
+    {$user1Name ->
+        [x] {$user1Num ->
                 [x] {""}
                 *[other] {$user1Num}
             }
         *[other] {$user1Name}
-    }{ $user2Name ->
-        [x] { $user2Num ->
+    }{$user2Name ->
+        [x] {$user2Num ->
                 [x] {""}
                 *[other] {$user2Num}
             }
         *[other] , {$user2Name}
-    }{ $user3Name ->
-        [x] { $user3Num ->
+    }{$user3Name ->
+        [x] {$user3Num ->
                 [x] {""}
                 *[other] {$user3Num}
             }
         *[other] , {$user3Name}
-    } { $moreMembers ->
+    } {$moreMembers ->
         [yes] ...
         *[no] {""}
     }
 fcm_incoming_call = Входящий звонок
 fcm_user_added_user =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
-    } добавил { $userName ->
+    } добавил {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
 fcm_user_added_you_to_group =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
     } добавил Вас в группу
 fcm_user_joined_group_by_link =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
     } присоединился к группе по ссылке
 fcm_user_left_group =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
     } покинул группу
 fcm_user_removed_user =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
-    } удалил { $userName ->
+    } удалил {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
@@ -416,12 +416,12 @@ label_add_phone = Добавить номер телефона
 label_add_phone_confirmation_sent = На указанный Вами номер телефона был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_confirmation_sent_again = На указанный Вами номер телефона повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_description = На указанный Вами номер телефона будет отправлен код подтверждения.
-label_ago = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] { $hours ->
-                                    [0] { $minutes ->
+label_ago = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
+                            [0] {$hours ->
+                                    [0] {$minutes ->
                                             [0] только что
                                             [1] 1 минуту назад
                                             [few] {$minutes} минуты назад
@@ -448,10 +448,10 @@ label_ago = { $years ->
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
+label_ago_date = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
                             [0] Сегодня
                             [1] Вчера
                             [2] Позавчера
@@ -476,7 +476,7 @@ label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
 label_as_timeline = Как таймлайн
-label_attachments = [{$count} { $count ->
+label_attachments = [{$count} {$count ->
     [1] прикрепление
     [few] прикрепления
     *[other] прикреплений
@@ -657,9 +657,9 @@ label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_monolog_created = Чат создан
-label_mute_for = { $days ->
-    [0] { $hours ->
-            [0] { $minutes ->
+label_mute_for = {$days ->
+    [0] {$hours ->
+            [0] {$minutes ->
                     [0] Навсегда
                     [1] 1 минуту
                     [few] {$minutes} минуты
@@ -735,7 +735,7 @@ label_recovery_code_sent = Проверочный код отправлен на
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
-label_replies = [{$count} { $count ->
+label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
     *[other] ответов
@@ -784,7 +784,7 @@ label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = { $quantity ->
+label_unread_messages = {$quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }

@@ -316,83 +316,83 @@ err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 fcm_dialog_attachment =
-    { $kind ->
+    {$kind ->
         [image] [Image]
         [video] [Video]
         *[file] [File]
     }
 fcm_dialog_message = {$text}
 fcm_dialog_title =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
 fcm_group_attachment =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
-    }: { $kind ->
+    }: {$kind ->
         [image] [Image]
         [video] [Video]
         *[file] [File]
     }
 fcm_group_message =
-    { $userName ->
+    {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }: {$text}
 fcm_group_title =
-    { $user1Name ->
-        [x] { $user1Num ->
+    {$user1Name ->
+        [x] {$user1Num ->
                 [x] {""}
                 *[other] {$user1Num}
             }
         *[other] {$user1Name}
-    }{ $user2Name ->
-        [x] { $user2Num ->
+    }{$user2Name ->
+        [x] {$user2Num ->
                 [x] {""}
                 *[other] {$user2Num}
             }
         *[other] , {$user2Name}
-    }{ $user3Name ->
-        [x] { $user3Num ->
+    }{$user3Name ->
+        [x] {$user3Num ->
                 [x] {""}
                 *[other] {$user3Num}
             }
         *[other] , {$user3Name}
-    } { $moreMembers ->
+    } {$moreMembers ->
         [yes] ...
         *[no] {""}
     }
 fcm_incoming_call = Incoming call
 fcm_user_added_user =
-    { $authorName ->
-        [x] { $authorNum}
+    {$authorName ->
+        [x] {$authorNum}
         *[other] {$authorName}
-    } added { $userName ->
+    } added {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
 fcm_user_added_you_to_group =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
     } added you to group
 fcm_user_joined_group_by_link =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
     } joined group by link
 fcm_user_left_group =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
     } left the group
 fcm_user_removed_user =
-    { $authorName ->
+    {$authorName ->
         [x] {$authorNum}
         *[other] {$authorName}
-    } removed { $userName ->
+    } removed {$userName ->
         [x] {$userNum}
         *[other] {$userName}
     }
@@ -414,12 +414,12 @@ label_add_phone = Add phone number
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
-label_ago = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] { $hours ->
-                                    [0] { $minutes ->
+label_ago = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
+                            [0] {$hours ->
+                                    [0] {$minutes ->
                                             [0] just now
                                             [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
@@ -439,10 +439,10 @@ label_ago = { $years ->
     [1] an year ago
     *[other] {$years} years ago
 }
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
+label_ago_date = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
                             [0] Today
                             [1] Yesterday
                             *[other] {$days} days ago
@@ -462,7 +462,7 @@ label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
 label_as_timeline = As timeline
-label_attachments = [{$count} { $count ->
+label_attachments = [{$count} {$count ->
     [1] attachment
     *[other] attachments
     }]
@@ -641,9 +641,9 @@ label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_monolog_created = Chat created
-label_mute_for = { $days ->
-    [0] { $hours ->
-            [0] { $minutes ->
+label_mute_for = {$days ->
+    [0] {$hours ->
+            [0] {$minutes ->
                     [0] Forever
                     [1] 1 minute
                     *[other] {$minutes} minutes
@@ -716,7 +716,7 @@ label_recovery_code_sent = The verification code has been sent to the verified E
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
-label_replies = [{$count} { $count ->
+label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
@@ -764,7 +764,7 @@ label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
-label_unread_messages = { $quantity ->
+label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
