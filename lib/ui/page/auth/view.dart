@@ -218,7 +218,8 @@ class AuthView extends StatelessWidget {
     );
   }
 
-  /// Allows the [AuthController] to control animation events, such as flashing animation.
+  /// Binds the animation to the controller and starts the animation
+  /// when [RiveAnimation] has initialized.
   void _onInit(Artboard a) {
     final AuthController c = AuthController(Get.find());
 
