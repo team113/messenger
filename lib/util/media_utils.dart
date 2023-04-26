@@ -38,7 +38,13 @@ class MediaUtils {
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
     if (_jason == null) {
-      _jason = Jason();
+      try {
+        _jason = Jason();
+      } catch (_) {
+        // TODO: So the test would run. Jason currently only supports Web and
+        //       Android, and unit tests run on a host machine.
+        _jason = null;
+      }
 
       WebUtils.onPanic((e) {
         Log.print('Panic: $e', 'Jason');
@@ -79,6 +85,10 @@ class MediaUtils {
     TrackPreferences? video,
     TrackPreferences? screen,
   }) async {
+    if (mediaManager == null) {
+      return [];
+    }
+
     final List<LocalMediaTrack> tracks = [];
 
     // if (audio != null) {
@@ -97,8 +107,7 @@ class MediaUtils {
     // }
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local =
-          await MediaUtils.mediaManager!.initLocalTracks(
+      final List<LocalMediaTrack> local = await mediaManager!.initLocalTracks(
         _mediaStreamSettings(audio: audio, video: video, screen: screen),
       );
 
