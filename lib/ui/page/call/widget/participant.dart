@@ -222,7 +222,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
-        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
       bool isVideoDisabled = participant.video.value?.renderer.value == null &&

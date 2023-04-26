@@ -704,8 +704,13 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!hasRemote) {
-              await _updateTracks();
+            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
+              screen: TrackPreferences(
+                device: screenDevice.value,
+              ),
+            );
+            if (track.isNotEmpty) {
+              _addLocalTrack(track.first);
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -751,13 +756,15 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
-            if (!hasAudio) {
-              await _room?.enableAudio();
-              if (!hasRemote) {
-                await _updateTracks();
-              }
+            await _room?.enableAudio();
+            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
+              audio: TrackPreferences(
+                device: audioDevice.value,
+              ),
+            );
+            if (track.isNotEmpty) {
+              _addLocalTrack(track.first);
             }
-            await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -780,7 +787,8 @@ class OngoingCall {
         if (!enabled) {
           audioState.value = LocalTrackState.disabling;
           try {
-            await _room?.muteAudio();
+            await _room?.disableAudio();
+            _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
             audioState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -804,8 +812,14 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!hasRemote) {
-              await _updateTracks();
+            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
+              video: TrackPreferences(
+                device: videoDevice.value,
+                facingMode: videoDevice.value == null ? FacingMode.User : null,
+              ),
+            );
+            if (track.isNotEmpty) {
+              _addLocalTrack(track.first);
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -1089,8 +1103,6 @@ class OngoingCall {
         connectionLost = false;
       }
     });
-
-    _room!.onLocalTrack((e) => _addLocalTrack(e));
 
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
@@ -1670,7 +1682,7 @@ class RtcVideoRenderer extends RtcRenderer {
   Future<void> initialize() => _delegate.initialize();
 
   @override
-  Future<void> dispose() => Future.wait([track.dispose(), _delegate.dispose()]);
+  Future<void> dispose() => Future.wait([_delegate.dispose()]);
 }
 
 /// Convenience wrapper around an [webrtc.AudioRenderer].
@@ -1686,7 +1698,7 @@ class RtcAudioRenderer extends RtcRenderer {
   set srcObject(webrtc.MediaStreamTrack? track) => _delegate.srcObject = track;
 
   @override
-  Future<void> dispose() => Future.wait([track.dispose(), _delegate.dispose()]);
+  Future<void> dispose() => Future.wait([_delegate.dispose()]);
 }
 
 /// Call member ID of an [OngoingCall] containing its [UserId] and
