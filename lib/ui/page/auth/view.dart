@@ -21,11 +21,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '../home/page/my_profile/language/controller.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/auth/widget/animated_logo.dart';
+import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
