@@ -613,6 +613,12 @@ class Palette {
     required this.primaryHighlightShinier,
     required this.primaryHighlightShiniest,
     required this.onPrimary,
+    Color? onPrimaryOpacity7,
+    Color? onPrimaryOpacity25,
+    Color? onPrimaryOpacity40,
+    Color? onPrimaryOpacity50,
+    Color? onPrimaryOpacity60,
+    Color? onPrimaryOpacity80,
     required this.secondary,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
@@ -620,13 +626,30 @@ class Palette {
     required this.secondaryHighlight,
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
+    Color? secondaryOpacity73,
+    Color? secondaryOpacity87,
     required this.onSecondary,
+    Color? onSecondaryOpacity20,
+    Color? onSecondaryOpacity30,
+    Color? onSecondaryOpacity50,
+    Color? onSecondaryOpacity60,
+    Color? onSecondaryOpacity88,
     required this.background,
     required this.backgroundAuxiliary,
     required this.backgroundAuxiliaryLight,
     required this.backgroundAuxiliaryLighter,
     required this.backgroundAuxiliaryLightest,
     required this.onBackground,
+    Color? onBackgroundOpacity2,
+    Color? onBackgroundOpacity7,
+    Color? onBackgroundOpacity13,
+    Color? onBackgroundOpacity20,
+    Color? onBackgroundOpacity27,
+    Color? onBackgroundOpacity33,
+    Color? onBackgroundOpacity40,
+    Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity56,
+    Color? onBackgroundOpacity63,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -634,67 +657,71 @@ class Palette {
     required this.dangerColor,
     required this.warningColor,
     required this.userColors,
-  })  : onPrimaryOpacity7 = onPrimary.withOpacity(0.07),
-        onPrimaryOpacity25 = onPrimary.withOpacity(0.25),
-        onPrimaryOpacity40 = onPrimary.withOpacity(0.40),
-        onPrimaryOpacity50 = onPrimary.withOpacity(0.50),
-        onPrimaryOpacity60 = onPrimary.withOpacity(0.60),
-        onPrimaryOpacity80 = onPrimary.withOpacity(0.80),
-        secondaryOpacity73 = secondary.withOpacity(0.73),
-        secondaryOpacity87 = secondary.withOpacity(0.87),
-        onSecondaryOpacity20 = onSecondary.withOpacity(0.20),
-        onSecondaryOpacity30 = onSecondary.withOpacity(0.30),
-        onSecondaryOpacity50 = onSecondary.withOpacity(0.50),
-        onSecondaryOpacity60 = onSecondary.withOpacity(0.60),
-        onSecondaryOpacity88 = onSecondary.withOpacity(0.88),
-        onBackgroundOpacity2 = onBackground.withOpacity(0.02),
-        onBackgroundOpacity7 = onBackground.withOpacity(0.07),
-        onBackgroundOpacity13 = onBackground.withOpacity(0.13),
-        onBackgroundOpacity20 = onBackground.withOpacity(0.20),
-        onBackgroundOpacity27 = onBackground.withOpacity(0.27),
-        onBackgroundOpacity33 = onBackground.withOpacity(0.33),
-        onBackgroundOpacity40 = onBackground.withOpacity(0.40),
-        onBackgroundOpacity50 = onBackground.withOpacity(0.50),
-        onBackgroundOpacity56 = onBackground.withOpacity(0.56),
-        onBackgroundOpacity63 = onBackground.withOpacity(0.63);
+  })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
+        onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
+        onPrimaryOpacity40 = onPrimaryOpacity40 ?? onPrimary.withOpacity(0.40),
+        onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
+        onPrimaryOpacity60 = onPrimaryOpacity60 ?? onPrimary.withOpacity(0.60),
+        onPrimaryOpacity80 = onPrimaryOpacity80 ?? onPrimary.withOpacity(0.80),
+        secondaryOpacity73 = secondaryOpacity73 ?? secondary.withOpacity(0.73),
+        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
+        onSecondaryOpacity20 =
+            onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
+        onSecondaryOpacity30 =
+            onSecondaryOpacity30 ?? onSecondary.withOpacity(0.30),
+        onSecondaryOpacity50 =
+            onSecondaryOpacity50 ?? onSecondary.withOpacity(0.50),
+        onSecondaryOpacity60 =
+            onSecondaryOpacity60 ?? onSecondary.withOpacity(0.60),
+        onSecondaryOpacity88 =
+            onSecondaryOpacity88 ?? onSecondary.withOpacity(0.88),
+        onBackgroundOpacity2 =
+            onBackgroundOpacity2 ?? onBackground.withOpacity(0.02),
+        onBackgroundOpacity7 =
+            onBackgroundOpacity7 ?? onBackground.withOpacity(0.07),
+        onBackgroundOpacity13 =
+            onBackgroundOpacity13 ?? onBackground.withOpacity(0.13),
+        onBackgroundOpacity20 =
+            onBackgroundOpacity20 ?? onBackground.withOpacity(0.20),
+        onBackgroundOpacity27 =
+            onBackgroundOpacity27 ?? onBackground.withOpacity(0.27),
+        onBackgroundOpacity33 =
+            onBackgroundOpacity33 ?? onBackground.withOpacity(0.33),
+        onBackgroundOpacity40 =
+            onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
+        onBackgroundOpacity50 =
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity56 =
+            onBackgroundOpacity56 ?? onBackground.withOpacity(0.56),
+        onBackgroundOpacity63 =
+            onBackgroundOpacity63 ?? onBackground.withOpacity(0.63);
 
   /// Main [Color] of the application.
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
 
-  /// Background [Color] of elements associated with the [primary] color.
+  /// Highlight [Color] of the secondary element.
   ///
-  /// Used for - button background, pop-ups, dialog boxes, etc.
-  final Color secondaryBackground;
+  /// Used to highlight secondary elements when hovering or when activated.
+  final Color primaryHighlight;
 
-  /// Light shade of the primary background [Color].
-  final Color secondaryBackgroundLight;
+  /// Glowing tone of secondary [Color] that is used to draw the user's attention
+  /// to an area of the screen that contains important information.
+  final Color primaryHighlightShiny;
 
-  /// Lightest shade of the primary background [Color].
-  final Color secondaryBackgroundLightest;
-
-  /// [Color] for highlighting UI elements, used to highlight the active elements.
-  final Color secondaryHighlight;
-
-  /// Dark shade of the accent [Color]. Used to create contrast and depth effect.
-  final Color secondaryHighlightDark;
-
-  /// Darkest shade of the main accent [Color].
+  /// Highlight [Color] to draw attention to specific elements in the UI.
   ///
-  /// Used to emphasize buttons, labels, or other user interface elements
-  /// that should be highlighted and easily visible to the user.
-  final Color secondaryHighlightDarkest;
+  /// Used for - [cardSelectedBorder].
+  final Color primaryHighlightShinyAuxiliary;
 
-  /// 87% opacity of the [primary] color.
-  ///
-  /// Used for - [handRaisedIcon], [element], etc.
-  final Color secondaryOpacity87;
+  /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
+  final Color primaryHighlightShinier;
 
-  /// 73% opacity of the [primary] color.
+  /// Most brilliant and contrasting secondary highlight [Color].
   ///
-  /// Used for - [HintWidget] elements.
-  final Color secondaryOpacity73;
+  /// Used as a background or to highlight certain elements.
+  final Color primaryHighlightShiniest;
 
   /// [Color] that is used for elements that are displayed on top
   /// of the main color of the application.
@@ -737,27 +764,40 @@ class Palette {
   /// Used for - lists, the background of some elements and other additional interface elements.
   final Color secondary;
 
-  /// Highlight [Color] of the secondary element.
+  /// Background [Color] of elements associated with the [primary] color.
   ///
-  /// Used to highlight secondary elements when hovering or when activated.
-  final Color primaryHighlight;
+  /// Used for - button background, pop-ups, dialog boxes, etc.
+  final Color secondaryBackground;
 
-  /// Glowing tone of secondary [Color] that is used to draw the user's attention
-  /// to an area of the screen that contains important information.
-  final Color primaryHighlightShiny;
+  /// Light shade of the primary background [Color].
+  final Color secondaryBackgroundLight;
 
-  /// Highlight [Color] to draw attention to specific elements in the UI.
+  /// Lightest shade of the primary background [Color].
+  final Color secondaryBackgroundLightest;
+
+  /// [Color] is used to highlight the active elements.
+  final Color secondaryHighlight;
+
+  /// Dark shade of the accent [Color].
   ///
-  /// Used for - [cardSelectedBorder].
-  final Color primaryHighlightShinyAuxiliary;
+  /// Used to create contrast and depth effect.
+  final Color secondaryHighlightDark;
 
-  /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
-  final Color primaryHighlightShinier;
-
-  /// Most brilliant and contrasting secondary highlight [Color].
+  /// Darkest shade of the main accent [Color].
   ///
-  /// Used as a background or to highlight certain elements.
-  final Color primaryHighlightShiniest;
+  /// Used to emphasize buttons, labels, or other user interface elements
+  /// that should be highlighted and easily visible to the user.
+  final Color secondaryHighlightDarkest;
+
+  /// 87% opacity of the [primary] color.
+  ///
+  /// Used for - [handRaisedIcon], [element], etc.
+  final Color secondaryOpacity87;
+
+  /// 73% opacity of the [primary] color.
+  ///
+  /// Used for - [HintWidget] elements.
+  final Color secondaryOpacity73;
 
   /// [Color] that is displayed on a secondary color background.
   ///
@@ -869,7 +909,7 @@ class Palette {
 
   /// Indicator of an affirmative color to visually confirm elements of the user interface.
   ///
-  /// For example, for the "Accept call" buttons.
+  /// For example, for the "Accept call" button.
   final Color acceptColor;
 
   /// [Color] is used as an auxiliary color to display pleasant action confirmation messages.
