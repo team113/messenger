@@ -298,7 +298,7 @@ class PlatformUtilsImpl {
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-    bool temporaryDirectory = false,
+    bool temporary = false,
   }) async {
     dynamic completeWith;
 
@@ -345,7 +345,7 @@ class PlatformUtilsImpl {
           if (file == null) {
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = temporaryDirectory
+            final String path = temporary
                 ? (await getTemporaryDirectory()).path
                 : await downloadsDirectory;
 

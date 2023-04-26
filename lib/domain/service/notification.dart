@@ -152,38 +152,22 @@ class NotificationService extends DisposableService {
     // don't show a notification.
     if (_focused && payload == router.route) return;
 
-    Uint8List? imageBytes;
     String? imagePath;
 
-    // In order to show an image in local notification, Android requires bytes
-    // of that image fetched, while iOS and macOS require path to it.
+    // In order to show an image in local notification, we need to download it
+    // first to a [File] and then pass the path to it to the plugin.
     if (!PlatformUtils.isWeb && image != null) {
-      if (PlatformUtils.isAndroid) {
-        try {
-          final Response response = await PlatformUtils.dio.get(
-            image,
-            options: Options(responseType: ResponseType.bytes),
-          );
+      try {
+        final File? file = await PlatformUtils.download(
+          image,
+          'notification_${DateTime.now()}.jpg',
+          null,
+          temporary: true,
+        );
 
-          if (response.statusCode == 200) {
-            imageBytes = response.data;
-          }
-        } catch (_) {
-          // No-op.
-        }
-      } else if (PlatformUtils.isIOS || PlatformUtils.isMacOS) {
-        try {
-          final File? file = await PlatformUtils.download(
-            image,
-            'notification_image_${DateTime.now()}.jpg',
-            null,
-            temporaryDirectory: true,
-          );
-
-          imagePath = file?.path;
-        } catch (_) {
-          // No-op.
-        }
+        imagePath = file?.path;
+      } catch (_) {
+        // No-op.
       }
     }
 
@@ -207,8 +191,9 @@ class NotificationService extends DisposableService {
             'default',
             'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
-            largeIcon:
-                imageBytes == null ? null : ByteArrayAndroidBitmap(imageBytes),
+            styleInformation: imagePath == null
+                ? null
+                : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
             tag: tag,
           ),
           linux: LinuxNotificationDetails(

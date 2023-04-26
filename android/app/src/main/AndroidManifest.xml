@@ -50,6 +50,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="default"/>
          <service android:name="io.wazo.callkeep.VoiceConnectionService"
             android:label="Wazo"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
