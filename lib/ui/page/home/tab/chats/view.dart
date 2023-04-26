@@ -161,7 +161,32 @@ class ChatsTabView extends StatelessWidget {
                         key: const Key('2'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('label_chats'.l10n),
+                          WidgetButton(
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              // crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'label_chats'.l10n,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ),
+                                // const SizedBox(width: 0),
+                                // Transform.translate(
+                                //   offset: const Offset(0, 2),
+                                //   child: Icon(
+                                //     Icons.more_horiz,
+                                //     size: 16,
+                                //     color:
+                                //         Theme.of(context).colorScheme.secondary,
+                                //   ),
+                                // )
+                              ],
+                            ),
+                          ),
                           AnimatedSizeAndFade(
                             sizeDuration: const Duration(milliseconds: 300),
                             fadeDuration: const Duration(milliseconds: 300),
@@ -189,18 +214,18 @@ class ChatsTabView extends StatelessWidget {
                           onPressed: c.searching.value ? null : c.startSearch,
                           child: Container(
                             padding: const EdgeInsets.only(
-                              left: 20 / 1.5,
-                              right: 12 / 1.5,
+                              left: 20,
+                              right: 12,
                             ),
                             height: double.infinity,
-                            child: Icon(
-                              Icons.more_horiz,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            // child: SvgLoader.asset(
-                            //   'assets/icons/search.svg',
-                            //   width: 17.77,
+                            // child: Icon(
+                            //   Icons.more_horiz,
+                            //   color: Theme.of(context).colorScheme.secondary,
                             // ),
+                            child: SvgLoader.asset(
+                              'assets/icons/search.svg',
+                              width: 17.77,
+                            ),
                           ),
                         ),
                       );
@@ -659,6 +684,7 @@ class ChatsTabView extends StatelessWidget {
                               child: CustomAppBar(
                                 safeArea: false,
                                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                shadow: false,
                                 border: c.search2.search.isFocused.value
                                     ? Border.all(
                                         color: colors.secondary,
@@ -750,19 +776,20 @@ class ChatsTabView extends StatelessWidget {
                             return CustomScrollView(
                               controller: c.scrollController,
                               slivers: [
+                                // SliverPadding(
+                                //   padding: const EdgeInsets.only(
+                                //     top: CustomAppBar.height,
+                                //     left: 10,
+                                //     right: 10,
+                                //     bottom: 2,
+                                //   ),
+                                //   sliver: SliverToBoxAdapter(
+                                //     child: search,
+                                //   ),
+                                // ),
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
                                     top: CustomAppBar.height,
-                                    left: 10,
-                                    right: 10,
-                                    bottom: 2,
-                                  ),
-                                  sliver: SliverToBoxAdapter(
-                                    child: search,
-                                  ),
-                                ),
-                                SliverPadding(
-                                  padding: const EdgeInsets.only(
                                     left: 10,
                                     right: 10,
                                   ),

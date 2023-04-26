@@ -218,16 +218,16 @@ class _HomeViewState extends State<HomeView> {
                                   onPressed: () =>
                                       PartnerMoreView.show(context),
                                   child: SvgLoader.asset(
-                                    'assets/icons/partner14.svg',
-                                    width: 32,
-                                    height: 32,
+                                    'assets/icons/partner16.svg',
+                                    width: 36,
+                                    height: 28,
                                   ),
                                 ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
                                 child: Transform.translate(
-                                  offset: const Offset(0, 0),
+                                  offset: const Offset(0, 1),
                                   child: SvgLoader.asset(
                                     'assets/icons/publics13.svg',
                                     width: 32,

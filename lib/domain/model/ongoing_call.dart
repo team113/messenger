@@ -794,6 +794,8 @@ class OngoingCall {
           audioState.value = LocalTrackState.disabling;
           try {
             await _room?.muteAudio();
+            // await _room?.disableAudio();
+            // _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
             audioState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.

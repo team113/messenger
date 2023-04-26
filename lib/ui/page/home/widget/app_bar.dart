@@ -38,6 +38,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBottom,
     this.safeArea = true,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
+    this.shadow = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -63,6 +64,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function()? onBottom;
 
   final bool safeArea;
+  final bool shadow;
 
   /// Height of the [CustomAppBar].
   static const double height = 60;
@@ -192,13 +194,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               constraints: const BoxConstraints(minHeight: height),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: Color(0x22000000),
-                    blurStyle: BlurStyle.outer,
-                  ),
-                ],
+                boxShadow: shadow
+                    ? const [
+                        CustomBoxShadow(
+                          blurRadius: 8,
+                          color: Color(0x22000000),
+                          blurStyle: BlurStyle.outer,
+                        ),
+                      ]
+                    : null,
               ),
               child: ConditionalBackdropFilter(
                 condition: style.cardBlur > 0,

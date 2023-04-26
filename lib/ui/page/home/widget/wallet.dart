@@ -21,9 +21,9 @@ class WalletWidget extends StatelessWidget {
 
     if (visible) {
       if (balance > 0) {
-        icon = 'wallet3';
-        width = 36;
-        height = 31;
+        icon = 'wallet_opened1';
+        width = 34;
+        height = 29.73;
 
         overlay = Transform.translate(
           offset: Offset(0, balance > 0 ? 2 : 0),
@@ -38,20 +38,20 @@ class WalletWidget extends StatelessWidget {
         // icon = 'wallet4';
         // width = 35;
         // height = 26;
-        icon = 'wallet1';
-        width = 36;
+        icon = 'wallet_closed1';
+        width = 34;
         height = 26;
 
         overlay = const SizedBox();
       }
     } else {
       if (balance > 0) {
-        icon = 'wallet2';
-        width = 36;
-        height = 31;
+        icon = 'wallet_opened1';
+        width = 34;
+        height = 29.73;
       } else {
-        icon = 'wallet1';
-        width = 36;
+        icon = 'wallet_closed1';
+        width = 34;
         height = 26;
       }
 
@@ -59,7 +59,7 @@ class WalletWidget extends StatelessWidget {
     }
 
     return Transform.translate(
-      offset: Offset(0, balance > 0 ? -2 : 0),
+      offset: Offset(0, -1 + balance > 0 ? -2 : 0),
       child: Stack(
         children: [
           SvgLoader.asset('assets/icons/$icon.svg',
