@@ -173,7 +173,7 @@ class RecentChatTile extends StatelessWidget {
                       Icons.block,
                       color: inverted
                           ? style.colors.onPrimary
-                          : const Color(0xFFC0C0C0),
+                          : style.colors.secondaryHighlightDarkest,
                       size: 20,
                     ),
                     const SizedBox(width: 5),
@@ -396,8 +396,9 @@ class RecentChatTile extends StatelessWidget {
             child: Icon(
               Icons.call,
               size: 16,
-              color:
-                  inverted ? style.colors.onPrimary : const Color(0xFF666666),
+              color: inverted
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryBackgroundLightest,
             ),
           );
 

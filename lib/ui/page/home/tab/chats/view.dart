@@ -647,8 +647,8 @@ class ChatsTabView extends StatelessWidget {
                                           final double elevation =
                                               lerpDouble(0, 6, t)!;
                                           final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
+                                            style.colors.transparent,
+                                            style.colors.onBackgroundOpacity20,
                                             t,
                                           )!;
 

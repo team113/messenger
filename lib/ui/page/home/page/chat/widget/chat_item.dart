@@ -215,8 +215,11 @@ class ChatItemWidget extends StatefulWidget {
                 shape: BoxShape.circle,
                 color: style.colors.onBackgroundOpacity50,
               ),
-              child: Icon(Icons.play_arrow,
-                  color: style.colors.onPrimary, size: 48),
+              child: Icon(
+                Icons.play_arrow,
+                color: style.colors.onPrimary,
+                size: 48,
+              ),
             ),
           ),
         ],
@@ -607,8 +610,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessageStyle.copyWith(
+                color: style.colors.primary,
+              ),
             ),
           );
         }
@@ -673,8 +677,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessageStyle.copyWith(
+                color: style.colors.primary,
+              ),
             ),
           );
         }
@@ -707,8 +712,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.secondary),
+                style: style.systemMessageStyle.copyWith(
+                  color: style.colors.secondary,
+                ),
               ),
             ],
             style:
@@ -1064,7 +1070,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: const Color(0xFFDAEDFF), width: 0.5)
+                                color: style.colors.primaryHighlightShiniest,
+                                width: 0.5,
+                              )
                         : style.primaryBorder,
                   ),
                   child: Column(

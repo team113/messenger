@@ -225,7 +225,8 @@ class _SelectorState<T> extends State<Selector<T>> {
                         margin:
                             const EdgeInsetsDirectional.only(start: 8, end: 8),
                         decoration: BoxDecoration(
-                            color: style.colors.onSecondaryOpacity20),
+                          color: style.colors.onSecondaryOpacity20,
+                        ),
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();

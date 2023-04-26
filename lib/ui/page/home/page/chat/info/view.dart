@@ -440,7 +440,8 @@ class ChatInfoView extends StatelessWidget {
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                            color: style.colors.primaryHighlightShiny),
+                          color: style.colors.primaryHighlightShiny,
+                        ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],

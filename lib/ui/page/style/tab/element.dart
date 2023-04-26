@@ -665,8 +665,10 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                   actions: [
                     AnimatedFabAction(
-                      icon: Icon(Icons.call,
-                          color: style.colors.primaryHighlight),
+                      icon: Icon(
+                        Icons.call,
+                        color: style.colors.primaryHighlight,
+                      ),
                       label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
@@ -681,8 +683,10 @@ class ElementStyleTabView extends StatelessWidget {
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.person,
-                          color: style.colors.primaryHighlight),
+                      icon: Icon(
+                        Icons.person,
+                        color: style.colors.primaryHighlight,
+                      ),
                       label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
@@ -695,14 +699,18 @@ class ElementStyleTabView extends StatelessWidget {
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.photo,
-                          color: style.colors.primaryHighlight),
+                      icon: Icon(
+                        Icons.photo,
+                        color: style.colors.primaryHighlight,
+                      ),
                       label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
-                      icon: Icon(Icons.camera,
-                          color: style.colors.primaryHighlight),
+                      icon: Icon(
+                        Icons.camera,
+                        color: style.colors.primaryHighlight,
+                      ),
                       label: 'label_camera'.l10n,
                       onTap: () {},
                     ),

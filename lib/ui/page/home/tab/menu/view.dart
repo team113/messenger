@@ -87,9 +87,7 @@ class MenuTabView extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      color: style.colors.secondary,
-                                    ),
+                                    ?.copyWith(color: style.colors.secondary),
                               );
                             }),
                           ],

@@ -2078,7 +2078,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       child: Text(
                                         'Draggable',
                                         style: TextStyle(
-                                            color: style.colors.onPrimary),
+                                          color: style.colors.onPrimary,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

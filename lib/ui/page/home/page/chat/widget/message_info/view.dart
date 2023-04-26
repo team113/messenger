@@ -225,7 +225,8 @@ class MessageInfo extends StatelessWidget {
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
                                     style: TextStyle(
-                                        color: style.colors.secondary),
+                                      color: style.colors.secondary,
+                                    ),
                                   ),
                                 ],
                               );

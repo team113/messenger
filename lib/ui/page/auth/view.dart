@@ -298,10 +298,10 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: style.colors.onBackground, fontSize: 18),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: style.colors.onBackground,
+                      fontSize: 18,
+                    ),
               ),
             ),
           ),

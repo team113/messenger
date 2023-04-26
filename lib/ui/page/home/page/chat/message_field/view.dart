@@ -219,8 +219,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -967,8 +967,9 @@ class MessageFieldView extends StatelessWidget {
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.boldBody
-                            .copyWith(color: style.colors.primary),
+                        style: style.boldBody.copyWith(
+                          color: style.colors.primary,
+                        ),
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),

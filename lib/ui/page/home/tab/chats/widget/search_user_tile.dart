@@ -92,7 +92,7 @@ class SearchUserTile extends StatelessWidget {
                   Icons.block,
                   color: selected
                       ? style.colors.onPrimary
-                      : const Color(0xFFC0C0C0),
+                      : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
               )
