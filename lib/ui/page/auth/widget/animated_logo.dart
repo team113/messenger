@@ -53,26 +53,14 @@ class AnimatedLogo extends StatelessWidget {
     const double height = 250;
 
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxHeight >= height) {
-        child = RiveAnimation.asset(
-          riveAsset,
-          onInit: onInit,
-        );
-      } else {
+      child = RiveAnimation.asset(riveAsset, onInit: onInit);
+
+      if (constraints.maxHeight < height) {
         child = SvgImage.asset(
           svgAsset,
-          height: 140,
+          fit: BoxFit.contain,
           placeholderBuilder: (context) {
-            return LayoutBuilder(builder: (context, constraints) {
-              return SizedBox(
-                height: constraints.maxHeight > 250
-                    ? height
-                    : constraints.maxHeight <= 140
-                        ? 140
-                        : height,
-                child: const Center(child: CustomProgressIndicator()),
-              );
-            });
+            return const Center(child: CustomProgressIndicator());
           },
         );
       }
