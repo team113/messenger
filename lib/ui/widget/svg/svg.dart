@@ -45,7 +45,7 @@ class SvgImage extends StatelessWidget {
     this.excludeFromSemantics,
   }) : assert(
           asset != null || file != null || bytes != null,
-          'SvgImage: no asset, file or bytes was provided',
+          'Asset, file or bytes must be provided',
         );
 
   /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
@@ -139,34 +139,37 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics,
       );
 
-  /// Relative path to the file of the resource containing the image.
+  /// Path to an asset containing an SVG image to display.
   final String? asset;
 
-  /// Reference to a file on the file system.
+  /// [File] representing an SVG image to display.
   final File? file;
 
-  /// Array of bytes containing image data.
+  /// [Uint8List] bytes containing an SVG image to display.
   final Uint8List? bytes;
 
-  /// Image alignment.
+  /// [Alignment] to display this image with.
   final Alignment? alignment;
 
-  /// Image scaling.
+  /// [BoxFit] to apply to this image.
   final BoxFit? fit;
 
-  /// Image width.
+  /// Width to constrain this image with.
   final double? width;
 
-  /// Image height.
+  /// Height to constrain this image with.
   final double? height;
 
-  /// Сreates a temporary image when loading.
+  /// Builder, building a [Widget] to display when this SVG image is being
+  /// loaded, fetched or initialized.
   final WidgetBuilder? placeholderBuilder;
 
-  /// A text description of the image.
+  /// Label to put on the [Semantics] of this [Widget].
+  ///
+  /// Only meaningful, if [excludeFromSemantics] is not `true`.
   final String? semanticsLabel;
 
-  /// Indicating whether to exclude the image from the screen reader.
+  /// Indicator whether this [Widget] should be excluded from the [Semantics].
   final bool? excludeFromSemantics;
 
   @override
@@ -193,7 +196,7 @@ class SvgImage extends StatelessWidget {
         semanticsLabel: semanticsLabel,
         excludeFromSemantics: excludeFromSemantics!,
       );
-    } else if (file != null) {
+    } else {
       return svgFromFile(
         file!,
         alignment: alignment!,
@@ -204,8 +207,6 @@ class SvgImage extends StatelessWidget {
         semanticsLabel: semanticsLabel,
         excludeFromSemantics: excludeFromSemantics!,
       );
-    } else {
-      return Container();
     }
   }
 }
