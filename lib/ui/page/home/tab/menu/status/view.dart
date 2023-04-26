@@ -52,10 +52,9 @@ class StatusView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final TextStyle? thin = Theme.of(context)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.colors.onBackground);
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: StatusController(Get.find()),

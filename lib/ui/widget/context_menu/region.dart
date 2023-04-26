@@ -192,6 +192,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   Future<void> _show(BuildContext context, Offset position) async {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    final TextStyle? thin = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
+
     if (widget.actions.isEmpty) {
       return;
     }
@@ -212,11 +216,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         },
         itemBuilder: (b) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: style.colors.onBackground);
-
           if (b is ContextMenuButton) {
             return Row(
               children: [

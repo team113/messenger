@@ -54,15 +54,15 @@ class MessagePopup {
   }) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
 
+    final TextStyle? thin = Theme.of(router.context!)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: style.colors.onBackground);
+
     return ModalPopup.show(
       context: router.context!,
       child: Builder(
         builder: (context) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: style.colors.onBackground);
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
