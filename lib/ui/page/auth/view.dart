@@ -158,18 +158,14 @@ class AuthView extends StatelessWidget {
             ),
           const SizedBox(height: 20),
           CupertinoTextButton(
-            'label_language_entry'.l10nfmt({
+            key: c.languageKey,
+            label: 'label_language_entry'.l10nfmt({
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,
             }),
             onPressed: () => LanguageSelectionView.show(context, null),
           ),
         ];
-
-        final String svgAsset =
-            'assets/images/logo/head000${c.logoFrame.value}.svg';
-
-        const String riveAsset = 'assets/images/logo/logo.riv';
 
         return Stack(
           key: const Key('AuthView'),
@@ -206,11 +202,14 @@ class AuthView extends StatelessWidget {
                           children: [
                             ...header,
                             Flexible(
-                              child: AnimatedLogo(
-                                logoKey: const ValueKey('Logo'),
-                                svgAsset: svgAsset,
-                                riveAsset: riveAsset,
-                                onInit: _onInit,
+                              child: Obx(
+                                () => AnimatedLogo(
+                                  key: const ValueKey('Logo'),
+                                  svgAsset:
+                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                  riveAsset: 'assets/images/logo/logo.riv',
+                                  onInit: _onInit,
+                                ),
                               ),
                             ),
                             ...footer,
@@ -231,6 +230,7 @@ class AuthView extends StatelessWidget {
     );
   }
 
+  /// Allows the [AuthController] to control animation events, such as flashing animation.
   void _onInit(Artboard a) {
     final AuthController c = AuthController(Get.find());
 

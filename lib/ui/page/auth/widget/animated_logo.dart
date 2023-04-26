@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/ui/widget/progress_indicator.dart';
@@ -26,26 +25,10 @@ import '/ui/widget/svg/svg.dart';
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo({
     super.key,
-    this.constraints = const BoxConstraints(maxHeight: 350),
-    this.height = 250,
-    this.logoKey,
     required this.riveAsset,
     this.onInit,
     required this.svgAsset,
-    this.svgAssetHeight = 140,
-    this.curve = Curves.ease,
-    this.animationDuration = const Duration(milliseconds: 200),
   });
-
-  /// Maximum width and height constraints of the [AnimatedLogo].
-  final BoxConstraints constraints;
-
-  /// Maximum [height] of the [AnimatedLogo] that can be displayed on the screen.
-  final double height;
-
-  /// [ValueKey] object that uniquely identifies the [Container]
-  /// that contains the [RiveAnimation] asset.
-  final ValueKey? logoKey;
 
   /// Path of the [RiveAnimation] asset.
   final String riveAsset;
@@ -56,15 +39,6 @@ class AnimatedLogo extends StatelessWidget {
   /// Path of the [SvgLoader] asset.
   final String svgAsset;
 
-  /// Height of the [SvgLoader] asset.
-  final double svgAssetHeight;
-
-  /// Type of [Curve] when changing the size of the [SizedBox] to match the size of the [AnimatedLogo].
-  final Curve curve;
-
-  /// [Duration] when changing the size of the [SizedBox] to match the size of the [AnimatedLogo].
-  final Duration animationDuration;
-
   @override
   Widget build(BuildContext context) {
     /// Type of logo that will be displayed on the screen.
@@ -73,21 +47,21 @@ class AnimatedLogo extends StatelessWidget {
     /// then a container with the [RiveAnimation.asset] animation is displayed.
     /// If the maximum [height] of the restrictions is less than the [height],
     /// then the SVG widget is displayed, loaded via [SvgLoader.asset].
-    final Widget child;
+    Widget child;
 
-    if (constraints.maxHeight >= height) {
-      child = Container(
-        key: ValueKey(logoKey),
-        child: RiveAnimation.asset(
+    /// Maximum [height] of the [AnimatedLogo] that can be displayed on the screen.
+    const double height = 250;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxHeight >= height) {
+        child = RiveAnimation.asset(
           riveAsset,
           onInit: onInit,
-        ),
-      );
-    } else {
-      child = Obx(() {
-        return SvgLoader.asset(
+        );
+      } else {
+        child = SvgLoader.asset(
           svgAsset,
-          height: svgAssetHeight,
+          height: 140,
           placeholderBuilder: (context) {
             return LayoutBuilder(builder: (context, constraints) {
               return SizedBox(
@@ -101,15 +75,13 @@ class AnimatedLogo extends StatelessWidget {
             });
           },
         );
-      });
-    }
+      }
 
-    return LayoutBuilder(builder: (context, constraints) {
       return ConstrainedBox(
-        constraints: constraints,
+        constraints: const BoxConstraints(maxHeight: 350),
         child: AnimatedSize(
-          curve: curve,
-          duration: animationDuration,
+          curve: Curves.ease,
+          duration: const Duration(milliseconds: 200),
           child: SizedBox(
             height: constraints.maxHeight >= height ? height : 140,
             child: child,

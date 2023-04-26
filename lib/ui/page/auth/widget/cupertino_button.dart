@@ -21,63 +21,30 @@ import 'package:get/get.dart';
 
 /// Сustom [TextButton] featuring a Cupertino style design.
 class CupertinoTextButton extends StatelessWidget {
-  const CupertinoTextButton(
-    this.data, {
+  const CupertinoTextButton({
     super.key,
+    required this.label,
     required this.onPressed,
-    this.padding,
-    this.color,
-    this.disabledColor = CupertinoColors.quaternarySystemFill,
-    this.minSize,
-    this.pressedOpacity,
-    this.borderRadius,
-    this.alignment = Alignment.center,
   });
 
-  /// Text to display.
-  final String data;
-
-  /// The amount of space to surround the child inside the bounds of the button.
-  final EdgeInsetsGeometry? padding;
-
-  /// Color of the button's background.
-  final Color? color;
-
-  /// The color of the button's background when the button is disabled.
-  final Color disabledColor;
-
-  /// Minimum size of the button.
-  final double? minSize;
-
-  /// The opacity that the button will fade to when it is pressed.
-  final double? pressedOpacity;
-
-  /// The radius of the button's corners when it has a background color.
-  final BorderRadius? borderRadius;
-
-  /// Alignment of the button's [child].
-  final AlignmentGeometry alignment;
+  /// Label to display.
+  final String label;
 
   /// Callback that is called when the button is tapped.
   final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+
     final TextStyle? thin =
         context.textTheme.bodySmall?.copyWith(color: Colors.black);
-    final Color primary = Theme.of(context).colorScheme.primary;
 
     return CupertinoButton(
       onPressed: onPressed,
-      padding: padding,
-      color: color,
-      disabledColor: disabledColor,
-      minSize: minSize,
-      pressedOpacity: pressedOpacity,
-      borderRadius: borderRadius,
-      alignment: alignment,
+      alignment: Alignment.center,
       child: Text(
-        data,
+        label,
         style: thin?.copyWith(fontSize: 13, color: primary),
       ),
     );
