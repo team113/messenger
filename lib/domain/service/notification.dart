@@ -60,49 +60,54 @@ class NotificationService extends DisposableService {
   /// Subscription to the [FirebaseMessaging.onTokenRefresh].
   StreamSubscription? _onTokenRefresh;
 
-  /// [StreamSubscription] on the [FirebaseMessaging.onMessage] stream.
+  /// [StreamSubscription] to the [FirebaseMessaging.onMessage] stream.
   StreamSubscription? _foregroundSubscription;
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
-  /// [List] of the showed notifications tags.
-  List<String> showedNotifications = [];
+  /// Tags of the local notifications that were displayed.
+  ///
+  /// Used to discard displaying a local notification second time when it is
+  /// received via the [_foregroundSubscription].
+  final List<String> _tags = [];
 
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
   ///
-  /// Optional [onLocalNotificationResponse] callback is called when user taps
-  /// on a local notification.
+  /// Optional [onResponse] callback is called when user taps on a notification.
   ///
-  /// Optional [onFcmNotificationResponse] callback is called when user taps on
-  /// a FCM notification.
-  ///
-  /// Optional [onFcmBackgroundNotificationResponse] callback is called when a
-  /// FCM notification received and the app is in the background or terminated
-  /// state.
-  void init({
+  /// Optional [onBackground] callback is called when a notification is received
+  /// when the application is in the background or terminated.
+  Future<void> init({
     String? language,
     FirebaseOptions? firebaseOptions,
-    void Function(NotificationResponse)? onLocalNotificationResponse,
-    void Function(RemoteMessage message)? onFcmNotificationResponse,
-    Future<void> Function(RemoteMessage message)?
-        onFcmBackgroundNotificationResponse,
+    void Function(String)? onResponse,
+    Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
-    _language = language;
+    _language = language ?? _language;
 
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
-    _initLocalNotifications(onLocalNotificationResponse);
+    _initLocalNotifications(
+      onResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          onResponse?.call(response.payload!);
+        }
+      },
+    );
 
     try {
       await _initPushNotifications(
-        firebaseOptions: firebaseOptions,
-        onFcmNotificationResponse: onFcmNotificationResponse,
-        onFcmBackgroundNotificationResponse:
-            onFcmBackgroundNotificationResponse,
+        options: firebaseOptions,
+        onResponse: (RemoteMessage message) {
+          if (message.data['chatId'] != null) {
+            onResponse?.call('${Routes.chats}/${message.data['chatId']}');
+          }
+        },
+        onBackground: onBackground,
       );
     } catch (e) {
       Log.print(
@@ -132,17 +137,19 @@ class NotificationService extends DisposableService {
     String? tag,
     String? image,
   }) async {
-    if (tag != null) {
-      if (showedNotifications.contains(tag)) {
-        showedNotifications.remove(tag);
+    // Don't display a notification with the provided [tag], if it's in the
+    // [_tags] list already, or otherwise add it to that list.
+    if (_foregroundSubscription != null && tag != null) {
+      if (_tags.contains(tag)) {
+        _tags.remove(tag);
         return;
       } else {
-        showedNotifications.add(tag);
+        _tags.add(tag);
       }
     }
 
     // If application is in focus and the payload is the current route, then
-    // don't show a local notification.
+    // don't show a notification.
     if (_focused && payload == router.route) return;
 
     Uint8List? imageBytes;
@@ -168,14 +175,12 @@ class NotificationService extends DisposableService {
         try {
           final File? file = await PlatformUtils.download(
             image,
-            'notification_image_${DateTime.now()}',
+            'notification_image_${DateTime.now()}.jpg',
             null,
             temporaryDirectory: true,
           );
 
-          if (file != null) {
-            imagePath = file.path;
-          }
+          imagePath = file?.path;
         } catch (_) {
           // No-op.
         }
@@ -227,8 +232,9 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Updates the [_language] and resubscribes for FCM notifications.
-  void updateLanguage(String? language) async {
+  /// Sets the provided [language] as a preferred localization of the push
+  /// notifications.
+  void setLanguage(String? language) async {
     if (_language != language) {
       _language = language;
 
@@ -244,16 +250,16 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Initializes [FlutterLocalNotificationsPlugin] for showing local
+  /// Initializes the [FlutterLocalNotificationsPlugin] for displaying the local
   /// notifications.
-  Future<void> _initLocalNotifications(
-    void Function(NotificationResponse)? onNotificationResponse,
-  ) async {
+  Future<void> _initLocalNotifications({
+    void Function(NotificationResponse)? onResponse,
+  }) async {
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
       // user's interaction.
-      WebUtils.onSelectNotification = onNotificationResponse;
+      WebUtils.onSelectNotification = onResponse;
     } else {
       if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
@@ -266,8 +272,7 @@ class NotificationService extends DisposableService {
               macOS: DarwinInitializationSettings(),
               linux: LinuxInitializationSettings(defaultActionName: 'click'),
             ),
-            onDidReceiveNotificationResponse: onNotificationResponse,
-            onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
+            onDidReceiveNotificationResponse: onResponse,
           );
 
           if (!PlatformUtils.isWindows) {
@@ -275,7 +280,7 @@ class NotificationService extends DisposableService {
                 await _plugin!.getNotificationAppLaunchDetails();
 
             if (details?.notificationResponse != null) {
-              onNotificationResponse?.call(details!.notificationResponse!);
+              onResponse?.call(details!.notificationResponse!);
             }
           }
         } on MissingPluginException {
@@ -287,43 +292,41 @@ class NotificationService extends DisposableService {
 
   /// Initializes the [FirebaseMessaging] for receiving push notifications.
   Future<void> _initPushNotifications({
-    FirebaseOptions? firebaseOptions,
-    void Function(RemoteMessage message)? onFcmNotificationResponse,
-    Future<void> Function(RemoteMessage message)?
-        onFcmBackgroundNotificationResponse,
+    FirebaseOptions? options,
+    void Function(RemoteMessage message)? onResponse,
+    Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
     if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
-      if (onFcmBackgroundNotificationResponse != null) {
-        FirebaseMessaging.onBackgroundMessage(
-          onFcmBackgroundNotificationResponse,
-        );
-      }
-      FirebaseMessaging.onMessageOpenedApp.listen(onFcmNotificationResponse);
+      FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
 
-      await Firebase.initializeApp(options: firebaseOptions);
+      if (onBackground != null) {
+        FirebaseMessaging.onBackgroundMessage(onBackground);
+      }
+
+      await Firebase.initializeApp(options: options);
 
       final RemoteMessage? initial =
           await FirebaseMessaging.instance.getInitialMessage();
 
       if (initial != null) {
-        onFcmNotificationResponse?.call(initial);
+        onResponse?.call(initial);
       }
 
-      _foregroundSubscription = FirebaseMessaging.onMessage.listen((event) {
-        if (event.notification != null && event.notification?.title != null) {
+      _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+        if (message.notification?.title != null) {
           show(
-            event.notification!.title!,
-            body: event.notification!.body,
-            payload: '${Routes.chats}/${event.data['chatId']}',
-            image: event.notification!.android?.imageUrl,
-            tag: event.notification?.android?.tag ??
-                '${event.data['chatId']}_${event.data['chatItemId']}',
+            message.notification!.title!,
+            body: message.notification!.body,
+            payload: '${Routes.chats}/${message.data['chatId']}',
+            image: message.notification!.android?.imageUrl ??
+                message.notification!.apple?.imageUrl,
+            tag: message.data['chatItemId'],
           );
         }
       });
 
       if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-        await AndroidUtils.createNotificationChanel(
+        await AndroidUtils.createNotificationChannel(
           id: 'default',
           name: 'Default',
           sound: 'notification',

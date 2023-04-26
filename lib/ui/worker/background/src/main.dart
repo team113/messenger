@@ -173,11 +173,7 @@ class _BackgroundService {
 
   /// Initializes the [FlutterCallkeep].
   Future<void> _initCallKeep() async {
-    await _callKeep.setup(
-      null,
-      PlatformUtils.callKeepConfig,
-      backgroundMode: true,
-    );
+    await _callKeep.setup(null, PlatformUtils.callKeep, backgroundMode: true);
 
     _callKeep.on(CallKeepPerformAnswerCallAction(),
         (CallKeepPerformAnswerCallAction event) async {
@@ -360,10 +356,7 @@ class _BackgroundService {
             'label_incoming_call'.l10n,
             name,
             const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'default',
-                'Default',
-              ),
+              android: AndroidNotificationDetails('default', 'Default'),
             ),
             payload: '${Routes.chats}/$chatId',
           );

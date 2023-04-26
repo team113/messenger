@@ -118,10 +118,10 @@ class CallWorker extends DisposableService {
       if (e.inForeground) {
         _callKeep.endAllCalls();
 
-        _callService.calls.forEach((key, value) {
-          if (_answeredCalls.contains(key) && !value.value.isActive) {
-            _callService.join(key, withVideo: false);
-            _answeredCalls.remove(key);
+        _callService.calls.forEach((id, call) {
+          if (_answeredCalls.contains(id) && !call.value.isActive) {
+            _callService.join(id, withVideo: false);
+            _answeredCalls.remove(id);
           }
         });
       }
@@ -234,10 +234,7 @@ class CallWorker extends DisposableService {
   void onReady() {
     if (PlatformUtils.isMobile) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _callKeep.setup(
-          router.context!,
-          PlatformUtils.callKeepConfig,
-        );
+        _callKeep.setup(router.context!, PlatformUtils.callKeep);
 
         _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
           if (event.callUUID != null) {
@@ -272,9 +269,7 @@ class CallWorker extends DisposableService {
       });
     }
 
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
-      _focused = focused;
-    });
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
 
     super.onReady();
   }

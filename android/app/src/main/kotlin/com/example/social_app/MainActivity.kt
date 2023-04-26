@@ -37,7 +37,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
 
 class MainActivity : FlutterActivity() {
-    private val utilsChanel = "team113.flutter.dev/android_utils"
+    private val utilsChannel = "team113.flutter.dev/android_utils"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +48,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            utilsChanel,
+            utilsChannel,
         ).setMethodCallHandler { call, result ->
             if (call.method == "canDrawOverlays") {
                 result.success(canDrawOverlays())

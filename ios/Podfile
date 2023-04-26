@@ -42,7 +42,7 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-target 'ImageNotification' do
+target 'NotificationServiceExtension' do
   use_frameworks!
   pod 'Firebase/Messaging'
 end

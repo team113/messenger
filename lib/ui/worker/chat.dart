@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
@@ -24,6 +25,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -83,6 +85,10 @@ class ChatWorker extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
+  /// Indicates whether the [_notificationService] should display a
+  /// notification.
+  bool get _displayNotification => _myUser.value?.muted == null && _focused;
+
   @override
   void onReady() {
     _chatService.chats.forEach((_, value) => _onChatAdded(value));
@@ -125,35 +131,27 @@ class ChatWorker extends DisposableService {
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
     // Display a new group chat notification.
-    if (viaSubscription &&
-        c.chat.value.isGroup &&
-        _myUser.value?.muted == null) {
-      bool newChat = false;
-
+    if (viaSubscription && c.chat.value.isGroup && _displayNotification) {
       if (c.chat.value.lastItem is ChatInfo) {
         final msg = c.chat.value.lastItem as ChatInfo;
         if (msg.action.kind == ChatInfoActionKind.memberAdded) {
           final action = msg.action as ChatInfoActionMemberAdded;
-          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
+          if (msg.action.kind == ChatInfoActionKind.memberAdded &&
               action.user.id == _chatService.me &&
               DateTime.now()
                       .difference(msg.at.val)
                       .compareTo(newMessageThreshold) <=
-                  -1;
-
-          if (newChat) {
-            if (!PlatformUtils.isMobile || _focused) {
-              _notificationService.show(
-                c.title.value,
-                body: 'fcm_user_added_you_to_group'.l10nfmt({
-                  'authorName': msg.author.name?.val ?? 'x',
-                  'authorNum': msg.author.num.val,
-                }),
-                payload: '${Routes.chats}/${c.chat.value.id}',
-                icon: c.avatar.value?.original.url,
-                tag: '${c.chat.value.id.val}_${c.chat.value.lastItem?.id}',
-              );
-            }
+                  -1) {
+            _notificationService.show(
+              c.title.value,
+              body: 'fcm_user_added_you_to_group'.l10nfmt({
+                'authorName': msg.author.name?.val ?? 'x',
+                'authorNum': msg.author.num.val,
+              }),
+              payload: '${Routes.chats}/${c.chat.value.id}',
+              icon: c.avatar.value?.original.url,
+              tag: c.chat.value.lastItem?.id.val,
+            );
 
             _flashTaskbarIcon();
           }
@@ -163,14 +161,15 @@ class ChatWorker extends DisposableService {
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag) async {
-        if (_myUser.value?.muted == null && _focused) {
+      onNotification: (body, tag, image) async {
+        if (_displayNotification) {
           await _notificationService.show(
             c.title.value,
             body: body,
             payload: '${Routes.chats}/${c.chat.value.id}',
             icon: c.avatar.value?.original.url,
             tag: tag,
+            image: image,
           );
 
           await _flashTaskbarIcon();
@@ -206,7 +205,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String, String?)? onNotification,
+    void Function(String, String?, String?)? onNotification,
     UserId? Function()? me,
     required Future<RxUser?> Function(UserId) getUser,
   }) : updatedAt = PreciseDateTime.now() {
@@ -222,145 +221,70 @@ class _ChatWatchData {
               chat.lastItem!.authorId != me?.call() &&
               chat.muted == null) {
             final StringBuffer body = StringBuffer();
-            final ChatItem lastItem = chat.lastItem!;
+            final ChatItem msg = chat.lastItem!;
+            String? image;
 
-            if (lastItem is ChatMessage ||
-                (lastItem is ChatForward &&
-                    lastItem.quote.original is ChatMessage)) {
-              final msg = lastItem is ChatMessage
-                  ? lastItem
-                  : (lastItem as ChatForward).quote.original as ChatMessage;
-              final RxUser? author = await getUser(msg.authorId);
+            if (msg is ChatMessage) {
+              final String? text = _message(
+                isGroup: chat.isGroup,
+                author: await getUser(msg.authorId),
+                text: msg.text,
+                attachments: msg.attachments,
+              );
 
-              if (author != null) {
-                final String userName = author.user.value.name?.val ?? 'x';
-                final String userNum = author.user.value.num.val;
+              image = msg.attachments
+                  .whereType<ImageAttachment>()
+                  .firstOrNull
+                  ?.big
+                  .url;
 
-                if (msg.text != null) {
-                  if (chat.isGroup) {
-                    body.write(
-                      'fcm_group_message'.l10nfmt({
-                        'text': msg.text!.val,
-                        'userName': userName,
-                        'userNum': userNum,
-                      }),
-                    );
-                  } else {
-                    body.write(
-                      'fcm_dialog_message'.l10nfmt({'text': msg.text!.val}),
-                    );
-                  }
-                } else if (msg.attachments.isNotEmpty) {
-                  final String kind = msg.attachments.first is ImageAttachment
-                      ? 'image'
-                      : (msg.attachments.first as FileAttachment).isVideo
-                          ? 'video'
-                          : 'file';
+              if (text != null) {
+                body.write(text);
+              }
+            } else if (msg is ChatForward) {
+              final ChatItemQuote quote = msg.quote;
+              if (quote is ChatMessageQuote) {
+                final String? text = _message(
+                  isGroup: chat.isGroup,
+                  author: await getUser(msg.authorId),
+                  text: quote.text,
+                  attachments: quote.attachments,
+                );
 
-                  if (chat.isGroup) {
-                    body.write(
-                      'fcm_group_attachment'.l10nfmt({
-                        'userName': userName,
-                        'userNum': userNum,
-                        'kind': kind,
-                      }),
-                    );
-                  } else {
-                    body.write(
-                      'fcm_dialog_attachment'.l10nfmt({'kind': kind}),
-                    );
+                image = quote.attachments
+                    .whereType<ImageAttachment>()
+                    .firstOrNull
+                    ?.big
+                    .url;
+
+                if (text != null) {
+                  body.write(text);
+                }
+              } else if (quote is ChatInfoQuote) {
+                if (quote.action != null) {
+                  final String? text = _info(
+                    author: (await getUser(msg.authorId))?.user.value,
+                    info: quote.action!,
+                  );
+
+                  if (text != null) {
+                    body.write(text);
                   }
                 }
               }
-            } else if (chat.lastItem is ChatInfo) {
-              final ChatInfo msg = chat.lastItem as ChatInfo;
+            } else if (msg is ChatInfo) {
+              final String? text = _info(author: msg.author, info: msg.action);
 
-              switch (msg.action.kind) {
-                case ChatInfoActionKind.created:
-                  // No-op, as it shouldn't be in a notification.
-                  break;
-
-                case ChatInfoActionKind.memberAdded:
-                  final action = msg.action as ChatInfoActionMemberAdded;
-
-                  if (msg.authorId == action.user.id) {
-                    body.write(
-                      'fcm_user_joined_group_by_link'.l10nfmt(
-                        {
-                          'authorName': action.user.name?.val ?? 'x',
-                          'authorNum': action.user.num.val,
-                        },
-                      ),
-                    );
-                  } else {
-                    body.write(
-                      'fcm_user_added_user'.l10nfmt({
-                        'authorName': msg.author.name?.val ?? 'x',
-                        'authorNum': msg.author.num.val,
-                        'userName': action.user.name?.val ?? 'x',
-                        'userNum': action.user.num.val,
-                      }),
-                    );
-                  }
-                  break;
-
-                case ChatInfoActionKind.memberRemoved:
-                  final action = msg.action as ChatInfoActionMemberRemoved;
-
-                  if (msg.authorId == action.user.id) {
-                    body.write(
-                      'fcm_user_left_group'.l10nfmt(
-                        {
-                          'authorName': action.user.name?.val ?? 'x',
-                          'authorNum': action.user.num.val,
-                        },
-                      ),
-                    );
-                  } else {
-                    body.write(
-                      'fcm_user_removed_user'.l10nfmt({
-                        'authorName': msg.author.name?.val ?? 'x',
-                        'authorNum': msg.author.num.val,
-                        'userName': action.user.name?.val ?? 'x',
-                        'userNum': action.user.num.val,
-                      }),
-                    );
-                  }
-                  break;
-
-                case ChatInfoActionKind.avatarUpdated:
-                  final action = msg.action as ChatInfoActionAvatarUpdated;
-                  final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.val,
-                  };
-
-                  if (action.avatar == null) {
-                    body.write('label_avatar_removed'.l10nfmt(args));
-                  } else {
-                    body.write('label_avatar_updated'.l10nfmt(args));
-                  }
-                  break;
-
-                case ChatInfoActionKind.nameUpdated:
-                  final action = msg.action as ChatInfoActionNameUpdated;
-                  final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.val,
-                    if (action.name != null) 'name': action.name?.val,
-                  };
-
-                  if (action.name == null) {
-                    body.write('label_name_removed'.l10nfmt(args));
-                  } else {
-                    body.write('label_name_updated'.l10nfmt(args));
-                  }
-                  break;
+              if (text != null) {
+                body.write(text);
               }
             }
 
             if (body.isNotEmpty) {
               onNotification?.call(
                 body.toString(),
-                '${chat.id.val}_${chat.lastItem?.id.val}',
+                chat.lastItem?.id.val,
+                image,
               );
             }
           }
@@ -378,7 +302,122 @@ class _ChatWatchData {
   PreciseDateTime updatedAt;
 
   /// Disposes the [worker].
-  void dispose() {
-    worker.dispose();
+  void dispose() => worker.dispose();
+
+  /// Returns a localized body of a [ChatMessage] notification with provided
+  /// [text] and [attachments].
+  String? _message({
+    required bool isGroup,
+    RxUser? author,
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+  }) {
+    final String name = author?.user.value.name?.val ?? 'x';
+    final String num = author?.user.value.num.val ?? 'err_unknown_user'.l10n;
+
+    if (text != null) {
+      if (isGroup) {
+        return 'fcm_group_message'.l10nfmt({
+          'text': text.val,
+          'userName': name,
+          'userNum': num,
+        });
+      } else {
+        return 'fcm_dialog_message'.l10nfmt({'text': text.val});
+      }
+    } else if (attachments.isNotEmpty) {
+      final String kind = attachments.first is ImageAttachment
+          ? 'image'
+          : (attachments.first as FileAttachment).isVideo
+              ? 'video'
+              : 'file';
+
+      if (isGroup) {
+        return 'fcm_group_attachment'.l10nfmt({
+          'userName': name,
+          'userNum': num,
+          'kind': kind,
+        });
+      } else {
+        return 'fcm_dialog_attachment'.l10nfmt({'kind': kind});
+      }
+    }
+
+    return null;
+  }
+
+  /// Returns a localized body of a [ChatInfo] notification with provided
+  /// [info].
+  String? _info({User? author, required ChatInfoAction info}) {
+    switch (info.kind) {
+      case ChatInfoActionKind.created:
+        // No-op, as it shouldn't be in a notification.
+        return null;
+
+      case ChatInfoActionKind.memberAdded:
+        final action = info as ChatInfoActionMemberAdded;
+
+        if (author?.id == action.user.id) {
+          return 'fcm_user_joined_group_by_link'.l10nfmt(
+            {
+              'authorName': action.user.name?.val ?? 'x',
+              'authorNum': action.user.num.val,
+            },
+          );
+        } else {
+          return 'fcm_user_added_user'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+            'userName': action.user.name?.val ?? 'x',
+            'userNum': action.user.num.val,
+          });
+        }
+
+      case ChatInfoActionKind.memberRemoved:
+        final action = info as ChatInfoActionMemberRemoved;
+
+        if (author?.id == action.user.id) {
+          return 'fcm_user_left_group'.l10nfmt(
+            {
+              'authorName': action.user.name?.val ?? 'x',
+              'authorNum': action.user.num.val,
+            },
+          );
+        } else {
+          return 'fcm_user_removed_user'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+            'userName': action.user.name?.val ?? 'x',
+            'userNum': action.user.num.val,
+          });
+        }
+
+      case ChatInfoActionKind.avatarUpdated:
+        final action = info as ChatInfoActionAvatarUpdated;
+        final Map<String, dynamic> args = {
+          'author':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+        };
+
+        if (action.avatar == null) {
+          return 'label_avatar_removed'.l10nfmt(args);
+        } else {
+          return 'label_avatar_updated'.l10nfmt(args);
+        }
+
+      case ChatInfoActionKind.nameUpdated:
+        final action = info as ChatInfoActionNameUpdated;
+        final Map<String, dynamic> args = {
+          'author':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          if (action.name != null) 'name': action.name?.val,
+        };
+
+        if (action.name == null) {
+          return 'label_name_removed'.l10nfmt(args);
+        } else {
+          return 'label_name_updated'.l10nfmt(args);
+        }
+    }
   }
 }

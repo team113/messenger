@@ -32,8 +32,8 @@ class AndroidUtils {
     await platform.invokeMethod('openOverlaySettings');
   }
 
-  /// Creates a new `NotificationChanel` with the provided parameters.
-  static Future<void> createNotificationChanel({
+  /// Creates a new `NotificationChannel` with the provided parameters.
+  static Future<void> createNotificationChannel({
     required String id,
     required String name,
     required String sound,

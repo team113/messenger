@@ -204,23 +204,26 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
-  /// Configuration used to initialize the [FlutterCallkeep].
-  Map<String, dynamic> get callKeepConfig => {
-        'ios': {'appName': 'Gapopa'},
-        'android': {
-          'alertTitle': 'label_call_permissions_title'.l10n,
-          'alertDescription': 'label_call_permissions_description'.l10n,
-          'cancelButton': 'btn_dismiss'.l10n,
-          'okButton': 'btn_allow'.l10n,
-          'foregroundService': {
-            'channelId': 'default',
-            'channelName': 'Default',
-            'notificationTitle': 'My app is running on background',
-            'notificationIcon': 'mipmap/ic_notification_launcher',
-          },
-          'additionalPermissions': <String>[],
+  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
+  /// instance to initialize it.
+  Map<String, dynamic> get callKeep {
+    return {
+      'ios': {'appName': 'Gapopa'},
+      'android': {
+        'alertTitle': 'label_call_permissions_title'.l10n,
+        'alertDescription': 'label_call_permissions_description'.l10n,
+        'cancelButton': 'btn_dismiss'.l10n,
+        'okButton': 'btn_allow'.l10n,
+        'foregroundService': {
+          'channelId': 'default',
+          'channelName': 'Default',
+          'notificationTitle': 'My app is running on background',
+          'notificationIcon': 'mipmap/ic_notification_launcher',
         },
-      };
+        'additionalPermissions': <String>[],
+      },
+    };
+  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {

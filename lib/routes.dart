@@ -38,7 +38,7 @@ import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
-import 'main.dart';
+import 'main.dart' show handlePushNotification;
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
@@ -457,7 +457,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
-              await deps.put(SettingsWorker(settingsRepository, null)).init();
+              await deps.put(SettingsWorker(settingsRepository)).init();
 
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository = UserRepository(
@@ -558,6 +558,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
+            GraphQlProvider graphQlProvider = Get.find();
+
+            NotificationService notificationService =
+                deps.put(NotificationService(graphQlProvider));
+
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(
@@ -567,16 +572,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-            GraphQlProvider graphQlProvider = Get.find();
-
-            NotificationService notificationService = deps.put(
-              NotificationService(graphQlProvider),
-            );
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
             await deps
-                .put(SettingsWorker(settingsRepository, notificationService))
+                .put(
+                  SettingsWorker(
+                    settingsRepository,
+                    onChanged: notificationService.setLanguage,
+                  ),
+                )
                 .init();
 
             notificationService.init(
@@ -584,9 +589,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               firebaseOptions: PlatformUtils.pushNotifications
                   ? DefaultFirebaseOptions.currentPlatform
                   : null,
-              onLocalNotificationResponse: onNotificationResponse,
-              onFcmBackgroundNotificationResponse: backgroundHandler,
-              onFcmNotificationResponse: handleMessage,
+              onResponse: (payload) {
+                if (payload.startsWith(Routes.chats)) {
+                  router.push(payload);
+                }
+              },
+              onBackground: handlePushNotification,
             );
 
             UserRepository userRepository = UserRepository(

@@ -27,11 +27,6 @@ import 'package:callkeep/callkeep.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show
-        ActiveNotification,
-        FlutterLocalNotificationsPlugin,
-        NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -147,36 +142,13 @@ Future<void> main() async {
   );
 }
 
-/// Callback, triggered when an user taps on a FCM notification.
-void handleMessage(RemoteMessage message) {
-  if (message.data['chatId'] != null) {
-    router.chat(ChatId(message.data['chatId']), push: true);
-  }
-}
-
-/// Callback, triggered when a FCM notification is received in the background.
+/// Initializes the [FlutterCallkeep] and displays an incoming call
+/// notification, if the provided [message] is about a call.
 ///
-/// Must be a top level function.
+/// Must be a top level function, as intended to be used as a Firebase Cloud
+/// Messaging notification background handler.
 @pragma('vm:entry-point')
-Future<void> backgroundHandler(RemoteMessage message) async {
-  final String? title = message.notification?.title;
-  final String? body =
-      message.notification?.body?.replaceAll(RegExp(r'[\u2068\u2069]'), '');
-
-  if (PlatformUtils.isIOS && title != null && body != null) {
-    final plugin = FlutterLocalNotificationsPlugin();
-    final List<ActiveNotification> notifications =
-        await plugin.getActiveNotifications();
-
-    final ActiveNotification? notification = notifications.firstWhereOrNull(
-      (e) => e.id != 0 && e.title == title && e.body == body,
-    );
-
-    if (notification != null) {
-      plugin.cancel(notification.id);
-    }
-  }
-
+Future<void> handlePushNotification(RemoteMessage message) async {
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
@@ -190,7 +162,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
       try {
         await callKeep.setup(
           null,
-          PlatformUtils.callKeepConfig,
+          PlatformUtils.callKeep,
           backgroundMode: true,
         );
 
@@ -218,7 +190,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 
         callKeep.displayIncomingCall(
           message.data['chatId'],
-          title ?? 'gapopa',
+          message.notification?.title ?? 'gapopa',
           handleType: 'generic',
         );
 
@@ -267,7 +239,10 @@ Future<void> backgroundHandler(RemoteMessage message) async {
           await prefs.remove('answeredCall');
         }
 
+        // Remove the incoming call notification after a reasonable amount of
+        // time for a better UX.
         await Future.delayed(30.seconds);
+
         callKeep.rejectCall(message.data['chatId']);
       } catch (_) {
         provider?.disconnect();
@@ -276,18 +251,6 @@ Future<void> backgroundHandler(RemoteMessage message) async {
         await sessionProvider?.close();
         await Hive.close();
       }
-    }
-  }
-}
-
-/// Callback, triggered when an user taps on a local notification.
-///
-/// Must be a top level function.
-@pragma('vm:entry-point')
-void onNotificationResponse(NotificationResponse response) {
-  if (response.payload != null) {
-    if (response.payload!.startsWith(Routes.chats)) {
-      router.push(response.payload!);
     }
   }
 }
