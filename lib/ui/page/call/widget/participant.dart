@@ -179,10 +179,7 @@ class ParticipantWidget extends StatelessWidget {
           ? CircleAvatar(
               radius: 45,
               backgroundColor: const Color(0xD8818181),
-              child: SvgLoader.asset(
-                'assets/icons/hand_up.svg',
-                width: 90,
-              ),
+              child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
             )
           : Container(),
     );
@@ -240,7 +237,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 3, right: 3),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/audio_off_small.svg',
               width: 20.88,
               height: 17,
@@ -252,7 +249,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/microphone_off_small.svg',
               height: 16.5,
             ),
@@ -269,7 +266,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
@@ -279,7 +276,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
@@ -293,7 +290,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 5, right: 5),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/video_off_small.svg',
               width: 19.8,
               height: 17,

@@ -64,7 +64,7 @@ class HintWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(width: 14),
-                SvgLoader.asset('assets/icons/face.svg', height: 13),
+                SvgImage.asset('assets/icons/face.svg', height: 13),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
