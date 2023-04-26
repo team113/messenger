@@ -421,11 +421,7 @@ class _RetryImageState extends State<RetryImage> {
 
     if (cached != null) {
       _image = cached;
-      _isSvg = _image!.length >= 4 &&
-          _image![0] == 60 &&
-          _image![1] == 115 &&
-          _image![2] == 118 &&
-          _image![3] == 103;
+      _isSvg = _image!.isSvg;
 
       if (mounted) {
         setState(() {});
@@ -465,11 +461,7 @@ class _RetryImageState extends State<RetryImage> {
               _isSvg = false;
 
               if (_image != null) {
-                _isSvg = _image!.length >= 4 &&
-                    _image![0] == 60 &&
-                    _image![1] == 115 &&
-                    _image![2] == 118 &&
-                    _image![3] == 103;
+                _isSvg = _image!.isSvg;
               }
 
               if (mounted) {
@@ -530,4 +522,15 @@ class FIFOCache {
 
   /// Removes all entries from the [_cache].
   static void clear() => _cache.clear();
+}
+
+/// Extension adding an ability to check whether a given [Uint8List] is an svg.
+extension CheckSvgExtension on Uint8List {
+  /// Indicates whether [Uint8List] is an svg.
+  bool get isSvg =>
+      length >= 4 &&
+      this[0] == 60 &&
+      this[1] == 115 &&
+      this[2] == 118 &&
+      this[3] == 103;
 }

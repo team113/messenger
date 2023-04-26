@@ -588,6 +588,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     child: PlatformUtils.isWeb
                         ? WebImage(
                             e.link,
+                            checksum: e.checksum,
                             onForbidden: () async {
                               await e.onError?.call();
                               if (mounted) {

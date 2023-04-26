@@ -24,11 +24,15 @@ class WebImage extends StatelessWidget {
   const WebImage(
     this.src, {
     super.key,
+    this.checksum,
     this.onForbidden,
   });
 
   /// URL of the image to display.
   final String src;
+
+  /// SHA-256 checksum of the image to display.
+  final String? checksum;
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.

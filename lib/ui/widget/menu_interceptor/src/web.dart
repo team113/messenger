@@ -100,7 +100,7 @@ class ContextMenuInterceptor extends StatelessWidget {
         }
         return htmlElement;
       },
-      isVisible: false,
+      // isVisible: false,
     );
   }
 }

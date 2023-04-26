@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:ui' as ui;
@@ -24,6 +25,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '/ui/page/home/widget/retry_image.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
@@ -38,11 +40,15 @@ class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
     super.key,
+    this.checksum,
     this.onForbidden,
   });
 
   /// URL of the image to display.
   final String src;
+
+  /// SHA-256 checksum of the image to display.
+  final String? checksum;
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
@@ -60,12 +66,22 @@ class _WebImageState extends State<WebImage> {
   /// Indicator whether [_backoff] operation is running.
   bool _isBackoffRunnung = false;
 
+  /// Base64 of the image to display, if it is svg.
+  String? _svg;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSvg();
+  }
+
   @override
   void didUpdateWidget(WebImage oldWidget) {
     if (oldWidget.src != widget.src) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _isBackoffRunnung = false;
+      _initSvg();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -88,6 +104,7 @@ class _WebImageState extends State<WebImage> {
     return IgnorePointer(
       child: _HtmlImage(
         src: widget.src,
+        svg: _svg,
         onError: _backoff,
       ),
     );
@@ -106,7 +123,10 @@ class _WebImageState extends State<WebImage> {
           Response? data;
 
           try {
-            data = await PlatformUtils.dio.head(widget.src);
+            data = await PlatformUtils.dio.get(
+              widget.src,
+              options: Options(responseType: ResponseType.bytes),
+            );
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
@@ -115,6 +135,15 @@ class _WebImageState extends State<WebImage> {
           }
 
           if (data?.data != null && data!.statusCode == 200) {
+            final Uint8List image = data.data;
+
+            if (image.isSvg) {
+              _svg = base64Encode(image);
+              if (widget.checksum != null) {
+                FIFOCache.set(widget.checksum!, image);
+              }
+            }
+
             if (mounted) {
               setState(() => _isBackoffRunnung = false);
             }
@@ -128,17 +157,32 @@ class _WebImageState extends State<WebImage> {
       // No-op.
     }
   }
+
+  /// Initializes the [_svg], if it is cached.
+  Future<void> _initSvg() async {
+    if (widget.checksum != null) {
+      final Uint8List? image = FIFOCache.get(widget.checksum!);
+
+      if (image != null && image.isSvg) {
+        _svg = base64Encode(image);
+      }
+    }
+  }
 }
 
 /// Web [html.ImageElement] used to show images natively.
 class _HtmlImage extends StatefulWidget {
   const _HtmlImage({
     required this.src,
+    this.svg,
     this.onError,
   });
 
   /// URL of the image to display.
   final String src;
+
+  /// Base64 of the image to display, if it is svg.
+  final String? svg;
 
   /// Callback, called when image to display loading failed.
   final VoidCallback? onError;
@@ -210,11 +254,15 @@ class _HtmlImageState extends State<_HtmlImage> {
   void _initImageElement() {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
 
+    final String src = widget.svg == null
+        ? widget.src
+        : 'data:image/svg+xml;base64,${widget.svg}';
+
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
       '${_elementId}__webImageViewType__${widget.src}__',
       (int viewId) {
-        _element = html.ImageElement(src: widget.src)
+        _element = html.ImageElement(src: src)
           ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
