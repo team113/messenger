@@ -53,6 +53,9 @@ class NotificationService extends DisposableService {
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
 
+  /// [AudioPlayer] playing a notification sound on Web platforms.
+  AudioPlayer? _audioPlayer;
+
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
@@ -93,6 +96,8 @@ class NotificationService extends DisposableService {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
+    _initAudio();
+
     _initLocalNotifications(
       onResponse: (NotificationResponse response) {
         if (response.payload != null) {
@@ -124,6 +129,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
+    _audioPlayer?.dispose();
     AudioCache.instance.clear('audio/notification.mp3');
   }
 
@@ -157,6 +163,18 @@ class NotificationService extends DisposableService {
     }
 
     if (PlatformUtils.isWeb) {
+      runZonedGuarded(() async {
+        await _audioPlayer?.play(
+          AssetSource('audio/notification.mp3'),
+          position: Duration.zero,
+          mode: PlayerMode.lowLatency,
+        );
+      }, (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      });
+
       WebUtils.showNotification(
         title,
         body: body,
@@ -315,7 +333,10 @@ class NotificationService extends DisposableService {
             image: message.notification?.android?.imageUrl ??
                 message.notification?.apple?.imageUrl ??
                 message.notification?.web?.image,
-            tag: message.data['chatItemId'],
+            tag: message.data['chatId'] != null &&
+                    message.data['chatItemId'] != null
+                ? '${message.data['chatId']}_${message.data['chatItemId']}'
+                : null,
           );
         }
       });
@@ -330,6 +351,13 @@ class NotificationService extends DisposableService {
 
       NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
+
+      // On Android first attempt is always [AuthorizationStatus.denied] due to
+      // notifications request popping while invoking a
+      // [AndroidUtils.createNotificationChannel], so try again on failure.
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+        settings = await FirebaseMessaging.instance.requestPermission();
+      }
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         _token = await FirebaseMessaging.instance.getToken(
@@ -351,11 +379,24 @@ class NotificationService extends DisposableService {
           }
 
           _token = token;
-          _graphQlProvider.registerFcmDevice(
+
+          await _graphQlProvider.registerFcmDevice(
             FcmRegistrationToken(_token!),
             _language,
           );
         });
+      }
+    }
+  }
+
+  /// Initializes the [_audioPlayer].
+  Future<void> _initAudio() async {
+    if (PlatformUtils.isWeb) {
+      try {
+        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
+        await AudioCache.instance.loadAll(['audio/notification.mp3']);
+      } on MissingPluginException {
+        _audioPlayer = null;
       }
     }
   }

@@ -150,7 +150,9 @@ class ChatWorker extends DisposableService {
               }),
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original.url,
-              tag: c.chat.value.lastItem?.id.val,
+              tag: c.chat.value.lastItem != null
+                  ? '${c.chat.value.id}_${c.chat.value.lastItem?.id}'
+                  : null,
             );
 
             _flashTaskbarIcon();
@@ -283,7 +285,9 @@ class _ChatWatchData {
             if (body.isNotEmpty) {
               onNotification?.call(
                 body.toString(),
-                chat.lastItem?.id.val,
+                chat.lastItem != null
+                    ? '${chat.id}_${chat.lastItem?.id}'
+                    : null,
                 image,
               );
             }
