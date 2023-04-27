@@ -21,7 +21,7 @@ class WalletWidget extends StatelessWidget {
 
     if (visible) {
       if (balance > 0) {
-        icon = 'wallet_opened1';
+        icon = 'wallet';
         width = 34;
         height = 29.73;
 
