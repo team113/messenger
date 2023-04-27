@@ -18,11 +18,11 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '/domain/model/ongoing_call.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '../../../widget/svg/svg.dart';
@@ -134,171 +134,149 @@ class DesktopBuildDragHandle extends StatelessWidget {
 
 /// Builds the [Dock] containing the [CallController.buttons].
 class DockWidget extends StatelessWidget {
-  const DockWidget({super.key});
+  const DockWidget({
+    super.key,
+    required this.dock,
+    required this.audioButton,
+    required this.videoButton,
+    required this.declineButton,
+    required this.isOutgoing,
+    required this.showBottomUi,
+    required this.answer,
+    required this.computation,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.dockKey,
+  });
+
+  ///
+  final Widget dock;
+
+  ///
+  final Widget audioButton;
+
+  ///
+  final Widget videoButton;
+
+  ///
+  final Widget declineButton;
+
+  ///
+  final void Function(PointerEnterEvent)? onEnter;
+
+  ///
+  final void Function(PointerHoverEvent)? onHover;
+
+  ///
+  final void Function(PointerExitEvent)? onExit;
+
+  ///
+  final bool isOutgoing;
+
+  ///
+  final bool showBottomUi;
+
+  ///
+  final bool answer;
+
+  ///
+  final Key? dockKey;
+
+  ///
+  final VoidCallback computation;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Obx(() {
-        final bool isOutgoing =
-            (c.outgoing || c.state.value == OngoingCallState.local) &&
-                !c.started;
-
-        bool showBottomUi = (c.showUi.isTrue ||
-            c.draggedButton.value != null ||
-            c.state.value != OngoingCallState.active ||
-            (c.state.value == OngoingCallState.active &&
-                c.locals.isEmpty &&
-                c.remotes.isEmpty &&
-                c.focused.isEmpty &&
-                c.paneled.isEmpty));
-
-        return AnimatedPadding(
-          key: const Key('DockedAnimatedPadding'),
-          padding: const EdgeInsets.only(bottom: 5),
-          curve: Curves.ease,
-          duration: 200.milliseconds,
-          child: AnimatedSwitcher(
-            key: const Key('DockedAnimatedSwitcher'),
-            duration: 200.milliseconds,
-            child: AnimatedSlider(
-              key: const Key('DockedPanelPadding'),
-              isOpen: showBottomUi,
-              duration: 400.milliseconds,
-              translate: false,
-              listener: () =>
-                  Future.delayed(Duration.zero, c.relocateSecondary),
-              child: MouseRegion(
-                onEnter: (d) => c.keepUi(true),
-                onHover: (d) => c.keepUi(true),
-                onExit: c.showUi.value && !c.displayMore.value
-                    ? (d) => c.keepUi(false)
-                    : (d) => c.keepUi(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
-                      CustomBoxShadow(
-                        color: Color(0x33000000),
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
-                      )
-                    ],
-                  ),
-                  margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                  child: ConditionalBackdropFilter(
-                    key: c.dockKey,
-                    borderRadius: BorderRadius.circular(30),
-                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0x301D6AAE),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 13,
-                        horizontal: 5,
-                      ),
-                      child: Obx(() {
-                        final bool answer =
-                            (c.state.value != OngoingCallState.joining &&
-                                c.state.value != OngoingCallState.active &&
-                                !isOutgoing);
-
-                        if (answer) {
-                          return Row(
+    return AnimatedPadding(
+      padding: const EdgeInsets.only(bottom: 5),
+      curve: Curves.ease,
+      duration: 200.milliseconds,
+      child: AnimatedSwitcher(
+        duration: 200.milliseconds,
+        child: AnimatedSlider(
+          isOpen: showBottomUi,
+          duration: 400.milliseconds,
+          translate: false,
+          listener: () => Function.apply(computation, []),
+          child: MouseRegion(
+            onEnter: onEnter,
+            onHover: onHover,
+            onExit: onExit,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: const [
+                  CustomBoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 8,
+                    blurStyle: BlurStyle.outer,
+                  )
+                ],
+              ),
+              margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+              child: ConditionalBackdropFilter(
+                key: dockKey,
+                borderRadius: BorderRadius.circular(30),
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Material(
+                  color: const Color(0x301D6AAE),
+                  borderRadius: BorderRadius.circular(30),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 13,
+                      horizontal: 5,
+                    ),
+                    child: answer
+                        ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const SizedBox(width: 11),
                               SizedBox.square(
                                 dimension: CallController.buttonSize,
-                                child: AcceptAudioButton(
-                                  c,
-                                  highlight: !c.withVideo,
-                                ).build(),
+                                child: audioButton,
                               ),
                               const SizedBox(width: 24),
                               SizedBox.square(
                                 dimension: CallController.buttonSize,
-                                child: AcceptVideoButton(
-                                  c,
-                                  highlight: c.withVideo,
-                                ).build(),
+                                child: videoButton,
                               ),
                               const SizedBox(width: 24),
                               SizedBox.square(
                                 dimension: CallController.buttonSize,
-                                child: DeclineButton(c).build(),
+                                child: declineButton,
                               ),
                               const SizedBox(width: 11),
                             ],
-                          );
-                        } else {
-                          return Dock<CallButton>(
-                            items: c.buttons,
-                            itemWidth: CallController.buttonSize,
-                            itemBuilder: (e) => e.build(
-                              hinted: c.draggedButton.value == null,
-                            ),
-                            onReorder: (buttons) {
-                              c.buttons.clear();
-                              c.buttons.addAll(buttons);
-                              c.relocateSecondary();
-                            },
-                            onDragStarted: (b) {
-                              c.showDragAndDropButtonsHint = false;
-                              c.draggedButton.value = b;
-                            },
-                            onDragEnded: (_) => c.draggedButton.value = null,
-                            onLeave: (_) => c.displayMore.value = true,
-                            onWillAccept: (d) => d?.c == c,
-                          );
-                        }
-                      }),
-                    ),
+                          )
+                        : dock,
                   ),
                 ),
               ),
             ),
           ),
-        );
-      });
-    });
+        ),
+      ),
+    );
   }
 }
 
 /// Builds the more panel containing the [CallController.panel].
 class LaunchpadWidget extends StatelessWidget {
-  const LaunchpadWidget({super.key});
+  const LaunchpadWidget({super.key, required this.child});
+
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 30),
-        child: Obx(() {
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: c.displayMore.value
-                ? DragTarget<CallButton>(
-                    onAccept: (CallButton data) {
-                      c.buttons.remove(data);
-                      c.draggedButton.value = null;
-                    },
-                    onWillAccept: (CallButton? a) =>
-                        a?.c == c && a?.isRemovable == true,
-                    builder: (context, candidateData, rejectedData) =>
-                        LaunchpadBuilder(
-                      candidate: candidateData,
-                      rejected: rejectedData,
-                    ),
-                  )
-                : Container(),
-          );
-        }),
-      );
-    });
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        child: child,
+      ),
+    );
   }
 }
 
@@ -308,6 +286,12 @@ class LaunchpadBuilder extends StatelessWidget {
     Key? key,
     required this.candidate,
     required this.rejected,
+    required this.enabled,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.color,
+    this.children = const <Widget>[],
   }) : super(key: key);
 
   /// [candidate] of [DragTarget] builder.
@@ -316,115 +300,76 @@ class LaunchpadBuilder extends StatelessWidget {
   /// [rejected] of [DragTarget] builder.
   final List<dynamic> rejected;
 
+  ///
+  final bool enabled;
+
+  ///
+  final void Function(PointerEnterEvent)? onEnter;
+
+  ///
+  final void Function(PointerHoverEvent)? onHover;
+
+  ///
+  final void Function(PointerExitEvent)? onExit;
+
+  ///
+  final Color? color;
+
+  ///
+  final List<Widget> children;
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Obx(() {
-        bool enabled = c.displayMore.isTrue &&
-            c.primaryDrags.value == 0 &&
-            c.secondaryDrags.value == 0;
-
-        return MouseRegion(
-          onEnter: enabled ? (d) => c.keepUi(true) : null,
-          onHover: enabled ? (d) => c.keepUi(true) : null,
-          onExit: enabled ? (d) => c.keepUi() : null,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: const [
-                CustomBoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 8,
-                  blurStyle: BlurStyle.outer,
-                )
-              ],
-            ),
-            margin: const EdgeInsets.all(2),
-            child: ConditionalBackdropFilter(
-              borderRadius: BorderRadius.circular(30),
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: Obx(() {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.c == c)
-                        ? const Color(0xE0165084)
-                        : const Color(0x9D165084),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 440),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 35),
-                        Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          alignment: WrapAlignment.center,
-                          spacing: 4,
-                          runSpacing: 21,
-                          children: c.panel.map((e) {
-                            return SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Column(
-                                children: [
-                                  DelayedDraggable(
-                                    feedback: Transform.translate(
-                                      offset: const Offset(
-                                        CallController.buttonSize / 2 * -1,
-                                        CallController.buttonSize / 2 * -1,
-                                      ),
-                                      child: SizedBox(
-                                        height: CallController.buttonSize,
-                                        width: CallController.buttonSize,
-                                        child: e.build(),
-                                      ),
-                                    ),
-                                    data: e,
-                                    onDragStarted: () {
-                                      c.showDragAndDropButtonsHint = false;
-                                      c.draggedButton.value = e;
-                                    },
-                                    onDragCompleted: () =>
-                                        c.draggedButton.value = null,
-                                    onDragEnd: (_) =>
-                                        c.draggedButton.value = null,
-                                    onDraggableCanceled: (_, __) =>
-                                        c.draggedButton.value = null,
-                                    maxSimultaneousDrags:
-                                        e.isRemovable ? null : 0,
-                                    dragAnchorStrategy:
-                                        pointerDragAnchorStrategy,
-                                    child: e.build(hinted: false),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    e.hint,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+    return MouseRegion(
+      onEnter: onEnter,
+      onHover: onHover,
+      onExit: onExit,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: const [
+            CustomBoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 8,
+              blurStyle: BlurStyle.outer,
+            )
+          ],
+        ),
+        margin: const EdgeInsets.all(2),
+        child: ConditionalBackdropFilter(
+          borderRadius: BorderRadius.circular(30),
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Obx(() {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 35),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      alignment: WrapAlignment.center,
+                      spacing: 4,
+                      runSpacing: 21,
+                      children: children,
                     ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        );
-      });
-    });
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
   }
 }
 

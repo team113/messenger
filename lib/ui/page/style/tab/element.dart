@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../call/component/desktop_sub.dart';
 import '../widget/caption.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';

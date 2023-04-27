@@ -29,6 +29,7 @@ import '../widget/call_title_common.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/desktop_primary_view.dart';
 import '../widget/desktop_secondary_view.dart';
+import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/scaler.dart';
 import '/domain/model/avatar.dart';
@@ -43,6 +44,7 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'common.dart';
 import 'desktop_sub.dart';
 
 /// Returns a desktop design of a [CallView].
@@ -247,27 +249,191 @@ class DesktopCall extends StatelessWidget {
                 const SecondaryTargetWidget(),
               ]);
 
+              /// Indicator that the current call is outgoing
+              /// and also has not been started.
+              final bool isOutgoing =
+                  (c.outgoing || c.state.value == OngoingCallState.local) &&
+                      !c.started;
+
+              /// Indicator of whether the bottom menu should be displayed.
+              final bool showBottomUi = (c.showUi.isTrue ||
+                  c.draggedButton.value != null ||
+                  c.state.value != OngoingCallState.active ||
+                  (c.state.value == OngoingCallState.active &&
+                      c.locals.isEmpty &&
+                      c.remotes.isEmpty &&
+                      c.focused.isEmpty &&
+                      c.paneled.isEmpty));
+
+              /// Indicator that determines whether it is possible
+              /// to answer the current call.
+              final bool answer = (c.state.value != OngoingCallState.joining &&
+                  c.state.value != OngoingCallState.active &&
+                  !isOutgoing);
+
+              final bool enabled = c.displayMore.isTrue &&
+                  c.primaryDrags.value == 0 &&
+                  c.secondaryDrags.value == 0;
+
               // Footer part of the call with buttons.
               List<Widget> footer = [
                 // Animated bottom buttons.
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Column(
+                  child: Flexible(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
                           mainAxisSize: MainAxisSize.min,
                           verticalDirection: VerticalDirection.up,
-                          children: const [
-                            DockWidget(),
-                            LaunchpadWidget(),
+                          children: [
+                            DockWidget(
+                              dock: Dock<CallButton>(
+                                items: c.buttons,
+                                itemWidth: CallController.buttonSize,
+                                itemBuilder: (e) => e.build(
+                                  hinted: c.draggedButton.value == null,
+                                ),
+                                onReorder: (buttons) {
+                                  c.buttons.clear();
+                                  c.buttons.addAll(buttons);
+                                  c.relocateSecondary();
+                                },
+                                onDragStarted: (b) {
+                                  c.showDragAndDropButtonsHint = false;
+                                  c.draggedButton.value = b;
+                                },
+                                onDragEnded: (_) =>
+                                    c.draggedButton.value = null,
+                                onLeave: (_) => c.displayMore.value = true,
+                                onWillAccept: (d) => d?.c == c,
+                              ),
+                              audioButton: AcceptAudioButton(
+                                c,
+                                highlight: !c.withVideo,
+                              ).build(),
+                              videoButton: AcceptVideoButton(
+                                c,
+                                highlight: c.withVideo,
+                              ).build(),
+                              declineButton: DeclineButton(c).build(),
+                              onEnter: (d) => c.keepUi(true),
+                              onHover: (d) => c.keepUi(true),
+                              onExit: c.showUi.value && !c.displayMore.value
+                                  ? (d) => c.keepUi(false)
+                                  : (d) => c.keepUi(),
+                              isOutgoing: isOutgoing,
+                              showBottomUi: showBottomUi,
+                              answer: answer,
+                              dockKey: c.dockKey,
+                              computation: c.relocateSecondary,
+                            ),
+                            LaunchpadWidget(
+                              child: c.displayMore.value
+                                  ? DragTarget<CallButton>(
+                                      onAccept: (CallButton data) {
+                                        c.buttons.remove(data);
+                                        c.draggedButton.value = null;
+                                      },
+                                      onWillAccept: (CallButton? a) =>
+                                          a?.c == c && a?.isRemovable == true,
+                                      builder: (context, candidateData,
+                                              rejectedData) =>
+                                          Obx(
+                                        () => LaunchpadBuilder(
+                                          candidate: candidateData,
+                                          rejected: rejectedData,
+                                          onEnter: enabled
+                                              ? (d) => c.keepUi(true)
+                                              : null,
+                                          onHover: enabled
+                                              ? (d) => c.keepUi(true)
+                                              : null,
+                                          onExit: enabled
+                                              ? (d) => c.keepUi()
+                                              : null,
+                                          enabled: enabled,
+                                          color: candidateData
+                                                  .any((e) => e?.c == c)
+                                              ? const Color(0xE0165084)
+                                              : const Color(0x9D165084),
+                                          children: c.panel.map((e) {
+                                            return SizedBox(
+                                              width: 100,
+                                              height: 100,
+                                              child: Column(
+                                                children: [
+                                                  DelayedDraggable(
+                                                    feedback:
+                                                        Transform.translate(
+                                                      offset: const Offset(
+                                                        CallController
+                                                                .buttonSize /
+                                                            2 *
+                                                            -1,
+                                                        CallController
+                                                                .buttonSize /
+                                                            2 *
+                                                            -1,
+                                                      ),
+                                                      child: SizedBox(
+                                                        height: CallController
+                                                            .buttonSize,
+                                                        width: CallController
+                                                            .buttonSize,
+                                                        child: e.build(),
+                                                      ),
+                                                    ),
+                                                    data: e,
+                                                    onDragStarted: () {
+                                                      c.showDragAndDropButtonsHint =
+                                                          false;
+                                                      c.draggedButton.value = e;
+                                                    },
+                                                    onDragCompleted: () => c
+                                                        .draggedButton
+                                                        .value = null,
+                                                    onDragEnd: (_) => c
+                                                        .draggedButton
+                                                        .value = null,
+                                                    onDraggableCanceled:
+                                                        (_, __) => c
+                                                            .draggedButton
+                                                            .value = null,
+                                                    maxSimultaneousDrags:
+                                                        e.isRemovable
+                                                            ? null
+                                                            : 0,
+                                                    dragAnchorStrategy:
+                                                        pointerDragAnchorStrategy,
+                                                    child:
+                                                        e.build(hinted: false),
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    e.hint,
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.white,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
