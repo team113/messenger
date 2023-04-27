@@ -269,10 +269,7 @@ class ParticipantView extends StatelessWidget {
                       fontSize: 15,
                     ),
                   )
-                : SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14 * 1.5,
-                  ),
+                : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),
           const SizedBox(width: 6),
         ],
