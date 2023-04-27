@@ -20,7 +20,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -40,13 +39,14 @@ import 'disposable_service.dart';
 class NotificationService extends DisposableService {
   NotificationService(this._graphQlProvider);
 
-  /// GraphQL API provider.
+  /// GraphQL API provider for registering and un-registering current device for
+  /// receiving Firebase Cloud Messaging notifications.
   final GraphQlProvider _graphQlProvider;
 
-  /// Language used in FCM notifications.
+  /// Language to receive Firebase Cloud Messaging notifications on.
   String? _language;
 
-  /// FCM token used to subscribe for push notifications.
+  /// Firebase Cloud Messaging token used to subscribe for push notifications.
   String? _token;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
@@ -79,7 +79,9 @@ class NotificationService extends DisposableService {
   /// Optional [onResponse] callback is called when user taps on a notification.
   ///
   /// Optional [onBackground] callback is called when a notification is received
-  /// when the application is in the background or terminated.
+  /// when the application is in the background or terminated. Note that this
+  /// callback must be a top-level entry function, as it is launched in a
+  /// background isolate.
   Future<void> init({
     String? language,
     FirebaseOptions? firebaseOptions,
@@ -149,26 +151,9 @@ class NotificationService extends DisposableService {
     }
 
     // If application is in focus and the payload is the current route, then
-    // don't show a notification.
-    if (_focused && payload == router.route) return;
-
-    String? imagePath;
-
-    // In order to show an image in local notification, we need to download it
-    // first to a [File] and then pass the path to it to the plugin.
-    if (!PlatformUtils.isWeb && image != null) {
-      try {
-        final File? file = await PlatformUtils.download(
-          image,
-          'notification_${DateTime.now()}.jpg',
-          null,
-          temporary: true,
-        );
-
-        imagePath = file?.path;
-      } catch (_) {
-        // No-op.
-      }
+    // don't show a local notification.
+    if (_focused && payload == router.route) {
+      return;
     }
 
     if (PlatformUtils.isWeb) {
@@ -176,13 +161,35 @@ class NotificationService extends DisposableService {
         title,
         body: body,
         lang: payload,
-        icon: icon,
+        icon: icon ?? image,
         tag: tag,
       ).onError((_, __) => false);
     } else if (!PlatformUtils.isWindows) {
+      String? imagePath;
+
+      // In order to show an image in local notification, we need to download it
+      // first to a [File] and then pass the path to it to the plugin.
+      if (image != null) {
+        try {
+          final File? file = await PlatformUtils.download(
+            image,
+            'notification_${DateTime.now()}.jpg',
+            null,
+            temporary: true,
+          );
+
+          imagePath = file?.path;
+        } catch (_) {
+          // No-op.
+        }
+      }
+
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(
+        // On Android notifications are replaced when ID and tag are the same,
+        // and FCM notifications always have ID of zero, so in order for push
+        // notifications to replace local, we set there zero as well.
         PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
         title,
         body,
@@ -301,10 +308,13 @@ class NotificationService extends DisposableService {
         if (message.notification?.title != null) {
           show(
             message.notification!.title!,
-            body: message.notification!.body,
-            payload: '${Routes.chats}/${message.data['chatId']}',
-            image: message.notification!.android?.imageUrl ??
-                message.notification!.apple?.imageUrl,
+            body: message.notification?.body,
+            payload: message.data['chatId'] != null
+                ? '${Routes.chats}/${message.data['chatId']}'
+                : null,
+            image: message.notification?.android?.imageUrl ??
+                message.notification?.apple?.imageUrl ??
+                message.notification?.web?.image,
             tag: message.data['chatItemId'],
           );
         }
@@ -320,11 +330,6 @@ class NotificationService extends DisposableService {
 
       NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
-
-      // First attempt always failed on the first startup on Android.
-      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-        settings = await FirebaseMessaging.instance.requestPermission();
-      }
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         _token = await FirebaseMessaging.instance.getToken(

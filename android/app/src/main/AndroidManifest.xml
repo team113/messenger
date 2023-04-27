@@ -22,15 +22,16 @@
         android:label="Gapopa"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:exported="true"
+            android:fitsSystemWindows="true"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"
+            android:name=".MainActivity"
             android:showWhenLocked="true"
+            android:theme="@style/LaunchTheme"
             android:turnScreenOn="true"
-            android:fitsSystemWindows="true">
+            android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the
                  user while the Flutter UI initializes. After that, this theme
@@ -54,6 +55,7 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="default"/>
          <service android:name="io.wazo.callkeep.VoiceConnectionService"
+            android:exported="false"
             android:label="Wazo"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
             <intent-filter>
