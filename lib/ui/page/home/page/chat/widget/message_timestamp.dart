@@ -31,6 +31,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.read = false,
     this.delivered = false,
+    this.color,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -46,6 +47,8 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
   final bool delivered;
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +92,10 @@ class MessageTimestamp extends StatelessWidget {
         SelectionContainer.disabled(
           child: Text(
             DateFormat.Hm().format(at.val.toLocal()),
-            style: style.systemMessageStyle.copyWith(fontSize: 11),
+            style: style.systemMessageStyle.copyWith(
+              fontSize: 11,
+              color: color,
+            ),
           ),
         ),
       ],

@@ -446,6 +446,7 @@ label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
 label_date = Date
+label_date_ymd = {$year}.{$month}.{$day}
 label_delete_account = Delete account
 label_delete_chats = Delete chats
 label_delete_contact = Delete contact
@@ -502,6 +503,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group

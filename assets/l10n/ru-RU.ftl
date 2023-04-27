@@ -461,6 +461,7 @@ label_current_language = Текущий язык
 label_current_password = Текущий пароль
 label_danger_zone = Опасная зона
 label_date = Дата
+label_date_ymd = {$day}.{$month}.{$year}
 label_delete_account = Удалить аккаунт
 label_delete_chats = Удалить чаты
 label_delete_contact = Удалить контакт
@@ -518,6 +519,10 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
+label_forwarded_messages = {$count ->
+    [1] Forwarded message
+   *[other] Forwarded messages
+}
 label_gallery = Галерея
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
