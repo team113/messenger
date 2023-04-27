@@ -75,6 +75,10 @@ class NotificationService extends DisposableService {
   /// received via the [_foregroundSubscription].
   final List<String> _tags = [];
 
+  /// Indicates whether the Firebase Cloud Messaging notifications are
+  /// configured.
+  bool get pushNotifications => _onTokenRefresh != null;
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.

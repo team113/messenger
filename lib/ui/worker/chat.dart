@@ -87,7 +87,9 @@ class ChatWorker extends DisposableService {
 
   /// Indicates whether the [_notificationService] should display a
   /// notification.
-  bool get _displayNotification => _myUser.value?.muted == null && _focused;
+  bool get _displayNotification =>
+      _myUser.value?.muted == null &&
+      (_focused || !_notificationService.pushNotifications);
 
   @override
   void onReady() {
