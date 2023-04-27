@@ -271,6 +271,7 @@ class DesktopCall extends StatelessWidget {
                   c.state.value != OngoingCallState.active &&
                   !isOutgoing);
 
+              /// Indicator that the [LaunchpadWidget] can interact with the user.
               final bool enabled = c.displayMore.isTrue &&
                   c.primaryDrags.value == 0 &&
                   c.secondaryDrags.value == 0;
@@ -286,151 +287,122 @@ class DesktopCall extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          verticalDirection: VerticalDirection.up,
-                          children: [
-                            DockWidget(
-                              dock: Dock<CallButton>(
-                                items: c.buttons,
-                                itemWidth: CallController.buttonSize,
-                                itemBuilder: (e) => e.build(
-                                  hinted: c.draggedButton.value == null,
+                        Obx(
+                          () => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            verticalDirection: VerticalDirection.up,
+                            children: [
+                              DockWidget(
+                                dock: Dock<CallButton>(
+                                  items: c.buttons,
+                                  itemWidth: CallController.buttonSize,
+                                  itemBuilder: (e) => e.build(
+                                    hinted: c.draggedButton.value == null,
+                                  ),
+                                  onReorder: (buttons) {
+                                    c.buttons.clear();
+                                    c.buttons.addAll(buttons);
+                                    c.relocateSecondary();
+                                  },
+                                  onDragStarted: (b) {
+                                    c.showDragAndDropButtonsHint = false;
+                                    c.draggedButton.value = b;
+                                  },
+                                  onDragEnded: (_) =>
+                                      c.draggedButton.value = null,
+                                  onLeave: (_) => c.displayMore.value = true,
+                                  onWillAccept: (d) => d?.c == c,
                                 ),
-                                onReorder: (buttons) {
-                                  c.buttons.clear();
-                                  c.buttons.addAll(buttons);
-                                  c.relocateSecondary();
-                                },
-                                onDragStarted: (b) {
-                                  c.showDragAndDropButtonsHint = false;
-                                  c.draggedButton.value = b;
-                                },
-                                onDragEnded: (_) =>
-                                    c.draggedButton.value = null,
-                                onLeave: (_) => c.displayMore.value = true,
-                                onWillAccept: (d) => d?.c == c,
+                                audioButton: AcceptAudioButton(
+                                  c,
+                                  highlight: !c.withVideo,
+                                ).build(),
+                                videoButton: AcceptVideoButton(
+                                  c,
+                                  highlight: c.withVideo,
+                                ).build(),
+                                declineButton: DeclineButton(c).build(),
+                                onEnter: (d) => c.keepUi(true),
+                                onHover: (d) => c.keepUi(true),
+                                onExit: c.showUi.value && !c.displayMore.value
+                                    ? (d) => c.keepUi(false)
+                                    : (d) => c.keepUi(),
+                                isOutgoing: isOutgoing,
+                                showBottomUi: showBottomUi,
+                                answer: answer,
+                                dockKey: c.dockKey,
+                                computation: c.relocateSecondary,
                               ),
-                              audioButton: AcceptAudioButton(
-                                c,
-                                highlight: !c.withVideo,
-                              ).build(),
-                              videoButton: AcceptVideoButton(
-                                c,
-                                highlight: c.withVideo,
-                              ).build(),
-                              declineButton: DeclineButton(c).build(),
-                              onEnter: (d) => c.keepUi(true),
-                              onHover: (d) => c.keepUi(true),
-                              onExit: c.showUi.value && !c.displayMore.value
-                                  ? (d) => c.keepUi(false)
-                                  : (d) => c.keepUi(),
-                              isOutgoing: isOutgoing,
-                              showBottomUi: showBottomUi,
-                              answer: answer,
-                              dockKey: c.dockKey,
-                              computation: c.relocateSecondary,
-                            ),
-                            LaunchpadWidget(
-                              child: c.displayMore.value
-                                  ? DragTarget<CallButton>(
-                                      onAccept: (CallButton data) {
-                                        c.buttons.remove(data);
-                                        c.draggedButton.value = null;
-                                      },
-                                      onWillAccept: (CallButton? a) =>
-                                          a?.c == c && a?.isRemovable == true,
-                                      builder: (context, candidateData,
-                                              rejectedData) =>
-                                          Obx(
-                                        () => LaunchpadBuilder(
-                                          candidate: candidateData,
-                                          rejected: rejectedData,
-                                          onEnter: enabled
-                                              ? (d) => c.keepUi(true)
-                                              : null,
-                                          onHover: enabled
-                                              ? (d) => c.keepUi(true)
-                                              : null,
-                                          onExit: enabled
-                                              ? (d) => c.keepUi()
-                                              : null,
-                                          enabled: enabled,
-                                          color: candidateData
-                                                  .any((e) => e?.c == c)
-                                              ? const Color(0xE0165084)
-                                              : const Color(0x9D165084),
-                                          children: c.panel.map((e) {
-                                            return SizedBox(
-                                              width: 100,
-                                              height: 100,
-                                              child: Column(
-                                                children: [
-                                                  DelayedDraggable(
-                                                    feedback:
-                                                        Transform.translate(
-                                                      offset: const Offset(
-                                                        CallController
-                                                                .buttonSize /
-                                                            2 *
-                                                            -1,
-                                                        CallController
-                                                                .buttonSize /
-                                                            2 *
-                                                            -1,
-                                                      ),
-                                                      child: SizedBox(
-                                                        height: CallController
-                                                            .buttonSize,
-                                                        width: CallController
-                                                            .buttonSize,
-                                                        child: e.build(),
-                                                      ),
-                                                    ),
-                                                    data: e,
-                                                    onDragStarted: () {
-                                                      c.showDragAndDropButtonsHint =
-                                                          false;
-                                                      c.draggedButton.value = e;
-                                                    },
-                                                    onDragCompleted: () => c
-                                                        .draggedButton
-                                                        .value = null,
-                                                    onDragEnd: (_) => c
-                                                        .draggedButton
-                                                        .value = null,
-                                                    onDraggableCanceled:
-                                                        (_, __) => c
-                                                            .draggedButton
-                                                            .value = null,
-                                                    maxSimultaneousDrags:
-                                                        e.isRemovable
-                                                            ? null
-                                                            : 0,
-                                                    dragAnchorStrategy:
-                                                        pointerDragAnchorStrategy,
-                                                    child:
-                                                        e.build(hinted: false),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    e.hint,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.white,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          }).toList(),
+                              LaunchpadWidget(
+                                displayMore: c.displayMore,
+                                onEnter: enabled ? (d) => c.keepUi(true) : null,
+                                onHover: enabled ? (d) => c.keepUi(true) : null,
+                                onExit: enabled ? (d) => c.keepUi() : null,
+                                enabled: enabled,
+                                onAccept: (CallButton data) {
+                                  c.buttons.remove(data);
+                                  c.draggedButton.value = null;
+                                },
+                                onWillAccept: (CallButton? a) =>
+                                    a?.c == c && a?.isRemovable == true,
+                                test: (e) => e?.c == c,
+                                panel: c.panel,
+                                children: c.panel.map((e) {
+                                  return SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: Column(
+                                      children: [
+                                        DelayedDraggable(
+                                          feedback: Transform.translate(
+                                            offset: const Offset(
+                                              CallController.buttonSize /
+                                                  2 *
+                                                  -1,
+                                              CallController.buttonSize /
+                                                  2 *
+                                                  -1,
+                                            ),
+                                            child: SizedBox(
+                                              height: CallController.buttonSize,
+                                              width: CallController.buttonSize,
+                                              child: e.build(),
+                                            ),
+                                          ),
+                                          data: e,
+                                          onDragStarted: () {
+                                            c.showDragAndDropButtonsHint =
+                                                false;
+                                            c.draggedButton.value = e;
+                                          },
+                                          onDragCompleted: () =>
+                                              c.draggedButton.value = null,
+                                          onDragEnd: (_) =>
+                                              c.draggedButton.value = null,
+                                          onDraggableCanceled: (_, __) =>
+                                              c.draggedButton.value = null,
+                                          maxSimultaneousDrags:
+                                              e.isRemovable ? null : 0,
+                                          dragAnchorStrategy:
+                                              pointerDragAnchorStrategy,
+                                          child: e.build(hinted: false),
                                         ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                          ],
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          e.hint,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

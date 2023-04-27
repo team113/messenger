@@ -264,41 +264,19 @@ class DockWidget extends StatelessWidget {
 
 /// Builds the more panel containing the [CallController.panel].
 class LaunchpadWidget extends StatelessWidget {
-  const LaunchpadWidget({super.key, required this.child});
-
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: child,
-      ),
-    );
-  }
-}
-
-/// Displays a call panel with buttons.
-class LaunchpadBuilder extends StatelessWidget {
-  const LaunchpadBuilder({
-    Key? key,
-    required this.candidate,
-    required this.rejected,
+  const LaunchpadWidget({
+    super.key,
     required this.enabled,
-    this.onEnter,
-    this.onHover,
-    this.onExit,
-    this.color,
+    required this.onEnter,
+    required this.onHover,
+    required this.onExit,
+    required this.test,
+    required this.panel,
+    required this.onAccept,
+    required this.onWillAccept,
+    required this.displayMore,
     this.children = const <Widget>[],
-  }) : super(key: key);
-
-  /// [candidate] of [DragTarget] builder.
-  final List<CallButton?> candidate;
-
-  /// [rejected] of [DragTarget] builder.
-  final List<dynamic> rejected;
+  });
 
   ///
   final bool enabled;
@@ -313,38 +291,56 @@ class LaunchpadBuilder extends StatelessWidget {
   final void Function(PointerExitEvent)? onExit;
 
   ///
-  final Color? color;
+  final bool Function(CallButton?) test;
 
   ///
+  final RxList<CallButton> panel;
+
+  ///
+  final void Function(CallButton)? onAccept;
+
+  ///
+  final bool Function(CallButton?)? onWillAccept;
+
+  ///
+  final RxBool displayMore;
+
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: onEnter,
-      onHover: onHover,
-      onExit: onExit,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: const [
-            CustomBoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 8,
-              blurStyle: BlurStyle.outer,
-            )
-          ],
-        ),
-        margin: const EdgeInsets.all(2),
-        child: ConditionalBackdropFilter(
-          borderRadius: BorderRadius.circular(30),
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Obx(() {
-            return AnimatedContainer(
+    ///
+    Widget builder(
+      BuildContext context,
+      List<CallButton?> candidate,
+      List<dynamic> rejected,
+    ) {
+      return MouseRegion(
+        onEnter: onEnter,
+        onHover: onHover,
+        onExit: onExit,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              CustomBoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          margin: const EdgeInsets.all(2),
+          child: ConditionalBackdropFilter(
+            borderRadius: BorderRadius.circular(30),
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
-                color: color,
+                color: candidate.any(test)
+                    ? const Color(0xE0165084)
+                    : const Color(0x9D165084),
                 borderRadius: BorderRadius.circular(30),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -365,9 +361,23 @@ class LaunchpadBuilder extends StatelessWidget {
                   ],
                 ),
               ),
-            );
-          }),
+            ),
+          ),
         ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        child: displayMore.value
+            ? DragTarget<CallButton>(
+                onAccept: onAccept,
+                onWillAccept: onWillAccept,
+                builder: builder,
+              )
+            : Container(),
       ),
     );
   }
