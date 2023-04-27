@@ -193,8 +193,7 @@ jobs:
 
           app-store-connect get-profile $APP_STORE_PROFILE_ID --save
 
-          app-store-connect app-store-connect \
-            get-certificate $APP_STORE_CERTIFICATE_ID \
+          app-store-connect get-certificate $APP_STORE_CERTIFICATE_ID \
             --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
             --save
 
