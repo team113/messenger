@@ -43,13 +43,14 @@ class ContextMenuRegion extends StatefulWidget {
     this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap = true,
-    this.alignment = Alignment.bottomCenter,
+    this.alignment,
     this.actions = const [],
     this.selector,
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
     this.unconstrained = false,
+    this.allowPrimaryButton = false,
     String? id,
   }) : id = id ?? const Uuid().v4();
 
@@ -72,7 +73,7 @@ class ContextMenuRegion extends StatefulWidget {
   final bool moveDownwards;
 
   /// [Alignment] of a [FloatingContextMenu] this region displays.
-  final Alignment alignment;
+  final Alignment? alignment;
 
   /// [ContextMenuItem]s representing the actions of the context menu.
   final List<ContextMenuItem> actions;
@@ -108,6 +109,8 @@ class ContextMenuRegion extends StatefulWidget {
 
   /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
+
+  final bool allowPrimaryButton;
 
   static RxnString displayed = RxnString();
 
@@ -158,49 +161,55 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     if (widget.enabled && widget.actions.isNotEmpty) {
       return ContextMenuInterceptor(
         enabled: widget.preventContextMenu,
-        child: Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (d) {
-            if (d.buttons & kSecondaryButton != 0) {
-              _show(context, d.position);
-            }
-          },
-          child: PlatformUtils.isMobile
-              ? FloatingContextMenu(
-                  alignment: widget.alignment,
-                  moveDownwards: widget.moveDownwards,
-                  actions: widget.actions,
-                  margin: widget.margin,
-                  unconstrained: widget.unconstrained,
-                  onOpened: () {
-                    _displayed = true;
-                    print('onOpened');
-                    ContextMenuRegion.displayed.value = widget.id;
-                    if (widget.indicateOpenedMenu) {
-                      setState(() => _darkened = true);
-                    }
-                  },
-                  onClosed: () {
-                    _displayed = false;
-                    print('onClosed');
-                    ContextMenuRegion.displayed.value = null;
-                    if (widget.indicateOpenedMenu) {
-                      setState(() => _darkened = false);
-                    }
-                  },
-                  child: widget.builder == null
-                      ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
-                )
-              : GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (d) => _show(context, d.globalPosition)
-                      : null,
-                  child: widget.builder == null
-                      ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
-                ),
+        child: MouseRegion(
+          cursor: widget.allowPrimaryButton
+              ? SystemMouseCursors.click
+              : MouseCursor.defer,
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (d) {
+              if (d.buttons & kSecondaryButton != 0 ||
+                  widget.allowPrimaryButton) {
+                _show(context, d.position);
+              }
+            },
+            child: PlatformUtils.isMobile
+                ? FloatingContextMenu(
+                    alignment: widget.alignment ?? Alignment.bottomCenter,
+                    moveDownwards: widget.moveDownwards,
+                    actions: widget.actions,
+                    margin: widget.margin,
+                    unconstrained: widget.unconstrained,
+                    onOpened: () {
+                      _displayed = true;
+                      print('onOpened');
+                      ContextMenuRegion.displayed.value = widget.id;
+                      if (widget.indicateOpenedMenu) {
+                        setState(() => _darkened = true);
+                      }
+                    },
+                    onClosed: () {
+                      _displayed = false;
+                      print('onClosed');
+                      ContextMenuRegion.displayed.value = null;
+                      if (widget.indicateOpenedMenu) {
+                        setState(() => _darkened = false);
+                      }
+                    },
+                    child: widget.builder == null
+                        ? child
+                        : Builder(builder: (_) => widget.builder!(_displayed)),
+                  )
+                : GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onLongPressStart: widget.enableLongTap
+                        ? (d) => _show(context, d.globalPosition)
+                        : null,
+                    child: widget.builder == null
+                        ? child
+                        : Builder(builder: (_) => widget.builder!(_displayed)),
+                  ),
+          ),
         ),
       );
     }
@@ -221,12 +230,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         width: widget.width,
         margin: widget.margin,
         buttonBuilder: (i, b) {
+          // return Container(color: Colors.red, height: 50, width: 100);
           return Padding(
             padding: EdgeInsets.only(
               top: i == 0 ? 6 : 0,
               bottom: i == widget.actions.length - 1 ? 6 : 0,
             ),
-            child: b,
+            child: SizedBox(width: null, child: b),
           );
         },
         itemBuilder: (b) {
@@ -237,6 +247,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
           if (b is ContextMenuButton) {
             return Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (b.leading != null) ...[
                   b.leading!,
@@ -255,7 +266,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         },
         onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
-        alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
+        alignment: Alignment(
+          -(widget.alignment ?? Alignment.bottomCenter).x,
+          -(widget.alignment ?? Alignment.bottomCenter).y,
+        ),
       );
     } else {
       ContextMenuRegion.displayed.value = widget.id;
@@ -274,7 +288,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           double qx = 1, qy = 1;
           if (position.dx > (constraints.maxWidth) / 2) qx = -1;
           if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
+          final Alignment alignment = widget.alignment ?? Alignment(qx, qy);
 
           return Listener(
             onPointerUp: (d) {
@@ -297,8 +311,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 fit: StackFit.expand,
                 children: [
                   Positioned(
-                    left: position.dx,
-                    top: position.dy,
+                    left:
+                        position.dx + widget.margin.left - widget.margin.right,
+                    top: position.dy + widget.margin.top - widget.margin.bottom,
                     child: FractionalTranslation(
                       translation: Offset(
                         alignment.x > 0 ? 0 : -1,

@@ -128,7 +128,8 @@ class Selector<T> extends StatefulWidget {
     } else {
       return showDialog(
         context: context,
-        barrierColor: kCupertinoModalBarrierColor,
+        // barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: Colors.transparent,
         builder: builder,
       );
     }
@@ -331,8 +332,18 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (box?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.width / 2;
-          top = offset.dy;
+          left = offset.dx - widget.width / 2 - widget.margin.right;
+          top = offset.dy - widget.margin.bottom;
+        } else if (widget.alignment == Alignment.bottomLeft) {
+          offset = Offset(
+            offset.dx - (box?.size.width ?? 0),
+            offset.dy + (box?.size.height ?? 0),
+          );
+
+          print('width is ${constraints.maxWidth} ${offset.dx}');
+
+          right = constraints.maxWidth - 100 - offset.dx;
+          top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0) / 2,
@@ -390,6 +401,7 @@ class _SelectorState<T> extends State<Selector<T>> {
       }
 
       return Stack(
+        fit: StackFit.expand,
         children: [
           Positioned(
             left: left,
@@ -399,64 +411,79 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                width: widget.width,
+                // width: widget.width,
                 margin: widget.margin,
-                constraints: const BoxConstraints(maxHeight: 280),
+                // constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                ),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: style.contextMenuRadius,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: widget.items.mapIndexed(button).toList(),
-                      ),
-                    ),
-                    if (widget.items.length >= 8)
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0xFFFFFFFF),
-                                  Color(0x00FFFFFF),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.items.length >= 8)
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  border:
+                      Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 12,
+                      color: Color(0x33000000),
+                      blurStyle: BlurStyle.outer,
+                    )
                   ],
                 ),
+                child: IntrinsicWidth(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: widget.items.mapIndexed(button).toList(),
+                  ),
+                ),
+                // child: Stack(
+                //   children: [
+                //     // ClipRRect(
+                //     //   borderRadius: style.contextMenuRadius,
+                //     //   child: ListView(
+                //     //     shrinkWrap: true,
+                //     //     children: widget.items.mapIndexed(button).toList(),
+                //     //   ),
+                //     // ),
+                //     // if (widget.items.length >= 8)
+                //     //   Positioned.fill(
+                //     //     child: Align(
+                //     //       alignment: Alignment.topCenter,
+                //     //       child: Container(
+                //     //         height: 15,
+                //     //         margin: const EdgeInsets.only(right: 10),
+                //     //         decoration: const BoxDecoration(
+                //     //           gradient: LinearGradient(
+                //     //             begin: Alignment.topCenter,
+                //     //             end: Alignment.bottomCenter,
+                //     //             colors: [
+                //     //               Color(0xFFFFFFFF),
+                //     //               Color(0x00FFFFFF),
+                //     //             ],
+                //     //           ),
+                //     //         ),
+                //     //       ),
+                //     //     ),
+                //     //   ),
+                //     // if (widget.items.length >= 8)
+                //     //   Positioned.fill(
+                //     //     child: Align(
+                //     //       alignment: Alignment.bottomCenter,
+                //     //       child: Container(
+                //     //         height: 15,
+                //     //         margin: const EdgeInsets.only(right: 10),
+                //     //         decoration: const BoxDecoration(
+                //     //           gradient: LinearGradient(
+                //     //             begin: Alignment.topCenter,
+                //     //             end: Alignment.bottomCenter,
+                //     //             colors: [
+                //     //               Color(0x00FFFFFF),
+                //     //               Color(0xFFFFFFFF),
+                //     //             ],
+                //     //           ),
+                //     //         ),
+                //     //       ),
+                //     //     ),
+                //     //   ),
+                //   ],
+                // ),
               ),
             ),
           ),

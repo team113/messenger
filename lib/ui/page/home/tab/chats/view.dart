@@ -26,6 +26,8 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart'
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
@@ -169,10 +171,10 @@ class ChatsTabView extends StatelessWidget {
                               children: [
                                 Text(
                                   'label_chats'.l10n,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
+                                  // style: TextStyle(
+                                  //   color:
+                                  //       Theme.of(context).colorScheme.secondary,
+                                  // ),
                                 ),
                                 // const SizedBox(width: 0),
                                 // Transform.translate(
@@ -256,36 +258,82 @@ class ChatsTabView extends StatelessWidget {
                               );
                       }
 
-                      return WidgetButton(
-                        key: c.searching.value
-                            ? const Key('CloseSearchButton')
-                            : null,
-                        onPressed: () {
-                          if (c.searching.value) {
-                            c.closeSearch(!c.groupCreating.value);
-                          } else if (c.selecting.value) {
-                            c.toggleSelecting();
-                          } else if (c.groupCreating.value) {
-                            c.closeGroupCreating();
-                          } else {
-                            if (onSwitched != null) {
-                              onSwitched?.call();
-                            } else {
-                              c.startGroupCreating();
-                            }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 12, right: 18),
-                          height: double.infinity,
-                          child: SizedBox(
-                            width: 21.77,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          WidgetButton(
+                            key: c.searching.value
+                                ? const Key('CloseSearchButton')
+                                : null,
+                            onPressed: () {
+                              if (c.searching.value) {
+                                c.closeSearch(!c.groupCreating.value);
+                              } else if (c.selecting.value) {
+                                c.toggleSelecting();
+                              } else if (c.groupCreating.value) {
+                                c.closeGroupCreating();
+                              } else {
+                                if (onSwitched != null) {
+                                  onSwitched?.call();
+                                } else {
+                                  c.startGroupCreating();
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                left: 12,
+                                right: !c.searching.value &&
+                                        !c.groupCreating.value &&
+                                        !c.selecting.value
+                                    ? 8
+                                    : 16,
+                              ),
+                              height: double.infinity,
+                              child: SizedBox(
+                                width: 21.77,
+                                child: AnimatedSwitcher(
+                                  duration: 250.milliseconds,
+                                  child: child,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          if (!c.searching.value &&
+                              !c.groupCreating.value &&
+                              !c.selecting.value)
+                            ContextMenuRegion(
+                              selector: c.moreKey,
+                              alignment: Alignment.topRight,
+                              allowPrimaryButton: true,
+                              margin:
+                                  const EdgeInsets.only(bottom: 4, right: 0),
+                              actions: [
+                                ContextMenuButton(
+                                  label: 'btn_create_group'.l10n,
+                                  onPressed: c.startGroupCreating,
+                                  trailing: const Icon(Icons.group_outlined),
+                                ),
+                                ContextMenuButton(
+                                  key: const Key('SelectChatButton'),
+                                  label: 'btn_select_and_delete'.l10n,
+                                  onPressed: c.toggleSelecting,
+                                  trailing: const Icon(Icons.select_all),
+                                ),
+                              ],
+                              child: Container(
+                                key: c.moreKey,
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
+                                height: double.infinity,
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     }),
                   ],

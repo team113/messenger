@@ -36,6 +36,7 @@ import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/chats/more/view.dart';
+import 'tab/chats_contacts/controller.dart';
 import 'tab/chats_contacts/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/balance/more/view.dart';
@@ -243,6 +244,14 @@ class _HomeViewState extends State<HomeView> {
                                 badgeColor: c.myUser.value?.muted != null
                                     ? const Color(0xFFC0C0C0)
                                     : Colors.red,
+                                onPressed: () {
+                                  if (Get.isRegistered<
+                                      ChatsContactsTabController>()) {
+                                    Get.find<ChatsContactsTabController>()
+                                        .switched
+                                        .value = false;
+                                  }
+                                },
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();

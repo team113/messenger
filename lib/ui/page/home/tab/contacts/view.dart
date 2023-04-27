@@ -171,7 +171,8 @@ class ContactsTabView extends StatelessWidget {
                   },
                   child: Container(
                     alignment: Alignment.center,
-                    width: 29.69 + 12 + 18,
+                    // width: 29.69 + 12 + 18,
+                    width: 29.69 + 8,
                     height: double.infinity,
                     child: Center(
                       child: AnimatedSwitcher(
@@ -182,6 +183,17 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               }),
+              WidgetButton(
+                onPressed: () {},
+                child: Container(
+                  padding: const EdgeInsets.only(left: 12, right: 18),
+                  height: double.infinity,
+                  child: Icon(
+                    Icons.more_vert,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
             ],
             leading: [
               Obx(() {

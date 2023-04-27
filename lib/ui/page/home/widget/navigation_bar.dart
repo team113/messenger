@@ -109,7 +109,10 @@ class CustomNavigationBar extends StatelessWidget {
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               splashColor: Colors.transparent,
-                              onTap: () => onTap?.call(i),
+                              onTap: () {
+                                onTap?.call(i);
+                                b.onPressed?.call();
+                              },
                               child: Container(
                                 width: 80,
                                 color: Colors.transparent,
@@ -173,6 +176,7 @@ class CustomNavigationBarItem {
     this.key,
     this.badge,
     this.badgeColor = Colors.red,
+    this.onPressed,
     this.child,
   });
 
@@ -184,6 +188,8 @@ class CustomNavigationBarItem {
 
   /// [Color] of the provided [badge], if any.
   final Color badgeColor;
+
+  final void Function()? onPressed;
 
   /// [Widget] to display.
   final Widget? child;

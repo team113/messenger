@@ -210,6 +210,7 @@ btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
 btn_select = Select
+btn_select_and_delete = Select and delete
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
