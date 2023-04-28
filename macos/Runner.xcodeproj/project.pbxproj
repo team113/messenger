@@ -558,7 +558,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.team113.messenger;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "messenger macOS App Store";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC com team113 messenger mac_app_store 1682594351";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Profile;
@@ -689,7 +689,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.team113.messenger;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "messenger macOS App Store";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC com team113 messenger mac_app_store 1682594351";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -715,7 +715,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.team113.messenger;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "messenger macOS App Store";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC com team113 messenger mac_app_store 1682594351";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
