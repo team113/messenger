@@ -33,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
         - Message timestamps. ([#399])
+        - Redesigned chat messages and forwards ([#416])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
