@@ -48,6 +48,7 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool delivered;
 
+  /// Optional [Color] of the text.
   final Color? color;
 
   @override

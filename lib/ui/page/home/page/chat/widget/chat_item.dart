@@ -25,7 +25,6 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart'
@@ -47,6 +46,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -808,8 +808,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
-    double avatarOffset = 0;
-
     // Indicator whether the [_timestamp] should be displayed in a bubble above
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
     final bool timeInBubble =
@@ -1027,7 +1025,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                             child: _timestamp(
                               msg,
-                              color: const Color(0xFFCCCCCC),
+                              color: const Color(0xFFDEDEDE),
                             ),
                           ),
                         )
@@ -1037,7 +1035,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         );
       },
-      avatarOffset: avatarOffset,
     );
   }
 
@@ -1444,9 +1441,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool menu, BoxConstraints constraints) builder, {
-    double avatarOffset = 0,
-  }) {
+    Widget Function(bool menu, BoxConstraints constraints) builder,
+  ) {
     final ChatItem item = widget.item.value;
     final double swipeableWidth = _fromMe ? 65 : 50;
 
@@ -1647,7 +1643,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
-                  padding: EdgeInsets.only(top: 8 + avatarOffset),
+                  padding: const EdgeInsets.only(top: 8),
                   child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),

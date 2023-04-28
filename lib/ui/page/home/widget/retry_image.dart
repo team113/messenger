@@ -76,7 +76,7 @@ class RetryImage extends StatefulWidget {
     if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
       image = original;
     } else {
-      image = attachment.original;
+      image = attachment.big;
     }
 
     return RetryImage(

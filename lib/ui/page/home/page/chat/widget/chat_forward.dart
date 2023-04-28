@@ -304,7 +304,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   child: Obx(() {
                     return Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (widget.note.value != null) ..._note(menu),
                         if (widget.note.value == null &&
@@ -609,10 +609,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   const SizedBox(height: 4),
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        msg.authorId == widget.me
-                                            ? CrossAxisAlignment.end
-                                            : CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children: additional,
                                   ),
                                 ],
@@ -641,7 +638,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ),
                                 child: _forwardTimestamp(
                                   quote,
-                                  color: const Color(0xFFCCCCCC),
+                                  color: const Color(0xFFDEDEDE),
                                 ),
                               ),
                             )
@@ -931,7 +928,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     onTap: () => router.user(widget.authorId, push: true),
                     child: AvatarWidget.fromRxUser(
                       widget.user,
-                      radius: 15,
+                      radius: 17,
                     ),
                   ),
                 ),
