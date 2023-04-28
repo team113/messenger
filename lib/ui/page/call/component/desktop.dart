@@ -249,33 +249,6 @@ class DesktopCall extends StatelessWidget {
                 const SecondaryTargetWidget(),
               ]);
 
-              /// Indicator that the current call is outgoing
-              /// and also has not been started.
-              final bool isOutgoing =
-                  (c.outgoing || c.state.value == OngoingCallState.local) &&
-                      !c.started;
-
-              /// Indicator of whether the bottom menu should be displayed.
-              final bool showBottomUi = (c.showUi.isTrue ||
-                  c.draggedButton.value != null ||
-                  c.state.value != OngoingCallState.active ||
-                  (c.state.value == OngoingCallState.active &&
-                      c.locals.isEmpty &&
-                      c.remotes.isEmpty &&
-                      c.focused.isEmpty &&
-                      c.paneled.isEmpty));
-
-              /// Indicator that determines whether it is possible
-              /// to answer the current call.
-              final bool answer = (c.state.value != OngoingCallState.joining &&
-                  c.state.value != OngoingCallState.active &&
-                  !isOutgoing);
-
-              /// Indicator that the [LaunchpadWidget] can interact with the user.
-              final bool enabled = c.displayMore.isTrue &&
-                  c.primaryDrags.value == 0 &&
-                  c.secondaryDrags.value == 0;
-
               // Footer part of the call with buttons.
               List<Widget> footer = [
                 // Animated bottom buttons.
@@ -287,8 +260,35 @@ class DesktopCall extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Obx(
-                          () => Column(
+                        Obx(() {
+                          /// Indicator that the current call is outgoing
+                          /// and also has not been started.
+                          final bool isOutgoing = (c.outgoing ||
+                                  c.state.value == OngoingCallState.local) &&
+                              !c.started;
+
+                          /// Indicator of whether the bottom menu should be displayed.
+                          final bool showBottomUi = (c.showUi.isTrue ||
+                              c.draggedButton.value != null ||
+                              c.state.value != OngoingCallState.active ||
+                              (c.state.value == OngoingCallState.active &&
+                                  c.locals.isEmpty &&
+                                  c.remotes.isEmpty &&
+                                  c.focused.isEmpty &&
+                                  c.paneled.isEmpty));
+
+                          /// Indicator that determines whether it is possible
+                          /// to answer the current call.
+                          final bool answer =
+                              (c.state.value != OngoingCallState.joining &&
+                                  c.state.value != OngoingCallState.active &&
+                                  !isOutgoing);
+
+                          /// Indicator that the [LaunchpadWidget] can interact with the user.
+                          final bool enabled = c.displayMore.isTrue &&
+                              c.primaryDrags.value == 0 &&
+                              c.secondaryDrags.value == 0;
+                          return Column(
                             mainAxisSize: MainAxisSize.min,
                             verticalDirection: VerticalDirection.up,
                             children: [
@@ -402,8 +402,8 @@ class DesktopCall extends StatelessWidget {
                                 }).toList(),
                               ),
                             ],
-                          ),
-                        ),
+                          );
+                        }),
                       ],
                     ),
                   ),
