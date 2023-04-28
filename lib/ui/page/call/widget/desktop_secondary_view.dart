@@ -186,11 +186,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.centerLeft,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 x: ScaleModeX.left,
                                 dx: dx,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -208,11 +212,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.centerRight,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 x: ScaleModeX.right,
                                 dx: -dx,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -230,11 +238,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.bottomCenter,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.bottom,
                                 dy: -dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -252,11 +264,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.topCenter,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.top,
                                 dy: dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -274,13 +290,17 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.topLeft,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.top,
                                 x: ScaleModeX.left,
                                 dx: dx,
                                 dy: dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -298,13 +318,17 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.topRight,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.top,
                                 x: ScaleModeX.right,
                                 dx: -dx,
                                 dy: dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -322,13 +346,17 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.bottomLeft,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.bottom,
                                 x: ScaleModeX.left,
                                 dx: dx,
                                 dy: -dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -346,13 +374,17 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.bottomRight,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.bottom,
                                 x: ScaleModeX.right,
                                 dx: -dx,
                                 dy: -dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -687,11 +719,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.centerLeft,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 x: ScaleModeX.left,
                                 dx: dx,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -709,11 +745,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.centerRight,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 x: ScaleModeX.right,
                                 dx: -dx,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -731,11 +771,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.bottomCenter,
-                              onDrag: (dx, dy) => c.resizeSecondary(
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
                                 context,
                                 y: ScaleModeY.top,
                                 dy: dy,
                               ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
+                              draggedRenderer: c.draggedRenderer,
                             )
                           : Container(),
                     )),
@@ -753,6 +797,15 @@ class SecondaryView extends StatelessWidget {
                               width,
                               height,
                               alignment: Alignment.topCenter,
+                              draggedRenderer: c.draggedRenderer,
+                              onDragUpdate: (dx, dy) => c.resizeSecondary(
+                                context,
+                                x: ScaleModeX.left,
+                                dx: dx,
+                              ),
+                              onDragEnd: (_) {
+                                c.updateSecondaryAttach();
+                              },
                             )
                           : Container(),
                     )),

@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
 import '../../../../domain/repository/chat.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '../../../widget/svg/svg.dart';
 import '../../home/widget/animated_slider.dart';
@@ -46,7 +45,9 @@ class DesktopBuildDragHandle extends StatelessWidget {
     this.width, {
     super.key,
     required this.alignment,
-    this.onDrag,
+    this.onDragUpdate,
+    this.onDragEnd,
+    required this.draggedRenderer,
   });
 
   /// Alignment of the [SecondaryScalerWidget].
@@ -59,7 +60,12 @@ class DesktopBuildDragHandle extends StatelessWidget {
   final double width;
 
   ///
-  final dynamic Function(double, double)? onDrag;
+  final dynamic Function(double, double)? onDragUpdate;
+
+  ///
+  final dynamic Function(DragEndDetails)? onDragEnd;
+
+  final Rx<Participant?> draggedRenderer;
 
   @override
   Widget build(BuildContext context) {
@@ -69,25 +75,33 @@ class DesktopBuildDragHandle extends StatelessWidget {
       widget = SecondaryScalerWidget(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.centerRight) {
       widget = SecondaryScalerWidget(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomCenter) {
       widget = SecondaryScalerWidget(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topCenter) {
       widget = SecondaryScalerWidget(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topLeft) {
       widget = SecondaryScalerWidget(
@@ -97,7 +111,9 @@ class DesktopBuildDragHandle extends StatelessWidget {
             : SystemMouseCursors.resizeUpLeftDownRight,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topRight) {
       widget = SecondaryScalerWidget(
@@ -106,7 +122,9 @@ class DesktopBuildDragHandle extends StatelessWidget {
             : SystemMouseCursors.resizeUpRightDownLeft,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomLeft) {
       widget = SecondaryScalerWidget(
@@ -115,7 +133,9 @@ class DesktopBuildDragHandle extends StatelessWidget {
             : SystemMouseCursors.resizeUpRightDownLeft,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomRight) {
       widget = SecondaryScalerWidget(
@@ -125,7 +145,9 @@ class DesktopBuildDragHandle extends StatelessWidget {
             : SystemMouseCursors.resizeUpLeftDownRight,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDrag,
+        draggedRenderer: draggedRenderer,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
       );
     }
 
@@ -436,6 +458,7 @@ class DesktopScaffoldWidget extends StatelessWidget {
   /// List of [Widget] that make up the user interface
   final List<Widget> ui;
 
+  ///
   final Widget titleBar;
 
   ///
@@ -588,7 +611,9 @@ class SecondaryScalerWidget extends StatelessWidget {
   const SecondaryScalerWidget({
     super.key,
     this.cursor = MouseCursor.defer,
-    this.onDrag,
+    required this.draggedRenderer,
+    this.onDragUpdate,
+    this.onDragEnd,
     this.width,
     this.height,
   });
@@ -596,8 +621,14 @@ class SecondaryScalerWidget extends StatelessWidget {
   /// Interface for mouse cursor definitions
   final MouseCursor cursor;
 
+  ///
+  final Rx<Participant?> draggedRenderer;
+
   /// Calculates the corresponding values according to the enabled dragging.
-  final Function(double, double)? onDrag;
+  final Function(double, double)? onDragUpdate;
+
+  ///
+  final dynamic Function(DragEndDetails)? onDragEnd;
 
   /// Width of the [SecondaryScalerWidget].
   final double? width;
@@ -607,22 +638,16 @@ class SecondaryScalerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Obx(() {
-        return MouseRegion(
-          cursor: c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
-          child: Scaler(
-            key: key,
-            onDragUpdate: onDrag,
-            onDragEnd: (_) {
-              c.updateSecondaryAttach();
-            },
-            width: width ?? Scaler.size,
-            height: height ?? Scaler.size,
-          ),
-        );
-      });
-    });
+    return MouseRegion(
+      cursor: draggedRenderer.value == null ? cursor : MouseCursor.defer,
+      child: Scaler(
+        key: key,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
+        width: width ?? Scaler.size,
+        height: height ?? Scaler.size,
+      ),
+    );
   }
 }
 
