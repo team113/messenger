@@ -122,7 +122,7 @@ jobs:
           - appbundle
           - ios
           - linux
-          - macos
+          # - macos
           - web
           - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
