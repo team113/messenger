@@ -21,39 +21,32 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Logo with animation.
+/// Animated logo, displaying the provided [riveAsset], when higher than 250
+/// pixels, or otherwise the specified [svgAsset].
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo({
     super.key,
-    required this.riveAsset,
-    this.onInit,
     required this.svgAsset,
+    this.riveAsset = 'assets/images/logo/logo.riv',
+    this.onInit,
   });
 
-  /// Path of the [RiveAnimation] asset.
+  /// Path to an asset to put into the [RiveAnimation].
   final String riveAsset;
 
-  /// Callback fired when [RiveAnimation] has initialized.
+  /// Callback, called when underlying [RiveAnimation] has been initialized.
   final void Function(Artboard)? onInit;
 
-  /// Path of the [SvgLoader] asset.
+  /// Path to an asset to put into the [SvgImage].
   final String svgAsset;
 
   @override
   Widget build(BuildContext context) {
-    /// Type of logo that will be displayed on the screen.
-    ///
-    /// If the maximum height of [constraints] is greater than or equal to [height],
-    /// then a container with the [RiveAnimation.asset] animation is displayed.
-    /// If the maximum [height] of the restrictions is less than the [height],
-    /// then the SVG widget is displayed, loaded via [SvgLoader.asset].
-    Widget child;
-
-    /// Maximum [height] of the [AnimatedLogo] that can be displayed on the screen.
+    // Height being a point to switch between [RiveAnimation] and [SvgImage].
     const double height = 250;
 
     return LayoutBuilder(builder: (context, constraints) {
-      child = RiveAnimation.asset(riveAsset, onInit: onInit);
+      final Widget child;
 
       if (constraints.maxHeight < height) {
         child = SvgImage.asset(
@@ -63,6 +56,8 @@ class AnimatedLogo extends StatelessWidget {
             return const Center(child: CustomProgressIndicator());
           },
         );
+      } else {
+        child = RiveAnimation.asset(riveAsset, onInit: onInit);
       }
 
       return ConstrainedBox(

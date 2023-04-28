@@ -19,19 +19,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Сustom [TextButton] featuring a Cupertino style design.
-class CupertinoTextButton extends StatelessWidget {
-  const CupertinoTextButton({
+/// Custom styled [CupertinoButton].
+class StyledCupertinoButton extends StatelessWidget {
+  const StyledCupertinoButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
   });
 
   /// Label to display.
   final String label;
 
-  /// Callback that is called when the button is tapped.
-  final void Function() onPressed;
+  /// Callback, called when this button is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {

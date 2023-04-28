@@ -24,7 +24,6 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/auth/widget/animated_logo.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
@@ -33,6 +32,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
@@ -145,7 +145,7 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          CupertinoTextButton(
+          StyledCupertinoButton(
             key: c.languageKey,
             label: 'label_language_entry'.l10nfmt({
               'code': L10n.chosen.value!.locale.countryCode,
@@ -195,8 +195,9 @@ class AuthView extends StatelessWidget {
                                   key: const ValueKey('Logo'),
                                   svgAsset:
                                       'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                  riveAsset: 'assets/images/logo/logo.riv',
-                                  onInit: _onInit,
+                                  onInit: Config.disableInfiniteAnimations
+                                      ? null
+                                      : (a) => _setBlink(c, a),
                                 ),
                               ),
                             ),
@@ -218,21 +219,16 @@ class AuthView extends StatelessWidget {
     );
   }
 
-  /// Binds the animation to the controller and starts the animation
-  /// when [RiveAnimation] has initialized.
-  void _onInit(Artboard a) {
-    final AuthController c = AuthController(Get.find());
+  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
+  /// a [AuthController.animate] to animate it.
+  Future<void> _setBlink(AuthController c, Artboard a) async {
+    final StateMachineController machine =
+        StateMachineController(a.stateMachines.first);
+    a.addController(machine);
 
-    if (!Config.disableInfiniteAnimations) {
-      final StateMachineController? machine =
-          StateMachineController.fromArtboard(a, 'Machine');
-      a.addController(machine!);
-      c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-      Future.delayed(
-        const Duration(milliseconds: 500),
-        c.animate,
-      );
-    }
+    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+
+    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
