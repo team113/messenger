@@ -957,7 +957,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           widget.avatar
                       ? 0
                       : _text != null
-                          ? msg.repliesTo.isNotEmpty
+                          ? msg.repliesTo.isNotEmpty || files.isNotEmpty
                               ? 0
                               : 10
                           : 0,
