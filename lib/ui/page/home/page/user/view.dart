@@ -141,31 +141,42 @@ class UserView extends StatelessWidget {
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: SvgLoader.asset(
+                      child: SvgImage.asset(
                         'assets/icons/chat.svg',
                         width: 20.12,
                         height: 21.62,
                       ),
                     ),
                   ),
-                  if (constraints.maxWidth > 400) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
+                  Obx(() {
+                    if (c.isBlacklisted != null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (constraints.maxWidth > 400) ...[
+                          const SizedBox(width: 28),
+                          WidgetButton(
+                            onPressed: () => c.call(true),
+                            child: SvgImage.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: () => c.call(false),
+                          child: SvgImage.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
               body: Scrollbar(
@@ -311,18 +322,22 @@ class UserView extends StatelessWidget {
         if (c.user?.user.value.dialog.isLocal == false &&
             c.user?.dialog.value != null) ...[
           Obx(() {
+            if (c.isBlacklisted != null) {
+              return const SizedBox.shrink();
+            }
+
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
             return action(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: isMuted
-                  ? SvgLoader.asset(
+                  ? SvgImage.asset(
                       'assets/icons/btn_mute.svg',
                       width: 18.68,
                       height: 15,
                     )
-                  : SvgLoader.asset(
+                  : SvgImage.asset(
                       'assets/icons/btn_unmute.svg',
                       width: 17.86,
                       height: 15,
@@ -332,13 +347,13 @@ class UserView extends StatelessWidget {
           }),
           action(
             text: 'btn_hide_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
           action(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
         ],

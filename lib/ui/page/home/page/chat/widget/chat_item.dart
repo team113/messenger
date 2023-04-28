@@ -1159,11 +1159,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: message.withVideo
-                ? SvgLoader.asset(
+                ? SvgImage.asset(
                     'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
                     height: 13 * 1.4,
                   )
-                : SvgLoader.asset(
+                : SvgImage.asset(
                     'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
                     height: 15 * 1.4,
                   ),
@@ -1190,7 +1190,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleSmall,
-                    ),
+                    ).fixedDigits(),
                   ),
                 ],
               ],
@@ -1403,11 +1403,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: call?.withVideo == true
-                ? SvgLoader.asset(
+                ? SvgImage.asset(
                     'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
-                : SvgLoader.asset(
+                : SvgImage.asset(
                     'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
@@ -1744,7 +1744,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
@@ -1757,7 +1757,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/reply.svg',
                                 height: 18,
                               ),
@@ -1769,7 +1769,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
                                 ),
@@ -1790,7 +1790,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/edit.svg',
                                   height: 18,
                                 ),
@@ -1801,7 +1801,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
@@ -1847,7 +1847,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1859,7 +1859,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
@@ -2133,5 +2133,39 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
+  }
+}
+
+/// Extension adding a fixed-length digits [Text] transformer.
+extension FixedDigitsExtension on Text {
+  /// [RegExp] detecting numbers.
+  static final RegExp _regex = RegExp(r'\d');
+
+  /// Returns a [Text] guaranteed to have fixed width of digits in it.
+  Widget fixedDigits() {
+    Text copyWith(String string) {
+      return Text(
+        string,
+        style: style,
+        strutStyle: strutStyle,
+        textAlign: textAlign,
+        textDirection: textDirection,
+        locale: locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaleFactor: textScaleFactor,
+        maxLines: maxLines,
+        textWidthBasis: textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      );
+    }
+
+    return Stack(
+      children: [
+        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
+        copyWith(data!),
+      ],
+    );
   }
 }

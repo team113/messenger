@@ -22,12 +22,17 @@ import 'package:flutter/material.dart';
 /// Animated over the provided [period] circles representing an ongoing typing.
 class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
-    Key? key,
+    super.key,
     this.period = const Duration(seconds: 1),
-  }) : super(key: key);
+    this.inverted = false,
+  });
 
   /// [Duration] over which the circles are animated.
   final Duration period;
+
+  /// Indicator whether this [AnimatedTyping] should have inverted color
+  /// relative to its base one.
+  final bool inverted;
 
   @override
   State<AnimatedTyping> createState() => _AnimatedTypingState();
@@ -56,10 +61,13 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin = Theme.of(context).colorScheme.secondary;
+        final Color begin =
+            widget.inverted ? colors.onSecondary : colors.secondary;
         const Color end = Color(0xFFB6DCFF);
 
         const double size = 4;

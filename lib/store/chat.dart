@@ -83,6 +83,9 @@ class ChatRepository extends DisposableInterface
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
 
+  @override
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -97,9 +100,6 @@ class ChatRepository extends DisposableInterface
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
-
-  /// [isReady] value.
-  final RxBool _isReady = RxBool(false);
 
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
@@ -142,9 +142,6 @@ class ChatRepository extends DisposableInterface
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  RxBool get isReady => _isReady;
-
-  @override
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
@@ -161,8 +158,10 @@ class ChatRepository extends DisposableInterface
           entry.init();
         }
       }
-      _isReady.value = true;
     }
+
+    status.value =
+        _chatLocal.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
     _initLocalSubscription();
     _initDraftSubscription();
@@ -192,7 +191,7 @@ class ChatRepository extends DisposableInterface
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
-      _isReady.value = true;
+      status.value = RxStatus.success();
     } on OperationCanceledException catch (_) {
       // No-op.
     }
