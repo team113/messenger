@@ -112,27 +112,27 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
-    if (isMobile) {
-      return showModalBottomSheet(
-        context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ),
-        ),
-        builder: builder,
-      );
-    } else {
-      return showDialog(
-        context: context,
-        // barrierColor: kCupertinoModalBarrierColor,
-        barrierColor: Colors.transparent,
-        builder: builder,
-      );
-    }
+    // if (isMobile) {
+    //   return showModalBottomSheet(
+    //     context: context,
+    //     barrierColor: kCupertinoModalBarrierColor,
+    //     backgroundColor: Colors.white,
+    //     shape: const RoundedRectangleBorder(
+    //       borderRadius: BorderRadius.only(
+    //         topLeft: Radius.circular(8),
+    //         topRight: Radius.circular(8),
+    //       ),
+    //     ),
+    //     builder: builder,
+    //   );
+    // } else {
+    return showDialog(
+      context: context,
+      // barrierColor: kCupertinoModalBarrierColor,
+      barrierColor: Colors.transparent,
+      builder: builder,
+    );
+    // }
   }
 
   @override
@@ -170,11 +170,11 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isMobile) {
-      return _mobile(context);
-    } else {
-      return _desktop(context);
-    }
+    // if (widget.isMobile) {
+    //   return _mobile(context);
+    // } else {
+    return _desktop(context);
+    // }
   }
 
   /// Returns mobile design of this [Selector].

@@ -477,6 +477,8 @@ class ChatsTabController extends GetxController {
     _toggleSearch();
     router.navigation.value = false;
     search.value?.populate();
+
+    // searching.value = true;
   }
 
   /// Disables and disposes the group creating.
@@ -631,7 +633,9 @@ class ChatsTabController extends GetxController {
         }
       });
 
-      search.value!.search.focus.addListener(_disableSearchFocusListener);
+      if (!groupCreating.value) {
+        search.value!.search.focus.addListener(_disableSearchFocusListener);
+      }
     } else {
       search.value = null;
     }

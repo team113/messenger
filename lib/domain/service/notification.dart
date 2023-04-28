@@ -317,7 +317,7 @@ class NotificationService extends DisposableService {
         FirebaseMessaging.onBackgroundMessage(onBackground);
       }
 
-      await Firebase.initializeApp(options: options);
+      await Firebase.initializeApp(name: 'messenger', options: options);
 
       final RemoteMessage? initial =
           await FirebaseMessaging.instance.getInitialMessage();
@@ -369,26 +369,27 @@ class NotificationService extends DisposableService {
         );
 
         if (_token != null) {
-          _graphQlProvider.registerFcmDevice(
-            FcmRegistrationToken(_token!),
-            _language,
-          );
-        }
+          _onTokenRefresh =
+              FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+            if (_token != null) {
+              await _graphQlProvider
+                  .unregisterFcmDevice(FcmRegistrationToken(_token!));
+            }
 
-        _onTokenRefresh =
-            FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-          if (_token != null) {
-            await _graphQlProvider
-                .unregisterFcmDevice(FcmRegistrationToken(_token!));
-          }
+            _token = token;
 
-          _token = token;
+            await _graphQlProvider.registerFcmDevice(
+              FcmRegistrationToken(_token!),
+              _language,
+            );
+          });
 
           await _graphQlProvider.registerFcmDevice(
             FcmRegistrationToken(_token!),
             _language,
           );
-        });
+          print('[NOTIFICAITIONS] done');
+        }
       }
     }
   }

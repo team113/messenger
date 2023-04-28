@@ -93,9 +93,13 @@ class ChatsTabView extends StatelessWidget {
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
-                  border: c.search.value != null || c.selecting.value
+                  border: (c.search.value?.search.isFocused.value == true ||
+                          c.search.value?.query.value.isNotEmpty == true)
                       ? Border.all(color: colors.secondary, width: 2)
                       : null,
+                  // border: c.search.value != null || c.selecting.value
+                  //     ? Border.all(color: colors.secondary, width: 2)
+                  //     : null,
                   title: Obx(() {
                     final Widget child;
 
@@ -217,7 +221,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.only(
                               left: 20,
-                              right: 12,
+                              right: 6,
                             ),
                             height: double.infinity,
                             // child: Icon(
@@ -237,6 +241,25 @@ class ChatsTabView extends StatelessWidget {
                     Obx(() {
                       final Widget child;
 
+                      // if (c.groupCreating.value) {
+                      //   if (c.groupCreating.value &&
+                      //       c.search.value?.query.isNotEmpty == true) {
+                      //     child = SvgImage.asset(
+                      //       'assets/icons/close_primary.svg',
+                      //       key: const Key('CloseSearch'),
+                      //       height: 15,
+                      //     );
+                      //   } else {
+                      //     child = Text(
+                      //       'Cancel',
+                      //       key: const Key('Cancel'),
+                      //       style: TextStyle(
+                      //         fontSize: 15,
+                      //         color: Theme.of(context).colorScheme.secondary,
+                      //       ),
+                      //     );
+                      //   }
+                      // } else
                       if (c.searching.value) {
                         child = SvgImage.asset(
                           'assets/icons/close_primary.svg',
@@ -267,6 +290,20 @@ class ChatsTabView extends StatelessWidget {
                                 : null,
                             onPressed: () {
                               if (c.searching.value) {
+                                // if (c.groupCreating.value) {
+                                //   if (c.search.value?.query.value.isNotEmpty ==
+                                //       true) {
+                                //     c.search.value?.search.clear();
+                                //     c.search.value?.query.value = '';
+
+                                //     return;
+                                //   } else {
+                                //     c.closeGroupCreating();
+                                //   }
+                                // } else {
+                                //   c.closeGroupCreating();
+                                // }
+
                                 c.closeSearch(!c.groupCreating.value);
                               } else if (c.selecting.value) {
                                 c.toggleSelecting();
@@ -297,6 +334,14 @@ class ChatsTabView extends StatelessWidget {
                                   child: child,
                                 ),
                               ),
+                              // child: SizedBox(
+                              //   // width: 21.77,
+                              //   child: AnimatedSizeAndFade(
+                              //     fadeDuration: 250.milliseconds,
+                              //     sizeDuration: 250.milliseconds,
+                              //     child: child,
+                              //   ),
+                              // ),
                             ),
                           ),
                           if (!c.searching.value &&
@@ -312,13 +357,13 @@ class ChatsTabView extends StatelessWidget {
                                 ContextMenuButton(
                                   label: 'btn_create_group'.l10n,
                                   onPressed: c.startGroupCreating,
-                                  trailing: const Icon(Icons.group_outlined),
+                                  // trailing: const Icon(Icons.group_outlined),
                                 ),
                                 ContextMenuButton(
                                   key: const Key('SelectChatButton'),
                                   label: 'btn_select_and_delete'.l10n,
                                   onPressed: c.toggleSelecting,
-                                  trailing: const Icon(Icons.select_all),
+                                  // trailing: const Icon(Icons.select_all),
                                 ),
                               ],
                               child: Container(
