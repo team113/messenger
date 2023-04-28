@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title_common.dart';
@@ -921,6 +922,23 @@ class DesktopCall extends StatelessWidget {
                                     c.top.value = c.top.value + d.delta.dy;
                                     c.applyConstraints(context);
                                   },
+                                  titleBar: TitleBarWidget(
+                                    onDoubleTap: c.toggleFullscreen,
+                                    constraints: BoxConstraints(
+                                        maxWidth: c.size.width - 60),
+                                    chat: c.chat,
+                                    titleArguments: c.titleArguments,
+                                    toggleFullscreen: c.toggleFullscreen,
+                                    fullscreen: c.fullscreen,
+                                    onTap: WebUtils.isPopup
+                                        ? null
+                                        : () {
+                                            router.chat(c.chatId.value);
+                                            if (c.fullscreen.value) {
+                                              c.toggleFullscreen();
+                                            }
+                                          },
+                                  ),
                                 ),
                               ),
                               ClipRect(child: Stack(children: footer)),
@@ -942,6 +960,22 @@ class DesktopCall extends StatelessWidget {
                   c.top.value = c.top.value + d.delta.dy;
                   c.applyConstraints(context);
                 },
+                titleBar: TitleBarWidget(
+                  onDoubleTap: c.toggleFullscreen,
+                  constraints: BoxConstraints(maxWidth: c.size.width - 60),
+                  chat: c.chat,
+                  titleArguments: c.titleArguments,
+                  toggleFullscreen: c.toggleFullscreen,
+                  fullscreen: c.fullscreen,
+                  onTap: WebUtils.isPopup
+                      ? null
+                      : () {
+                          router.chat(c.chatId.value);
+                          if (c.fullscreen.value) {
+                            c.toggleFullscreen();
+                          }
+                        },
+                ),
               );
             },
           );
