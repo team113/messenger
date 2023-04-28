@@ -385,39 +385,37 @@ class LaunchpadWidget extends StatelessWidget {
 
 /// [_SecondaryView] possible alignment.
 class PossibleContainerWidget extends StatelessWidget {
-  const PossibleContainerWidget({super.key});
+  const PossibleContainerWidget({super.key, required this.alignment});
+
+  ///
+  final AlignmentGeometry? alignment;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Obx(() {
-        Alignment? alignment = c.possibleSecondaryAlignment.value;
-        if (alignment == null) {
-          return Container();
-        }
+    if (alignment == null) {
+      return Container();
+    }
 
-        double width = 10;
-        double height = 10;
+    final double width =
+        alignment == Alignment.topCenter || alignment == Alignment.bottomCenter
+            ? double.infinity
+            : 10;
 
-        if (alignment == Alignment.topCenter ||
-            alignment == Alignment.bottomCenter) {
-          width = double.infinity;
-        } else {
-          height = double.infinity;
-        }
+    final double height =
+        alignment == Alignment.topCenter || alignment == Alignment.bottomCenter
+            ? 10
+            : double.infinity;
 
-        return Align(
-          alignment: alignment,
-          child: ConditionalBackdropFilter(
-            child: Container(
-              height: height,
-              width: width,
-              color: const Color(0x4D165084),
-            ),
-          ),
-        );
-      });
-    });
+    return Align(
+      alignment: alignment!,
+      child: ConditionalBackdropFilter(
+        child: Container(
+          height: height,
+          width: width,
+          color: const Color(0x4D165084),
+        ),
+      ),
+    );
   }
 }
 

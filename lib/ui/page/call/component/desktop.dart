@@ -216,7 +216,11 @@ class DesktopCall extends StatelessWidget {
                       duration: 200.milliseconds, child: child);
                 }),
 
-                const PossibleContainerWidget(),
+                Obx(
+                  () => PossibleContainerWidget(
+                    alignment: c.possibleSecondaryAlignment.value,
+                  ),
+                ),
 
                 // Makes UI appear on click.
                 Listener(
@@ -288,6 +292,7 @@ class DesktopCall extends StatelessWidget {
                           final bool enabled = c.displayMore.isTrue &&
                               c.primaryDrags.value == 0 &&
                               c.secondaryDrags.value == 0;
+
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             verticalDirection: VerticalDirection.up,
