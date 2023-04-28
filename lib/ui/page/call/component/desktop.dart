@@ -916,6 +916,11 @@ class DesktopCall extends StatelessWidget {
                                 child: DesktopScaffoldWidget(
                                   content: content,
                                   ui: ui,
+                                  onPanUpdate: (d) {
+                                    c.left.value = c.left.value + d.delta.dx;
+                                    c.top.value = c.top.value + d.delta.dy;
+                                    c.applyConstraints(context);
+                                  },
                                 ),
                               ),
                               ClipRect(child: Stack(children: footer)),
@@ -932,6 +937,11 @@ class DesktopCall extends StatelessWidget {
               return DesktopScaffoldWidget(
                 content: content,
                 ui: ui,
+                onPanUpdate: (d) {
+                  c.left.value = c.left.value + d.delta.dx;
+                  c.top.value = c.top.value + d.delta.dy;
+                  c.applyConstraints(context);
+                },
               );
             },
           );

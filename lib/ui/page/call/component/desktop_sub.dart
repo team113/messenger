@@ -425,6 +425,7 @@ class DesktopScaffoldWidget extends StatelessWidget {
     super.key,
     required this.content,
     required this.ui,
+    this.onPanUpdate,
   });
 
   /// Stackable content.
@@ -433,42 +434,39 @@ class DesktopScaffoldWidget extends StatelessWidget {
   /// List of [Widget] that make up the user interface
   final List<Widget> ui;
 
+  ///
+  final void Function(DragUpdateDetails)? onPanUpdate;
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!WebUtils.isPopup)
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onPanUpdate: (d) {
-                  c.left.value = c.left.value + d.delta.dx;
-                  c.top.value = c.top.value + d.delta.dy;
-                  c.applyConstraints(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
-                      CustomBoxShadow(
-                        color: Color(0x33000000),
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
-                      )
-                    ],
-                  ),
-                  child: const TitleBarWidget(),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!WebUtils.isPopup)
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanUpdate: onPanUpdate,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: const [
+                    CustomBoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
                 ),
+                child: const TitleBarWidget(),
               ),
-            Expanded(child: Stack(children: [...content, ...ui])),
-          ],
-        ),
-      );
-    });
+            ),
+          Expanded(child: Stack(children: [...content, ...ui])),
+        ],
+      ),
+    );
   }
 }
 
