@@ -310,7 +310,7 @@ class LaunchpadWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ///
-    Widget builder(
+    Widget launchpadBuilder(
       BuildContext context,
       List<CallButton?> candidate,
       List<dynamic> rejected,
@@ -375,7 +375,7 @@ class LaunchpadWidget extends StatelessWidget {
             ? DragTarget<CallButton>(
                 onAccept: onAccept,
                 onWillAccept: onWillAccept,
-                builder: builder,
+                builder: launchpadBuilder,
               )
             : Container(),
       ),
