@@ -251,7 +251,19 @@ class DesktopCall extends StatelessWidget {
                 ),
 
                 // Empty drop zone if [secondary] is empty.
-                const SecondaryTargetWidget(),
+                SecondaryTargetWidget(
+                  secondaryAxis: c.size.width >= c.size.height
+                      ? Axis.horizontal
+                      : Axis.vertical,
+                  maxSize: c.size.shortestSide / 4,
+                  size: c.size,
+                  secondary: c.secondary,
+                  doughDraggedRenderer: c.doughDraggedRenderer,
+                  onWillAccept: (d) => d?.chatId == c.chatId.value,
+                  secondaryAlignment: c.secondaryAlignment,
+                  unfocus: c.unfocus,
+                  primaryDrags: c.primaryDrags,
+                ),
               ]);
 
               // Footer part of the call with buttons.
