@@ -609,7 +609,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   const SizedBox(height: 4),
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: additional,
                                   ),
                                 ],
