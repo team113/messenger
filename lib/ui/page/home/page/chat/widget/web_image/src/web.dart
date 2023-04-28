@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:ui' as ui;
@@ -25,7 +24,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '/ui/page/home/widget/retry_image.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
@@ -40,15 +38,11 @@ class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
     super.key,
-    this.checksum,
     this.onForbidden,
   });
 
   /// URL of the image to display.
   final String src;
-
-  /// SHA-256 checksum of the image to display.
-  final String? checksum;
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
@@ -64,24 +58,18 @@ class _WebImageState extends State<WebImage> {
   CancelToken _cancelToken = CancelToken();
 
   /// Indicator whether [_backoff] operation is running.
-  bool _isBackoffRunnung = false;
+  bool _isBackoffRunning = false;
 
-  /// Base64 of the image to display, if it is svg.
-  String? _svg;
-
-  @override
-  void initState() {
-    super.initState();
-    _initSvg();
-  }
+  /// [GlobalKey] for the [CircularProgressIndicator] indicating the loading of
+  /// the image to display.
+  final GlobalKey _progressIndicatorKey = GlobalKey();
 
   @override
   void didUpdateWidget(WebImage oldWidget) {
     if (oldWidget.src != widget.src) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
-      _isBackoffRunnung = false;
-      _initSvg();
+      _isBackoffRunning = false;
     }
 
     super.didUpdateWidget(oldWidget);
@@ -95,16 +83,16 @@ class _WebImageState extends State<WebImage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isBackoffRunnung) {
-      return const Center(
-        child: CircularProgressIndicator(),
+    if (_isBackoffRunning) {
+      return Center(
+        child: CircularProgressIndicator(key: _progressIndicatorKey),
       );
     }
 
     return IgnorePointer(
       child: _HtmlImage(
         src: widget.src,
-        svg: _svg,
+        progressIndicatorKey: _progressIndicatorKey,
         onError: _backoff,
       ),
     );
@@ -114,7 +102,7 @@ class _WebImageState extends State<WebImage> {
   /// backoff algorithm on a failure.
   Future<void> _backoff() async {
     if (mounted) {
-      setState(() => _isBackoffRunnung = true);
+      setState(() => _isBackoffRunning = true);
     }
 
     try {
@@ -123,10 +111,7 @@ class _WebImageState extends State<WebImage> {
           Response? data;
 
           try {
-            data = await PlatformUtils.dio.get(
-              widget.src,
-              options: Options(responseType: ResponseType.bytes),
-            );
+            data = await PlatformUtils.dio.head(widget.src);
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
@@ -135,17 +120,8 @@ class _WebImageState extends State<WebImage> {
           }
 
           if (data?.data != null && data!.statusCode == 200) {
-            final Uint8List image = data.data;
-
-            if (image.isSvg) {
-              _svg = base64Encode(image);
-              if (widget.checksum != null) {
-                FIFOCache.set(widget.checksum!, image);
-              }
-            }
-
             if (mounted) {
-              setState(() => _isBackoffRunnung = false);
+              setState(() => _isBackoffRunning = false);
             }
           } else {
             throw Exception('Image is not loaded');
@@ -157,32 +133,22 @@ class _WebImageState extends State<WebImage> {
       // No-op.
     }
   }
-
-  /// Initializes the [_svg], if it is cached.
-  Future<void> _initSvg() async {
-    if (widget.checksum != null) {
-      final Uint8List? image = FIFOCache.get(widget.checksum!);
-
-      if (image != null && image.isSvg) {
-        _svg = base64Encode(image);
-      }
-    }
-  }
 }
 
 /// Web [html.ImageElement] used to show images natively.
 class _HtmlImage extends StatefulWidget {
   const _HtmlImage({
     required this.src,
-    this.svg,
+    required this.progressIndicatorKey,
     this.onError,
   });
 
   /// URL of the image to display.
   final String src;
 
-  /// Base64 of the image to display, if it is svg.
-  final String? svg;
+  /// [GlobalKey] for the [CircularProgressIndicator] indicating the loading of
+  /// the image to display.
+  final GlobalKey progressIndicatorKey;
 
   /// Callback, called when image to display loading failed.
   final VoidCallback? onError;
@@ -245,7 +211,10 @@ class _HtmlImageState extends State<_HtmlImage> {
           child: HtmlElementView(
               viewType: '${_elementId}__webImageViewType__${widget.src}__'),
         ),
-        if (!_isLoaded) const Center(child: CircularProgressIndicator()),
+        if (!_isLoaded)
+          Center(
+            child: CircularProgressIndicator(key: widget.progressIndicatorKey),
+          ),
       ],
     );
   }
@@ -254,15 +223,11 @@ class _HtmlImageState extends State<_HtmlImage> {
   void _initImageElement() {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
 
-    final String src = widget.svg == null
-        ? widget.src
-        : 'data:image/svg+xml;base64,${widget.svg}';
-
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
       '${_elementId}__webImageViewType__${widget.src}__',
       (int viewId) {
-        _element = html.ImageElement(src: src)
+        _element = html.ImageElement(src: widget.src)
           ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
