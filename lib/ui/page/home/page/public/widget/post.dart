@@ -481,7 +481,7 @@ class _PostWidgetState extends State<PostWidget> {
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                SvgLoader.asset(
+                                                SvgImage.asset(
                                                   'assets/icons/eye.svg',
                                                   height: 14.25 * 0.8,
                                                 ),
@@ -784,7 +784,7 @@ class _PostWidgetState extends State<PostWidget> {
                           //       const SizedBox(width: 8),
                           //       const Spacer(),
                           //       const SizedBox(width: 8),
-                          //       // SvgLoader.asset(
+                          //       // SvgImage.asset(
                           //       //   'assets/icons/eye.svg',
                           //       //   height: 14.25,
                           //       // ),
@@ -827,7 +827,7 @@ class _PostWidgetState extends State<PostWidget> {
                                     // else
                                     //   const SizedBox(width: 12),
                                     const SizedBox(width: 8),
-                                    SvgLoader.asset(
+                                    SvgImage.asset(
                                       'assets/icons/eye.svg',
                                       // width: 23.07,
                                       height: 14.25,
@@ -928,7 +928,7 @@ class _PostWidgetState extends State<PostWidget> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SvgLoader.asset(
+                                SvgImage.asset(
                                   'assets/icons/eye.svg',
                                   height: 14.25 * 0.8,
                                 ),
@@ -998,7 +998,7 @@ class _PostWidgetState extends State<PostWidget> {
     //                   ContextMenuButton(
     //                     key: const Key('ReplyButton'),
     //                     label: 'Reply'.l10n,
-    //                     leading: SvgLoader.asset(
+    //                     leading: SvgImage.asset(
     //                       'assets/icons/reply.svg',
     //                       width: 18.8,
     //                       height: 16,
@@ -1008,7 +1008,7 @@ class _PostWidgetState extends State<PostWidget> {
     //                   ContextMenuButton(
     //                     key: const Key('ForwardButton'),
     //                     label: 'Forward'.l10n,
-    //                     leading: SvgLoader.asset(
+    //                     leading: SvgImage.asset(
     //                       'assets/icons/forward.svg',
     //                       width: 18.8,
     //                       height: 16,
@@ -1017,7 +1017,7 @@ class _PostWidgetState extends State<PostWidget> {
     //                   ),
     //                   ContextMenuButton(
     //                     label: 'Delete'.l10n,
-    //                     leading: SvgLoader.asset(
+    //                     leading: SvgImage.asset(
     //                       'assets/icons/delete_small.svg',
     //                       width: 17.75,
     //                       height: 17,
@@ -1271,7 +1271,7 @@ class _PostWidgetState extends State<PostWidget> {
                                   .isNotEmpty) ...[
                             ContextMenuButton(
                               label: 'Download all'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 width: 14.82,
                                 height: 17,
@@ -1280,7 +1280,7 @@ class _PostWidgetState extends State<PostWidget> {
                             ),
                             ContextMenuButton(
                               label: 'Download all as'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 width: 14.82,
                                 height: 17,
@@ -1292,7 +1292,7 @@ class _PostWidgetState extends State<PostWidget> {
                             ContextMenuButton(
                               key: const Key('CopyButton'),
                               label: 'Copy'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 width: 14.82,
                                 height: 17,
@@ -1305,7 +1305,7 @@ class _PostWidgetState extends State<PostWidget> {
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: 'Reply'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/reply.svg',
                                 width: 18.8,
                                 height: 16,
@@ -1316,7 +1316,7 @@ class _PostWidgetState extends State<PostWidget> {
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
                                 label: 'Forward'.l10n,
-                                leading: SvgLoader.asset(
+                                leading: SvgImage.asset(
                                   'assets/icons/forward.svg',
                                   width: 18.8,
                                   height: 16,
@@ -1341,7 +1341,7 @@ class _PostWidgetState extends State<PostWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'Edit'.l10n,
-                                leading: SvgLoader.asset(
+                                leading: SvgImage.asset(
                                   'assets/icons/edit.svg',
                                   width: 17,
                                   height: 17,
@@ -1352,7 +1352,7 @@ class _PostWidgetState extends State<PostWidget> {
                               // key: const Key('HideForMe'),
                               // key: _deleteKey,
                               label: 'Delete'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
@@ -1371,7 +1371,7 @@ class _PostWidgetState extends State<PostWidget> {
                               key: const Key('Resend'),
                               label: 'Resend'.l10n,
                               // leading: const Icon(Icons.send),
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1381,7 +1381,7 @@ class _PostWidgetState extends State<PostWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: 'Delete'.l10n,
-                              leading: SvgLoader.asset(
+                              leading: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
@@ -1436,7 +1436,7 @@ class _PostWidgetState extends State<PostWidget> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SvgLoader.asset(
+                SvgImage.asset(
                   'assets/icons/download_cancel.svg',
                   width: 28,
                   height: 28,
@@ -1465,7 +1465,7 @@ class _PostWidgetState extends State<PostWidget> {
           break;
 
         case DownloadStatus.notStarted:
-          leading = SvgLoader.asset(
+          leading = SvgImage.asset(
             'assets/icons/download.svg',
             width: 28,
             height: 28,

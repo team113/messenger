@@ -25,6 +25,7 @@ All user visible changes to this project will be documented in this file. This p
         - Multiple contacts selection. ([#361], [#348])
 - Web:
     - Unread chats badge on favicon. ([#403])
+- Push notifications. ([#202], [#201])
 
 ### Changed
 
@@ -49,6 +50,8 @@ All user visible changes to this project will be documented in this file. This p
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
+[#201]: /../../issues/201
+[#202]: /../../pull/202
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#367]: /../../issues/367

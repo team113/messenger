@@ -49,13 +49,13 @@ class TransactionWidget extends StatelessWidget {
       final Widget status;
 
       if (transaction is IncomingTransaction) {
-        status = SvgLoader.asset(
+        status = SvgImage.asset(
           'assets/icons/transaction_in.svg',
           width: 20,
           height: 20,
         );
       } else {
-        status = SvgLoader.asset(
+        status = SvgImage.asset(
           'assets/icons/transaction_out.svg',
           width: 20,
           height: 20,
@@ -103,7 +103,7 @@ class TransactionWidget extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            // SvgLoader.asset(
+                            // SvgImage.asset(
                             //   'assets/icons/inter.svg',
                             //   height: 13,
                             // ),

@@ -218,7 +218,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: RmbDetector(
                                   onPressed: () =>
                                       PartnerMoreView.show(context),
-                                  child: SvgLoader.asset(
+                                  child: SvgImage.asset(
                                     'assets/icons/partner16.svg',
                                     width: 36,
                                     height: 28,
@@ -229,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('PublicButton'),
                                 child: Transform.translate(
                                   offset: const Offset(0, 1),
-                                  child: SvgLoader.asset(
+                                  child: SvgImage.asset(
                                     'assets/icons/publics13.svg',
                                     width: 32,
                                     height: 31,
@@ -261,7 +261,7 @@ class _HomeViewState extends State<HomeView> {
                                     final Widget child;
 
                                     if (c.myUser.value?.muted != null) {
-                                      child = SvgLoader.asset(
+                                      child = SvgImage.asset(
                                         'assets/icons/chats_muted2.svg',
                                         key: const Key('Muted'),
                                         width: 36.06,
@@ -270,7 +270,7 @@ class _HomeViewState extends State<HomeView> {
                                     } else {
                                       child = Transform.translate(
                                         offset: const Offset(0, 0.5),
-                                        child: SvgLoader.asset(
+                                        child: SvgImage.asset(
                                           'assets/icons/chats6.svg',
                                           key: const Key('Unmuted'),
                                           width: 39.26,
@@ -405,7 +405,7 @@ class _HomeViewState extends State<HomeView> {
           return Stack(
             children: [
               Positioned.fill(
-                child: SvgLoader.asset(
+                child: SvgImage.asset(
                   'assets/images/background_light.svg',
                   key: const Key('DefaultBackground'),
                   width: double.infinity,

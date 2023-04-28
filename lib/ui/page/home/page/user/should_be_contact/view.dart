@@ -127,7 +127,7 @@ class UserView extends StatelessWidget {
                   onPressed: c.openChat,
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/chat.svg',
                       width: 20.12,
                       height: 21.62,
@@ -138,7 +138,7 @@ class UserView extends StatelessWidget {
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(true),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/chat_video_call.svg',
                       height: 17,
                     ),
@@ -147,7 +147,7 @@ class UserView extends StatelessWidget {
                 const SizedBox(width: 28),
                 WidgetButton(
                   onPressed: () => c.call(false),
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/chat_audio_call.svg',
                     height: 19,
                   ),
@@ -155,7 +155,7 @@ class UserView extends StatelessWidget {
                 // WidgetButton(
                 //   onPressed: () {},
                 //   child: const Icon(Icons.more_horiz),
-                //   // child: SvgLoader.asset(
+                //   // child: SvgImage.asset(
                 //   //   'assets/icons/search.svg',
                 //   //   width: 17.77,
                 //   // ),
@@ -401,8 +401,8 @@ class UserView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset('assets/icons/delete.svg',
-                          height: 14),
+                      child:
+                          SvgImage.asset('assets/icons/delete.svg', height: 14),
                     ),
                   ),
                 ),
@@ -431,7 +431,7 @@ class UserView extends StatelessWidget {
         //         offset: const Offset(0, -1),
         //         child: Transform.scale(
         //           scale: 1.15,
-        //           child: SvgLoader.asset(
+        //           child: SvgImage.asset(
         //             'assets/icons/copy.svg',
         //             height: 15,
         //           ),
@@ -474,7 +474,7 @@ class UserView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset(
+                      child: SvgImage.asset(
                         'assets/icons/delete.svg',
                         height: 14,
                       ),
@@ -566,7 +566,7 @@ class UserView extends StatelessWidget {
                             Center(
                               child: WidgetButton(
                                 onPressed: () => c.call(false),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -575,7 +575,7 @@ class UserView extends StatelessWidget {
                             Center(
                               child: WidgetButton(
                                 onPressed: () => c.call(true),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -584,7 +584,7 @@ class UserView extends StatelessWidget {
                             Center(
                               child: WidgetButton(
                                 onPressed: c.openChat,
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat.svg',
                                   width: 21.13,
                                   height: 22.62,
@@ -599,7 +599,7 @@ class UserView extends StatelessWidget {
                                 child: c.inContacts.value
                                     ? Transform.translate(
                                         offset: const Offset(0, 1),
-                                        child: SvgLoader.asset(
+                                        child: SvgImage.asset(
                                           'assets/icons/contact_remove.svg',
                                           width: 25.4,
                                           height: 22.77,
@@ -607,7 +607,7 @@ class UserView extends StatelessWidget {
                                       )
                                     : Transform.translate(
                                         offset: const Offset(0, 1),
-                                        child: SvgLoader.asset(
+                                        child: SvgImage.asset(
                                           'assets/icons/contact_add.svg',
                                           width: 25.4,
                                           height: 22.77,
@@ -687,7 +687,7 @@ class UserView extends StatelessWidget {
                         ),
                         WidgetButton(
                           onPressed: () => c.call(true),
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/chat_video_call.svg',
                             height: 17,
                           ),
@@ -695,7 +695,7 @@ class UserView extends StatelessWidget {
                         const SizedBox(width: 28),
                         WidgetButton(
                           onPressed: () => c.call(false),
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/chat_audio_call.svg',
                             height: 19,
                           ),
@@ -703,7 +703,7 @@ class UserView extends StatelessWidget {
                         const SizedBox(width: 28),
                         WidgetButton(
                           onPressed: c.openChat,
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/chat.svg',
                             width: 21.13,
                             height: 22.62,
@@ -717,7 +717,7 @@ class UserView extends StatelessWidget {
                           child: c.inContacts.value
                               ? Transform.translate(
                                   offset: const Offset(0, 1),
-                                  child: SvgLoader.asset(
+                                  child: SvgImage.asset(
                                     'assets/icons/contact_remove.svg',
                                     width: 25.4,
                                     height: 22.77,
@@ -725,7 +725,7 @@ class UserView extends StatelessWidget {
                                 )
                               : Transform.translate(
                                   offset: const Offset(0, 1),
-                                  child: SvgLoader.asset(
+                                  child: SvgImage.asset(
                                     'assets/icons/contact_add.svg',
                                     width: 25.4,
                                     height: 22.77,
@@ -827,12 +827,12 @@ class UserView extends StatelessWidget {
                     child: Transform.scale(
                       scale: 1.15,
                       child: muted
-                          ? SvgLoader.asset(
+                          ? SvgImage.asset(
                               'assets/icons/btn_mute.svg',
                               width: 18.68,
                               height: 15,
                             )
-                          : SvgLoader.asset(
+                          : SvgImage.asset(
                               'assets/icons/btn_unmute.svg',
                               width: 17.86,
                               height: 15,
@@ -875,7 +875,7 @@ class UserView extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/delete.svg',
                       height: 14,
                     ),
@@ -901,7 +901,7 @@ class UserView extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/delete.svg',
                       height: 14,
                     ),
@@ -977,11 +977,11 @@ class UserView extends StatelessWidget {
           Center(
             child: WidgetButton(
               onPressed: () => c.call(true),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/chat_audio_call.svg',
                 height: 19,
               ),
-              // child: SvgLoader.asset(
+              // child: SvgImage.asset(
               //   'assets/icons/user_audio.svg',
               //   width: 27,
               //   height: 27,
@@ -991,11 +991,11 @@ class UserView extends StatelessWidget {
           Center(
             child: WidgetButton(
               onPressed: () => c.call(false),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/chat_video_call.svg',
                 height: 17,
               ),
-              // child: SvgLoader.asset(
+              // child: SvgImage.asset(
               //   'assets/icons/user_video.svg',
               //   width: 35.29,
               //   height: 24,
@@ -1005,7 +1005,7 @@ class UserView extends StatelessWidget {
           Center(
             child: WidgetButton(
               onPressed: c.openChat,
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/user_chat.svg',
                 width: 25.41,
                 height: 26.97,
@@ -1032,7 +1032,7 @@ class UserView extends StatelessWidget {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/copy.svg',
                     height: 15,
                   ),

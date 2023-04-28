@@ -492,7 +492,7 @@ class PublicsTabView extends StatelessWidget {
                                     c.search.focus.requestFocus,
                                   );
                                 },
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/search_green.svg',
                             width: 17.77,
                           ),
@@ -511,7 +511,7 @@ class PublicsTabView extends StatelessWidget {
                         child = WidgetButton(
                           key: const Key('CloseSearch'),
                           onPressed: () => c.closeSearch(false),
-                          child: SvgLoader.asset(
+                          child: SvgImage.asset(
                             'assets/icons/close_primary.svg',
                             height: 15,
                           ),
@@ -553,7 +553,7 @@ class PublicsTabView extends StatelessWidget {
                                   }
                                 },
                           child: SizedBox(
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/add_green.svg',
                               width: 17,
                               height: 17,
@@ -564,7 +564,7 @@ class PublicsTabView extends StatelessWidget {
                             //   color: style.green,
                             //   size: 26,
                             // ),
-                            // child: SvgLoader.asset(
+                            // child: SvgImage.asset(
                             //   'assets/icons/group.svg',
                             //   width: 21.77,
                             //   height: 18.44,
@@ -1553,7 +1553,7 @@ class PublicsTabView extends StatelessWidget {
                                 key: const Key('Drop'),
                                 onPressed: () => c.dropCall(chat.id),
                                 color: Colors.red,
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/call_end.svg',
                                   width: 38,
                                   height: 38,
@@ -1562,7 +1562,7 @@ class PublicsTabView extends StatelessWidget {
                             : circleButton(
                                 key: const Key('Join'),
                                 onPressed: () => c.joinCall(chat.id),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/audio_call_start.svg',
                                   width: 18,
                                   height: 18,

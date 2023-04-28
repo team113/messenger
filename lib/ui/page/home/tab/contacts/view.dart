@@ -137,21 +137,21 @@ class ContactsTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.search.value != null || c.selecting.value) {
-                  child = SvgLoader.asset(
+                  child = SvgImage.asset(
                     key: const Key('CloseSearch'),
                     'assets/icons/close_primary.svg',
                     height: 15,
                     width: 15,
                   );
                 } else {
-                  child = SvgLoader.asset(
+                  child = SvgImage.asset(
                     // 'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                     // key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
                     // width: 29.69,
                     // height: 21,
-                    'assets/icons/chat.svg',
+                    'assets/icons/chats_small.svg',
                     // width: 21.77,
-                    height: 21,
+                    height: 23.62,
                   );
                 }
 
@@ -207,7 +207,7 @@ class ContactsTabView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     height: double.infinity,
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/search.svg',
                       width: 17.77,
                     ),
@@ -579,7 +579,7 @@ class ContactsTabView extends StatelessWidget {
                 : 'label_sort_by_name'.l10n,
             onPressed: c.toggleSorting,
             // trailing: const Icon(Icons.group_outlined),
-            trailing: SvgLoader.asset(
+            trailing: SvgImage.asset(
               'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
               key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
               width: 29.69,
@@ -623,7 +623,7 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 inverted
                     ? 'assets/icons/muted_light.svg'
                     : 'assets/icons/muted.svg',

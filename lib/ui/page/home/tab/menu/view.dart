@@ -120,7 +120,7 @@ class MenuTabView extends StatelessWidget {
                   // ),
                   child: Obx(() {
                     if (router.accounts.value == 0) {
-                      return SvgLoader.asset(
+                      return SvgImage.asset(
                         'assets/icons/add_account.svg',
                         width: 22.37,
                         height: 20,

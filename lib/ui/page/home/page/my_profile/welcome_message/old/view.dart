@@ -367,7 +367,7 @@ class WelcomeMessageView extends StatelessWidget {
                               color: Colors.transparent,
                               child: c.background.value == null
                                   ? Container(
-                                      child: SvgLoader.asset(
+                                      child: SvgImage.asset(
                                         'assets/images/background_light.svg',
                                         width: double.infinity,
                                         height: double.infinity,
@@ -463,7 +463,7 @@ class WelcomeMessageView extends StatelessWidget {
                                       // //         //             .toList() ??
                                       // //         //         [];
                                       // //         //   },
-                                      // //         //   child: SvgLoader.asset(
+                                      // //         //   child: SvgImage.asset(
                                       // //         //     'assets/icons/edit_message.svg',
                                       // //         //     height: 24,
                                       // //         //     width: 24,
@@ -474,7 +474,7 @@ class WelcomeMessageView extends StatelessWidget {
                                       // //         //   onPressed: () {
                                       // //         //     c.message.value = null;
                                       // //         //   },
-                                      // //         //   child: SvgLoader.asset(
+                                      // //         //   child: SvgImage.asset(
                                       // //         //     'assets/icons/delete_message.svg',
                                       // //         //     height: 26.16,
                                       // //         //     width: 25,

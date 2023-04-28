@@ -32,8 +32,21 @@ class AndroidUtils {
     await platform.invokeMethod('openOverlaySettings');
   }
 
-  /// Requests this device to open this activity from a lockscreen.
-  static Future<void> foregroundFromLockscreen() async {
-    await platform.invokeMethod('foregroundFromLockscreen');
+  /// Creates a new `NotificationChannel` with the provided parameters.
+  static Future<void> createNotificationChannel({
+    required String id,
+    required String name,
+    required String sound,
+    String description = '',
+  }) async {
+    await platform.invokeMethod(
+      'createNotificationChannel',
+      {
+        'id': id,
+        'name': name,
+        'sound': sound,
+        'description': description,
+      },
+    );
   }
 }

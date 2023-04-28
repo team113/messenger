@@ -17,6 +17,7 @@
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -92,7 +93,12 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> logout() async => await _graphQlProvider.deleteSession();
+  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]) async {
+    if (fcmRegistrationToken != null) {
+      await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
+    }
+    await _graphQlProvider.deleteSession();
+  }
 
   @override
   Future<void> validateToken() async => await _graphQlProvider.validateToken();

@@ -62,7 +62,7 @@ class WalletWidget extends StatelessWidget {
       offset: Offset(0, -1 + balance > 0 ? -2 : 0),
       child: Stack(
         children: [
-          SvgLoader.asset('assets/icons/$icon.svg',
+          SvgImage.asset('assets/icons/$icon.svg',
               width: width, height: height),
           Positioned.fill(child: Center(child: overlay)),
         ],

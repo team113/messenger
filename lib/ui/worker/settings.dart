@@ -23,9 +23,12 @@ import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 
 /// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
-/// changes.
+/// changes and exposing its [onChanged] callback.
 class SettingsWorker extends DisposableService {
-  SettingsWorker(this._settingsRepository);
+  SettingsWorker(this._settingsRepository, {this.onChanged});
+
+  /// Callback, called on the [ApplicationSettings.locale] changes.
+  final void Function(String? locale)? onChanged;
 
   /// [AbstractSettingsRepository] storing the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
@@ -50,6 +53,7 @@ class SettingsWorker extends DisposableService {
         if (locale != settings?.locale) {
           locale = settings?.locale;
           L10n.set(Language.from(locale) ?? L10n.languages.first);
+          onChanged?.call(locale);
         }
       },
     );

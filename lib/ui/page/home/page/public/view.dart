@@ -170,13 +170,13 @@ class _PublicViewState extends State<PublicView>
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: WidgetButton(
                     onPressed: () {},
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/search_green.svg',
                       width: 17.77,
                     ),
                     // onPressed: () => MyProfileView.show(context),
                     // onPressed: () => router.chatInfo(widget.id, Routes.public),
-                    // child: SvgLoader.asset(
+                    // child: SvgImage.asset(
                     //   'assets/icons/chat_settings.svg',
                     //   width: 22,
                     //   height: 22,
@@ -504,7 +504,7 @@ class _PublicViewState extends State<PublicView>
                             child: SizedBox(
                               width: iconSize,
                               height: iconSize,
-                              child: SvgLoader.asset(
+                              child: SvgImage.asset(
                                 'assets/icons/attach_green.svg',
                                 height: iconSize,
                               ),
@@ -532,7 +532,7 @@ class _PublicViewState extends State<PublicView>
                             child: SizedBox(
                               width: iconSize,
                               height: iconSize,
-                              child: SvgLoader.asset(
+                              child: SvgImage.asset(
                                 'assets/icons/attach_green.svg',
                                 height: iconSize,
                               ),
@@ -579,7 +579,7 @@ class _PublicViewState extends State<PublicView>
                               height: 22.85,
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 0),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/send_green.svg',
                                   height: 22.85,
                                 ),
@@ -820,7 +820,7 @@ class _PublicViewState extends State<PublicView>
                                       color: style.cardColor,
                                     ),
                                     child: Center(
-                                      child: SvgLoader.asset(
+                                      child: SvgImage.asset(
                                         'assets/icons/close_primary.svg',
                                         width: 7,
                                         height: 7,
@@ -883,7 +883,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: isAndroid ? 'Фото' : 'Камера',
           onPressed: c.pickImageFromCamera,
-          child: SvgLoader.asset(
+          child: SvgImage.asset(
             'assets/icons/make_photo.svg',
             width: 60,
             height: 60,
@@ -893,7 +893,7 @@ class _PublicViewState extends State<PublicView>
           button(
             text: 'Видео',
             onPressed: c.pickVideoFromCamera,
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/video_on.svg',
               width: 60,
               height: 60,
@@ -902,7 +902,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: 'Галерея',
           onPressed: c.pickMedia,
-          child: SvgLoader.asset(
+          child: SvgImage.asset(
             'assets/icons/gallery.svg',
             width: 60,
             height: 60,
@@ -911,7 +911,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: 'Файл',
           onPressed: c.pickFile,
-          child: SvgLoader.asset(
+          child: SvgImage.asset(
             'assets/icons/file.svg',
             width: 60,
             height: 60,

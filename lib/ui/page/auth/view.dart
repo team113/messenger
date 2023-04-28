@@ -60,10 +60,10 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgLoader.asset(e)))
+              .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgLoader.asset(e)))
+              .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           const SizedBox(height: 30),
           Text(
@@ -127,7 +127,7 @@ class AuthView extends StatelessWidget {
                           ),
                         )
                       : Obx(() {
-                          return SvgLoader.asset(
+                          return SvgImage.asset(
                             'assets/images/logo/head000${c.logoFrame.value}.svg',
                             placeholderBuilder: (context) => placeholder,
                             height: 140,
@@ -160,7 +160,7 @@ class AuthView extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             leading: Container(
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/start.svg',
                 width: 25 * 0.7,
               ),
@@ -172,7 +172,7 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
             title: Text('btn_login'.l10n),
-            leading: SvgLoader.asset(
+            leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
             ),
@@ -184,7 +184,7 @@ class AuthView extends StatelessWidget {
               title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                child: SvgLoader.asset(
+                child: SvgImage.asset(
                   'assets/icons/apple.svg',
                   width: 22 * 0.7,
                 ),
@@ -196,7 +196,7 @@ class AuthView extends StatelessWidget {
               title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
-                child: SvgLoader.asset(
+                child: SvgImage.asset(
                   'assets/icons/google.svg',
                   width: 22 * 0.7,
                 ),
@@ -207,17 +207,17 @@ class AuthView extends StatelessWidget {
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
               leading: PlatformUtils.isMacOS
-                  ? SvgLoader.asset(
+                  ? SvgImage.asset(
                       'assets/icons/apple.svg',
                       width: 22 * 0.7,
                     )
                   : (PlatformUtils.isWindows)
-                      ? SvgLoader.asset(
+                      ? SvgImage.asset(
                           'assets/icons/windows.svg',
                           width: 22 * 0.7,
                         )
                       : (PlatformUtils.isLinux)
-                          ? SvgLoader.asset(
+                          ? SvgImage.asset(
                               'assets/icons/linux.svg',
                               width: 22 * 0.7,
                             )
@@ -239,7 +239,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             IgnorePointer(
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/images/background_light.svg',
                 width: double.infinity,
                 height: double.infinity,

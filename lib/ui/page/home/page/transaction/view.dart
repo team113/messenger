@@ -70,14 +70,14 @@ class TransactionView extends StatelessWidget {
                 onPressed: () => ContactSupportView.show(context, e),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 18),
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/help.svg',
                     height: 23,
                   ),
                   // child: Stack(
                   //   alignment: Alignment.center,
                   //   children: [
-                  //     SvgLoader.asset(
+                  //     SvgImage.asset(
                   //       'assets/icons/balance.svg',
                   //       width: 30,
                   //       height: 30,
@@ -469,7 +469,7 @@ class TransactionView extends StatelessWidget {
                       //   ),
                       //   trailing: Transform.scale(
                       //     scale: 1.15,
-                      //     child: SvgLoader.asset(
+                      //     child: SvgImage.asset(
                       //       'assets/icons/download_contour.svg',
                       //       width: 18,
                       //       height: 18,
@@ -487,7 +487,7 @@ class TransactionView extends StatelessWidget {
                     //       ),
                     //       trailing: Transform.scale(
                     //         scale: 1.15,
-                    //         child: SvgLoader.asset(
+                    //         child: SvgImage.asset(
                     //           'assets/icons/download_contour.svg',
                     //           width: 18,
                     //           height: 18,

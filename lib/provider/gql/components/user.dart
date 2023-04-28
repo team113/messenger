@@ -25,8 +25,10 @@ import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
@@ -1146,5 +1148,88 @@ abstract class UserGraphQlMixin {
       ),
     );
     return GetBlacklist$Query.fromJson(result.data!).blacklist;
+  }
+
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  ///
+  /// ### Localization
+  ///
+  /// You may provide the device's preferred locale via the `Accept-Language`
+  /// HTTP header, which will localize notifications to that device using the
+  /// best match of the supported locales.
+  ///
+  /// In order to change the locale of the device, you should re-register it
+  /// supplying the desired locale (use [unregisterFcmDevice], and then
+  /// [registerFcmDevice] once again).
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `null` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified [token] is registered already.
+  Future<void> registerFcmDevice(
+    FcmRegistrationToken token,
+    String? locale,
+  ) async {
+    final variables = RegisterFcmDeviceArguments(token: token);
+    final query = MutationOptions(
+      operationName: 'RegisterFcmDevice',
+      document: RegisterFcmDeviceMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': token,
+      }),
+      options: dio.Options(
+        headers: {
+          if (locale != null) 'Accept-Language': locale,
+        },
+      ),
+      onException: (data) => RegisterFcmDeviceException(
+          RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
+              as RegisterFcmDeviceErrorCode),
+    );
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `true` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified [token] is not registered already.
+  Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
+    final variables = UnregisterFcmDeviceArguments(token: token);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnregisterFcmDevice',
+        document: UnregisterFcmDeviceMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UnregisterFcmDevice$Mutation.fromJson(result.data!)
+        .unregisterFcmDevice;
   }
 }

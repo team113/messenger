@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -42,21 +43,16 @@ import '/util/android_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'background/background.dart';
 
 /// Worker responsible for showing an incoming call notification and playing an
 /// incoming or outgoing call audio.
 class CallWorker extends DisposableService {
   CallWorker(
-    this._background,
     this._callService,
     this._chatService,
     this._myUserService,
     this._notificationService,
   );
-
-  /// [BackgroundWorker] used to get data from its service.
-  final BackgroundWorker _background;
 
   /// [AudioPlayer] currently playing an audio.
   AudioPlayer? _audioPlayer;
@@ -92,25 +88,44 @@ class CallWorker extends DisposableService {
   /// [Timer] used to [Vibration.vibrate] every 500 milliseconds.
   Timer? _vibrationTimer;
 
-  /// [StreamSubscription] to the data coming from the [_background] service.
-  StreamSubscription? _onDataReceived;
-
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get _myUser => _myUserService.myUser;
+  /// [Worker] reacting on the [RouterState.lifecycle] changes.
+  Worker? _lifecycleWorker;
 
   /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
   Timer? _fadeTimer;
 
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
+
   @override
   void onInit() {
     _initAudio();
-    _initBackgroundService();
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock) {
       Wakelock.enable().onError((_, __) => false);
     }
+
+    _lifecycleWorker = ever(router.lifecycle, (e) async {
+      if (e.inForeground) {
+        _callKeep.endAllCalls();
+
+        _callService.calls.forEach((id, call) {
+          if (_answeredCalls.contains(id) && !call.value.isActive) {
+            _callService.join(id, withVideo: false);
+            _answeredCalls.remove(id);
+          }
+        });
+      }
+    });
 
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
@@ -123,20 +138,28 @@ class CallWorker extends DisposableService {
 
       switch (event.op) {
         case OperationKind.added:
-          OngoingCall c = event.value!.value;
+          final OngoingCall c = event.value!.value;
 
-          // Play a sound of an incoming or outgoing call.
-          bool calling = (_callService.me == c.caller?.id ||
-                  c.state.value == OngoingCallState.local) &&
-              c.conversationStartedAt == null;
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
-            bool isInForeground = router.lifecycle.value.inForeground;
+            // Indicator whether it is us who are calling.
+            final bool outgoing = (_callService.me == c.caller?.id ||
+                    c.state.value == OngoingCallState.local) &&
+                c.conversationStartedAt == null;
 
-            if (_answeredCalls.contains(c.chatId.value)) {
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+
+            if (prefs.containsKey('answeredCall')) {
+              _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
+              prefs.remove('answeredCall');
+            }
+
+            final bool isInForeground = router.lifecycle.value.inForeground;
+            if (isInForeground && _answeredCalls.contains(c.chatId.value)) {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
-            } else if (calling) {
+            } else if (outgoing) {
               play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play('chinese.mp3', fade: true);
@@ -157,6 +180,26 @@ class CallWorker extends DisposableService {
               }).catchError((_, __) {
                 // No-op.
               });
+
+              // Show a notification of an incoming call.
+              if (!outgoing && !PlatformUtils.isMobile && !_focused) {
+                if (_myUser.value?.muted == null) {
+                  _chatService.get(c.chatId.value).then((RxChat? chat) {
+                    if (chat?.chat.value.muted == null) {
+                      String? title = chat?.title.value ??
+                          c.caller?.name?.val ??
+                          c.caller?.num.val;
+
+                      _notificationService.show(
+                        title ?? 'label_incoming_call'.l10n,
+                        body: title == null ? null : 'label_incoming_call'.l10n,
+                        payload: '${Routes.chats}/${c.chatId}',
+                        icon: chat?.avatar.value?.original.url,
+                      );
+                    }
+                  });
+                }
+              }
             }
 
             _workers[event.key!] = ever(c.state, (OngoingCallState state) {
@@ -168,38 +211,7 @@ class CallWorker extends DisposableService {
                 }
               }
             });
-
-            // Show a notification of an incoming call.
-            if (!calling) {
-              // On mobile, notification should be displayed only if application
-              // is not in the foreground and the call permissions are not
-              // granted.
-              bool showNotification = !PlatformUtils.isMobile;
-              if (PlatformUtils.isMobile) {
-                showNotification =
-                    !isInForeground && !(await _callKeep.hasPhoneAccount());
-              }
-
-              if (showNotification && _myUser.value?.muted == null) {
-                _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  if (chat?.chat.value.muted == null) {
-                    String? title = chat?.title.value ??
-                        c.caller?.name?.val ??
-                        c.caller?.num.val;
-
-                    _notificationService.show(
-                      title ?? 'label_incoming_call'.l10n,
-                      body: title == null ? null : 'label_incoming_call'.l10n,
-                      payload: '${Routes.chats}/${c.chatId}',
-                      icon: chat?.avatar.value?.original.url,
-                      playSound: false,
-                    );
-                  }
-                });
-              }
-            }
           }
-
           break;
 
         case OperationKind.removed:
@@ -222,25 +234,13 @@ class CallWorker extends DisposableService {
   void onReady() {
     if (PlatformUtils.isMobile) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _callKeep.setup(
-          router.context!,
-          {
-            'ios': {'appName': 'Gapopa'},
-            'android': {
-              'alertTitle': 'label_call_permissions_title'.l10n,
-              'alertDescription': 'label_call_permissions_description'.l10n,
-              'cancelButton': 'btn_dismiss'.l10n,
-              'okButton': 'btn_allow'.l10n,
-              'foregroundService': {
-                'channelId': 'com.team113.messenger',
-                'channelName': 'Foreground calls service',
-                'notificationTitle': 'My app is running on background',
-                'notificationIcon': 'mipmap/ic_notification_launcher',
-              },
-              'additionalPermissions': <String>[],
-            },
-          },
-        );
+        _callKeep.setup(router.context!, PlatformUtils.callKeep);
+
+        _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
+          if (event.callUUID != null) {
+            _answeredCalls.add(ChatId(event.callUUID!));
+          }
+        });
 
         if (PlatformUtils.isAndroid) {
           AndroidUtils.canDrawOverlays().then((v) {
@@ -269,6 +269,8 @@ class CallWorker extends DisposableService {
       });
     }
 
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
+
     super.onReady();
   }
 
@@ -281,14 +283,14 @@ class CallWorker extends DisposableService {
 
     _subscription.cancel();
     _storageSubscription?.cancel();
+    _onFocusChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
+    _lifecycleWorker?.dispose();
 
     if (_vibrationTimer != null) {
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
-
-    _onDataReceived?.cancel();
 
     super.onClose();
   }
@@ -349,37 +351,6 @@ class CallWorker extends DisposableService {
     } on MissingPluginException {
       _audioPlayer = null;
     }
-  }
-
-  /// Initializes a connection to the [_background] worker.
-  void _initBackgroundService() {
-    _onDataReceived = _background.on('answer').listen((event) {
-      var callId = ChatId(event!['callId']!);
-
-      var call = _callService.calls[callId];
-      if (call == null) {
-        _answeredCalls.add(callId);
-      } else {
-        if (call.value.state.value != OngoingCallState.joining &&
-            call.value.state.value != OngoingCallState.active) {
-          if (!router.lifecycle.value.inForeground) {
-            Future(() async {
-              await AndroidUtils.foregroundFromLockscreen();
-
-              Worker? worker;
-              worker = ever(router.lifecycle, (AppLifecycleState state) {
-                if (state.inForeground) {
-                  _callService.join(callId, withVideo: false);
-                  worker?.dispose();
-                }
-              });
-            });
-          } else {
-            _callService.join(callId, withVideo: false);
-          }
-        }
-      }
-    });
   }
 
   /// Initializes [WebUtils] related functionality.

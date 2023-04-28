@@ -53,6 +53,9 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// VAPID (Voluntary Application Server Identification) key for Web Push.
+  static String vapidKey = '';
+
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
@@ -60,9 +63,9 @@ class Config {
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
-  /// - default values;
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`).
+  /// - bundled configuration file (`conf.toml`);
+  /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     Map<String, dynamic> document =
@@ -100,6 +103,11 @@ class Config {
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
+
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+        : (document['fcm']?['vapidKey'] ??
+            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
     origin = url;
 
@@ -156,6 +164,7 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
+            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             origin = url;
           }
         }

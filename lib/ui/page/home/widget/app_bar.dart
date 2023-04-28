@@ -138,7 +138,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  SvgLoader.asset(
+                  SvgImage.asset(
                     'assets/icons/balance.svg',
                     width: 30,
                     height: 30,
@@ -155,7 +155,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
               // child: Center(
-              //   child: SvgLoader.asset(
+              //   child: SvgImage.asset(
               //     'assets/icons/paid_chat.svg',
               //     width: 24,
               //     height: 24,
@@ -335,7 +335,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   //                       // ],
   //                     ),
   //                     child: Center(
-  //                       child: SvgLoader.asset(
+  //                       child: SvgImage.asset(
   //                         'assets/icons/paid_chat.svg',
   //                         width: 24,
   //                         height: 24,

@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +31,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
@@ -77,6 +79,11 @@ class PlatformUtilsImpl {
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  /// Indicates whether device is running on a Firebase Cloud Messaging
+  /// supported OS, meaning it has push notifications enabled.
+  bool get pushNotifications =>
+      PlatformUtils.isMacOS || GetPlatform.isWeb || GetPlatform.isMobile;
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
@@ -198,6 +205,27 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
+  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
+  /// instance to initialize it.
+  Map<String, dynamic> get callKeep {
+    return {
+      'ios': {'appName': 'Gapopa'},
+      'android': {
+        'alertTitle': 'label_call_permissions_title'.l10n,
+        'alertDescription': 'label_call_permissions_description'.l10n,
+        'cancelButton': 'btn_dismiss'.l10n,
+        'okButton': 'btn_allow'.l10n,
+        'foregroundService': {
+          'channelId': 'default',
+          'channelName': 'Default',
+          'notificationTitle': 'My app is running on background',
+          'notificationIcon': 'mipmap/ic_notification_launcher',
+        },
+        'additionalPermissions': <String>[],
+      },
+    };
+  }
+
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -271,6 +299,7 @@ class PlatformUtilsImpl {
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     // int total = 100;
     // for (int count = 0; count <= total; count++) {
@@ -328,7 +357,9 @@ class PlatformUtilsImpl {
           if (file == null) {
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
+            final String path = temporary
+                ? (await getTemporaryDirectory()).path
+                : await downloadsDirectory;
 
             file = File('$path/$filename');
             for (int i = 1; await file!.exists(); ++i) {

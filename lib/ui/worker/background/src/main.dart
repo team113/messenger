@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 
 /// Background service iOS handler.
 ///
@@ -172,26 +173,7 @@ class _BackgroundService {
 
   /// Initializes the [FlutterCallkeep].
   Future<void> _initCallKeep() async {
-    await _callKeep.setup(
-      null,
-      {
-        'ios': {'appName': 'Gapopa'},
-        'android': {
-          'alertTitle': 'label_call_permissions_title'.l10n,
-          'alertDescription': 'label_call_permissions_description'.l10n,
-          'cancelButton': 'btn_dismiss'.l10n,
-          'okButton': 'btn_allow'.l10n,
-          'foregroundService': {
-            'channelId': 'com.team113.messenger',
-            'channelName': 'Foreground calls service',
-            'notificationTitle': 'My app is running on background',
-            'notificationIcon': 'mipmap/ic_notification_launcher',
-          },
-          'additionalPermissions': <String>[],
-        },
-      },
-      backgroundMode: true,
-    );
+    await _callKeep.setup(null, PlatformUtils.callKeep, backgroundMode: true);
 
     _callKeep.on(CallKeepPerformAnswerCallAction(),
         (CallKeepPerformAnswerCallAction event) async {
@@ -374,10 +356,7 @@ class _BackgroundService {
             'label_incoming_call'.l10n,
             name,
             const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'com.team113.messenger',
-                'Gapopa',
-              ),
+              android: AndroidNotificationDetails('default', 'Default'),
             ),
             payload: '${Routes.chats}/$chatId',
           );

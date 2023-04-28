@@ -184,7 +184,7 @@ class ContactsTabView extends StatelessWidget {
                           const EdgeInsets.only(left: 12, right: 14, top: 2),
                       child: SizedBox(
                         width: 29.69,
-                        child: SvgLoader.asset(
+                        child: SvgImage.asset(
                           'assets/icons/close_primary.svg',
                           width: 15,
                           height: 15,
@@ -204,12 +204,12 @@ class ContactsTabView extends StatelessWidget {
                           width: 29.69,
                           height: 21,
                           child: c.sorting.value
-                              ? SvgLoader.asset(
+                              ? SvgImage.asset(
                                   'assets/icons/sort_abc.svg',
                                   width: 30,
                                   height: 21,
                                 )
-                              : SvgLoader.asset(
+                              : SvgImage.asset(
                                   'assets/icons/sort_time.svg',
                                   width: 30,
                                   height: 21,
@@ -242,7 +242,7 @@ class ContactsTabView extends StatelessWidget {
                         },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20, right: 12),
-                    child: SvgLoader.asset(
+                    child: SvgImage.asset(
                       'assets/icons/search.svg',
                       width: 17.77,
                     ),
@@ -541,7 +541,7 @@ class ContactsTabView extends StatelessWidget {
                         return Row(
                           children: [
                             const SizedBox(width: 5),
-                            SvgLoader.asset(
+                            SvgImage.asset(
                               'assets/icons/muted.svg',
                               width: 19.99,
                               height: 15,

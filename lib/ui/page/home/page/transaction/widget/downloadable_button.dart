@@ -49,7 +49,7 @@ class _DownloadableFileState extends State<DownloadableButton> {
             key: const Key('InProgress'),
             alignment: Alignment.center,
             children: [
-              SvgLoader.asset(
+              SvgImage.asset(
                 'assets/icons/download_cancel.svg',
                 key: const Key('CancelDownloading'),
                 width: 40,
@@ -84,7 +84,7 @@ class _DownloadableFileState extends State<DownloadableButton> {
           break;
 
         case DownloadStatus.notStarted:
-          leading = SvgLoader.asset(
+          leading = SvgImage.asset(
             'assets/icons/download.svg',
             key: const Key('Download'),
             width: 40,

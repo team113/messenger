@@ -1562,3 +1562,28 @@ class RemoveChatCallMemberException
     }
   }
 }
+
+/// Exception of `Mutation.registerFcmDevice` described in the [code].
+class RegisterFcmDeviceException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RegisterFcmDeviceException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RegisterFcmDeviceErrorCode code;
+
+  @override
+  String toString() => 'RegisterFcmDeviceException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
+        return 'err_invalid_registration_token'.l10n;
+      case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
+        return 'err_unknown_registration_token'.l10n;
+      case RegisterFcmDeviceErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

@@ -499,11 +499,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
               child: call?.withVideo == true
-                  ? SvgLoader.asset(
+                  ? SvgImage.asset(
                       'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                       height: 13,
                     )
-                  : SvgLoader.asset(
+                  : SvgImage.asset(
                       'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                       height: 15,
                     ),
@@ -997,7 +997,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_copy'.l10n
                                     : 'btn_copy_text'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
@@ -1009,7 +1009,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/reply.svg',
                                 height: 18,
                               ),
@@ -1020,7 +1020,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_forward'.l10n
                                   : 'btn_forward_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/forward.svg',
                                 height: 18,
                               ),
@@ -1057,7 +1057,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/edit.svg',
                                   height: 18,
                                 ),
@@ -1067,7 +1067,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),

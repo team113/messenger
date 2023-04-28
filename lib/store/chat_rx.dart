@@ -392,7 +392,10 @@ class HiveRxChat extends RxChat {
     }
 
     _readTimer?.cancel();
-    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
+    _readTimer = AwaitableTimer(
+        chat.value.lastItem?.id == untilId
+            ? Duration.zero
+            : const Duration(seconds: 1), () async {
       try {
         await _chatRepository.readUntil(id, untilId);
       } catch (_) {

@@ -253,7 +253,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               WidgetButton(
                                 onPressed: () => c.call(true),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -262,7 +262,7 @@ class _ChatViewState extends State<ChatView>
                               WidgetButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -285,7 +285,7 @@ class _ChatViewState extends State<ChatView>
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
-                                            child: SvgLoader.asset(
+                                            child: SvgImage.asset(
                                               'assets/icons/call_end.svg',
                                               width: 32,
                                               height: 32,
@@ -306,7 +306,7 @@ class _ChatViewState extends State<ChatView>
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
-                                            child: SvgLoader.asset(
+                                            child: SvgImage.asset(
                                               'assets/icons/audio_call_start.svg',
                                               width: 15,
                                               height: 15,
@@ -511,7 +511,7 @@ class _ChatViewState extends State<ChatView>
                                                         -1,
                                                         -4,
                                                       ),
-                                                      // child: SvgLoader.asset(
+                                                      // child: SvgImage.asset(
                                                       //   'assets/icons/currency.svg',
                                                       //   width: 23.97,
                                                       //   height: 26,
@@ -1238,7 +1238,7 @@ class _ChatViewState extends State<ChatView>
           return Row(
             children: [
               if (c.chat?.chat.value.muted != null) ...[
-                SvgLoader.asset(
+                SvgImage.asset(
                   'assets/icons/muted_darken.svg',
                   width: 19.99 * 0.6,
                   height: 15 * 0.6,
@@ -1256,7 +1256,7 @@ class _ChatViewState extends State<ChatView>
           return Row(
             children: [
               if (c.chat?.chat.value.muted != null) ...[
-                SvgLoader.asset(
+                SvgImage.asset(
                   'assets/icons/muted_dark.svg',
                   width: 19.99 * 0.6,
                   height: 15 * 0.6,

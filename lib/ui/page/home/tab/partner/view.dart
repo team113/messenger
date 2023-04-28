@@ -49,13 +49,13 @@ class PartnerTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.withdrawing.value) {
-                  child = SvgLoader.asset(
+                  child = SvgImage.asset(
                     'assets/icons/info.svg',
                     width: 20,
                     height: 20,
                   );
                 } else {
-                  child = SvgLoader.asset(
+                  child = SvgImage.asset(
                     key: const Key('Search'),
                     'assets/icons/search.svg',
                     width: 17.77,
@@ -77,7 +77,7 @@ class PartnerTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.withdrawing.value) {
-                  child = SvgLoader.asset(
+                  child = SvgImage.asset(
                     key: const Key('CloseSearch'),
                     'assets/icons/transactions.svg',
                     width: 19,
@@ -90,7 +90,7 @@ class PartnerTabView extends StatelessWidget {
                       Icons.account_balance_wallet_outlined,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
-                    // child: SvgLoader.asset(
+                    // child: SvgImage.asset(
                     //   'assets/icons/transactions.svg',
                     //   width: 19,
                     //   height: 19.42,

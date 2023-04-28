@@ -436,6 +436,8 @@ endif
 		--label org.opencontainers.image.source=$(github_url)/$(github_repo) \
 		--label org.opencontainers.image.revision=$(strip \
 			$(shell git show --pretty=format:%H --no-patch)) \
+		--label org.opencontainers.image.version=$(subst v,,$(strip \
+			$(shell git describe --tags --dirty --match='v*'))) \
 		-t $(OWNER)/$(NAME)$(docker-image-path):$(or $(tag),dev) .
 
 
@@ -525,6 +527,10 @@ ifeq ($(pull),yes)
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
+endif
+ifeq ($(wildcard .cache/backend/l10n),)
+	@mkdir -p .cache/backend/l10n/
+	@chmod 0777 .cache/backend/l10n/
 endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/
@@ -777,7 +783,7 @@ endif
 # Usage:
 #	make git.release [ver=($(VERSION)|<proj-ver>)]
 
-git-release-tag = $(strip $(or $(ver),$(VERSION)))
+git-release-tag = v$(strip $(or $(ver),$(VERSION)))
 
 git.release:
 ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
@@ -785,6 +791,30 @@ ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
 endif
 	git tag $(git-release-tag) main
 	git push origin refs/tags/$(git-release-tag)
+
+
+
+
+#####################
+# Firebase commands #
+#####################
+
+# Configure Firebase Cloud Messaging.
+#
+# Usage:
+#	make firebase.configure [project-id=<project-id>]
+#	                        [platforms=android,ios,macos,web|<platforms>]
+#	                        [web-app-id=<web-app-id>]
+#	                        [bundle-id=<bundle-id>]
+
+firebase.configure:
+	flutterfire configure -y --project=$(project-id) \
+	                         --platforms=$(or $(platforms),\
+	                        	android$(comma)ios$(comma)macos$(comma)web) \
+	                         --ios-bundle-id=$(bundle-id) \
+	                         --macos-bundle-id=$(bundle-id) \
+	                         --android-package-name=$(bundle-id) \
+	                         --web-app-id=$(web-app-id)
 
 
 
@@ -799,6 +829,7 @@ endif
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
+        firebase.configure \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \

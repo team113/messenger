@@ -50,7 +50,7 @@ class StyledBackButton extends StatelessWidget {
             size: 22,
           ),
         ),
-        // child: SvgLoader.asset(
+        // child: SvgImage.asset(
         //   'assets/icons/arrow_left.svg',
         //   height: 16,
         // ),

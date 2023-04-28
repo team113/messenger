@@ -224,7 +224,7 @@ class ChatsTabView extends StatelessWidget {
                             //   Icons.more_horiz,
                             //   color: Theme.of(context).colorScheme.secondary,
                             // ),
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/search.svg',
                               width: 17.77,
                             ),
@@ -238,19 +238,19 @@ class ChatsTabView extends StatelessWidget {
                       final Widget child;
 
                       if (c.searching.value) {
-                        child = SvgLoader.asset(
+                        child = SvgImage.asset(
                           'assets/icons/close_primary.svg',
                           key: const Key('CloseSearch'),
                           height: 15,
                         );
                       } else {
                         child = c.groupCreating.value || c.selecting.value
-                            ? SvgLoader.asset(
+                            ? SvgImage.asset(
                                 'assets/icons/close_primary.svg',
                                 key: const Key('CloseGroupSearching'),
                                 height: 15,
                               )
-                            : SvgLoader.asset(
+                            : SvgImage.asset(
                                 'assets/icons/group.svg',
                                 key: const Key('CreateGroup'),
                                 width: 21.77,
@@ -777,7 +777,7 @@ class ChatsTabView extends StatelessWidget {
                                         right: 12,
                                       ),
                                       height: double.infinity,
-                                      child: SvgLoader.asset(
+                                      child: SvgImage.asset(
                                         'assets/icons/search_14.svg',
                                         // width: 17.77,
                                         height: 13.5,
@@ -803,7 +803,7 @@ class ChatsTabView extends StatelessWidget {
                                             right: 18,
                                           ),
                                           height: double.infinity,
-                                          child: SvgLoader.asset(
+                                          child: SvgImage.asset(
                                             'assets/icons/close_primary.svg',
                                             key: const Key('CloseSearch'),
                                             height: 12,
