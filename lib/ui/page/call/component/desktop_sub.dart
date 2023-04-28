@@ -655,7 +655,8 @@ class SecondaryScalerWidget extends StatelessWidget {
 class MinimizedScalerWidget extends StatelessWidget {
   const MinimizedScalerWidget({
     Key? key,
-    required this.onDrag,
+    required this.onDragUpdate,
+    required this.onDragEnd,
     this.cursor = MouseCursor.defer,
     this.width,
     this.height,
@@ -665,7 +666,10 @@ class MinimizedScalerWidget extends StatelessWidget {
   final MouseCursor cursor;
 
   /// Calculates the corresponding values according to the enabled dragging.
-  final Function(double, double) onDrag;
+  final Function(double, double) onDragUpdate;
+
+  ///
+  final dynamic Function(DragEndDetails)? onDragEnd;
 
   /// Width of this [MinimizedScalerWidget].
   final double? width;
@@ -675,20 +679,16 @@ class MinimizedScalerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (CallController c) {
-      return MouseRegion(
-        cursor: cursor,
-        child: Scaler(
-          key: key,
-          onDragUpdate: onDrag,
-          onDragEnd: (_) {
-            c.updateSecondaryAttach();
-          },
-          width: width ?? Scaler.size,
-          height: height ?? Scaler.size,
-        ),
-      );
-    });
+    return MouseRegion(
+      cursor: cursor,
+      child: Scaler(
+        key: key,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: onDragEnd,
+        width: width ?? Scaler.size,
+        height: height ?? Scaler.size,
+      ),
+    );
   }
 }
 

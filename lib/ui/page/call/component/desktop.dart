@@ -754,11 +754,14 @@ class DesktopCall extends StatelessWidget {
                         child: MinimizedScalerWidget(
                           cursor: SystemMouseCursors.resizeUpDown,
                           width: c.width.value - Scaler.size,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.top,
                             dy: dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -770,11 +773,14 @@ class DesktopCall extends StatelessWidget {
                         child: MinimizedScalerWidget(
                           cursor: SystemMouseCursors.resizeLeftRight,
                           height: c.height.value - Scaler.size,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             x: ScaleModeX.left,
                             dx: dx,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -786,11 +792,14 @@ class DesktopCall extends StatelessWidget {
                         child: MinimizedScalerWidget(
                           cursor: SystemMouseCursors.resizeLeftRight,
                           height: c.height.value - Scaler.size,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             x: ScaleModeX.right,
                             dx: -dx,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -802,11 +811,14 @@ class DesktopCall extends StatelessWidget {
                         child: MinimizedScalerWidget(
                           cursor: SystemMouseCursors.resizeUpDown,
                           width: c.width.value - Scaler.size,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.bottom,
                             dy: -dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -823,13 +835,16 @@ class DesktopCall extends StatelessWidget {
                               : SystemMouseCursors.resizeUpLeftDownRight,
                           width: Scaler.size * 2,
                           height: Scaler.size * 2,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.top,
                             x: ScaleModeX.left,
                             dx: dx,
                             dy: dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -845,13 +860,16 @@ class DesktopCall extends StatelessWidget {
                               : SystemMouseCursors.resizeUpRightDownLeft,
                           width: Scaler.size * 2,
                           height: Scaler.size * 2,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.top,
                             x: ScaleModeX.right,
                             dx: -dx,
                             dy: dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -866,13 +884,16 @@ class DesktopCall extends StatelessWidget {
                               : SystemMouseCursors.resizeUpRightDownLeft,
                           width: Scaler.size * 2,
                           height: Scaler.size * 2,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.bottom,
                             x: ScaleModeX.left,
                             dx: dx,
                             dy: -dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
@@ -889,13 +910,16 @@ class DesktopCall extends StatelessWidget {
                               : SystemMouseCursors.resizeUpLeftDownRight,
                           width: Scaler.size * 2,
                           height: Scaler.size * 2,
-                          onDrag: (dx, dy) => c.resize(
+                          onDragUpdate: (dx, dy) => c.resize(
                             context,
                             y: ScaleModeY.bottom,
                             x: ScaleModeX.right,
                             dx: -dx,
                             dy: -dy,
                           ),
+                          onDragEnd: (_) {
+                            c.updateSecondaryAttach();
+                          },
                         ),
                       );
                     }),
