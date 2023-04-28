@@ -179,6 +179,8 @@ jobs:
         env:
           APP_STORE_CERTIFICATE: ${{ secrets.APP_STORE_CERTIFICATE }}
           APP_STORE_CERTIFICATE_ID: ${{ secrets.APP_STORE_CERTIFICATE_ID }}
+          APP_STORE_CERTIFICATE2: ${{ secrets.APP_STORE_CERTIFICATE2 }}
+          APP_STORE_CERTIFICATE2_ID: ${{ secrets.APP_STORE_CERTIFICATE2_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_IDENTIFIER }}
           APP_STORE_KEY: ${{ secrets.APP_STORE_KEY }}
@@ -190,11 +192,16 @@ jobs:
           export APP_STORE_CONNECT_PRIVATE_KEY=`echo $APP_STORE_KEY | base64 --decode`
           export PROFILE_PRIVATE_KEY=`echo $APP_STORE_PROFILE | base64 --decode`
           export CERTIFICATE_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE | base64 --decode`
+          export CERTIFICATE2_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE2 | base64 --decode`
 
           app-store-connect get-profile $APP_STORE_PROFILE_ID --save
 
           app-store-connect get-certificate $APP_STORE_CERTIFICATE_ID \
             --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
+            --save
+
+          app-store-connect get-certificate $APP_STORE_CERTIFICATE2_ID \
+            --certificate-key=@env:CERTIFICATE2_PRIVATE_KEY \
             --save
 
           app-store-connect fetch-signing-files com.team113.messenger \
