@@ -17,311 +17,227 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/l10n/l10n.dart';
 
-import '/domain/model/ongoing_call.dart';
-import '/util/web/web_utils.dart';
-import '../../../widget/context_menu/menu.dart';
-import '../../../widget/context_menu/region.dart';
+import '../../../../domain/model/chat.dart';
 import '../component/desktop.dart';
 import '../controller.dart';
 import 'animated_delayed_scale.dart';
 import 'conditional_backdrop.dart';
 import 'participant.dart';
 import 'reorderable_fit.dart';
-import 'video_view.dart';
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 class PrimaryView extends StatelessWidget {
-  const PrimaryView({super.key});
+  const PrimaryView({
+    super.key,
+    required this.onDragEnded,
+    required this.onAdded,
+    required this.onWillAccept,
+    required this.onLeave,
+    required this.onDragStarted,
+    required this.onOffset,
+    required this.onDoughBreak,
+    required this.size,
+    required this.doughDraggedRenderer,
+    required this.chatId,
+    required this.secondaryDrags,
+    required this.primaryTargets,
+    required this.overlayBuilder,
+    required this.primaryDrags,
+    required this.secondaryDragged,
+    required this.hoveredRenderer,
+    required this.rendererBoxFit,
+    required this.primary,
+    required this.minimized,
+    required this.fullscreen,
+  });
+
+  ///
+  final void Function(DesktopDragData d) onDragEnded;
+
+  ///
+  final dynamic Function(DesktopDragData, int)? onAdded;
+
+  ///
+  final bool Function(DesktopDragData?)? onWillAccept;
+
+  ///
+  final void Function(DesktopDragData?)? onLeave;
+
+  ///
+  final dynamic Function(DesktopDragData)? onDragStarted;
+
+  ///
+  final Offset Function()? onOffset;
+
+  ///
+  final void Function(DesktopDragData)? onDoughBreak;
+
+  ///
+  final double size;
+
+  ///
+  final Rx<Participant?> doughDraggedRenderer;
+
+  ///
+  final Rx<ChatId> chatId;
+
+  ///
+  final RxInt secondaryDrags;
+
+  ///
+  final RxInt primaryTargets;
+
+  ///
+  final RxInt primaryDrags;
+
+  ///
+  final RxBool secondaryDragged;
+
+  ///
+  final Rx<Participant?> hoveredRenderer;
+
+  ///
+  final Widget Function(DesktopDragData)? overlayBuilder;
+
+  ///
+  final RxMap<String, BoxFit?> rendererBoxFit;
+
+  ///
+  final RxList<Participant> primary;
+
+  ///
+  final RxBool minimized;
+
+  ///
+  final RxBool fullscreen;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      builder: (CallController c) {
-        return Obx(() {
-          void onDragEnded(DesktopDragData d) {
-            c.primaryDrags.value = 0;
-            c.draggedRenderer.value = null;
-            c.doughDraggedRenderer.value = null;
-            c.hoveredRenderer.value = d.participant;
-            c.hoveredRendererTimeout = 5;
-            c.isCursorHidden.value = false;
-          }
+    return Obx(() {
+      // void onDragEnded(DesktopDragData d) {
+      //   c.primaryDrags.value = 0;
+      //   c.draggedRenderer.value = null;
+      //   c.doughDraggedRenderer.value = null;
+      //   c.hoveredRenderer.value = d.participant;
+      //   c.hoveredRendererTimeout = 5;
+      //   c.isCursorHidden.value = false;
+      // }
 
-          return Stack(
-            children: [
-              ReorderableFit<DesktopDragData>(
-                key: const Key('PrimaryFitView'),
-                allowEmptyTarget: true,
-                onAdded: (d, i) => c.focus(d.participant),
-                onWillAccept: (d) {
-                  if (d?.chatId == c.chatId.value) {
-                    if (d?.participant.member.id.userId != c.me.id.userId ||
-                        d?.participant.video.value?.source !=
-                            MediaSourceKind.Display) {
-                      c.primaryTargets.value = 1;
-                    }
+      return Stack(
+        children: [
+          ReorderableFit<DesktopDragData>(
+            key: const Key('PrimaryFitView'),
+            allowEmptyTarget: true,
+            onAdded: onAdded,
+            onWillAccept: onWillAccept,
+            onLeave: onLeave,
+            onDragStarted: onDragStarted,
+            onOffset: onOffset,
+            onDoughBreak: onDoughBreak,
+            // onAdded: (d, i) => c.focus(d.participant),
+            // onWillAccept: (d) {
+            //   if (d?.chatId == c.chatId.value) {
+            //     if (d?.participant.member.id.userId != c.me.id.userId ||
+            //         d?.participant.video.value?.source !=
+            //             MediaSourceKind.Display) {
+            //       c.primaryTargets.value = 1;
+            //     }
 
-                    return true;
-                  }
+            //     return true;
+            //   }
 
-                  return false;
-                },
-                onLeave: (b) => c.primaryTargets.value = 0,
-                onDragStarted: (r) {
-                  c.draggedRenderer.value = r.participant;
-                  c.showDragAndDropVideosHint = false;
-                  c.primaryDrags.value = 1;
-                  c.keepUi(false);
-                },
-                onOffset: () {
-                  if (c.minimized.value && !c.fullscreen.value) {
-                    return Offset(-c.left.value, -c.top.value - 30);
-                  } else if (!WebUtils.isPopup) {
-                    return const Offset(0, -30);
-                  }
+            //   return false;
+            // },
+            // onLeave: (b) => c.primaryTargets.value = 0,
+            // onDragStarted: (r) {
+            //   c.draggedRenderer.value = r.participant;
+            //   c.showDragAndDropVideosHint = false;
+            //   c.primaryDrags.value = 1;
+            //   c.keepUi(false);
+            // },
+            // onOffset: () {
+            //   if (c.minimized.value && !c.fullscreen.value) {
+            //     return Offset(-c.left.value, -c.top.value - 30);
+            //   } else if (!WebUtils.isPopup) {
+            //     return const Offset(0, -30);
+            //   }
 
-                  return Offset.zero;
-                },
-                onDoughBreak: (r) =>
-                    c.doughDraggedRenderer.value = r.participant,
-                onDragEnd: onDragEnded,
-                onDragCompleted: onDragEnded,
-                onDraggableCanceled: onDragEnded,
-                overlayBuilder: (DesktopDragData data) {
-                  var participant = data.participant;
-
-                  return LayoutBuilder(builder: (context, constraints) {
-                    return Obx(() {
-                      bool? muted =
-                          participant.member.owner == MediaOwnerKind.local
-                              ? !c.audioState.value.isEnabled
-                              : participant.audio.value?.isMuted.value ?? false;
-
-                      bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                          c.primaryDrags.value != 0 ||
-                          c.secondaryDragged.value;
-
-                      bool isHovered = c.hoveredRenderer.value == participant &&
-                          !anyDragIsHappening;
-
-                      BoxFit? fit =
-                          participant.video.value?.renderer.value == null
-                              ? null
-                              : c.rendererBoxFit[participant
-                                      .video.value?.renderer.value!.track
-                                      .id()] ??
-                                  RtcVideoView.determineBoxFit(
-                                    participant.video.value?.renderer.value
-                                        as RtcVideoRenderer,
-                                    participant.source,
-                                    constraints,
-                                    context,
-                                  );
-
-                      return MouseRegion(
-                        opaque: false,
-                        onEnter: (d) {
-                          if (c.draggedRenderer.value == null) {
-                            c.hoveredRenderer.value = data.participant;
-                            c.hoveredRendererTimeout = 5;
-                            c.isCursorHidden.value = false;
-                          }
-                        },
-                        onHover: (d) {
-                          if (c.draggedRenderer.value == null) {
-                            c.hoveredRenderer.value = data.participant;
-                            c.hoveredRendererTimeout = 5;
-                            c.isCursorHidden.value = false;
-                          }
-                        },
-                        onExit: (d) {
-                          c.hoveredRendererTimeout = 0;
-                          c.hoveredRenderer.value = null;
-                          c.isCursorHidden.value = false;
-                        },
-                        child: AnimatedOpacity(
-                          duration: 200.milliseconds,
-                          opacity: c.draggedRenderer.value == data.participant
-                              ? 0
-                              : 1,
-                          child: ContextMenuRegion(
-                            key: ObjectKey(participant),
-                            preventContextMenu: true,
-                            actions: [
-                              if (participant.video.value?.renderer.value !=
-                                  null) ...[
-                                if (participant.source ==
-                                    MediaSourceKind.Device)
-                                  ContextMenuButton(
-                                    label: fit == null || fit == BoxFit.cover
-                                        ? 'btn_call_do_not_cut_video'.l10n
-                                        : 'btn_call_cut_video'.l10n,
-                                    onPressed: () {
-                                      c.rendererBoxFit[participant
-                                          .video.value!.renderer.value!.track
-                                          .id()] = fit == null ||
-                                              fit == BoxFit.cover
-                                          ? BoxFit.contain
-                                          : BoxFit.cover;
-                                      if (c.focused.isNotEmpty) {
-                                        c.focused.refresh();
-                                      } else {
-                                        c.remotes.refresh();
-                                        c.locals.refresh();
-                                      }
-                                    },
-                                  ),
-                              ],
-                              if (c.primary.length == 1)
-                                ContextMenuButton(
-                                  label: 'btn_call_uncenter'.l10n,
-                                  onPressed: c.focusAll,
-                                )
-                              else
-                                ContextMenuButton(
-                                  label: 'btn_call_center'.l10n,
-                                  onPressed: () => c.center(participant),
+            //   return Offset.zero;
+            // },
+            // onDoughBreak: (r) =>
+            //     c.doughDraggedRenderer.value = r.participant,
+            onDragEnd: onDragEnded,
+            onDragCompleted: onDragEnded,
+            onDraggableCanceled: onDragEnded,
+            overlayBuilder: overlayBuilder,
+            decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+            itemConstraints: (DesktopDragData data) {
+              // final double size =
+              //     (c.size.longestSide * 0.33).clamp(100, 250);
+              return BoxConstraints(maxWidth: size, maxHeight: size);
+            },
+            itemBuilder: (DesktopDragData data) {
+              var participant = data.participant;
+              return Obx(() {
+                return ParticipantWidget(
+                  participant,
+                  key: ObjectKey(participant),
+                  offstageUntilDetermined: true,
+                  respectAspectRatio: true,
+                  borderRadius: BorderRadius.zero,
+                  onSizeDetermined: participant.video.value?.renderer.refresh,
+                  fit: rendererBoxFit[
+                      participant.video.value?.renderer.value?.track.id() ??
+                          ''],
+                  expanded: doughDraggedRenderer.value == participant,
+                );
+              });
+            },
+            children:
+                primary.map((e) => DesktopDragData(e, chatId.value)).toList(),
+          ),
+          IgnorePointer(
+            child: Obx(() {
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: secondaryDrags.value != 0 && primaryTargets.value != 0
+                    ? Container(
+                        color: const Color(0x40000000),
+                        child: Center(
+                          child: AnimatedDelayedScale(
+                            duration: const Duration(milliseconds: 300),
+                            beginScale: 1,
+                            endScale: 1.06,
+                            child: ConditionalBackdropFilter(
+                              condition: !minimized.value || fullscreen.value,
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: !minimized.value || fullscreen.value
+                                      ? const Color(0x40000000)
+                                      : const Color(0x90000000),
                                 ),
-                              if (participant.member.id != c.me.id) ...[
-                                if (participant.video.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: participant
-                                                .video.value?.renderer.value !=
-                                            null
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () =>
-                                        c.toggleVideoEnabled(participant),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Icon(
+                                    Icons.add_rounded,
+                                    size: 50,
+                                    color: Colors.white,
                                   ),
-                                if (participant.audio.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: (participant.audio.value?.direction
-                                                .value.isEnabled ==
-                                            true)
-                                        ? 'btn_call_disable_audio'.l10n
-                                        : 'btn_call_enable_audio'.l10n,
-                                    onPressed: () =>
-                                        c.toggleAudioEnabled(participant),
-                                  ),
-                                if (participant.member.isRedialing.isFalse)
-                                  ContextMenuButton(
-                                    label: 'btn_call_remove_participant'.l10n,
-                                    onPressed: () => c.removeChatCallMember(
-                                      participant.member.id.userId,
-                                    ),
-                                  ),
-                              ] else ...[
-                                ContextMenuButton(
-                                  label: c.videoState.value.isEnabled
-                                      ? 'btn_call_video_off'.l10n
-                                      : 'btn_call_video_on'.l10n,
-                                  onPressed: c.toggleVideo,
                                 ),
-                                ContextMenuButton(
-                                  label: c.audioState.value.isEnabled
-                                      ? 'btn_call_audio_off'.l10n
-                                      : 'btn_call_audio_on'.l10n,
-                                  onPressed: c.toggleAudio,
-                                ),
-                              ],
-                            ],
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
-                                key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    });
-                  });
-                },
-                decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-                itemConstraints: (DesktopDragData data) {
-                  final double size =
-                      (c.size.longestSide * 0.33).clamp(100, 250);
-                  return BoxConstraints(maxWidth: size, maxHeight: size);
-                },
-                itemBuilder: (DesktopDragData data) {
-                  var participant = data.participant;
-                  return Obx(() {
-                    return ParticipantWidget(
-                      participant,
-                      key: ObjectKey(participant),
-                      offstageUntilDetermined: true,
-                      respectAspectRatio: true,
-                      borderRadius: BorderRadius.zero,
-                      onSizeDetermined:
-                          participant.video.value?.renderer.refresh,
-                      fit: c.rendererBoxFit[
-                          participant.video.value?.renderer.value?.track.id() ??
-                              ''],
-                      expanded: c.doughDraggedRenderer.value == participant,
-                    );
-                  });
-                },
-                children: c.primary
-                    .map((e) => DesktopDragData(e, c.chatId.value))
-                    .toList(),
-              ),
-              IgnorePointer(
-                child: Obx(() {
-                  return AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: c.secondaryDrags.value != 0 &&
-                            c.primaryTargets.value != 0
-                        ? Container(
-                            color: const Color(0x40000000),
-                            child: Center(
-                              child: AnimatedDelayedScale(
-                                duration: const Duration(milliseconds: 300),
-                                beginScale: 1,
-                                endScale: 1.06,
-                                child: ConditionalBackdropFilter(
-                                  condition:
-                                      !c.minimized.value || c.fullscreen.value,
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: !c.minimized.value ||
-                                              c.fullscreen.value
-                                          ? const Color(0x40000000)
-                                          : const Color(0x90000000),
-                                    ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : null,
-                  );
-                }),
-              ),
-            ],
-          );
-        });
-      },
-    );
+                      )
+                    : null,
+              );
+            }),
+          ),
+        ],
+      );
+    });
   }
 }
