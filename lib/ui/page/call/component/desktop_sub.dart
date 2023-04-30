@@ -697,9 +697,8 @@ class MinimizedScalerWidget extends StatelessWidget {
 class SecondaryTargetWidget extends StatelessWidget {
   const SecondaryTargetWidget({
     super.key,
-    required this.secondaryAxis,
-    required this.maxSize,
     required this.size,
+    required this.secondaryAxis,
     required this.secondary,
     required this.doughDraggedRenderer,
     required this.onWillAccept,
@@ -709,13 +708,10 @@ class SecondaryTargetWidget extends StatelessWidget {
   });
 
   ///
-  final Axis secondaryAxis;
-
-  ///
-  final double maxSize;
-
-  ///
   final Size size;
+
+  ///
+  final Axis secondaryAxis;
 
   ///
   final RxList<Participant> secondary;
@@ -737,44 +733,44 @@ class SecondaryTargetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pre-calculate the [ReorderableFit]'s size.
-    double panelSize = max(
-      ReorderableFit.calculateSize(
-        maxSize: size.shortestSide / 4,
-        constraints: Size(size.width, size.height - 45),
-        axis: size.width >= size.height ? Axis.horizontal : Axis.vertical,
-        length: secondary.length,
-      ),
-      130,
-    );
+    return Obx(() {
+      // Pre-calculate the [ReorderableFit]'s size.
+      double panelSize = max(
+        ReorderableFit.calculateSize(
+          maxSize: size.shortestSide / 4,
+          constraints: Size(size.width, size.height - 45),
+          axis: size.width >= size.height ? Axis.horizontal : Axis.vertical,
+          length: secondary.length,
+        ),
+        130,
+      );
 
-    return AnimatedSwitcher(
-      key: const Key('SecondaryTargetAnimatedSwitcher'),
-      duration: 200.milliseconds,
-      child: secondary.isEmpty && doughDraggedRenderer.value != null
-          ? Align(
-              alignment: secondaryAxis == Axis.horizontal
-                  ? Alignment.centerRight
-                  : Alignment.topCenter,
-              child: SizedBox(
-                width: secondaryAxis == Axis.horizontal
-                    ? panelSize / 1.6
-                    : double.infinity,
-                height: secondaryAxis == Axis.horizontal
-                    ? double.infinity
-                    : panelSize / 1.6,
-                child: DragTarget<DesktopDragData>(
-                  onWillAccept: onWillAccept,
-                  onAccept: (DesktopDragData d) {
-                    if (secondaryAxis == Axis.horizontal) {
-                      secondaryAlignment.value = Alignment.centerRight;
-                    } else {
-                      secondaryAlignment.value = Alignment.topCenter;
-                    }
-                    unfocus(d.participant);
-                  },
-                  builder: (context, candidate, rejected) {
-                    return Obx(() {
+      return AnimatedSwitcher(
+        key: const Key('SecondaryTargetAnimatedSwitcher'),
+        duration: 200.milliseconds,
+        child: secondary.isEmpty && doughDraggedRenderer.value != null
+            ? Align(
+                alignment: secondaryAxis == Axis.horizontal
+                    ? Alignment.centerRight
+                    : Alignment.topCenter,
+                child: SizedBox(
+                  width: secondaryAxis == Axis.horizontal
+                      ? panelSize / 1.6
+                      : double.infinity,
+                  height: secondaryAxis == Axis.horizontal
+                      ? double.infinity
+                      : panelSize / 1.6,
+                  child: DragTarget<DesktopDragData>(
+                    onWillAccept: onWillAccept,
+                    onAccept: (DesktopDragData d) {
+                      if (secondaryAxis == Axis.horizontal) {
+                        secondaryAlignment.value = Alignment.centerRight;
+                      } else {
+                        secondaryAlignment.value = Alignment.topCenter;
+                      }
+                      unfocus(d.participant);
+                    },
+                    builder: (context, candidate, rejected) {
                       return IgnorePointer(
                         child: AnimatedSwitcher(
                           key: const Key('SecondaryTargetAnimatedSwitcher'),
@@ -869,12 +865,12 @@ class SecondaryTargetWidget extends StatelessWidget {
                               : Container(),
                         ),
                       );
-                    });
-                  },
+                    },
+                  ),
                 ),
-              ),
-            )
-          : Container(),
-    );
+              )
+            : Container(),
+      );
+    });
   }
 }

@@ -16,6 +16,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -32,6 +33,7 @@ import '../widget/desktop_primary_view.dart';
 import '../widget/desktop_secondary_view.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
+import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -252,11 +254,10 @@ class DesktopCall extends StatelessWidget {
 
                 // Empty drop zone if [secondary] is empty.
                 SecondaryTargetWidget(
+                  size: c.size,
                   secondaryAxis: c.size.width >= c.size.height
                       ? Axis.horizontal
                       : Axis.vertical,
-                  maxSize: c.size.shortestSide / 4,
-                  size: c.size,
                   secondary: c.secondary,
                   doughDraggedRenderer: c.doughDraggedRenderer,
                   onWillAccept: (d) => d?.chatId == c.chatId.value,
