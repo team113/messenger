@@ -222,7 +222,12 @@ class MobileCall extends StatelessWidget {
                           ],
                           unconstrained: true,
                           builder: (animated) {
-                            return MobileBuilder(e, muted, animated);
+                            return MobileBuilder(
+                              e,
+                              muted,
+                              animated,
+                              minimized: c.minimized,
+                            );
                           },
                         );
                       });
@@ -632,7 +637,14 @@ class MobileCall extends StatelessWidget {
                     const SizedBox(height: 32),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 366),
-                      child: const MobileChatWidget(),
+                      child: MobileChatWidget(
+                        actualMembers:
+                            c.members.keys.map((k) => k.userId).toSet(),
+                        chat: c.chat.value,
+                        openAddMember: c.openAddMember,
+                        duration: c.duration,
+                        me: c.me,
+                      ),
                     ),
                     const SizedBox(height: 15),
                   ];

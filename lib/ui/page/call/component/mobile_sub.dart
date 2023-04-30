@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
+import '../../../../domain/model/ongoing_call.dart';
 import '../../../../domain/model/user.dart';
 import '../../../../domain/repository/chat.dart';
 import '../../../../themes.dart';
@@ -36,6 +37,7 @@ class MobileBuilder extends StatelessWidget {
     this.muted,
     this.animated, {
     super.key,
+    required this.minimized,
   });
 
   /// Separate call entity participating in a call.
@@ -47,33 +49,31 @@ class MobileBuilder extends StatelessWidget {
   /// Animated switching.
   final bool animated;
 
+  ///
+  final RxBool minimized;
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      builder: (CallController c) {
-        return AnimatedClipRRect(
-          key: Key(e.member.id.toString()),
-          borderRadius:
-              animated ? BorderRadius.circular(10) : BorderRadius.zero,
-          child: AnimatedContainer(
-            duration: 200.milliseconds,
-            decoration: BoxDecoration(
-              color:
-                  animated ? const Color(0xFF132131) : const Color(0x00132131),
-            ),
-            width: animated ? MediaQuery.of(context).size.width - 20 : null,
-            height: animated ? MediaQuery.of(context).size.height / 2 : null,
-            child: StackWidget(e, muted, animated),
-          ),
-        );
-      },
+    return AnimatedClipRRect(
+      key: Key(e.member.id.toString()),
+      borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
+      child: AnimatedContainer(
+        duration: 200.milliseconds,
+        decoration: BoxDecoration(
+          color: animated ? const Color(0xFF132131) : const Color(0x00132131),
+        ),
+        width: animated ? MediaQuery.of(context).size.width - 20 : null,
+        height: animated ? MediaQuery.of(context).size.height / 2 : null,
+        child: StackWidget(e, muted, animated, minimized: minimized),
+      ),
     );
   }
 }
 
 /// Сreating overlapping [Widget]'s of various functionality.
 class StackWidget extends StatelessWidget {
-  const StackWidget(this.e, this.muted, this.animated, {super.key});
+  const StackWidget(this.e, this.muted, this.animated,
+      {super.key, required this.minimized});
 
   /// Separate call entity participating in a call.
   final Participant e;
@@ -84,28 +84,27 @@ class StackWidget extends StatelessWidget {
   /// Animated switching.
   final bool animated;
 
+  ///
+  final RxBool minimized;
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      builder: (CallController c) {
-        return Stack(
-          children: [
-            const ParticipantDecoratorWidget(),
-            IgnorePointer(
-              child: ParticipantWidget(
-                e,
-                offstageUntilDetermined: true,
-              ),
-            ),
-            ParticipantOverlayWidget(
-              e,
-              muted: muted,
-              hovered: animated,
-              preferBackdrop: !c.minimized.value,
-            ),
-          ],
-        );
-      },
+    return Stack(
+      children: [
+        const ParticipantDecoratorWidget(),
+        IgnorePointer(
+          child: ParticipantWidget(
+            e,
+            offstageUntilDetermined: true,
+          ),
+        ),
+        ParticipantOverlayWidget(
+          e,
+          muted: muted,
+          hovered: animated,
+          preferBackdrop: !minimized.value,
+        ),
+      ],
     );
   }
 }
@@ -134,111 +133,120 @@ class MobileButtonsWidget extends StatelessWidget {
 
 /// Builds a tile representation of the [CallController.chat].
 class MobileChatWidget extends StatelessWidget {
-  const MobileChatWidget({super.key});
+  const MobileChatWidget({
+    super.key,
+    required this.actualMembers,
+    this.chat,
+    required this.openAddMember,
+    required this.duration,
+    required this.me,
+  });
+
+  final Set<UserId> actualMembers;
+
+  final RxChat? chat;
+
+  final Future<void> Function(BuildContext context) openAddMember;
+
+  final Rx<Duration> duration;
+
+  final CallMember me;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      builder: (CallController c) {
-        return Obx(() {
-          final Style style = Theme.of(context).extension<Style>()!;
-          final RxChat? chat = c.chat.value;
+    return Obx(() {
+      final Style style = Theme.of(context).extension<Style>()!;
 
-          final Set<UserId> actualMembers =
-              c.members.keys.map((k) => k.userId).toSet();
-
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                color: Colors.transparent,
-              ),
-              child: Material(
-                type: MaterialType.card,
-                borderRadius: style.cardRadius,
-                color: const Color(0x794E5A78),
-                child: InkWell(
-                  borderRadius: style.cardRadius,
-                  onTap: () => c.openAddMember(context),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                    child: Row(
-                      children: [
-                        AvatarWidget.fromRxChat(chat, radius: 30),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            color: Colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: const Color(0x794E5A78),
+            child: InkWell(
+              borderRadius: style.cardRadius,
+              onTap: () => openAddMember(context),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                child: Row(
+                  children: [
+                    AvatarWidget.fromRxChat(chat, radius: 30),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      chat?.title.value ?? 'dot'.l10n * 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(color: Colors.white),
-                                    ),
-                                  ),
-                                  Text(
-                                    c.duration.value.hhMmSs(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      c.chat.value?.members.values
-                                              .firstWhereOrNull(
-                                                (e) => e.id != c.me.id.userId,
-                                              )
-                                              ?.user
-                                              .value
-                                              .status
-                                              ?.val ??
-                                          'label_online'.l10n,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(color: Colors.white),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      'label_a_of_b'.l10nfmt({
-                                        'a': '${actualMembers.length}',
-                                        'b': '${c.chat.value?.members.length}',
-                                      }),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(color: Colors.white),
-                                    ),
-                                  ],
+                              Expanded(
+                                child: Text(
+                                  chat?.title.value ?? 'dot'.l10n * 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(color: Colors.white),
                                 ),
+                              ),
+                              Text(
+                                duration.value.hhMmSs(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: Colors.white),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Row(
+                              children: [
+                                Text(
+                                  chat?.members.values
+                                          .firstWhereOrNull(
+                                            (e) => e.id != me.id.userId,
+                                          )
+                                          ?.user
+                                          .value
+                                          .status
+                                          ?.val ??
+                                      'label_online'.l10n,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  'label_a_of_b'.l10nfmt({
+                                    'a': '${actualMembers.length}',
+                                    'b': '${chat!.members.length}',
+                                  }),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
-          );
-        });
-      },
-    );
+          ),
+        ),
+      );
+    });
   }
 }
 
