@@ -115,15 +115,6 @@ class PrimaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // void onDragEnded(DesktopDragData d) {
-      //   c.primaryDrags.value = 0;
-      //   c.draggedRenderer.value = null;
-      //   c.doughDraggedRenderer.value = null;
-      //   c.hoveredRenderer.value = d.participant;
-      //   c.hoveredRendererTimeout = 5;
-      //   c.isCursorHidden.value = false;
-      // }
-
       return Stack(
         children: [
           ReorderableFit<DesktopDragData>(
@@ -135,46 +126,12 @@ class PrimaryView extends StatelessWidget {
             onDragStarted: onDragStarted,
             onOffset: onOffset,
             onDoughBreak: onDoughBreak,
-            // onAdded: (d, i) => c.focus(d.participant),
-            // onWillAccept: (d) {
-            //   if (d?.chatId == c.chatId.value) {
-            //     if (d?.participant.member.id.userId != c.me.id.userId ||
-            //         d?.participant.video.value?.source !=
-            //             MediaSourceKind.Display) {
-            //       c.primaryTargets.value = 1;
-            //     }
-
-            //     return true;
-            //   }
-
-            //   return false;
-            // },
-            // onLeave: (b) => c.primaryTargets.value = 0,
-            // onDragStarted: (r) {
-            //   c.draggedRenderer.value = r.participant;
-            //   c.showDragAndDropVideosHint = false;
-            //   c.primaryDrags.value = 1;
-            //   c.keepUi(false);
-            // },
-            // onOffset: () {
-            //   if (c.minimized.value && !c.fullscreen.value) {
-            //     return Offset(-c.left.value, -c.top.value - 30);
-            //   } else if (!WebUtils.isPopup) {
-            //     return const Offset(0, -30);
-            //   }
-
-            //   return Offset.zero;
-            // },
-            // onDoughBreak: (r) =>
-            //     c.doughDraggedRenderer.value = r.participant,
             onDragEnd: onDragEnded,
             onDragCompleted: onDragEnded,
             onDraggableCanceled: onDragEnded,
             overlayBuilder: overlayBuilder,
             decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
             itemConstraints: (DesktopDragData data) {
-              // final double size =
-              //     (c.size.longestSide * 0.33).clamp(100, 250);
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
             itemBuilder: (DesktopDragData data) {
