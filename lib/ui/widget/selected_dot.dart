@@ -27,6 +27,7 @@ class SelectedDot extends StatelessWidget {
     this.size = 24,
     this.darken = 0,
     this.inverted = true,
+    this.outlined = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -41,6 +42,8 @@ class SelectedDot extends StatelessWidget {
   /// Indicator whether this [SelectedDot] should have inverted color relative
   /// to its base one when [selected] is `true`.
   final bool inverted;
+
+  final bool outlined;
 
   @override
   Widget build(BuildContext context) {
@@ -67,12 +70,23 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
-                    width: 1,
+                    color: outlined
+                        ? Theme.of(context).colorScheme.secondary
+                        : const Color(0xFFD7D7D7).darken(darken),
+                    width: 1.5,
                   ),
                 ),
                 width: size,
                 height: size,
+                child: outlined
+                    ? Center(
+                        child: Icon(
+                          Icons.check,
+                          color: colors.secondary,
+                          size: 14,
+                        ),
+                      )
+                    : null,
               ),
       ),
     );

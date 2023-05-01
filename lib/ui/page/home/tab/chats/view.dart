@@ -126,22 +126,21 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.groupCreating.value) {
-                      child = WidgetButton(
-                        onPressed: c.startSearch,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Center(
-                            child: Text(
-                              'btn_create_group'.l10n,
-                              key: const Key('1'),
-                            ),
+                      child = SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: Center(
+                          child: Text(
+                            'btn_create_group'.l10n,
+                            key: const Key('1'),
                           ),
                         ),
                       );
                     } else if (c.selecting.value) {
-                      child =
-                          Text('label_select_chats'.l10n, key: const Key('3'));
+                      child = Text(
+                        'btn_select_and_delete'.l10n,
+                        key: const Key('3'),
+                      );
                     } else {
                       final Widget synchronization;
 
@@ -209,15 +208,81 @@ class ChatsTabView extends StatelessWidget {
                   }),
                   leading: [
                     Obx(() {
+                      final bool selected = c.chats.where((e) {
+                        final bool isHidden = e.chat.value.isHidden &&
+                            !e.chat.value.isRoute(router.route, c.me);
+
+                        return ((!e.id.isLocal ||
+                                e.messages.isNotEmpty ||
+                                e.chat.value.isMonolog) &&
+                            !isHidden);
+                      }).every(
+                        (e) => c.selectedChats.any((m) => m == e.id),
+                      );
+
                       if (c.selecting.value) {
+                        return WidgetButton(
+                          onPressed: () {
+                            final List<RxChat> chats = [];
+
+                            for (RxChat e in c.chats) {
+                              final bool isHidden = e.chat.value.isHidden &&
+                                  !e.chat.value.isRoute(router.route, c.me);
+
+                              if ((!e.id.isLocal ||
+                                      e.messages.isNotEmpty ||
+                                      e.chat.value.isMonolog) &&
+                                  !isHidden) {
+                                chats.add(e);
+                              }
+                            }
+
+                            bool selected = chats.every(
+                              (e) => c.selectedChats.any((m) => m == e.id),
+                            );
+
+                            if (selected) {
+                              c.selectedChats.clear();
+                            } else {
+                              for (var e in chats) {
+                                if (!c.selectedChats.contains(e.id)) {
+                                  c.selectChat(e);
+                                }
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 6),
+                            height: double.infinity,
+                            // child: Icon(
+                            //   Icons.more_horiz,
+                            //   color: Theme.of(context).colorScheme.secondary,
+                            // ),
+                            // child: Icon(
+                            //   key: const Key('ArrowBack'),
+                            //   Icons.select_all,
+                            //   size: 20,
+                            //   color: Theme.of(context).colorScheme.secondary,
+                            // ),
+                            child: SelectedDot(
+                              selected: selected,
+                              inverted: false,
+                              outlined: !selected,
+                              size: 21,
+                            ),
+                          ),
+                        );
                         return const SizedBox(width: 49.77);
                       }
 
                       return AnimatedSwitcher(
                         duration: 250.milliseconds,
                         child: WidgetButton(
-                          key: const Key('SearchButton'),
-                          onPressed: c.searching.value ? null : c.startSearch,
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed:
+                              c.searching.value ? c.closeSearch : c.startSearch,
                           child: Container(
                             padding: const EdgeInsets.only(
                               left: 20,
@@ -228,10 +293,18 @@ class ChatsTabView extends StatelessWidget {
                             //   Icons.more_horiz,
                             //   color: Theme.of(context).colorScheme.secondary,
                             // ),
-                            child: SvgImage.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
-                            ),
+                            child: c.searching.value
+                                ? Icon(
+                                    key: const Key('ArrowBack'),
+                                    Icons.arrow_back_ios_new,
+                                    size: 20,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  )
+                                : SvgImage.asset(
+                                    'assets/icons/search.svg',
+                                    width: 17.77,
+                                  ),
                           ),
                         ),
                       );
@@ -239,7 +312,7 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
-                      final Widget child;
+                      Widget? child;
 
                       // if (c.groupCreating.value) {
                       //   if (c.groupCreating.value &&
@@ -260,18 +333,26 @@ class ChatsTabView extends StatelessWidget {
                       //     );
                       //   }
                       // } else
+
                       if (c.searching.value) {
-                        child = SvgImage.asset(
-                          'assets/icons/close_primary.svg',
-                          key: const Key('CloseSearch'),
-                          height: 15,
-                        );
+                        if (c.search.value?.search.isEmpty.value == false) {
+                          child = SvgImage.asset(
+                            'assets/icons/search_exit.svg',
+                            key: const Key('CloseSearch'),
+                            height: 11,
+                          );
+                        } else {
+                          // child = const SizedBox();
+                          child = null;
+                        }
                       } else {
                         child = c.groupCreating.value || c.selecting.value
                             ? SvgImage.asset(
-                                'assets/icons/close_primary.svg',
+                                c.searching.value
+                                    ? 'assets/icons/search_exit.svg'
+                                    : 'assets/icons/close_primary.svg',
                                 key: const Key('CloseGroupSearching'),
-                                height: 15,
+                                height: c.searching.value ? 11 : 15,
                               )
                             : SvgImage.asset(
                                 'assets/icons/group.svg',
@@ -284,66 +365,75 @@ class ChatsTabView extends StatelessWidget {
                       return Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          WidgetButton(
-                            key: c.searching.value
-                                ? const Key('CloseSearchButton')
-                                : null,
-                            onPressed: () {
-                              if (c.searching.value) {
-                                // if (c.groupCreating.value) {
-                                //   if (c.search.value?.query.value.isNotEmpty ==
-                                //       true) {
-                                //     c.search.value?.search.clear();
-                                //     c.search.value?.query.value = '';
+                          if (child != null)
+                            WidgetButton(
+                              key: c.searching.value
+                                  ? const Key('CloseSearchButton')
+                                  : null,
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.value?.search.isEmpty.value ==
+                                      false) {
+                                    c.search.value?.search.clear();
+                                    c.search.value?.query.value = '';
+                                    c.search.value?.search.focus.requestFocus();
+                                  }
+                                  // if (c.groupCreating.value) {
+                                  //   if (c.search.value?.query.value.isNotEmpty ==
+                                  //       true) {
+                                  //     c.search.value?.search.clear();
+                                  //     c.search.value?.query.value = '';
 
-                                //     return;
-                                //   } else {
-                                //     c.closeGroupCreating();
-                                //   }
-                                // } else {
-                                //   c.closeGroupCreating();
-                                // }
+                                  //     return;
+                                  //   } else {
+                                  //     c.closeGroupCreating();
+                                  //   }
+                                  // } else {
+                                  //   c.closeGroupCreating();
+                                  // }
+                                  // else {
+                                  // }
 
-                                c.closeSearch(!c.groupCreating.value);
-                              } else if (c.selecting.value) {
-                                c.toggleSelecting();
-                              } else if (c.groupCreating.value) {
-                                c.closeGroupCreating();
-                              } else {
-                                if (onSwitched != null) {
-                                  onSwitched?.call();
+                                  // c.closeSearch(!c.groupCreating.value);
+                                } else if (c.selecting.value) {
+                                  c.toggleSelecting();
+                                } else if (c.groupCreating.value) {
+                                  c.closeGroupCreating();
                                 } else {
-                                  c.startGroupCreating();
+                                  if (onSwitched != null) {
+                                    onSwitched?.call();
+                                  } else {
+                                    c.startGroupCreating();
+                                  }
                                 }
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                left: 12,
-                                right: !c.searching.value &&
-                                        !c.groupCreating.value &&
-                                        !c.selecting.value
-                                    ? 8
-                                    : 16,
-                              ),
-                              height: double.infinity,
-                              child: SizedBox(
-                                width: 21.77,
-                                child: AnimatedSwitcher(
-                                  duration: 250.milliseconds,
-                                  child: child,
+                              },
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                  left: 12,
+                                  right: !c.searching.value &&
+                                          !c.groupCreating.value &&
+                                          !c.selecting.value
+                                      ? 8
+                                      : 16,
                                 ),
+                                height: double.infinity,
+                                child: SizedBox(
+                                  width: 21.77,
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                ),
+                                // child: SizedBox(
+                                //   // width: 21.77,
+                                //   child: AnimatedSizeAndFade(
+                                //     fadeDuration: 250.milliseconds,
+                                //     sizeDuration: 250.milliseconds,
+                                //     child: child,
+                                //   ),
+                                // ),
                               ),
-                              // child: SizedBox(
-                              //   // width: 21.77,
-                              //   child: AnimatedSizeAndFade(
-                              //     fadeDuration: 250.milliseconds,
-                              //     sizeDuration: 250.milliseconds,
-                              //     child: child,
-                              //   ),
-                              // ),
                             ),
-                          ),
                           if (!c.searching.value &&
                               !c.groupCreating.value &&
                               !c.selecting.value)

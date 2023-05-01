@@ -130,6 +130,7 @@ class Selector<T> extends StatefulWidget {
       context: context,
       // barrierColor: kCupertinoModalBarrierColor,
       barrierColor: Colors.transparent,
+      useSafeArea: false,
       builder: builder,
     );
     // }
@@ -175,116 +176,6 @@ class _SelectorState<T> extends State<Selector<T>> {
     // } else {
     return _desktop(context);
     // }
-  }
-
-  /// Returns mobile design of this [Selector].
-  Widget _mobile(BuildContext context) {
-    return Container(
-      height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Center(
-              child: Container(
-                width: 60,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCCCCCC),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Stack(
-                  children: [
-                    CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: widget.initial == null
-                            ? 0
-                            : widget.items.indexOf(_selected.value),
-                      ),
-                      magnification: 1,
-                      squeeze: 1,
-                      looping: true,
-                      diameterRatio: 100,
-                      useMagnifier: false,
-                      itemExtent: 38,
-                      selectionOverlay: Container(
-                        margin:
-                            const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration:
-                            const BoxDecoration(color: Color(0x3363B4FF)),
-                      ),
-                      onSelectedItemChanged: (int i) {
-                        HapticFeedback.selectionClick();
-                        _selected.value = widget.items[i];
-                        if (_debounce == null) {
-                          widget.onSelected?.call(_selected.value);
-                        }
-                      },
-                      children: widget.items
-                          .map(
-                            (e) => Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(46, 0, 29, 0),
-                                child: widget.itemBuilder(e),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        height: 15,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0xFFFFFFFF),
-                              Color(0x00FFFFFF),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: 15,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x00FFFFFF),
-                              Color(0xFFFFFFFF),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   /// Returns desktop design of this [Selector].
@@ -339,8 +230,6 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dx - (box?.size.width ?? 0),
             offset.dy + (box?.size.height ?? 0),
           );
-
-          print('width is ${constraints.maxWidth} ${offset.dx}');
 
           right = constraints.maxWidth - 100 - offset.dx;
           top = offset.dy - widget.margin.bottom;
