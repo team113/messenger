@@ -113,7 +113,8 @@ class ChatWorker extends DisposableService {
 
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
       _focused = focused;
-      if (_focused && PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+
+      if (_focused) {
         _flashed = false;
       }
     });
