@@ -21,10 +21,10 @@ import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
-import '../../../../domain/model/ongoing_call.dart';
-import '../../../../domain/model/user.dart';
-import '../../../../domain/repository/chat.dart';
-import '../../../../themes.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
+import '/themes.dart';
 import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/animated_cliprrect.dart';
@@ -35,9 +35,9 @@ class MobileBuilder extends StatelessWidget {
   const MobileBuilder(
     this.e,
     this.muted,
-    this.animated, {
+    this.animated,
+    this.minimized, {
     super.key,
-    required this.minimized,
   });
 
   /// Separate call entity participating in a call.
@@ -64,7 +64,7 @@ class MobileBuilder extends StatelessWidget {
         ),
         width: animated ? MediaQuery.of(context).size.width - 20 : null,
         height: animated ? MediaQuery.of(context).size.height / 2 : null,
-        child: StackWidget(e, muted, animated, minimized: minimized),
+        child: StackWidget(e, muted, animated, minimized),
       ),
     );
   }
@@ -72,8 +72,13 @@ class MobileBuilder extends StatelessWidget {
 
 /// Сreating overlapping [Widget]'s of various functionality.
 class StackWidget extends StatelessWidget {
-  const StackWidget(this.e, this.muted, this.animated,
-      {super.key, required this.minimized});
+  const StackWidget(
+    this.e,
+    this.muted,
+    this.animated,
+    this.minimized, {
+    super.key,
+  });
 
   /// Separate call entity participating in a call.
   final Participant e;
@@ -125,7 +130,9 @@ class MobileButtonsWidget extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 400),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: children.map((e) => Expanded(child: e)).toList(),
+        children: [
+          ...children.map((e) => Expanded(child: e)).toList(),
+        ],
       ),
     );
   }
@@ -142,14 +149,19 @@ class MobileChatWidget extends StatelessWidget {
     required this.me,
   });
 
+  ///
   final Set<UserId> actualMembers;
 
+  ///
   final RxChat? chat;
 
+  ///
   final Future<void> Function(BuildContext context) openAddMember;
 
+  ///
   final Rx<Duration> duration;
 
+  ///
   final CallMember me;
 
   @override
@@ -226,7 +238,7 @@ class MobileChatWidget extends StatelessWidget {
                                 Text(
                                   'label_a_of_b'.l10nfmt({
                                     'a': '${actualMembers.length}',
-                                    'b': '${chat!.members.length}',
+                                    'b': '${chat?.members.length}',
                                   }),
                                   style: Theme.of(context)
                                       .textTheme

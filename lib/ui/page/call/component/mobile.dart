@@ -226,7 +226,7 @@ class MobileCall extends StatelessWidget {
                               e,
                               muted,
                               animated,
-                              minimized: c.minimized,
+                              c.minimized,
                             );
                           },
                         );
