@@ -81,8 +81,7 @@ class PlatformUtilsImpl {
 
   /// Indicates whether device is running on a Firebase Cloud Messaging
   /// supported OS, meaning it has push notifications enabled.
-  bool get pushNotifications =>
-      PlatformUtils.isMacOS || GetPlatform.isWeb || GetPlatform.isMobile;
+  bool get pushNotifications => isWeb || isMobile;
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
