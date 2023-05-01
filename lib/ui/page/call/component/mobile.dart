@@ -478,6 +478,13 @@ class MobileCall extends StatelessWidget {
               // Sliding from the top title bar.
               SafeArea(
                 child: Obx(() {
+                  final bool isOutgoing =
+                      (c.outgoing || c.state.value == OngoingCallState.local) &&
+                          !c.started;
+
+                  final bool isDialog =
+                      c.chat.value?.chat.value.isDialog == true;
+
                   bool showUi = (c.state.value != OngoingCallState.active &&
                       !c.minimized.value);
                   return AnimatedSlider(
@@ -493,7 +500,30 @@ class MobileCall extends StatelessWidget {
                           right: 10,
                           top: c.size.height * 0.05,
                         ),
-                        child: const CallTitleCommon(),
+                        child: CallTitleCommon(
+                          isOutgoing: isOutgoing,
+                          isDialog: isDialog,
+                          withDots: c.state.value != OngoingCallState.active &&
+                              (c.state.value == OngoingCallState.joining ||
+                                  isOutgoing),
+                          state: c.state.value == OngoingCallState.active
+                              ? c.duration.value
+                                  .toString()
+                                  .split('.')
+                                  .first
+                                  .padLeft(8, '0')
+                              : c.state.value == OngoingCallState.joining
+                                  ? 'label_call_joining'.l10n
+                                  : isOutgoing
+                                      ? isDialog
+                                          ? null
+                                          : 'label_call_connecting'.l10n
+                                      : c.withVideo == true
+                                          ? 'label_video_call'.l10n
+                                          : 'label_audio_call'.l10n,
+                          me: c.me,
+                          chat: c.chat,
+                        ),
                       ),
                     ),
                   );

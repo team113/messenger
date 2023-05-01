@@ -56,7 +56,7 @@ import 'desktop_sub.dart';
 class DesktopCall extends StatelessWidget {
   const DesktopCall(this.c, {super.key});
 
-  /// Current [OngoingCall].
+  /// [CallController] owning this [DesktopCall], used for changing the state.
   final CallController c;
 
   @override
@@ -568,123 +568,124 @@ class DesktopCall extends StatelessWidget {
                 final bool enabled = c.displayMore.isTrue &&
                     c.primaryDrags.value == 0 &&
                     c.secondaryDrags.value == 0;
-                return Flexible(
-                    child: Column(
+                return Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      verticalDirection: VerticalDirection.up,
-                      children: [
-                        DockWidget(
-                          dock: Dock<CallButton>(
-                            items: c.buttons,
-                            itemWidth: CallController.buttonSize,
-                            itemBuilder: (e) => e.build(
-                              hinted: c.draggedButton.value == null,
-                            ),
-                            onReorder: (buttons) {
-                              c.buttons.clear();
-                              c.buttons.addAll(buttons);
-                              c.relocateSecondary();
-                            },
-                            onDragStarted: (b) {
-                              c.showDragAndDropButtonsHint = false;
-                              c.draggedButton.value = b;
-                            },
-                            onDragEnded: (_) => c.draggedButton.value = null,
-                            onLeave: (_) => c.displayMore.value = true,
-                            onWillAccept: (d) => d?.c == c,
-                          ),
-                          audioButton: AcceptAudioButton(
-                            c,
-                            highlight: !c.withVideo,
-                          ).build(),
-                          videoButton: AcceptVideoButton(
-                            c,
-                            highlight: c.withVideo,
-                          ).build(),
-                          declineButton: DeclineButton(c).build(),
-                          onEnter: (d) => c.keepUi(true),
-                          onHover: (d) => c.keepUi(true),
-                          onExit: c.showUi.value && !c.displayMore.value
-                              ? (d) => c.keepUi(false)
-                              : (d) => c.keepUi(),
-                          isOutgoing: isOutgoing,
-                          showBottomUi: showBottomUi,
-                          answer: answer,
-                          dockKey: c.dockKey,
-                          computation: c.relocateSecondary,
-                        ),
-                        Launchpad(
-                          displayMore: c.displayMore,
-                          onEnter: enabled ? (d) => c.keepUi(true) : null,
-                          onHover: enabled ? (d) => c.keepUi(true) : null,
-                          onExit: enabled ? (d) => c.keepUi() : null,
-                          enabled: enabled,
-                          onAccept: (CallButton data) {
-                            c.buttons.remove(data);
-                            c.draggedButton.value = null;
-                          },
-                          onWillAccept: (CallButton? a) =>
-                              a?.c == c && a?.isRemovable == true,
-                          test: (e) => e?.c == c,
-                          panel: c.panel,
-                          children: c.panel.map((e) {
-                            return SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Column(
-                                children: [
-                                  DelayedDraggable(
-                                    feedback: Transform.translate(
-                                      offset: const Offset(
-                                        CallController.buttonSize / 2 * -1,
-                                        CallController.buttonSize / 2 * -1,
-                                      ),
-                                      child: SizedBox(
-                                        height: CallController.buttonSize,
-                                        width: CallController.buttonSize,
-                                        child: e.build(),
-                                      ),
-                                    ),
-                                    data: e,
-                                    onDragStarted: () {
-                                      c.showDragAndDropButtonsHint = false;
-                                      c.draggedButton.value = e;
-                                    },
-                                    onDragCompleted: () =>
-                                        c.draggedButton.value = null,
-                                    onDragEnd: (_) =>
-                                        c.draggedButton.value = null,
-                                    onDraggableCanceled: (_, __) =>
-                                        c.draggedButton.value = null,
-                                    maxSimultaneousDrags:
-                                        e.isRemovable ? null : 0,
-                                    dragAnchorStrategy:
-                                        pointerDragAnchorStrategy,
-                                    child: e.build(hinted: false),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    e.hint,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
+                    Flexible(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        verticalDirection: VerticalDirection.up,
+                        children: [
+                          DockWidget(
+                            dock: Dock<CallButton>(
+                              items: c.buttons,
+                              itemWidth: CallController.buttonSize,
+                              itemBuilder: (e) => e.build(
+                                hinted: c.draggedButton.value == null,
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                              onReorder: (buttons) {
+                                c.buttons.clear();
+                                c.buttons.addAll(buttons);
+                                c.relocateSecondary();
+                              },
+                              onDragStarted: (b) {
+                                c.showDragAndDropButtonsHint = false;
+                                c.draggedButton.value = b;
+                              },
+                              onDragEnded: (_) => c.draggedButton.value = null,
+                              onLeave: (_) => c.displayMore.value = true,
+                              onWillAccept: (d) => d?.c == c,
+                            ),
+                            audioButton: AcceptAudioButton(
+                              c,
+                              highlight: !c.withVideo,
+                            ).build(),
+                            videoButton: AcceptVideoButton(
+                              c,
+                              highlight: c.withVideo,
+                            ).build(),
+                            declineButton: DeclineButton(c).build(),
+                            onEnter: (d) => c.keepUi(true),
+                            onHover: (d) => c.keepUi(true),
+                            onExit: c.showUi.value && !c.displayMore.value
+                                ? (d) => c.keepUi(false)
+                                : (d) => c.keepUi(),
+                            isOutgoing: isOutgoing,
+                            showBottomUi: showBottomUi,
+                            answer: answer,
+                            dockKey: c.dockKey,
+                            computation: c.relocateSecondary,
+                          ),
+                          Launchpad(
+                            displayMore: c.displayMore,
+                            onEnter: enabled ? (d) => c.keepUi(true) : null,
+                            onHover: enabled ? (d) => c.keepUi(true) : null,
+                            onExit: enabled ? (d) => c.keepUi() : null,
+                            enabled: enabled,
+                            onAccept: (CallButton data) {
+                              c.buttons.remove(data);
+                              c.draggedButton.value = null;
+                            },
+                            onWillAccept: (CallButton? a) =>
+                                a?.c == c && a?.isRemovable == true,
+                            test: (e) => e?.c == c,
+                            panel: c.panel,
+                            children: c.panel.map((e) {
+                              return SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: Column(
+                                  children: [
+                                    DelayedDraggable(
+                                      feedback: Transform.translate(
+                                        offset: const Offset(
+                                          CallController.buttonSize / 2 * -1,
+                                          CallController.buttonSize / 2 * -1,
+                                        ),
+                                        child: SizedBox(
+                                          height: CallController.buttonSize,
+                                          width: CallController.buttonSize,
+                                          child: e.build(),
+                                        ),
+                                      ),
+                                      data: e,
+                                      onDragStarted: () {
+                                        c.showDragAndDropButtonsHint = false;
+                                        c.draggedButton.value = e;
+                                      },
+                                      onDragCompleted: () =>
+                                          c.draggedButton.value = null,
+                                      onDragEnd: (_) =>
+                                          c.draggedButton.value = null,
+                                      onDraggableCanceled: (_, __) =>
+                                          c.draggedButton.value = null,
+                                      maxSimultaneousDrags:
+                                          e.isRemovable ? null : 0,
+                                      dragAnchorStrategy:
+                                          pointerDragAnchorStrategy,
+                                      child: e.build(hinted: false),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      e.hint,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.white,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     )
                   ],
-                ));
+                );
               })),
 
           // Display the more hint, if not dismissed.
@@ -763,6 +764,8 @@ class DesktopCall extends StatelessWidget {
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
                     !c.started;
 
+            final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+
             final bool preferTitle =
                 c.state.value != OngoingCallState.active && !isOutgoing;
 
@@ -779,7 +782,30 @@ class DesktopCall extends StatelessWidget {
                           right: 10,
                           top: c.size.height * 0.05,
                         ),
-                        child: const CallTitleCommon(),
+                        child: CallTitleCommon(
+                          isOutgoing: isOutgoing,
+                          isDialog: isDialog,
+                          withDots: c.state.value != OngoingCallState.active &&
+                              (c.state.value == OngoingCallState.joining ||
+                                  isOutgoing),
+                          state: c.state.value == OngoingCallState.active
+                              ? c.duration.value
+                                  .toString()
+                                  .split('.')
+                                  .first
+                                  .padLeft(8, '0')
+                              : c.state.value == OngoingCallState.joining
+                                  ? 'label_call_joining'.l10n
+                                  : isOutgoing
+                                      ? isDialog
+                                          ? null
+                                          : 'label_call_connecting'.l10n
+                                      : c.withVideo == true
+                                          ? 'label_video_call'.l10n
+                                          : 'label_audio_call'.l10n,
+                          me: c.me,
+                          chat: c.chat,
+                        ),
                       ),
                     )
                   : Container(key: UniqueKey()),
