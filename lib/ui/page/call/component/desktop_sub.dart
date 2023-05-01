@@ -23,31 +23,33 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '../../../../domain/repository/chat.dart';
-import '/themes.dart';
-import '../../../widget/svg/svg.dart';
-import '../../home/widget/animated_slider.dart';
-import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
+import '/domain/repository/chat.dart';
+import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
 import 'desktop.dart';
 
+/// Handle with a drag-and-drop function that allows the user to resize and
+/// manipulate user interface elements.
 class DesktopBuildDragHandle extends StatelessWidget {
   const DesktopBuildDragHandle(
     this.height,
-    this.width, {
+    this.width,
+    this.alignment,
+    this.draggedRenderer, {
     super.key,
-    required this.alignment,
     this.onDragUpdate,
     this.onDragEnd,
-    required this.draggedRenderer,
   });
 
   /// Alignment of the [SecondaryScalerWidget].
@@ -59,12 +61,17 @@ class DesktopBuildDragHandle extends StatelessWidget {
   /// Width of the [SecondaryScalerWidget].
   final double width;
 
-  ///
+  /// [Function] that is responsible for handling the events of dragging
+  /// an element on the screen, returning a callback function that will be
+  /// called every time the user moves the element.
   final dynamic Function(double, double)? onDragUpdate;
 
-  ///
+  /// [Function] that is responsible for handling element dragging events
+  /// is called only once at the moment when the user finishes dragging
+  /// the element.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
+  /// Link to the item that is being dragged now.
   final Rx<Participant?> draggedRenderer;
 
   @override
@@ -155,58 +162,61 @@ class DesktopBuildDragHandle extends StatelessWidget {
   }
 }
 
-/// Builds the [Dock] containing the [CallController.buttons].
+/// [Dock] which contains the [CallController.buttons].
 class DockWidget extends StatelessWidget {
   const DockWidget({
     super.key,
-    required this.dock,
-    required this.audioButton,
-    required this.videoButton,
-    required this.declineButton,
-    required this.isOutgoing,
     required this.showBottomUi,
     required this.answer,
     required this.computation,
+    this.dock,
+    this.audioButton,
+    this.videoButton,
+    this.declineButton,
+    this.isOutgoing,
     this.onEnter,
     this.onHover,
     this.onExit,
     this.dockKey,
   });
 
-  ///
-  final Widget dock;
+  /// [Widget] that will be shown at the bottom of the screen.
+  final Widget? dock;
 
-  ///
-  final Widget audioButton;
+  /// [Widget] of the call button with audio.
+  final Widget? audioButton;
 
-  ///
-  final Widget videoButton;
+  /// [Widget] of a call button with a video.
+  final Widget? videoButton;
 
-  ///
-  final Widget declineButton;
+  /// [Widget] of the reject call button.
+  final Widget? declineButton;
 
-  ///
+  /// [Function] that is called when the mouse cursor enters the area
+  /// of this [DockWidget].
   final void Function(PointerEnterEvent)? onEnter;
 
-  ///
+  /// [Function] that is called when the mouse cursor moves in the area
+  /// of this [DockWidget].
   final void Function(PointerHoverEvent)? onHover;
 
-  ///
+  /// [Function] that is called when the mouse cursor leaves the area
+  /// of this [DockWidget].
   final void Function(PointerExitEvent)? onExit;
 
-  ///
-  final bool isOutgoing;
+  /// Indicator of whether the call is outgoing.
+  final bool? isOutgoing;
 
-  ///
+  /// Indicator of whether to show the [dock].
   final bool showBottomUi;
 
-  ///
+  /// Indicator whether the call is incoming.
   final bool answer;
 
-  ///
+  /// Key for handling [dock] widget states.
   final Key? dockKey;
 
-  ///
+  /// Function that is called when switching between two widget states occurs.
   final VoidCallback computation;
 
   @override
@@ -285,55 +295,64 @@ class DockWidget extends StatelessWidget {
   }
 }
 
-/// Builds the more panel containing the [CallController.panel].
+/// More panel which contains the [CallController.panel].
 class LaunchpadWidget extends StatelessWidget {
   const LaunchpadWidget({
     super.key,
     required this.enabled,
-    required this.onEnter,
-    required this.onHover,
-    required this.onExit,
     required this.test,
     required this.panel,
-    required this.onAccept,
-    required this.onWillAccept,
     required this.displayMore,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.onAccept,
+    this.onWillAccept,
     this.children = const <Widget>[],
   });
 
-  ///
+  /// Indicator of whether [LaunchpadWidget] is enabled.
   final bool enabled;
 
-  ///
+  /// [Function] that is called when the mouse cursor enters the area
+  /// of this [LaunchpadWidget].
   final void Function(PointerEnterEvent)? onEnter;
 
-  ///
+  /// [Function] that is called when the mouse cursor moves in the area
+  /// of this [LaunchpadWidget].
   final void Function(PointerHoverEvent)? onHover;
 
-  ///
+  /// [Function] that is called when the mouse cursor leaves the area
+  /// of this [LaunchpadWidget].
   final void Function(PointerExitEvent)? onExit;
 
-  ///
+  /// Indicator whether at least one element from the [panel] list satisfies
+  /// the condition set by the [test] function.
   final bool Function(CallButton?) test;
 
-  ///
+  /// [CallButton] list, which is a panel of buttons in [LaunchpadWidget].
   final RxList<CallButton> panel;
 
-  ///
+  /// Callback function that is called when accepting a draggable element.
   final void Function(CallButton)? onAccept;
 
-  ///
+  /// Callback function that is called when the dragged element is above
+  /// the widget, but has not yet been released.
   final bool Function(CallButton?)? onWillAccept;
 
-  ///
+  /// Indicator of whether additional elements should be displayed
+  /// in [LaunchpadWidget].
   final RxBool displayMore;
 
-  ///
+  /// [List] of widgets that will be displayed in the [LaunchpadWidget].
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
+    /// Builder function for the [DragTarget].
     ///
+    /// It is responsible for displaying the visual interface when dragging
+    /// elements onto the target.
     Widget launchpadBuilder(
       BuildContext context,
       List<CallButton?> candidate,
@@ -407,11 +426,18 @@ class LaunchpadWidget extends StatelessWidget {
   }
 }
 
-/// [_SecondaryView] possible alignment.
+/// [Container] with a specific alignment on the screen.
+///
+/// It is used to visualize the possible locations for dropping an item
+/// during drag-and-drop operations.
 class PossibleContainerWidget extends StatelessWidget {
-  const PossibleContainerWidget({super.key, required this.alignment});
+  const PossibleContainerWidget(
+    this.alignment, {
+    super.key,
+  });
 
-  ///
+  /// Variable determines the alignment of the [PossibleContainerWidget]
+  /// on the screen.
   final AlignmentGeometry? alignment;
 
   @override
@@ -443,26 +469,28 @@ class PossibleContainerWidget extends StatelessWidget {
   }
 }
 
-/// Combines all the stackable content into [Scaffold].
+/// [Scaffold] widget which combines all stackable content.
 class DesktopScaffoldWidget extends StatelessWidget {
   const DesktopScaffoldWidget({
     super.key,
     required this.content,
     required this.ui,
     this.onPanUpdate,
-    required this.titleBar,
+    this.titleBar,
   });
 
-  /// Stackable content.
+  /// List of [Widget] that make up the stackable content.
   final List<Widget> content;
 
-  /// List of [Widget] that make up the user interface
+  /// List of [Widget] that make up the user interface.
   final List<Widget> ui;
 
+  /// [Widget] that represents the title bar.
   ///
-  final Widget titleBar;
+  /// It is displayed at the top of the scaffold if [WebUtils.isPopup] is false.
+  final Widget? titleBar;
 
-  ///
+  /// Callback [Function] that handles drag update events.
   final void Function(DragUpdateDetails)? onPanUpdate;
 
   @override
@@ -498,39 +526,43 @@ class DesktopScaffoldWidget extends StatelessWidget {
   }
 }
 
-/// Title bar of the call containing information about the call and control
-/// buttons.
+/// [Widget] that displays the title bar at the top of the screen.
+///
+/// [TitleBarWidget] contains information such as the recipient or caller's
+/// name, avatar, and call state, as well as buttons for full-screen mode
+/// and other actions.
 class TitleBarWidget extends StatelessWidget {
   const TitleBarWidget({
     super.key,
-    required this.onDoubleTap,
     required this.constraints,
-    required this.onTap,
     required this.chat,
     required this.titleArguments,
-    required this.toggleFullscreen,
     required this.fullscreen,
+    this.onDoubleTap,
+    this.onTap,
+    this.toggleFullscreen,
   });
 
-  ///
-  final VoidCallback onDoubleTap;
+  /// Callback called when double-tapping on the [TitleBarWidget].
+  final VoidCallback? onDoubleTap;
 
-  ///
+  /// Variable that imposes restrictions on the size of the element.
   final BoxConstraints constraints;
 
-  ///
+  /// Callback that is called when you touch on the left side
+  /// of the [TitleBarWidget].
   final VoidCallback? onTap;
 
-  ///
+  /// Chat Information.
   final Rx<RxChat?> chat;
 
-  ///
+  /// Header arguments.
   final Map<String, String> titleArguments;
 
-  ///
-  final VoidCallback toggleFullscreen;
+  /// Callback that is called when you click on the "full-screen" button.
+  final VoidCallback? toggleFullscreen;
 
-  ///
+  /// Indicator indicating whether the application is in full-screen mode.
   final RxBool fullscreen;
 
   @override
@@ -607,12 +639,14 @@ class TitleBarWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [Scaler] scaling the secondary view.
+/// [Widget] that contains a [MouseRegion] and a [Scaler] widget.
+///
+/// It is used to resize a secondary video window.
 class SecondaryScalerWidget extends StatelessWidget {
   const SecondaryScalerWidget({
     super.key,
-    this.cursor = MouseCursor.defer,
     required this.draggedRenderer,
+    this.cursor = MouseCursor.defer,
     this.onDragUpdate,
     this.onDragEnd,
     this.width,
@@ -622,13 +656,13 @@ class SecondaryScalerWidget extends StatelessWidget {
   /// Interface for mouse cursor definitions
   final MouseCursor cursor;
 
-  ///
+  /// [Rx] object that contains information about the renderer being dragged.
   final Rx<Participant?> draggedRenderer;
 
-  /// Calculates the corresponding values according to the enabled dragging.
+  /// [Function] that gets called when dragging is updated.
   final Function(double, double)? onDragUpdate;
 
-  ///
+  /// [Function] that gets called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
   /// Width of the [SecondaryScalerWidget].
@@ -652,13 +686,13 @@ class SecondaryScalerWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [Scaler] scaling the minimized view.
+/// [Widget] which returns a [Scaler] scaling the minimized view.
 class MinimizedScalerWidget extends StatelessWidget {
   const MinimizedScalerWidget({
     Key? key,
-    required this.onDragUpdate,
-    required this.onDragEnd,
     this.cursor = MouseCursor.defer,
+    this.onDragUpdate,
+    this.onDragEnd,
     this.width,
     this.height,
   }) : super(key: key);
@@ -666,10 +700,10 @@ class MinimizedScalerWidget extends StatelessWidget {
   /// Interface for mouse cursor definitions.
   final MouseCursor cursor;
 
-  /// Calculates the corresponding values according to the enabled dragging.
-  final Function(double, double) onDragUpdate;
+  /// [Function] that gets called when dragging is updated.
+  final Function(double, double)? onDragUpdate;
 
-  ///
+  /// [Function] that gets called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
   /// Width of this [MinimizedScalerWidget].
@@ -693,7 +727,10 @@ class MinimizedScalerWidget extends StatelessWidget {
   }
 }
 
-/// [DragTarget] of an empty [_secondaryView].
+/// [Widget] that serves as a drag target for a list of [Participant].
+///
+/// It provides a secondary data source for the main widget and allows dragging
+/// and dropping of participants between the two widgets.
 class SecondaryTargetWidget extends StatelessWidget {
   const SecondaryTargetWidget({
     super.key,
@@ -701,34 +738,44 @@ class SecondaryTargetWidget extends StatelessWidget {
     required this.secondaryAxis,
     required this.secondary,
     required this.doughDraggedRenderer,
-    required this.onWillAccept,
     required this.primaryDrags,
     required this.secondaryAlignment,
     required this.unfocus,
+    this.onWillAccept,
   });
 
-  ///
+  /// [Size] object that represents the size of the widget.
   final Size size;
 
-  ///
+  /// [Axis] enumeration value that specifies the secondary axis of the widget.
   final Axis secondaryAxis;
 
+  /// [RxList] object that contains a list of Participant objects.
   ///
+  /// It represents the secondary data source of the widget.
   final RxList<Participant> secondary;
 
+  /// [Rx] object that contains a Participant object.
   ///
+  /// It represents the participant that is currently being dragged.
   final Rx<Participant?> doughDraggedRenderer;
 
-  ///
+  /// Callback function that called when a drag operation enters the target
+  /// [Widget] to determine whether the [Widget] can accept the dragged data.
   final bool Function(DesktopDragData?)? onWillAccept;
 
-  ///
+  /// [RxInt] object that represents the number of primary drag operations
+  /// that have been performed.
   final RxInt primaryDrags;
 
+  /// [Rx] object that contains an [Alignment] object.
   ///
+  /// It represents the alignment of the secondary widget with respect
+  /// to the primary [Widget].
   final Rx<Alignment?> secondaryAlignment;
 
-  ///
+  /// Callback [Function] that called to remove focus from the
+  /// specified [Participant].
   final void Function(Participant) unfocus;
 
   @override

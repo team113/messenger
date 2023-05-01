@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../domain/model/chat.dart';
 import '../component/desktop.dart';
 import '../controller.dart';
+import '/domain/model/chat.dart';
 import 'animated_delayed_scale.dart';
 import 'conditional_backdrop.dart';
 import 'participant.dart';
@@ -30,19 +30,11 @@ import 'reorderable_fit.dart';
 class PrimaryView extends StatelessWidget {
   const PrimaryView({
     super.key,
-    required this.onDragEnded,
-    required this.onAdded,
-    required this.onWillAccept,
-    required this.onLeave,
-    required this.onDragStarted,
-    required this.onOffset,
-    required this.onDoughBreak,
     required this.size,
     required this.doughDraggedRenderer,
     required this.chatId,
     required this.secondaryDrags,
     required this.primaryTargets,
-    required this.overlayBuilder,
     required this.primaryDrags,
     required this.secondaryDragged,
     required this.hoveredRenderer,
@@ -50,66 +42,75 @@ class PrimaryView extends StatelessWidget {
     required this.primary,
     required this.minimized,
     required this.fullscreen,
+    this.onAdded,
+    this.onWillAccept,
+    this.onLeave,
+    this.onDragStarted,
+    this.onDragEnded,
+    this.onOffset,
+    this.onDoughBreak,
+    this.overlayBuilder,
   });
 
-  ///
-  final void Function(DesktopDragData d) onDragEnded;
+  /// [Function] that is called when a drag event is completed.
+  final void Function(DesktopDragData d)? onDragEnded;
 
-  ///
+  /// [Function] that is called when an item is added to the widget.
   final dynamic Function(DesktopDragData, int)? onAdded;
 
-  ///
+  /// Function that is called when an item is about to be accepted
+  /// into the widget.
   final bool Function(DesktopDragData?)? onWillAccept;
 
-  ///
+  /// Function that is called when an item is removed from the widget.
   final void Function(DesktopDragData?)? onLeave;
 
-  ///
+  /// function that is called when a drag event starts.
   final dynamic Function(DesktopDragData)? onDragStarted;
 
-  ///
+  /// function that returns the current offset value.
   final Offset Function()? onOffset;
 
-  ///
+  /// function that is called when a "dough" is broken.
   final void Function(DesktopDragData)? onDoughBreak;
 
-  ///
+  /// double value representing the size of the widget.
   final double size;
 
-  ///
+  /// [Rx] variable that stores the dragged "dough" renderer.
   final Rx<Participant?> doughDraggedRenderer;
 
-  ///
+  /// [Rx] variable that stores the ID of the chat.
   final Rx<ChatId> chatId;
 
-  ///
+  /// [Rx] variable that stores the number of secondary drag events.
   final RxInt secondaryDrags;
 
-  ///
+  /// [Rx] variable that stores the number of primary targets.
   final RxInt primaryTargets;
 
-  ///
+  /// [Rx] variable that stores the number of primary drag events.
   final RxInt primaryDrags;
 
-  ///
+  /// [Rx] indicator that stores the state of the secondary drag event.
   final RxBool secondaryDragged;
 
-  ///
+  /// [Rx] variable that stores the hovered renderer.
   final Rx<Participant?> hoveredRenderer;
 
-  ///
+  /// [Function] that builds an overlay widget.
   final Widget Function(DesktopDragData)? overlayBuilder;
 
-  ///
+  /// [RxMap] that stores the fit of the renderer.
   final RxMap<String, BoxFit?> rendererBoxFit;
 
-  ///
+  /// [RxList] of participants.
   final RxList<Participant> primary;
 
-  ///
+  /// [Rx] indicator that stores the minimized state of the widget.
   final RxBool minimized;
 
-  ///
+  /// [Rx] indicator that stores the full-screen state of the widget.
   final RxBool fullscreen;
 
   @override

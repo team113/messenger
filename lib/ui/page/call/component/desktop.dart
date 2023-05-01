@@ -24,9 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../../../routes.dart';
-import '../../../widget/context_menu/menu.dart';
-import '../../../widget/context_menu/region.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title_common.dart';
@@ -44,9 +41,12 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -555,7 +555,7 @@ class DesktopCall extends StatelessWidget {
 
                 Obx(
                   () => PossibleContainerWidget(
-                    alignment: c.possibleSecondaryAlignment.value,
+                    c.possibleSecondaryAlignment.value,
                   ),
                 ),
 
@@ -619,7 +619,8 @@ class DesktopCall extends StatelessWidget {
                                   c.state.value == OngoingCallState.local) &&
                               !c.started;
 
-                          /// Indicator of whether the bottom menu should be displayed.
+                          /// Indicator of whether the bottom menu
+                          /// should be displayed.
                           final bool showBottomUi = (c.showUi.isTrue ||
                               c.draggedButton.value != null ||
                               c.state.value != OngoingCallState.active ||
@@ -636,7 +637,8 @@ class DesktopCall extends StatelessWidget {
                                   c.state.value != OngoingCallState.active &&
                                   !isOutgoing);
 
-                          /// Indicator that the [LaunchpadWidget] can interact with the user.
+                          /// Indicator that the [LaunchpadWidget]
+                          /// can interact with the user.
                           final bool enabled = c.displayMore.isTrue &&
                               c.primaryDrags.value == 0 &&
                               c.secondaryDrags.value == 0;
@@ -995,6 +997,7 @@ class DesktopCall extends StatelessWidget {
                       secondaryWidth: c.secondaryWidth,
                       secondaryHeight: c.secondaryHeight,
                       size: c.size,
+                      focusAll: c.focusAll,
                       onDragEnded: (DesktopDragData d) {
                         c.secondaryDrags.value = 0;
                         c.draggedRenderer.value = null;
@@ -1034,7 +1037,7 @@ class DesktopCall extends StatelessWidget {
 
                         return Offset.zero;
                       },
-                      itemContraintsSize:
+                      itemConstraintsSize:
                           (c.size.longestSide * 0.33).clamp(100, 250),
                       chatId: c.chatId,
                       secondaryKey: c.secondaryKey,

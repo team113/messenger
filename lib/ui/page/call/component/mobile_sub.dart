@@ -21,16 +21,16 @@ import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
+import '../controller.dart';
+import '../widget/animated_cliprrect.dart';
+import '../widget/participant.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/themes.dart';
-import '../../home/widget/avatar.dart';
-import '../controller.dart';
-import '../widget/animated_cliprrect.dart';
-import '../widget/participant.dart';
+import '/ui/page/home/widget/avatar.dart';
 
-/// Builds the [Participant] with a [AnimatedClipRRect].
+/// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
 class MobileBuilder extends StatelessWidget {
   const MobileBuilder(
     this.e,
@@ -40,16 +40,18 @@ class MobileBuilder extends StatelessWidget {
     super.key,
   });
 
-  /// Separate call entity participating in a call.
+  /// [Participant] object that represents a separate call entity
+  /// participating in a call.
   final Participant e;
 
-  /// Mute switching.
+  /// Indicator that determines whether the participant's
+  /// sound is muted or not.
   final bool muted;
 
-  /// Animated switching.
+  /// Indicator that determines whether animation is turned on or off.
   final bool animated;
 
-  ///
+  /// Indicator that determines whether the widget is minimized or not.
   final RxBool minimized;
 
   @override
@@ -70,7 +72,8 @@ class MobileBuilder extends StatelessWidget {
   }
 }
 
-/// Сreating overlapping [Widget]'s of various functionality.
+/// [Stack] of widgets to display a [Participant] entity participating
+/// in a call.
 class StackWidget extends StatelessWidget {
   const StackWidget(
     this.e,
@@ -80,16 +83,18 @@ class StackWidget extends StatelessWidget {
     super.key,
   });
 
-  /// Separate call entity participating in a call.
+  /// [Participant] object that represents a separate call entity
+  /// participating in a call.
   final Participant e;
 
-  /// Mute switching.
+  /// Indicator that determines whether the participant's
+  /// sound is muted or not.
   final bool muted;
 
-  /// Animated switching.
+  /// Indicator that determines whether animation is turned on or off.
   final bool animated;
 
-  ///
+  /// Indicator that determines whether the widget is minimized or not.
   final RxBool minimized;
 
   @override
@@ -114,11 +119,12 @@ class StackWidget extends StatelessWidget {
   }
 }
 
-/// Displays a set of buttons in a row with a horizontal maximum width limit.
+/// [Widget] which displays a set of buttons in a row with a horizontal
+/// maximum width limit.
 class MobileButtonsWidget extends StatelessWidget {
   const MobileButtonsWidget({
     super.key,
-    required this.children,
+    this.children = const <Widget>[],
   });
 
   /// [Widget]'s that should be placed in the [MobileButtonsWidget].
@@ -138,30 +144,30 @@ class MobileButtonsWidget extends StatelessWidget {
   }
 }
 
-/// Builds a tile representation of the [CallController.chat].
+/// [Widget] which builds a tile representation of the [CallController.chat].
 class MobileChatWidget extends StatelessWidget {
   const MobileChatWidget({
     super.key,
     required this.actualMembers,
-    this.chat,
     required this.openAddMember,
     required this.duration,
     required this.me,
+    this.chat,
   });
 
-  ///
+  /// [Set] of user IDs who are currently active in the chat.
   final Set<UserId> actualMembers;
 
-  ///
+  /// [RxChat] object representing the chat, or null if there is no chat.
   final RxChat? chat;
 
-  ///
+  /// Callback [Function] that opens a screen to add members to the chat.
   final Future<void> Function(BuildContext context) openAddMember;
 
-  ///
+  /// [Rx] object representing the current duration of the call.
   final Rx<Duration> duration;
 
-  ///
+  /// [CallMember] object representing the current user.
   final CallMember me;
 
   @override
@@ -264,13 +270,17 @@ class MobileChatWidget extends StatelessWidget {
 
 /// [Column] consisting of the [child] with the provided [description].
 class Description extends StatelessWidget {
-  final Widget child;
-  final Widget description;
   const Description({
     Key? key,
     required this.child,
     required this.description,
   }) : super(key: key);
+
+  /// [Widget] that will be displayed along with the description.
+  final Widget child;
+
+  /// [Widget] that displays a description for the child widget.
+  final Widget description;
 
   @override
   Widget build(BuildContext context) {
@@ -312,24 +322,24 @@ class MobilePaddingWidget extends StatelessWidget {
   }
 }
 
-/// Combines all the stackable content into [Scaffold].
+/// [Scaffold] widget which combines all stackable content.
 class MobileCallScaffoldWidget extends StatelessWidget {
-  /// Stackable content.
-  final List<Widget> content;
-
-  /// List of [Widget] that make up the user interface.
-  final List<Widget> ui;
-
-  /// List of [Widget] which will be displayed on top of the main content
-  /// on the screen.
-  final List<Widget> overlay;
-
   const MobileCallScaffoldWidget(
     this.content,
     this.ui,
     this.overlay, {
     super.key,
   });
+
+  /// [List] of widget that make up the stackable content.
+  final List<Widget> content;
+
+  /// [List] of widget that make up the user interface.
+  final List<Widget> ui;
+
+  /// [List] of widget which will be displayed on top of the main content
+  /// on the screen.
+  final List<Widget> overlay;
 
   @override
   Widget build(BuildContext context) {
