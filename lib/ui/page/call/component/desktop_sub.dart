@@ -344,7 +344,7 @@ class Launchpad extends StatelessWidget {
   /// in [Launchpad].
   final RxBool displayMore;
 
-  /// [List] of widgets that will be displayed in the [Launchpad].
+  /// List of [Widget] that will be displayed in the [Launchpad].
   final List<Widget> children;
 
   @override

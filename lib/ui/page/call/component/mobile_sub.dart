@@ -331,13 +331,13 @@ class OverlayScaffold extends StatelessWidget {
     super.key,
   });
 
-  /// [List] of widget that make up the stackable content.
+  /// List of [Widget] that make up the stackable content.
   final List<Widget> content;
 
-  /// [List] of widget that make up the user interface.
+  /// List of [Widget] that make up the user interface.
   final List<Widget> ui;
 
-  /// [List] of widget which will be displayed on top of the main content
+  /// List of [Widget] which will be displayed on top of the main content
   /// on the screen.
   final List<Widget> overlay;
 
