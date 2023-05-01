@@ -25,11 +25,10 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
+import '/domain/service/file.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/backoff.dart';
-import '/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///
@@ -157,7 +156,7 @@ class _RetryImageState extends State<RetryImage> {
   CancelToken _cancelToken = CancelToken();
 
   /// [CancelToken] canceling the [_loadFallback] operation.
-  final CancelToken _fallbackToken = CancelToken();
+  CancelToken _fallbackToken = CancelToken();
 
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
@@ -180,7 +179,9 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.url != widget.url) {
+    if (oldWidget.fallbackUrl != widget.fallbackUrl) {
+      _fallbackToken.cancel();
+      _fallbackToken = CancelToken();
       _loadFallback();
     }
 
@@ -356,8 +357,6 @@ class _RetryImageState extends State<RetryImage> {
   }
 
   /// Loads the [_fallback] from the provided URL.
-  ///
-  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<void> _loadFallback() async {
     if (widget.fallbackUrl == null) {
       return;
@@ -368,122 +367,72 @@ class _RetryImageState extends State<RetryImage> {
       cached = FIFOCache.get(widget.fallbackChecksum!);
     }
 
-    if (cached != null) {
-      _fallback = cached;
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      try {
-        await Backoff.run(
-          () async {
-            Response? data;
-
-            try {
-              data = await PlatformUtils.dio.get(
-                widget.fallbackUrl!,
-                options: Options(responseType: ResponseType.bytes),
-              );
-            } on DioError catch (e) {
-              if (e.response?.statusCode == 403) {
-                await widget.onForbidden?.call();
-                _cancelToken.cancel();
-              }
-            }
-
-            if (data?.data != null && data!.statusCode == 200) {
-              if (widget.fallbackChecksum != null) {
-                FIFOCache.set(widget.fallbackChecksum!, data.data);
-              }
-
-              _fallback = data.data;
-              if (mounted) {
-                setState(() {});
-              }
-            }
+    _fallback = cached ??
+        await FileService.downloadAndCache(
+          widget.fallbackUrl!,
+          widget.fallbackChecksum,
+          cancelToken: _fallbackToken,
+          onForbidden: () async {
+            widget.onForbidden?.call();
+            _cancelToken.cancel();
+            _fallbackToken.cancel();
           },
-          _fallbackToken,
         );
-      } on OperationCanceledException {
-        // No-op.
-      }
+
+    if (widget.fallbackChecksum != null &&
+        cached == null &&
+        _fallback != null) {
+      FIFOCache.set(widget.fallbackChecksum!, _fallback!);
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
   /// Loads the [_image] from the provided URL.
-  ///
-  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<void> _loadImage() async {
     Uint8List? cached;
     if (widget.checksum != null) {
       cached = FIFOCache.get(widget.checksum!);
     }
 
-    if (cached != null) {
-      _image = cached;
+    _image = cached ?? await FileService.downloadAndCache(
+      widget.url,
+      widget.checksum,
+      onReceiveProgress: (received, total) {
+        if (total > 0) {
+          _progress = received / total;
+          if (mounted) {
+            setState(() {});
+          }
+        }
+      },
+      cancelToken: _cancelToken,
+      onForbidden: () async {
+        widget.onForbidden?.call();
+        _cancelToken.cancel();
+        _fallbackToken.cancel();
+      },
+    );
+    _isSvg = false;
+
+    if (_image != null) {
       _isSvg = _image!.length >= 4 &&
           _image![0] == 60 &&
           _image![1] == 115 &&
           _image![2] == 118 &&
           _image![3] == 103;
+    }
 
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      try {
-        await Backoff.run(
-          () async {
-            Response? data;
+    if (widget.checksum != null &&
+        cached == null &&
+        _image != null) {
+      FIFOCache.set(widget.checksum!, _image!);
+    }
 
-            try {
-              data = await PlatformUtils.dio.get(
-                widget.url,
-                onReceiveProgress: (received, total) {
-                  if (total > 0) {
-                    _progress = received / total;
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  }
-                },
-                options: Options(responseType: ResponseType.bytes),
-                cancelToken: _cancelToken,
-              );
-            } on DioError catch (e) {
-              if (e.response?.statusCode == 403) {
-                await widget.onForbidden?.call();
-              }
-            }
-
-            if (data?.data != null && data!.statusCode == 200) {
-              if (widget.checksum != null) {
-                FIFOCache.set(widget.checksum!, data.data);
-              }
-
-              _image = data.data;
-              _isSvg = false;
-
-              if (_image != null) {
-                _isSvg = _image!.length >= 4 &&
-                    _image![0] == 60 &&
-                    _image![1] == 115 &&
-                    _image![2] == 118 &&
-                    _image![3] == 103;
-              }
-
-              if (mounted) {
-                setState(() {});
-              }
-            } else {
-              throw Exception('Image is not loaded');
-            }
-          },
-          _cancelToken,
-        );
-      } on OperationCanceledException {
-        // No-op.
-      }
+    if (mounted) {
+      setState(() {});
     }
   }
 }
