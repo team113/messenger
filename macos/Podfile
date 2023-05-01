@@ -41,10 +41,10 @@ target 'Runner' do
   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
 end
 
-target 'NotificationServiceExtension' do
-  use_frameworks!
-  pod 'Firebase/Messaging'
-end
+# target 'NotificationServiceExtension' do
+#   use_frameworks!
+#   pod 'Firebase/Messaging'
+# end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
