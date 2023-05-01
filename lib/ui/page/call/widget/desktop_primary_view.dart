@@ -53,26 +53,26 @@ class PrimaryView extends StatelessWidget {
   });
 
   /// [Function] that is called when a drag event is completed.
-  final void Function(DesktopDragData d)? onDragEnded;
+  final void Function(DragData d)? onDragEnded;
 
   /// [Function] that is called when an item is added to the widget.
-  final dynamic Function(DesktopDragData, int)? onAdded;
+  final dynamic Function(DragData, int)? onAdded;
 
   /// Function that is called when an item is about to be accepted
   /// into the widget.
-  final bool Function(DesktopDragData?)? onWillAccept;
+  final bool Function(DragData?)? onWillAccept;
 
   /// Function that is called when an item is removed from the widget.
-  final void Function(DesktopDragData?)? onLeave;
+  final void Function(DragData?)? onLeave;
 
   /// function that is called when a drag event starts.
-  final dynamic Function(DesktopDragData)? onDragStarted;
+  final dynamic Function(DragData)? onDragStarted;
 
   /// function that returns the current offset value.
   final Offset Function()? onOffset;
 
   /// function that is called when a "dough" is broken.
-  final void Function(DesktopDragData)? onDoughBreak;
+  final void Function(DragData)? onDoughBreak;
 
   /// double value representing the size of the widget.
   final double size;
@@ -99,7 +99,7 @@ class PrimaryView extends StatelessWidget {
   final Rx<Participant?> hoveredRenderer;
 
   /// [Function] that builds an overlay widget.
-  final Widget Function(DesktopDragData)? overlayBuilder;
+  final Widget Function(DragData)? overlayBuilder;
 
   /// [RxMap] that stores the fit of the renderer.
   final RxMap<String, BoxFit?> rendererBoxFit;
@@ -118,7 +118,7 @@ class PrimaryView extends StatelessWidget {
     return Obx(() {
       return Stack(
         children: [
-          ReorderableFit<DesktopDragData>(
+          ReorderableFit<DragData>(
             key: const Key('PrimaryFitView'),
             allowEmptyTarget: true,
             onAdded: onAdded,
@@ -132,10 +132,10 @@ class PrimaryView extends StatelessWidget {
             onDraggableCanceled: onDragEnded,
             overlayBuilder: overlayBuilder,
             decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-            itemConstraints: (DesktopDragData data) {
+            itemConstraints: (DragData data) {
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
-            itemBuilder: (DesktopDragData data) {
+            itemBuilder: (DragData data) {
               var participant = data.participant;
               return Obx(() {
                 return ParticipantWidget(
@@ -152,8 +152,7 @@ class PrimaryView extends StatelessWidget {
                 );
               });
             },
-            children:
-                primary.map((e) => DesktopDragData(e, chatId.value)).toList(),
+            children: primary.map((e) => DragData(e, chatId.value)).toList(),
           ),
           IgnorePointer(
             child: Obx(() {

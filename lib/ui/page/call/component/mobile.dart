@@ -222,7 +222,7 @@ class MobileCall extends StatelessWidget {
                           ],
                           unconstrained: true,
                           builder: (animated) {
-                            return MobileBuilder(
+                            return AnimatedParticipantBox(
                               e,
                               muted,
                               animated,
@@ -517,10 +517,10 @@ class MobileCall extends StatelessWidget {
 
                   panelChildren = [
                     const SizedBox(height: 12),
-                    MobileButtonsWidget(
+                    ConstrainedButtonRow(
                       children: [
                         if (PlatformUtils.isMobile)
-                          MobilePaddingWidget(
+                          CenteredHorizontalPadding(
                             child: c.videoState.value.isEnabled
                                 ? Description(
                                     description: AnimatedOpacity(
@@ -542,7 +542,7 @@ class MobileCall extends StatelessWidget {
                                   ),
                           ),
                         if (PlatformUtils.isDesktop)
-                          MobilePaddingWidget(
+                          CenteredHorizontalPadding(
                               child: Description(
                             description: AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
@@ -558,7 +558,7 @@ class MobileCall extends StatelessWidget {
                             ),
                             child: ScreenButton(c).build(),
                           )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: AnimatedOpacity(
                             opacity: c.isPanelOpen.value ? 1 : 0,
@@ -573,7 +573,7 @@ class MobileCall extends StatelessWidget {
                           ),
                           child: AudioButton(c).build(),
                         )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: AnimatedOpacity(
                             opacity: c.isPanelOpen.value ? 1 : 0,
@@ -588,7 +588,7 @@ class MobileCall extends StatelessWidget {
                           ),
                           child: VideoButton(c).build(),
                         )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: AnimatedOpacity(
                             opacity: c.isPanelOpen.value ? 1 : 0,
@@ -600,14 +600,14 @@ class MobileCall extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    MobileButtonsWidget(
+                    ConstrainedButtonRow(
                       children: [
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: Text('btn_participants_desc'.l10n),
                           child: ParticipantsButton(c).build(),
                         )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: AnimatedOpacity(
                             opacity: c.isPanelOpen.value ? 1 : 0,
@@ -618,14 +618,14 @@ class MobileCall extends StatelessWidget {
                           ),
                           child: HandButton(c).build(),
                         )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: Text(c.isRemoteAudioEnabled.value
                               ? 'btn_call_remote_audio_off_desc'.l10n
                               : 'btn_call_remote_audio_on_desc'.l10n),
                           child: RemoteAudioButton(c).build(),
                         )),
-                        MobilePaddingWidget(
+                        CenteredHorizontalPadding(
                             child: Description(
                           description: Text(c.isRemoteVideoEnabled.value
                               ? 'btn_call_remote_video_off_desc'.l10n
@@ -637,7 +637,7 @@ class MobileCall extends StatelessWidget {
                     const SizedBox(height: 32),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 366),
-                      child: MobileChatWidget(
+                      child: ChatCardPreview(
                         actualMembers:
                             c.members.keys.map((k) => k.userId).toSet(),
                         chat: c.chat.value,
@@ -742,11 +742,11 @@ class MobileCall extends StatelessWidget {
                                     0,
                                     150 + MediaQuery.of(context).padding.bottom,
                                   ),
-                                  child: MobileButtonsWidget(
+                                  child: ConstrainedButtonRow(
                                     children: isOutgoing
                                         ? [
                                             if (PlatformUtils.isMobile)
-                                              MobilePaddingWidget(
+                                              CenteredHorizontalPadding(
                                                 child:
                                                     c.videoState.value.isEnabled
                                                         ? SwitchButton(c)
@@ -754,28 +754,28 @@ class MobileCall extends StatelessWidget {
                                                         : SpeakerButton(c)
                                                             .build(blur: true),
                                               ),
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                                 child: AudioButton(c)
                                                     .build(blur: true)),
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                                 child: VideoButton(c)
                                                     .build(blur: true)),
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                                 child: CancelButton(c)
                                                     .build(blur: true)),
                                           ]
                                         : [
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                                 child: AcceptAudioButton(
                                               c,
                                               highlight: !c.withVideo,
                                             ).build(expanded: true)),
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                                 child: AcceptVideoButton(
                                               c,
                                               highlight: c.withVideo,
                                             ).build(expanded: true)),
-                                            MobilePaddingWidget(
+                                            CenteredHorizontalPadding(
                                               child: DeclineButton(c)
                                                   .build(expanded: true),
                                             ),
@@ -827,7 +827,7 @@ class MobileCall extends StatelessWidget {
                 child: Obx(() {
                   return IgnorePointer(
                     ignoring: c.minimized.value,
-                    child: MobileCallScaffoldWidget(content, ui, overlay),
+                    child: OverlayScaffold(content, ui, overlay),
                   );
                 }),
               );

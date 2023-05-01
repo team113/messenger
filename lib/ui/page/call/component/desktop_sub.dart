@@ -41,8 +41,8 @@ import 'desktop.dart';
 
 /// Handle with a drag-and-drop function that allows the user to resize and
 /// manipulate user interface elements.
-class DesktopBuildDragHandle extends StatelessWidget {
-  const DesktopBuildDragHandle(
+class BuildDragHandle extends StatelessWidget {
+  const BuildDragHandle(
     this.height,
     this.width,
     this.alignment,
@@ -52,13 +52,13 @@ class DesktopBuildDragHandle extends StatelessWidget {
     this.onDragEnd,
   });
 
-  /// Alignment of the [SecondaryScalerWidget].
+  /// Alignment of the [SecondaryScaler].
   final Alignment alignment;
 
-  /// Height of the [SecondaryScalerWidget].
+  /// Height of the [SecondaryScaler].
   final double height;
 
-  /// Width of the [SecondaryScalerWidget].
+  /// Width of the [SecondaryScaler].
   final double width;
 
   /// [Function] that is responsible for handling the events of dragging
@@ -79,7 +79,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
     Widget widget = Container();
 
     if (alignment == Alignment.centerLeft) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
         draggedRenderer: draggedRenderer,
@@ -87,7 +87,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.centerRight) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
         draggedRenderer: draggedRenderer,
@@ -95,7 +95,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomCenter) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
         draggedRenderer: draggedRenderer,
@@ -103,7 +103,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topCenter) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
         draggedRenderer: draggedRenderer,
@@ -111,7 +111,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topLeft) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         // TODO: https://github.com/flutter/flutter/issues/89351
         cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
             ? SystemMouseCursors.resizeRow
@@ -123,7 +123,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.topRight) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
             ? SystemMouseCursors.resizeRow
             : SystemMouseCursors.resizeUpRightDownLeft,
@@ -134,7 +134,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomLeft) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
             ? SystemMouseCursors.resizeRow
             : SystemMouseCursors.resizeUpRightDownLeft,
@@ -145,7 +145,7 @@ class DesktopBuildDragHandle extends StatelessWidget {
         onDragEnd: onDragEnd,
       );
     } else if (alignment == Alignment.bottomRight) {
-      widget = SecondaryScalerWidget(
+      widget = SecondaryScaler(
         // TODO: https://github.com/flutter/flutter/issues/89351
         cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
             ? SystemMouseCursors.resizeRow
@@ -296,8 +296,8 @@ class DockWidget extends StatelessWidget {
 }
 
 /// More panel which contains the [CallController.panel].
-class LaunchpadWidget extends StatelessWidget {
-  const LaunchpadWidget({
+class Launchpad extends StatelessWidget {
+  const Launchpad({
     super.key,
     required this.enabled,
     required this.test,
@@ -311,26 +311,26 @@ class LaunchpadWidget extends StatelessWidget {
     this.children = const <Widget>[],
   });
 
-  /// Indicator of whether [LaunchpadWidget] is enabled.
+  /// Indicator of whether [Launchpad] is enabled.
   final bool enabled;
 
   /// [Function] that is called when the mouse cursor enters the area
-  /// of this [LaunchpadWidget].
+  /// of this [Launchpad].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// [Function] that is called when the mouse cursor moves in the area
-  /// of this [LaunchpadWidget].
+  /// of this [Launchpad].
   final void Function(PointerHoverEvent)? onHover;
 
   /// [Function] that is called when the mouse cursor leaves the area
-  /// of this [LaunchpadWidget].
+  /// of this [Launchpad].
   final void Function(PointerExitEvent)? onExit;
 
   /// Indicator whether at least one element from the [panel] list satisfies
   /// the condition set by the [test] function.
   final bool Function(CallButton?) test;
 
-  /// [CallButton] list, which is a panel of buttons in [LaunchpadWidget].
+  /// [CallButton] list, which is a panel of buttons in [Launchpad].
   final RxList<CallButton> panel;
 
   /// Callback function that is called when accepting a draggable element.
@@ -341,10 +341,10 @@ class LaunchpadWidget extends StatelessWidget {
   final bool Function(CallButton?)? onWillAccept;
 
   /// Indicator of whether additional elements should be displayed
-  /// in [LaunchpadWidget].
+  /// in [Launchpad].
   final RxBool displayMore;
 
-  /// [List] of widgets that will be displayed in the [LaunchpadWidget].
+  /// [List] of widgets that will be displayed in the [Launchpad].
   final List<Widget> children;
 
   @override
@@ -430,13 +430,13 @@ class LaunchpadWidget extends StatelessWidget {
 ///
 /// It is used to visualize the possible locations for dropping an item
 /// during drag-and-drop operations.
-class PossibleContainerWidget extends StatelessWidget {
-  const PossibleContainerWidget(
+class PossibleContainer extends StatelessWidget {
+  const PossibleContainer(
     this.alignment, {
     super.key,
   });
 
-  /// Variable determines the alignment of the [PossibleContainerWidget]
+  /// Variable determines the alignment of the [PossibleContainer]
   /// on the screen.
   final AlignmentGeometry? alignment;
 
@@ -528,11 +528,11 @@ class DesktopScaffoldWidget extends StatelessWidget {
 
 /// [Widget] that displays the title bar at the top of the screen.
 ///
-/// [TitleBarWidget] contains information such as the recipient or caller's
+/// [TitleBar] contains information such as the recipient or caller's
 /// name, avatar, and call state, as well as buttons for full-screen mode
 /// and other actions.
-class TitleBarWidget extends StatelessWidget {
-  const TitleBarWidget({
+class TitleBar extends StatelessWidget {
+  const TitleBar({
     super.key,
     required this.constraints,
     required this.chat,
@@ -543,14 +543,14 @@ class TitleBarWidget extends StatelessWidget {
     this.toggleFullscreen,
   });
 
-  /// Callback called when double-tapping on the [TitleBarWidget].
+  /// Callback called when double-tapping on the [TitleBar].
   final VoidCallback? onDoubleTap;
 
   /// Variable that imposes restrictions on the size of the element.
   final BoxConstraints constraints;
 
   /// Callback that is called when you touch on the left side
-  /// of the [TitleBarWidget].
+  /// of the [TitleBar].
   final VoidCallback? onTap;
 
   /// Chat Information.
@@ -642,8 +642,8 @@ class TitleBarWidget extends StatelessWidget {
 /// [Widget] that contains a [MouseRegion] and a [Scaler] widget.
 ///
 /// It is used to resize a secondary video window.
-class SecondaryScalerWidget extends StatelessWidget {
-  const SecondaryScalerWidget({
+class SecondaryScaler extends StatelessWidget {
+  const SecondaryScaler({
     super.key,
     required this.draggedRenderer,
     this.cursor = MouseCursor.defer,
@@ -665,10 +665,10 @@ class SecondaryScalerWidget extends StatelessWidget {
   /// [Function] that gets called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
-  /// Width of the [SecondaryScalerWidget].
+  /// Width of the [SecondaryScaler].
   final double? width;
 
-  /// Height of the [SecondaryScalerWidget].
+  /// Height of the [SecondaryScaler].
   final double? height;
 
   @override
@@ -687,8 +687,8 @@ class SecondaryScalerWidget extends StatelessWidget {
 }
 
 /// [Widget] which returns a [Scaler] scaling the minimized view.
-class MinimizedScalerWidget extends StatelessWidget {
-  const MinimizedScalerWidget({
+class MinimizedScaler extends StatelessWidget {
+  const MinimizedScaler({
     Key? key,
     this.cursor = MouseCursor.defer,
     this.onDragUpdate,
@@ -706,10 +706,10 @@ class MinimizedScalerWidget extends StatelessWidget {
   /// [Function] that gets called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
-  /// Width of this [MinimizedScalerWidget].
+  /// Width of this [MinimizedScaler].
   final double? width;
 
-  /// Height of this [MinimizedScalerWidget].
+  /// Height of this [MinimizedScaler].
   final double? height;
 
   @override
@@ -731,8 +731,8 @@ class MinimizedScalerWidget extends StatelessWidget {
 ///
 /// It provides a secondary data source for the main widget and allows dragging
 /// and dropping of participants between the two widgets.
-class SecondaryTargetWidget extends StatelessWidget {
-  const SecondaryTargetWidget({
+class SecondaryTarget extends StatelessWidget {
+  const SecondaryTarget({
     super.key,
     required this.size,
     required this.secondaryAxis,
@@ -762,7 +762,7 @@ class SecondaryTargetWidget extends StatelessWidget {
 
   /// Callback function that called when a drag operation enters the target
   /// [Widget] to determine whether the [Widget] can accept the dragged data.
-  final bool Function(DesktopDragData?)? onWillAccept;
+  final bool Function(DragData?)? onWillAccept;
 
   /// [RxInt] object that represents the number of primary drag operations
   /// that have been performed.
@@ -807,9 +807,9 @@ class SecondaryTargetWidget extends StatelessWidget {
                   height: secondaryAxis == Axis.horizontal
                       ? double.infinity
                       : panelSize / 1.6,
-                  child: DragTarget<DesktopDragData>(
+                  child: DragTarget<DragData>(
                     onWillAccept: onWillAccept,
-                    onAccept: (DesktopDragData d) {
+                    onAccept: (DragData d) {
                       if (secondaryAxis == Axis.horizontal) {
                         secondaryAlignment.value = Alignment.centerRight;
                       } else {

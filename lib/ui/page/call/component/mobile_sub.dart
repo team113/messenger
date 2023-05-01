@@ -31,8 +31,8 @@ import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
-class MobileBuilder extends StatelessWidget {
-  const MobileBuilder(
+class AnimatedParticipantBox extends StatelessWidget {
+  const AnimatedParticipantBox(
     this.e,
     this.muted,
     this.animated,
@@ -66,7 +66,7 @@ class MobileBuilder extends StatelessWidget {
         ),
         width: animated ? MediaQuery.of(context).size.width - 20 : null,
         height: animated ? MediaQuery.of(context).size.height / 2 : null,
-        child: StackWidget(e, muted, animated, minimized),
+        child: ParticipantStack(e, muted, animated, minimized),
       ),
     );
   }
@@ -74,8 +74,8 @@ class MobileBuilder extends StatelessWidget {
 
 /// [Stack] of widgets to display a [Participant] entity participating
 /// in a call.
-class StackWidget extends StatelessWidget {
-  const StackWidget(
+class ParticipantStack extends StatelessWidget {
+  const ParticipantStack(
     this.e,
     this.muted,
     this.animated,
@@ -121,13 +121,13 @@ class StackWidget extends StatelessWidget {
 
 /// [Widget] which displays a set of buttons in a row with a horizontal
 /// maximum width limit.
-class MobileButtonsWidget extends StatelessWidget {
-  const MobileButtonsWidget({
+class ConstrainedButtonRow extends StatelessWidget {
+  const ConstrainedButtonRow({
     super.key,
     this.children = const <Widget>[],
   });
 
-  /// [Widget]'s that should be placed in the [MobileButtonsWidget].
+  /// [Widget]'s that should be placed in the [ConstrainedButtonRow].
   final List<Widget> children;
 
   @override
@@ -145,8 +145,8 @@ class MobileButtonsWidget extends StatelessWidget {
 }
 
 /// [Widget] which builds a tile representation of the [CallController.chat].
-class MobileChatWidget extends StatelessWidget {
-  const MobileChatWidget({
+class ChatCardPreview extends StatelessWidget {
+  const ChatCardPreview({
     super.key,
     required this.actualMembers,
     required this.openAddMember,
@@ -304,13 +304,13 @@ class Description extends StatelessWidget {
 }
 
 /// Wraps the [child] widget passed to it and adds margins to the right and left.
-class MobilePaddingWidget extends StatelessWidget {
-  const MobilePaddingWidget({
+class CenteredHorizontalPadding extends StatelessWidget {
+  const CenteredHorizontalPadding({
     Key? key,
     required this.child,
   }) : super(key: key);
 
-  /// [Widget] that should be placed in the [MobilePaddingWidget].
+  /// [Widget] that should be placed in the [CenteredHorizontalPadding].
   final Widget child;
 
   @override
@@ -323,8 +323,8 @@ class MobilePaddingWidget extends StatelessWidget {
 }
 
 /// [Scaffold] widget which combines all stackable content.
-class MobileCallScaffoldWidget extends StatelessWidget {
-  const MobileCallScaffoldWidget(
+class OverlayScaffold extends StatelessWidget {
+  const OverlayScaffold(
     this.content,
     this.ui,
     this.overlay, {

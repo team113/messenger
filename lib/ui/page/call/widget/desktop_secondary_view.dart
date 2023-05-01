@@ -99,7 +99,7 @@ class SecondaryView extends StatelessWidget {
   final Size size;
 
   /// Function that is called when a drag event is completed.
-  final void Function(DesktopDragData d)? onDragEnded;
+  final void Function(DragData d)? onDragEnded;
 
   /// Function that is called when the secondary panel is resized.
   final void Function(
@@ -117,32 +117,32 @@ class SecondaryView extends StatelessWidget {
   final Rx<Participant?> draggedRenderer;
 
   /// Function that is called when a [Participant] is added to the widget.
-  final dynamic Function(DesktopDragData, int)? onAdded;
+  final dynamic Function(DragData, int)? onAdded;
 
   /// Function that is called to check if a [Participant] can be
   /// added to the widget.
-  final bool Function(DesktopDragData?)? onWillAccept;
+  final bool Function(DragData?)? onWillAccept;
 
   /// Function that is called when a [Participant] leaves the widget.
-  final void Function(DesktopDragData?)? onLeave;
+  final void Function(DragData?)? onLeave;
 
   /// Function that is called when a drag event is started.
-  final dynamic Function(DesktopDragData)? onDragStarted;
+  final dynamic Function(DragData)? onDragStarted;
 
   /// Function that is called when a drag event is cancelled.
-  final void Function(DesktopDragData)? onDoughBreak;
+  final void Function(DragData)? onDoughBreak;
 
   /// Function that returns the [Offset] of the widget.
   final Offset Function()? onOffset;
 
   /// Function that builds the overlay widget for the [ReorderableFit].
-  final Widget Function(DesktopDragData)? overlayBuilder;
+  final Widget Function(DragData)? overlayBuilder;
 
   /// Variable that holds the size constraint for the [ReorderableFit].
   final double itemConstraintsSize;
 
   /// Function that builds the item widget for the [ReorderableFit].
-  final Widget Function(DesktopDragData) itemBuilder;
+  final Widget Function(DragData) itemBuilder;
 
   /// Rx variable that holds the chat ID.
   final Rx<ChatId> chatId;
@@ -318,7 +318,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.centerLeft,
@@ -344,7 +344,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.centerRight,
@@ -370,7 +370,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.bottomCenter,
@@ -396,7 +396,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.topCenter,
@@ -422,7 +422,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.topLeft,
@@ -450,7 +450,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.topRight,
@@ -478,7 +478,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.bottomLeft,
@@ -506,7 +506,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == null
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.bottomRight,
@@ -526,7 +526,7 @@ class SecondaryView extends StatelessWidget {
                 )),
 
             // Secondary panel itself.
-            ReorderableFit<DesktopDragData>(
+            ReorderableFit<DragData>(
               key: const Key('SecondaryFitView'),
               onAdded: onAdded,
               onWillAccept: onWillAccept,
@@ -553,9 +553,8 @@ class SecondaryView extends StatelessWidget {
                 );
               },
               itemBuilder: itemBuilder,
-              children: secondary
-                  .map((e) => DesktopDragData(e, chatId.value))
-                  .toList(),
+              children:
+                  secondary.map((e) => DragData(e, chatId.value)).toList(),
               borderRadius:
                   secondaryAlignment.value == null ? borderRadius : null,
             ),
@@ -657,7 +656,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == Alignment.centerRight
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.centerLeft,
@@ -683,7 +682,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == Alignment.centerLeft
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.centerRight,
@@ -709,7 +708,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == Alignment.topCenter
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.bottomCenter,
@@ -735,7 +734,7 @@ class SecondaryView extends StatelessWidget {
                 height: height,
                 child: Obx(
                   () => secondaryAlignment.value == Alignment.bottomCenter
-                      ? DesktopBuildDragHandle(
+                      ? BuildDragHandle(
                           width,
                           height,
                           Alignment.topCenter,

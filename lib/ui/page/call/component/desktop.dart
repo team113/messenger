@@ -128,7 +128,7 @@ class DesktopCall extends StatelessWidget {
 
                                   if (!isIncoming) {
                                     child = PrimaryView(
-                                        onDragEnded: (DesktopDragData d) {
+                                        onDragEnded: (DragData d) {
                                           c.primaryDrags.value = 0;
                                           c.draggedRenderer.value = null;
                                           c.doughDraggedRenderer.value = null;
@@ -192,7 +192,7 @@ class DesktopCall extends StatelessWidget {
                                         primaryDrags: c.primaryDrags,
                                         secondaryDragged: c.secondaryDragged,
                                         hoveredRenderer: c.hoveredRenderer,
-                                        overlayBuilder: (DesktopDragData data) {
+                                        overlayBuilder: (DragData data) {
                                           var participant = data.participant;
 
                                           return LayoutBuilder(
@@ -554,7 +554,7 @@ class DesktopCall extends StatelessWidget {
                 }),
 
                 Obx(
-                  () => PossibleContainerWidget(
+                  () => PossibleContainer(
                     c.possibleSecondaryAlignment.value,
                   ),
                 ),
@@ -587,7 +587,7 @@ class DesktopCall extends StatelessWidget {
                 ),
 
                 // Empty drop zone if [secondary] is empty.
-                SecondaryTargetWidget(
+                SecondaryTarget(
                   size: c.size,
                   secondaryAxis: c.size.width >= c.size.height
                       ? Axis.horizontal
@@ -637,7 +637,7 @@ class DesktopCall extends StatelessWidget {
                                   c.state.value != OngoingCallState.active &&
                                   !isOutgoing);
 
-                          /// Indicator that the [LaunchpadWidget]
+                          /// Indicator that the [Launchpad]
                           /// can interact with the user.
                           final bool enabled = c.displayMore.isTrue &&
                               c.primaryDrags.value == 0 &&
@@ -688,7 +688,7 @@ class DesktopCall extends StatelessWidget {
                                 dockKey: c.dockKey,
                                 computation: c.relocateSecondary,
                               ),
-                              LaunchpadWidget(
+                              Launchpad(
                                 displayMore: c.displayMore,
                                 onEnter: enabled ? (d) => c.keepUi(true) : null,
                                 onHover: enabled ? (d) => c.keepUi(true) : null,
@@ -998,7 +998,7 @@ class DesktopCall extends StatelessWidget {
                       secondaryHeight: c.secondaryHeight,
                       size: c.size,
                       focusAll: c.focusAll,
-                      onDragEnded: (DesktopDragData d) {
+                      onDragEnded: (DragData d) {
                         c.secondaryDrags.value = 0;
                         c.draggedRenderer.value = null;
                         c.doughDraggedRenderer.value = null;
@@ -1087,7 +1087,7 @@ class DesktopCall extends StatelessWidget {
                       fullscreen: c.fullscreen,
                       primaryDrags: c.primaryDrags,
                       secondaryTargets: c.secondaryTargets,
-                      itemBuilder: (DesktopDragData data) {
+                      itemBuilder: (DragData data) {
                         var participant = data.participant;
                         return Obx(
                           () => ParticipantWidget(
@@ -1101,7 +1101,7 @@ class DesktopCall extends StatelessWidget {
                           ),
                         );
                       },
-                      overlayBuilder: (DesktopDragData data) {
+                      overlayBuilder: (DragData data) {
                         var participant = data.participant;
 
                         return Obx(() {
@@ -1343,7 +1343,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value - Scaler.size / 2,
                         left: c.left.value + Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: SystemMouseCursors.resizeUpDown,
                           width: c.width.value - Scaler.size,
                           onDragUpdate: (dx, dy) => c.resize(
@@ -1362,7 +1362,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value + Scaler.size / 2,
                         left: c.left.value - Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: SystemMouseCursors.resizeLeftRight,
                           height: c.height.value - Scaler.size,
                           onDragUpdate: (dx, dy) => c.resize(
@@ -1381,7 +1381,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value + Scaler.size / 2,
                         left: c.left.value + c.width.value - Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: SystemMouseCursors.resizeLeftRight,
                           height: c.height.value - Scaler.size,
                           onDragUpdate: (dx, dy) => c.resize(
@@ -1400,7 +1400,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value + c.height.value - Scaler.size / 2,
                         left: c.left.value + Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: SystemMouseCursors.resizeUpDown,
                           width: c.width.value - Scaler.size,
                           onDragUpdate: (dx, dy) => c.resize(
@@ -1420,7 +1420,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value - Scaler.size / 2,
                         left: c.left.value - Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           // TODO: https://github.com/flutter/flutter/issues/89351
                           cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                               ? SystemMouseCursors.resizeRow
@@ -1446,7 +1446,7 @@ class DesktopCall extends StatelessWidget {
                         top: c.top.value - Scaler.size / 2,
                         left:
                             c.left.value + c.width.value - 3 * Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                               ? SystemMouseCursors.resizeRow
                               : SystemMouseCursors.resizeUpRightDownLeft,
@@ -1470,7 +1470,7 @@ class DesktopCall extends StatelessWidget {
                       return Positioned(
                         top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                         left: c.left.value - Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                               ? SystemMouseCursors.resizeRow
                               : SystemMouseCursors.resizeUpRightDownLeft,
@@ -1495,7 +1495,7 @@ class DesktopCall extends StatelessWidget {
                         top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                         left:
                             c.left.value + c.width.value - 3 * Scaler.size / 2,
-                        child: MinimizedScalerWidget(
+                        child: MinimizedScaler(
                           // TODO: https://github.com/flutter/flutter/issues/89351
                           cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                               ? SystemMouseCursors.resizeRow
@@ -1538,7 +1538,7 @@ class DesktopCall extends StatelessWidget {
                                     c.top.value = c.top.value + d.delta.dy;
                                     c.applyConstraints(context);
                                   },
-                                  titleBar: TitleBarWidget(
+                                  titleBar: TitleBar(
                                     onDoubleTap: c.toggleFullscreen,
                                     constraints: BoxConstraints(
                                         maxWidth: c.size.width - 60),
@@ -1576,7 +1576,7 @@ class DesktopCall extends StatelessWidget {
                   c.top.value = c.top.value + d.delta.dy;
                   c.applyConstraints(context);
                 },
-                titleBar: TitleBarWidget(
+                titleBar: TitleBar(
                   onDoubleTap: c.toggleFullscreen,
                   constraints: BoxConstraints(maxWidth: c.size.width - 60),
                   chat: c.chat,
@@ -1600,10 +1600,10 @@ class DesktopCall extends StatelessWidget {
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
-class DesktopDragData {
-  const DesktopDragData(this.participant, this.chatId);
+class DragData {
+  const DragData(this.participant, this.chatId);
 
-  /// [Participant] this [_DesktopDragData] represents.
+  /// [Participant] this [DragData] represents.
   final Participant participant;
 
   /// [ChatId] of the [CallView] this [participant] takes place in.
@@ -1611,7 +1611,7 @@ class DesktopDragData {
 
   @override
   bool operator ==(Object other) =>
-      other is DesktopDragData &&
+      other is DragData &&
       participant == other.participant &&
       chatId == other.chatId;
 
