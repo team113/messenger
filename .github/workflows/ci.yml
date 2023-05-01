@@ -210,45 +210,68 @@ jobs:
       #     security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
       #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain
 
-      - name: Fetch Mac App Development certificates
+      - name: Configure Firebase Cloud Messaging
         env:
-          APP_STORE_CERTIFICATE: ${{ secrets.APP_STORE_CERTIFICATE }}
-          APP_STORE_CERTIFICATE_ID: ${{ secrets.APP_STORE_CERTIFICATE_ID }}
-          APP_STORE_CERTIFICATE2: ${{ secrets.APP_STORE_CERTIFICATE2 }}
-          APP_STORE_CERTIFICATE2_ID: ${{ secrets.APP_STORE_CERTIFICATE2_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
-          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_IDENTIFIER }}
-          APP_STORE_KEY: ${{ secrets.APP_STORE_KEY }}
-          APP_STORE_PROFILE: ${{ secrets.APP_STORE_PROFILE }}
-          APP_STORE_PROFILE_ID: ${{ secrets.APP_STORE_PROFILE_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
         run: |
-          pip3 install codemagic-cli-tools
+          npm install -g firebase-tools
+          dart pub global activate flutterfire_cli
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > \
+                ${{ runner.temp }}/service_account.json
 
-          export APP_STORE_CONNECT_PRIVATE_KEY=`echo $APP_STORE_KEY | base64 --decode`
-          export PROFILE_PRIVATE_KEY=`echo $APP_STORE_PROFILE | base64 --decode`
-          export CERTIFICATE_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE | base64 --decode`
-          export CERTIFICATE2_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE2 | base64 --decode`
+          make firebase.configure project-id=${{ secrets.FCM_PROJECT_ID }} \
+                                  platforms="android,ios,web" \
+                                  web-app-id=${{ secrets.FCM_WEB_APP_ID }} \
+                                  bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ matrix.platform == 'ios' ||
+                matrix.platform == 'apk' ||
+                matrix.platform == 'appbundle' ||
+                matrix.platform == 'web' }}
 
-          app-store-connect get-profile $APP_STORE_PROFILE_ID --save
+      - name: Configure Firebase Cloud Messaging service worker
+        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}' >
+                   web/firebase-messaging-sw.js
+        if: ${{ matrix.platform == 'web' }}
 
-          app-store-connect get-certificate $APP_STORE_CERTIFICATE_ID \
-            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
-            --save
+      # - name: Fetch Mac App Development certificates
+      #   env:
+      #     APP_STORE_CERTIFICATE: ${{ secrets.APP_STORE_CERTIFICATE }}
+      #     APP_STORE_CERTIFICATE_ID: ${{ secrets.APP_STORE_CERTIFICATE_ID }}
+      #     APP_STORE_CERTIFICATE2: ${{ secrets.APP_STORE_CERTIFICATE2 }}
+      #     APP_STORE_CERTIFICATE2_ID: ${{ secrets.APP_STORE_CERTIFICATE2_ID }}
+      #     APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+      #     APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_IDENTIFIER }}
+      #     APP_STORE_KEY: ${{ secrets.APP_STORE_KEY }}
+      #     APP_STORE_PROFILE: ${{ secrets.APP_STORE_PROFILE }}
+      #     APP_STORE_PROFILE_ID: ${{ secrets.APP_STORE_PROFILE_ID }}
+      #   run: |
+      #     pip3 install codemagic-cli-tools
 
-          app-store-connect get-certificate $APP_STORE_CERTIFICATE2_ID \
-            --certificate-key=@env:CERTIFICATE2_PRIVATE_KEY \
-            --save
+      #     export APP_STORE_CONNECT_PRIVATE_KEY=`echo $APP_STORE_KEY | base64 --decode`
+      #     export PROFILE_PRIVATE_KEY=`echo $APP_STORE_PROFILE | base64 --decode`
+      #     export CERTIFICATE_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE | base64 --decode`
+      #     export CERTIFICATE2_PRIVATE_KEY=`echo $APP_STORE_CERTIFICATE2 | base64 --decode`
 
-          app-store-connect fetch-signing-files com.team113.messenger \
-            --platform MAC_OS \
-            --type MAC_APP_DEVELOPMENT \
-            --certificate-key=@env:PROFILE_PRIVATE_KEY \
-            --create
+      #     app-store-connect get-profile $APP_STORE_PROFILE_ID --save
 
-          keychain initialize
-          keychain add-certificates
-          xcode-project use-profiles
-        if: ${{ matrix.platform == 'macos' }}
+      #     app-store-connect get-certificate $APP_STORE_CERTIFICATE_ID \
+      #       --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
+      #       --save
+
+      #     app-store-connect get-certificate $APP_STORE_CERTIFICATE2_ID \
+      #       --certificate-key=@env:CERTIFICATE2_PRIVATE_KEY \
+      #       --save
+
+      #     app-store-connect fetch-signing-files com.team113.messenger \
+      #       --platform MAC_OS \
+      #       --type MAC_APP_DEVELOPMENT \
+      #       --certificate-key=@env:PROFILE_PRIVATE_KEY \
+      #       --create
+
+      #     keychain initialize
+      #     keychain add-certificates
+      #     xcode-project use-profiles
+      #   if: ${{ matrix.platform == 'macos' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
