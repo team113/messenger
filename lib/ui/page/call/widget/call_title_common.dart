@@ -35,16 +35,23 @@ class CallTitleCommon extends StatelessWidget {
     required this.chat,
   });
 
+  /// Indicator that the current call is outgoing and also has not been
+  /// started.
   final bool isOutgoing;
 
+  /// Indicator of whether the current call is a dialog call.
   final bool isDialog;
 
+  /// Indicator of whether the dots should be displayed in the call header.
   final bool withDots;
 
+  /// [String], which indicates the status of the current call.
   final String? state;
 
+  /// [CallMember] of the currently authorized user.
   final CallMember me;
 
+  /// [Rx] variable that represents the chat associated with the current call.
   final Rx<RxChat?> chat;
 
   @override

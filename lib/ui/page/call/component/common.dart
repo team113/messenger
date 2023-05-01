@@ -437,8 +437,8 @@ class SwitchButton extends CallButton {
 class _CommonWidget extends StatelessWidget {
   const _CommonWidget({
     required this.asset,
-    required this.onPressed,
     required this.hint,
+    this.onPressed,
     this.hinted = true,
     this.expanded = false,
     this.withBlur = false,

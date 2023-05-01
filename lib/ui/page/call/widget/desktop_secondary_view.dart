@@ -71,25 +71,25 @@ class SecondaryView extends StatelessWidget {
     this.onPanEnd,
   });
 
-  /// RxList of participants that are displayed in the secondary panel.
+  /// [RxList] of participants that are displayed in the secondary panel.
   final RxList<Participant> secondary;
 
-  /// Rx variable that holds the alignment of the secondary panel.
+  /// [Rx] variable that holds the alignment of the secondary panel.
   final Rx<Alignment?> secondaryAlignment;
 
-  /// Rx variable that holds the left position of the secondary panel.
+  /// [Rx] variable that holds the left position of the secondary panel.
   final RxnDouble secondaryLeft;
 
-  /// Rx variable that holds the top position of the secondary panel.
+  /// [Rx] variable that holds the top position of the secondary panel.
   final RxnDouble secondaryTop;
 
-  /// Rx variable that holds the right position of the secondary panel.
+  /// [Rx] variable that holds the right position of the secondary panel.
   final RxnDouble secondaryRight;
 
-  /// Rx variable that holds the bottom position of the secondary panel.
+  /// [Rx] variable that holds the bottom position of the secondary panel.
   final RxnDouble secondaryBottom;
 
-  /// Rx variable that holds the width of the secondary panel.
+  /// [Rx] variable that holds the width of the secondary panel.
   final RxDouble secondaryWidth;
 
   /// reactive variable that holds the height of the secondary panel.
@@ -113,7 +113,7 @@ class SecondaryView extends StatelessWidget {
   /// Function that is called when the secondary panel is updated.
   final void Function() updateSecondaryAttach;
 
-  /// Rx variable that holds the [Participant] being dragged.
+  /// [Rx] variable that holds the [Participant] being dragged.
   final Rx<Participant?> draggedRenderer;
 
   /// Function that is called when a [Participant] is added to the widget.
@@ -144,7 +144,7 @@ class SecondaryView extends StatelessWidget {
   /// Function that builds the item widget for the [ReorderableFit].
   final Widget Function(DragData) itemBuilder;
 
-  /// Rx variable that holds the chat ID.
+  /// [Rx] variable that holds the chat ID.
   final Rx<ChatId> chatId;
 
   /// GlobalKey that uniquely identifies the secondary panel.
