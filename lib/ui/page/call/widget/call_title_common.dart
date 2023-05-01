@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
 import '/domain/model/ongoing_call.dart';
-
 import 'call_title.dart';
 
 /// [Widget] building the title call information.

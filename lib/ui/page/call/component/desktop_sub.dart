@@ -213,10 +213,10 @@ class DockWidget extends StatelessWidget {
   /// Indicator whether the call is incoming.
   final bool answer;
 
-  /// Key for handling [dock] widget states.
+  /// [Key] for handling [dock] widget states.
   final Key? dockKey;
 
-  /// Function that is called when switching between two widget states occurs.
+  /// [Function] that is called when switching between two widget states occurs.
   final VoidCallback computation;
 
   @override
