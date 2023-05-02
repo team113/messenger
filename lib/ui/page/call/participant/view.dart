@@ -248,10 +248,9 @@ class _UserWidget extends StatelessWidget {
                       height: 30,
                       child: Center(
                         child: inCall && !isRedialed
-                            ? const AssetWidget(
-                                asset: 'assets/icons/call_end.svg')
-                            : const AssetWidget(
-                                asset: 'assets/icons/audio_call_start.svg',
+                            ? SvgImage.asset('assets/icons/call_end.svg')
+                            : SvgImage.asset(
+                                'assets/icons/audio_call_start.svg',
                                 width: 13,
                                 height: 13,
                               ),
@@ -294,10 +293,7 @@ class _UserWidget extends StatelessWidget {
                       fontSize: 15,
                     ),
                   )
-                : const AssetWidget(
-                    asset: 'assets/icons/delete.svg',
-                    height: 14 * 1.5,
-                  ),
+                : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),
           const SizedBox(width: 6),
         ],

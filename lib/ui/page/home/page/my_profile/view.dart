@@ -55,6 +55,7 @@ import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
+import 'timeline_switch/view.dart';
 import 'widget/copyable.dart';
 import 'widget/download_button.dart';
 
@@ -222,6 +223,12 @@ class MyProfileView extends StatelessWidget {
                           children: [_background(context, c)],
                         );
 
+                      case ProfileTab.chats:
+                        return Block(
+                          title: 'label_chats'.l10n,
+                          children: [_chats(context, c)],
+                        );
+
                       case ProfileTab.calls:
                         if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                           return Block(
@@ -325,8 +332,7 @@ Widget _name(MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: const AssetWidget(
-                    asset: 'assets/icons/copy.svg', height: 15),
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
     ),
@@ -354,10 +360,7 @@ Widget _status(MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: const AssetWidget(
-                  asset: 'assets/icons/copy.svg',
-                  height: 15,
-                ),
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
     ),
@@ -424,8 +427,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: const AssetWidget(
-                        asset: 'assets/icons/copy.svg', height: 15),
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
           label: '${Config.origin}/',
@@ -494,10 +496,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: const AssetWidget(
-                      asset: 'assets/icons/copy.svg',
-                      height: 15,
-                    ),
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
           label: 'label_login'.l10n,
@@ -602,10 +601,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
             ),
@@ -694,10 +690,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: const AssetWidget(
-                  asset: 'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddEmailView.show(
@@ -760,10 +753,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               onPressed: () {
@@ -857,8 +847,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: const AssetWidget(
-                    asset: 'assets/icons/delete.svg', height: 14),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddPhoneView.show(
@@ -940,8 +929,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: const AssetWidget(
-                  asset: 'assets/icons/delete.svg', height: 14),
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
@@ -1014,8 +1002,8 @@ Widget _background(BuildContext context, MyProfileController c) {
                     children: [
                       Positioned.fill(
                         child: c.background.value == null
-                            ? const AssetWidget(
-                                asset: 'assets/images/background_light.svg',
+                            ? SvgImage.asset(
+                                'assets/images/background_light.svg',
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
@@ -1097,6 +1085,46 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.chats] section.
+Widget _chats(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'label_display_timestamps'.l10n,
+              style: style.systemMessageStyle.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      _dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.timelineEnabled ?? true)
+                ? 'label_as_timeline'.l10n
+                : 'label_in_message'.l10n,
+            maxLines: null,
+            onPressed: () => TimelineSwitchView.show(context),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),

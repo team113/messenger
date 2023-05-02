@@ -27,133 +27,187 @@ import 'src/interface.dart'
 
 /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
 ///
-/// The key will be derived from the `assetName`, `package`, and `bundle`
-/// arguments. The `package` argument must be non-`null` when displaying an
-/// SVG from a package and `null` otherwise.
-///
-/// Either the [width] and [height] arguments should be specified, or the
-/// widget should be placed in a context that sets tight layout constraints.
-/// Otherwise, the image dimensions will change as the image is loaded, which
-/// will result in ugly layout changes.
-class AssetWidget extends StatelessWidget {
-  final String asset;
-  final Alignment alignment;
-  final BoxFit fit;
-  final double? height;
-  final String? package;
-  final WidgetBuilder? placeholderBuilder;
-  final String? semanticsLabel;
-  final double? width;
-  final bool excludeFromSemantics;
-  const AssetWidget({
-    Key? key,
-    required this.asset,
-    this.alignment = Alignment.center,
-    this.fit = BoxFit.contain,
-    this.height,
-    this.package,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.width,
-    this.excludeFromSemantics = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return svgFromAsset(
-      asset,
-      alignment: alignment,
-      fit: fit,
-      height: height,
-      package: package,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
-}
-
-/// Instantiates a widget rendering an SVG picture from an [Uint8List].
-///
-/// Either the [width] and [height] arguments should be specified, or the
-/// widget should be placed in a context setting layout constraints tightly.
-/// Otherwise, the image dimensions will change as the image is loaded, which
-/// will result in ugly layout changes.
-class BytesWidget extends StatelessWidget {
-  final Uint8List bytes;
-  final Alignment alignment;
-  final BoxFit fit;
-  final double? width;
-  final double? height;
-  final WidgetBuilder? placeholderBuilder;
-  final String? semanticsLabel;
-  final bool excludeFromSemantics;
-  const BytesWidget({
-    Key? key,
-    required this.bytes,
-    this.alignment = Alignment.center,
-    this.fit = BoxFit.cover,
+/// Actual renderer is determined based on the current platform:
+/// - [SvgPicture] is used on all non-web platforms and on web with `CanvasKit`
+///   renderer;
+/// - [Image.network] is used on web with html-renderer.
+class SvgImage extends StatelessWidget {
+  const SvgImage._({
+    super.key,
+    this.asset,
+    this.file,
+    this.bytes,
+    this.alignment,
+    this.fit,
     this.width,
     this.height,
     this.placeholderBuilder,
     this.semanticsLabel,
-    this.excludeFromSemantics = false,
-  }) : super(key: key);
+    this.excludeFromSemantics,
+  }) : assert(
+          asset != null || file != null || bytes != null,
+          'Asset, file or bytes must be provided',
+        );
 
-  @override
-  Widget build(BuildContext context) {
-    return svgFromBytes(
-      bytes,
-      key: key,
-      alignment: Alignment.center,
-      fit: fit,
-      width: width,
-      height: height,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-    );
-  }
-}
-
-/// Instantiates a widget rendering an SVG picture from a [File].
-///
-/// Either the [width] and [height] arguments should be specified, or the
-/// widget should be placed in a context setting layout constraints tightly.
-/// Otherwise, the image dimensions will change as the image is loaded, which
-/// will result in ugly layout changes.
-class FileWidget extends StatelessWidget {
-  final File file;
-  final Alignment alignment;
-  final BoxFit fit;
-  final double? width;
-  final double? height;
-  final WidgetBuilder? placeholderBuilder;
-  final String? semanticsLabel;
-  final bool excludeFromSemantics;
-  const FileWidget({
+  /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
+  ///
+  /// The key will be derived from the `assetName`, `package`, and `bundle`
+  /// arguments. The `package` argument must be non-`null` when displaying an
+  /// SVG from a package and `null` otherwise.
+  ///
+  /// Either the [width] and [height] arguments should be specified, or the
+  /// widget should be placed in a context that sets tight layout constraints.
+  /// Otherwise, the image dimensions will change as the image is loaded, which
+  /// will result in ugly layout changes.
+  factory SvgImage.asset(
+    String asset, {
     Key? key,
-    required this.file,
-    this.alignment = Alignment.center,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.excludeFromSemantics = false,
-  }) : super(key: key);
+    Alignment alignment = Alignment.center,
+    BoxFit fit = BoxFit.contain,
+    double? width,
+    double? height,
+    WidgetBuilder? placeholderBuilder,
+    String? semanticsLabel,
+    bool excludeFromSemantics = false,
+  }) =>
+      SvgImage._(
+        asset: asset,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
+
+  /// Instantiates a widget rendering an SVG picture from an [Uint8List].
+  ///
+  /// Either the [width] and [height] arguments should be specified, or the
+  /// widget should be placed in a context setting layout constraints tightly.
+  /// Otherwise, the image dimensions will change as the image is loaded, which
+  /// will result in ugly layout changes.
+  factory SvgImage.bytes(
+    Uint8List bytes, {
+    Key? key,
+    Alignment alignment = Alignment.center,
+    BoxFit fit = BoxFit.cover,
+    double? width,
+    double? height,
+    WidgetBuilder? placeholderBuilder,
+    String? semanticsLabel,
+    bool excludeFromSemantics = false,
+  }) =>
+      SvgImage._(
+        bytes: bytes,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
+
+  /// Instantiates a widget rendering an SVG picture from a [File].
+  ///
+  /// Either the [width] and [height] arguments should be specified, or the
+  /// widget should be placed in a context setting layout constraints tightly.
+  /// Otherwise, the image dimensions will change as the image is loaded, which
+  /// will result in ugly layout changes.
+  factory SvgImage.file(
+    File file, {
+    Key? key,
+    Alignment alignment = Alignment.center,
+    BoxFit fit = BoxFit.cover,
+    double? width,
+    double? height,
+    WidgetBuilder? placeholderBuilder,
+    String? semanticsLabel,
+    bool excludeFromSemantics = false,
+  }) =>
+      SvgImage._(
+        file: file,
+        key: key,
+        alignment: alignment,
+        fit: fit,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics,
+      );
+
+  /// Path to an asset containing an SVG image to display.
+  final String? asset;
+
+  /// [File] representing an SVG image to display.
+  final File? file;
+
+  /// [Uint8List] bytes containing an SVG image to display.
+  final Uint8List? bytes;
+
+  /// [Alignment] to display this image with.
+  final Alignment? alignment;
+
+  /// [BoxFit] to apply to this image.
+  final BoxFit? fit;
+
+  /// Width to constrain this image with.
+  final double? width;
+
+  /// Height to constrain this image with.
+  final double? height;
+
+  /// Builder, building a [Widget] to display when this SVG image is being
+  /// loaded, fetched or initialized.
+  final WidgetBuilder? placeholderBuilder;
+
+  /// Label to put on the [Semantics] of this [Widget].
+  ///
+  /// Only meaningful, if [excludeFromSemantics] is not `true`.
+  final String? semanticsLabel;
+
+  /// Indicator whether this [Widget] should be excluded from the [Semantics].
+  final bool? excludeFromSemantics;
 
   @override
   Widget build(BuildContext context) {
-    return svgFromFile(
-      file,
-      key: key,
-      alignment: Alignment.center,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+    if (asset != null) {
+      return svgFromAsset(
+        asset!,
+        alignment: alignment!,
+        fit: fit!,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics!,
+      );
+    } else if (bytes != null) {
+      return svgFromBytes(
+        bytes!,
+        alignment: alignment!,
+        fit: fit!,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics!,
+      );
+    } else {
+      return svgFromFile(
+        file!,
+        alignment: alignment!,
+        fit: fit!,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics!,
+      );
+    }
   }
 }

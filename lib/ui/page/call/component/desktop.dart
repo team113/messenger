@@ -59,8 +59,8 @@ Widget desktopCall(CallController c, BuildContext context) {
     builder: (context, constraints) {
       // Call stackable content.
       List<Widget> content = [
-        const AssetWidget(
-          asset: 'assets/images/background_dark.svg',
+        SvgImage.asset(
+          'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
           fit: BoxFit.cover,
@@ -1180,9 +1180,8 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       hint: c.fullscreen.value
                           ? 'btn_fullscreen_exit'.l10n
                           : 'btn_fullscreen_enter'.l10n,
-                      child: AssetWidget(
-                        asset:
-                            'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
+                      child: SvgImage.asset(
+                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
                       ),
                     ),
@@ -1297,106 +1296,104 @@ Widget _primaryView(CallController c) {
                     c.hoveredRenderer.value = null;
                     c.isCursorHidden.value = false;
                   },
-                  child: AnimatedSwitcher(
+                  child: AnimatedOpacity(
                     duration: 200.milliseconds,
-                    child: c.draggedRenderer.value == data.participant
-                        ? Container()
-                        : ContextMenuRegion(
-                            key: ObjectKey(participant),
-                            preventContextMenu: true,
-                            actions: [
-                              if (participant.video.value?.renderer.value !=
-                                  null) ...[
-                                if (participant.source ==
-                                    MediaSourceKind.Device)
-                                  ContextMenuButton(
-                                    label: fit == null || fit == BoxFit.cover
-                                        ? 'btn_call_do_not_cut_video'.l10n
-                                        : 'btn_call_cut_video'.l10n,
-                                    onPressed: () {
-                                      c.rendererBoxFit[participant
-                                          .video.value!.renderer.value!.track
-                                          .id()] = fit == null ||
-                                              fit == BoxFit.cover
-                                          ? BoxFit.contain
-                                          : BoxFit.cover;
-                                      if (c.focused.isNotEmpty) {
-                                        c.focused.refresh();
-                                      } else {
-                                        c.remotes.refresh();
-                                        c.locals.refresh();
-                                      }
-                                    },
-                                  ),
-                              ],
-                              if (c.primary.length == 1)
-                                ContextMenuButton(
-                                  label: 'btn_call_uncenter'.l10n,
-                                  onPressed: c.focusAll,
-                                )
-                              else
-                                ContextMenuButton(
-                                  label: 'btn_call_center'.l10n,
-                                  onPressed: () => c.center(participant),
-                                ),
-                              if (participant.member.id != c.me.id) ...[
-                                if (participant.video.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: participant
-                                                .video.value?.renderer.value !=
-                                            null
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () =>
-                                        c.toggleVideoEnabled(participant),
-                                  ),
-                                if (participant.audio.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: (participant.audio.value?.direction
-                                                .value.isEnabled ==
-                                            true)
-                                        ? 'btn_call_disable_audio'.l10n
-                                        : 'btn_call_enable_audio'.l10n,
-                                    onPressed: () =>
-                                        c.toggleAudioEnabled(participant),
-                                  ),
-                                if (participant.member.isRedialing.isFalse)
-                                  ContextMenuButton(
-                                    label: 'btn_call_remove_participant'.l10n,
-                                    onPressed: () => c.removeChatCallMember(
-                                      participant.member.id.userId,
-                                    ),
-                                  ),
-                              ] else ...[
-                                ContextMenuButton(
-                                  label: c.videoState.value.isEnabled
-                                      ? 'btn_call_video_off'.l10n
-                                      : 'btn_call_video_on'.l10n,
-                                  onPressed: c.toggleVideo,
-                                ),
-                                ContextMenuButton(
-                                  label: c.audioState.value.isEnabled
-                                      ? 'btn_call_audio_off'.l10n
-                                      : 'btn_call_audio_on'.l10n,
-                                  onPressed: c.toggleAudio,
-                                ),
-                              ],
-                            ],
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
-                                key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
+                    opacity:
+                        c.draggedRenderer.value == data.participant ? 0 : 1,
+                    child: ContextMenuRegion(
+                      key: ObjectKey(participant),
+                      preventContextMenu: true,
+                      actions: [
+                        if (participant.video.value?.renderer.value !=
+                            null) ...[
+                          if (participant.source == MediaSourceKind.Device)
+                            ContextMenuButton(
+                              label: fit == null || fit == BoxFit.cover
+                                  ? 'btn_call_do_not_cut_video'.l10n
+                                  : 'btn_call_cut_video'.l10n,
+                              onPressed: () {
+                                c.rendererBoxFit[participant
+                                        .video.value!.renderer.value!.track
+                                        .id()] =
+                                    fit == null || fit == BoxFit.cover
+                                        ? BoxFit.contain
+                                        : BoxFit.cover;
+                                if (c.focused.isNotEmpty) {
+                                  c.focused.refresh();
+                                } else {
+                                  c.remotes.refresh();
+                                  c.locals.refresh();
+                                }
+                              },
+                            ),
+                        ],
+                        if (c.primary.length == 1)
+                          ContextMenuButton(
+                            label: 'btn_call_uncenter'.l10n,
+                            onPressed: c.focusAll,
+                          )
+                        else
+                          ContextMenuButton(
+                            label: 'btn_call_center'.l10n,
+                            onPressed: () => c.center(participant),
+                          ),
+                        if (participant.member.id != c.me.id) ...[
+                          if (participant
+                                  .video.value?.direction.value.isEmitting ??
+                              false)
+                            ContextMenuButton(
+                              label: participant.video.value?.renderer.value !=
+                                      null
+                                  ? 'btn_call_disable_video'.l10n
+                                  : 'btn_call_enable_video'.l10n,
+                              onPressed: () =>
+                                  c.toggleVideoEnabled(participant),
+                            ),
+                          if (participant
+                                  .audio.value?.direction.value.isEmitting ??
+                              false)
+                            ContextMenuButton(
+                              label: (participant.audio.value?.direction.value
+                                          .isEnabled ==
+                                      true)
+                                  ? 'btn_call_disable_audio'.l10n
+                                  : 'btn_call_enable_audio'.l10n,
+                              onPressed: () =>
+                                  c.toggleAudioEnabled(participant),
+                            ),
+                          if (participant.member.isRedialing.isFalse)
+                            ContextMenuButton(
+                              label: 'btn_call_remove_participant'.l10n,
+                              onPressed: () => c.removeChatCallMember(
+                                participant.member.id.userId,
                               ),
                             ),
+                        ] else ...[
+                          ContextMenuButton(
+                            label: c.videoState.value.isEnabled
+                                ? 'btn_call_video_off'.l10n
+                                : 'btn_call_video_on'.l10n,
+                            onPressed: c.toggleVideo,
                           ),
+                          ContextMenuButton(
+                            label: c.audioState.value.isEnabled
+                                ? 'btn_call_audio_off'.l10n
+                                : 'btn_call_audio_on'.l10n,
+                            onPressed: c.toggleAudio,
+                          ),
+                        ],
+                      ],
+                      child: IgnorePointer(
+                        child: ParticipantOverlayWidget(
+                          participant,
+                          key: ObjectKey(participant),
+                          muted: muted,
+                          hovered: isHovered,
+                          preferBackdrop:
+                              !c.minimized.value || c.fullscreen.value,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               });
@@ -1731,8 +1728,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         child: Stack(
                           children: [
                             Container(color: const Color(0xFF0A1724)),
-                            const AssetWidget(
-                              asset: 'assets/images/background_dark.svg',
+                            SvgImage.asset(
+                              'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
@@ -2079,8 +2076,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     ),
                                     InkResponse(
                                       onTap: isAnyDrag ? null : c.focusAll,
-                                      child: const AssetWidget(
-                                        asset: 'assets/icons/close.svg',
+                                      child: SvgImage.asset(
+                                        'assets/icons/close.svg',
                                         height: 10.25,
                                       ),
                                     ),

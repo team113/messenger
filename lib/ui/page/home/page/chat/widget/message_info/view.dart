@@ -97,8 +97,7 @@ class MessageInfo extends StatelessWidget {
                         style: thin?.copyWith(fontSize: 13),
                       ),
                       const SizedBox(width: 8),
-                      const AssetWidget(
-                          asset: 'assets/icons/copy.svg', height: 12),
+                      SvgImage.asset('assets/icons/copy.svg', height: 12),
                     ],
                   ),
                 ),
@@ -138,11 +137,11 @@ class MessageInfo extends StatelessWidget {
                         ),
                       ),
                     ),
-                    leading: const [
+                    leading: [
                       Padding(
-                        padding: EdgeInsets.only(left: 20, right: 12),
-                        child: AssetWidget(
-                          asset: 'assets/icons/search.svg',
+                        padding: const EdgeInsets.only(left: 20, right: 12),
+                        child: SvgImage.asset(
+                          'assets/icons/search.svg',
                           width: 17.77,
                         ),
                       )
@@ -155,10 +154,10 @@ class MessageInfo extends StatelessWidget {
                             c.search.unsubmit();
                             c.query.value = '';
                           },
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 12, right: 18),
-                            child: AssetWidget(
-                              asset: 'assets/icons/close_primary.svg',
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            child: SvgImage.asset(
+                              'assets/icons/close_primary.svg',
                               height: 15,
                             ),
                           ),
