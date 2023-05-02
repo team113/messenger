@@ -450,7 +450,7 @@ class _CommonWidget extends StatelessWidget {
   /// Relative path to the file of the resource.
   final String asset;
 
-  /// Сallback function that will be called when you click on [_CommonWidget].
+  /// Callback, called when this [_CommonWidget] is pressed.
   final VoidCallback? onPressed;
 
   /// Hint text for this [_CommonWidget].
