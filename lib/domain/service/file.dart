@@ -25,7 +25,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '/config.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
@@ -34,7 +33,7 @@ class FileService {
   /// Downloads file by the provided [url] and saves it to cache.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  static Future<Uint8List?> downloadAndCache(
+  static FutureOr<Uint8List?> get(
     String url,
     String? checksum, {
     Function(int count, int total)? onReceiveProgress,
@@ -48,11 +47,8 @@ class FileService {
       }
 
       if (!PlatformUtils.isWeb) {
-        final Directory cache = await getApplicationDocumentsDirectory();
-        file = File('${cache.path}${Config.cache}/$checksum');
-        // TODO: remove before merge
-        // Android path - /data/user/0/com.team113.messenger/app_flutter/$Config.cache/$checksum
-        // Windows path - c:\Users\user\OneDrive\Документы\$Config.cache\$checksum
+        final Directory cache = await getApplicationSupportDirectory();
+        file = File('${cache.path}/$checksum');
 
         if (await file.exists()) {
           return file.readAsBytes();

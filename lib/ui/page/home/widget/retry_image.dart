@@ -361,7 +361,12 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    _fallback = await FileService.downloadAndCache(
+    Uint8List? cached;
+    if (widget.fallbackChecksum != null) {
+      cached = FIFOCache.get(widget.fallbackChecksum!);
+    }
+
+    _fallback = cached ?? await FileService.get(
       widget.fallbackUrl!,
       widget.fallbackChecksum,
       cancelToken: _fallbackToken,
@@ -379,7 +384,12 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    _image = await FileService.downloadAndCache(
+    Uint8List? cached;
+    if (widget.checksum != null) {
+      cached = FIFOCache.get(widget.checksum!);
+    }
+
+    _image = cached ?? await FileService.get(
       widget.url,
       widget.checksum,
       onReceiveProgress: (received, total) {
