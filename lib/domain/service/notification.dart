@@ -134,7 +134,7 @@ class NotificationService extends DisposableService {
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/notification.mp3');
+    AudioCache.instance.clear('audio/notification2.mp3');
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -169,7 +169,7 @@ class NotificationService extends DisposableService {
     if (PlatformUtils.isWeb) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
+          AssetSource('audio/notification2.mp3'),
           position: Duration.zero,
           mode: PlayerMode.lowLatency,
         );
@@ -226,7 +226,7 @@ class NotificationService extends DisposableService {
             tag: tag,
           ),
           linux: LinuxNotificationDetails(
-            sound: AssetsLinuxSound('audio/notification.mp3'),
+            sound: AssetsLinuxSound('audio/notification2.mp3'),
           ),
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
@@ -399,7 +399,7 @@ class NotificationService extends DisposableService {
     if (PlatformUtils.isWeb) {
       try {
         _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-        await AudioCache.instance.loadAll(['audio/notification.mp3']);
+        await AudioCache.instance.loadAll(['audio/notification2.mp3']);
       } on MissingPluginException {
         _audioPlayer = null;
       }

@@ -92,6 +92,8 @@ class ContactsTabController extends GetxController {
     Timer(2.seconds, () => fetching.value = null),
   );
 
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 

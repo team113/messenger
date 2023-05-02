@@ -314,26 +314,6 @@ class ChatsTabView extends StatelessWidget {
                     Obx(() {
                       Widget? child;
 
-                      // if (c.groupCreating.value) {
-                      //   if (c.groupCreating.value &&
-                      //       c.search.value?.query.isNotEmpty == true) {
-                      //     child = SvgImage.asset(
-                      //       'assets/icons/close_primary.svg',
-                      //       key: const Key('CloseSearch'),
-                      //       height: 15,
-                      //     );
-                      //   } else {
-                      //     child = Text(
-                      //       'Cancel',
-                      //       key: const Key('Cancel'),
-                      //       style: TextStyle(
-                      //         fontSize: 15,
-                      //         color: Theme.of(context).colorScheme.secondary,
-                      //       ),
-                      //     );
-                      //   }
-                      // } else
-
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
                           child = SvgImage.asset(
@@ -342,7 +322,6 @@ class ChatsTabView extends StatelessWidget {
                             height: 11,
                           );
                         } else {
-                          // child = const SizedBox();
                           child = null;
                         }
                       } else {
@@ -354,11 +333,15 @@ class ChatsTabView extends StatelessWidget {
                                 key: const Key('CloseGroupSearching'),
                                 height: c.searching.value ? 11 : 15,
                               )
-                            : SvgImage.asset(
-                                'assets/icons/group.svg',
-                                key: const Key('CreateGroup'),
-                                width: 21.77,
-                                height: 18.44,
+                            : Transform.translate(
+                                offset: Offset(-1, 0),
+                                child: SvgImage.asset(
+                                  'assets/icons/contacts7.svg',
+                                  key: const Key('Contacts'),
+                                  alignment: Alignment.center,
+                                  width: 22.6,
+                                  height: 21,
+                                ),
                               );
                       }
 
@@ -378,23 +361,6 @@ class ChatsTabView extends StatelessWidget {
                                     c.search.value?.query.value = '';
                                     c.search.value?.search.focus.requestFocus();
                                   }
-                                  // if (c.groupCreating.value) {
-                                  //   if (c.search.value?.query.value.isNotEmpty ==
-                                  //       true) {
-                                  //     c.search.value?.search.clear();
-                                  //     c.search.value?.query.value = '';
-
-                                  //     return;
-                                  //   } else {
-                                  //     c.closeGroupCreating();
-                                  //   }
-                                  // } else {
-                                  //   c.closeGroupCreating();
-                                  // }
-                                  // else {
-                                  // }
-
-                                  // c.closeSearch(!c.groupCreating.value);
                                 } else if (c.selecting.value) {
                                   c.toggleSelecting();
                                 } else if (c.groupCreating.value) {
@@ -418,7 +384,7 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 height: double.infinity,
                                 child: SizedBox(
-                                  width: 21.77,
+                                  width: 29.17,
                                   child: AnimatedSwitcher(
                                     duration: 250.milliseconds,
                                     child: child,
