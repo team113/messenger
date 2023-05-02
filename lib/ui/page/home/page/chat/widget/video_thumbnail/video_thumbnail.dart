@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
-import '/ui/page/home/widget/retry_image.dart';
+import '/domain/service/file.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'

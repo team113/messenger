@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:ui';
-import 'dart:collection';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -362,28 +361,16 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    Uint8List? cached;
-    if (widget.fallbackChecksum != null) {
-      cached = FIFOCache.get(widget.fallbackChecksum!);
-    }
-
-    _fallback = cached ??
-        await FileService.downloadAndCache(
-          widget.fallbackUrl!,
-          widget.fallbackChecksum,
-          cancelToken: _fallbackToken,
-          onForbidden: () async {
-            widget.onForbidden?.call();
-            _cancelToken.cancel();
-            _fallbackToken.cancel();
-          },
-        );
-
-    if (widget.fallbackChecksum != null &&
-        cached == null &&
-        _fallback != null) {
-      FIFOCache.set(widget.fallbackChecksum!, _fallback!);
-    }
+    _fallback = await FileService.downloadAndCache(
+      widget.fallbackUrl!,
+      widget.fallbackChecksum,
+      cancelToken: _fallbackToken,
+      onForbidden: () async {
+        widget.onForbidden?.call();
+        _cancelToken.cancel();
+        _fallbackToken.cancel();
+      },
+    );
 
     if (mounted) {
       setState(() {});
@@ -392,12 +379,7 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    Uint8List? cached;
-    if (widget.checksum != null) {
-      cached = FIFOCache.get(widget.checksum!);
-    }
-
-    _image = cached ?? await FileService.downloadAndCache(
+    _image = await FileService.downloadAndCache(
       widget.url,
       widget.checksum,
       onReceiveProgress: (received, total) {
@@ -425,58 +407,8 @@ class _RetryImageState extends State<RetryImage> {
           _image![3] == 103;
     }
 
-    if (widget.checksum != null &&
-        cached == null &&
-        _image != null) {
-      FIFOCache.set(widget.checksum!, _image!);
-    }
-
     if (mounted) {
       setState(() {});
     }
   }
-}
-
-/// Naive [LinkedHashMap]-based cache of [Uint8List]s.
-///
-/// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
-/// [_maxLength], then the first inserted element is removed.
-class FIFOCache {
-  /// Maximum allowed length of [_cache].
-  static const int _maxLength = 1000;
-
-  /// Maximum allowed size in bytes of [_cache].
-  static const int _maxSize = 100 << 20; // 100 MiB
-
-  /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  static final LinkedHashMap<String, Uint8List> _cache =
-      LinkedHashMap<String, Uint8List>();
-
-  /// Returns the total size [_cache] occupies.
-  static int get size =>
-      _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
-
-  /// Puts the provided [bytes] to the cache.
-  static void set(String key, Uint8List bytes) {
-    if (!_cache.containsKey(key)) {
-      while (size >= _maxSize) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      if (_cache.length >= _maxLength) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      _cache[key] = bytes;
-    }
-  }
-
-  /// Returns the [Uint8List] of the provided [key], if any is cached.
-  static Uint8List? get(String key) => _cache[key];
-
-  /// Indicates whether an item with the provided [key] exists.
-  static bool exists(String key) => _cache.containsKey(key);
-
-  /// Removes all entries from the [_cache].
-  static void clear() => _cache.clear();
 }
