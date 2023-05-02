@@ -109,14 +109,14 @@ class ScreenShareView extends StatelessWidget {
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
                                       framelessBuilder: () =>
-                                          const FramelessBuilderWidget(
-                                        videoHeight: videoHeight,
+                                          const _FramelessBuilder(
+                                        videoHeight,
                                       ),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   )
-                                : const FramelessBuilderWidget(
-                                    videoHeight: videoHeight,
+                                : const _FramelessBuilder(
+                                    videoHeight,
                                   ),
                           ),
                         );
@@ -153,13 +153,12 @@ class ScreenShareView extends StatelessWidget {
   }
 }
 
-/// Represents a frameless video player.
-class FramelessBuilderWidget extends StatelessWidget {
+/// Video player without a frame.
+class _FramelessBuilder extends StatelessWidget {
+  const _FramelessBuilder(this.videoHeight);
+
+  /// Height of the video.
   final double videoHeight;
-  const FramelessBuilderWidget({
-    Key? key,
-    required this.videoHeight,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

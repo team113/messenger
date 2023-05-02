@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -25,7 +24,7 @@ import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
     if (dart.library.html) 'src/web.dart';
 
-/// Instantiates a widget rendering an SVG picture from an [AssetBundle].
+/// SVG images renderer.
 ///
 /// Actual renderer is determined based on the current platform:
 /// - [SvgPicture] is used on all non-web platforms and on web with `CanvasKit`
