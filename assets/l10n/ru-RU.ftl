@@ -445,6 +445,7 @@ label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
 label_chat_monolog = Себе
+label_chat_name_hint = Имя чата
 label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить

@@ -273,7 +273,8 @@ class LastChatRead {
 class ChatId extends NewType<String> {
   const ChatId(super.val);
 
-  /// Constructs a dummy [ChatId].
+  /// Constructs a local [ChatId] from the [id] of the [User] with whom the
+  /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
   /// Indicates whether this [ChatId] is a dummy ID.

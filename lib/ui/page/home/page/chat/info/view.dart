@@ -360,7 +360,7 @@ class ChatInfoView extends StatelessWidget {
           label: c.chat?.chat.value.name == null
               ? c.chat?.title.value
               : 'label_name'.l10n,
-          hint: 'label_name_hint'.l10n,
+          hint: 'label_chat_name_hint'.l10n,
           onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {

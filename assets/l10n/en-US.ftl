@@ -430,6 +430,7 @@ label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = To myself
+label_chat_name_hint = Chat name
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
