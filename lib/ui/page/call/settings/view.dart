@@ -65,7 +65,7 @@ class CallSettingsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 12),
-                  SettingsHeaderWidget(text: 'label_media'.l10n),
+                  HeaderWidget(text: 'label_media'.l10n),
                   _DenseWidget(
                     child: WidgetButton(
                       onPressed: () async {
@@ -168,7 +168,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SettingsHeaderWidget(text: 'label_calls'.l10n),
+                  HeaderWidget(text: 'label_calls'.l10n),
                   _DenseWidget(
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
@@ -199,14 +199,19 @@ class CallSettingsView extends StatelessWidget {
   }
 }
 
-class SettingsHeaderWidget extends StatelessWidget {
-  final String text;
-  final EdgeInsets padding;
-  const SettingsHeaderWidget({
+/// [Widget] for displaying a header with a text in the settings screen.
+class HeaderWidget extends StatelessWidget {
+  const HeaderWidget({
     Key? key,
     required this.text,
     this.padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
   }) : super(key: key);
+
+  /// [Text] to be displayed in the [HeaderWidget].
+  final String text;
+
+  /// Padding around the [HeaderWidget].
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -230,11 +235,13 @@ class SettingsHeaderWidget extends StatelessWidget {
 
 /// Dense [Padding] wrapper.
 class _DenseWidget extends StatelessWidget {
-  final Widget child;
   const _DenseWidget({
     Key? key,
-    required this.child,
+    this.child,
   }) : super(key: key);
+
+  /// [Widget] to be displayed inside the [_DenseWidget].
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
