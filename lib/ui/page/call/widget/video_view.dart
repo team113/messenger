@@ -201,63 +201,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       }
     }
 
-    // Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
-    // otherwise.
-    Widget aspected(BoxFit? fit) {
-      if (widget.respectAspectRatio && fit != BoxFit.cover) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          _waitTilSizeDetermined();
-          if (widget.framelessBuilder != null) {
-            return widget.framelessBuilder!();
-          }
-
-          return Stack(
-            children: [
-              Offstage(child: video),
-              const Center(child: CustomProgressIndicator(size: 64))
-            ],
-          );
-        }
-
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
-      }
-
-      if (fit == BoxFit.contain) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          return video;
-        }
-
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
-      }
-
-      return video;
-    }
-
-    // Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
-    // [aspected] otherwise.
-    Widget clipped(BoxFit? fit) => widget.borderRadius == null
-        ? aspected(fit)
-        : ClipRRect(borderRadius: widget.borderRadius, child: aspected(fit));
-
-    // Returns outlined [Container] with [clipped] if [outline] is not null or
-    // [clipped] otherwise.
-    Widget outlined(BoxFit? fit) => AnimatedContainer(
-          duration: 200.milliseconds,
-          decoration: BoxDecoration(
-            border: widget.border,
-            borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
-          ),
-          child: clipped(fit),
-        );
-
     return LayoutBuilder(
       builder: (context, constraints) {
         RtcVideoRenderer renderer = widget.renderer;
@@ -278,7 +221,16 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            outlined(fit),
+            Outlined(
+              fit: fit,
+              borderRadius: widget.borderRadius,
+              border: widget.border,
+              respectAspectRatio: widget.respectAspectRatio,
+              renderer: renderer,
+              framelessBuilder: widget.framelessBuilder,
+              video: video,
+              waitTilSizeDetermined: () => _waitTilSizeDetermined(),
+            ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
@@ -348,4 +300,188 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       }
     });
   }
+}
+
+/// Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
+/// otherwise.
+class Aspected extends StatelessWidget {
+  const Aspected(
+    this.fit, {
+    super.key,
+    required this.respectAspectRatio,
+    required this.renderer,
+    required this.video,
+    this.framelessBuilder,
+    this.waitTilSizeDetermined,
+  });
+
+  ///
+  final BoxFit? fit;
+
+  ///
+  final bool respectAspectRatio;
+
+  ///
+  final RtcVideoRenderer renderer;
+
+  ///
+  final Widget Function()? framelessBuilder;
+
+  ///
+  final Widget video;
+
+  ///
+  final void Function()? waitTilSizeDetermined;
+
+  @override
+  Widget build(BuildContext context) {
+    if (respectAspectRatio && fit != BoxFit.cover) {
+      if (renderer.inner.videoHeight == 0) {
+        waitTilSizeDetermined;
+        if (framelessBuilder != null) {
+          return framelessBuilder!();
+        }
+
+        return Stack(
+          children: [
+            Offstage(child: video),
+            const Center(child: CustomProgressIndicator(size: 64))
+          ],
+        );
+      }
+
+      return AspectRatio(
+        aspectRatio: renderer.inner.videoWidth / renderer.inner.videoHeight,
+        child: video,
+      );
+    }
+
+    if (fit == BoxFit.contain) {
+      if (renderer.inner.videoHeight == 0) {
+        return video;
+      }
+
+      return AspectRatio(
+        aspectRatio: renderer.inner.videoWidth / renderer.inner.videoHeight,
+        child: video,
+      );
+    }
+
+    return video;
+  }
+}
+
+/// Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
+/// [aspected] otherwise.
+class Clipped extends StatelessWidget {
+  const Clipped(
+    this.fit, {
+    super.key,
+    required this.respectAspectRatio,
+    required this.renderer,
+    required this.video,
+    this.borderRadius,
+    this.framelessBuilder,
+    this.waitTilSizeDetermined,
+  });
+
+  /// Border radius of this video.
+  final BorderRadius? borderRadius;
+
+  ///
+  final BoxFit? fit;
+
+  ///
+  final bool respectAspectRatio;
+
+  ///
+  final RtcVideoRenderer renderer;
+
+  ///
+  final Widget Function()? framelessBuilder;
+
+  ///
+  final Widget video;
+
+  ///
+  final void Function()? waitTilSizeDetermined;
+
+  @override
+  Widget build(BuildContext context) => borderRadius == null
+      ? Aspected(
+          fit,
+          respectAspectRatio: respectAspectRatio,
+          renderer: renderer,
+          video: video,
+          framelessBuilder: framelessBuilder,
+          waitTilSizeDetermined: () => waitTilSizeDetermined,
+        )
+      : ClipRRect(
+          borderRadius: borderRadius,
+          child: Aspected(
+            fit,
+            respectAspectRatio: respectAspectRatio,
+            renderer: renderer,
+            video: video,
+            framelessBuilder: framelessBuilder,
+            waitTilSizeDetermined: () => waitTilSizeDetermined,
+          ));
+}
+
+/// Returns outlined [Container] with [clipped] if [outline] is not null or
+/// [clipped] otherwise.
+class Outlined extends StatelessWidget {
+  const Outlined({
+    super.key,
+    required this.respectAspectRatio,
+    required this.renderer,
+    required this.video,
+    this.borderRadius,
+    this.border,
+    this.fit,
+    this.framelessBuilder,
+    this.waitTilSizeDetermined,
+  });
+
+  /// Border radius of this video.
+  final BorderRadius? borderRadius;
+
+  /// Optional border to apply to this [RtcVideoView].
+  final Border? border;
+
+  ///
+  final BoxFit? fit;
+
+  ///
+  final bool respectAspectRatio;
+
+  ///
+  final RtcVideoRenderer renderer;
+
+  ///
+  final Widget Function()? framelessBuilder;
+
+  ///
+  final Widget video;
+
+  ///
+  final void Function()? waitTilSizeDetermined;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+        duration: 200.milliseconds,
+        decoration: BoxDecoration(
+          border: border,
+          borderRadius: borderRadius?.add(BorderRadius.circular(4)),
+        ),
+        child: Clipped(
+          fit,
+          borderRadius: borderRadius,
+          respectAspectRatio: respectAspectRatio,
+          renderer: renderer,
+          framelessBuilder: framelessBuilder,
+          video: video,
+          waitTilSizeDetermined: waitTilSizeDetermined,
+        ),
+      );
 }

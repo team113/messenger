@@ -164,25 +164,13 @@ class ParticipantWidget extends StatelessWidget {
             return AnimatedSwitcher(duration: 250.milliseconds, child: child);
           }),
           Positioned.fill(
-            child: _handRaisedIcon(participant.member.isHandRaised.value),
+            child: _HandRaisedIcon(
+              isRaised: participant.member.isHandRaised.value,
+            ),
           ),
         ],
       );
     });
-  }
-
-  /// Returns a raised hand animated icon.
-  Widget _handRaisedIcon(bool isRaised) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 150),
-      child: isRaised
-          ? CircleAvatar(
-              radius: 45,
-              backgroundColor: const Color(0xD8818181),
-              child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
-            )
-          : Container(),
-    );
   }
 }
 
@@ -421,6 +409,33 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Returns a raised hand animated icon.
+class _HandRaisedIcon extends StatelessWidget {
+  const _HandRaisedIcon({
+    Key? key,
+    required this.isRaised,
+  }) : super(key: key);
+
+  final bool isRaised;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 150),
+      child: isRaised
+          ? CircleAvatar(
+              radius: 45,
+              backgroundColor: const Color(0xD8818181),
+              child: SvgImage.asset(
+                'assets/icons/hand_up.svg',
+                width: 90,
+              ),
+            )
+          : Container(),
     );
   }
 }
