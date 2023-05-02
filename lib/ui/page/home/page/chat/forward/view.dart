@@ -92,7 +92,7 @@ class ChatForwardView extends StatelessWidget {
         quotes: quotes,
         text: text,
         attachments: attachments,
-        pop: () => Navigator.of(context).pop(true),
+        pop: Navigator.of(context).pop,
       ),
       builder: (ChatForwardController c) {
         return Obx(() {
