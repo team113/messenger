@@ -25,7 +25,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/call_cover.dart';
-import '../widget/call_title_common.dart';
+import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/desktop_primary_view.dart';
 import '../widget/desktop_secondary_view.dart';
@@ -779,9 +779,11 @@ class DesktopCall extends StatelessWidget {
                     right: 10,
                     top: c.size.height * 0.05,
                   ),
-                  child: CallTitleCommon(
-                    isOutgoing: isOutgoing,
-                    isDialog: isDialog,
+                  child: CallTitle(
+                    c.me.id.userId,
+                    chat: c.chat.value?.chat.value,
+                    title: c.chat.value?.title.value,
+                    avatar: c.chat.value?.avatar.value,
                     withDots: c.state.value != OngoingCallState.active &&
                         (c.state.value == OngoingCallState.joining ||
                             isOutgoing),
@@ -800,8 +802,6 @@ class DesktopCall extends StatelessWidget {
                                 : c.withVideo == true
                                     ? 'label_video_call'.l10n
                                     : 'label_audio_call'.l10n,
-                    me: c.me,
-                    chat: c.chat,
                   ),
                 ),
               ),
