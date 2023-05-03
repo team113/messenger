@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -50,26 +51,6 @@ class LoginView extends StatelessWidget {
           final Widget header;
           final List<Widget> children;
 
-          // Returns a primary styled [OutlinedRoundedButton].
-          Widget primaryButton({
-            Key? key,
-            String? title,
-            VoidCallback? onPressed,
-          }) {
-            return OutlinedRoundedButton(
-              key: key,
-              maxWidth: double.infinity,
-              title: Text(
-                title ?? '',
-                style: TextStyle(
-                  color: onPressed == null ? Colors.black : Colors.white,
-                ),
-              ),
-              onPressed: onPressed,
-              color: Theme.of(context).colorScheme.secondary,
-            );
-          }
-
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
@@ -98,8 +79,8 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
-                  key: const Key('Proceed'),
+                _PrimaryButton(
+                  key: const Key('ProceedRecovery'),
                   title: 'btn_proceed'.l10n,
                   onPressed:
                       c.recovery.isEmpty.value ? null : c.recovery.submit,
@@ -135,8 +116,8 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
-                  key: const Key('Proceed'),
+                _PrimaryButton(
+                  key: const Key('ProceedRecoveryCode'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.recoveryCode.isEmpty.value
                       ? null
@@ -173,8 +154,9 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                  trailing: AssetWidget(
+                    asset:
+                        'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
@@ -186,14 +168,15 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                  trailing: AssetWidget(
+                    asset:
+                        'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
-                  key: const Key('Proceed'),
+                _PrimaryButton(
+                  key: const Key('ProceedRecoveryPassword'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.newPassword.isEmpty.value ||
                           c.repeatPassword.isEmpty.value
@@ -244,8 +227,9 @@ class LoginView extends StatelessWidget {
                       obscure: c.obscurePassword.value,
                       onSuffixPressed: c.obscurePassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgLoader.asset(
-                        'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                      trailing: AssetWidget(
+                        asset:
+                            'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,
                       ),
                     ),
@@ -270,7 +254,7 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                _PrimaryButton(
                   key: const Key('LoginButton'),
                   title: 'btn_login'.l10n,
                   onPressed: c.signIn,
@@ -304,6 +288,32 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+}
+
+/// Returns a primary styled [OutlinedRoundedButton].
+class _PrimaryButton extends StatelessWidget {
+  final String? title;
+  final VoidCallback? onPressed;
+  const _PrimaryButton({
+    Key? key,
+    this.title,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedRoundedButton(
+      maxWidth: double.infinity,
+      title: Text(
+        title ?? '',
+        style: TextStyle(
+          color: onPressed == null ? Colors.black : Colors.white,
+        ),
+      ),
+      onPressed: onPressed,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }

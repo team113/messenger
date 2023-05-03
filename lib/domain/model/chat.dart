@@ -28,8 +28,8 @@ import 'chat_item.dart';
 import 'mute_duration.dart';
 import 'my_user.dart';
 import 'precise_date_time/precise_date_time.dart';
-import 'user_call_cover.dart';
 import 'user.dart';
+import 'user_call_cover.dart';
 
 part 'chat.g.dart';
 
@@ -196,7 +196,35 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId? me) {
+  ///
+  /// If [members] are provided, then accounts its [ChatMember.joinedAt] for a
+  /// more precise read indication.
+  bool isRead(
+    ChatItem item,
+    UserId? me, [
+    List<ChatMember> members = const [],
+  ]) {
+    if (members.isNotEmpty) {
+      if (members.length <= 1) {
+        return true;
+      }
+
+      final Iterable<ChatMember> membersWithoutMe =
+          members.where((e) => e.user.id != me);
+
+      if (membersWithoutMe.isNotEmpty) {
+        final PreciseDateTime firstJoinedAt =
+            membersWithoutMe.fold<PreciseDateTime>(
+          membersWithoutMe.first.joinedAt,
+          (at, member) => member.joinedAt.isBefore(at) ? member.joinedAt : at,
+        );
+
+        if (item.at.isBefore(firstJoinedAt)) {
+          return true;
+        }
+      }
+    }
+
     return lastReads.firstWhereOrNull(
             (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
         null;

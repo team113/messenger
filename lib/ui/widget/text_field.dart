@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -15,6 +16,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,33 +33,33 @@ import 'svg/svg.dart';
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
   const ReactiveTextField({
-    Key? key,
+    super.key,
     required this.state,
     this.dense,
     this.enabled = true,
+    this.fillColor = Colors.white,
+    this.filled,
     this.formatters,
     this.hint,
     this.icon,
     this.label,
+    this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
     this.obscure = false,
     this.onChanged,
+    this.onSuffixPressed,
+    this.padding,
+    this.prefix,
+    this.prefixText,
     this.style,
     this.suffix,
-    this.prefix,
-    this.trailing,
-    this.type,
-    this.padding,
-    this.minLines,
-    this.maxLines = 1,
-    this.textInputAction,
-    this.onSuffixPressed,
-    this.prefixText,
-    this.filled,
-    this.treatErrorAsStatus = true,
     this.textAlign = TextAlign.start,
-    this.fillColor = Colors.white,
-    this.maxLength,
-  }) : super(key: key);
+    this.textInputAction,
+    this.trailing,
+    this.treatErrorAsStatus = true,
+    this.type,
+  });
 
   /// Reactive state of this [ReactiveTextField].
   final ReactiveFieldState state;
@@ -170,83 +173,6 @@ class ReactiveTextField extends StatelessWidget {
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
     }
 
-    // Builds the suffix depending on the provided states.
-    Widget buildSuffix() {
-      return Obx(() {
-        return WidgetButton(
-          onPressed: state.approvable && state.changed.value
-              ? state.submit
-              : onSuffixPressed,
-          child: ElasticAnimatedSwitcher(
-            child: (state.approvable ||
-                    suffix != null ||
-                    trailing != null ||
-                    !state.status.value.isEmpty)
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: SizedBox(
-                      height: 24,
-                      child: ElasticAnimatedSwitcher(
-                        child: state.status.value.isLoading
-                            ? SvgLoader.asset(
-                                'assets/icons/timer.svg',
-                                width: 17,
-                                height: 17,
-                              )
-                            : state.status.value.isSuccess
-                                ? const SizedBox(
-                                    key: ValueKey('Success'),
-                                    width: 24,
-                                    child: Icon(
-                                      Icons.check,
-                                      size: 18,
-                                      color: Colors.green,
-                                    ),
-                                  )
-                                : (state.error.value != null &&
-                                            treatErrorAsStatus) ||
-                                        state.status.value.isError
-                                    ? const SizedBox(
-                                        key: ValueKey('Error'),
-                                        width: 24,
-                                        child: Icon(
-                                          Icons.error,
-                                          size: 18,
-                                          color: Colors.red,
-                                        ),
-                                      )
-                                    : (state.approvable && state.changed.value)
-                                        ? AllowOverflow(
-                                            key: const ValueKey('Approve'),
-                                            child: Text(
-                                              'btn_save'.l10n,
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                            ),
-                                          )
-                                        : SizedBox(
-                                            key: const ValueKey('Icon'),
-                                            width: 24,
-                                            child: suffix != null
-                                                ? Icon(suffix)
-                                                : trailing == null
-                                                    ? Container()
-                                                    : trailing!,
-                                          ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(width: 1, height: 0),
-          ),
-        );
-      });
-    }
-
     return Obx(() {
       return Theme(
         data: Theme.of(context).copyWith(
@@ -288,7 +214,15 @@ class ReactiveTextField extends StatelessWidget {
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,
-                suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIcon: dense == true
+                    ? null
+                    : _BuildSuffix(
+                        state: state,
+                        onSuffixPressed: onSuffixPressed,
+                        suffix: suffix,
+                        trailing: trailing,
+                        treatErrorAsStatus: treatErrorAsStatus,
+                      ),
                 icon: icon == null
                     ? null
                     : Padding(
@@ -405,7 +339,15 @@ class TextFieldState extends ReactiveFieldState {
 
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        changed.value = controller.text != (_previousSubmit ?? '');
+
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(debounce, () {
+          if (_previousText != controller.text) {
+            _previousText = controller.text;
+            onChanged?.call(this);
+          }
+        });
       });
     }
 
@@ -424,6 +366,9 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
+
+  /// [Duration] to debounce the [onChanged] calls with.
+  static const Duration debounce = Duration(milliseconds: 500);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -468,6 +413,9 @@ class TextFieldState extends ReactiveFieldState {
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   String? _previousSubmit;
+
+  /// [Timer] debouncing the [onChanged] callback.
+  Timer? _debounceTimer;
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
@@ -525,5 +473,100 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    _debounceTimer?.cancel();
+  }
+}
+
+/// Builds the suffix depending on the provided states.
+class _BuildSuffix extends StatelessWidget {
+  final ReactiveFieldState state;
+  final void Function()? onSuffixPressed;
+  final IconData? suffix;
+  final Widget? trailing;
+  final bool treatErrorAsStatus;
+  const _BuildSuffix({
+    Key? key,
+    required this.state,
+    required this.onSuffixPressed,
+    required this.suffix,
+    required this.trailing,
+    required this.treatErrorAsStatus,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return WidgetButton(
+        onPressed: state.approvable && state.changed.value
+            ? state.submit
+            : onSuffixPressed,
+        child: ElasticAnimatedSwitcher(
+          child: (state.approvable ||
+                  suffix != null ||
+                  trailing != null ||
+                  !state.status.value.isEmpty)
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: SizedBox(
+                    height: 24,
+                    child: ElasticAnimatedSwitcher(
+                      child: state.status.value.isLoading
+                          ? const AssetWidget(
+                              asset: 'assets/icons/timer.svg',
+                              width: 17,
+                              height: 17,
+                            )
+                          : state.status.value.isSuccess
+                              ? const SizedBox(
+                                  key: ValueKey('Success'),
+                                  width: 24,
+                                  child: Icon(
+                                    Icons.check,
+                                    size: 18,
+                                    color: Colors.green,
+                                  ),
+                                )
+                              : (state.error.value != null &&
+                                          treatErrorAsStatus) ||
+                                      state.status.value.isError
+                                  ? const SizedBox(
+                                      key: ValueKey('Error'),
+                                      width: 24,
+                                      child: Icon(
+                                        Icons.error,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  : (state.approvable && state.changed.value)
+                                      ? AllowOverflow(
+                                          key: const ValueKey('Approve'),
+                                          child: Text(
+                                            'btn_save'.l10n,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          key: const ValueKey('Icon'),
+                                          width: 24,
+                                          child: suffix != null
+                                              ? Icon(suffix)
+                                              : trailing == null
+                                                  ? Container()
+                                                  : trailing!,
+                                        ),
+                    ),
+                  ),
+                )
+              : const SizedBox(width: 1, height: 0),
+        ),
+      );
+    });
   }
 }

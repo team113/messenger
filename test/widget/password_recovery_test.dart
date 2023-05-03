@@ -137,7 +137,7 @@ void main() async {
     await tester.enterText(usernameField, 'emptyuser');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.tap(find.byKey(const Key('ProceedRecovery')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -147,7 +147,7 @@ void main() async {
     await tester.enterText(usernameField, 'login');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.tap(find.byKey(const Key('ProceedRecovery')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -157,7 +157,7 @@ void main() async {
     await tester.enterText(codeField, '1234');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.tap(find.byKey(const Key('ProceedRecoveryCode')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -170,7 +170,7 @@ void main() async {
     await tester.enterText(password2, 'test123');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.tap(find.byKey(const Key('ProceedRecoveryPassword')));
     await tester.pumpAndSettle();
 
     verifyInOrder([

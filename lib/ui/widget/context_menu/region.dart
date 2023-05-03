@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -121,28 +122,28 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   @override
   Widget build(BuildContext context) {
-    Widget builder() {
-      if (widget.builder == null) {
-        return widget.child!;
-      }
-
-      return Builder(builder: (_) => widget.builder!(_displayed));
-    }
-
     final Widget child;
 
     if (_darkened && PlatformUtils.isDesktop) {
       final Style style = Theme.of(context).extension<Style>()!;
       child = Stack(
         children: [
-          builder(),
+          _Builder(
+            builder: widget.builder,
+            displayed: _displayed,
+            child: widget.child,
+          ),
           Positioned.fill(
             child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
           ),
         ],
       );
     } else {
-      child = builder();
+      child = _Builder(
+        builder: widget.builder,
+        displayed: _displayed,
+        child: widget.child,
+      );
     }
 
     if (widget.enabled && widget.actions.isNotEmpty) {
@@ -288,5 +289,26 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
+  }
+}
+
+class _Builder extends StatelessWidget {
+  final Widget Function(bool)? builder;
+  final Widget? child;
+  final bool displayed;
+  const _Builder({
+    Key? key,
+    required this.builder,
+    required this.child,
+    required this.displayed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (builder == null) {
+      return child!;
+    }
+
+    return Builder(builder: (_) => builder!(displayed));
   }
 }

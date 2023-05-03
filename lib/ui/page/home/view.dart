@@ -186,8 +186,8 @@ class _HomeViewState extends State<HomeView> {
                                 child: TabBoilerplateWidget(
                                   c,
                                   tab: HomeTab.contacts,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/contacts.svg',
+                                  child: const AssetWidget(
+                                    asset: 'assets/icons/contacts.svg',
                                     width: 30,
                                     height: 30,
                                   ),
@@ -213,16 +213,16 @@ class _HomeViewState extends State<HomeView> {
                                       final Widget child;
 
                                       if (c.myUser.value?.muted != null) {
-                                        child = SvgLoader.asset(
-                                          'assets/icons/chats_muted.svg',
-                                          key: const Key('Muted'),
+                                        child = const AssetWidget(
+                                          asset: 'assets/icons/chats_muted.svg',
+                                          key: Key('Muted'),
                                           width: 36.06,
                                           height: 30,
                                         );
                                       } else {
-                                        child = SvgLoader.asset(
-                                          'assets/icons/chats.svg',
-                                          key: const Key('Unmuted'),
+                                        child = const AssetWidget(
+                                          asset: 'assets/icons/chats.svg',
+                                          key: Key('Unmuted'),
                                           width: 36.06,
                                           height: 30,
                                         );
@@ -433,10 +433,10 @@ class _BackgroundWidget extends StatelessWidget {
 
           return Stack(
             children: [
-              Positioned.fill(
-                child: SvgLoader.asset(
-                  'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
+              const Positioned.fill(
+                child: AssetWidget(
+                  asset: 'assets/images/background_light.svg',
+                  key: Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,

@@ -415,7 +415,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me);
+      return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
@@ -532,6 +532,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
             return Text('label_group_created'.l10n);
           });
+        } else if (widget.chat.value?.isMonolog == true) {
+          content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -848,29 +850,45 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final List<Widget> children = [
           if (msg.repliesTo.isNotEmpty)
             ...msg.repliesTo.mapIndexed((i, e) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: e.author == widget.me
-                      ? _isRead || !_fromMe
-                          ? const Color(0xFFDBEAFD)
-                          : const Color(0xFFE6F1FE)
-                      : _isRead || !_fromMe
-                          ? const Color(0xFFF9F9F9)
-                          : const Color(0xFFFFFFFF),
-                  borderRadius: i == 0
-                      ? const BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                        )
-                      : BorderRadius.zero,
-                ),
-                child: AnimatedOpacity(
+              return SelectionContainer.disabled(
+                child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
-                  opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  child: WidgetButton(
-                    onPressed: () => widget.onRepliedTap?.call(e),
-                    child: _repliedMessage(e),
+                  decoration: BoxDecoration(
+                    color: e.author == widget.me
+                        ? _isRead || !_fromMe
+                            ? const Color(0xFFDBEAFD)
+                            : const Color(0xFFE6F1FE)
+                        : _isRead || !_fromMe
+                            ? const Color(0xFFF9F9F9)
+                            : const Color(0xFFFFFFFF),
+                    borderRadius: i == 0
+                        ? BorderRadius.only(
+                            topLeft: const Radius.circular(15),
+                            topRight: const Radius.circular(15),
+                            bottomLeft:
+                                msg.repliesTo.length == 1 && _text == null
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                            bottomRight:
+                                msg.repliesTo.length == 1 && _text == null
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                          )
+                        : i == msg.repliesTo.length - 1 && _text == null
+                            ? const BorderRadius.only(
+                                bottomLeft: Radius.circular(15),
+                                bottomRight: Radius.circular(15),
+                              )
+                            : BorderRadius.zero,
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.55,
+                    child: WidgetButton(
+                      onPressed:
+                          menu ? null : () => widget.onRepliedTap?.call(e),
+                      child: _repliedMessage(e),
+                    ),
                   ),
                 ),
               );
@@ -1112,12 +1130,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
                     child: message.withVideo
-                        ? SvgLoader.asset(
-                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        ? AssetWidget(
+                            asset:
+                                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 13 * 1.4,
                           )
-                        : SvgLoader.asset(
-                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        : AssetWidget(
+                            asset:
+                                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
                             height: 15 * 1.4,
                           ),
                   ),
@@ -1307,12 +1327,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: call?.withVideo == true
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                ? AssetWidget(
+                    asset:
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                : AssetWidget(
+                    asset:
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
@@ -1432,7 +1454,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 future: widget.getUser?.call(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                    return AvatarFromRxUser(user: snapshot.data, radius: 10);
                   }
                   return AvatarWidget.fromUser(user, radius: 10);
                 },
@@ -1570,9 +1592,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.authorId, push: true),
                           child:
-                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                              AvatarFromRxUser(user: widget.user, radius: 17),
                         )
-                      : const SizedBox.square(dimension: 34),
+                      : const SizedBox(width: 34),
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
@@ -1609,8 +1631,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/copy_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
                               onPressed: () => widget.onCopy
@@ -1622,8 +1644,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/reply.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/reply.svg',
                                 height: 18,
                               ),
                               onPressed: widget.onReply,
@@ -1634,8 +1656,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/forward.svg',
+                                trailing: const AssetWidget(
+                                  asset: 'assets/icons/forward.svg',
                                   height: 18,
                                 ),
                                 onPressed: () async {
@@ -1655,8 +1677,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/edit.svg',
+                                trailing: const AssetWidget(
+                                  asset: 'assets/icons/edit.svg',
                                   height: 18,
                                 ),
                                 onPressed: widget.onEdit,
@@ -1666,11 +1688,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&
@@ -1679,18 +1702,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,
@@ -1710,8 +1734,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/send_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
                               ),
@@ -1722,8 +1746,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
+                              trailing: const AssetWidget(
+                                asset: 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
                               ),

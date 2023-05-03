@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -77,8 +78,8 @@ class StatusView extends StatelessWidget {
                   shrinkWrap: true,
                   children: [
                     if (expanded) ...[
-                      _padding(
-                        ReactiveTextField(
+                      _PaddingWidget(
+                        child: ReactiveTextField(
                           key: const Key('StatusField'),
                           state: c.status,
                           label: 'label_status'.l10n,
@@ -96,8 +97,8 @@ class StatusView extends StatelessWidget {
                                   offset: const Offset(0, -1),
                                   child: Transform.scale(
                                     scale: 1.15,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/copy.svg',
+                                    child: const AssetWidget(
+                                      asset: 'assets/icons/copy.svg',
                                       height: 15,
                                     ),
                                   ),
@@ -139,8 +140,18 @@ class StatusView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
+/// Basic [Padding] wrapper.
+class _PaddingWidget extends StatelessWidget {
+  final Widget child;
+  const _PaddingWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(8), child: child);
+  }
 }

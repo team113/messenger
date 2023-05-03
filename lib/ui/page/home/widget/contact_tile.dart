@@ -157,8 +157,8 @@ class ContactTile extends StatelessWidget {
                           radius: dense ? 17 : radius,
                         )
                       : user != null
-                          ? AvatarWidget.fromRxUser(
-                              user,
+                          ? AvatarFromRxUser(
+                              user: user,
                               radius: dense ? 17 : radius,
                             )
                           : AvatarWidget.fromMyUser(
@@ -177,8 +177,6 @@ class ContactTile extends StatelessWidget {
                           Expanded(
                             child: Text(
                               contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
                                   user?.user.value.name?.val ??
                                   user?.user.value.num.val ??
                                   myUser?.name?.val ??

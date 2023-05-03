@@ -186,6 +186,8 @@ class _RetryImageState extends State<RetryImage> {
 
     if (oldWidget.url != widget.url ||
         (!oldWidget.autoLoad && widget.autoLoad)) {
+      _cancelToken.cancel();
+      _cancelToken = CancelToken();
       _loadImage();
     }
 
@@ -207,8 +209,8 @@ class _RetryImageState extends State<RetryImage> {
       Widget image;
 
       if (_isSvg) {
-        return SvgLoader.bytes(
-          _image!,
+        return BytesWidget(
+          bytes: _image!,
           width: widget.width,
           height: widget.height,
           fit: widget.fit ?? BoxFit.contain,
@@ -286,13 +288,13 @@ class _RetryImageState extends State<RetryImage> {
                                 ),
                               ],
                             ),
-                            child: SvgLoader.asset(
-                              'assets/icons/download.svg',
+                            child: const AssetWidget(
+                              asset: 'assets/icons/download.svg',
                               height: 40,
                             ),
                           )
-                        : SvgLoader.asset(
-                            'assets/icons/close_primary.svg',
+                        : const AssetWidget(
+                            asset: 'assets/icons/close_primary.svg',
                             height: 13,
                           ),
                   ),
@@ -385,6 +387,7 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
               }
             }
 

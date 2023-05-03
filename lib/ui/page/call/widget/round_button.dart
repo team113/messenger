@@ -306,8 +306,8 @@ class RoundButtonWidget extends StatelessWidget {
                 width: max(assetWidth, 60),
                 height: max(assetWidth, 60),
                 child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/$asset.svg',
+                  child: AssetWidget(
+                    asset: 'assets/icons/$asset.svg',
                     width: assetWidth,
                   ),
                 ),

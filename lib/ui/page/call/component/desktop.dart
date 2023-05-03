@@ -68,8 +68,8 @@ class DesktopCall extends StatelessWidget {
       builder: (context, constraints) {
         // Call stackable content.
         List<Widget> content = [
-          SvgLoader.asset(
-            'assets/images/background_dark.svg',
+          const AssetWidget(
+            asset: 'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,
@@ -366,6 +366,10 @@ class DesktopCall extends StatelessWidget {
           // Sliding from the top info header.
           if (WebUtils.isPopup)
             Obx(() {
+              if (!c.fullscreen.value) {
+                return const SizedBox();
+              }
+
               return Align(
                 alignment: Alignment.topCenter,
                 child: AnimatedSlider(
@@ -374,8 +378,7 @@ class DesktopCall extends StatelessWidget {
                   beginOffset: const Offset(0, -1),
                   endOffset: const Offset(0, 0),
                   isOpen: c.state.value == OngoingCallState.active &&
-                      c.showHeader.value &&
-                      c.fullscreen.value,
+                      c.showHeader.value,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
@@ -1334,8 +1337,9 @@ class _TitleBarWidget extends StatelessWidget {
                       hint: c.fullscreen.value
                           ? 'btn_fullscreen_exit'.l10n
                           : 'btn_fullscreen_enter'.l10n,
-                      child: SvgLoader.asset(
-                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
+                      child: AssetWidget(
+                        asset:
+                            'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
                       ),
                     ),
@@ -1795,8 +1799,8 @@ class _SecondaryView extends StatelessWidget {
                           child: Stack(
                             children: [
                               Container(color: const Color(0xFF0A1724)),
-                              SvgLoader.asset(
-                                'assets/images/background_dark.svg',
+                              const AssetWidget(
+                                asset: 'assets/images/background_dark.svg',
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
@@ -2226,8 +2230,8 @@ class _SecondaryView extends StatelessWidget {
                                       ),
                                       InkResponse(
                                         onTap: isAnyDrag ? null : c.focusAll,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/close.svg',
+                                        child: const AssetWidget(
+                                          asset: 'assets/icons/close.svg',
                                           height: 10.25,
                                         ),
                                       ),

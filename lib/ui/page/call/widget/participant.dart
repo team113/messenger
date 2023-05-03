@@ -223,10 +223,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (isAudioDisabled) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
-            child: SvgLoader.asset(
-              'assets/icons/audio_off_small.svg',
+          const Padding(
+            padding: EdgeInsets.only(left: 3, right: 3),
+            child: AssetWidget(
+              asset: 'assets/icons/audio_off_small.svg',
               width: 20.88,
               height: 17,
               fit: BoxFit.fitWidth,
@@ -235,10 +235,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       } else if (isMuted) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
+          const Padding(
+            padding: EdgeInsets.only(left: 2, right: 2),
+            child: AssetWidget(
+              asset: 'assets/icons/microphone_off_small.svg',
               height: 16.5,
             ),
           ),
@@ -252,20 +252,20 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
         if (isVideoDisabled) {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
-                'assets/icons/screen_share_small.svg',
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
+              child: AssetWidget(
+                asset: 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
             ),
           );
         } else {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
-                'assets/icons/screen_share_small.svg',
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
+              child: AssetWidget(
+                asset: 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
             ),
@@ -276,10 +276,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5),
-            child: SvgLoader.asset(
-              'assets/icons/video_off_small.svg',
+          const Padding(
+            padding: EdgeInsets.only(left: 5, right: 5),
+            child: AssetWidget(
+              asset: 'assets/icons/video_off_small.svg',
               width: 19.8,
               height: 17,
             ),
@@ -443,11 +443,11 @@ class _HandRaisedButton extends StatelessWidget {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: isRaised
-          ? CircleAvatar(
+          ? const CircleAvatar(
               radius: 45,
-              backgroundColor: const Color(0xD8818181),
-              child: SvgLoader.asset(
-                'assets/icons/hand_up.svg',
+              backgroundColor: Color(0xD8818181),
+              child: AssetWidget(
+                asset: 'assets/icons/hand_up.svg',
                 width: 90,
               ),
             )
