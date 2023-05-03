@@ -15,8 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 import 'dart:async';
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:ui' as ui;
 
@@ -27,8 +28,8 @@ import 'package:flutter/services.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Wrapper using exponential backoff algorithm to re-fetch the [src] in case an
-/// error loading an image into [_HtmlImage].
+/// Wrapper around a [_HtmlImage] using exponential backoff algorithm to
+/// re-fetch the [src] in case an error loading an image into [_HtmlImage].
 ///
 /// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
 /// errors.
@@ -54,14 +55,14 @@ class WebImage extends StatefulWidget {
 
 /// State of a [WebImage] used to run the [_backoff] operation.
 class _WebImageState extends State<WebImage> {
-  /// [CancelToken] canceling the [_backoff] operation.
+  /// [CancelToken] canceling the [_backoff].
   CancelToken _cancelToken = CancelToken();
 
-  /// Indicator whether [_backoff] operation is running.
-  bool _isBackoffRunning = false;
+  /// Indicator whether [_backoff] is running.
+  bool _loading = false;
 
-  /// [GlobalKey] for the [CircularProgressIndicator] indicating the loading of
-  /// the image to display.
+  /// [GlobalKey] for the [CircularProgressIndicator] indicating loading of
+  /// the image.
   final GlobalKey _progressIndicatorKey = GlobalKey();
 
   @override
@@ -69,7 +70,7 @@ class _WebImageState extends State<WebImage> {
     if (oldWidget.src != widget.src) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
-      _isBackoffRunning = false;
+      _loading = false;
     }
 
     super.didUpdateWidget(oldWidget);
@@ -83,7 +84,7 @@ class _WebImageState extends State<WebImage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isBackoffRunning) {
+    if (_loading) {
       return Center(
         child: CircularProgressIndicator(key: _progressIndicatorKey),
       );
@@ -98,11 +99,17 @@ class _WebImageState extends State<WebImage> {
     );
   }
 
-  /// Retries itself to upload the image into [_HtmlImage] using exponential
-  /// backoff algorithm on a failure.
+  /// Loads the image head from the [WebImage.src] to ensure that image can be
+  /// loaded.
+  ///
+  /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _backoff() async {
+    if (_loading) {
+      return;
+    }
+
     if (mounted) {
-      setState(() => _isBackoffRunning = true);
+      setState(() => _loading = true);
     }
 
     try {
@@ -121,10 +128,10 @@ class _WebImageState extends State<WebImage> {
 
           if (data?.data != null && data!.statusCode == 200) {
             if (mounted) {
-              setState(() => _isBackoffRunning = false);
+              setState(() => _loading = false);
             }
           } else {
-            throw Exception('Image is not loaded');
+            throw Exception('Image head is not loaded');
           }
         },
         _cancelToken,
