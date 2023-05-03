@@ -153,11 +153,11 @@ class _HtmlImage extends StatefulWidget {
   /// URL of the image to display.
   final String src;
 
-  /// [GlobalKey] for the [CircularProgressIndicator] indicating the loading of
-  /// the image to display.
+  /// [GlobalKey] for the [CircularProgressIndicator] indicating loading of
+  /// the image.
   final GlobalKey progressIndicatorKey;
 
-  /// Callback, called when image to display loading failed.
+  /// Callback, called when image loading failed.
   final VoidCallback? onError;
 
   @override
@@ -170,8 +170,8 @@ class _HtmlImageState extends State<_HtmlImage> {
   /// Native [html.ImageElement] itself.
   html.ImageElement? _element;
 
-  /// Indicator whether the image to display is fully loaded.
-  bool _isLoaded = false;
+  /// Indicator whether the image is fully loaded.
+  bool _loaded = false;
 
   /// Unique identifier for a platform view.
   late int _elementId;
@@ -214,11 +214,11 @@ class _HtmlImageState extends State<_HtmlImage> {
     return Stack(
       children: [
         Opacity(
-          opacity: _isLoaded ? 1 : 0,
+          opacity: _loaded ? 1 : 0,
           child: HtmlElementView(
               viewType: '${_elementId}__webImageViewType__${widget.src}__'),
         ),
-        if (!_isLoaded)
+        if (!_loaded)
           Center(
             child: CircularProgressIndicator(key: widget.progressIndicatorKey),
           ),
@@ -239,12 +239,12 @@ class _HtmlImageState extends State<_HtmlImage> {
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
 
-        _isLoaded = _element?.complete == true;
+        _loaded = _element?.complete == true;
 
         _loadSubscription?.cancel();
         _loadSubscription = _element?.onLoad.listen((_) {
-          if (!_isLoaded && mounted) {
-            setState(() => _isLoaded = true);
+          if (!_loaded && mounted) {
+            setState(() => _loaded = true);
           }
         });
 
