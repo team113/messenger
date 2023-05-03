@@ -135,8 +135,8 @@ class ParticipantView extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           children: c.chat.value!.members.values.map((e) {
                             return _User(
+                              call,
                               user: e,
-                              call: call,
                               me: c.me,
                               removeChatMember: c.removeChatMember,
                               redialChatCallMember: c.redialChatCallMember,
@@ -188,15 +188,14 @@ class ParticipantView extends StatelessWidget {
 /// [User] contact tile with various functionalities such as initiating a call,
 /// removing the member from the chat, and leaving the group.
 class _User extends StatelessWidget {
-  const _User({
-    Key? key,
+  const _User(
+    this.call, {
     required this.user,
-    required this.call,
     required this.removeChatMember,
     required this.removeChatCallMember,
     required this.redialChatCallMember,
     this.me,
-  }) : super(key: key);
+  });
 
   /// [OngoingCall] this modal is bound to.
   final Rx<OngoingCall> call;

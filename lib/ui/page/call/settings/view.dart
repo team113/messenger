@@ -201,10 +201,10 @@ class CallSettingsView extends StatelessWidget {
 /// [Widget] for displaying a header with a text in the settings screen.
 class HeaderWidget extends StatelessWidget {
   const HeaderWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
-  }) : super(key: key);
+  });
 
   /// [Text] to be displayed in the [HeaderWidget].
   final String text;
@@ -234,10 +234,7 @@ class HeaderWidget extends StatelessWidget {
 
 /// Dense [Padding] wrapper.
 class _DenseWidget extends StatelessWidget {
-  const _DenseWidget({
-    Key? key,
-    this.child,
-  }) : super(key: key);
+  const _DenseWidget({this.child});
 
   /// [Widget] to be displayed inside the [_DenseWidget].
   final Widget? child;
