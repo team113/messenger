@@ -108,15 +108,11 @@ class ScreenShareView extends StatelessWidget {
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
                                       framelessBuilder: () =>
-                                          const _FramelessBuilder(
-                                        videoHeight,
-                                      ),
+                                          const _FramelessBuilder(videoHeight),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   )
-                                : const _FramelessBuilder(
-                                    videoHeight,
-                                  ),
+                                : const _FramelessBuilder(videoHeight),
                           ),
                         );
                       });
