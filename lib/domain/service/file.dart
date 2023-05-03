@@ -30,7 +30,7 @@ import '/util/platform_utils.dart';
 
 /// Service maintaining downloading and caching.
 class FileService {
-  /// Downloads file by the provided [url] and saves it to cache.
+  /// Downloads a file data by the provided [url] and saves it to cache.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
   static FutureOr<Uint8List?> get(

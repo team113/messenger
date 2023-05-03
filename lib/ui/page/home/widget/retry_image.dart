@@ -366,16 +366,17 @@ class _RetryImageState extends State<RetryImage> {
       cached = FIFOCache.get(widget.fallbackChecksum!);
     }
 
-    _fallback = cached ?? await FileService.get(
-      widget.fallbackUrl!,
-      widget.fallbackChecksum,
-      cancelToken: _fallbackToken,
-      onForbidden: () async {
-        widget.onForbidden?.call();
-        _cancelToken.cancel();
-        _fallbackToken.cancel();
-      },
-    );
+    _fallback = cached ??
+        await FileService.get(
+          widget.fallbackUrl!,
+          widget.fallbackChecksum,
+          cancelToken: _fallbackToken,
+          onForbidden: () async {
+            widget.onForbidden?.call();
+            _cancelToken.cancel();
+            _fallbackToken.cancel();
+          },
+        );
 
     if (mounted) {
       setState(() {});
@@ -389,24 +390,25 @@ class _RetryImageState extends State<RetryImage> {
       cached = FIFOCache.get(widget.checksum!);
     }
 
-    _image = cached ?? await FileService.get(
-      widget.url,
-      widget.checksum,
-      onReceiveProgress: (received, total) {
-        if (total > 0) {
-          _progress = received / total;
-          if (mounted) {
-            setState(() {});
-          }
-        }
-      },
-      cancelToken: _cancelToken,
-      onForbidden: () async {
-        widget.onForbidden?.call();
-        _cancelToken.cancel();
-        _fallbackToken.cancel();
-      },
-    );
+    _image = cached ??
+        await FileService.get(
+          widget.url,
+          widget.checksum,
+          onReceiveProgress: (received, total) {
+            if (total > 0) {
+              _progress = received / total;
+              if (mounted) {
+                setState(() {});
+              }
+            }
+          },
+          cancelToken: _cancelToken,
+          onForbidden: () async {
+            widget.onForbidden?.call();
+            _cancelToken.cancel();
+            _fallbackToken.cancel();
+          },
+        );
     _isSvg = false;
 
     if (_image != null) {
