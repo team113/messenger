@@ -57,13 +57,21 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
+  const ChatView(
+    this.id, {
+    super.key,
+    this.itemId,
+    this.controller,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  /// Optionally provided external [ChatController].
+  final ChatController? controller;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -96,16 +104,19 @@ class _ChatViewState extends State<ChatView>
   Widget build(BuildContext context) {
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
-      init: ChatController(
-        widget.id,
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        itemId: widget.itemId,
-      ),
+      init: widget.controller ??
+          ChatController(
+            widget.id,
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            itemId: widget.itemId,
+          ),
       tag: widget.id.val,
+      global: false,
+      dispose: (state) => state.controller?.onClose(),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.

@@ -55,6 +55,8 @@ class UserView extends StatelessWidget {
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
+      global: false,
+      dispose: (state) => state.controller?.onClose(),
       builder: (UserController c) {
         return Obx(() {
           if (!c.status.value.isSuccess) {

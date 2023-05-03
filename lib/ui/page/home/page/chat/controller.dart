@@ -274,6 +274,9 @@ class ChatController extends GetxController {
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
 
+  /// [Timer] scrolling the [FlutterListView] to at the bottom.
+  Timer? _scrollAtBottomTimer;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -387,6 +390,7 @@ class ChatController extends GetxController {
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
     _bottomLoaderEndTimer?.cancel();
+    _scrollAtBottomTimer?.cancel();
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
@@ -795,7 +799,8 @@ class ChatController extends GetxController {
           if (atBottom &&
               status.value.isSuccess &&
               !status.value.isLoadingMore) {
-            Future.delayed(
+            _scrollAtBottomTimer?.cancel();
+            _scrollAtBottomTimer = Timer(
               Duration.zero,
               () => SchedulerBinding.instance.addPostFrameCallback(
                 (_) async {
