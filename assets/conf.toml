@@ -60,13 +60,3 @@
 #
 # Default:
 #   directory = ""
-
-[cache]
-# Directory to cache files to.
-#
-# Should start with a leading `/`, if any directory is specified.
-#
-# Unused for Web, as browser ceche images the directory itself.
-#
-# Default:
-#   directory = "/messenger"

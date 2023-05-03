@@ -53,9 +53,6 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
-  /// Directory to cache files to.
-  static String cache = '';
-
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
@@ -103,10 +100,6 @@ class Config {
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
-
-    cache = const bool.hasEnvironment('SOCAPP_CACHE_DIRECTORY')
-        ? const String.fromEnvironment('SOCAPP_CACHE_DIRECTORY')
-        : (document['cache']?['directory'] ?? '/messenger');
 
     origin = url;
 
@@ -163,7 +156,6 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
-            cache = remote['cache']?['directory'] ?? cache;
             origin = url;
           }
         }
