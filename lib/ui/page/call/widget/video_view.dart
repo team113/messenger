@@ -302,8 +302,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   }
 }
 
-/// Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
-/// otherwise.
+/// [Widget] which returns [AspectRatio] of [video] if [respectAspectRatio]
+/// or [video] otherwise.
 class Aspected extends StatelessWidget {
   const Aspected(
     this.fit, {
@@ -315,22 +315,22 @@ class Aspected extends StatelessWidget {
     this.waitTilSizeDetermined,
   });
 
-  ///
+  /// [BoxFit] specifies how the [video] should be fit inside the widget.
   final BoxFit? fit;
 
-  ///
+  /// Indicator whether the aspect ratio of the video should be maintained.
   final bool respectAspectRatio;
 
-  ///
+  /// Video renderer used to display the video.
   final RtcVideoRenderer renderer;
 
-  ///
-  final Widget Function()? framelessBuilder;
-
-  ///
+  /// Video [Widget] to be displayed.
   final Widget video;
 
-  ///
+  /// Callback called when the [video]'s frame size is not yet determined.
+  final Widget Function()? framelessBuilder;
+
+  /// Callback called when waiting for the [video]'s frame size to be determined.
   final void Function()? waitTilSizeDetermined;
 
   @override
@@ -371,8 +371,8 @@ class Aspected extends StatelessWidget {
   }
 }
 
-/// Returns [ClipRRect] of [Aspected] if [borderRadius] is not null or
-/// [Aspected] otherwise.
+/// [Widget] which returns [ClipRRect] of [Aspected] if [borderRadius] is
+/// not null or [Aspected] otherwise.
 class Clipped extends StatelessWidget {
   const Clipped(
     this.fit, {
@@ -385,25 +385,27 @@ class Clipped extends StatelessWidget {
     this.waitTilSizeDetermined,
   });
 
+  /// [BoxFit] specifies how the [video] should be fit inside the widget.
+  final BoxFit? fit;
+
   /// Border radius of this video.
   final BorderRadius? borderRadius;
 
-  ///
-  final BoxFit? fit;
-
-  ///
+  /// Indicator whether the [video]'s aspect ratio should be respected or not.
   final bool respectAspectRatio;
 
-  ///
+  /// [RtcVideoRenderer] that renders the video stream.
   final RtcVideoRenderer renderer;
 
-  ///
-  final Widget Function()? framelessBuilder;
-
-  ///
+  /// [Widget] to display the video stream.
   final Widget video;
 
-  ///
+  /// [Function] that returns a widget to be displayed before the video stream
+  /// is available.
+  final Widget Function()? framelessBuilder;
+
+  /// [Function] to call when waiting for the video stream size to be
+  /// determined.
   final void Function()? waitTilSizeDetermined;
 
   @override
@@ -428,8 +430,8 @@ class Clipped extends StatelessWidget {
           ));
 }
 
-/// Returns outlined [Container] with [Clipped] if [Outlined] is not null or
-/// [Clipped] otherwise.
+/// [Widget] which returns outlined [Container] with [Clipped] if [Outlined] is
+/// not null or [Clipped] otherwise.
 class Outlined extends StatelessWidget {
   const Outlined(
     this.fit, {
@@ -443,28 +445,29 @@ class Outlined extends StatelessWidget {
     this.waitTilSizeDetermined,
   });
 
-  /// Border radius of this video.
+  /// [BorderRadius] of this [video].
   final BorderRadius? borderRadius;
 
-  /// Optional border to apply to this [RtcVideoView].
+  /// [Border] to apply to [RtcVideoView].
   final Border? border;
 
-  ///
+  /// [BoxFit] specifies how the [video] should be fit inside the widget.
   final BoxFit? fit;
 
-  ///
+  /// Indicator whether the [video]'s aspect ratio should be respected or not.
   final bool respectAspectRatio;
 
-  ///
+  /// [RtcVideoRenderer] to display.
   final RtcVideoRenderer renderer;
 
-  ///
-  final Widget Function()? framelessBuilder;
-
-  ///
+  /// [Widget] representing the video to display.
   final Widget video;
 
-  ///
+  /// [Function] that returns the widget to display when the video is not
+  /// yet rendering.
+  final Widget Function()? framelessBuilder;
+
+  /// [Function] that waits until the size of the widget is determined.
   final void Function()? waitTilSizeDetermined;
 
   @override

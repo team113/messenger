@@ -251,10 +251,11 @@ class _FloatingPanelWidget<Object> extends StatelessWidget {
     required this.swap,
   });
 
-  ///
+  /// [FloatingFitController] owning this [_FloatingPanelWidget],
+  /// used for changing the state.
   final FloatingFitController c;
 
-  ///
+  /// [BoxConstraints] that sets size and position limits for the widget.
   final BoxConstraints constraints;
 
   /// [_FloatingItem] to put in a floating panel of this [FloatingFit].

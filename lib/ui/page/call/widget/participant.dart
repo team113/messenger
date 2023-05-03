@@ -409,11 +409,11 @@ class ParticipantDecoratorWidget extends StatelessWidget {
   }
 }
 
-/// Returns a raised hand animated icon.
+/// [Widget] which returns a raised hand animated icon.
 class HandRaisedIcon extends StatelessWidget {
   const HandRaisedIcon({required this.isRaised});
 
-  ///
+  /// Indicator that determines if the hand is raised or not.
   final bool isRaised;
 
   @override
