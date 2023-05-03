@@ -55,6 +55,11 @@ class ScreenShareView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
+    Widget framelessBuilder = const SizedBox(
+      height: videoHeight,
+      child: Center(child: CustomProgressIndicator()),
+    );
+
     return GetBuilder(
       init: ScreenShareController(
         Get.find(),
@@ -107,12 +112,11 @@ class ScreenShareView extends StatelessWidget {
                                       fit: BoxFit.contain,
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
-                                      framelessBuilder: () =>
-                                          const _FramelessBuilder(videoHeight),
+                                      framelessBuilder: () => framelessBuilder,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   )
-                                : const _FramelessBuilder(videoHeight),
+                                : framelessBuilder,
                           ),
                         );
                       });
@@ -144,22 +148,6 @@ class ScreenShareView extends StatelessWidget {
           );
         });
       },
-    );
-  }
-}
-
-/// Video player without a frame.
-class _FramelessBuilder extends StatelessWidget {
-  const _FramelessBuilder(this.videoHeight);
-
-  /// Height of the video.
-  final double videoHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: videoHeight,
-      child: const Center(child: CustomProgressIndicator()),
     );
   }
 }
