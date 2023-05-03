@@ -222,7 +222,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           alignment: Alignment.bottomCenter,
           children: [
             Outlined(
-              fit: fit,
+              fit,
               borderRadius: widget.borderRadius,
               border: widget.border,
               respectAspectRatio: widget.respectAspectRatio,
@@ -371,8 +371,8 @@ class Aspected extends StatelessWidget {
   }
 }
 
-/// Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
-/// [aspected] otherwise.
+/// Returns [ClipRRect] of [Aspected] if [borderRadius] is not null or
+/// [Aspected] otherwise.
 class Clipped extends StatelessWidget {
   const Clipped(
     this.fit, {
@@ -428,17 +428,17 @@ class Clipped extends StatelessWidget {
           ));
 }
 
-/// Returns outlined [Container] with [clipped] if [outline] is not null or
-/// [clipped] otherwise.
+/// Returns outlined [Container] with [Clipped] if [Outlined] is not null or
+/// [Clipped] otherwise.
 class Outlined extends StatelessWidget {
-  const Outlined({
+  const Outlined(
+    this.fit, {
     super.key,
     required this.respectAspectRatio,
     required this.renderer,
     required this.video,
     this.borderRadius,
     this.border,
-    this.fit,
     this.framelessBuilder,
     this.waitTilSizeDetermined,
   });
