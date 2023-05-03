@@ -285,64 +285,61 @@ class MobileCall extends StatelessWidget {
               }),
 
               // Display call's state info only if minimized.
-              AnimatedSwitcher(
+              AnimatedOpacity(
                 duration: 200.milliseconds,
-                child: c.minimized.value
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: const Color(0xA0000000),
-                            ),
-                            height: 40,
-                            child: Obx(() {
-                              bool withDots = c.state.value !=
-                                      OngoingCallState.active &&
-                                  (c.state.value == OngoingCallState.joining ||
-                                      isOutgoing);
-                              bool isDialog =
-                                  c.chat.value?.chat.value.isDialog == true;
+                opacity: c.minimized.value ? 1.0 : 0.0,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: const Color(0xA0000000),
+                      ),
+                      height: 40,
+                      child: Obx(() {
+                        bool withDots =
+                            c.state.value != OngoingCallState.active &&
+                                (c.state.value == OngoingCallState.joining ||
+                                    isOutgoing);
+                        bool isDialog =
+                            c.chat.value?.chat.value.isDialog == true;
 
-                              String state = c.state.value ==
-                                      OngoingCallState.active
-                                  ? c.duration.value
-                                      .toString()
-                                      .split('.')
-                                      .first
-                                      .padLeft(8, '0')
-                                  : c.state.value == OngoingCallState.joining
-                                      ? 'label_call_joining'.l10n
-                                      : isOutgoing
-                                          ? isDialog
-                                              ? 'label_call_calling'.l10n
-                                              : 'label_call_connecting'.l10n
-                                          : c.withVideo == true
-                                              ? 'label_video_call'.l10n
-                                              : 'label_audio_call'.l10n;
+                        String state = c.state.value == OngoingCallState.active
+                            ? c.duration.value
+                                .toString()
+                                .split('.')
+                                .first
+                                .padLeft(8, '0')
+                            : c.state.value == OngoingCallState.joining
+                                ? 'label_call_joining'.l10n
+                                : isOutgoing
+                                    ? isDialog
+                                        ? 'label_call_calling'.l10n
+                                        : 'label_call_connecting'.l10n
+                                    : c.withVideo == true
+                                        ? 'label_video_call'.l10n
+                                        : 'label_audio_call'.l10n;
 
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 4, right: 4),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      state,
-                                      style: context.textTheme.bodySmall
-                                          ?.copyWith(color: Colors.white),
-                                    ),
-                                    if (withDots) const AnimatedDots(),
-                                  ],
-                                ),
-                              );
-                            }),
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                state,
+                                style: context.textTheme.bodySmall
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                              if (withDots) const AnimatedDots(),
+                            ],
                           ),
-                        ),
-                      )
-                    : const SizedBox(),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
               ),
 
               if (isOutgoing)
@@ -364,28 +361,29 @@ class MobileCall extends StatelessWidget {
       // If there's any error to show, display it.
       overlay.add(
         Obx(() {
-          return AnimatedSwitcher(
+          return AnimatedOpacity(
             duration: 200.milliseconds,
-            child: c.errorTimeout.value != 0 &&
+            opacity: c.errorTimeout.value != 0 &&
                     c.minimizing.isFalse &&
                     c.minimized.isFalse
-                ? SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10, right: 10),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: SizedBox(
-                          width: 280,
-                          child: HintWidget(
-                            text: '${c.error}.',
-                            onTap: () => c.errorTimeout.value = 0,
-                            isError: true,
-                          ),
-                        ),
-                      ),
+                ? 1.0
+                : 0.0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10, right: 10),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: SizedBox(
+                    width: 280,
+                    child: HintWidget(
+                      text: '${c.error}.',
+                      onTap: () => c.errorTimeout.value = 0,
+                      isError: true,
                     ),
-                  )
-                : const SizedBox(),
+                  ),
+                ),
+              ),
+            ),
           );
         }),
       );
@@ -394,9 +392,9 @@ class MobileCall extends StatelessWidget {
         // Dimmed container if any video is displayed while calling.
         Obx(() {
           return IgnorePointer(
-            child: AnimatedSwitcher(
+            child: AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
-              child: (c.state.value != OngoingCallState.active &&
+              opacity: (c.state.value != OngoingCallState.active &&
                       c.state.value != OngoingCallState.joining &&
                       ([
                             ...c.primary,
@@ -405,8 +403,9 @@ class MobileCall extends StatelessWidget {
                               (e) => e.video.value?.renderer.value != null) !=
                           null) &&
                       !c.minimized.value)
-                  ? Container(color: const Color(0x55000000))
-                  : null,
+                  ? 1.0
+                  : 0.0,
+              child: Container(color: const Color(0x55000000)),
             ),
           );
         }),

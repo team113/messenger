@@ -412,8 +412,9 @@ class Launchpad extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
-      child: AnimatedSwitcher(
+      child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
+        opacity: displayMore.value ? 1.0 : 0.0,
         child: displayMore.value
             ? DragTarget<CallButton>(
                 onAccept: onAccept,
@@ -792,131 +793,117 @@ class SecondaryTarget extends StatelessWidget {
         130,
       );
 
-      return AnimatedSwitcher(
+      return AnimatedOpacity(
         key: const Key('SecondaryTargetAnimatedSwitcher'),
         duration: 200.milliseconds,
-        child: secondary.isEmpty && doughDraggedRenderer.value != null
-            ? Align(
-                alignment: secondaryAxis == Axis.horizontal
-                    ? Alignment.centerRight
-                    : Alignment.topCenter,
-                child: SizedBox(
-                  width: secondaryAxis == Axis.horizontal
-                      ? panelSize / 1.6
-                      : double.infinity,
-                  height: secondaryAxis == Axis.horizontal
-                      ? double.infinity
-                      : panelSize / 1.6,
-                  child: DragTarget<DragData>(
-                    onWillAccept: onWillAccept,
-                    onAccept: (DragData d) {
-                      if (secondaryAxis == Axis.horizontal) {
-                        secondaryAlignment.value = Alignment.centerRight;
-                      } else {
-                        secondaryAlignment.value = Alignment.topCenter;
-                      }
-                      unfocus(d.participant);
-                    },
-                    builder: (context, candidate, rejected) {
-                      return IgnorePointer(
-                        child: AnimatedSwitcher(
-                          key: const Key('SecondaryTargetAnimatedSwitcher'),
-                          duration: 200.milliseconds,
-                          child: primaryDrags.value >= 1
-                              ? Container(
-                                  padding: EdgeInsets.only(
-                                    left: secondaryAxis == Axis.horizontal
-                                        ? 1
-                                        : 0,
-                                    bottom:
-                                        secondaryAxis == Axis.vertical ? 1 : 0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      left: secondaryAxis == Axis.horizontal
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                      bottom: secondaryAxis == Axis.vertical
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                    ),
-                                    boxShadow: const [
-                                      CustomBoxShadow(
-                                        color: Color(0x33000000),
-                                        blurRadius: 8,
-                                        blurStyle: BlurStyle.outer,
-                                      )
-                                    ],
-                                  ),
-                                  child: ConditionalBackdropFilter(
-                                    child: AnimatedContainer(
-                                      duration: 300.milliseconds,
-                                      color: candidate.isNotEmpty
-                                          ? const Color(0x10FFFFFF)
-                                          : const Color(0x00FFFFFF),
-                                      child: Center(
-                                        child: SizedBox(
-                                          width:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? min(panelSize, 150 + 44)
-                                                  : null,
-                                          height:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? null
-                                                  : min(panelSize, 150 + 44),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              AnimatedScale(
-                                                duration: const Duration(
-                                                    milliseconds: 300),
-                                                curve: Curves.ease,
-                                                scale: candidate.isNotEmpty
-                                                    ? 1.06
-                                                    : 1,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0x40000000),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                  ),
-                                                  child: const Padding(
-                                                    padding: EdgeInsets.all(10),
-                                                    child: Icon(
-                                                      Icons.add_rounded,
-                                                      size: 35,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+        opacity:
+            secondary.isEmpty && doughDraggedRenderer.value != null ? 1.0 : 0.0,
+        child: Align(
+          alignment: secondaryAxis == Axis.horizontal
+              ? Alignment.centerRight
+              : Alignment.topCenter,
+          child: SizedBox(
+            width: secondaryAxis == Axis.horizontal
+                ? panelSize / 1.6
+                : double.infinity,
+            height: secondaryAxis == Axis.horizontal
+                ? double.infinity
+                : panelSize / 1.6,
+            child: DragTarget<DragData>(
+              onWillAccept: onWillAccept,
+              onAccept: (DragData d) {
+                if (secondaryAxis == Axis.horizontal) {
+                  secondaryAlignment.value = Alignment.centerRight;
+                } else {
+                  secondaryAlignment.value = Alignment.topCenter;
+                }
+                unfocus(d.participant);
+              },
+              builder: (context, candidate, rejected) {
+                return IgnorePointer(
+                  child: AnimatedOpacity(
+                    key: const Key('SecondaryTargetAnimatedSwitcher'),
+                    duration: 200.milliseconds,
+                    opacity: primaryDrags.value >= 1 ? 1.0 : 0.0,
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        left: secondaryAxis == Axis.horizontal ? 1 : 0,
+                        bottom: secondaryAxis == Axis.vertical ? 1 : 0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: secondaryAxis == Axis.horizontal
+                              ? const BorderSide(
+                                  color: Color(0xFF888888),
+                                  width: 1,
+                                )
+                              : BorderSide.none,
+                          bottom: secondaryAxis == Axis.vertical
+                              ? const BorderSide(
+                                  color: Color(0xFF888888),
+                                  width: 1,
+                                )
+                              : BorderSide.none,
+                        ),
+                        boxShadow: const [
+                          CustomBoxShadow(
+                            color: Color(0x33000000),
+                            blurRadius: 8,
+                            blurStyle: BlurStyle.outer,
+                          )
+                        ],
+                      ),
+                      child: ConditionalBackdropFilter(
+                        child: AnimatedContainer(
+                          duration: 300.milliseconds,
+                          color: candidate.isNotEmpty
+                              ? const Color(0x10FFFFFF)
+                              : const Color(0x00FFFFFF),
+                          child: Center(
+                            child: SizedBox(
+                              width: secondaryAxis == Axis.horizontal
+                                  ? min(panelSize, 150 + 44)
+                                  : null,
+                              height: secondaryAxis == Axis.horizontal
+                                  ? null
+                                  : min(panelSize, 150 + 44),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  AnimatedScale(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.ease,
+                                    scale: candidate.isNotEmpty ? 1.06 : 1,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x40000000),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Icon(
+                                          Icons.add_rounded,
+                                          size: 35,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ),
                                   ),
-                                )
-                              : const SizedBox(),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-              )
-            : const SizedBox(),
+                );
+              },
+            ),
+          ),
+        ),
       );
     });
   }
