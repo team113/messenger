@@ -162,7 +162,7 @@ class ChatCardPreview extends StatelessWidget {
   final RxChat? chat;
 
   /// Callback [Function] that opens a screen to add members to the chat.
-  final Future<void> Function(BuildContext context) openAddMember;
+  final Future<void> Function() openAddMember;
 
   /// [Rx] object representing the current duration of the call.
   final Rx<Duration> duration;
@@ -188,7 +188,7 @@ class ChatCardPreview extends StatelessWidget {
             color: const Color(0x794E5A78),
             child: InkWell(
               borderRadius: style.cardRadius,
-              onTap: () => openAddMember(context),
+              onTap: openAddMember,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
                 child: Row(

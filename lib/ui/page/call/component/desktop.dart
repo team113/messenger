@@ -545,7 +545,7 @@ class DesktopCall extends StatelessWidget {
                     (c.outgoing || c.state.value == OngoingCallState.local) &&
                         !c.started;
 
-                /// Indicator of whether the bottom menu
+                /// Indicator whether the bottom menu
                 /// should be displayed.
                 final bool showBottomUi = (c.showUi.isTrue ||
                     c.draggedButton.value != null ||
@@ -616,7 +616,7 @@ class DesktopCall extends StatelessWidget {
                             showBottomUi: showBottomUi,
                             answer: answer,
                             dockKey: c.dockKey,
-                            computation: c.relocateSecondary,
+                            relocateSecondary: c.relocateSecondary,
                           ),
                           Launchpad(
                             displayMore: c.displayMore,
@@ -722,7 +722,7 @@ class DesktopCall extends StatelessWidget {
                         ],
                       ),
                     )
-                  : Container(),
+                  : const SizedBox(),
             );
           }),
         ];
@@ -1085,7 +1085,7 @@ class DesktopCall extends StatelessWidget {
                       child: AnimatedSwitcher(
                         duration: 200.milliseconds,
                         child: c.draggedRenderer.value == data.participant
-                            ? Container()
+                            ? const SizedBox()
                             : ContextMenuRegion(
                                 key: ObjectKey(participant),
                                 preventContextMenu: true,
@@ -1201,7 +1201,7 @@ class DesktopCall extends StatelessWidget {
                         ),
                       ),
                     )
-                  : Container(),
+                  : const SizedBox(),
             );
           }),
 
@@ -1237,13 +1237,13 @@ class DesktopCall extends StatelessWidget {
                         ),
                       ),
                     )
-                  : Container(),
+                  : const SizedBox(),
             );
           }),
 
           Obx(() {
             if (c.minimized.value && !c.fullscreen.value) {
-              return Container();
+              return const SizedBox();
             }
 
             return Stack(children: footer);

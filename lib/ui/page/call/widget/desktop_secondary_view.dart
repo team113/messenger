@@ -150,7 +150,7 @@ class SecondaryView extends StatelessWidget {
   /// [GlobalKey] that uniquely identifies the secondary panel.
   final GlobalKey<State<StatefulWidget>> secondaryKey;
 
-  /// Indicator of whether any dragging event has occurred.
+  /// Indicator whether any dragging event has occurred.
   final bool isAnyDrag;
 
   /// [Function] that is called when a pan event is started.
@@ -192,7 +192,7 @@ class SecondaryView extends StatelessWidget {
       data: MediaQuery.of(context).copyWith(size: size),
       child: Obx(() {
         if (secondary.isEmpty) {
-          return Container();
+          return const SizedBox();
         }
 
         // [BorderRadius] to decorate the secondary panel with.
@@ -267,7 +267,7 @@ class SecondaryView extends StatelessWidget {
                     );
                   }
 
-                  return Container();
+                  return const SizedBox();
                 }),
               ),
             ),
@@ -303,227 +303,235 @@ class SecondaryView extends StatelessWidget {
                       );
                     }
 
-                    return Container();
+                    return const SizedBox();
                   }),
                 ),
               ),
             ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.centerLeft,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            x: ScaleModeX.left,
-                            dx: dx,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.centerLeft,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          x: ScaleModeX.left,
+                          dx: dx,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.centerRight,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            x: ScaleModeX.right,
-                            dx: -dx,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.centerRight,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          x: ScaleModeX.right,
+                          dx: -dx,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.bottomCenter,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.bottom,
-                            dy: -dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.bottomCenter,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.bottom,
+                          dy: -dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.topCenter,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.top,
-                            dy: dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.topCenter,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.top,
+                          dy: dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.topLeft,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.top,
-                            x: ScaleModeX.left,
-                            dx: dx,
-                            dy: dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.topLeft,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.top,
+                          x: ScaleModeX.left,
+                          dx: dx,
+                          dy: dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.topRight,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.top,
-                            x: ScaleModeX.right,
-                            dx: -dx,
-                            dy: dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.topRight,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.top,
+                          x: ScaleModeX.right,
+                          dx: -dx,
+                          dy: dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.bottomLeft,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.bottom,
-                            x: ScaleModeX.left,
-                            dx: dx,
-                            dy: -dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.bottomLeft,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.bottom,
+                          x: ScaleModeX.left,
+                          dx: dx,
+                          dy: -dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == null
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.bottomRight,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.bottom,
-                            x: ScaleModeX.right,
-                            dx: -dx,
-                            dy: -dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == null
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.bottomRight,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.bottom,
+                          x: ScaleModeX.right,
+                          dx: -dx,
+                          dy: -dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             // Secondary panel itself.
             ReorderableFit<DragData>(
@@ -648,108 +656,112 @@ class SecondaryView extends StatelessWidget {
             ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == Alignment.centerRight
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.centerLeft,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            x: ScaleModeX.left,
-                            dx: dx,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == Alignment.centerRight
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.centerLeft,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          x: ScaleModeX.left,
+                          dx: dx,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == Alignment.centerLeft
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.centerRight,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            x: ScaleModeX.right,
-                            dx: -dx,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == Alignment.centerLeft
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.centerRight,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          x: ScaleModeX.right,
+                          dx: -dx,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == Alignment.topCenter
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.bottomCenter,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            y: ScaleModeY.top,
-                            dy: dy,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == Alignment.topCenter
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.bottomCenter,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          y: ScaleModeY.top,
+                          dy: dy,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             PositionedBoilerplateWidget(
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                width: width,
-                height: height,
-                child: Obx(
-                  () => secondaryAlignment.value == Alignment.bottomCenter
-                      ? BuildDragHandle(
-                          width,
-                          height,
-                          Alignment.topCenter,
-                          draggedRenderer,
-                          onDragUpdate: (dx, dy) => resizeSecondary(
-                            context,
-                            x: ScaleModeX.left,
-                            dx: dx,
-                          ),
-                          onDragEnd: (_) {
-                            updateSecondaryAttach();
-                          },
-                        )
-                      : Container(),
-                )),
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: Obx(
+                () => secondaryAlignment.value == Alignment.bottomCenter
+                    ? BuildDragHandle(
+                        width,
+                        height,
+                        Alignment.topCenter,
+                        draggedRenderer,
+                        onDragUpdate: (dx, dy) => resizeSecondary(
+                          context,
+                          x: ScaleModeX.left,
+                          dx: dx,
+                        ),
+                        onDragEnd: (_) {
+                          updateSecondaryAttach();
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+            ),
 
             // Secondary panel drag target indicator.
             Positioned(

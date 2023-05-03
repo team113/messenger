@@ -38,10 +38,10 @@ class CallTitleCommon extends StatelessWidget {
   /// started.
   final bool isOutgoing;
 
-  /// Indicator of whether the current call is a dialog call.
+  /// Indicator whether the current call is a dialog call.
   final bool isDialog;
 
-  /// Indicator of whether the dots should be displayed in the call header.
+  /// Indicator whether the dots should be displayed in the call header.
   final bool withDots;
 
   /// [String], which indicates the status of the current call.

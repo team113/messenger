@@ -62,7 +62,7 @@ class CallView extends StatelessWidget {
         }
 
         if (c.isMobile) {
-          return MobileCall(_call);
+          return MobileCall(c);
         } else {
           return DesktopCall(c);
         }

@@ -76,7 +76,7 @@ class BuildDragHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget widget = Container();
+    Widget widget = const SizedBox();
 
     if (alignment == Alignment.centerLeft) {
       widget = SecondaryScaler(
@@ -168,7 +168,7 @@ class DockWidget extends StatelessWidget {
     super.key,
     required this.showBottomUi,
     required this.answer,
-    required this.computation,
+    required this.relocateSecondary,
     this.dock,
     this.audioButton,
     this.videoButton,
@@ -204,10 +204,10 @@ class DockWidget extends StatelessWidget {
   /// of this [DockWidget].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Indicator of whether the call is outgoing.
+  /// Indicator whether the call is outgoing.
   final bool? isOutgoing;
 
-  /// Indicator of whether to show the [dock].
+  /// Indicator whether to show the [dock].
   final bool showBottomUi;
 
   /// Indicator whether the call is incoming.
@@ -216,8 +216,8 @@ class DockWidget extends StatelessWidget {
   /// [Key] for handling [dock] widget states.
   final Key? dockKey;
 
-  /// [Function] that is called when switching between two widget states occurs.
-  final VoidCallback computation;
+  /// Relocates the secondary view accounting the possible intersections.
+  final VoidCallback relocateSecondary;
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +231,7 @@ class DockWidget extends StatelessWidget {
           isOpen: showBottomUi,
           duration: 400.milliseconds,
           translate: false,
-          listener: () => Function.apply(computation, []),
+          listener: relocateSecondary,
           child: MouseRegion(
             onEnter: onEnter,
             onHover: onHover,
@@ -311,7 +311,7 @@ class Launchpad extends StatelessWidget {
     this.children = const <Widget>[],
   });
 
-  /// Indicator of whether [Launchpad] is enabled.
+  /// Indicator whether [Launchpad] is enabled.
   final bool enabled;
 
   /// [Function] that is called when the mouse cursor enters the area
@@ -340,7 +340,7 @@ class Launchpad extends StatelessWidget {
   /// the widget, but has not yet been released.
   final bool Function(CallButton?)? onWillAccept;
 
-  /// Indicator of whether additional elements should be displayed
+  /// Indicator whether additional elements should be displayed
   /// in [Launchpad].
   final RxBool displayMore;
 
@@ -420,7 +420,7 @@ class Launchpad extends StatelessWidget {
                 onWillAccept: onWillAccept,
                 builder: launchpadBuilder,
               )
-            : Container(),
+            : const SizedBox(),
       ),
     );
   }
@@ -443,7 +443,7 @@ class PossibleContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (alignment == null) {
-      return Container();
+      return const SizedBox();
     }
 
     final double width =
@@ -909,14 +909,14 @@ class SecondaryTarget extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                              : Container(),
+                              : const SizedBox(),
                         ),
                       );
                     },
                   ),
                 ),
               )
-            : Container(),
+            : const SizedBox(),
       );
     });
   }
