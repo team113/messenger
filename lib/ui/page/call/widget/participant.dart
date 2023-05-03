@@ -160,7 +160,7 @@ class ParticipantWidget extends StatelessWidget {
             return AnimatedSwitcher(duration: 250.milliseconds, child: child);
           }),
           Positioned.fill(
-            child: _HandRaisedIcon(
+            child: HandRaisedIcon(
               isRaised: participant.member.isHandRaised.value,
             ),
           ),
@@ -410,8 +410,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 }
 
 /// Returns a raised hand animated icon.
-class _HandRaisedIcon extends StatelessWidget {
-  const _HandRaisedIcon({required this.isRaised});
+class HandRaisedIcon extends StatelessWidget {
+  const HandRaisedIcon({required this.isRaised});
 
   ///
   final bool isRaised;

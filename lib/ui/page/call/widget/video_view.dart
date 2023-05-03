@@ -414,7 +414,7 @@ class Clipped extends StatelessWidget {
           renderer: renderer,
           video: video,
           framelessBuilder: framelessBuilder,
-          waitTilSizeDetermined: () => waitTilSizeDetermined,
+          waitTilSizeDetermined: waitTilSizeDetermined,
         )
       : ClipRRect(
           borderRadius: borderRadius,
@@ -424,7 +424,7 @@ class Clipped extends StatelessWidget {
             renderer: renderer,
             video: video,
             framelessBuilder: framelessBuilder,
-            waitTilSizeDetermined: () => waitTilSizeDetermined,
+            waitTilSizeDetermined: waitTilSizeDetermined,
           ));
 }
 
