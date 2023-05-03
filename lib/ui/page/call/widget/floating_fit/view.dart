@@ -378,7 +378,7 @@ class _FloatingPanelWidget<Object> extends StatelessWidget {
               onPointerUp: (_) => onManipulated?.call(false),
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => swap,
+                onTap: swap,
                 onScaleStart: (d) {
                   c.bottomShifted = null;
 
