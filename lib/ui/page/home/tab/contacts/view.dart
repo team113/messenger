@@ -72,7 +72,10 @@ class ContactsTabView extends StatelessWidget {
       builder: (ContactsTabController c) => Obx(() {
         return Scaffold(
           appBar: CustomAppBar(
-            border: c.search.value != null || c.selecting.value
+            // border: c.search.value != null || c.selecting.value
+            //     ? Border.all(color: colors.secondary, width: 2)
+            //     : null,
+            border: c.search.value != null
                 ? Border.all(color: colors.secondary, width: 2)
                 : null,
             title: Obx(() {
@@ -158,9 +161,10 @@ class ContactsTabView extends StatelessWidget {
                           height: c.search.value != null ? 11 : 15,
                         )
                       : SvgImage.asset(
-                          'assets/icons/chats_small.svg',
-                          height: 23.62,
-                          key: const Key('Contacts'),
+                          'assets/icons/chats_switch.svg',
+                          width: 27.04,
+                          height: 23.36,
+                          key: const Key('Chats'),
                         );
                 }
 

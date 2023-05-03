@@ -940,3 +940,7 @@ label_days_ago = {$days ->
         [few] {$days} дня
         *[other] {$days} дней
     }
+btn_pin = Закрепить
+btn_pin_message = Закрепить сообщение
+btn_unpin = Открепить
+btn_unpin_message = Открепить сообщение

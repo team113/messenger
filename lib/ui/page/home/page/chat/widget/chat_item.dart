@@ -96,7 +96,9 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onPin,
     this.paid = false,
+    this.pinned = false,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -173,7 +175,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
 
+  final void Function()? onPin;
+
   final bool paid;
+  final bool pinned;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -2497,6 +2502,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ),
                                 onPressed: widget.onEdit,
                               ),
+                            ContextMenuButton(
+                              key: widget.pinned
+                                  ? const Key('Pin')
+                                  : const Key('Unpin'),
+                              label: widget.pinned
+                                  ? PlatformUtils.isMobile
+                                      ? 'btn_unpin'.l10n
+                                      : 'btn_unpin_message'.l10n
+                                  : PlatformUtils.isMobile
+                                      ? 'btn_pin'.l10n
+                                      : 'btn_pin_message'.l10n,
+                              trailing: SvgImage.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: widget.onPin,
+                            ),
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile

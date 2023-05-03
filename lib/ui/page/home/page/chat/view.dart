@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
@@ -27,7 +28,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/ui/page/home/widget/animated_slider.dart';
+import 'package:messenger/ui/page/home/widget/retry_image.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -431,129 +437,146 @@ class _ChatViewState extends State<ChatView>
 
                                   bool dummy = c.paidDisclaimerDismissed.value;
 
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          height: 40,
-                                          padding: const EdgeInsets.all(8),
-                                          margin: const EdgeInsets.only(
-                                            left: 6,
-                                            right: 6,
-                                            top: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            boxShadow: const [
-                                              CustomBoxShadow(
-                                                blurRadius: 8,
-                                                color: Color(0x22000000),
-                                              ),
-                                            ],
-                                            borderRadius: style.cardRadius,
-                                            border: style.systemMessageBorder,
-                                            color: Colors.white,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'Закреплено сообщений: 1/3',
-                                              style: style.systemMessageStyle
-                                                  .copyWith(
-                                                fontSize: 15,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      AnimatedSize(
-                                        duration: 200.milliseconds,
-                                        child: WidgetButton(
-                                          onPressed: onPressed,
-                                          child: c.paidDisclaimerDismissed
-                                                      .value &&
-                                                  c.paid
-                                              ? Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                    12,
-                                                    8,
-                                                    12,
-                                                    8,
+                                  return AnimatedSizeAndFade.showHide(
+                                    fadeDuration: 250.milliseconds,
+                                    sizeDuration: 250.milliseconds,
+                                    show: (c.paidDisclaimerDismissed.value &&
+                                            c.paid) ||
+                                        c.pinned.isNotEmpty,
+                                    child: Row(
+                                      children: [
+                                        if (c.pinned.isNotEmpty)
+                                          Expanded(
+                                            child: ContextMenuRegion(
+                                              actions: [
+                                                ContextMenuButton(
+                                                  key: const Key('Unpin'),
+                                                  label: PlatformUtils.isMobile
+                                                      ? 'btn_unpin'.l10n
+                                                      : 'btn_unpin_message'
+                                                          .l10n,
+                                                  trailing: SvgImage.asset(
+                                                    'assets/icons/send_small.svg',
+                                                    width: 18.37,
+                                                    height: 16,
                                                   ),
+                                                  onPressed: () =>
+                                                      c.pinned.remove(
+                                                    c.pinned[
+                                                        c.displayPinned.value],
+                                                  ),
+                                                ),
+                                              ],
+                                              child: WidgetButton(
+                                                onPressed: () {
+                                                  c.displayPinned.value += 1;
+                                                  if (c.displayPinned.value >=
+                                                      c.pinned.length) {
+                                                    c.displayPinned.value = 0;
+                                                  }
+
+                                                  c.animateTo(
+                                                    c
+                                                        .pinned[c.displayPinned
+                                                            .value]
+                                                        .id,
+                                                  );
+                                                },
+                                                child: Container(
+                                                  height: 60,
+                                                  padding:
+                                                      const EdgeInsets.all(8),
                                                   margin: const EdgeInsets.only(
-                                                    left: 0,
+                                                    left: 6,
                                                     right: 6,
                                                     top: 6,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    border: style
-                                                        .systemMessageBorder,
-                                                    // color: style
-                                                    //     .systemMessageColor,
-                                                    color: Colors.white,
                                                     boxShadow: const [
                                                       CustomBoxShadow(
                                                         blurRadius: 8,
-                                                        color: Color(
-                                                          0x22000000,
-                                                        ),
+                                                        color:
+                                                            Color(0x22000000),
                                                       ),
                                                     ],
+                                                    borderRadius:
+                                                        style.cardRadius,
+                                                    border: style
+                                                        .systemMessageBorder,
+                                                    color: Colors.white,
                                                   ),
-                                                  child: Center(
-                                                    child: Transform.translate(
-                                                      offset: Offset(
-                                                        -1,
-                                                        -4,
-                                                      ),
-                                                      // child: SvgImage.asset(
-                                                      //   'assets/icons/currency.svg',
-                                                      //   width: 23.97,
-                                                      //   height: 26,
-                                                      // )
-                                                      child: Text(
-                                                        '¤',
-                                                        style: style
-                                                            .systemMessageStyle
-                                                            .copyWith(
-                                                          fontFamily: 'Gapopa',
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: const Color(
-                                                            0xFFffcf78,
+                                                  child: _pinned(c),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        AnimatedSize(
+                                          duration: 200.milliseconds,
+                                          child: WidgetButton(
+                                            onPressed: onPressed,
+                                            child: c.paidDisclaimerDismissed
+                                                        .value &&
+                                                    c.paid
+                                                ? Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(
+                                                      12,
+                                                      8,
+                                                      12,
+                                                      8,
+                                                    ),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                      left: 0,
+                                                      right: 6,
+                                                      top: 6,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: style
+                                                          .systemMessageBorder,
+                                                      color: Colors.white,
+                                                      boxShadow: const [
+                                                        CustomBoxShadow(
+                                                          blurRadius: 8,
+                                                          color: Color(
+                                                            0x22000000,
                                                           ),
-                                                          // color:
-                                                          //     Theme.of(context)
-                                                          //         .colorScheme
-                                                          //         .secondary,
-                                                          // color: const Color(
-                                                          //     0xFF8383FF),
-                                                          fontSize: 21,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Center(
+                                                      child:
+                                                          Transform.translate(
+                                                        offset: const Offset(
+                                                          -1,
+                                                          -4,
+                                                        ),
+                                                        child: Text(
+                                                          '¤',
+                                                          style: style
+                                                              .systemMessageStyle
+                                                              .copyWith(
+                                                            fontFamily:
+                                                                'Gapopa',
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: const Color(
+                                                              0xFFffcf78,
+                                                            ),
+                                                            fontSize: 21,
+                                                          ),
                                                         ),
                                                       ),
-                                                      // '\$',
-                                                      // style: style
-                                                      //     .systemMessageStyle
-                                                      //     .copyWith(
-                                                      //   fontSize: 15,
-                                                      //   color:
-                                                      //       Theme.of(context)
-                                                      //           .colorScheme
-                                                      //           .secondary,
-                                                      // ),
-                                                      // ),
                                                     ),
-                                                  ),
-                                                )
-                                              : const SizedBox(),
+                                                  )
+                                                : const SizedBox(),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   );
 
                                   return AnimatedSizeAndFade.showHide(
@@ -831,59 +854,67 @@ class _ChatViewState extends State<ChatView>
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
-          builder: (_, u) => ChatItemWidget(
-            chat: c.chat!.chat,
-            item: e,
-            me: c.me!,
-            // paid: c.chat?.messageCost != 0,
-            paid: c.paid,
-            avatar: !previousSame,
-            margin: EdgeInsets.only(
-              top: previousSame ? 1.5 : 6,
-              bottom: nextSame ? 1.5 : 6,
+          builder: (_, u) => Obx(
+            () => ChatItemWidget(
+              chat: c.chat!.chat,
+              item: e,
+              me: c.me!,
+              // paid: c.chat?.messageCost != 0,
+              paid: c.paid,
+              avatar: !previousSame,
+              margin: EdgeInsets.only(
+                top: previousSame ? 1.5 : 6,
+                bottom: nextSame ? 1.5 : 6,
+              ),
+              loadImages: c.settings.value?.loadImages != false,
+              reads: c.chat!.members.length > 10
+                  ? []
+                  : c.chat!.reads.where((m) =>
+                      m.at == e.value.at &&
+                      m.memberId != c.me &&
+                      m.memberId != e.value.authorId),
+              user: u.data,
+              getUser: c.getUser,
+              animation: _animation,
+              timestamp: c.settings.value?.timelineEnabled != true,
+              onHide: () => c.hideChatItem(e.value),
+              onDelete: () => c.deleteMessage(e.value),
+              onReply: () {
+                if (c.send.replied.any((i) => i.id == e.value.id)) {
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
+                } else {
+                  c.send.replied.insert(0, e.value);
+                }
+              },
+              onCopy: (text) {
+                if (c.selection.value?.plainText.isNotEmpty == true) {
+                  c.copyText(c.selection.value!.plainText);
+                } else {
+                  c.copyText(text);
+                }
+              },
+              onRepliedTap: (q) async {
+                if (q.original != null) {
+                  await c.animateTo(q.original!.id);
+                }
+              },
+              onGallery: c.calculateGallery,
+              onResend: () => c.resendItem(e.value),
+              onEdit: () => c.editMessage(e.value),
+              onDrag: (d) => c.isItemDragged.value = d,
+              onFileTap: (a) => c.download(e.value, a),
+              onAttachmentError: () async {
+                await c.chat?.updateAttachments(e.value);
+                await Future.delayed(Duration.zero);
+              },
+              onSelecting: (s) => c.isSelecting.value = s,
+              pinned: c.pinned.contains(e.value),
+              onPin: () {
+                c.pinned.contains(e.value)
+                    ? c.pinned.remove(e.value)
+                    : c.pinned.add(e.value);
+              },
             ),
-            loadImages: c.settings.value?.loadImages != false,
-            reads: c.chat!.members.length > 10
-                ? []
-                : c.chat!.reads.where((m) =>
-                    m.at == e.value.at &&
-                    m.memberId != c.me &&
-                    m.memberId != e.value.authorId),
-            user: u.data,
-            getUser: c.getUser,
-            animation: _animation,
-            timestamp: c.settings.value?.timelineEnabled != true,
-            onHide: () => c.hideChatItem(e.value),
-            onDelete: () => c.deleteMessage(e.value),
-            onReply: () {
-              if (c.send.replied.any((i) => i.id == e.value.id)) {
-                c.send.replied.removeWhere((i) => i.id == e.value.id);
-              } else {
-                c.send.replied.insert(0, e.value);
-              }
-            },
-            onCopy: (text) {
-              if (c.selection.value?.plainText.isNotEmpty == true) {
-                c.copyText(c.selection.value!.plainText);
-              } else {
-                c.copyText(text);
-              }
-            },
-            onRepliedTap: (q) async {
-              if (q.original != null) {
-                await c.animateTo(q.original!.id);
-              }
-            },
-            onGallery: c.calculateGallery,
-            onResend: () => c.resendItem(e.value),
-            onEdit: () => c.editMessage(e.value),
-            onDrag: (d) => c.isItemDragged.value = d,
-            onFileTap: (a) => c.download(e.value, a),
-            onAttachmentError: () async {
-              await c.chat?.updateAttachments(e.value);
-              await Future.delayed(Duration.zero);
-            },
-            onSelecting: (s) => c.isSelecting.value = s,
           ),
         ),
       );
@@ -1495,6 +1526,128 @@ class _ChatViewState extends State<ChatView>
 //       ),
 //     );
 //   }
+
+  Widget _pinned(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Obx(() {
+      if (c.pinned.isEmpty) {
+        return const SizedBox();
+      }
+
+      final ChatItem item =
+          c.pinned.elementAt(min(c.pinned.length - 1, c.displayPinned.value));
+      List<Widget> children = [];
+
+      final Widget pin = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 6),
+          // if (c.pinned.length > 1)
+          Transform.rotate(
+            angle: pi / 5,
+            child: const Icon(
+              Icons.push_pin,
+              // color: Theme.of(context).colorScheme.secondary,
+              color: Color(0xFF888888),
+              size: 12,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '${c.displayPinned.value + 1}/${c.pinned.length}',
+            style: style.boldBody.copyWith(
+              // color: Theme.of(context).colorScheme.secondary,
+              color: const Color(0xFF888888),
+              fontSize: 13,
+            ),
+          ),
+        ],
+      );
+
+      if (item is ChatMessage) {
+        Widget? leading;
+
+        if (item.attachments.isNotEmpty) {
+          final Attachment attachment = item.attachments.first;
+          if (attachment is ImageAttachment) {
+            leading = Container(
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 5),
+              child: RetryImage(
+                attachment.medium.url,
+                borderRadius: BorderRadius.circular(5),
+                width: 40,
+                height: 40,
+              ),
+            );
+          } else {
+            leading = Container(
+              width: 40,
+              height: 40,
+              color: Colors.grey,
+            );
+          }
+        }
+
+        children = [
+          if (leading != null) leading,
+          if (item.text != null)
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: item.text!.val),
+                    // const WidgetSpan(child: SizedBox(width: 5)),
+                    // WidgetSpan(child: Opacity(opacity: 1, child: pin)),
+                  ],
+                ),
+                style: style.boldBody,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )
+          else
+            const Spacer(),
+        ];
+      } else if (item is ChatCall) {
+        children = [
+          Expanded(
+            child: Text(
+              'Call',
+              style: style.boldBody,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
+        ];
+      }
+
+      return Stack(
+        children: [
+          Row(
+            children: [
+              ...children,
+              Align(alignment: Alignment.bottomRight, child: pin),
+              const SizedBox(width: 4),
+            ],
+          ),
+          // Positioned(right: 0, bottom: 0, child: pin),
+        ],
+      );
+
+      return Center(
+        child: Text(
+          'Закреплено сообщений: 1/3',
+          style: style.systemMessageStyle.copyWith(
+            fontSize: 15,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+      );
+    });
+  }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.

@@ -93,7 +93,8 @@ class ChatsTabView extends StatelessWidget {
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
-                  border: (c.search.value?.search.isFocused.value == true ||
+                  border: (c.searching.value ||
+                          c.search.value?.search.isFocused.value == true ||
                           c.search.value?.query.value.isNotEmpty == true)
                       ? Border.all(color: colors.secondary, width: 2)
                       : null,
@@ -334,13 +335,13 @@ class ChatsTabView extends StatelessWidget {
                                 height: c.searching.value ? 11 : 15,
                               )
                             : Transform.translate(
-                                offset: Offset(-1, 0),
+                                offset: const Offset(-1, 0),
                                 child: SvgImage.asset(
-                                  'assets/icons/contacts7.svg',
+                                  'assets/icons/contacts_switch.svg',
                                   key: const Key('Contacts'),
                                   alignment: Alignment.center,
-                                  width: 22.6,
-                                  height: 21,
+                                  width: 22.4,
+                                  height: 20.8,
                                 ),
                               );
                       }

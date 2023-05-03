@@ -288,7 +288,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           double qx = 1, qy = 1;
           if (position.dx > (constraints.maxWidth) / 2) qx = -1;
           if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = widget.alignment ?? Alignment(qx, qy);
+          final Alignment alignment = Alignment(qx, qy);
 
           return Listener(
             onPointerUp: (d) {

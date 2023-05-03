@@ -32,6 +32,25 @@ class ChatsContactsTabView extends StatelessWidget {
       init: ChatsContactsTabController(),
       builder: (ChatsContactsTabController c) {
         return Obx(() {
+          return Stack(
+            children: [
+              IgnorePointer(
+                ignoring: !c.switched.value,
+                child: Opacity(
+                  opacity: c.switched.value ? 1 : 0,
+                  child: ContactsTabView(onSwitched: c.switched.toggle),
+                ),
+              ),
+              IgnorePointer(
+                ignoring: c.switched.value,
+                child: Opacity(
+                  opacity: c.switched.value ? 0 : 1,
+                  child: ChatsTabView(onSwitched: c.switched.toggle),
+                ),
+              ),
+            ],
+          );
+
           if (c.switched.value) {
             return ContactsTabView(onSwitched: c.switched.toggle);
           }

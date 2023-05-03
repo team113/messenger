@@ -921,3 +921,7 @@ label_days_ago = {$days ->
         [one] {$days} day
         *[other] {$days} days
     }
+btn_pin = Pin
+btn_pin_message = Pin message
+btn_unpin = Unin
+btn_unpin_message = Unin message

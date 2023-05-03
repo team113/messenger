@@ -206,6 +206,9 @@ class ChatController extends GetxController {
 
   ConfirmAction? confirmAction;
 
+  final RxList<ChatItem> pinned = RxList();
+  final RxInt displayPinned = RxInt(0);
+
   LoaderElement? _topLoader;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
