@@ -62,7 +62,7 @@ class MoreButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'more',
       hinted: hinted,
@@ -87,7 +87,7 @@ class VideoButton extends CallButton {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'video_${isVideo ? 'on' : 'off'}',
         hinted: hinted,
@@ -114,7 +114,7 @@ class AudioButton extends CallButton {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'microphone_${isAudio ? 'on' : 'off'}',
         hinted: hinted,
@@ -141,7 +141,7 @@ class ScreenButton extends CallButton {
     return Obx(() {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
@@ -163,7 +163,7 @@ class HandButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
@@ -182,7 +182,7 @@ class SettingsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'settings_small',
       hinted: hinted,
@@ -200,7 +200,7 @@ class ParticipantsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'add_user_small',
       hinted: hinted,
@@ -221,7 +221,7 @@ class RemoteVideoButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -243,7 +243,7 @@ class RemoteAudioButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -265,7 +265,7 @@ class AcceptAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
@@ -293,7 +293,7 @@ class AcceptVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'video_on',
       color: CallController.acceptColor,
@@ -317,7 +317,7 @@ class DeclineButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: CallController.endColor,
@@ -338,7 +338,7 @@ class DropButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: CallController.endColor,
@@ -357,7 +357,7 @@ class CancelButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: CallController.endColor,
@@ -380,7 +380,7 @@ class EndCallButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CommonWidget(
+    return CallButtonWidget(
       asset: 'call_end',
       hint: hint,
       color: CallController.endColor,
@@ -400,7 +400,7 @@ class SpeakerButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -421,7 +421,7 @@ class SwitchButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
-      return _CommonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
         assetWidth: 28,
@@ -434,11 +434,12 @@ class SwitchButton extends CallButton {
 }
 
 /// Styled [RoundFloatingButton] with the provided parameters.
-class _CommonWidget extends StatelessWidget {
-  const _CommonWidget({
+class CallButtonWidget extends StatelessWidget {
+  const CallButtonWidget({
+    super.key,
     required this.asset,
-    required this.hint,
-    this.onPressed,
+    required this.onPressed,
+    this.hint,
     this.hinted = true,
     this.expanded = false,
     this.withBlur = false,
@@ -448,15 +449,15 @@ class _CommonWidget extends StatelessWidget {
   });
 
   /// Relative path to the file of the resource.
-  final String asset;
+  final String? asset;
 
-  /// Callback, called when this [_CommonWidget] is pressed.
+  /// Callback, called when this [CallButtonWidget] is pressed.
   final VoidCallback? onPressed;
 
-  /// Hint text for this [_CommonWidget].
-  final String hint;
+  /// Hint text for this [CallButtonWidget].
+  final String? hint;
 
-  /// Additional button extension for displaying a hint.
+  /// Additional button extension for displaying a [hint].
   final bool hinted;
 
   /// Additional button extension to fill the available space.
@@ -465,13 +466,13 @@ class _CommonWidget extends StatelessWidget {
   /// Additional button extension for blurred background.
   final bool withBlur;
 
-  /// Background color of this [_CommonWidget].
+  /// Background color of this [CallButtonWidget].
   final Color color;
 
-  /// Width of the asset used for this [_CommonWidget].
+  /// Width of the asset used for this [CallButtonWidget].
   final double assetWidth;
 
-  /// Border style of this [_CommonWidget].
+  /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
 
   @override
