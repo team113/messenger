@@ -37,7 +37,7 @@ class FileService extends DisposableService {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
   static int maxSize = 1024 * 1024 * 1024; // 1 Gb
 
-  /// Size of all files un the [cacheDirectory] in bytes.
+  /// Size of all files in the [cacheDirectory] in bytes.
   Rx<int> cacheSize = Rx<int>(0);
 
   /// [StreamSubscription] getting all files from the [cacheDirectory].
@@ -58,10 +58,10 @@ class FileService extends DisposableService {
   /// [Duration] ot the minimal delay between [_optimizeCache] executing.
   static const Duration _optimizationDelay = Duration(minutes: 30);
 
-  /// Path to the downloads directory.
+  /// Path to the cache directory.
   static Directory? _cacheDirectory;
 
-  /// Returns a path to the downloads directory.
+  /// Returns a path to the cache directory.
   static Future<Directory> get cacheDirectory async {
     return _cacheDirectory ?? await getApplicationSupportDirectory();
   }
@@ -79,7 +79,6 @@ class FileService extends DisposableService {
         _files[file] = stat.size;
       },
       onDone: () {
-        print('cacheSize: ${cacheSize.value}');
         _optimizeCache();
         cacheSubscription?.cancel();
         cacheSubscription = null;
@@ -96,16 +95,15 @@ class FileService extends DisposableService {
         case FileSystemEvent.create:
           // Wait until all bytes have been written to the file to get the
           // actual size.
-          await Future.delayed(10.seconds);
+          await Future.delayed(30.seconds);
           final File file = File(e.path);
           final FileStat stat = await file.stat();
 
-          // Size == -1 if file not exists.
+          // If size == -1 it's mean that file not exist.
           if (stat.size != -1) {
             cacheSize.value += stat.size;
             _files[File(e.path)] = stat.size;
           }
-          print('cacheSize: ${cacheSize.value}');
           break;
         case FileSystemEvent.delete:
           _files.removeWhere((file, size) {
@@ -132,7 +130,8 @@ class FileService extends DisposableService {
     super.onClose();
   }
 
-  /// Downloads a file data by the provided [url] and saves it to cache.
+  /// Gets a file data from cache by the provided [checksum] or downloads by the
+  /// provided [url].
   ///
   /// At least one of [url] or [checksum] arguments must be provided.
   ///
@@ -228,7 +227,7 @@ class FileService extends DisposableService {
   /// Deletes files from the [cacheDirectory] if it occupies more then
   /// [maxSize].
   ///
-  /// Deletes files with the access date.
+  /// Deletes files with the latest access date.
   Future<void> _optimizeCache() async {
     await _mutex.protect(() async {
       int overflow = cacheSize.value - maxSize;
