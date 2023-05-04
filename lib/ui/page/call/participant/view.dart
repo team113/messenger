@@ -195,12 +195,12 @@ class UserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final bool isMe = user.id == c.me;
       bool inCall = false;
       bool isRedialed = false;
 
       const double width = 30;
       const double height = 30;
+      final bool isMe = user.id == c.me;
       final BorderRadius borderRadius = BorderRadius.circular(60);
 
       CallMember? member = call.value.members.values
