@@ -460,11 +460,7 @@ class _ChatViewState extends State<ChatView>
                                                     width: 18.37,
                                                     height: 16,
                                                   ),
-                                                  onPressed: () =>
-                                                      c.pinned.remove(
-                                                    c.pinned[
-                                                        c.displayPinned.value],
-                                                  ),
+                                                  onPressed: c.unpin,
                                                 ),
                                               ],
                                               child: WidgetButton(
@@ -482,30 +478,55 @@ class _ChatViewState extends State<ChatView>
                                                         .id,
                                                   );
                                                 },
-                                                child: Container(
-                                                  height: 60,
+                                                child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(8),
-                                                  margin: const EdgeInsets.only(
+                                                      const EdgeInsets.only(
                                                     left: 6,
                                                     right: 6,
                                                     top: 6,
                                                   ),
-                                                  decoration: BoxDecoration(
-                                                    boxShadow: const [
-                                                      CustomBoxShadow(
-                                                        blurRadius: 8,
-                                                        color:
-                                                            Color(0x22000000),
+                                                  child: MouseRegion(
+                                                    onEnter: (_) => c
+                                                        .hoveredPinned
+                                                        .value = true,
+                                                    onExit: (_) => c
+                                                        .hoveredPinned
+                                                        .value = false,
+                                                    opaque: false,
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      height: 60,
+                                                      padding: const EdgeInsets
+                                                          .fromLTRB(
+                                                        8,
+                                                        0,
+                                                        0,
+                                                        8,
                                                       ),
-                                                    ],
-                                                    borderRadius:
-                                                        style.cardRadius,
-                                                    border: style
-                                                        .systemMessageBorder,
-                                                    color: Colors.white,
+                                                      decoration: BoxDecoration(
+                                                        boxShadow: const [
+                                                          CustomBoxShadow(
+                                                            blurRadius: 8,
+                                                            color: Color(
+                                                              0x22000000,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                        borderRadius:
+                                                            style.cardRadius,
+                                                        border: style
+                                                            .systemMessageBorder,
+                                                        color: Colors.white,
+                                                      ),
+                                                      child: LayoutBuilder(
+                                                        builder: (context,
+                                                            constraints) {
+                                                          return _pinned(
+                                                              c, constraints);
+                                                        },
+                                                      ),
+                                                    ),
                                                   ),
-                                                  child: _pinned(c),
                                                 ),
                                               ),
                                             ),
@@ -911,8 +932,8 @@ class _ChatViewState extends State<ChatView>
               pinned: c.pinned.contains(e.value),
               onPin: () {
                 c.pinned.contains(e.value)
-                    ? c.pinned.remove(e.value)
-                    : c.pinned.add(e.value);
+                    ? c.unpin(c.pinned.indexOf(e.value))
+                    : c.pin(e.value);
               },
             ),
           ),
@@ -1527,7 +1548,7 @@ class _ChatViewState extends State<ChatView>
 //     );
 //   }
 
-  Widget _pinned(ChatController c) {
+  Widget _pinned(ChatController c, BoxConstraints constraints) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Obx(() {
@@ -1539,56 +1560,41 @@ class _ChatViewState extends State<ChatView>
           c.pinned.elementAt(min(c.pinned.length - 1, c.displayPinned.value));
       List<Widget> children = [];
 
-      final Widget pin = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(width: 6),
-          // if (c.pinned.length > 1)
-          Transform.rotate(
-            angle: pi / 5,
-            child: const Icon(
-              Icons.push_pin,
-              // color: Theme.of(context).colorScheme.secondary,
-              color: Color(0xFF888888),
-              size: 12,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            '${c.displayPinned.value + 1}/${c.pinned.length}',
-            style: style.boldBody.copyWith(
-              // color: Theme.of(context).colorScheme.secondary,
-              color: const Color(0xFF888888),
-              fontSize: 13,
-            ),
-          ),
-        ],
-      );
-
       if (item is ChatMessage) {
         Widget? leading;
 
-        if (item.attachments.isNotEmpty) {
-          final Attachment attachment = item.attachments.first;
+        Widget preview(Attachment attachment) {
           if (attachment is ImageAttachment) {
-            leading = Container(
+            return Container(
               width: 40,
               height: 40,
               margin: const EdgeInsets.only(right: 5),
               child: RetryImage(
                 attachment.medium.url,
                 borderRadius: BorderRadius.circular(5),
+                fit: BoxFit.cover,
                 width: 40,
                 height: 40,
               ),
             );
           } else {
-            leading = Container(
+            return Container(
               width: 40,
               height: 40,
               color: Colors.grey,
             );
           }
+        }
+
+        if (item.text == null) {
+          leading = Row(
+            children: item.attachments
+                .take(constraints.maxWidth ~/ 50)
+                .map(preview)
+                .toList(),
+          );
+        } else if (item.attachments.isNotEmpty) {
+          leading = preview(item.attachments.first);
         }
 
         children = [
@@ -1624,18 +1630,88 @@ class _ChatViewState extends State<ChatView>
         ];
       }
 
-      return Stack(
+      return Row(
         children: [
-          Row(
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(children: children),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              ...children,
-              Align(alignment: Alignment.bottomRight, child: pin),
-              const SizedBox(width: 4),
+              const SizedBox(height: 4),
+              // SvgImage.asset(
+              //   'assets/icons/close_primary.svg',
+              //   width: 10,
+              //   height: 10,
+              // ),
+              Obx(() {
+                return AnimatedOpacity(
+                  duration: 200.milliseconds,
+                  opacity:
+                      c.hoveredPinned.value || PlatformUtils.isMobile ? 1 : 0,
+                  child: InkWell(
+                    key: const Key('RemovePickedFile'),
+                    onTap: c.unpin,
+                    child: Container(
+                      // width: 10,
+                      // height: 10,
+                      key: const Key('Close'),
+                      // decoration: BoxDecoration(
+                      //   shape: BoxShape.circle,
+                      //   color: style.cardColor,
+                      // ),
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                      // color: Colors.red,
+                      margin: const EdgeInsets.only(left: 4),
+                      alignment: Alignment.center,
+                      child: SvgImage.asset(
+                        'assets/icons/close_primary.svg',
+                        width: 8,
+                        height: 8,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 17 - 8),
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // const SizedBox(width: 6),
+                    // Transform.rotate(
+                    //   angle: pi / 5,
+                    //   child: const Icon(
+                    //     Icons.push_pin,
+                    //     // color: Theme.of(context).colorScheme.secondary,
+                    //     color: Color(0xFF888888),
+                    //     size: 12,
+                    //   ),
+                    // ),
+                    // if (c.pinned.length > 1) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      '${c.displayPinned.value + 1}/${c.pinned.length}',
+                      style: style.systemMessageStyle.copyWith(
+                        fontSize: 11,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ],
+                  // ],
+                ),
+              ),
             ],
           ),
-          // Positioned(right: 0, bottom: 0, child: pin),
+          // Align(alignment: Alignment.bottomRight, child: pin),
+          const SizedBox(width: 4),
         ],
       );
+      // Positioned(right: 0, bottom: 0, child: pin),
 
       return Center(
         child: Text(

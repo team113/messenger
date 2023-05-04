@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
@@ -206,8 +207,25 @@ class ChatController extends GetxController {
 
   ConfirmAction? confirmAction;
 
+  final RxBool hoveredPinned = RxBool(false);
+
   final RxList<ChatItem> pinned = RxList();
   final RxInt displayPinned = RxInt(0);
+
+  void pin(ChatItem item) {
+    pinned.add(item);
+    displayPinned.value = pinned.length - 1;
+  }
+
+  void unpin([int? index]) {
+    pinned.removeAt(index ?? displayPinned.value);
+
+    if (pinned.isEmpty) {
+      hoveredPinned.value = false;
+    } else {
+      displayPinned.value = min(displayPinned.value, pinned.length - 1);
+    }
+  }
 
   LoaderElement? _topLoader;
 

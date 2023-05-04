@@ -238,12 +238,19 @@ class FoldedClipper extends CustomClipper<Path> {
     //   ..lineTo(0, size.height - radius)
     //   ..lineTo(0, 0);
 
+    // final path = Path()
+    //   ..lineTo(size.width - radius, 0)
+    //   ..lineTo(size.width, radius)
+    //   ..lineTo(size.width, size.height)
+    //   ..lineTo(0, size.height)
+    //   ..lineTo(0, 0);
+
     final path = Path()
-      ..lineTo(size.width - radius, 0)
-      ..lineTo(size.width, radius)
+      ..lineTo(size.width, 0)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
-      ..lineTo(0, 0);
+      ..lineTo(0, radius)
+      ..lineTo(radius, 0);
 
     return path;
   }

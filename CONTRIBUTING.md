@@ -193,6 +193,17 @@ All [Dart] source code must follow [Effective Dart] official recommendations, an
 Any rules described here are in priority if they have conflicts with [Effective Dart] recommendations.
 
 
+### Documentation
+
+__DO__ document your code. Documentation must follow [Effective Dart] official recommendations with the following exceptions:
+- prefer omitting leading `A`, `An` or `The` article as it is mostly meaningless.
+
+
+### 80 characters line width limit
+
+__DO__ limit your code and documentation with 80 characters line width.
+
+
 ### Explicit dependencies injection
 
 __DO__ pass all the dependencies of your class/service/etc needs via its constructor.

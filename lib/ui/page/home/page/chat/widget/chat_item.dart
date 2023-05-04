@@ -2799,23 +2799,30 @@ class FoldedWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipPath(
-      clipBehavior: Clip.none,
+      // clipBehavior: Clip.none,
       clipper: folded ? FoldedClipper(radius) : null,
       child: Stack(
-        alignment: Alignment.topRight,
+        alignment: Alignment.topLeft,
         children: [
           child,
           if (folded)
             Container(
               width: radius,
               height: radius,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 // color: Color(0xFF72B060)
                 // color: Color(0xFF8383ff),
                 // color: Color(0xFFfff7ea),
-                color: Color(0xFF8383ff),
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4)),
-                boxShadow: [
+                // color: Color(0xFF8383ff),
+                color: Theme.of(context)
+                    .extension<Style>()!
+                    .cardHoveredBorder
+                    .top
+                    .color
+                    .darken(0.1),
+                borderRadius:
+                    const BorderRadius.only(bottomLeft: Radius.circular(4)),
+                boxShadow: const [
                   CustomBoxShadow(
                     color: Color(0xFFC0C0C0),
                     blurStyle: BlurStyle.outer,

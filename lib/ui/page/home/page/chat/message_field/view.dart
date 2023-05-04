@@ -745,8 +745,8 @@ class MessageFieldView extends StatelessWidget {
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
                           child: Container(
-                            width: 15,
-                            height: 15,
+                            width: 16,
+                            height: 16,
                             margin: const EdgeInsets.only(left: 8, bottom: 8),
                             child: Container(
                               key: const Key('Close'),
@@ -757,8 +757,8 @@ class MessageFieldView extends StatelessWidget {
                               alignment: Alignment.center,
                               child: SvgImage.asset(
                                 'assets/icons/close_primary.svg',
-                                width: 7,
-                                height: 7,
+                                width: 8,
+                                height: 8,
                               ),
                             ),
                           ),

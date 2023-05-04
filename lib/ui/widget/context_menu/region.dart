@@ -51,6 +51,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.indicateOpenedMenu = false,
     this.unconstrained = false,
     this.allowPrimaryButton = false,
+    this.floatingOnMobile = false,
     String? id,
   }) : id = id ?? const Uuid().v4();
 
@@ -111,6 +112,8 @@ class ContextMenuRegion extends StatefulWidget {
   final bool unconstrained;
 
   final bool allowPrimaryButton;
+
+  final bool floatingOnMobile;
 
   static RxnString displayed = RxnString();
 

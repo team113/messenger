@@ -313,30 +313,31 @@ class _RetryImageState extends State<RetryImage> {
       return Stack(
         alignment: Alignment.center,
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: _fallback == null
-                ? SizedBox(width: 200, height: widget.height)
-                : ClipRect(
-                    child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(
-                        sigmaX: 15,
-                        sigmaY: 15,
-                        tileMode: TileMode.clamp,
-                      ),
-                      child: Transform.scale(
-                        scale: 1.2,
-                        child: Image.memory(
-                          _fallback!,
-                          key: const Key('Fallback'),
-                          height: widget.height,
-                          width: widget.width,
-                          fit: widget.fit,
-                        ),
+          // AnimatedSwitcher(
+          //   duration: const Duration(milliseconds: 150),
+          //   child:
+          _fallback == null
+              ? SizedBox(width: 200, height: widget.height)
+              : ClipRect(
+                  child: ImageFiltered(
+                    imageFilter: ImageFilter.blur(
+                      sigmaX: 15,
+                      sigmaY: 15,
+                      tileMode: TileMode.clamp,
+                    ),
+                    child: Transform.scale(
+                      scale: 1.2,
+                      child: Image.memory(
+                        _fallback!,
+                        key: const Key('Fallback'),
+                        height: widget.height,
+                        width: widget.width,
+                        fit: widget.fit,
                       ),
                     ),
                   ),
-          ),
+                ),
+          // ),
           Positioned.fill(
             child: Center(
               child: AnimatedSwitcher(
