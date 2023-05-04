@@ -32,6 +32,7 @@ import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/mobile/scaffold.dart';
 import '../widget/participant.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
@@ -818,7 +819,7 @@ class MobileCall extends StatelessWidget {
           child: Obx(() {
             return IgnorePointer(
               ignoring: c.minimized.value,
-              child: OverlayScaffold(content, ui, overlay),
+              child: MobileScaffold(content, ui, overlay),
             );
           }),
         );

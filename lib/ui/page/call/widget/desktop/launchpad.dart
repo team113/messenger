@@ -1,0 +1,141 @@
+import 'dart:ui';
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../../../themes.dart';
+import '../../component/common.dart';
+import '../conditional_backdrop.dart';
+
+/// More panel which contains the [CallController.panel].
+class Launchpad extends StatelessWidget {
+  const Launchpad({
+    super.key,
+    required this.enabled,
+    required this.test,
+    required this.panel,
+    required this.displayMore,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.onAccept,
+    this.onWillAccept,
+    this.children = const <Widget>[],
+  });
+
+  /// Indicator whether [Launchpad] is enabled.
+  final bool enabled;
+
+  /// [Function] that is called when the mouse cursor enters the area
+  /// of this [Launchpad].
+  final void Function(PointerEnterEvent)? onEnter;
+
+  /// [Function] that is called when the mouse cursor moves in the area
+  /// of this [Launchpad].
+  final void Function(PointerHoverEvent)? onHover;
+
+  /// [Function] that is called when the mouse cursor leaves the area
+  /// of this [Launchpad].
+  final void Function(PointerExitEvent)? onExit;
+
+  /// Indicator whether at least one element from the [panel] list satisfies
+  /// the condition set by the [test] function.
+  final bool Function(CallButton?) test;
+
+  /// [CallButton] list, which is a panel of buttons in [Launchpad].
+  final RxList<CallButton> panel;
+
+  /// Callback function that is called when accepting a draggable element.
+  final void Function(CallButton)? onAccept;
+
+  /// Callback function that is called when the dragged element is above
+  /// the widget, but has not yet been released.
+  final bool Function(CallButton?)? onWillAccept;
+
+  /// Indicator whether additional elements should be displayed
+  /// in [Launchpad].
+  final RxBool displayMore;
+
+  /// List of [Widget] that will be displayed in the [Launchpad].
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    /// Builder function for the [DragTarget].
+    ///
+    /// It is responsible for displaying the visual interface when dragging
+    /// elements onto the target.
+    Widget launchpadBuilder(
+      BuildContext context,
+      List<CallButton?> candidate,
+      List<dynamic> rejected,
+    ) {
+      return MouseRegion(
+        onEnter: onEnter,
+        onHover: onHover,
+        onExit: onExit,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              CustomBoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          margin: const EdgeInsets.all(2),
+          child: ConditionalBackdropFilter(
+            borderRadius: BorderRadius.circular(30),
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: candidate.any(test)
+                    ? const Color(0xE0165084)
+                    : const Color(0x9D165084),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 35),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      alignment: WrapAlignment.center,
+                      spacing: 4,
+                      runSpacing: 21,
+                      children: children,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: displayMore.value ? 1.0 : 0.0,
+        child: displayMore.value
+            ? DragTarget<CallButton>(
+                onAccept: onAccept,
+                onWillAccept: onWillAccept,
+                builder: launchpadBuilder,
+              )
+            : const SizedBox(),
+      ),
+    );
+  }
+}

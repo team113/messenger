@@ -27,8 +27,15 @@ import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/desktop_primary_view.dart';
-import '../widget/desktop_secondary_view.dart';
+import '../widget/desktop/dock.dart';
+import '../widget/desktop/launchpad.dart';
+import '../widget/desktop/minimized_scaler.dart';
+import '../widget/desktop/possible_container.dart';
+import '../widget/desktop/primary_view.dart';
+import '../widget/desktop/scaffold.dart';
+import '../widget/desktop/secondary_target.dart';
+import '../widget/desktop/secondary_view.dart';
+import '../widget/desktop/title_bar.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/participant.dart';
@@ -50,7 +57,6 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
-import 'desktop_sub.dart';
 
 /// Returns a desktop design of a [CallView].
 class DesktopCall extends StatelessWidget {
@@ -1444,7 +1450,7 @@ class DesktopCall extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: DesktopScaffoldWidget(
+                          child: DesktopScaffold(
                             content: content,
                             ui: ui,
                             onPanUpdate: (d) {
@@ -1482,7 +1488,7 @@ class DesktopCall extends StatelessWidget {
         }
 
         // If the call popup is not [minimized], then return the [scaffold].
-        return DesktopScaffoldWidget(
+        return DesktopScaffold(
           content: content,
           ui: ui,
           onPanUpdate: (d) {
