@@ -161,9 +161,9 @@ class FileService extends DisposableService {
         }
       }
 
-      if(url != null) {
+      if (url != null) {
         final Uint8List data = await Backoff.run(
-              () async {
+          () async {
             Response? data;
 
             try {
@@ -217,7 +217,7 @@ class FileService extends DisposableService {
   /// Returns indicator whether data with the provided [checksum] exists in the
   /// [FIFOCache] or [cacheDirectory].
   static bool exists(String? checksum) {
-    if(checksum == null) {
+    if (checksum == null) {
       return false;
     }
 
