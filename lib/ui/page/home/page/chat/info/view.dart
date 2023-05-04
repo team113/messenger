@@ -354,11 +354,10 @@ class ChatInfoView extends StatelessWidget {
 
 /// Returns a subtitle to display under the [Chat]'s title.
 class _ChatSubtitle extends StatelessWidget {
+  const _ChatSubtitle(this.c);
+
+  ///
   final ChatInfoController c;
-  const _ChatSubtitle(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -381,11 +380,10 @@ class _ChatSubtitle extends StatelessWidget {
 
 /// Basic [Padding] wrapper.
 class _PaddingWidget extends StatelessWidget {
+  const _PaddingWidget({required this.child});
+
+  ///
   final Widget child;
-  const _PaddingWidget({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -396,11 +394,10 @@ class _PaddingWidget extends StatelessWidget {
 /// Returns a [Chat.avatar] visual representation along with its manipulation
 /// buttons.
 class _AvatarWidget extends StatelessWidget {
+  const _AvatarWidget(this.c);
+
+  ///
   final ChatInfoController c;
-  const _AvatarWidget(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -494,11 +491,10 @@ class _AvatarWidget extends StatelessWidget {
 
 /// Returns a [Chat.name] editable field.
 class _NameWidget extends StatelessWidget {
+  const _NameWidget(this.c);
+
+  ///
   final ChatInfoController c;
-  const _NameWidget(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -534,11 +530,10 @@ class _NameWidget extends StatelessWidget {
 
 /// Returns a [Chat.directLink] editable field.
 class _LinkWidget extends StatelessWidget {
+  const _LinkWidget(this.c);
+
+  ///
   final ChatInfoController c;
-  const _LinkWidget(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -614,19 +609,21 @@ class _LinkWidget extends StatelessWidget {
 
 /// Returns a list of [Chat.members].
 class _MembersWidget extends StatelessWidget {
-  final ChatInfoController c;
-  final ChatId id;
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-    RxUser user,
-  ) removeChatMember;
   const _MembersWidget(
     this.c, {
-    Key? key,
     required this.id,
     required this.removeChatMember,
-  }) : super(key: key);
+  });
+
+  ///
+  final ChatInfoController c;
+
+  ///
+  final ChatId id;
+
+  ///
+  final void Function(ChatInfoController c, BuildContext context, RxUser user)
+      removeChatMember;
 
   @override
   Widget build(BuildContext context) {
@@ -743,46 +740,47 @@ class _MembersWidget extends StatelessWidget {
 
 /// Dense [Padding] wrapper.
 class _DenseWidget extends StatelessWidget {
+  const _DenseWidget({required this.child});
+
+  /// [Widget] that will be wrapped in padding.
   final Widget child;
-  const _DenseWidget({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: child,
+    );
   }
 }
 
 /// Returns the action buttons to do with this [Chat].
 class _ActionsWidget extends StatelessWidget {
+  ///
   final ChatInfoController c;
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-  ) hideChat;
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-  ) clearChat;
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-  ) leaveGroup;
+
+  ///
+  final void Function(ChatInfoController c, BuildContext context) hideChat;
+
+  ///
+  final void Function(ChatInfoController c, BuildContext context) clearChat;
+
+  ///
+  final void Function(ChatInfoController c, BuildContext context) leaveGroup;
+
+  ///
   final void Function(
     ChatInfoController c,
     BuildContext context,
   ) blacklistChat;
+
   const _ActionsWidget(
     this.c, {
-    Key? key,
     required this.hideChat,
     required this.clearChat,
     required this.leaveGroup,
     required this.blacklistChat,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -958,8 +956,13 @@ class BigButton extends StatelessWidget {
     this.onTap,
   });
 
-  final Widget leading;
+  ///
+  final Widget? leading;
+
+  ///
   final Widget title;
+
+  ///
   final void Function()? onTap;
 
   @override
@@ -1002,7 +1005,7 @@ class BigButton extends StatelessWidget {
                   ),
                   if (leading != null) ...[
                     const SizedBox(width: 12),
-                    leading,
+                    leading!,
                     const SizedBox(width: 4),
                   ],
                 ],
