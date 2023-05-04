@@ -22,78 +22,243 @@ import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response;
+import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '/domain/service/disposable_service.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
 /// Service maintaining downloading and caching.
-class FileService {
+class FileService extends DisposableService {
+  /// Maximum allowed size of the [cacheDirectory] in bytes.
+  static int maxSize = 1024 * 1024 * 1024; // 1 Gb
+
+  /// Size of all files un the [cacheDirectory] in bytes.
+  Rx<int> cacheSize = Rx<int>(0);
+
+  /// [StreamSubscription] getting all files from the [cacheDirectory].
+  StreamSubscription? cacheSubscription;
+
+  /// [StreamSubscription] to the [cacheDirectory] files changes.
+  StreamSubscription? cacheChangesSubscription;
+
+  /// [Mutex] guarding access to the [_optimizeCache] method.
+  final Mutex _mutex = Mutex();
+
+  /// [DateTime] of the last [_optimizeCache] executing.
+  DateTime? _lastOptimization;
+
+  /// Files stored in the [cacheDirectory].
+  static final Map<FileSystemEntity, int> _files = {};
+
+  /// [Duration] ot the minimal delay between [_optimizeCache] executing.
+  static const Duration _optimizationDelay = Duration(minutes: 30);
+
+  /// Path to the downloads directory.
+  static Directory? _cacheDirectory;
+
+  /// Returns a path to the downloads directory.
+  static Future<Directory> get cacheDirectory async {
+    return _cacheDirectory ?? await getApplicationSupportDirectory();
+  }
+
+  @override
+  void onInit() async {
+    final Directory cache = await cacheDirectory;
+
+    cacheSubscription = cache.list(recursive: true).listen(
+      (FileSystemEntity file) async {
+        final FileStat stat = await file.stat();
+        if (stat.type != FileSystemEntityType.directory) {
+          cacheSize.value += stat.size;
+        }
+        _files[file] = stat.size;
+      },
+      onDone: () {
+        print('cacheSize: ${cacheSize.value}');
+        _optimizeCache();
+        cacheSubscription?.cancel();
+        cacheSubscription = null;
+      },
+    );
+
+    cacheChangesSubscription =
+        cache.watch(recursive: true).listen((FileSystemEvent e) async {
+      if (e.isDirectory) {
+        return;
+      }
+
+      switch (e.type) {
+        case FileSystemEvent.create:
+          // Wait until all bytes have been written to the file to get the
+          // actual size.
+          await Future.delayed(10.seconds);
+          final File file = File(e.path);
+          final FileStat stat = await file.stat();
+
+          // Size == -1 if file not exists.
+          if (stat.size != -1) {
+            cacheSize.value += stat.size;
+            _files[File(e.path)] = stat.size;
+          }
+          print('cacheSize: ${cacheSize.value}');
+          break;
+        case FileSystemEvent.delete:
+          _files.removeWhere((file, size) {
+            if (file.path == e.path) {
+              cacheSize.value -= size;
+              return true;
+            }
+            return false;
+          });
+          break;
+        default:
+          return;
+      }
+
+      _optimizeCache();
+    });
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    cacheSubscription?.cancel();
+    cacheChangesSubscription?.cancel();
+    super.onClose();
+  }
+
   /// Downloads a file data by the provided [url] and saves it to cache.
   ///
+  /// At least one of [url] or [checksum] arguments must be provided.
+  ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  static FutureOr<Uint8List?> get(
-    String url,
-    String? checksum, {
+  static FutureOr<Uint8List?> get({
+    String? url,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
-  }) async {
-    File? file;
-    if (checksum != null) {
-      if (FIFOCache.exists(checksum)) {
-        return FIFOCache.get(checksum);
-      }
-
-      if (!PlatformUtils.isWeb) {
-        final Directory cache = await getApplicationSupportDirectory();
-        file = File('${cache.path}/$checksum');
-
-        if (await file.exists()) {
-          return file.readAsBytes();
-        }
-      }
+  }) {
+    if (checksum != null && FIFOCache.exists(checksum)) {
+      return FIFOCache.get(checksum);
     }
 
-    final Uint8List data = await Backoff.run(
-      () async {
-        Response? data;
+    return Future.sync(() async {
+      File? file;
+      if (checksum != null) {
+        if (!PlatformUtils.isWeb) {
+          final Directory cache = await cacheDirectory;
+          file = File('${cache.path}/$checksum');
 
-        try {
-          data = await PlatformUtils.dio.get(
-            url,
-            options: Options(responseType: ResponseType.bytes),
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-          );
-        } on DioError catch (e) {
-          if (e.response?.statusCode == 403) {
-            await onForbidden?.call();
+          if (await file.exists()) {
+            return file.readAsBytes();
           }
         }
-
-        if (data?.data != null && data!.statusCode == 200) {
-          return data.data as Uint8List;
-        } else {
-          throw Exception('Data is not loaded');
-        }
-      },
-      cancelToken,
-    );
-
-    Future.sync(() async {
-      if (checksum != null) {
-        FIFOCache.set(checksum, data);
       }
 
-      if (file != null) {
-        await file.create(recursive: true);
-        await file.writeAsBytes(data);
+      if(url != null) {
+        final Uint8List data = await Backoff.run(
+              () async {
+            Response? data;
+
+            try {
+              data = await PlatformUtils.dio.get(
+                url,
+                options: Options(responseType: ResponseType.bytes),
+                cancelToken: cancelToken,
+                onReceiveProgress: onReceiveProgress,
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 403) {
+                await onForbidden?.call();
+              }
+            }
+
+            if (data?.data != null && data!.statusCode == 200) {
+              return data.data as Uint8List;
+            } else {
+              throw Exception('Data is not loaded');
+            }
+          },
+          cancelToken,
+        );
+
+        Future.sync(() async {
+          if (checksum != null) {
+            FIFOCache.set(checksum, data);
+          }
+
+          if (file != null) {
+            await file.writeAsBytes(data);
+          }
+        });
+
+        return data;
+      } else {
+        return null;
       }
     });
+  }
 
-    return data;
+  /// Saves the provided [data] to the [FIFOCache] and to the [cacheDirectory].
+  static Future<void> save(Uint8List data, String checksum) async {
+    FIFOCache.set(checksum, data);
+
+    final Directory cache = await cacheDirectory;
+    final File file = File('${cache.path}/$checksum');
+    await file.writeAsBytes(data);
+  }
+
+  /// Returns indicator whether data with the provided [checksum] exists in the
+  /// [FIFOCache] or [cacheDirectory].
+  static bool exists(String? checksum) {
+    if(checksum == null) {
+      return false;
+    }
+
+    return FIFOCache.exists(checksum) ||
+        _files.keys.any((e) => e.path.endsWith(checksum));
+  }
+
+  /// Deletes files from the [cacheDirectory] if it occupies more then
+  /// [maxSize].
+  ///
+  /// Deletes files with the access date.
+  Future<void> _optimizeCache() async {
+    await _mutex.protect(() async {
+      int overflow = cacheSize.value - maxSize;
+      if (overflow > 0 &&
+          (_lastOptimization == null ||
+              _lastOptimization!
+                  .add(_optimizationDelay)
+                  .isBefore(DateTime.now()))) {
+        final List<FileSystemEntity> files = _files.keys.toList();
+        files.sortBy((f) => f.statSync().accessed);
+
+        int deleted = 0;
+        for (var file in files) {
+          try {
+            final int fileSize = _files[file] ?? 0;
+            await file.delete(recursive: true);
+            deleted += fileSize;
+            cacheSize.value -= fileSize;
+
+            if (deleted >= overflow) {
+              break;
+            }
+          } catch (_, __) {
+            // No-op.
+          }
+        }
+      }
+
+      _lastOptimization = DateTime.now();
+    });
   }
 }
 

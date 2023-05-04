@@ -71,7 +71,7 @@ class RetryImage extends StatefulWidget {
     final StorageFile image;
 
     final StorageFile original = attachment.original;
-    if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
+    if (original.checksum != null && FileService.exists(original.checksum!)) {
       image = original;
     } else {
       image = attachment.big;
@@ -361,22 +361,22 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    Uint8List? cached;
-    if (widget.fallbackChecksum != null) {
-      cached = FIFOCache.get(widget.fallbackChecksum!);
-    }
+    final FutureOr<Uint8List?> result = FileService.get(
+      url: widget.fallbackUrl!,
+      checksum: widget.fallbackChecksum,
+      cancelToken: _fallbackToken,
+      onForbidden: () async {
+        widget.onForbidden?.call();
+        _cancelToken.cancel();
+        _fallbackToken.cancel();
+      },
+    );
 
-    _fallback = cached ??
-        await FileService.get(
-          widget.fallbackUrl!,
-          widget.fallbackChecksum,
-          cancelToken: _fallbackToken,
-          onForbidden: () async {
-            widget.onForbidden?.call();
-            _cancelToken.cancel();
-            _fallbackToken.cancel();
-          },
-        );
+    if (result is Uint8List?) {
+      _fallback = result;
+    } else {
+      _fallback = await result;
+    }
 
     if (mounted) {
       setState(() {});
@@ -385,32 +385,32 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    Uint8List? cached;
-    if (widget.checksum != null) {
-      cached = FIFOCache.get(widget.checksum!);
+    final FutureOr<Uint8List?> result = FileService.get(
+      url: widget.url,
+      checksum: widget.checksum,
+      onReceiveProgress: (received, total) {
+        if (total > 0) {
+          _progress = received / total;
+          if (mounted) {
+            setState(() {});
+          }
+        }
+      },
+      cancelToken: _cancelToken,
+      onForbidden: () async {
+        widget.onForbidden?.call();
+        _cancelToken.cancel();
+        _fallbackToken.cancel();
+      },
+    );
+
+    if (result is Uint8List?) {
+      _image = result;
+    } else {
+      _image = await result;
     }
 
-    _image = cached ??
-        await FileService.get(
-          widget.url,
-          widget.checksum,
-          onReceiveProgress: (received, total) {
-            if (total > 0) {
-              _progress = received / total;
-              if (mounted) {
-                setState(() {});
-              }
-            }
-          },
-          cancelToken: _cancelToken,
-          onForbidden: () async {
-            widget.onForbidden?.call();
-            _cancelToken.cancel();
-            _fallbackToken.cancel();
-          },
-        );
     _isSvg = false;
-
     if (_image != null) {
       _isSvg = _image!.length >= 4 &&
           _image![0] == 60 &&

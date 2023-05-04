@@ -73,7 +73,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        FIFOCache.set(sha256.convert(bytes).toString(), bytes);
+        FileService.save(bytes, sha256.convert(bytes).toString());
       }
     }
 

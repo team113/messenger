@@ -163,8 +163,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Future<void> _initVideo() async {
     try {
       Uint8List? bytes = widget.bytes;
-      if (widget.checksum != null) {
-        bytes ??= FIFOCache.get(widget.checksum!);
+      if (FileService.exists(widget.checksum)) {
+        bytes ??= await FileService.get(checksum: widget.checksum!);
       }
 
       if (bytes != null) {

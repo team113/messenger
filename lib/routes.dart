@@ -19,6 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/file.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -627,6 +629,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatService,
               callRepository,
             ));
+            if (!PlatformUtils.isWeb) {
+              deps.put(FileService());
+            }
 
             deps.put(CallWorker(
               Get.find(),
