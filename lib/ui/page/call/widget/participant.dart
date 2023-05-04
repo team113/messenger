@@ -411,7 +411,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
 /// [Widget] which returns a raised hand animated icon.
 class HandRaisedIcon extends StatelessWidget {
-  const HandRaisedIcon({required this.isRaised});
+  const HandRaisedIcon({super.key, required this.isRaised});
 
   /// Indicator that determines if the hand is raised or not.
   final bool isRaised;
@@ -424,10 +424,7 @@ class HandRaisedIcon extends StatelessWidget {
       child: CircleAvatar(
         radius: 45,
         backgroundColor: const Color(0xD8818181),
-        child: SvgImage.asset(
-          'assets/icons/hand_up.svg',
-          width: 90,
-        ),
+        child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
       ),
     );
   }

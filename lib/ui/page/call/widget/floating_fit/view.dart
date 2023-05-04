@@ -58,7 +58,7 @@ class FloatingFit<T> extends StatefulWidget {
 
   /// Indicator whether the [panel]ed item should be displayed in a [FitView].
   ///
-  /// Intended to be used to temporary disable the swappable behavior.
+  /// Intended to be used to temporary disable the swappable behaviour.
   final bool fit;
 
   /// Optional reactive [Rect] relocating the floating panel on its
@@ -269,7 +269,9 @@ class _FloatingPanel<Object> extends StatelessWidget {
   /// Callback, called when floating panel is being manipulated in some way.
   final void Function(bool)? onManipulated;
 
-  /// Callback, called when floating panel is being manipulated in some way.
+  /// Returns the visual representation of a floating panel.
+  ///
+  /// Swaps the [paneled] items with an animation.
   final void Function()? swap;
 
   @override
