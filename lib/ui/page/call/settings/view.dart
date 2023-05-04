@@ -65,7 +65,7 @@ class CallSettingsView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 12),
                   HeaderWidget(text: 'label_media'.l10n),
-                  _DenseWidget(
+                  DenseWidget(
                     child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
@@ -99,7 +99,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _DenseWidget(
+                  DenseWidget(
                     child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
@@ -133,7 +133,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _DenseWidget(
+                  DenseWidget(
                     child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
@@ -168,7 +168,7 @@ class CallSettingsView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   HeaderWidget(text: 'label_calls'.l10n),
-                  _DenseWidget(
+                  DenseWidget(
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
@@ -233,10 +233,10 @@ class HeaderWidget extends StatelessWidget {
 }
 
 /// Dense [Padding] wrapper.
-class _DenseWidget extends StatelessWidget {
-  const _DenseWidget({this.child});
+class DenseWidget extends StatelessWidget {
+  const DenseWidget({super.key, this.child});
 
-  /// [Widget] to be displayed inside the [_DenseWidget].
+  /// [Widget] to be displayed inside the [DenseWidget].
   final Widget? child;
 
   @override
