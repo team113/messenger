@@ -134,7 +134,16 @@ class ParticipantView extends StatelessWidget {
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           children: c.chat.value!.members.values
-                              .map((e) => UserTile(c, call, user: e))
+                              .map((e) => UserTile(
+                                    user: e,
+                                    call: call,
+                                    me: c.me,
+                                    removeChatMember: c.removeChatMember,
+                                    redialChatCallMember:
+                                        c.redialChatCallMember,
+                                    removeChatCallMember:
+                                        c.removeChatCallMember,
+                                  ))
                               .toList(),
                         ),
                       ),
@@ -181,16 +190,33 @@ class ParticipantView extends StatelessWidget {
 /// [User] contact tile with various functionalities such as initiating a call,
 /// removing the member from the chat, and leaving the group.
 class UserTile extends StatelessWidget {
-  const UserTile(this.c, this.call, {required this.user});
+  const UserTile({
+    super.key,
+    required this.call,
+    required this.user,
+    this.me,
+    required this.removeChatMember,
+    required this.removeChatCallMember,
+    required this.redialChatCallMember,
+  });
 
-  /// [ParticipantController] owning this [UserTile], used for changing the state.
-  final ParticipantController c;
+  /// [OngoingCall] this modal is bound to.
+  final Rx<OngoingCall> call;
 
-  /// [RxUser] itself.
+  /// Unified reactive [User].
   final RxUser user;
 
-  /// [OngoingCall] this [UserTile] is bound to.
-  final Rx<OngoingCall> call;
+  /// [UserId] that is currently logged in.
+  final UserId? me;
+
+  /// [Function] that removes a member from the chat.
+  final Future<void> Function(UserId userId) removeChatMember;
+
+  /// [Function] that removes a member from the ongoing call.
+  final Future<void> Function(UserId userId) removeChatCallMember;
+
+  /// [Function] that redials a member from the ongoing call.
+  final Future<void> Function(UserId memberId) redialChatCallMember;
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +226,7 @@ class UserTile extends StatelessWidget {
 
       const double width = 30;
       const double height = 30;
-      final bool isMe = user.id == c.me;
+      final bool isMe = user.id == me;
       final BorderRadius borderRadius = BorderRadius.circular(60);
 
       CallMember? member = call.value.members.values
@@ -231,7 +257,7 @@ class UserTile extends StatelessWidget {
                         child: InkWell(
                           onTap: isRedialed
                               ? null
-                              : () => c.removeChatCallMember(user.id),
+                              : () => removeChatCallMember(user.id),
                           borderRadius: borderRadius,
                           child: SizedBox(
                             width: width,
@@ -247,7 +273,7 @@ class UserTile extends StatelessWidget {
                         color: Theme.of(context).colorScheme.secondary,
                         type: MaterialType.circle,
                         child: InkWell(
-                          onTap: () => c.redialChatCallMember(user.id),
+                          onTap: () => redialChatCallMember(user.id),
                           borderRadius: borderRadius,
                           child: SizedBox(
                             width: width,
@@ -267,11 +293,11 @@ class UserTile extends StatelessWidget {
           WidgetButton(
             onPressed: () async {
               final bool? result = await MessagePopup.alert(
-                user.id == c.me
+                user.id == me
                     ? 'label_leave_group'.l10n
                     : 'label_remove_member'.l10n,
                 description: [
-                  if (c.me == user.id)
+                  if (me == user.id)
                     TextSpan(text: 'alert_you_will_leave_group'.l10n)
                   else ...[
                     TextSpan(text: 'alert_user_will_be_removed1'.l10n),
@@ -286,10 +312,10 @@ class UserTile extends StatelessWidget {
               );
 
               if (result == true) {
-                await c.removeChatMember(user.id);
+                await removeChatMember(user.id);
               }
             },
-            child: user.id == c.me
+            child: user.id == me
                 ? Text(
                     'btn_leave'.l10n,
                     style: TextStyle(
