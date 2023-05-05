@@ -25,8 +25,7 @@ import '../conditional_backdrop.dart';
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 
-
-/// More panel which contains the [CallController.panel].
+/// More panel which contains the call panel.
 class Launchpad extends StatelessWidget {
   const Launchpad({
     super.key,
