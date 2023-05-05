@@ -84,6 +84,8 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+     this.onPin,
+  this.pinned = false,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -157,6 +159,9 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  final void Function()? onPin;
+  final bool pinned;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -1063,6 +1068,24 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ),
                                 onPressed: widget.onEdit,
                               ),
+                            ContextMenuButton(
+                              key: widget.pinned
+                                  ? const Key('Pin')
+                                  : const Key('Unpin'),
+                              label: widget.pinned
+                                  ? PlatformUtils.isMobile
+                                      ? 'btn_unpin'.l10n
+                                      : 'btn_unpin_message'.l10n
+                                  : PlatformUtils.isMobile
+                                      ? 'btn_pin'.l10n
+                                      : 'btn_pin_message'.l10n,
+                              trailing: SvgImage.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: widget.onPin,
+                            ),
                             ContextMenuButton(
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n

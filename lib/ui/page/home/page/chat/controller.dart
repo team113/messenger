@@ -197,7 +197,12 @@ class ChatController extends GetxController {
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
 
+  // final RxList<ChatItemId> visible = RxList();
+  final RxMap<ChatItemId, double> visible = RxMap();
+
   bool paid = false;
+
+  final RxnInt highlight = RxnInt(null);
 
   final RxBool acceptPaid = RxBool(false);
 
@@ -208,7 +213,7 @@ class ChatController extends GetxController {
   ConfirmAction? confirmAction;
 
   final RxBool hoveredPinned = RxBool(false);
-
+  final RxBool allowPinnedHiding = RxBool(false);
   final RxList<ChatItem> pinned = RxList();
   final RxInt displayPinned = RxInt(0);
 
@@ -225,6 +230,8 @@ class ChatController extends GetxController {
     } else {
       displayPinned.value = min(displayPinned.value, pinned.length - 1);
     }
+
+    allowPinnedHiding.value = false;
   }
 
   LoaderElement? _topLoader;
@@ -945,6 +952,45 @@ class ChatController extends GetxController {
         if (positions.isNotEmpty) {
           _topVisibleItem = positions.first;
 
+          final Map<ChatItemId, double> items = {};
+
+          for (var e in positions) {
+            final ListElement element = elements.values.elementAt(e.index);
+
+            if (element is ChatMessageElement) {
+              items[element.id.id] = e.offset;
+            } else if (element is ChatCallElement) {
+              items[element.id.id] = e.offset;
+            } else if (element is ChatInfoElement) {
+              items[element.id.id] = e.offset;
+            } else if (element is ChatForwardElement) {
+              items[element.id.id] = e.offset;
+            }
+          }
+
+          visible.value = items;
+
+          // visible.value = positions
+          //     .map((e) => elements.values.elementAt(e.index))
+          //     .where((e) {
+          //   return e is ChatMessageElement ||
+          //       e is ChatCallElement ||
+          //       e is ChatForwardElement ||
+          //       e is ChatInfoElement;
+          // }).map((e) {
+          //   if (e is ChatMessageElement) {
+          //     return e.id.id;
+          //   } else if (e is ChatCallElement) {
+          //     return e.id.id;
+          //   } else if (e is ChatInfoElement) {
+          //     return e.id.id;
+          //   } else if (e is ChatForwardElement) {
+          //     return e.id.id;
+          //   } else {
+          //     throw Exception();
+          //   }
+          // }).toList();
+
           _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
             return element is ChatMessageElement ||
@@ -1111,7 +1157,7 @@ class ChatController extends GetxController {
   Future<void> animateTo(
     ChatItemId id, {
     bool offsetBasedOnBottom = false,
-    double offset = 0,
+    double offset = 25,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
       return e.id.id == id ||
@@ -1121,7 +1167,10 @@ class ChatController extends GetxController {
     });
 
     if (index != -1) {
+      _highlight(index);
+
       if (listController.hasClients) {
+        _ignorePositionChanges = true;
         await listController.sliverController.animateToIndex(
           index,
           offsetBasedOnBottom: offsetBasedOnBottom,
@@ -1129,10 +1178,19 @@ class ChatController extends GetxController {
           duration: 200.milliseconds,
           curve: Curves.ease,
         );
+        _ignorePositionChanges = false;
       } else {
         initIndex = index;
       }
     }
+  }
+
+  Timer? _highlightTimer;
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(2.seconds, () => highlight.value = null);
   }
 
   /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
@@ -1296,6 +1354,11 @@ class ChatController extends GetxController {
     if (listController.hasClients) {
       _updateSticky();
       _updateFabStates();
+
+      if (!_ignorePositionChanges && _highlightTimer?.isActive == true) {
+        highlight.value = null;
+        _highlightTimer?.cancel();
+      }
     }
   }
 

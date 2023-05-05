@@ -176,9 +176,9 @@ class ChatItemWidget extends StatefulWidget {
   final void Function(bool)? onSelecting;
 
   final void Function()? onPin;
+  final bool pinned;
 
   final bool paid;
-  final bool pinned;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();

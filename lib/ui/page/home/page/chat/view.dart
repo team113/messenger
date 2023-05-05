@@ -465,10 +465,35 @@ class _ChatViewState extends State<ChatView>
                                               ],
                                               child: WidgetButton(
                                                 onPressed: () {
-                                                  c.displayPinned.value += 1;
-                                                  if (c.displayPinned.value >=
-                                                      c.pinned.length) {
-                                                    c.displayPinned.value = 0;
+                                                  double? offset = c.visible[c
+                                                      .pinned[
+                                                          c.displayPinned.value]
+                                                      .id];
+
+                                                  if (offset != null) {
+                                                    bool next = offset < 50 ||
+                                                        c
+                                                                .listController
+                                                                .position
+                                                                .pixels ==
+                                                            c
+                                                                .listController
+                                                                .position
+                                                                .maxScrollExtent;
+
+                                                    print(
+                                                        '$next ${c.listController.position.pixels} < ${c.listController.position.maxScrollExtent}');
+
+                                                    if (next) {
+                                                      c.displayPinned.value +=
+                                                          1;
+                                                      if (c.displayPinned
+                                                              .value >=
+                                                          c.pinned.length) {
+                                                        c.displayPinned.value =
+                                                            0;
+                                                      }
+                                                    }
                                                   }
 
                                                   c.animateTo(
@@ -477,6 +502,17 @@ class _ChatViewState extends State<ChatView>
                                                             .value]
                                                         .id,
                                                   );
+
+                                                  // c.displayPinned.value += 1;
+                                                  // if (c.displayPinned.value >=
+                                                  //     c.pinned.length) {
+                                                  //   c.displayPinned.value = 0;
+                                                  // }
+
+                                                  // c.animateTo(id);
+
+                                                  c.allowPinnedHiding.value =
+                                                      true;
                                                 },
                                                 child: Padding(
                                                   padding:
@@ -522,7 +558,9 @@ class _ChatViewState extends State<ChatView>
                                                         builder: (context,
                                                             constraints) {
                                                           return _pinned(
-                                                              c, constraints);
+                                                            c,
+                                                            constraints,
+                                                          );
                                                         },
                                                       ),
                                                     ),
@@ -642,6 +680,9 @@ class _ChatViewState extends State<ChatView>
                                             child: Container()),
                                       ),
                                       Obx(() {
+                                        final Style style = Theme.of(context)
+                                            .extension<Style>()!;
+
                                         final Widget child = Scrollbar(
                                           controller: c.listController,
                                           child: FlutterListView(
@@ -871,22 +912,32 @@ class _ChatViewState extends State<ChatView>
                     const Duration(minutes: 5));
       }
 
-      return Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
-        child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
-          builder: (_, u) => Obx(
-            () => ChatItemWidget(
+      final Style style = Theme.of(context).extension<Style>()!;
+
+      return FutureBuilder<RxUser?>(
+        future: c.getUser(e.value.authorId),
+        builder: (_, u) => Obx(
+          () => AnimatedContainer(
+            margin: EdgeInsets.only(
+              top: previousSame ? 1.5 : 6,
+              bottom: nextSame ? 1.5 : 6,
+            ),
+            padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+            duration: 400.milliseconds,
+            curve: Curves.ease,
+            color: c.highlight.value == i
+                // ? Colors.white
+                //     .darken(0.03)
+                ? style.unreadMessageColor.withOpacity(0.9)
+                : const Color(0x00FFFFFF),
+            child: ChatItemWidget(
               chat: c.chat!.chat,
               item: e,
               me: c.me!,
               // paid: c.chat?.messageCost != 0,
               paid: c.paid,
               avatar: !previousSame,
-              margin: EdgeInsets.only(
-                top: previousSame ? 1.5 : 6,
-                bottom: nextSame ? 1.5 : 6,
-              ),
+              margin: EdgeInsets.zero,
               loadImages: c.settings.value?.loadImages != false,
               reads: c.chat!.members.length > 10
                   ? []
@@ -940,11 +991,20 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
-        child: FutureBuilder<RxUser?>(
-          future: c.getUser(element.authorId),
-          builder: (_, u) => ChatForwardWidget(
+      final Style style = Theme.of(context).extension<Style>()!;
+
+      return FutureBuilder<RxUser?>(
+        future: c.getUser(element.authorId),
+        builder: (_, u) => AnimatedContainer(
+          padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+          duration: 400.milliseconds,
+          curve: Curves.ease,
+          color: c.highlight.value == i
+              // ? Colors.white
+              //     .darken(0.03)
+              ? style.unreadMessageColor.withOpacity(0.9)
+              : const Color(0x00FFFFFF),
+          child: ChatForwardWidget(
             key: Key('ChatForwardWidget_${element.id}'),
             chat: c.chat!.chat,
             forwards: element.forwards,
@@ -1046,6 +1106,12 @@ class _ChatViewState extends State<ChatView>
               await Future.delayed(Duration.zero);
             },
             onSelecting: (s) => c.isSelecting.value = s,
+            pinned: c.pinned.contains(element.forwards.first.value),
+            onPin: () {
+              c.pinned.contains(element.forwards.first.value)
+                  ? c.unpin(c.pinned.indexOf(element.forwards.first.value))
+                  : c.pin(element.forwards.first.value);
+            },
           ),
         ),
       );
@@ -1648,13 +1714,18 @@ class _ChatViewState extends State<ChatView>
               //   height: 10,
               // ),
               Obx(() {
+                final bool visible =
+                    c.visible[c.pinned[c.displayPinned.value].id] != null;
+
                 return AnimatedOpacity(
                   duration: 200.milliseconds,
-                  opacity:
-                      c.hoveredPinned.value || PlatformUtils.isMobile ? 1 : 0,
+                  opacity: visible &&
+                          (c.hoveredPinned.value || PlatformUtils.isMobile)
+                      ? 1
+                      : 0,
                   child: InkWell(
                     key: const Key('RemovePickedFile'),
-                    onTap: c.unpin,
+                    onTap: c.allowPinnedHiding.value ? c.unpin : null,
                     child: Container(
                       // width: 10,
                       // height: 10,
