@@ -27,7 +27,6 @@ import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
-
 import '../widget/desktop/call_dock.dart';
 import '../widget/desktop/launchpad.dart';
 import '../widget/desktop/minimized_scaler.dart';
@@ -56,7 +55,8 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
+import '/util/web/web.dart';
+
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
