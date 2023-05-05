@@ -52,7 +52,7 @@ class FileService extends DisposableService {
   /// [DateTime] of the last [_optimizeCache] executing.
   DateTime? _lastOptimization;
 
-  /// Files stored in the [cacheDirectory].
+  /// [Map] of the [File]s stored in the [cacheDirectory] and their sizes.
   static final Map<FileSystemEntity, int> _files = {};
 
   /// [Duration] ot the minimal delay between [_optimizeCache] executing.
