@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// Add hive storing all downloaded files? // next pulls?
-
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
