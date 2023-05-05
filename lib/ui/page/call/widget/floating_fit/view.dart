@@ -154,13 +154,55 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 ),
                 if (!widget.fit)
                   _FloatingPanel(
-                    c,
-                    constraints: constraints,
+                    c.left.value,
+                    c.top.value,
+                    c.right.value,
+                    c.bottom.value,
+                    floatingKey: c.floatingKey,
+                    width: c.width.value,
+                    height: c.height.value,
                     paneled: _paneled,
                     itemBuilder: widget.itemBuilder,
                     overlayBuilder: widget.overlayBuilder,
                     onManipulated: widget.onManipulated,
                     swap: _swap,
+                    onScaleStart: (d) {
+                      c.bottomShifted = null;
+
+                      c.left.value ??=
+                          c.size.width - c.width.value - (c.right.value ?? 0);
+                      c.top.value ??= c.size.height -
+                          c.height.value -
+                          (c.bottom.value ?? 0);
+
+                      c.right.value = null;
+                      c.bottom.value = null;
+
+                      if (d.pointerCount == 1) {
+                        c.dragged.value = true;
+                        c.calculatePanning(d.focalPoint);
+                        c.applyConstraints();
+                      } else if (d.pointerCount == 2) {
+                        c.unscaledSize = max(c.width.value, c.height.value);
+                        c.scaled.value = true;
+                        c.calculatePanning(d.focalPoint);
+                      }
+                    },
+                    onScaleUpdate: (d) {
+                      c.updateOffset(d.focalPoint);
+                      if (d.pointerCount == 2) {
+                        c.scaleFloating(d.scale);
+                      }
+
+                      c.applyConstraints();
+                    },
+                    onScaleEnd: (d) {
+                      c.dragged.value = false;
+                      c.scaled.value = false;
+                      c.unscaledSize = null;
+
+                      c.updateAttach();
+                    },
                   ),
               ],
             );
@@ -240,24 +282,55 @@ class _FloatingItem<T> {
 /// [Widget] which returns the visual representation of a floating panel.
 class _FloatingPanel<Object> extends StatelessWidget {
   const _FloatingPanel(
-    this.c, {
+    this.left,
+    this.top,
+    this.right,
+    this.bottom, {
     super.key,
-    required this.constraints,
     required this.paneled,
     required this.itemBuilder,
     required this.overlayBuilder,
+    required this.width,
+    required this.height,
+    this.floatingKey,
     this.onManipulated,
     this.swap,
+    this.onScaleStart,
+    this.onScaleUpdate,
+    this.onScaleEnd,
   });
 
-  /// [FloatingFitController] owning this [_FloatingPanel],
-  /// used for changing the state.
-  final FloatingFitController c;
+  /// Left position of the panel.
+  final double? left;
 
-  /// [BoxConstraints] that sets size and position limits for the widget.
-  final BoxConstraints constraints;
+  /// Top position of the panel.
+  final double? top;
 
-  /// [_FloatingItem] to put in a floating panel of this [FloatingFit].
+  /// Right position of the panel.
+  final double? right;
+
+  /// Bottom position of the panel.
+  final double? bottom;
+
+  /// Width of the panel.
+  final double width;
+
+  /// Height of the panel.
+  final double height;
+
+  /// [GlobalKey] used to uniquely identify the [_buildShadow].
+  final GlobalKey<State<StatefulWidget>>? floatingKey;
+
+  /// Callback function that is called when a scale operation starts.
+  final void Function(ScaleStartDetails)? onScaleStart;
+
+  /// Callback function that is called when a scale operation updates.
+  final void Function(ScaleUpdateDetails)? onScaleUpdate;
+
+  /// Callback function that is called when a scale operation ends.
+  final void Function(ScaleEndDetails)? onScaleEnd;
+
+  /// [_FloatingItem] to put in a floating panel of this [_FloatingPanel].
   final _FloatingItem<Object> paneled;
 
   /// Builder building the provided item.
@@ -277,9 +350,6 @@ class _FloatingPanel<Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      double width = c.width.value;
-      double height = c.height.value;
-
       return Positioned.fill(
         child: Stack(
           fit: StackFit.expand,
@@ -297,14 +367,14 @@ class _FloatingPanel<Object> extends StatelessWidget {
   /// Shadow that is displayed around the [_FloatingPanel].
   Widget _buildShadow() {
     return Positioned(
-      key: c.floatingKey,
-      left: c.left.value,
-      right: c.right.value,
-      top: c.top.value,
-      bottom: c.bottom.value,
+      key: floatingKey,
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
       child: Container(
-        width: c.width.value,
-        height: c.height.value,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           boxShadow: const [
@@ -322,10 +392,10 @@ class _FloatingPanel<Object> extends StatelessWidget {
   /// Background of the [_FloatingPanel].
   Widget _buildBackground(double width, double height) {
     return Positioned(
-      left: c.left.value,
-      right: c.right.value,
-      top: c.top.value,
-      bottom: c.bottom.value,
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
       child: SizedBox(
         width: width,
         height: height,
@@ -351,10 +421,10 @@ class _FloatingPanel<Object> extends StatelessWidget {
   /// Content of the [_FloatingPanel].
   Widget _buildPanel(double width, double height) {
     return Positioned(
-      left: c.left.value,
-      right: c.right.value,
-      top: c.top.value,
-      bottom: c.bottom.value,
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
       child: SizedBox(
         key: const Key('SecondaryView'),
         width: width,
@@ -383,50 +453,19 @@ class _FloatingPanel<Object> extends StatelessWidget {
   /// Gestures that can be used to control the [_FloatingPanel].
   Widget _buildGestureDetector(double width, double height) {
     return Positioned(
-      left: c.left.value,
-      right: c.right.value,
-      top: c.top.value,
-      bottom: c.bottom.value,
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
       child: Listener(
         onPointerDown: (_) => onManipulated?.call(true),
         onPointerUp: (_) => onManipulated?.call(false),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: swap,
-          onScaleStart: (d) {
-            c.bottomShifted = null;
-
-            c.left.value ??= c.size.width - width - (c.right.value ?? 0);
-            c.top.value ??= c.size.height - height - (c.bottom.value ?? 0);
-
-            c.right.value = null;
-            c.bottom.value = null;
-
-            if (d.pointerCount == 1) {
-              c.dragged.value = true;
-              c.calculatePanning(d.focalPoint);
-              c.applyConstraints();
-            } else if (d.pointerCount == 2) {
-              c.unscaledSize = max(width, height);
-              c.scaled.value = true;
-              c.calculatePanning(d.focalPoint);
-            }
-          },
-          onScaleUpdate: (d) {
-            c.updateOffset(d.focalPoint);
-            if (d.pointerCount == 2) {
-              c.scaleFloating(d.scale);
-            }
-
-            c.applyConstraints();
-          },
-          onScaleEnd: (d) {
-            c.dragged.value = false;
-            c.scaled.value = false;
-            c.unscaledSize = null;
-
-            c.updateAttach();
-          },
+          onScaleStart: onScaleStart,
+          onScaleUpdate: onScaleUpdate,
+          onScaleEnd: onScaleEnd,
           child: Container(
             width: width,
             height: height,

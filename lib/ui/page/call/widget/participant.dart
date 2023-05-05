@@ -385,7 +385,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
 /// [Participant] background decoration containing a border.
 class ParticipantDecoratorWidget extends StatelessWidget {
-  const ParticipantDecoratorWidget({Key? key}) : super(key: key);
+  const ParticipantDecoratorWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
