@@ -19,130 +19,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
-import '../controller.dart';
-import '../widget/animated_cliprrect.dart';
-import '../widget/participant.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
-
-/// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
-class AnimatedParticipantBox extends StatelessWidget {
-  const AnimatedParticipantBox(
-    this.e,
-    this.muted,
-    this.animated,
-    this.minimized, {
-    super.key,
-  });
-
-  /// [Participant] object that represents a separate call entity
-  /// participating in a call.
-  final Participant e;
-
-  /// Indicator that determines whether the participant's
-  /// sound is muted or not.
-  final bool muted;
-
-  /// Indicator that determines whether animation is turned on or off.
-  final bool animated;
-
-  /// Indicator that determines whether the widget is minimized or not.
-  final RxBool minimized;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedClipRRect(
-      key: Key(e.member.id.toString()),
-      borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
-      child: AnimatedContainer(
-        duration: 200.milliseconds,
-        decoration: BoxDecoration(
-          color: animated ? const Color(0xFF132131) : const Color(0x00132131),
-        ),
-        width: animated ? MediaQuery.of(context).size.width - 20 : null,
-        height: animated ? MediaQuery.of(context).size.height / 2 : null,
-        child: ParticipantStack(e, muted, animated, minimized),
-      ),
-    );
-  }
-}
-
-/// [Stack] of widgets to display a [Participant] entity participating
-/// in a call.
-class ParticipantStack extends StatelessWidget {
-  const ParticipantStack(
-    this.e,
-    this.muted,
-    this.animated,
-    this.minimized, {
-    super.key,
-  });
-
-  /// [Participant] object that represents a separate call entity
-  /// participating in a call.
-  final Participant e;
-
-  /// Indicator that determines whether the participant's
-  /// sound is muted or not.
-  final bool muted;
-
-  /// Indicator that determines whether animation is turned on or off.
-  final bool animated;
-
-  /// Indicator that determines whether the widget is minimized or not.
-  final RxBool minimized;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const ParticipantDecoratorWidget(),
-        IgnorePointer(
-          child: ParticipantWidget(
-            e,
-            offstageUntilDetermined: true,
-          ),
-        ),
-        ParticipantOverlayWidget(
-          e,
-          muted: muted,
-          hovered: animated,
-          preferBackdrop: !minimized.value,
-        ),
-      ],
-    );
-  }
-}
-
-/// [Widget] which displays a set of buttons in a row with a horizontal
-/// maximum width limit.
-class ConstrainedButtonRow extends StatelessWidget {
-  const ConstrainedButtonRow({
-    super.key,
-    this.children = const <Widget>[],
-  });
-
-  /// [Widget]'s that should be placed in the [ConstrainedButtonRow].
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 400),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ...children.map((e) => Expanded(child: e)).toList(),
-        ],
-      ),
-    );
-  }
-}
 
 /// [Widget] which builds a tile representation of the [CallController.chat].
 class ChatCardPreview extends StatelessWidget {
@@ -265,59 +148,5 @@ class ChatCardPreview extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-/// [Column] consisting of the [child] with the provided [description].
-class Description extends StatelessWidget {
-  const Description({
-    Key? key,
-    required this.child,
-    required this.description,
-  }) : super(key: key);
-
-  /// [Widget] that will be displayed along with the description.
-  final Widget child;
-
-  /// [Widget] that displays a description for the child widget.
-  final Widget description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        child,
-        const SizedBox(height: 6),
-        DefaultTextStyle(
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          child: description,
-        ),
-      ],
-    );
-  }
-}
-
-/// Wraps the [child] widget passed to it and adds margins to the right and left.
-class CenteredHorizontalPadding extends StatelessWidget {
-  const CenteredHorizontalPadding({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-
-  /// [Widget] that should be placed in the [CenteredHorizontalPadding].
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Center(child: child),
-    );
   }
 }

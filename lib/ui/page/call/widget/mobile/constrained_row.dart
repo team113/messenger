@@ -17,38 +17,25 @@
 
 import 'package:flutter/material.dart';
 
-/// [Scaffold] widget which combines all stackable content.
-class StackableScaffold extends StatelessWidget {
-  const StackableScaffold(
-    this.content,
-    this.ui,
-    this.overlay, {
+/// [Widget] which displays a set of buttons in a row with a horizontal
+/// maximum width limit.
+class ConstrainedRow extends StatelessWidget {
+  const ConstrainedRow({
     super.key,
+    this.children = const <Widget>[],
   });
 
-  /// List of [Widget] that make up the stackable content.
-  final List<Widget> content;
-
-  /// List of [Widget] that make up the user interface.
-  final List<Widget> ui;
-
-  /// List of [Widget] which will be displayed on top of the main content
-  /// on the screen.
-  final List<Widget> overlay;
+  /// [Widget]'s that should be placed in the [ConstrainedRow].
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF444444),
-      body: Stack(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ...content,
-          const MouseRegion(
-            opaque: false,
-            cursor: SystemMouseCursors.basic,
-          ),
-          ...ui.map((e) => ClipRect(child: e)),
-          ...overlay,
+          ...children.map((e) => Expanded(child: e)).toList(),
         ],
       ),
     );

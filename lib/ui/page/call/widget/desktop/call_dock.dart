@@ -1,17 +1,34 @@
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../themes.dart';
-import '../../../home/widget/animated_slider.dart';
-import '../../controller.dart';
 import '../conditional_backdrop.dart';
+import '/themes.dart';
+import '/ui/page/call/controller.dart';
+import '/ui/page/home/widget/animated_slider.dart';
 
-/// [Dock] which contains the [CallController.buttons].
-class DockWidget extends StatelessWidget {
-  const DockWidget({
+/// [CallDock] which contains the [CallController.buttons].
+class CallDock extends StatelessWidget {
+  const CallDock({
     super.key,
     required this.showBottomUi,
     required this.answer,
@@ -40,15 +57,15 @@ class DockWidget extends StatelessWidget {
   final Widget? declineButton;
 
   /// [Function] that is called when the mouse cursor enters the area
-  /// of this [DockWidget].
+  /// of this [CallDock].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// [Function] that is called when the mouse cursor moves in the area
-  /// of this [DockWidget].
+  /// of this [CallDock].
   final void Function(PointerHoverEvent)? onHover;
 
   /// [Function] that is called when the mouse cursor leaves the area
-  /// of this [DockWidget].
+  /// of this [CallDock].
   final void Function(PointerExitEvent)? onExit;
 
   /// Indicator whether the call is outgoing.

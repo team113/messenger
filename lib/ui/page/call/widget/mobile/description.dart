@@ -17,40 +17,37 @@
 
 import 'package:flutter/material.dart';
 
-/// [Scaffold] widget which combines all stackable content.
-class StackableScaffold extends StatelessWidget {
-  const StackableScaffold(
-    this.content,
-    this.ui,
-    this.overlay, {
-    super.key,
-  });
+/// [Column] consisting of the [child] with the provided [description].
+class Description extends StatelessWidget {
+  const Description({
+    Key? key,
+    required this.child,
+    required this.description,
+  }) : super(key: key);
 
-  /// List of [Widget] that make up the stackable content.
-  final List<Widget> content;
+  /// [Widget] that will be displayed along with the description.
+  final Widget child;
 
-  /// List of [Widget] that make up the user interface.
-  final List<Widget> ui;
-
-  /// List of [Widget] which will be displayed on top of the main content
-  /// on the screen.
-  final List<Widget> overlay;
+  /// [Widget] that displays a description for the child widget.
+  final Widget description;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF444444),
-      body: Stack(
-        children: [
-          ...content,
-          const MouseRegion(
-            opaque: false,
-            cursor: SystemMouseCursors.basic,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        child,
+        const SizedBox(height: 6),
+        DefaultTextStyle(
+          style: const TextStyle(
+            fontSize: 11,
+            color: Colors.white,
           ),
-          ...ui.map((e) => ClipRect(child: e)),
-          ...overlay,
-        ],
-      ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          child: description,
+        ),
+      ],
     );
   }
 }
