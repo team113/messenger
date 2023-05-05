@@ -268,6 +268,7 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    Uint8List? data,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async {
@@ -323,23 +324,27 @@ class PlatformUtilsImpl {
               file = File('$path/$name ($i)$extension');
             }
 
-            // Retry the downloading unless any other that `404` error is
-            // thrown.
-            await Backoff.run(
-              () async {
-                try {
-                  await dio.download(
-                    url,
-                    file!.path,
-                    onReceiveProgress: onReceiveProgress,
-                    cancelToken: cancelToken,
-                  );
-                } catch (e) {
-                  onError(e);
-                }
-              },
-              cancelToken,
-            );
+            if (data == null) {
+              // Retry the downloading unless any other that `404` error is
+              // thrown.
+              await Backoff.run(
+                () async {
+                  try {
+                    await dio.download(
+                      url,
+                      file!.path,
+                      onReceiveProgress: onReceiveProgress,
+                      cancelToken: cancelToken,
+                    );
+                  } catch (e) {
+                    onError(e);
+                  }
+                },
+                cancelToken,
+              );
+            } else {
+              await file.writeAsBytes(data);
+            }
           }
 
           return file;
@@ -360,23 +365,32 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name) async {
+  Future<void> saveToGallery(String url, String name, {Uint8List? data}) async {
     if (isMobile && !isWeb) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
-      await dio.download(url, path);
+      final File file = File(path);
+      if (data == null) {
+        await dio.download(url, path);
+      } else {
+        await file.writeAsBytes(data);
+      }
       await ImageGallerySaver.saveFile(path, name: name);
-      File(path).delete();
+      file.delete();
     }
   }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
-  Future<void> share(String url, String name) async {
-    final Directory temp = await getTemporaryDirectory();
-    final String path = '${temp.path}/$name';
-    await dio.download(url, path);
-    await Share.shareXFiles([XFile(path)]);
-    File(path).delete();
+  Future<void> share(String url, String name, {Uint8List? data}) async {
+    if (data == null) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await dio.download(url, path);
+      await Share.shareXFiles([XFile(path)]);
+      File(path).delete();
+    } else {
+      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+    }
   }
 
   /// Stores the provided [text] on the [Clipboard].

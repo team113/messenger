@@ -27,6 +27,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
+import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -1035,12 +1036,27 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
+      Uint8List? data;
+      if (FileService.exists(item.checksum)) {
+        data = await FileService.get(checksum: item.checksum);
+      }
+
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await PlatformUtils.download(
+          item.link,
+          item.name,
+          item.size,
+          data: data,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          await PlatformUtils.download(
+            item.link,
+            item.name,
+            item.size,
+            data: data,
+          );
         } else {
           rethrow;
         }
@@ -1059,12 +1075,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
+      Uint8List? data;
+      if (FileService.exists(item.checksum)) {
+        data = await FileService.get(checksum: item.checksum);
+      }
+
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
+        await PlatformUtils.saveToGallery(item.link, item.name, data: data);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
+          await PlatformUtils.saveToGallery(item.link, item.name, data: data);
         } else {
           rethrow;
         }
@@ -1083,12 +1104,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
+      Uint8List? data;
+      if (FileService.exists(item.checksum)) {
+        data = await FileService.get(checksum: item.checksum);
+      }
+
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(item.link, item.name, data: data);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(item.link, item.name, data: data);
         } else {
           rethrow;
         }
