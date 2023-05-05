@@ -27,6 +27,16 @@ import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
+
+import '../widget/desktop/call_dock.dart';
+import '../widget/desktop/launchpad.dart';
+import '../widget/desktop/minimized_scaler.dart';
+import '../widget/desktop/possible_container.dart';
+import '../widget/desktop/primary_view.dart';
+import '../widget/desktop/scaffold.dart';
+import '../widget/desktop/secondary_target.dart';
+import '../widget/desktop/secondary_view.dart';
+import '../widget/desktop/title_bar.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/participant.dart';
@@ -40,15 +50,6 @@ import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '../widget/desktop/call_dock.dart';
-import '/ui/page/call/widget/desktop/launchpad.dart';
-import '/ui/page/call/widget/desktop/minimized_scaler.dart';
-import '/ui/page/call/widget/desktop/possible_container.dart';
-import '/ui/page/call/widget/desktop/primary_view.dart';
-import '/ui/page/call/widget/desktop/scaffold.dart';
-import '/ui/page/call/widget/desktop/secondary_target.dart';
-import '/ui/page/call/widget/desktop/secondary_view.dart';
-import '/ui/page/call/widget/desktop/title_bar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -476,17 +477,21 @@ class DesktopCall extends StatelessWidget {
 
           // Dim the primary view in a non-active call.
           Obx(() {
-            return AnimatedOpacity(
-              duration: 200.milliseconds,
-              opacity: c.state.value == OngoingCallState.active ? 0.0 : 1.0,
-              child: IgnorePointer(
+            final Widget child;
+
+            if (c.state.value == OngoingCallState.active) {
+              child = const SizedBox();
+            } else {
+              child = IgnorePointer(
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
                   color: const Color(0x70000000),
                 ),
-              ),
-            );
+              );
+            }
+
+            return AnimatedSwitcher(duration: 200.milliseconds, child: child);
           }),
 
           Obx(
@@ -692,39 +697,39 @@ class DesktopCall extends StatelessWidget {
 
           // Display the more hint, if not dismissed.
           Obx(() {
-            return AnimatedOpacity(
+            return AnimatedSwitcher(
               duration: 150.milliseconds,
-              opacity: c.showDragAndDropButtonsHint && c.displayMore.value
-                  ? 1.0
-                  : 0.0,
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedDelayedSwitcher(
-                      delay: const Duration(milliseconds: 500),
-                      duration: const Duration(milliseconds: 200),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          width: 290,
-                          padding: EdgeInsets.only(
-                              top: 10 +
-                                  (WebUtils.isPopup
-                                      ? 0
-                                      : CallController.titleHeight)),
-                          child: HintWidget(
-                            text: 'label_hint_drag_n_drop_buttons'.l10n,
-                            onTap: () => c.showDragAndDropButtonsHint = false,
+              child: c.showDragAndDropButtonsHint && c.displayMore.value
+                  ? Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedDelayedSwitcher(
+                            delay: const Duration(milliseconds: 500),
+                            duration: const Duration(milliseconds: 200),
+                            child: Align(
+                              alignment: Alignment.topCenter,
+                              child: Container(
+                                width: 290,
+                                padding: EdgeInsets.only(
+                                    top: 10 +
+                                        (WebUtils.isPopup
+                                            ? 0
+                                            : CallController.titleHeight)),
+                                child: HintWidget(
+                                  text: 'label_hint_drag_n_drop_buttons'.l10n,
+                                  onTap: () =>
+                                      c.showDragAndDropButtonsHint = false,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          const Flexible(child: SizedBox(height: 420)),
+                        ],
                       ),
-                    ),
-                    const Flexible(child: SizedBox(height: 420)),
-                  ],
-                ),
-              ),
+                    )
+                  : const SizedBox(),
             );
           }),
         ];
@@ -733,15 +738,14 @@ class DesktopCall extends StatelessWidget {
           IgnorePointer(
             child: Obx(() {
               bool preferTitle = c.state.value != OngoingCallState.active;
-              return AnimatedOpacity(
+              return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                opacity: preferTitle &&
+                child: preferTitle &&
                         c.primary
                             .where((e) => e.video.value?.renderer.value != null)
                             .isNotEmpty
-                    ? 1.0
-                    : 0.0,
-                child: Container(color: const Color(0x55000000)),
+                    ? Container(color: const Color(0x55000000))
+                    : null,
               );
             }),
           ),
@@ -772,45 +776,46 @@ class DesktopCall extends StatelessWidget {
             final bool preferTitle =
                 c.state.value != OngoingCallState.active && !isOutgoing;
 
-            return AnimatedOpacity(
-              key: const Key('AnimatedOpacityCallTitle'),
+            return AnimatedSwitcher(
+              key: const Key('AnimatedSwitcherCallTitle'),
               duration: const Duration(milliseconds: 200),
-              opacity: preferTitle ? 1.0 : 0.0,
-              child: Align(
-                key: const Key('CallTitlePadding'),
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: 10,
-                    right: 10,
-                    top: c.size.height * 0.05,
-                  ),
-                  child: CallTitle(
-                    c.me.id.userId,
-                    chat: c.chat.value?.chat.value,
-                    title: c.chat.value?.title.value,
-                    avatar: c.chat.value?.avatar.value,
-                    withDots: c.state.value != OngoingCallState.active &&
-                        (c.state.value == OngoingCallState.joining ||
-                            isOutgoing),
-                    state: c.state.value == OngoingCallState.active
-                        ? c.duration.value
-                            .toString()
-                            .split('.')
-                            .first
-                            .padLeft(8, '0')
-                        : c.state.value == OngoingCallState.joining
-                            ? 'label_call_joining'.l10n
-                            : isOutgoing
-                                ? isDialog
-                                    ? null
-                                    : 'label_call_connecting'.l10n
-                                : c.withVideo == true
-                                    ? 'label_video_call'.l10n
-                                    : 'label_audio_call'.l10n,
-                  ),
-                ),
-              ),
+              child: preferTitle
+                  ? Align(
+                      key: const Key('CallTitlePadding'),
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          top: c.size.height * 0.05,
+                        ),
+                        child: CallTitle(
+                          c.me.id.userId,
+                          chat: c.chat.value?.chat.value,
+                          title: c.chat.value?.title.value,
+                          avatar: c.chat.value?.avatar.value,
+                          withDots: c.state.value != OngoingCallState.active &&
+                              (c.state.value == OngoingCallState.joining ||
+                                  isOutgoing),
+                          state: c.state.value == OngoingCallState.active
+                              ? c.duration.value
+                                  .toString()
+                                  .split('.')
+                                  .first
+                                  .padLeft(8, '0')
+                              : c.state.value == OngoingCallState.joining
+                                  ? 'label_call_joining'.l10n
+                                  : isOutgoing
+                                      ? isDialog
+                                          ? null
+                                          : 'label_call_connecting'.l10n
+                                      : c.withVideo == true
+                                          ? 'label_video_call'.l10n
+                                          : 'label_audio_call'.l10n,
+                        ),
+                      ),
+                    )
+                  : Container(key: UniqueKey()),
             );
           }),
 
@@ -1084,77 +1089,81 @@ class DesktopCall extends StatelessWidget {
                         c.hoveredRenderer.value = null;
                         c.isCursorHidden.value = false;
                       },
-                      child: AnimatedOpacity(
+                      child: AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        opacity: c.draggedRenderer.value == data.participant
-                            ? 0.0
-                            : 1.0,
-                        child: ContextMenuRegion(
-                          key: ObjectKey(participant),
-                          preventContextMenu: true,
-                          actions: [
-                            ContextMenuButton(
-                              label: 'btn_call_center'.l10n,
-                              onPressed: () => c.center(participant),
-                            ),
-                            if (participant.member.id != c.me.id) ...[
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
-                                ContextMenuButton(
-                                  label:
-                                      participant.video.value?.renderer.value !=
-                                              null
-                                          ? 'btn_call_disable_video'.l10n
-                                          : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                ),
-                              if (participant.audio.value?.direction.value
-                                      .isEmitting ??
-                                  false)
-                                ContextMenuButton(
-                                  label: (participant.audio.value?.direction
-                                              .value.isEnabled ==
-                                          true)
-                                      ? 'btn_call_disable_audio'.l10n
-                                      : 'btn_call_enable_audio'.l10n,
-                                  onPressed: () =>
-                                      c.toggleAudioEnabled(participant),
-                                ),
-                              if (participant.member.isRedialing.isFalse)
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatCallMember(
-                                    participant.member.id.userId,
+                        child: c.draggedRenderer.value == data.participant
+                            ? const SizedBox()
+                            : ContextMenuRegion(
+                                key: ObjectKey(participant),
+                                preventContextMenu: true,
+                                actions: [
+                                  ContextMenuButton(
+                                    label: 'btn_call_center'.l10n,
+                                    onPressed: () => c.center(participant),
+                                  ),
+                                  if (participant.member.id != c.me.id) ...[
+                                    if (participant.video.value?.direction.value
+                                            .isEmitting ??
+                                        false)
+                                      ContextMenuButton(
+                                        label: participant.video.value?.renderer
+                                                    .value !=
+                                                null
+                                            ? 'btn_call_disable_video'.l10n
+                                            : 'btn_call_enable_video'.l10n,
+                                        onPressed: () =>
+                                            c.toggleVideoEnabled(participant),
+                                      ),
+                                    if (participant.audio.value?.direction.value
+                                            .isEmitting ??
+                                        false)
+                                      ContextMenuButton(
+                                        label: (participant
+                                                    .audio
+                                                    .value
+                                                    ?.direction
+                                                    .value
+                                                    .isEnabled ==
+                                                true)
+                                            ? 'btn_call_disable_audio'.l10n
+                                            : 'btn_call_enable_audio'.l10n,
+                                        onPressed: () =>
+                                            c.toggleAudioEnabled(participant),
+                                      ),
+                                    if (participant.member.isRedialing.isFalse)
+                                      ContextMenuButton(
+                                        label:
+                                            'btn_call_remove_participant'.l10n,
+                                        onPressed: () => c.removeChatCallMember(
+                                          participant.member.id.userId,
+                                        ),
+                                      ),
+                                  ] else ...[
+                                    ContextMenuButton(
+                                      label: c.videoState.value.isEnabled
+                                          ? 'btn_call_video_off'.l10n
+                                          : 'btn_call_video_on'.l10n,
+                                      onPressed: c.toggleVideo,
+                                    ),
+                                    ContextMenuButton(
+                                      label: c.audioState.value.isEnabled
+                                          ? 'btn_call_audio_off'.l10n
+                                          : 'btn_call_audio_on'.l10n,
+                                      onPressed: c.toggleAudio,
+                                    ),
+                                  ],
+                                ],
+                                child: IgnorePointer(
+                                  child: ParticipantOverlayWidget(
+                                    participant,
+                                    key: ObjectKey(participant),
+                                    muted: muted,
+                                    hovered: isHovered,
+                                    preferBackdrop: !c.minimized.value ||
+                                        c.fullscreen.value,
                                   ),
                                 ),
-                            ] else ...[
-                              ContextMenuButton(
-                                label: c.videoState.value.isEnabled
-                                    ? 'btn_call_video_off'.l10n
-                                    : 'btn_call_video_on'.l10n,
-                                onPressed: c.toggleVideo,
                               ),
-                              ContextMenuButton(
-                                label: c.audioState.value.isEnabled
-                                    ? 'btn_call_audio_off'.l10n
-                                    : 'btn_call_audio_on'.l10n,
-                                onPressed: c.toggleAudio,
-                              ),
-                            ],
-                          ],
-                          child: IgnorePointer(
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
-                            ),
-                          ),
-                        ),
                       ),
                     );
                   });
@@ -1172,64 +1181,70 @@ class DesktopCall extends StatelessWidget {
                     (c.focused.isEmpty &&
                         c.primary.length + c.secondary.length > 1));
 
-            return AnimatedOpacity(
+            return AnimatedSwitcher(
               duration: 150.milliseconds,
-              opacity: c.showDragAndDropVideosHint && mayDragVideo ? 1.0 : 0.0,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: c.secondary.isNotEmpty &&
-                          c.secondaryAlignment.value == Alignment.topCenter
-                      ? 10 + c.secondaryHeight.value
-                      : 10,
-                  right: c.secondary.isNotEmpty &&
-                          c.secondaryAlignment.value == Alignment.centerRight
-                      ? 10 + c.secondaryWidth.value
-                      : 10,
-                ),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: SizedBox(
-                    width: 320,
-                    child: HintWidget(
-                      text: 'label_hint_drag_n_drop_video'.l10n,
-                      onTap: () => c.showDragAndDropVideosHint = false,
-                    ),
-                  ),
-                ),
-              ),
+              child: c.showDragAndDropVideosHint && mayDragVideo
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                        top: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.topCenter
+                            ? 10 + c.secondaryHeight.value
+                            : 10,
+                        right: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerRight
+                            ? 10 + c.secondaryWidth.value
+                            : 10,
+                      ),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: SizedBox(
+                          width: 320,
+                          child: HintWidget(
+                            text: 'label_hint_drag_n_drop_video'.l10n,
+                            onTap: () => c.showDragAndDropVideosHint = false,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             );
           }),
 
           // If there's any error to show, display it.
           Obx(() {
-            return AnimatedOpacity(
+            return AnimatedSwitcher(
               duration: 150.milliseconds,
-              opacity: c.errorTimeout.value != 0 ? 1.0 : 0.0,
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.topCenter
-                        ? 10 + c.secondaryHeight.value
-                        : 10,
-                    right: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.centerRight
-                        ? 10 + c.secondaryWidth.value
-                        : 10,
-                  ),
-                  child: SizedBox(
-                    width: 320,
-                    child: HintWidget(
-                      text: '${c.error}.',
-                      onTap: () {
-                        c.errorTimeout.value = 0;
-                      },
-                      isError: true,
-                    ),
-                  ),
-                ),
-              ),
+              child: c.errorTimeout.value != 0
+                  ? Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.topCenter
+                              ? 10 + c.secondaryHeight.value
+                              : 10,
+                          right: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerRight
+                              ? 10 + c.secondaryWidth.value
+                              : 10,
+                        ),
+                        child: SizedBox(
+                          width: 320,
+                          child: HintWidget(
+                            text: '${c.error}.',
+                            onTap: () {
+                              c.errorTimeout.value = 0;
+                            },
+                            isError: true,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             );
           }),
 
