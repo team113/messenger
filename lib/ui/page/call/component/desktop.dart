@@ -55,8 +55,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web.dart';
-
+import '/util/web/non_web.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
