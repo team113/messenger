@@ -229,7 +229,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
               renderer: renderer,
               framelessBuilder: widget.framelessBuilder,
               video: video,
-              waitTilSizeDetermined: () => _waitTilSizeDetermined(),
+              waitTilSizeDetermined: _waitTilSizeDetermined,
             ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
