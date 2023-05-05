@@ -20,6 +20,7 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
@@ -151,13 +152,14 @@ class FileService extends DisposableService {
 
     return Future.sync(() async {
       File? file;
-      if (checksum != null) {
-        if (!PlatformUtils.isWeb) {
-          final Directory cache = await cacheDirectory;
-          file = File('${cache.path}/$checksum');
+      if (checksum != null && !PlatformUtils.isWeb) {
+        final Directory cache = await cacheDirectory;
+        file = File('${cache.path}/$checksum');
 
-          if (await file.exists()) {
-            return file.readAsBytes();
+        if (await file.exists()) {
+          final Uint8List bytes = await file.readAsBytes();
+          if (sha256.convert(bytes).toString() == checksum) {
+            return bytes;
           }
         }
       }
@@ -189,11 +191,11 @@ class FileService extends DisposableService {
           cancelToken,
         );
 
-        Future.sync(() async {
-          if (checksum != null) {
-            FIFOCache.set(checksum, data);
-          }
+        if (checksum != null) {
+          FIFOCache.set(checksum, data);
+        }
 
+        Future.sync(() async {
           if (file != null) {
             await file.writeAsBytes(data);
           }
@@ -207,7 +209,8 @@ class FileService extends DisposableService {
   }
 
   /// Saves the provided [data] to the [FIFOCache] and to the [cacheDirectory].
-  static Future<void> save(Uint8List data, String checksum) async {
+  static Future<void> save(Uint8List data) async {
+    String checksum = sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
 
     final Directory cache = await cacheDirectory;
