@@ -20,10 +20,10 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -68,58 +68,62 @@ class FileService extends DisposableService {
 
   @override
   void onInit() async {
-    final Directory cache = await cacheDirectory;
+    try {
+      final Directory cache = await cacheDirectory;
 
-    cacheSubscription = cache.list(recursive: true).listen(
-      (FileSystemEntity file) async {
-        final FileStat stat = await file.stat();
-        if (stat.type != FileSystemEntityType.directory) {
-          cacheSize.value += stat.size;
-        }
-        _files[file] = stat.size;
-      },
-      onDone: () {
-        _optimizeCache();
-        cacheSubscription?.cancel();
-        cacheSubscription = null;
-      },
-    );
-
-    cacheChangesSubscription =
-        cache.watch(recursive: true).listen((FileSystemEvent e) async {
-      if (e.isDirectory) {
-        return;
-      }
-
-      switch (e.type) {
-        case FileSystemEvent.create:
-          // Wait until all bytes have been written to the file to get the
-          // actual size.
-          await Future.delayed(30.seconds);
-          final File file = File(e.path);
+      cacheSubscription = cache.list(recursive: true).listen(
+        (FileSystemEntity file) async {
           final FileStat stat = await file.stat();
-
-          // If size == -1 it's mean that file not exist.
-          if (stat.size != -1) {
+          if (stat.type != FileSystemEntityType.directory) {
             cacheSize.value += stat.size;
-            _files[File(e.path)] = stat.size;
           }
-          break;
-        case FileSystemEvent.delete:
-          _files.removeWhere((file, size) {
-            if (file.path == e.path) {
-              cacheSize.value -= size;
-              return true;
-            }
-            return false;
-          });
-          break;
-        default:
-          return;
-      }
+          _files[file] = stat.size;
+        },
+        onDone: () {
+          _optimizeCache();
+          cacheSubscription?.cancel();
+          cacheSubscription = null;
+        },
+      );
 
-      _optimizeCache();
-    });
+      cacheChangesSubscription =
+          cache.watch(recursive: true).listen((FileSystemEvent e) async {
+        if (e.isDirectory) {
+          return;
+        }
+
+        switch (e.type) {
+          case FileSystemEvent.create:
+            // Wait until all bytes have been written to the file to get the
+            // actual size.
+            await Future.delayed(30.seconds);
+            final File file = File(e.path);
+            final FileStat stat = await file.stat();
+
+            // If size == -1 it's mean that file not exist.
+            if (stat.size != -1) {
+              cacheSize.value += stat.size;
+              _files[File(e.path)] = stat.size;
+            }
+            break;
+          case FileSystemEvent.delete:
+            _files.removeWhere((file, size) {
+              if (file.path == e.path) {
+                cacheSize.value -= size;
+                return true;
+              }
+              return false;
+            });
+            break;
+          default:
+            return;
+        }
+
+        _optimizeCache();
+      });
+    } on MissingPluginException {
+      // No-op.
+    }
     super.onInit();
   }
 
