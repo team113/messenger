@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
+// ignore_for_file: implementation_imports, must_be_immutable
 
 import 'dart:async';
 
@@ -71,7 +71,7 @@ class _MobileControlsState extends State<MobileControls>
   Timer? _showAfterExpandCollapseTimer;
 
   /// Indicator whether the video progress bar is being dragged.
-  bool _dragging = false;
+  final bool _dragging = false;
 
   @override
   void dispose() {

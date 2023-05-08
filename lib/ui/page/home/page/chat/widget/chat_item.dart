@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: must_be_immutable
+
 import 'dart:async';
 import 'dart:math';
 

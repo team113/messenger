@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
+// ignore_for_file: implementation_imports, must_be_immutable
 
 import 'dart:async';
 import 'dart:ui';
@@ -92,9 +92,6 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Latest [VideoPlayerValue] value.
   late VideoPlayerValue _latestValue;
 
-  /// Latest volume value.
-  double? _latestVolume;
-
   /// [Timer] for hiding the user interface after a timeout.
   Timer? _hideTimer;
 
@@ -108,7 +105,7 @@ class _DesktopControlsState extends State<DesktopControls>
   Timer? _showAfterExpandCollapseTimer;
 
   /// Indicator whether the video progress bar is being dragged.
-  bool _dragging = false;
+  final bool _dragging = false;
 
   @override
   void initState() {
