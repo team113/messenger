@@ -705,9 +705,7 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             final List<LocalMediaTrack> track = await MediaUtils.getTracks(
-              screen: TrackPreferences(
-                device: screenDevice.value,
-              ),
+              screen: TrackPreferences(device: screenDevice.value),
             );
             if (track.isNotEmpty) {
               _addLocalTrack(track.first);
@@ -758,9 +756,7 @@ class OngoingCall {
           try {
             await _room?.enableAudio();
             final List<LocalMediaTrack> track = await MediaUtils.getTracks(
-              audio: TrackPreferences(
-                device: audioDevice.value,
-              ),
+              audio: TrackPreferences(device: audioDevice.value),
             );
             if (track.isNotEmpty) {
               _addLocalTrack(track.first);
