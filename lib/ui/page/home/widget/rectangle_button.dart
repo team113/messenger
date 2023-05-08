@@ -27,6 +27,7 @@ class RectangleButton extends StatelessWidget {
     this.onPressed,
     required this.label,
     this.trailingColor,
+    this.trailing,
   });
 
   /// Label of this [RectangleButton].
@@ -41,6 +42,8 @@ class RectangleButton extends StatelessWidget {
 
   /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
+
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +71,9 @@ class RectangleButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              if (trailingColor == null)
+              if (trailing != null)
+                trailing!
+              else if (trailingColor == null)
                 SizedBox(
                   width: 20,
                   height: 20,

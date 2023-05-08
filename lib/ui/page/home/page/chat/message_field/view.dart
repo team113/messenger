@@ -239,10 +239,7 @@ class MessageFieldView extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
-                          CustomBoxShadow(
-                            color: color,
-                            blurRadius: elevation,
-                          ),
+                          CustomBoxShadow(color: color, blurRadius: elevation),
                         ],
                       ),
                       child: child,
@@ -1021,13 +1018,15 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               final Widget child;
 
-              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
+              if (c.hoveredReply.value == item ||
+                  PlatformUtils.isMobile ||
+                  true) {
                 child = WidgetButton(
                   key: const Key('CancelReplyButton'),
                   onPressed: onClose,
                   child: Container(
-                    width: 15,
-                    height: 15,
+                    width: 16,
+                    height: 16,
                     margin: const EdgeInsets.only(right: 4, top: 4),
                     child: Container(
                       key: const Key('Close'),
@@ -1038,8 +1037,8 @@ class MessageFieldView extends StatelessWidget {
                       alignment: Alignment.center,
                       child: SvgImage.asset(
                         'assets/icons/close_primary.svg',
-                        width: 7,
-                        height: 7,
+                        width: 8,
+                        height: 8,
                       ),
                     ),
                   ),

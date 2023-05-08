@@ -123,7 +123,10 @@ class StatusView extends StatelessWidget {
                           child: RectangleButton(
                             selected: c.presence.value == e,
                             label: e.localizedString() ?? '',
-                            onPressed: () => c.presence.value = e,
+                            onPressed: () {
+                              c.presence.value = e;
+                              Navigator.of(context).pop();
+                            },
                             trailingColor: e.getColor(),
                           ),
                         );

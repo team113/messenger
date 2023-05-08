@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -148,6 +149,8 @@ class _SelectorState<T> extends State<Selector<T>> {
   /// [Worker] debouncing the [_selected] value, if any debounce is specified.
   Worker? _debounce;
 
+  final GlobalKey _itemsKey = GlobalKey();
+
   @override
   void initState() {
     _selected = Rx(widget.initial ?? widget.items.first);
@@ -159,6 +162,14 @@ class _SelectorState<T> extends State<Selector<T>> {
         time: widget.debounce,
       );
     }
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    );
 
     super.initState();
   }
@@ -193,21 +204,30 @@ class _SelectorState<T> extends State<Selector<T>> {
         final box = keyContext.findRenderObject() as RenderBox?;
         offset = box?.localToGlobal(Offset.zero) ?? offset;
 
+        Offset? size;
+
+        final itemsContext = _itemsKey.currentContext;
+        if (itemsContext != null) {
+          final box = itemsContext.findRenderObject() as RenderBox?;
+          size = box?.localToGlobal(Offset.zero) ?? offset;
+        }
+
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0) / 2,
             offset.dy,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - (size?.dx ?? widget.width) / 2;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0),
-            offset.dy,
+            offset.dy - widget.margin.bottom,
           );
 
-          left = offset.dx - widget.width;
+          // left = offset.dx - widget.width;
+          right = constraints.maxWidth - offset.dx;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
@@ -317,6 +337,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                   ],
                 ),
                 child: IntrinsicWidth(
+                  key: _itemsKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: widget.items.mapIndexed(button).toList(),

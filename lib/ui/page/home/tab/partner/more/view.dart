@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -100,6 +101,26 @@ class PartnerMoreView extends StatelessWidget {
   }
 
   Widget _transactions(BuildContext context, PartnerMoreController c) {
+    return Column(
+      children: [true, false].map((e) {
+        return Obx(() {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: RectangleButton(
+              selected: c.displayTransactions == e,
+              label: e
+                  ? 'label_transactions_enabled'.l10n
+                  : 'label_transactions_disabled'.l10n,
+              onPressed: () {
+                c.setDisplayTransactions(e);
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }).toList(),
+    );
+
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,

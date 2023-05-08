@@ -231,7 +231,7 @@ class ChatController extends GetxController {
       displayPinned.value = min(displayPinned.value, pinned.length - 1);
     }
 
-    allowPinnedHiding.value = false;
+    // allowPinnedHiding.value = false;
   }
 
   LoaderElement? _topLoader;

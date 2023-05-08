@@ -870,7 +870,7 @@ class ContactsTabView extends StatelessWidget {
           Expanded(
             child: OutlinedRoundedButton(
               title: Text(
-                'btn_close'.l10n,
+                'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: const TextStyle(color: Colors.black),

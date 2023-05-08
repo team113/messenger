@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -54,7 +55,7 @@ class ChatsMoreView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'label_audio_notifications'.l10n,
+                  'label_your_direct_link'.l10n,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge
@@ -68,11 +69,11 @@ class ChatsMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  _mute(context, c),
-                  const SizedBox(height: 21),
-                  _header(context, 'label_your_direct_link'.l10n),
-                  const SizedBox(height: 4),
                   _link(context, c),
+                  const SizedBox(height: 27),
+                  _header(context, 'label_audio_notifications'.l10n),
+                  // const SizedBox(height: 4),
+                  _mute(context, c),
                 ],
               ),
             ),
@@ -104,6 +105,31 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
+    return Column(
+      children: [true, false].map((e) {
+        return Obx(() {
+          final bool selected = (c.myUser.value?.muted == null) == e;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: RectangleButton(
+              selected: selected,
+              label: e ? 'label_enabled'.l10n : 'label_disabled'.l10n,
+              onPressed: () {
+                c.toggleMute(e);
+                Navigator.of(context).pop();
+              },
+              // trailing: SvgImage.asset(
+              //   'assets/icons/chat_${e ? '' : 'un'}muted${selected ? '_white' : ''}.svg',
+              //   height: 15,
+              // ),
+              // trailingColor: e.getColor(),
+            ),
+          );
+        });
+      }).toList(),
+    );
+
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,

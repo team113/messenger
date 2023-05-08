@@ -78,6 +78,8 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey profileKey = GlobalKey();
 
+   final GlobalKey chatsKey = GlobalKey();
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 

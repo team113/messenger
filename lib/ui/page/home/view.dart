@@ -22,6 +22,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -45,6 +47,7 @@ import 'tab/partner/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
 import 'tab/balance/view.dart';
+import 'tab/publics/more/view.dart';
 import 'tab/publics/view.dart';
 import 'widget/animated_button.dart';
 import 'widget/animated_slider.dart';
@@ -227,12 +230,16 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
-                                child: Transform.translate(
-                                  offset: const Offset(0, 1),
-                                  child: SvgImage.asset(
-                                    'assets/icons/publics13.svg',
-                                    width: 32,
-                                    height: 31,
+                                child: RmbDetector(
+                                  onPressed: () =>
+                                      PublicsMoreView.show(context),
+                                  child: Transform.translate(
+                                    offset: const Offset(0, 1),
+                                    child: SvgImage.asset(
+                                      'assets/icons/publics13.svg',
+                                      width: 32,
+                                      height: 31,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -257,6 +264,25 @@ class _HomeViewState extends State<HomeView> {
                                     HapticFeedback.lightImpact();
                                     ChatsMoreView.show(context);
                                   },
+                                  // child: ContextMenuRegion(
+                                  //   selector: c.chatsKey,
+                                  //   alignment: Alignment.bottomCenter,
+                                  //   margin: const EdgeInsets.only(
+                                  //     bottom: 4,
+                                  //     right: 0,
+                                  //   ),
+                                  //   actions: [
+                                  //     ContextMenuButton(
+                                  //       label: 'Включить звук',
+                                  //       onPressed: () {},
+                                  //       // trailing: const Icon(Icons.group_outlined),
+                                  //     ),
+                                  //     // ContextMenuButton(
+                                  //     //   label: 'Отключить звук',
+                                  //     //   onPressed: () {},
+                                  //     //   // trailing: const Icon(Icons.select_all),
+                                  //     // ),
+                                  //   ],
                                   child: Obx(() {
                                     final Widget child;
 
@@ -280,6 +306,7 @@ class _HomeViewState extends State<HomeView> {
                                     }
 
                                     return AnimatedSwitcher(
+                                      key: c.chatsKey,
                                       duration: 200.milliseconds,
                                       child: child,
                                     );
