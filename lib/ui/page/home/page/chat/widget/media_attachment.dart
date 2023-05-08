@@ -144,11 +144,26 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        return VideoThumbnail.url(
-          url: attachment.original.url,
-          checksum: attachment.original.checksum,
-          height: widget.height,
-          onError: widget.onError,
+        return Stack(
+          children: [
+            VideoThumbnail.url(
+              url: attachment.original.url,
+              checksum: attachment.original.checksum,
+              height: widget.height,
+              onError: widget.onError,
+            ),
+            Obx(() {
+              if ((attachment as FileAttachment).isDownloading) {
+                return const Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Icon(Icons.download),
+                );
+              } else {
+                return const SizedBox();
+              }
+            }),
+          ],
         );
       }
     }

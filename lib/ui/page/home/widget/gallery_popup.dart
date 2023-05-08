@@ -27,6 +27,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
+import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -1036,11 +1037,21 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await FileService.download(
+          item.link,
+          item.checksum,
+          item.name,
+          item.size,
+        ).future;
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          await FileService.download(
+            item.link,
+            item.checksum,
+            item.name,
+            item.size,
+          ).future;
         } else {
           rethrow;
         }

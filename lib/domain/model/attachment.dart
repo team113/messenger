@@ -25,7 +25,9 @@ import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
+import '/domain/service/file.dart';
 import '/util/new_type.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'file.dart';
 import 'native_file.dart';
@@ -93,20 +95,27 @@ class FileAttachment extends Attachment {
   @HiveField(3)
   String? path;
 
-  /// [DownloadStatus] of this [FileAttachment].
-  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notStarted);
+  /// [Downloading] of this [FileAttachment].
+  Rx<Downloading?> downloading = Rx<Downloading?>(null);
 
-  /// Download progress of this [FileAttachment].
-  RxDouble progress = RxDouble(0);
-
-  /// [CancelToken] canceling the download of this [FileAttachment], if any.
-  CancelToken? _token;
+  /// [StreamSubscription] for the [FileService.downloads] changes.
+  StreamSubscription? _downloadsSubscription;
 
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
+  /// Indicator whether this [FileAttachment] is downloaded.
+  final RxBool _downloaded = RxBool(false);
+
+  /// Return [DownloadStatus] of this [FileAttachment].
+  DownloadStatus get downloadStatus =>
+      downloading.value?.status.value ??
+      (_downloaded.value
+          ? DownloadStatus.isFinished
+          : DownloadStatus.notStarted);
+
   /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
+  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
 
   // TODO: Compare hashes.
   /// Initializes the [downloadStatus].
@@ -117,10 +126,39 @@ class FileAttachment extends Attachment {
 
     _initialized = true;
 
+    if (original.checksum != null) {
+      downloading.value = FileService.downloads.firstWhereOrNull((e) {
+        return e.checksum == original.checksum;
+      });
+    }
+
+    if (downloading.value == null) {
+      _downloadsSubscription = FileService.downloads.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            if (e.element.checksum == original.checksum) {
+              downloading.value = e.element;
+            }
+            break;
+
+          case OperationKind.removed:
+            // No-op.
+            break;
+
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      });
+    } else if (downloading.value!.status.value == DownloadStatus.isFinished) {
+      path = downloading.value!.file?.path;
+      _downloaded.value = true;
+    }
+
     if (path != null) {
       File file = File(path!);
       if (await file.exists() && await file.length() == original.size) {
-        downloadStatus.value = DownloadStatus.isFinished;
+        _downloaded.value = true;
         return;
       }
     }
@@ -132,39 +170,43 @@ class FileAttachment extends Attachment {
     );
 
     if (file != null) {
-      downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
+      _downloaded.value = true;
     } else {
-      downloadStatus.value = DownloadStatus.notStarted;
-      path = null;
+      if (path != null) {
+        path = null;
+      }
     }
+  }
+
+  /// Cancels the [_downloadsSubscription].
+  void dispose() {
+    _downloadsSubscription?.cancel();
   }
 
   /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
-      downloadStatus.value = DownloadStatus.inProgress;
-      progress.value = 0;
+      if (downloading.value == null) {
+        downloading.value = FileService.download(
+          original.url,
+          original.checksum,
+          filename,
+          original.size,
+        );
+      } else {
+        downloading.value!.start(original.url);
+      }
 
-      _token = CancelToken();
+      File? file = await downloading.value!.future;
 
-      File? file = await PlatformUtils.download(
-        original.url,
-        filename,
-        original.size,
-        onReceiveProgress: (count, total) => progress.value = count / total,
-        cancelToken: _token,
-      );
-
-      if (_token?.isCancelled == true || file == null) {
-        downloadStatus.value = DownloadStatus.notStarted;
+      if (file == null) {
         path = null;
       } else {
-        downloadStatus.value = DownloadStatus.isFinished;
+        _downloaded.value = true;
         path = file.path;
       }
     } catch (_) {
-      downloadStatus.value = DownloadStatus.notStarted;
       path = null;
 
       rethrow;
@@ -190,7 +232,7 @@ class FileAttachment extends Attachment {
   /// Cancels the downloading of this [FileAttachment].
   void cancelDownload() {
     try {
-      _token?.cancel();
+      downloading.value?.cancel();
     } on DioError catch (e) {
       if (e.type != DioErrorType.cancel) {
         rethrow;
@@ -234,16 +276,4 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
-}
-
-/// Download status of a [FileAttachment].
-enum DownloadStatus {
-  /// Download has not yet started.
-  notStarted,
-
-  /// Download is in progress.
-  inProgress,
-
-  /// Downloaded successfully.
-  isFinished,
 }

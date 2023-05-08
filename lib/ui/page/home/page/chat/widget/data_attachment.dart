@@ -21,6 +21,7 @@ import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
@@ -53,7 +54,7 @@ class _DataAttachmentState extends State<DataAttachment> {
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
@@ -78,8 +79,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading.value?.progress.value ?? 0,
+                      e.downloading.value?.progress.value ?? 0,
                     ],
                   ),
                 ),

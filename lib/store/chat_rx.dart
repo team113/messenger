@@ -218,7 +218,7 @@ class HiveRxChat extends RxChat {
       _initLocalSubscription();
 
       if (!PlatformUtils.isWeb) {
-        _initAttachments();
+        _initAllAttachments();
       }
 
       status.value = RxStatus.success();
@@ -237,6 +237,7 @@ class HiveRxChat extends RxChat {
       _remoteSubscription?.close(immediate: true);
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
+      _disposeAllAttachments();
       await _local.close();
       status.value = RxStatus.empty();
       _worker?.dispose();
@@ -666,26 +667,56 @@ class HiveRxChat extends RxChat {
   /// Removes all [ChatItem]s from the [messages].
   Future<void> clear() => _local.clear();
 
-  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
-  Future<void> _initAttachments() async {
+  /// Initializes [FileAttachment]s of the [messages].
+  Future<void> _initAllAttachments() async {
     final List<Future> futures = [];
 
     for (ChatItem item in messages.map((e) => e.value)) {
-      if (item is ChatMessage) {
+      futures.add(_initAttachments(item));
+    }
+
+    await Future.wait(futures);
+  }
+
+  /// Invokes the [FileAttachment.init] in the provided [item].
+  Future<void> _initAttachments(ChatItem item) async {
+    final List<Future> futures = [];
+
+    if (item is ChatMessage) {
+      futures.addAll(
+        item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+      );
+    } else if (item is ChatForward) {
+      ChatItemQuote nested = item.quote;
+      if (nested is ChatMessageQuote) {
         futures.addAll(
-          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+          nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
         );
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          futures.addAll(
-            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
-          );
-        }
       }
     }
 
     await Future.wait(futures);
+  }
+
+  /// Disposes [FileAttachment]s of the [messages].
+  void _disposeAllAttachments() async {
+    for (ChatItem item in messages.map((e) => e.value)) {
+      _disposeAttachments(item);
+    }
+  }
+
+  /// Invokes the [FileAttachment.dispose] in the provided [item].
+  void _disposeAttachments(ChatItem item) async {
+    if (item is ChatMessage) {
+      item.attachments.whereType<FileAttachment>().forEach((e) => e.dispose());
+    } else if (item is ChatForward) {
+      ChatItemQuote nested = item.quote;
+      if (nested is ChatMessageQuote) {
+        nested.attachments
+            .whereType<FileAttachment>()
+            .forEach((e) => e.dispose());
+      }
+    }
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
@@ -802,27 +833,16 @@ class HiveRxChat extends RxChat {
       int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
         if (i != -1) {
-          messages.removeAt(i);
+          final Rx<ChatItem> item = messages.removeAt(i);
+          _disposeAttachments(item.value);
         }
       } else {
         if (!PlatformUtils.isWeb) {
-          ChatItem item = event.value.value;
-          if (item is ChatMessage) {
-            for (var a in item.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
-          } else if (item is ChatForward) {
-            ChatItemQuote nested = item.quote;
-            if (nested is ChatMessageQuote) {
-              for (var a in nested.attachments.whereType<FileAttachment>()) {
-                a.init();
-              }
-            }
-          }
+          _initAttachments(event.value.value);
         }
 
         if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
+          final Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
           messages.insertAfter(
             item,
             (e) => item.value.at.compareTo(e.value.at) == 1,
