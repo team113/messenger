@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -148,35 +149,24 @@ class UserView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Obx(() {
-                    if (c.isBlacklisted != null) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (constraints.maxWidth > 400) ...[
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            onPressed: () => c.call(true),
-                            child: SvgImage.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(width: 28),
-                        WidgetButton(
-                          onPressed: () => c.call(false),
-                          child: SvgImage.asset(
-                            'assets/icons/chat_audio_call.svg',
-                            height: 19,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
+                  if (constraints.maxWidth > 400) ...[
+                    const SizedBox(width: 28),
+                    WidgetButton(
+                      onPressed: () => c.call(true),
+                      child: SvgImage.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(false),
+                    child: SvgImage.asset(
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
+                    ),
+                  ),
                 ],
               ),
               body: Scrollbar(
@@ -190,7 +180,7 @@ class UserView extends StatelessWidget {
                       if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
-                          children: [_blocked(c, context)],
+                          children: [_BlockedWidget(c)],
                         ),
                       Block(
                         title: 'label_public_information'.l10n,
@@ -215,24 +205,31 @@ class UserView extends StatelessWidget {
                                   },
                             child: AvatarWidget.fromRxUser(
                               c.user,
-                              key: c.avatarKey,
                               radius: 100,
                               badge: false,
                             ),
                           ),
                           const SizedBox(height: 15),
-                          _name(c, context),
-                          _status(c, context),
-                          _presence(c, context),
+                          _NameWidget(c),
+                          _StatusWidget(c),
+                          _PresenceWidget(c),
                         ],
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [_num(c, context)],
+                        children: [_NumWidget(c)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
-                        children: [_actions(c, context)],
+                        children: [
+                          _ActionsWidget(
+                            c: c,
+                            removeFromContacts: _removeFromContacts,
+                            hideChat: _hideChat,
+                            clearChat: _clearChat,
+                            blacklistUser: _blacklistUser,
+                          )
+                        ],
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -246,315 +243,13 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: _blockedField(context, c),
+                  child: _BlockedField(c),
                 );
               }),
             );
           });
         });
       },
-    );
-  }
-
-  /// Dense [Padding] wrapper.
-  Widget _dense(Widget child) =>
-      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
-
-  /// Returns the action buttons to do with this [User].
-  Widget _actions(UserController c, BuildContext context) {
-    // Builds a stylized button representing a single action.
-    Widget action({
-      Key? key,
-      String? text,
-      void Function()? onPressed,
-      Widget? trailing,
-    }) {
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: _dense(
-          FieldButton(
-            key: key,
-            onPressed: onPressed,
-            text: text ?? '',
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            trailing: trailing != null
-                ? Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(scale: 1.15, child: trailing),
-                  )
-                : null,
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Obx(() {
-          return action(
-            key: Key(c.inContacts.value
-                ? 'DeleteFromContactsButton'
-                : 'AddToContactsButton'),
-            text: c.inContacts.value
-                ? 'btn_delete_from_contacts'.l10n
-                : 'btn_add_to_contacts'.l10n,
-            onPressed: c.status.value.isLoadingMore
-                ? null
-                : c.inContacts.value
-                    ? () => _removeFromContacts(c, context)
-                    : c.addToContacts,
-          );
-        }),
-        Obx(() {
-          return action(
-            text: c.inFavorites.value
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed:
-                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
-          );
-        }),
-        if (c.user?.user.value.dialog.isLocal == false &&
-            c.user?.dialog.value != null) ...[
-          Obx(() {
-            if (c.isBlacklisted != null) {
-              return const SizedBox.shrink();
-            }
-
-            final chat = c.user!.dialog.value!.chat.value;
-            final bool isMuted = chat.muted != null;
-
-            return action(
-              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: isMuted
-                  ? SvgImage.asset(
-                      'assets/icons/btn_mute.svg',
-                      width: 18.68,
-                      height: 15,
-                    )
-                  : SvgImage.asset(
-                      'assets/icons/btn_unmute.svg',
-                      width: 17.86,
-                      height: 15,
-                    ),
-              onPressed: isMuted ? c.unmuteChat : c.muteChat,
-            );
-          }),
-          action(
-            text: 'btn_hide_chat'.l10n,
-            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => _hideChat(c, context),
-          ),
-          action(
-            key: const Key('ClearHistoryButton'),
-            text: 'btn_clear_history'.l10n,
-            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => _clearChat(c, context),
-          ),
-        ],
-        Obx(() {
-          return action(
-            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted != null
-                ? c.unblacklist
-                : () => _blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SizedBox();
-              } else {
-                child = const CustomProgressIndicator();
-              }
-
-              return AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-          );
-        }),
-        action(text: 'btn_report'.l10n, onPressed: () {}),
-      ],
-    );
-  }
-
-  /// Returns a [User.name] copyable field.
-  Widget _name(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('NameField'),
-        state: TextFieldState(
-          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-        ),
-        label: 'label_name'.l10n,
-        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-      ),
-    );
-  }
-
-  /// Returns a [User.status] copyable field.
-  Widget _status(UserController c, BuildContext context) {
-    return Obx(() {
-      final UserTextStatus? status = c.user?.user.value.status;
-
-      if (status == null) {
-        return Container();
-      }
-
-      return _padding(
-        CopyableTextField(
-          key: const Key('StatusField'),
-          state: TextFieldState(text: status.val),
-          label: 'label_status'.l10n,
-          copy: status.val,
-        ),
-      );
-    });
-  }
-
-  /// Returns a [User.num] copyable field.
-  Widget _num(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('UserNum'),
-        state: TextFieldState(
-          text: c.user!.user.value.num.val.replaceAllMapped(
-            RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
-          ),
-        ),
-        label: 'label_num'.l10n,
-        copy: c.user?.user.value.num.val,
-      ),
-    );
-  }
-
-  /// Returns a [User.presence] text.
-  Widget _presence(UserController c, BuildContext context) {
-    return Obx(() {
-      final Presence? presence = c.user?.user.value.presence;
-      if (presence == null) {
-        return Container();
-      }
-
-      final subtitle = c.user?.user.value.getStatus();
-
-      return _padding(
-        ReactiveTextField(
-          key: const Key('Presence'),
-          state: TextFieldState(text: subtitle),
-          label: 'label_presence'.l10n,
-          enabled: false,
-          trailing: CircleAvatar(
-            key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: presence.getColor(),
-            radius: 7,
-          ),
-        ),
-      );
-    });
-  }
-
-  /// Returns the blacklisted information of this [User].
-  Widget _blocked(UserController c, BuildContext context) {
-    return Column(
-      children: [
-        if (c.isBlacklisted?.at != null)
-          _padding(
-            ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
-              label: 'label_date'.l10n,
-              enabled: false,
-            ),
-          ),
-        if (c.isBlacklisted?.reason != null)
-          _padding(
-            ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
-              label: 'label_reason'.l10n,
-              enabled: false,
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// Returns a [WidgetButton] for removing the [User] from the blacklist.
-  Widget _blockedField(BuildContext context, UserController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: SafeArea(
-        child: Container(
-          key: const Key('BlockedField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: Color(0x22000000),
-              ),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: WidgetButton(
-                          onPressed: c.unblacklist,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              enabled: false,
-                              key: const Key('MessageField'),
-                              state: TextFieldState(text: 'btn_unblock'.l10n),
-                              filled: false,
-                              dense: true,
-                              textAlign: TextAlign.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              type: TextInputType.multiline,
-                              textInputAction: TextInputAction.newline,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -639,5 +334,404 @@ class UserView extends StatelessWidget {
     if (result == true) {
       await c.blacklist();
     }
+  }
+}
+
+/// Dense [Padding] wrapper.
+class _DenseWidget extends StatelessWidget {
+  final Widget child;
+  const _DenseWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+  }
+}
+
+/// Basic [Padding] wrapper.
+class _PaddingWidget extends StatelessWidget {
+  final Widget child;
+  const _PaddingWidget({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(8), child: child);
+  }
+}
+
+// Builds a stylized button representing a single action.
+class _ActionWidget extends StatelessWidget {
+  final String? text;
+  final void Function()? onPressed;
+  final Widget? trailing;
+  const _ActionWidget({
+    Key? key,
+    required this.text,
+    required this.onPressed,
+    this.trailing,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: _DenseWidget(
+        child: FieldButton(
+          onPressed: onPressed,
+          text: text ?? '',
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          trailing: trailing != null
+              ? Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(scale: 1.15, child: trailing),
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+}
+
+/// Returns the action buttons to do with this [User].
+class _ActionsWidget extends StatelessWidget {
+  final UserController c;
+  final Future<void> Function(UserController c, BuildContext context)
+      removeFromContacts;
+  final Future<void> Function(UserController c, BuildContext context) hideChat;
+  final Future<void> Function(UserController c, BuildContext context) clearChat;
+  final Future<void> Function(UserController c, BuildContext context)
+      blacklistUser;
+  const _ActionsWidget({
+    Key? key,
+    required this.c,
+    required this.removeFromContacts,
+    required this.hideChat,
+    required this.clearChat,
+    required this.blacklistUser,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Obx(() {
+          return _ActionWidget(
+            key: Key(c.inContacts.value
+                ? 'DeleteFromContactsButton'
+                : 'AddToContactsButton'),
+            text: c.inContacts.value
+                ? 'btn_delete_from_contacts'.l10n
+                : 'btn_add_to_contacts'.l10n,
+            onPressed: c.status.value.isLoadingMore
+                ? null
+                : c.inContacts.value
+                    ? () => removeFromContacts(c, context)
+                    : c.addToContacts,
+          );
+        }),
+        Obx(() {
+          return _ActionWidget(
+            text: c.inFavorites.value
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+          );
+        }),
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
+          Obx(() {
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
+
+            return _ActionWidget(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgImage.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgImage.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          _ActionWidget(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => hideChat(c, context),
+          ),
+          _ActionWidget(
+            key: const Key('ClearHistoryButton'),
+            text: 'btn_clear_history'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => clearChat(c, context),
+          ),
+        ],
+        Obx(() {
+          return _ActionWidget(
+            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
+            text:
+                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted != null
+                ? c.unblacklist
+                : () => blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CustomProgressIndicator();
+              }
+
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+          );
+        }),
+        _ActionWidget(text: 'btn_report'.l10n, onPressed: () {}),
+      ],
+    );
+  }
+}
+
+/// Returns a [User.name] copyable field.
+class _NameWidget extends StatelessWidget {
+  final UserController c;
+  const _NameWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _PaddingWidget(
+      child: CopyableTextField(
+        key: const Key('NameField'),
+        state: TextFieldState(
+          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+        ),
+        label: 'label_name'.l10n,
+        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+      ),
+    );
+  }
+}
+
+/// Returns a [User.status] copyable field.
+class _StatusWidget extends StatelessWidget {
+  final UserController c;
+  const _StatusWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final UserTextStatus? status = c.user?.user.value.status;
+
+      if (status == null) {
+        return Container();
+      }
+
+      return _PaddingWidget(
+        child: CopyableTextField(
+          key: const Key('StatusField'),
+          state: TextFieldState(text: status.val),
+          label: 'label_status'.l10n,
+          copy: status.val,
+        ),
+      );
+    });
+  }
+}
+
+/// Returns a [User.presence] text.
+class _PresenceWidget extends StatelessWidget {
+  final UserController c;
+  const _PresenceWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final Presence? presence = c.user?.user.value.presence;
+      if (presence == null) {
+        return Container();
+      }
+
+      final subtitle = c.user?.user.value.getStatus();
+
+      return _PaddingWidget(
+        child: ReactiveTextField(
+          key: const Key('Presence'),
+          state: TextFieldState(text: subtitle),
+          label: 'label_presence'.l10n,
+          enabled: false,
+          trailing: CircleAvatar(
+            key: Key(presence.name.capitalizeFirst!),
+            backgroundColor: presence.getColor(),
+            radius: 7,
+          ),
+        ),
+      );
+    });
+  }
+}
+
+/// Returns a [User.num] copyable field.
+class _NumWidget extends StatelessWidget {
+  final UserController c;
+  const _NumWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _PaddingWidget(
+      child: CopyableTextField(
+        key: const Key('UserNum'),
+        state: TextFieldState(
+          text: c.user!.user.value.num.val.replaceAllMapped(
+            RegExp(r'.{4}'),
+            (match) => '${match.group(0)} ',
+          ),
+        ),
+        label: 'label_num'.l10n,
+        copy: c.user?.user.value.num.val,
+      ),
+    );
+  }
+}
+
+/// Returns the blacklisted information of this [User].
+class _BlockedWidget extends StatelessWidget {
+  final UserController c;
+  const _BlockedWidget(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (c.isBlacklisted?.at != null)
+          _PaddingWidget(
+            child: ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
+              label: 'label_date'.l10n,
+              enabled: false,
+            ),
+          ),
+        if (c.isBlacklisted?.reason != null)
+          _PaddingWidget(
+            child: ReactiveTextField(
+              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
+              label: 'label_reason'.l10n,
+              enabled: false,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Returns a [WidgetButton] for removing the [User] from the blacklist.
+class _BlockedField extends StatelessWidget {
+  final UserController c;
+  const _BlockedField(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Theme(
+      data: MessageFieldView.theme(context),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: Color(0x22000000),
+              ),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(color: style.cardColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                        bottom: 13,
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              key: const Key('MessageField'),
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              type: TextInputType.multiline,
+                              textInputAction: TextInputAction.newline,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

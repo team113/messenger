@@ -892,24 +892,18 @@ class _ListElementWidget extends StatelessWidget {
 
 /// Returns a centered [time] label.
 class _TimeLabelWidget extends StatelessWidget {
+  final ChatController c;
+  final int i;
+  final DateTime time;
+  final AnimationController animation;
+
   const _TimeLabelWidget(
     this.c,
     this.i, {
+    Key? key,
     required this.time,
     required this.animation,
-  });
-
-  ///
-  final ChatController c;
-
-  ///
-  final int i;
-
-  ///
-  final DateTime time;
-
-  ///
-  final AnimationController animation;
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -960,10 +954,11 @@ class _TimeLabelWidget extends StatelessWidget {
 
 /// Builds a visual representation of an [UnreadMessagesElement].
 class _UnreadLabel extends StatelessWidget {
-  const _UnreadLabel(this.c);
-
-  ///
   final ChatController c;
+  const _UnreadLabel(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -990,10 +985,11 @@ class _UnreadLabel extends StatelessWidget {
 
 /// Returns a header subtitle of the [Chat].
 class _ChatSubtitle extends StatelessWidget {
-  const _ChatSubtitle(this.c);
-
-  ///
   final ChatController c;
+  const _ChatSubtitle(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1140,10 +1136,11 @@ class _ChatSubtitle extends StatelessWidget {
 /// Returns a bottom bar of this [ChatView] to display under the messages list
 /// containing a send/edit field.
 class _BottomBar extends StatelessWidget {
-  const _BottomBar(this.c);
-
-  ///
   final ChatController c;
+  const _BottomBar(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1174,10 +1171,11 @@ class _BottomBar extends StatelessWidget {
 
 /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
 class _BlockedField extends StatelessWidget {
-  const _BlockedField(this.c);
-
-  ///
   final ChatController c;
+  const _BlockedField(
+    this.c, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
