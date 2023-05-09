@@ -613,12 +613,6 @@ class Palette {
     required this.primaryHighlightShinier,
     required this.primaryHighlightShiniest,
     required this.onPrimary,
-    Color? onPrimaryOpacity7,
-    Color? onPrimaryOpacity25,
-    Color? onPrimaryOpacity40,
-    Color? onPrimaryOpacity50,
-    Color? onPrimaryOpacity60,
-    Color? onPrimaryOpacity80,
     required this.secondary,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
@@ -626,30 +620,13 @@ class Palette {
     required this.secondaryHighlight,
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
-    Color? secondaryOpacity73,
-    Color? secondaryOpacity87,
     required this.onSecondary,
-    Color? onSecondaryOpacity20,
-    Color? onSecondaryOpacity30,
-    Color? onSecondaryOpacity50,
-    Color? onSecondaryOpacity60,
-    Color? onSecondaryOpacity88,
     required this.background,
     required this.backgroundAuxiliary,
     required this.backgroundAuxiliaryLight,
     required this.backgroundAuxiliaryLighter,
     required this.backgroundAuxiliaryLightest,
     required this.onBackground,
-    Color? onBackgroundOpacity2,
-    Color? onBackgroundOpacity7,
-    Color? onBackgroundOpacity13,
-    Color? onBackgroundOpacity20,
-    Color? onBackgroundOpacity27,
-    Color? onBackgroundOpacity33,
-    Color? onBackgroundOpacity40,
-    Color? onBackgroundOpacity50,
-    Color? onBackgroundOpacity56,
-    Color? onBackgroundOpacity63,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -657,44 +634,29 @@ class Palette {
     required this.dangerColor,
     required this.warningColor,
     required this.userColors,
-  })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
-        onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
-        onPrimaryOpacity40 = onPrimaryOpacity40 ?? onPrimary.withOpacity(0.40),
-        onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
-        onPrimaryOpacity60 = onPrimaryOpacity60 ?? onPrimary.withOpacity(0.60),
-        onPrimaryOpacity80 = onPrimaryOpacity80 ?? onPrimary.withOpacity(0.80),
-        secondaryOpacity73 = secondaryOpacity73 ?? secondary.withOpacity(0.73),
-        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
-        onSecondaryOpacity20 =
-            onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
-        onSecondaryOpacity30 =
-            onSecondaryOpacity30 ?? onSecondary.withOpacity(0.30),
-        onSecondaryOpacity50 =
-            onSecondaryOpacity50 ?? onSecondary.withOpacity(0.50),
-        onSecondaryOpacity60 =
-            onSecondaryOpacity60 ?? onSecondary.withOpacity(0.60),
-        onSecondaryOpacity88 =
-            onSecondaryOpacity88 ?? onSecondary.withOpacity(0.88),
-        onBackgroundOpacity2 =
-            onBackgroundOpacity2 ?? onBackground.withOpacity(0.02),
-        onBackgroundOpacity7 =
-            onBackgroundOpacity7 ?? onBackground.withOpacity(0.07),
-        onBackgroundOpacity13 =
-            onBackgroundOpacity13 ?? onBackground.withOpacity(0.13),
-        onBackgroundOpacity20 =
-            onBackgroundOpacity20 ?? onBackground.withOpacity(0.20),
-        onBackgroundOpacity27 =
-            onBackgroundOpacity27 ?? onBackground.withOpacity(0.27),
-        onBackgroundOpacity33 =
-            onBackgroundOpacity33 ?? onBackground.withOpacity(0.33),
-        onBackgroundOpacity40 =
-            onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
-        onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
-        onBackgroundOpacity56 =
-            onBackgroundOpacity56 ?? onBackground.withOpacity(0.56),
-        onBackgroundOpacity63 =
-            onBackgroundOpacity63 ?? onBackground.withOpacity(0.63);
+  })  : onPrimaryOpacity7 = onPrimary.withOpacity(0.07),
+        onPrimaryOpacity25 = onPrimary.withOpacity(0.25),
+        onPrimaryOpacity40 = onPrimary.withOpacity(0.40),
+        onPrimaryOpacity50 = onPrimary.withOpacity(0.50),
+        onPrimaryOpacity60 = onPrimary.withOpacity(0.60),
+        onPrimaryOpacity80 = onPrimary.withOpacity(0.80),
+        secondaryOpacity73 = secondary.withOpacity(0.73),
+        secondaryOpacity87 = secondary.withOpacity(0.87),
+        onSecondaryOpacity20 = onSecondary.withOpacity(0.20),
+        onSecondaryOpacity30 = onSecondary.withOpacity(0.30),
+        onSecondaryOpacity50 = onSecondary.withOpacity(0.50),
+        onSecondaryOpacity60 = onSecondary.withOpacity(0.60),
+        onSecondaryOpacity88 = onSecondary.withOpacity(0.88),
+        onBackgroundOpacity2 = onBackground.withOpacity(0.02),
+        onBackgroundOpacity7 = onBackground.withOpacity(0.07),
+        onBackgroundOpacity13 = onBackground.withOpacity(0.13),
+        onBackgroundOpacity20 = onBackground.withOpacity(0.20),
+        onBackgroundOpacity27 = onBackground.withOpacity(0.27),
+        onBackgroundOpacity33 = onBackground.withOpacity(0.33),
+        onBackgroundOpacity40 = onBackground.withOpacity(0.40),
+        onBackgroundOpacity50 = onBackground.withOpacity(0.50),
+        onBackgroundOpacity56 = onBackground.withOpacity(0.56),
+        onBackgroundOpacity63 = onBackground.withOpacity(0.63);
 
   /// Main [Color] of the application.
   ///
