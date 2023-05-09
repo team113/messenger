@@ -34,7 +34,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
-    this.showStatus = true,
+    this.status = true,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
   });
@@ -69,8 +69,8 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
-  /// Indicator whether status should be showed.
-  final bool showStatus;
+  /// Indicator whether status should be displayed.
+  final bool status;
 
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
@@ -121,7 +121,7 @@ class SwipeableStatus extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (showStatus) ...[
+            if (status) ...[
               if (isSent || isDelivered || isRead || isSending || isError)
                 Icon(
                   (isRead || isDelivered)

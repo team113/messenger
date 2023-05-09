@@ -224,7 +224,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// authenticated [MyUser].
   bool get _fromMe => widget.authorId == widget.me;
 
-  /// Returns [PreciseDateTime] when this [ChatForwardWidget] is posted.
+  /// Returns a [PreciseDateTime] when this [ChatForwardWidget] is posted.
   PreciseDateTime get _at => PreciseDateTime(
         (widget.note.value?.value.at ?? widget.forwards.last.value.at)
             .val
@@ -348,11 +348,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ),
                         if (widget.timestamp)
                           Padding(
-                            padding: const EdgeInsets.only(
-                              right: 8,
-                              bottom: 4,
-                              top: 2,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(0, 2, 8, 4),
                             child: Row(
                               children: [
                                 const Spacer(),
@@ -393,24 +389,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       bool timeInBubble = false;
 
       if (quote is ChatMessageQuote) {
-        List<Attachment> media = [];
-        List<Attachment> files = [];
-
         final TextSpan? text = _text[msg.id];
 
         if (quote.attachments.isNotEmpty) {
-          media = quote.attachments
+          final List<Attachment> media = quote.attachments
               .where((e) =>
                   e is ImageAttachment ||
                   (e is FileAttachment && e.isVideo) ||
                   (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
               .toList();
 
-          files = quote.attachments
+          final List<Attachment> files = quote.attachments
               .where((e) =>
                   (e is FileAttachment && !e.isVideo) ||
                   (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
               .toList();
+
+          timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
 
           additional = [
             if (media.isNotEmpty)
@@ -474,17 +469,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ];
         }
 
-        timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
-
-        if (text != null || (quote.attachments.isEmpty)) {
+        if (text != null || quote.attachments.isEmpty) {
           content = SelectionText.rich(
             TextSpan(children: [
               if (text != null) text,
               WidgetSpan(
-                  child: Opacity(
-                opacity: 0,
-                child: _forwardTimestamp(quote),
-              )),
+                child: Opacity(opacity: 0, child: _forwardTimestamp(quote)),
+              ),
             ]),
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
@@ -559,10 +550,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.04),
           borderRadius: style.cardRadius,
-          border: Border.all(
-            color: Colors.black.withOpacity(0.1),
-            width: 0.5,
-          ),
+          border: Border.all(color: Colors.black.withOpacity(0.1), width: 0.5),
         ),
         margin: const EdgeInsets.all(4),
         child: AnimatedOpacity(
@@ -927,10 +915,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(widget.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
-                      radius: 17,
-                    ),
+                    child: AvatarWidget.fromRxUser(widget.user, radius: 17),
                   ),
                 ),
               Flexible(

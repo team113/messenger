@@ -31,7 +31,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.read = false,
     this.delivered = false,
-    this.color,
+    this.inverted = false,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -48,8 +48,9 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool delivered;
 
-  /// Optional [Color] of the text.
-  final Color? color;
+  /// Indicator, whether this [MessageTimestamp] should have its colors
+  /// inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +96,7 @@ class MessageTimestamp extends StatelessWidget {
             DateFormat.Hm().format(at.val.toLocal()),
             style: style.systemMessageStyle.copyWith(
               fontSize: 11,
-              color: color,
+              color: inverted ? const Color(0xFFDEDEDE) : null,
             ),
           ),
         ),

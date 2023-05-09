@@ -1023,10 +1023,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               color: Colors.black.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: _timestamp(
-                              msg,
-                              color: const Color(0xFFDEDEDE),
-                            ),
+                            child: _timestamp(msg, true),
                           ),
                         )
                       : _timestamp(msg),
@@ -1311,11 +1308,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null && item.text!.val.isNotEmpty) {
         content = SelectionContainer.disabled(
-          child: Text(
-            item.text!.val,
-            maxLines: 1,
-            style: style.boldBody,
-          ),
+          child: Text(item.text!.val, maxLines: 1, style: style.boldBody),
         );
       }
     } else if (item is ChatCallQuote) {
@@ -1533,7 +1526,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       animation: widget.animation,
       translate: _fromMe,
       width: swipeableWidth,
-      showStatus: _fromMe,
+      status: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1849,7 +1842,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Builds a [MessageTimestamp] of the provided [item].
-  Widget _timestamp(ChatItem item, {Color? color}) {
+  Widget _timestamp(ChatItem item, [bool inverted = false]) {
     return Obx(() {
       final bool isMonolog = widget.chat.value?.isMonolog == true;
 
@@ -1862,7 +1855,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,
-          color: color,
+          inverted: inverted,
         ),
       );
     });
