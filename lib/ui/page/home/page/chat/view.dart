@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -194,7 +193,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) _ChatSubtitle(c),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -207,6 +206,10 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
+
                           final List<Widget> children;
 
                           if (c.chat!.chat.value.ongoingCall == null) {
@@ -283,24 +286,26 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
+                      onPointerSignal: c.settings.value?.timelineEnabled == true
+                          ? (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
 
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 10.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
+                          : null,
                       onPointerPanZoomUpdate: (s) {
                         if (c.scrollOffset.dx.abs() < 7 &&
                             c.scrollOffset.dy.abs() < 7) {
@@ -324,7 +329,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse)
+                          if (c.settings.value?.timelineEnabled == true &&
+                              c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -386,11 +392,7 @@ class _ChatViewState extends State<ChatView>
                                       ? const NeverScrollableScrollPhysics()
                                       : const BouncingScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
-                                    (context, i) => _ListElementWidget(
-                                      c,
-                                      i,
-                                      animation: _animation,
-                                    ),
+                                    (context, i) => _listElement(context, c, i),
                                     // ignore: invalid_use_of_protected_member
                                     childCount: c.elements.value.length,
                                     keepPosition: true,
@@ -489,7 +491,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _BottomBar(c),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -540,96 +542,9 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
-  /// the provided [duration].
-  ///
-  /// Defaults to 50 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.isHorizontalScroll.value = false;
-      c.horizontalScrollTimer.value = null;
-    });
-  }
-}
-
-/// Extension adding an ability to get text represented [DateTime] relative to
-/// [DateTime.now].
-extension DateTimeToRelative on DateTime {
-  /// Returns relative to [now] text representation.
-  ///
-  /// [DateTime.now] is used if [now] is `null`.
-  String toRelative([DateTime? now]) {
-    DateTime local = isUtc ? toLocal() : this;
-    DateTime relative = now ?? DateTime.now();
-    int days = relative.julianDayNumber() - local.julianDayNumber();
-
-    int months = 0;
-    if (days >= 28) {
-      months =
-          relative.month + relative.year * 12 - local.month - local.year * 12;
-      if (relative.day < local.day) {
-        months--;
-      }
-    }
-
-    return 'label_ago_date'.l10nfmt({
-      'years': months ~/ 12,
-      'months': months,
-      'weeks': days ~/ 7,
-      'days': days,
-    });
-  }
-
-  /// Returns a Julian day number of this [DateTime].
-  int julianDayNumber() {
-    final int c0 = ((month - 3) / 12).floor();
-    final int x4 = year + c0;
-    final int x3 = (x4 / 100).floor();
-    final int x2 = x4 % 100;
-    final int x1 = month - (12 * c0) - 3;
-    return ((146097 * x3) / 4).floor() +
-        ((36525 * x2) / 100).floor() +
-        (((153 * x1) + 2) / 5).floor() +
-        day +
-        1721119;
-  }
-}
-
-/// [ScrollBehavior] for scrolling with every available [PointerDeviceKind]s.
-class CustomScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
-}
-
-/// [GestureRecognizer] recognizing and allowing multiple horizontal drags.
-class AllowMultipleHorizontalDragGestureRecognizer
-    extends HorizontalDragGestureRecognizer {
-  @override
-  void rejectGesture(int pointer) => acceptGesture(pointer);
-}
-
-/// Builds a visual representation of a [ListElement] identified by the
-/// provided index.
-class _ListElementWidget extends StatelessWidget {
-  final ChatController c;
-  final int i;
-  final AnimationController animation;
-  const _ListElementWidget(
-    this.c,
-    this.i, {
-    Key? key,
-    required this.animation,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  /// Builds a visual representation of a [ListElement] identified by the
+  /// provided index.
+  Widget _listElement(BuildContext context, ChatController c, int i) {
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
 
@@ -704,7 +619,8 @@ class _ListElementWidget extends StatelessWidget {
                     m.memberId != e.value.authorId),
             user: u.data,
             getUser: c.getUser,
-            animation: animation,
+            animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
@@ -714,9 +630,13 @@ class _ListElementWidget extends StatelessWidget {
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
             onRepliedTap: (q) async {
               if (q.original != null) {
                 await c.animateTo(q.original!.id);
@@ -756,7 +676,8 @@ class _ListElementWidget extends StatelessWidget {
                     m.memberId != element.authorId),
             user: u.data,
             getUser: c.getUser,
-            animation: animation,
+            animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () async {
               final List<Future> futures = [];
 
@@ -806,9 +727,13 @@ class _ListElementWidget extends StatelessWidget {
                 }
               }
             },
-            onCopy: c.selection.value?.plainText.isNotEmpty == true
-                ? (_) => c.copyText(c.selection.value!.plainText)
-                : c.copyText,
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,
@@ -842,15 +767,10 @@ class _ListElementWidget extends StatelessWidget {
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: _TimeLabelWidget(
-          c,
-          i,
-          time: element.id.at.val,
-          animation: animation,
-        ),
+        child: _timeLabel(element.id.at.val, c, i),
       );
     } else if (element is UnreadMessagesElement) {
-      return SelectionContainer.disabled(child: _UnreadLabel(c));
+      return SelectionContainer.disabled(child: _unreadLabel(context, c));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
@@ -888,111 +808,9 @@ class _ListElementWidget extends StatelessWidget {
 
     return const SizedBox();
   }
-}
 
-/// Returns a centered [time] label.
-class _TimeLabelWidget extends StatelessWidget {
-  final ChatController c;
-  final int i;
-  final DateTime time;
-  final AnimationController animation;
-
-  const _TimeLabelWidget(
-    this.c,
-    this.i, {
-    Key? key,
-    required this.time,
-    required this.animation,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SwipeableStatus(
-        animation: animation,
-        padding: const EdgeInsets.only(right: 8),
-        crossAxisAlignment: CrossAxisAlignment.center,
-        swipeable: Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat('dd.MM.yy').format(time)),
-        ),
-        child: Obx(() {
-          return AnimatedOpacity(
-            key: Key('$i$time'),
-            opacity: c.stickyIndex.value == i
-                ? c.showSticky.isTrue
-                    ? 1
-                    : 0
-                : 1,
-            duration: const Duration(milliseconds: 250),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: style.systemMessageBorder,
-                  color: style.systemMessageColor,
-                ),
-                child: Text(
-                  time.toRelative(),
-                  style: style.systemMessageStyle,
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-/// Builds a visual representation of an [UnreadMessagesElement].
-class _UnreadLabel extends StatelessWidget {
-  final ChatController c;
-  const _UnreadLabel(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: style.systemMessageBorder,
-        color: style.systemMessageColor,
-      ),
-      child: Center(
-        child: Text(
-          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
-        ),
-      ),
-    );
-  }
-}
-
-/// Returns a header subtitle of the [Chat].
-class _ChatSubtitle extends StatelessWidget {
-  final ChatController c;
-  const _ChatSubtitle(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  /// Returns a header subtitle of the [Chat].
+  Widget _chatSubtitle(ChatController c) {
     final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
@@ -1131,21 +949,58 @@ class _ChatSubtitle extends StatelessWidget {
       return const SizedBox();
     });
   }
-}
 
-/// Returns a bottom bar of this [ChatView] to display under the messages list
-/// containing a send/edit field.
-class _BottomBar extends StatelessWidget {
-  final ChatController c;
-  const _BottomBar(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
+  /// Returns a centered [time] label.
+  Widget _timeLabel(DateTime time, ChatController c, int i) {
+    final Style style = Theme.of(context).extension<Style>()!;
 
-  @override
-  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SwipeableStatus(
+        animation: _animation,
+        padding: const EdgeInsets.only(right: 8),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        swipeable: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Text(DateFormat('dd.MM.yy').format(time)),
+        ),
+        child: Obx(() {
+          return AnimatedOpacity(
+            key: Key('$i$time'),
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
+                    ? 1
+                    : 0
+                : 1,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(
+                  time.toRelative(),
+                  style: style.systemMessageStyle,
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  /// Returns a bottom bar of this [ChatView] to display under the messages list
+  /// containing a send/edit field.
+  Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return _BlockedField(c);
+      return _blockedField(c);
     }
 
     return Obx(() {
@@ -1167,18 +1022,49 @@ class _BottomBar extends StatelessWidget {
       );
     });
   }
-}
 
-/// Returns a [WidgetButton] removing this [Chat] from the blacklist.
-class _BlockedField extends StatelessWidget {
-  final ChatController c;
-  const _BlockedField(
-    this.c, {
-    Key? key,
-  }) : super(key: key);
+  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
+  /// the provided [duration].
+  ///
+  /// Defaults to 50 milliseconds if no [duration] is provided.
+  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
+    c.isHorizontalScroll.value = true;
+    c.horizontalScrollTimer.value?.cancel();
+    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
+      if (_animation.value >= 0.5) {
+        _animation.forward();
+      } else {
+        _animation.reverse();
+      }
+      c.isHorizontalScroll.value = false;
+      c.horizontalScrollTimer.value = null;
+    });
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _unreadLabel(BuildContext context, ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+          style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme(
@@ -1242,4 +1128,60 @@ class _BlockedField extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Extension adding an ability to get text represented [DateTime] relative to
+/// [DateTime.now].
+extension DateTimeToRelative on DateTime {
+  /// Returns relative to [now] text representation.
+  ///
+  /// [DateTime.now] is used if [now] is `null`.
+  String toRelative([DateTime? now]) {
+    DateTime local = isUtc ? toLocal() : this;
+    DateTime relative = now ?? DateTime.now();
+    int days = relative.julianDayNumber() - local.julianDayNumber();
+
+    int months = 0;
+    if (days >= 28) {
+      months =
+          relative.month + relative.year * 12 - local.month - local.year * 12;
+      if (relative.day < local.day) {
+        months--;
+      }
+    }
+
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
+  }
+
+  /// Returns a Julian day number of this [DateTime].
+  int julianDayNumber() {
+    final int c0 = ((month - 3) / 12).floor();
+    final int x4 = year + c0;
+    final int x3 = (x4 / 100).floor();
+    final int x2 = x4 % 100;
+    final int x1 = month - (12 * c0) - 3;
+    return ((146097 * x3) / 4).floor() +
+        ((36525 * x2) / 100).floor() +
+        (((153 * x1) + 2) / 5).floor() +
+        day +
+        1721119;
+  }
+}
+
+/// [ScrollBehavior] for scrolling with every available [PointerDeviceKind]s.
+class CustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
+}
+
+/// [GestureRecognizer] recognizing and allowing multiple horizontal drags.
+class AllowMultipleHorizontalDragGestureRecognizer
+    extends HorizontalDragGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) => acceptGesture(pointer);
 }
