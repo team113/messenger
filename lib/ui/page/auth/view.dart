@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
@@ -31,14 +30,15 @@ import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/animated_logo.dart';
+import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
-  const AuthView({Key? key}) : super(key: key);
+  const AuthView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,72 +87,6 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 25),
         ];
-
-        const double height = 250;
-
-        // Animated logo widget.
-        Widget logo = LayoutBuilder(builder: (context, constraints) {
-          Widget placeholder = SizedBox(
-            height: constraints.maxHeight > 250
-                ? height
-                : constraints.maxHeight <= 140
-                    ? 140
-                    : height,
-            child: const Center(child: CustomProgressIndicator()),
-          );
-
-          return ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350),
-              child: AnimatedSize(
-                curve: Curves.ease,
-                duration: const Duration(milliseconds: 200),
-                child: SizedBox(
-                  height: constraints.maxHeight >= height ? height : 140,
-                  child: constraints.maxHeight >= height
-                      ? Container(
-                          key: const ValueKey('logo'),
-                          child: RiveAnimation.asset(
-                            'assets/images/logo/logo.riv',
-                            onInit: (a) {
-                              if (!Config.disableInfiniteAnimations) {
-                                final StateMachineController? machine =
-                                    StateMachineController.fromArtboard(
-                                        a, 'Machine');
-                                a.addController(machine!);
-                                c.blink = machine.findInput<bool>('blink')
-                                    as SMITrigger?;
-
-                                Future.delayed(
-                                  const Duration(milliseconds: 500),
-                                  c.animate,
-                                );
-                              }
-                            },
-                          ),
-                        )
-                      : Obx(() {
-                          return SvgImage.asset(
-                            'assets/images/logo/head000${c.logoFrame.value}.svg',
-                            placeholderBuilder: (context) => placeholder,
-                            height: 140,
-                          );
-                        }),
-                ),
-              ));
-        });
-
-        // Language selection popup.
-        Widget language = CupertinoButton(
-          key: c.languageKey,
-          child: Text(
-            'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            style: thin?.copyWith(fontSize: 13, color: style.colors.secondary),
-          ),
-          onPressed: () => LanguageSelectionView.show(context, null),
-        );
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -215,7 +149,14 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          language,
+          StyledCupertinoButton(
+            key: c.languageKey,
+            label: 'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
+            onPressed: () => LanguageSelectionView.show(context, null),
+          ),
         ];
 
         return Stack(
@@ -252,7 +193,18 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            Flexible(child: logo),
+                            Flexible(
+                              child: Obx(
+                                () => AnimatedLogo(
+                                  key: const ValueKey('Logo'),
+                                  svgAsset:
+                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                  onInit: Config.disableInfiniteAnimations
+                                      ? null
+                                      : (a) => _setBlink(c, a),
+                                ),
+                              ),
+                            ),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,
@@ -269,6 +221,18 @@ class AuthView extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
+  /// a [AuthController.animate] to animate it.
+  Future<void> _setBlink(AuthController c, Artboard a) async {
+    final StateMachineController machine =
+        StateMachineController(a.stateMachines.first);
+    a.addController(machine);
+
+    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+
+    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
