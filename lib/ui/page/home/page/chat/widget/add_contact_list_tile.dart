@@ -44,7 +44,8 @@ class AddContactListTile extends StatelessWidget {
 
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
         .resolve({MaterialState.disabled})!.copyWith(
-            color: style.colors.onBackground);
+      color: style.colors.onBackground,
+    );
 
     return ListTile(
       leading: AnimatedSwitcher(

@@ -104,8 +104,8 @@ class _MobileControlsState extends State<MobileControls>
             _chewieController.videoPlayerController.value.errorDescription!,
           ) ??
           Center(
-              child:
-                  Icon(Icons.error, color: style.colors.onPrimary, size: 42));
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(

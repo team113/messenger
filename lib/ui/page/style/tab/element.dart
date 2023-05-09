@@ -454,14 +454,15 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                  background: true,
-                  title: 'Выключить динамик в звонке.',
-                  asset: 'assets/icons/speaker_on.svg',
-                  child: RoundFloatingButton(
-                    asset: 'speaker_on',
-                    onPressed: () {},
-                    color: style.colors.secondaryOpacity87,
-                  )),
+                background: true,
+                title: 'Выключить динамик в звонке.',
+                asset: 'assets/icons/speaker_on.svg',
+                child: RoundFloatingButton(
+                  asset: 'speaker_on',
+                  onPressed: () {},
+                  color: style.colors.secondaryOpacity87,
+                ),
+              ),
               element(
                 background: true,
                 title: 'Включить динамик в звонке.',

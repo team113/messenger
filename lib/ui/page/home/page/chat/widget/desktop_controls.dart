@@ -149,8 +149,8 @@ class _DesktopControlsState extends State<DesktopControls>
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
           Center(
-              child:
-                  Icon(Icons.error, color: style.colors.onPrimary, size: 42));
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(

@@ -417,8 +417,9 @@ class _HomeViewState extends State<HomeView> {
                       }),
                     ),
                     Expanded(
-                      child:
-                          ColoredBox(color: style.colors.onBackgroundOpacity2),
+                      child: ColoredBox(
+                        color: style.colors.onBackgroundOpacity2,
+                      ),
                     ),
                   ],
                 ),

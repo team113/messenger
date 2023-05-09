@@ -22,8 +22,8 @@ import 'package:flutter/services.dart';
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
-    /// All the necessary properties of [Color]s that are used in various elements
-    /// of the application interface
+    /// All the necessary properties of [Color]s that are used in various
+    /// elements of the application interface
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
       primaryHighlight: Colors.blue,
@@ -423,10 +423,10 @@ class Style extends ThemeExtension<Style> {
     required this.unreadMessageColor,
   });
 
-  /// Set of properties representing the colors of the application.
+  /// Set of properties representing the [Color]s of the application.
   final Palette colors;
 
-  /// [Color] of the modal background barrier color.
+  /// [Color] of the modal background barrier.
   final Color barrierColor;
 
   /// [TextStyle] to use in the body to make content readable.
@@ -712,10 +712,12 @@ class Palette {
   /// Lightest shade of the primary background [Color].
   final Color secondaryBackgroundLightest;
 
-  /// [Color] for highlighting UI elements, used to highlight the active elements.
+  /// [Color] for highlighting UI elements, used to highlight the active
+  /// elements.
   final Color secondaryHighlight;
 
-  /// Dark shade of the accent [Color]. Used to create contrast and depth effect.
+  /// Dark shade of the accent [Color]. Used to create contrast and depth
+  /// effect.
   final Color secondaryHighlightDark;
 
   /// Darkest shade of the main accent [Color].
@@ -770,9 +772,11 @@ class Palette {
   /// Used for - [MobileControls] text.
   final Color onPrimaryOpacity80;
 
-  /// [Color] is used to combine with the main color, giving the interface a nice and balanced look.
+  /// [Color] is used to combine with the main color, giving the interface a
+  /// nice and balanced look.
   ///
-  /// Used for - lists, the background of some elements and other additional interface elements.
+  /// Used for - lists, the background of some elements and other additional
+  /// interface elements.
   final Color secondary;
 
   /// Highlight [Color] of the secondary element.
@@ -780,8 +784,8 @@ class Palette {
   /// Used to highlight secondary elements when hovering or when activated.
   final Color primaryHighlight;
 
-  /// Glowing tone of secondary [Color] that is used to draw the user's attention
-  /// to an area of the screen that contains important information.
+  /// Glowing tone of secondary [Color] that is used to draw the user's
+  /// attention to an area of the screen that contains important information.
   final Color primaryHighlightShiny;
 
   /// Highlight [Color] to draw attention to specific elements in the UI.
@@ -789,7 +793,8 @@ class Palette {
   /// Used for - [ChatTile], [ContactTile].
   final Color primaryHighlightShinyAuxiliary;
 
-  /// [Color] used to highlight or highlight interface elements of secondary importance with a brighter sheen.
+  /// [Color] used to highlight or highlight interface elements of secondary
+  /// importance with a brighter sheen.
   final Color primaryHighlightShinier;
 
   /// Most brilliant and contrasting secondary highlight [Color].
@@ -819,7 +824,8 @@ class Palette {
 
   /// 30% opacity of the [onSecondary] color.
   ///
-  /// Used for - [desktopCall] elements, [ParticipantOverlayWidget] tooltip, etc.
+  /// Used for - [desktopCall] elements, [ParticipantOverlayWidget] tooltip,
+  /// etc.
   final Color onSecondaryOpacity30;
 
   /// 20% opacity of the [onSecondary] color.
@@ -839,13 +845,16 @@ class Palette {
   /// Slightly lighter [Color] than the standard [backgroundAuxiliary] color.
   final Color backgroundAuxiliaryLight;
 
-  /// [Color] represents an even lighter shade than the standard [backgroundAuxiliary] color.
+  /// [Color] represents an even lighter shade than the standard
+  /// [backgroundAuxiliary] color.
   final Color backgroundAuxiliaryLighter;
 
-  /// Lightest possible shade of the [Color] for the [backgroundAuxiliary] color.
+  /// Lightest possible shade of the [Color] for the [backgroundAuxiliary]
+  /// color.
   final Color backgroundAuxiliaryLightest;
 
-  /// Neutral [Color] that does not compete with the main content of the application.
+  /// Neutral [Color] that does not compete with the main content of the
+  /// application.
   ///
   /// For example for text, BoxShadow's, etc.
   final Color onBackground;
@@ -862,7 +871,8 @@ class Palette {
 
   /// 13% opacity of the [onBackground] color.
   ///
-  /// Used for - [CustomBoxShadow], [MessageFieldView], [DesktopControls] buildHitArea, etc.
+  /// Used for - [CustomBoxShadow], [MessageFieldView], [DesktopControls]
+  /// buildHitArea, etc.
   final Color onBackgroundOpacity13;
 
   /// 20% opacity of the [onBackground] color.
@@ -872,7 +882,8 @@ class Palette {
 
   /// 27% opacity of the [onBackground] color.
   ///
-  /// Used for - [desktopCall] Secondary panel shadow, [HintWidget] card shadow, etc.
+  /// Used for - [desktopCall] secondary panel shadow, [HintWidget] card shadow,
+  /// etc.
   final Color onBackgroundOpacity27;
 
   /// 33% opacity of the [onBackground] color.
@@ -900,25 +911,31 @@ class Palette {
   /// Used for - [mobileCall] and [ParticipantWidget] elements.
   final Color onBackgroundOpacity63;
 
-  /// Сompletely transparent [Color] that has no visible saturation or brightness.
+  /// Completely transparent [Color] that has no visible saturation or
+  /// brightness.
   ///
-  /// Used to indicate the absence of a color or background of the element on which it is used.
+  /// Used to indicate the absence of a color or background of the element on
+  /// which it is used.
   final Color transparent;
 
-  /// Indicator of an affirmative color to visually confirm elements of the user interface.
+  /// Indicator of an affirmative color to visually confirm elements of the user
+  /// interface.
   ///
   /// For example, for the "Accept call" buttons.
   final Color acceptColor;
 
-  /// [Color] is used as an auxiliary color to display pleasant action confirmation messages.
+  /// [Color] is used as an auxiliary color to display pleasant action
+  /// confirmation messages.
   final Color acceptAuxiliaryColor;
 
-  /// Indicator of rejection or cancellation in various elements of the user interface.
+  /// Indicator of rejection or cancellation in various elements of the user
+  /// interface.
   ///
   /// For example, on the "Cancel call" button.
   final Color declineColor;
 
-  /// [Color] used to indicate dangerous or critical elements in the user interface.
+  /// [Color] used to indicate dangerous or critical elements in the user
+  /// interface.
   ///
   /// Used for error messages or warnings about a potential threat.
   final Color dangerColor;
@@ -926,13 +943,16 @@ class Palette {
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warningColor;
 
-  /// [Colors] refer to the range of colors that can be used for a profile picture.
+  /// [Colors] refer to the range of colors that can be used for a profile
+  /// picture.
   ///
-  /// These colors may predefine or customizable and are selected to help differentiate
-  /// between users or to provide a visual cue for different types of accounts.
+  /// These colors may predefine or customizable and are selected to help
+  /// differentiate between users or to provide a visual cue for different types
+  /// of accounts.
   final List<Color> userColors;
 
-  /// Linear interpolation between two [Palette] objects based on a given [t] value.
+  /// Linear interpolation between two [Palette] objects based on a given [t]
+  /// value.
   static Palette? lerp(Palette color, Palette? other, double t) {
     if (other is! Palette) {
       return color;
@@ -945,9 +965,10 @@ class Palette {
       primaryHighlightShiny: Color.lerp(
           color.primaryHighlightShiny, other.primaryHighlightShiny, t)!,
       primaryHighlightShinyAuxiliary: Color.lerp(
-          color.primaryHighlightShinyAuxiliary,
-          other.primaryHighlightShinyAuxiliary,
-          t)!,
+        color.primaryHighlightShinyAuxiliary,
+        other.primaryHighlightShinyAuxiliary,
+        t,
+      )!,
       primaryHighlightShinier: Color.lerp(
           color.primaryHighlightShinier, other.primaryHighlightShinier, t)!,
       primaryHighlightShiniest: Color.lerp(
@@ -984,7 +1005,8 @@ class Palette {
       declineColor: Color.lerp(color.declineColor, other.declineColor, t)!,
       dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t)!,
       warningColor: Color.lerp(color.warningColor, other.warningColor, t)!,
-      userColors: [],
+      userColors:
+          other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );
   }
 }
