@@ -36,16 +36,19 @@ class FileService {
     String url,
     String? checksum,
     String filename,
-    int? size,
-  ) {
+    int? size, {
+    String? path,
+    bool downloadIfExist = false,
+  }) {
     Downloading? downloading;
     if (checksum != null) {
       downloading = downloads.firstWhereOrNull((e) => e.checksum == checksum)
-        ?..start(url);
+        ?..start(url, path: path, downloadIfExist: downloadIfExist);
     }
 
-    if(downloading == null) {
-      downloading = Downloading(checksum, filename, size)..start(url);
+    if (downloading == null) {
+      downloading = Downloading(checksum, filename, size)
+        ..start(url, path: path, downloadIfExist: downloadIfExist);
       downloads.add(downloading);
     }
 
@@ -85,7 +88,11 @@ class Downloading {
   Future<File?>? get future => _completer?.future;
 
   /// Starts the [file] downloading.
-  Future<void> start(String url) async {
+  Future<void> start(
+    String url, {
+    String? path,
+    bool downloadIfExist = false,
+  }) async {
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
@@ -95,6 +102,8 @@ class Downloading {
         url,
         filename,
         size,
+        path: path,
+        downloadIfExist: downloadIfExist,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );

@@ -667,7 +667,7 @@ class HiveRxChat extends RxChat {
   /// Removes all [ChatItem]s from the [messages].
   Future<void> clear() => _local.clear();
 
-  /// Initializes [FileAttachment]s of the [messages].
+  /// Initializes [Attachment]s of the [messages].
   Future<void> _initAllAttachments() async {
     final List<Future> futures = [];
 
@@ -678,19 +678,19 @@ class HiveRxChat extends RxChat {
     await Future.wait(futures);
   }
 
-  /// Invokes the [FileAttachment.init] in the provided [item].
+  /// Invokes the [Attachment.init] in the provided [item].
   Future<void> _initAttachments(ChatItem item) async {
     final List<Future> futures = [];
 
     if (item is ChatMessage) {
       futures.addAll(
-        item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+        item.attachments.map((e) => e.init()),
       );
     } else if (item is ChatForward) {
       ChatItemQuote nested = item.quote;
       if (nested is ChatMessageQuote) {
         futures.addAll(
-          nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
+          nested.attachments.map((e) => e.init()),
         );
       }
     }
@@ -698,23 +698,25 @@ class HiveRxChat extends RxChat {
     await Future.wait(futures);
   }
 
-  /// Disposes [FileAttachment]s of the [messages].
+  /// Disposes [Attachment]s of the [messages].
   void _disposeAllAttachments() async {
     for (ChatItem item in messages.map((e) => e.value)) {
       _disposeAttachments(item);
     }
   }
 
-  /// Invokes the [FileAttachment.dispose] in the provided [item].
+  /// Invokes the [Attachment.dispose] in the provided [item].
   void _disposeAttachments(ChatItem item) async {
     if (item is ChatMessage) {
-      item.attachments.whereType<FileAttachment>().forEach((e) => e.dispose());
+      for (var e in item.attachments) {
+        e.dispose();
+      }
     } else if (item is ChatForward) {
       ChatItemQuote nested = item.quote;
       if (nested is ChatMessageQuote) {
-        nested.attachments
-            .whereType<FileAttachment>()
-            .forEach((e) => e.dispose());
+        for (var e in nested.attachments) {
+          e.dispose();
+        }
       }
     }
   }

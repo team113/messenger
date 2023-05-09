@@ -268,6 +268,8 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
+    bool downloadIfExist = false,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async {
@@ -298,29 +300,40 @@ class PlatformUtilsImpl {
         } else {
           File? file;
 
-          // Retry fetching the size unless any other that `404` error is
-          // thrown.
-          file = await Backoff.run(
-            () async {
-              try {
-                return await fileExists(filename, size: size, url: url);
-              } catch (e) {
-                onError(e);
-              }
+          if (!downloadIfExist) {
+            // Retry fetching the size unless any other that `404` error is
+            // thrown.
+            file = await Backoff.run(
+              () async {
+                try {
+                  return await fileExists(filename, size: size, url: url);
+                } catch (e) {
+                  onError(e);
+                }
 
-              return null;
-            },
-            cancelToken,
-          );
+                return null;
+              },
+              cancelToken,
+            );
+          }
 
           if (file == null) {
-            final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
 
-            file = File('$path/$filename');
-            for (int i = 1; await file!.exists(); ++i) {
-              file = File('$path/$name ($i)$extension');
+            if (path != null) {
+              if (!path!.endsWith(extension)) {
+                path = path! + extension;
+              }
+
+              file = File(path!);
+            } else {
+              final String name = p.basenameWithoutExtension(filename);
+              path = await downloadsDirectory;
+
+              file = File('$path/$filename');
+              for (int i = 1; await file!.exists(); ++i) {
+                file = File('$path/$name ($i)$extension');
+              }
             }
 
             // Retry the downloading unless any other that `404` error is

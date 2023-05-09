@@ -33,6 +33,8 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
+    bool downloadIfExist = false,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async =>

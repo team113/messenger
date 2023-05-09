@@ -242,6 +242,13 @@ class _DataAttachmentState extends State<DataAttachment> {
                     child: AnimatedSwitcher(
                       key: Key('AttachmentStatus_${e.id}'),
                       duration: 250.milliseconds,
+                      layoutBuilder: (current, previous) => Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (previous.isNotEmpty) previous.first,
+                          if (current != null) current,
+                        ],
+                      ),
                       child: leading,
                     ),
                   ),

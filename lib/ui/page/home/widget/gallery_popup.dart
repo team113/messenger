@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -546,6 +547,10 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
+              label: 'btn_save_as'.l10n,
+              onPressed: () => _saveAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
               label: 'btn_info'.l10n,
               onPressed: () {},
             ),
@@ -1042,6 +1047,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           item.checksum,
           item.name,
           item.size,
+          downloadIfExist: true,
         ).future;
       } catch (_) {
         if (item.onError != null) {
@@ -1051,9 +1057,55 @@ class _GalleryPopupState extends State<GalleryPopup>
             item.checksum,
             item.name,
             item.size,
+            downloadIfExist: true,
           ).future;
         } else {
           rethrow;
+        }
+      }
+
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_downloaded'.l10n
+            : 'label_image_downloaded'.l10n);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem].
+  Future<void> _saveAs(GalleryItem item) async {
+    try {
+      String? path = await FilePicker.platform.saveFile(
+        fileName: item.name,
+        type: item.isVideo ? FileType.video : FileType.image,
+      );
+
+      if (path != null) {
+        try {
+          await FileService.download(
+            item.link,
+            item.checksum,
+            item.name,
+            item.size,
+            path: path,
+            downloadIfExist: true,
+          ).future;
+        } catch (_) {
+          if (item.onError != null) {
+            await item.onError?.call();
+            await FileService.download(
+              item.link,
+              item.checksum,
+              item.name,
+              item.size,
+              path: path,
+              downloadIfExist: true,
+            ).future;
+          } else {
+            rethrow;
+          }
         }
       }
 

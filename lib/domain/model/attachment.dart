@@ -54,6 +54,25 @@ abstract class Attachment extends HiveObject {
   /// Uploaded file's name.
   @HiveField(2)
   String filename;
+
+  /// [Downloading] of this [Attachment].
+  Rx<Downloading?> downloading = Rx<Downloading?>(null);
+
+  /// Indicates whether this [Attachment] is downloading.
+  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
+
+  /// Return [DownloadStatus] of this [Attachment].
+  DownloadStatus get downloadStatus =>
+      downloading.value?.status.value ?? DownloadStatus.notStarted;
+
+  /// Initializes this [Attachment].
+  Future<void> init();
+
+  /// Disposes this [Attachment].
+  void dispose();
+
+  /// Downloads this [Attachment].
+  Future<void> download();
 }
 
 /// Image [Attachment].
@@ -80,6 +99,59 @@ class ImageAttachment extends Attachment {
   /// Small [ImageAttachment]'s view image [StorageFile] of `30px`x`30px` size.
   @HiveField(5)
   StorageFile small;
+
+  /// [StreamSubscription] for the [FileService.downloads] changes.
+  StreamSubscription? _downloadsSubscription;
+
+  @override
+  Future<void> init() async {
+    if (original.checksum != null) {
+      downloading.value = FileService.downloads.firstWhereOrNull((e) {
+        return e.checksum == original.checksum;
+      });
+    }
+
+    if (downloading.value == null) {
+      _downloadsSubscription = FileService.downloads.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            if (e.element.checksum == original.checksum) {
+              downloading.value = e.element;
+            }
+            break;
+
+          case OperationKind.removed:
+            // No-op.
+            break;
+
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _downloadsSubscription?.cancel();
+  }
+
+  @override
+  Future<void> download() async {
+    if (downloading.value == null) {
+      downloading.value = FileService.download(
+        original.url,
+        original.checksum,
+        filename,
+        original.size,
+      );
+    } else {
+      downloading.value!.start(original.url);
+    }
+
+    await downloading.value!.future;
+  }
 }
 
 /// Plain file [Attachment].
@@ -95,30 +167,27 @@ class FileAttachment extends Attachment {
   @HiveField(3)
   String? path;
 
-  /// [Downloading] of this [FileAttachment].
-  Rx<Downloading?> downloading = Rx<Downloading?>(null);
-
-  /// [StreamSubscription] for the [FileService.downloads] changes.
-  StreamSubscription? _downloadsSubscription;
-
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
   /// Indicator whether this [FileAttachment] is downloaded.
   final RxBool _downloaded = RxBool(false);
 
-  /// Return [DownloadStatus] of this [FileAttachment].
+  /// Indicates whether this [FileAttachment] is downloading.
+  @override
+  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
+
+  /// [StreamSubscription] for the [FileService.downloads] changes.
+  StreamSubscription? _downloadsSubscription;
+
+  @override
   DownloadStatus get downloadStatus =>
       downloading.value?.status.value ??
       (_downloaded.value
           ? DownloadStatus.isFinished
           : DownloadStatus.notStarted);
 
-  /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
-
-  // TODO: Compare hashes.
-  /// Initializes the [downloadStatus].
+  @override
   Future<void> init() async {
     if (_initialized) {
       return;
@@ -179,12 +248,12 @@ class FileAttachment extends Attachment {
     }
   }
 
-  /// Cancels the [_downloadsSubscription].
+  @override
   void dispose() {
     _downloadsSubscription?.cancel();
   }
 
-  /// Downloads this [FileAttachment].
+  @override
   Future<void> download() async {
     try {
       if (downloading.value == null) {
@@ -276,4 +345,19 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+
+  @override
+  Future<void> download() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> init() async {
+    // No-op.
+  }
+
+  @override
+  void dispose() {
+    // No-op.
+  }
 }

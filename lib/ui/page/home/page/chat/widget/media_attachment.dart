@@ -86,9 +86,11 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
 
+    final Widget child;
+
     if (isImage) {
       if (attachment is LocalAttachment) {
-        return Obx(() {
+        child = Obx(() {
           if (attachment.file.bytes.value == null) {
             return const Center(
               child: SizedBox(
@@ -115,7 +117,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        return RetryImage.attachment(
+        child = RetryImage.attachment(
           attachment as ImageAttachment,
           fit: widget.fit,
           width: widget.width,
@@ -127,7 +129,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       }
     } else {
       if (attachment is LocalAttachment) {
-        return Obx(() {
+        child = Obx(() {
           if (attachment.file.bytes.value == null) {
             return const Center(
               child: SizedBox(
@@ -144,28 +146,31 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        return Stack(
-          children: [
-            VideoThumbnail.url(
-              url: attachment.original.url,
-              checksum: attachment.original.checksum,
-              height: widget.height,
-              onError: widget.onError,
-            ),
-            Obx(() {
-              if ((attachment as FileAttachment).isDownloading) {
-                return const Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Icon(Icons.download),
-                );
-              } else {
-                return const SizedBox();
-              }
-            }),
-          ],
+        child = VideoThumbnail.url(
+          url: attachment.original.url,
+          checksum: attachment.original.checksum,
+          height: widget.height,
+          onError: widget.onError,
         );
       }
     }
+
+    return Stack(
+      children: [
+        child,
+        Obx(() {
+          if (attachment.isDownloading) {
+            print('child: Icon(Icons.download),');
+            return const Positioned(
+              top: 10,
+              right: 10,
+              child: Icon(Icons.download),
+            );
+          } else {
+            return const SizedBox();
+          }
+        }),
+      ],
+    );
   }
 }

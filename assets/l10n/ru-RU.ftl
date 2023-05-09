@@ -207,6 +207,7 @@ btn_resend = Повторить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
+btn_save_as = Сохранить как
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
 btn_set_password = Задать пароль
