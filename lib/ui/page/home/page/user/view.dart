@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../domain/repository/user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -180,7 +181,9 @@ class UserView extends StatelessWidget {
                       if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
-                          children: [BlockedWidget(c)],
+                          children: [
+                            BlockedWidget(isBlacklisted: c.isBlacklisted),
+                          ],
                         ),
                       Block(
                         title: 'label_public_information'.l10n,
@@ -210,20 +213,31 @@ class UserView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          NameWidget(c),
-                          StatusWidget(c),
-                          PresenceWidget(c),
+                          NameWidget(user: c.user),
+                          StatusWidget(user: c.user),
+                          PresenceWidget(user: c.user),
                         ],
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [NumWidget(c)],
+                        children: [NumWidget(user: c.user)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
                         children: [
                           ActionsWidget(
-                            c: c,
+                            inContacts: c.inContacts,
+                            inFavorites: c.inFavorites,
+                            status: c.status,
+                            blacklistStatus: c.blacklistStatus,
+                            user: c.user,
+                            isBlacklisted: c.isBlacklisted,
+                            addToContacts: c.addToContacts,
+                            unblacklist: c.unblacklist,
+                            favoriteContact: c.favoriteContact,
+                            unfavoriteContact: c.unfavoriteContact,
+                            muteChat: c.muteChat,
+                            unmuteChat: c.unmuteChat,
                             removeFromContacts: _removeFromContacts,
                             hideChat: _hideChat,
                             clearChat: _clearChat,
@@ -243,7 +257,7 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: BlockedField(c),
+                  child: BlockedField(unblacklist: c.unblacklist),
                 );
               }),
             );
@@ -368,8 +382,8 @@ class _PaddingWidget extends StatelessWidget {
 class ActionWidget extends StatelessWidget {
   const ActionWidget({
     super.key,
-    required this.text,
-    required this.onPressed,
+    this.text,
+    this.onPressed,
     this.trailing,
   });
 
@@ -377,10 +391,10 @@ class ActionWidget extends StatelessWidget {
   final String? text;
 
   ///
-  final void Function()? onPressed;
+  final Widget? trailing;
 
   ///
-  final Widget? trailing;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -404,24 +418,67 @@ class ActionWidget extends StatelessWidget {
 }
 
 /// Returns the action buttons to do with this [User].
+/// Returns the action buttons to do with this [User].
 class ActionsWidget extends StatelessWidget {
   const ActionsWidget({
     super.key,
-    required this.c,
     required this.removeFromContacts,
     required this.hideChat,
     required this.clearChat,
     required this.blacklistUser,
+    required this.inContacts,
+    required this.inFavorites,
+    required this.status,
+    required this.blacklistStatus,
+    required this.user,
+    required this.isBlacklisted,
+    required this.addToContacts,
+    required this.unfavoriteContact,
+    required this.favoriteContact,
+    required this.unmuteChat,
+    required this.muteChat,
+    required this.unblacklist,
   });
 
   ///
-  final UserController c;
+  final RxBool inContacts;
 
   ///
-  final Future<void> Function(
-    UserController c,
-    BuildContext context,
-  ) removeFromContacts;
+  final RxBool inFavorites;
+
+  ///
+  final Rx<RxStatus> status;
+
+  ///
+  final Rx<RxStatus> blacklistStatus;
+
+  ///
+  final RxUser? user;
+
+  ///
+  final BlacklistRecord? isBlacklisted;
+
+  ///
+  final Future<void> Function() addToContacts;
+
+  ///
+  final Future<void> Function() unfavoriteContact;
+
+  ///
+  final Future<void> Function() favoriteContact;
+
+  ///
+  final Future<void> Function() unmuteChat;
+
+  ///
+  final Future<void> Function() muteChat;
+
+  ///
+  final Future<void> Function() unblacklist;
+
+  ///
+  final Future<void> Function(UserController c, BuildContext context)
+      removeFromContacts;
 
   ///
   final Future<void> Function(UserController c, BuildContext context) hideChat;
@@ -440,32 +497,31 @@ class ActionsWidget extends StatelessWidget {
       children: [
         Obx(() {
           return ActionWidget(
-            key: Key(c.inContacts.value
+            key: Key(inContacts.value
                 ? 'DeleteFromContactsButton'
                 : 'AddToContactsButton'),
-            text: c.inContacts.value
+            text: inContacts.value
                 ? 'btn_delete_from_contacts'.l10n
                 : 'btn_add_to_contacts'.l10n,
-            onPressed: c.status.value.isLoadingMore
+            onPressed: status.value.isLoadingMore
                 ? null
-                : c.inContacts.value
-                    ? () => removeFromContacts(c, context)
-                    : c.addToContacts,
+                : inContacts.value
+                    ? () => removeFromContacts
+                    : addToContacts,
           );
         }),
         Obx(() {
           return ActionWidget(
-            text: c.inFavorites.value
+            text: inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            onPressed:
-                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+            onPressed: inFavorites.value ? unfavoriteContact : favoriteContact,
           );
         }),
-        if (c.user?.user.value.dialog.isLocal == false &&
-            c.user?.dialog.value != null) ...[
+        if (user?.user.value.dialog.isLocal == false &&
+            user?.dialog.value != null) ...[
           Obx(() {
-            final chat = c.user!.dialog.value!.chat.value;
+            final chat = user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
             return ActionWidget(
@@ -481,44 +537,33 @@ class ActionsWidget extends StatelessWidget {
                       width: 17.86,
                       height: 15,
                     ),
-              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+              onPressed: isMuted ? unmuteChat : muteChat,
             );
           }),
           ActionWidget(
             text: 'btn_hide_chat'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => hideChat(c, context),
+            onPressed: () => hideChat,
           ),
           ActionWidget(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => clearChat(c, context),
+            onPressed: () => clearChat,
           ),
         ],
-        Obx(() {
-          return ActionWidget(
-            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted != null
-                ? c.unblacklist
-                : () => blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SizedBox();
-              } else {
-                child = const CustomProgressIndicator();
-              }
-
-              return AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-          );
-        }),
+        ActionWidget(
+          key: Key(isBlacklisted != null ? 'Unblock' : 'Block'),
+          text: isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+          onPressed: isBlacklisted != null ? unblacklist : () => blacklistUser,
+          trailing: Obx(() {
+            return AnimatedOpacity(
+              duration: 200.milliseconds,
+              opacity: blacklistStatus.value.isEmpty ? 0 : 1,
+              child: const CustomProgressIndicator(),
+            );
+          }),
+        ),
         ActionWidget(text: 'btn_report'.l10n, onPressed: () {}),
       ],
     );
@@ -527,13 +572,10 @@ class ActionsWidget extends StatelessWidget {
 
 /// Returns a [User.name] copyable field.
 class NameWidget extends StatelessWidget {
-  const NameWidget(
-    this.c, {
-    super.key,
-  });
+  const NameWidget({super.key, this.user});
 
   ///
-  final UserController c;
+  final RxUser? user;
 
   @override
   Widget build(BuildContext context) {
@@ -541,10 +583,10 @@ class NameWidget extends StatelessWidget {
       CopyableTextField(
         key: const Key('NameField'),
         state: TextFieldState(
-          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+          text: '${user?.user.value.name?.val ?? user?.user.value.num.val}',
         ),
         label: 'label_name'.l10n,
-        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+        copy: '${user?.user.value.name?.val ?? user?.user.value.num.val}',
       ),
     );
   }
@@ -552,18 +594,15 @@ class NameWidget extends StatelessWidget {
 
 /// Returns a [User.status] copyable field.
 class StatusWidget extends StatelessWidget {
-  const StatusWidget(
-    this.c, {
-    super.key,
-  });
+  const StatusWidget({super.key, this.user});
 
   ///
-  final UserController c;
+  final RxUser? user;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final UserTextStatus? status = c.user?.user.value.status;
+      final UserTextStatus? status = user?.user.value.status;
 
       if (status == null) {
         return Container();
@@ -583,23 +622,20 @@ class StatusWidget extends StatelessWidget {
 
 /// Returns a [User.presence] text.
 class PresenceWidget extends StatelessWidget {
-  const PresenceWidget(
-    this.c, {
-    super.key,
-  });
+  const PresenceWidget({super.key, this.user});
 
   ///
-  final UserController c;
+  final RxUser? user;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final Presence? presence = c.user?.user.value.presence;
+      final Presence? presence = user?.user.value.presence;
       if (presence == null) {
         return Container();
       }
 
-      final subtitle = c.user?.user.value.getStatus();
+      final subtitle = user?.user.value.getStatus();
 
       return _PaddingWidget(
         ReactiveTextField(
@@ -620,13 +656,10 @@ class PresenceWidget extends StatelessWidget {
 
 /// Returns a [User.num] copyable field.
 class NumWidget extends StatelessWidget {
-  const NumWidget(
-    this.c, {
-    super.key,
-  });
+  const NumWidget({super.key, this.user});
 
   ///
-  final UserController c;
+  final RxUser? user;
 
   @override
   Widget build(BuildContext context) {
@@ -634,13 +667,13 @@ class NumWidget extends StatelessWidget {
       CopyableTextField(
         key: const Key('UserNum'),
         state: TextFieldState(
-          text: c.user!.user.value.num.val.replaceAllMapped(
+          text: user!.user.value.num.val.replaceAllMapped(
             RegExp(r'.{4}'),
             (match) => '${match.group(0)} ',
           ),
         ),
         label: 'label_num'.l10n,
-        copy: c.user?.user.value.num.val,
+        copy: user?.user.value.num.val,
       ),
     );
   }
@@ -648,30 +681,27 @@ class NumWidget extends StatelessWidget {
 
 /// Returns the blacklisted information of this [User].
 class BlockedWidget extends StatelessWidget {
-  const BlockedWidget(
-    this.c, {
-    super.key,
-  });
+  const BlockedWidget({super.key, this.isBlacklisted});
 
   ///
-  final UserController c;
+  final BlacklistRecord? isBlacklisted;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (c.isBlacklisted?.at != null)
+        if (isBlacklisted?.at != null)
           _PaddingWidget(
             ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
+              state: TextFieldState(text: isBlacklisted!.at.toString()),
               label: 'label_date'.l10n,
               enabled: false,
             ),
           ),
-        if (c.isBlacklisted?.reason != null)
+        if (isBlacklisted?.reason != null)
           _PaddingWidget(
             ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
+              state: TextFieldState(text: isBlacklisted!.reason?.val),
               label: 'label_reason'.l10n,
               enabled: false,
             ),
@@ -683,13 +713,10 @@ class BlockedWidget extends StatelessWidget {
 
 /// Returns a [WidgetButton] for removing the [User] from the blacklist.
 class BlockedField extends StatelessWidget {
-  const BlockedField(
-    this.c, {
-    super.key,
-  });
+  const BlockedField({super.key, required this.unblacklist});
 
   ///
-  final UserController c;
+  final Future<void> Function() unblacklist;
 
   @override
   Widget build(BuildContext context) {
@@ -732,7 +759,7 @@ class BlockedField extends StatelessWidget {
                       child: Transform.translate(
                         offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                         child: WidgetButton(
-                          onPressed: c.unblacklist,
+                          onPressed: unblacklist,
                           child: IgnorePointer(
                             child: ReactiveTextField(
                               enabled: false,
