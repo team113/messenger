@@ -17,7 +17,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -48,8 +51,47 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: WidgetButton(
-              onPressed: () => StatusView.show(context),
+            title: ContextMenuRegion(
+              selector: c.profileKey,
+              alignment: Alignment.topLeft,
+              allowPrimaryButton: true,
+              margin: const EdgeInsets.only(top: 7, right: 32),
+              actions: [
+                ContextMenuButton(
+                  label: 'label_presence_present'.l10n,
+                  withTrailing: true,
+                  onPressed: () {
+                    c.setPresence(Presence.present);
+                  },
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                    ),
+                  ),
+                  // trailing: const Icon(Icons.group_outlined),
+                ),
+                ContextMenuButton(
+                  label: 'label_presence_away'.l10n,
+                  withTrailing: true,
+                  onPressed: () {
+                    c.setPresence(Presence.away);
+                  },
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  // trailing: const Icon(Icons.select_all),
+                ),
+              ],
+              // title: WidgetButton(
+              // onPressed: () => StatusView.show(context),
               child: Row(
                 children: [
                   Material(
@@ -61,6 +103,7 @@ class MenuTabView extends StatelessWidget {
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
+                          key: c.profileKey,
                           radius: 17,
                         );
                       }),

@@ -106,6 +106,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.leading,
     this.trailing,
     this.onPressed,
+    this.withTrailing = false,
   }) : super(key: key);
 
   /// Label of this [ContextMenuButton].
@@ -119,6 +120,8 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
+
+  final bool withTrailing;
 
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
@@ -182,7 +185,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (context.isMobile && widget.trailing != null) ...[
+              if ((context.isMobile || widget.withTrailing) &&
+                  widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(

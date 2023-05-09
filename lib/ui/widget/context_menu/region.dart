@@ -17,6 +17,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -176,7 +177,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 _show(context, d.position);
               }
             },
-            child: PlatformUtils.isMobile
+            child: PlatformUtils.isMobile && widget.selector == null
                 ? FloatingContextMenu(
                     alignment: widget.alignment ?? Alignment.bottomCenter,
                     moveDownwards: widget.moveDownwards,
@@ -225,6 +226,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     if (widget.actions.isEmpty) {
       return;
     }
+
+    HapticFeedback.lightImpact();
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(

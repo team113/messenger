@@ -22,6 +22,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
@@ -204,10 +206,34 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('BalanceButton'),
-                                child: RmbDetector(
-                                  onPressed: () =>
-                                      BalanceMoreView.show(context),
+                                // child: RmbDetector(
+                                //   onPressed: () =>
+                                //       BalanceMoreView.show(context),
+                                child: ContextMenuRegion(
+                                  selector: c.balanceKey,
+                                  alignment: Alignment.bottomLeft,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 32 + 8,
+                                  ),
+                                  actions: [
+                                    if (c.displayFunds)
+                                      ContextMenuButton(
+                                        label: 'btn_hide_balance'.l10n,
+                                        onPressed: () {
+                                          c.setDisplayFunds(false);
+                                        },
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_display_balance'.l10n,
+                                        onPressed: () {
+                                          c.setDisplayFunds(true);
+                                        },
+                                      ),
+                                  ],
                                   child: WalletWidget(
+                                    key: c.balanceKey,
                                     balance: c.balance.value,
                                     visible: c.displayFunds,
                                   ),
@@ -218,11 +244,36 @@ class _HomeViewState extends State<HomeView> {
                                 badge: c.displayTransactions
                                     ? '${c.transactions.length}'
                                     : null,
-                                child: RmbDetector(
-                                  onPressed: () =>
-                                      PartnerMoreView.show(context),
+                                // child: RmbDetector(
+                                //   onPressed: () =>
+                                //       PartnerMoreView.show(context),
+                                //   child:
+                                child: ContextMenuRegion(
+                                  selector: c.partnerKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 40,
+                                  ),
+                                  actions: [
+                                    if (c.displayTransactions)
+                                      ContextMenuButton(
+                                        label: 'btn_hide_transactions'.l10n,
+                                        onPressed: () {
+                                          c.setDisplayTransactions(false);
+                                        },
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_display_transactions'.l10n,
+                                        onPressed: () {
+                                          c.setDisplayTransactions(true);
+                                        },
+                                      ),
+                                  ],
                                   child: SvgImage.asset(
                                     'assets/icons/partner16.svg',
+                                    key: c.partnerKey,
                                     width: 36,
                                     height: 28,
                                   ),
@@ -230,10 +281,35 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
-                                child: RmbDetector(
-                                  onPressed: () =>
-                                      PublicsMoreView.show(context),
+                                // child: RmbDetector(
+                                //   onPressed: () =>
+                                //       PublicsMoreView.show(context),
+                                //   child:
+                                child: ContextMenuRegion(
+                                  selector: c.publicsKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 40,
+                                  ),
+                                  actions: [
+                                    if (c.publicsToggle.value)
+                                      ContextMenuButton(
+                                        label: 'btn_unmute_chats'.l10n,
+                                        onPressed: () {
+                                          c.publicsToggle.toggle();
+                                        },
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_mute_chats'.l10n,
+                                        onPressed: () {
+                                          c.publicsToggle.toggle();
+                                        },
+                                      ),
+                                  ],
                                   child: Transform.translate(
+                                    key: c.publicsKey,
                                     offset: const Offset(0, 1),
                                     child: SvgImage.asset(
                                       'assets/icons/publics13.svg',
@@ -259,30 +335,39 @@ class _HomeViewState extends State<HomeView> {
                                         .value = false;
                                   }
                                 },
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    ChatsMoreView.show(context);
-                                  },
-                                  // child: ContextMenuRegion(
-                                  //   selector: c.chatsKey,
-                                  //   alignment: Alignment.bottomCenter,
-                                  //   margin: const EdgeInsets.only(
-                                  //     bottom: 4,
-                                  //     right: 0,
-                                  //   ),
-                                  //   actions: [
-                                  //     ContextMenuButton(
-                                  //       label: 'Включить звук',
-                                  //       onPressed: () {},
-                                  //       // trailing: const Icon(Icons.group_outlined),
-                                  //     ),
-                                  //     // ContextMenuButton(
-                                  //     //   label: 'Отключить звук',
-                                  //     //   onPressed: () {},
-                                  //     //   // trailing: const Icon(Icons.select_all),
-                                  //     // ),
-                                  //   ],
+                                child:
+                                    // RmbDetector(
+                                    //   onPressed: context.isMobile
+                                    //       ? () {
+                                    //           HapticFeedback.lightImpact();
+                                    //           ChatsMoreView.show(context);
+                                    //         }
+                                    //       : null,
+                                    ContextMenuRegion(
+                                  selector: c.chatsKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
+                                  actions: [
+                                    if (c.myUser.value?.muted != null)
+                                      ContextMenuButton(
+                                        label: 'btn_unmute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(true);
+                                        },
+                                        // trailing: const Icon(Icons.group_outlined),
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_mute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(false);
+                                        },
+                                        // trailing: const Icon(Icons.select_all),
+                                      ),
+                                  ],
                                   child: Obx(() {
                                     final Widget child;
 
@@ -312,20 +397,65 @@ class _HomeViewState extends State<HomeView> {
                                     );
                                   }),
                                 ),
+                                // ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    StatusView.show(context);
-                                  },
+                                // child: RmbDetector(
+                                //   onPressed: context.isMobile
+                                //       ? () {
+                                //           HapticFeedback.lightImpact();
+                                //           StatusView.show(context);
+                                //         }
+                                //       : null,
+                                child: ContextMenuRegion(
+                                  selector: c.profileKey,
+                                  alignment: Alignment.bottomRight,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
+                                  actions: [
+                                    ContextMenuButton(
+                                      label: 'label_presence_present'.l10n,
+                                      withTrailing: true,
+                                      onPressed: () {
+                                        c.setPresence(Presence.present);
+                                      },
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      // trailing: const Icon(Icons.group_outlined),
+                                    ),
+                                    ContextMenuButton(
+                                      label: 'label_presence_away'.l10n,
+                                      withTrailing: true,
+                                      onPressed: () {
+                                        c.setPresence(Presence.away);
+                                      },
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      // trailing: const Icon(Icons.select_all),
+                                    ),
+                                  ],
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     key: c.profileKey,
                                     radius: 16,
                                   ),
                                 ),
+                                // ),
                               ),
                             ],
                             currentIndex: router.tab.index,

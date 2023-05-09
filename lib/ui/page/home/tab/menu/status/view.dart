@@ -34,14 +34,14 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class StatusView extends StatelessWidget {
-  const StatusView({super.key, this.expanded = true});
+  const StatusView({super.key, this.expanded = false});
 
   /// Indicator whether this [StatusView] should contain [MyUser.status] field
   /// as well as [MyUser.presence], or [MyUser.presence] only otherwise.
   final bool expanded;
 
   /// Displays a [StatusView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {bool expanded = true}) {
+  static Future<T?> show<T>(BuildContext context, {bool expanded = false}) {
     return ModalPopup.show(
       context: context,
       child: StatusView(expanded: expanded),

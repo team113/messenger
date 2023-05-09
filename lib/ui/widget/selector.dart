@@ -218,7 +218,8 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy,
           );
 
-          left = offset.dx - (size?.dx ?? widget.width) / 2;
+          left =
+              offset.dx - (size?.dx ?? widget.width) / 2 - widget.margin.right;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
@@ -228,6 +229,15 @@ class _SelectorState<T> extends State<Selector<T>> {
 
           // left = offset.dx - widget.width;
           right = constraints.maxWidth - offset.dx;
+          bottom = MediaQuery.of(context).size.height - offset.dy;
+        } else if (widget.alignment == Alignment.topRight) {
+          offset = Offset(
+            offset.dx + (box?.size.width ?? 0),
+            offset.dy - widget.margin.bottom,
+          );
+
+          left = offset.dx - widget.margin.right;
+          // right = constraints.maxWidth - offset.dx;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
@@ -243,7 +253,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (box?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.width / 2 - widget.margin.right;
+          left = offset.dx - widget.margin.right;
           top = offset.dy - widget.margin.bottom;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(

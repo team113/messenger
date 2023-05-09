@@ -22,10 +22,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/partner.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -42,7 +44,7 @@ export 'view.dart';
 class HomeController extends GetxController {
   HomeController(
     this._auth,
-    this._myUser,
+    this._myUserService,
     this._chatService,
     this._settings,
     this._balanceService,
@@ -78,13 +80,18 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey profileKey = GlobalKey();
 
-   final GlobalKey chatsKey = GlobalKey();
+  final GlobalKey chatsKey = GlobalKey();
+  final GlobalKey publicsKey = GlobalKey();
+  final GlobalKey partnerKey = GlobalKey();
+  final GlobalKey balanceKey = GlobalKey();
+
+  final RxBool publicsToggle = RxBool(false);
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
   /// [MyUserService] to listen to the [MyUser] changes.
-  final MyUserService _myUser;
+  final MyUserService _myUserService;
 
   final ChatService _chatService;
 
@@ -96,13 +103,13 @@ class HomeController extends GetxController {
   final PartnerService _partnerService;
 
   /// Subscription to the [MyUser] changes.
-  late final StreamSubscription _myUserSubscription;
+  late final StreamSubscription _myUserServiceSubscription;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
@@ -126,8 +133,8 @@ class HomeController extends GetxController {
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUser.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUser.myUser.listen((u) =>
+    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
+    _myUserServiceSubscription = _myUserService.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
     sideBarWidth =
@@ -143,12 +150,12 @@ class HomeController extends GetxController {
     refresh();
 
     if (_settings.applicationSettings.value?.showIntroduction ?? true) {
-      if (_myUser.myUser.value != null) {
-        _displayIntroduction(_myUser.myUser.value!);
+      if (_myUserService.myUser.value != null) {
+        _displayIntroduction(_myUserService.myUser.value!);
       } else {
         Worker? worker;
         worker = ever(
-          _myUser.myUser,
+          _myUserService.myUser,
           (MyUser? myUser) {
             if (myUser != null && worker != null) {
               _displayIntroduction(myUser);
@@ -165,7 +172,7 @@ class HomeController extends GetxController {
   void onClose() {
     super.onClose();
     router.removeListener(_onRouterChanged);
-    _myUserSubscription.cancel();
+    _myUserServiceSubscription.cancel();
   }
 
   /// Returns corrected according to the side bar constraints [width] value.
@@ -185,7 +192,34 @@ class HomeController extends GetxController {
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
-      _myUser.updateUserPresence(presence);
+      _myUserService.updateUserPresence(presence);
+
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
+
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
+    }
+  }
+
+  void setDisplayTransactions(bool b) => _settings.setDisplayTransactions(b);
+
+  void setDisplayFunds(bool b) => _settings.setDisplayFunds(b);
 
   /// Refreshes the controller on [router] change.
   ///
