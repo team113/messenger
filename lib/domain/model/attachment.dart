@@ -66,13 +66,10 @@ abstract class Attachment extends HiveObject {
       downloading.value?.status.value ?? DownloadStatus.notStarted;
 
   /// Initializes this [Attachment].
-  Future<void> init();
+  Future<void> init({void Function()? onSave});
 
   /// Disposes this [Attachment].
   void dispose();
-
-  /// Downloads this [Attachment].
-  Future<void> download();
 }
 
 /// Image [Attachment].
@@ -104,7 +101,7 @@ class ImageAttachment extends Attachment {
   StreamSubscription? _downloadsSubscription;
 
   @override
-  Future<void> init() async {
+  Future<void> init({void Function()? onSave}) async {
     if (original.checksum != null) {
       downloading.value = FileService.downloads.firstWhereOrNull((e) {
         return e.checksum == original.checksum;
@@ -136,22 +133,6 @@ class ImageAttachment extends Attachment {
   void dispose() {
     _downloadsSubscription?.cancel();
   }
-
-  @override
-  Future<void> download() async {
-    if (downloading.value == null) {
-      downloading.value = FileService.download(
-        original.url,
-        original.checksum,
-        filename,
-        original.size,
-      );
-    } else {
-      downloading.value!.start(original.url);
-    }
-
-    await downloading.value!.future;
-  }
 }
 
 /// Plain file [Attachment].
@@ -167,6 +148,9 @@ class FileAttachment extends Attachment {
   @HiveField(3)
   String? path;
 
+  /// Callback, called when the [path] is changed.
+  void Function()? onSave;
+
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
@@ -180,6 +164,9 @@ class FileAttachment extends Attachment {
   /// [StreamSubscription] for the [FileService.downloads] changes.
   StreamSubscription? _downloadsSubscription;
 
+  /// [StreamSubscription] for the [Downloading.status] changes.
+  StreamSubscription? _statusSubscription;
+
   @override
   DownloadStatus get downloadStatus =>
       downloading.value?.status.value ??
@@ -188,10 +175,12 @@ class FileAttachment extends Attachment {
           : DownloadStatus.notStarted);
 
   @override
-  Future<void> init() async {
+  Future<void> init({void Function()? onSave}) async {
     if (_initialized) {
       return;
     }
+
+    this.onSave = onSave;
 
     _initialized = true;
 
@@ -199,6 +188,7 @@ class FileAttachment extends Attachment {
       downloading.value = FileService.downloads.firstWhereOrNull((e) {
         return e.checksum == original.checksum;
       });
+      _listenStatus();
     }
 
     if (downloading.value == null) {
@@ -207,6 +197,7 @@ class FileAttachment extends Attachment {
           case OperationKind.added:
             if (e.element.checksum == original.checksum) {
               downloading.value = e.element;
+              _listenStatus();
             }
             break;
 
@@ -221,6 +212,7 @@ class FileAttachment extends Attachment {
       });
     } else if (downloading.value!.status.value == DownloadStatus.isFinished) {
       path = downloading.value!.file?.path;
+      onSave?.call();
       _downloaded.value = true;
     }
 
@@ -240,10 +232,12 @@ class FileAttachment extends Attachment {
 
     if (file != null) {
       path = file.path;
+      onSave?.call();
       _downloaded.value = true;
     } else {
       if (path != null) {
         path = null;
+        onSave?.call();
       }
     }
   }
@@ -251,9 +245,10 @@ class FileAttachment extends Attachment {
   @override
   void dispose() {
     _downloadsSubscription?.cancel();
+    _statusSubscription?.cancel();
   }
 
-  @override
+  /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
       if (downloading.value == null) {
@@ -263,6 +258,7 @@ class FileAttachment extends Attachment {
           filename,
           original.size,
         );
+        _listenStatus();
       } else {
         downloading.value!.start(original.url);
       }
@@ -274,6 +270,7 @@ class FileAttachment extends Attachment {
       } else {
         _downloaded.value = true;
         path = file.path;
+        onSave?.call();
       }
     } catch (_) {
       path = null;
@@ -292,6 +289,7 @@ class FileAttachment extends Attachment {
         return true;
       } else {
         path = null;
+        onSave?.call();
       }
     }
 
@@ -307,6 +305,19 @@ class FileAttachment extends Attachment {
         rethrow;
       }
     }
+  }
+
+  /// Listens the [downloading] status updates.
+  void _listenStatus() {
+    _statusSubscription = downloading.value?.status.listen((status) {
+      if (status == DownloadStatus.isFinished) {
+        String? filePath = downloading.value?.file?.path;
+        if (filePath != null && filePath != path) {
+          path = filePath;
+          onSave?.call();
+        }
+      }
+    });
   }
 }
 
@@ -347,12 +358,7 @@ class LocalAttachment extends Attachment {
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
 
   @override
-  Future<void> download() async {
-    // No-op.
-  }
-
-  @override
-  Future<void> init() async {
+  Future<void> init({void Function()? onSave}) async {
     // No-op.
   }
 

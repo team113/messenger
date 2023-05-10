@@ -1080,6 +1080,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       String? path = await FilePicker.platform.saveFile(
         fileName: item.name,
         type: item.isVideo ? FileType.video : FileType.image,
+        lockParentWindow: true,
       );
 
       if (path != null) {
@@ -1107,12 +1108,12 @@ class _GalleryPopupState extends State<GalleryPopup>
             rethrow;
           }
         }
-      }
 
-      if (mounted) {
-        MessagePopup.success(item.isVideo
-            ? 'label_video_downloaded'.l10n
-            : 'label_image_downloaded'.l10n);
+        if (mounted) {
+          MessagePopup.success(item.isVideo
+              ? 'label_video_downloaded'.l10n
+              : 'label_image_downloaded'.l10n);
+        }
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

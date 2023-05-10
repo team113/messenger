@@ -682,15 +682,28 @@ class HiveRxChat extends RxChat {
   Future<void> _initAttachments(ChatItem item) async {
     final List<Future> futures = [];
 
+    onSave() async {
+      final HiveChatItem? hiveItem =
+          await get(item.id, timestamp: item.timestamp);
+      if (hiveItem != null) {
+        final ChatItem? message =
+            messages.firstWhereOrNull((e) => e.value.id == item.id)?.value;
+        if (message != null) {
+          hiveItem.value = message;
+          hiveItem.save();
+        }
+      }
+    }
+
     if (item is ChatMessage) {
       futures.addAll(
-        item.attachments.map((e) => e.init()),
+        item.attachments.map((e) => e.init(onSave: onSave)),
       );
     } else if (item is ChatForward) {
       ChatItemQuote nested = item.quote;
       if (nested is ChatMessageQuote) {
         futures.addAll(
-          nested.attachments.map((e) => e.init()),
+          nested.attachments.map((e) => e.init(onSave: onSave)),
         );
       }
     }

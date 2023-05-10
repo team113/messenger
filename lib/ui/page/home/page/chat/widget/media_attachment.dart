@@ -160,7 +160,6 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         child,
         Obx(() {
           if (attachment.isDownloading) {
-            print('child: Icon(Icons.download),');
             return const Positioned(
               top: 10,
               right: 10,
