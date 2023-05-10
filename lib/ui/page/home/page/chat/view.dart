@@ -943,7 +943,7 @@ class TimeLabelWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat('dd.MM.yy').format(time)),
+          child: Text(DateFormat.yMd().format(time)),
         ),
         child: AnimatedOpacity(
           key: Key('$i$time'),
@@ -1211,22 +1211,20 @@ class BottomBar extends StatelessWidget {
     }
 
     return Obx(() {
-      if (edit.value != null) {
-        return MessageFieldView(
-          key: const Key('EditField'),
-          controller: edit.value,
-          onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
-          canAttach: false,
-        );
-      }
-
-      return MessageFieldView(
-        key: const Key('SendField'),
-        controller: send,
-        onChanged: chat!.chat.value.isMonolog ? null : keepTyping,
-        onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
-        canForward: true,
-      );
+      return edit.value != null
+          ? MessageFieldView(
+              key: const Key('EditField'),
+              controller: edit.value,
+              onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
+              canAttach: false,
+            )
+          : MessageFieldView(
+              key: const Key('SendField'),
+              controller: send,
+              onChanged: chat!.chat.value.isMonolog ? null : keepTyping,
+              onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
+              canForward: true,
+            );
     });
   }
 }
