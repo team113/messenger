@@ -225,10 +225,7 @@ class MessageFieldView extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
-                          CustomBoxShadow(
-                            color: color,
-                            blurRadius: elevation,
-                          ),
+                          CustomBoxShadow(color: color, blurRadius: elevation),
                         ],
                       ),
                       child: child,
