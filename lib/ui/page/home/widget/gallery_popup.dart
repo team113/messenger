@@ -1076,7 +1076,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     }
   }
 
-  /// Downloads the provided [GalleryItem].
+  /// Downloads the provided [GalleryItem] using save-as dialog.
   Future<void> _saveAs(GalleryItem item) async {
     try {
       String? path = await FilePicker.platform.saveFile(
