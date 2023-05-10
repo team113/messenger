@@ -214,6 +214,10 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
+
                           final List<Widget> children;
 
                           if (c.chat!.chat.value.ongoingCall == null) {
@@ -290,24 +294,26 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
+                      onPointerSignal: c.settings.value?.timelineEnabled == true
+                          ? (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
 
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 10.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
+                          : null,
                       onPointerPanZoomUpdate: (s) {
                         if (c.scrollOffset.dx.abs() < 7 &&
                             c.scrollOffset.dy.abs() < 7) {
@@ -331,7 +337,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse)
+                          if (c.settings.value?.timelineEnabled == true &&
+                              c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -777,13 +784,13 @@ class _ChatViewState extends State<ChatView>
       return SelectionContainer.disabled(
         child: TimeLabelWidget(
           i,
+          time: element.id.at.val,
+          animation: _animation,
           opacity: c.stickyIndex.value == i
               ? c.showSticky.isTrue
                   ? 1
                   : 0
               : 1,
-          time: element.id.at.val,
-          animation: _animation,
         ),
       );
     } else if (element is UnreadMessagesElement) {
