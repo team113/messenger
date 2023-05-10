@@ -360,6 +360,8 @@ class _RetryImageState extends State<RetryImage> {
     );
   }
 
+  static bool _firstTime = true;
+
   /// Loads the [_fallback] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
@@ -367,6 +369,23 @@ class _RetryImageState extends State<RetryImage> {
     if (widget.fallbackUrl == null) {
       return;
     }
+
+    final tag = widget.url.replaceRange(
+      0,
+      widget.url.lastIndexOf('filename=') + 'filename='.length,
+      '',
+    );
+
+    // print('[$tag] 403 error handling started...');
+
+    // final Stopwatch forbidden = Stopwatch()..start();
+
+    // await widget.onForbidden?.call();
+    // _cancelToken.cancel();
+
+    // print(
+    //   '[$tag] 403 error handling done for ${forbidden.elapsedMicroseconds} µs',
+    // );
 
     Uint8List? cached;
     if (widget.fallbackChecksum != null) {
@@ -384,19 +403,47 @@ class _RetryImageState extends State<RetryImage> {
           () async {
             Response? data;
 
+            print('[$tag] fetch started...');
+            final Stopwatch watch = Stopwatch()..start();
+
             try {
+              // if (_firstTime) {
+              //   throw DioError(
+              //     requestOptions:
+              //         RequestOptions(responseType: ResponseType.json, path: ''),
+              //     response: Response(
+              //       statusCode: 403,
+              //       requestOptions: RequestOptions(
+              //         responseType: ResponseType.json,
+              //         path: '',
+              //       ),
+              //     ),
+              //   );
+              //   _firstTime = false;
+              // }
+
               data = await PlatformUtils.dio.get(
                 widget.fallbackUrl!,
                 options: Options(responseType: ResponseType.bytes),
               );
             } on DioError catch (e) {
+              print('[$tag] 403 error handling started...');
+
+              final Stopwatch forbidden = Stopwatch()..start();
+
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 _cancelToken.cancel();
               }
+
+              print(
+                '[$tag] 403 error handling done for ${forbidden.elapsedMicroseconds} µs',
+              );
             }
 
             if (data?.data != null && data!.statusCode == 200) {
+              print('[$tag] fetch done for ${watch.elapsedMicroseconds} µs');
+
               if (widget.fallbackChecksum != null) {
                 FIFOCache.set(widget.fallbackChecksum!, data.data);
               }

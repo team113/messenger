@@ -311,11 +311,15 @@ class _HomeViewState extends State<HomeView> {
                                   child: Transform.translate(
                                     key: c.publicsKey,
                                     offset: const Offset(0, 1),
-                                    child: SvgImage.asset(
-                                      'assets/icons/publics13.svg',
-                                      width: 32,
-                                      height: 31,
-                                    ),
+                                    child: Obx(() {
+                                      return SvgImage.asset(
+                                        c.publicsToggle.value
+                                            ? 'assets/icons/publics_muted3.svg'
+                                            : 'assets/icons/publics13.svg',
+                                        width: 32,
+                                        height: 31,
+                                      );
+                                    }),
                                   ),
                                 ),
                               ),
@@ -373,10 +377,10 @@ class _HomeViewState extends State<HomeView> {
 
                                     if (c.myUser.value?.muted != null) {
                                       child = SvgImage.asset(
-                                        'assets/icons/chats_muted2.svg',
+                                        'assets/icons/chats_muted4.svg',
                                         key: const Key('Muted'),
-                                        width: 36.06,
-                                        height: 30,
+                                        width: 39.26,
+                                        height: 33.5,
                                       );
                                     } else {
                                       child = Transform.translate(

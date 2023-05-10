@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -584,6 +585,95 @@ Widget desktopCall(CallController c, BuildContext context) {
                   children: [
                     dock(),
                     launchpad(),
+                    Obx(() {
+                      if (c.deviceChanges.isEmpty) {
+                        return const SizedBox();
+                      }
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: c.deviceChanges.map((e) {
+                          final String title;
+
+                          if (e.kind() == MediaDeviceKind.AudioInput) {
+                            title = 'Микрофон был изменён на ${e.label()}';
+                          } else if (e.kind() == MediaDeviceKind.AudioOutput) {
+                            title = 'Cпикер был изменён на ${e.label()}';
+                          } else {
+                            title = 'Камера была изменёна на ${e.label()}';
+                          }
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                CustomBoxShadow(
+                                  color: Color(0x33000000),
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer,
+                                )
+                              ],
+                            ),
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            child: ConditionalBackdropFilter(
+                              borderRadius: BorderRadius.circular(30),
+                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0x301D6AAE),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                // padding: const EdgeInsets.symmetric(
+                                //   vertical: 12,
+                                //   horizontal: 12,
+                                // ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        12,
+                                        12,
+                                        0,
+                                        12,
+                                      ),
+                                      child: Text(
+                                        title,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    // const SizedBox(width: 8),
+                                    WidgetButton(
+                                      onPressed: () {
+                                        c.deviceChanges.remove(e);
+                                      },
+                                      child: Container(
+                                        // color: Colors.red,
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8,
+                                          12,
+                                          12,
+                                          12,
+                                        ),
+                                        child: SvgImage.asset(
+                                          'assets/icons/close.svg',
+                                          width: 7,
+                                          height: 7,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),

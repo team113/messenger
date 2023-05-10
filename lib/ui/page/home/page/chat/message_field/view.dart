@@ -184,31 +184,32 @@ class MessageFieldView extends StatelessWidget {
 
         Widget? previews;
 
-        if (c.edited.value != null) {
-          previews = SingleChildScrollView(
-            controller: c.scrollController,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              child: Dismissible(
-                key: Key('${c.edited.value?.id}'),
-                direction: DismissDirection.horizontal,
-                onDismissed: (_) => c.edited.value = null,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: WidgetButton(
-                    onPressed: () => onItemPressed?.call(c.edited.value!.id),
-                    child: _buildPreview(
-                      context,
-                      c.edited.value!,
-                      c,
-                      onClose: () => c.edited.value = null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (c.quotes.isNotEmpty) {
+        // if (c.edited.value != null) {
+        //   previews = SingleChildScrollView(
+        //     controller: c.scrollController,
+        //     child: Container(
+        //       padding: const EdgeInsets.all(4),
+        //       child: Dismissible(
+        //         key: Key('${c.edited.value?.id}'),
+        //         direction: DismissDirection.horizontal,
+        //         onDismissed: (_) => c.edited.value = null,
+        //         child: Padding(
+        //           padding: const EdgeInsets.symmetric(vertical: 2),
+        //           child: WidgetButton(
+        //             onPressed: () => onItemPressed?.call(c.edited.value!.id),
+        //             child: _buildPreview(
+        //               context,
+        //               c.edited.value!,
+        //               c,
+        //               onClose: () => c.edited.value = null,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   );
+        // } else
+        if (c.quotes.isNotEmpty) {
           previews = ReorderableListView(
             scrollController: c.scrollController,
             shrinkWrap: true,
@@ -369,12 +370,37 @@ class MessageFieldView extends StatelessWidget {
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
-                padding: c.replied.isNotEmpty || c.attachments.isNotEmpty
+                padding: c.replied.isNotEmpty ||
+                        c.attachments.isNotEmpty ||
+                        c.edited.value != null
                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                     : EdgeInsets.zero,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (c.edited.value != null)
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: Dismissible(
+                          key: Key('${c.edited.value?.id}'),
+                          direction: DismissDirection.horizontal,
+                          onDismissed: (_) => c.edited.value = null,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: WidgetButton(
+                              onPressed: () =>
+                                  onItemPressed?.call(c.edited.value!.id),
+                              child: _buildPreview(
+                                context,
+                                c.edited.value!,
+                                c,
+                                onClose: () => c.edited.value = null,
+                                edited: true,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     if (previews != null)
                       ConstrainedBox(
                         constraints: this.constraints ??
@@ -791,9 +817,68 @@ class MessageFieldView extends StatelessWidget {
     ChatItem item,
     MessageFieldController c, {
     void Function()? onClose,
+    bool edited = false,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = item.authorId == c.me;
+
+    if (edited) {
+      return MouseRegion(
+        opaque: false,
+        onEnter: (d) => c.hoveredReply.value = item,
+        onExit: (d) => c.hoveredReply.value = null,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+          decoration: BoxDecoration(
+            // color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  'Редактирование сообщения'.l10n,
+                  style: style.boldBody.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              WidgetButton(
+                key: const Key('CancelReplyButton'),
+                onPressed: onClose,
+                child: Text(
+                  'Cancel',
+                  style: style.boldBody.copyWith(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                // child: Container(
+                //   width: 16,
+                //   height: 16,
+                //   margin: const EdgeInsets.only(right: 4, top: 4),
+                //   child: Container(
+                //     key: const Key('Close'),
+                //     decoration: BoxDecoration(
+                //       shape: BoxShape.circle,
+                //       color: style.cardColor,
+                //     ),
+                //     alignment: Alignment.center,
+                //     child: SvgImage.asset(
+                //       'assets/icons/close_primary.svg',
+                //       width: 8,
+                //       height: 8,
+                //     ),
+                //   ),
+                // ),
+              )
+            ],
+          ),
+        ),
+      );
+    }
 
     Widget? content;
     final List<Widget> additional = [];
@@ -909,7 +994,7 @@ class MessageFieldView extends StatelessWidget {
 
     final Widget expanded;
 
-    if (c.edited.value != null) {
+    if (edited) {
       expanded = Row(
         mainAxisSize: MainAxisSize.min,
         children: [

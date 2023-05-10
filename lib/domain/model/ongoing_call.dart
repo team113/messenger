@@ -229,6 +229,8 @@ class OngoingCall {
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
+  final RxList<MediaDeviceDetails> deviceChanges = RxList();
+
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
   ///
@@ -1602,13 +1604,23 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.output().isNotEmpty) {
+      _addDeviceNotification(added.output().first);
       setOutputDevice(added.output().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+      _addDeviceNotification(devices.output().first);
       setOutputDevice(devices.output().first.deviceId());
     }
+  }
+
+  void _addDeviceNotification(MediaDeviceDetails device) {
+    deviceChanges.add(device);
+
+    Timer(const Duration(seconds: 5), () {
+      deviceChanges.remove(device);
+    });
   }
 
   /// Picks the [audioDevice] based on the provided [previous], [added] and
@@ -1619,11 +1631,13 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.audio().isNotEmpty) {
+      _addDeviceNotification(added.audio().first);
       setAudioDevice(added.audio().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+      _addDeviceNotification(devices.audio().first);
       setAudioDevice(devices.audio().first.deviceId());
     }
   }

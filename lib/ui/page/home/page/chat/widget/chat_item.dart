@@ -2458,17 +2458,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ?.call(_selection?.plainText ?? copyable!),
                             ),
                           if (item.status.value == SendingStatus.sent) ...[
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: PlatformUtils.isMobile
-                                  ? 'btn_reply'.l10n
-                                  : 'btn_reply_message'.l10n,
-                              trailing: SvgImage.asset(
-                                'assets/icons/reply.svg',
-                                height: 18,
+                            if (widget.onReply != null)
+                              ContextMenuButton(
+                                key: const Key('ReplyButton'),
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_reply'.l10n
+                                    : 'btn_reply_message'.l10n,
+                                trailing: SvgImage.asset(
+                                  'assets/icons/reply.svg',
+                                  height: 18,
+                                ),
+                                onPressed: widget.onReply,
                               ),
-                              onPressed: widget.onReply,
-                            ),
                             if (item is ChatMessage)
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
@@ -2492,7 +2493,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (item.at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ||
-                                    !_isRead))
+                                    !_isRead ||
+                                    isMonolog))
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,

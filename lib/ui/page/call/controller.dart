@@ -25,7 +25,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart'
+    show MediaDeviceInfo, VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -404,6 +405,10 @@ class CallController extends GetxController {
   /// Indicates whether the current [OngoingCall] is with video or not.
   bool get withVideo => _currentCall.value.withVideo ?? false;
 
+  RxList<MediaDeviceDetails> get devices => _currentCall.value.devices;
+  RxList<MediaDeviceDetails> get deviceChanges =>
+      _currentCall.value.deviceChanges;
+
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;
 
@@ -762,6 +767,11 @@ class CallController extends GetxController {
       }
 
       // Ensure [EndCallButton] is always in the list.
+      if (persisted!.whereType<ReconnectButton>().isEmpty) {
+        persisted.insert(0, ReconnectButton(this));
+      }
+
+      // Ensure [EndCallButton] is always in the list.
       if (persisted!.whereType<EndCallButton>().isEmpty) {
         persisted.add(EndCallButton(this));
       }
@@ -880,12 +890,12 @@ class CallController extends GetxController {
       }
     });
 
-    AudioCache.instance.loadAll(['audio/ringing.mp3']);
+    AudioCache.instance.loadAll(['audio/reconnect.mp3']);
     _reconnectWorker = ever(_currentCall.value.connectionLost, (b) async {
       if (b) {
         await _reconnectPlayer.setReleaseMode(ReleaseMode.loop);
         await _reconnectPlayer.play(
-          AssetSource('audio/ringing.mp3'),
+          AssetSource('audio/reconnect.mp3'),
           position: Duration.zero,
           mode: PlayerMode.lowLatency,
         );

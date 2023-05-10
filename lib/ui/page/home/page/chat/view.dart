@@ -941,13 +941,17 @@ class _ChatViewState extends State<ChatView>
               timestamp: c.settings.value?.timelineEnabled != true,
               onHide: () => c.hideChatItem(e.value),
               onDelete: () => c.deleteMessage(e.value),
-              onReply: () {
-                if (c.send.replied.any((i) => i.id == e.value.id)) {
-                  c.send.replied.removeWhere((i) => i.id == e.value.id);
-                } else {
-                  c.send.replied.insert(0, e.value);
-                }
-              },
+              onReply: c.edit.value?.edited.value?.id != e.value.id
+                  ? () {
+                      final field = c.edit.value ?? c.send;
+
+                      if (field.replied.any((i) => i.id == e.value.id)) {
+                        field.replied.removeWhere((i) => i.id == e.value.id);
+                      } else {
+                        field.replied.insert(0, e.value);
+                      }
+                    }
+                  : null,
               onCopy: (text) {
                 if (c.selection.value?.plainText.isNotEmpty == true) {
                   c.copyText(c.selection.value!.plainText);
@@ -1863,8 +1867,6 @@ class _ChatViewState extends State<ChatView>
             key: const Key('EditField'),
             controller: c.edit.value,
             onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-            canAttach: false,
-            background: const Color(0xFFfff7ea),
           ),
         );
       }

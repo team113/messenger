@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -112,7 +113,23 @@ class MessageFieldController extends GetxController {
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
-    _editedWorker ??= ever(edited, (_) => onChanged?.call());
+    _editedWorker ??= ever(edited, (item) {
+      if (item != null) {
+        final ChatMessage msg = item as ChatMessage;
+
+        field.text = msg.text?.val ?? '';
+        this.attachments.value =
+            msg.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+        replied.value =
+            msg.repliesTo.map((e) => e.original).whereNotNull().toList();
+      } else {
+        field.text = '';
+        this.attachments.clear();
+        replied.clear();
+      }
+
+      onChanged?.call();
+    });
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.

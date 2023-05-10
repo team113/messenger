@@ -86,7 +86,10 @@ class ReconnectButton extends CallButton {
     return _common(
       asset: 'more',
       hinted: hinted,
-      onPressed: c.connectionLost.toggle,
+      onPressed: () {
+        c.deviceChanges.add(c.devices.audio().first);
+      },
+      // onPressed: c.connectionLost.toggle,
     );
   }
 }

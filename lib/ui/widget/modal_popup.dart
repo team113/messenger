@@ -104,7 +104,6 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        useRootNavigator: false,
         builder: (context) {
           return Center(
             child: Container(
