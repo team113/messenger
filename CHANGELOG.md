@@ -20,7 +20,8 @@ All user visible changes to this project will be documented in this file. This p
         - Clickable links and emails. ([#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
-        - Chat-monolog. ([#333], [#326])    
+        - Chat-monolog. ([#333], [#326])
+        - Media downloading indication. ([#423], [#140])
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
 - Web:
@@ -49,6 +50,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
+[#140]: /../../issues/140
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#367]: /../../issues/367
@@ -70,6 +72,7 @@ All user visible changes to this project will be documented in this file. This p
 [#399]: /../../pull/399
 [#403]: /../../pull/403
 [#405]: /../../pull/405
+[#423]: /../../pull/423
 
 
 
