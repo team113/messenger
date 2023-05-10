@@ -21,6 +21,8 @@ import 'package:get/get.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -110,7 +112,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          _ChatSubtitle(c),
+                          ChatSubtitle(c.chat),
                         ],
                       ),
                     ),
@@ -209,32 +211,47 @@ class ChatInfoView extends StatelessWidget {
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
-                      _AvatarWidget(c),
+                      ChatAvatar(
+                        c.chat,
+                        avatarKey: c.avatarKey,
+                        avatar: c.avatar,
+                        pickAvatar: c.pickAvatar,
+                        deleteAvatar: c.deleteAvatar,
+                      ),
                       const SizedBox(height: 15),
-                      _NameWidget(c),
+                      ChatName(c.chat, c.name),
                     ],
                   ),
                   if (!c.isMonolog) ...[
                     Block(
                       title: 'label_chat_members'.l10n,
                       children: [
-                        _MembersWidget(
-                          c,
-                          id: id,
+                        ChatMembers(
+                          id,
+                          chat: c.chat,
+                          me: c.me,
+                          redialChatCallMember: c.redialChatCallMember,
+                          removeChatCallMember: c.removeChatCallMember,
                           removeChatMember: _removeChatMember,
                         )
                       ],
                     ),
                     Block(
                       title: 'label_direct_chat_link'.l10n,
-                      children: [_LinkWidget(c)],
+                      children: [ChatLink(c.chat, c.link)],
                     ),
                   ],
                   Block(
                     title: 'label_actions'.l10n,
                     children: [
-                      _ActionsWidget(
-                        c,
+                      ChatActions(
+                        c.chat,
+                        isMonolog: c.isMonolog,
+                        isLocal: c.isLocal,
+                        unfavoriteChat: c.unfavoriteChat,
+                        favoriteChat: c.favoriteChat,
+                        unmuteChat: c.unmuteChat,
+                        muteChat: c.muteChat,
                         hideChat: _hideChat,
                         clearChat: _clearChat,
                         leaveGroup: _leaveGroup,
@@ -352,38 +369,12 @@ class ChatInfoView extends StatelessWidget {
   }
 }
 
-/// Returns a subtitle to display under the [Chat]'s title.
-class _ChatSubtitle extends StatelessWidget {
-  const _ChatSubtitle(this.c);
-
-  ///
-  final ChatInfoController c;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
-
-    return Obx(() {
-      final Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(subtitle, style: style);
-        }
-      }
-
-      return Container();
-    });
-  }
-}
-
 /// Basic [Padding] wrapper.
 class _PaddingWidget extends StatelessWidget {
-  const _PaddingWidget({required this.child});
+  const _PaddingWidget(this.child);
 
-  ///
-  final Widget child;
+  /// [Widget] that will be wrapped with padding.
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -391,13 +382,72 @@ class _PaddingWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [Chat.avatar] visual representation along with its manipulation
-/// buttons.
-class _AvatarWidget extends StatelessWidget {
-  const _AvatarWidget(this.c);
+/// Dense [Padding] wrapper.
+class _DenseWidget extends StatelessWidget {
+  const _DenseWidget(this.child);
 
-  ///
-  final ChatInfoController c;
+  /// [Widget] that will be wrapped in padding.
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: child,
+    );
+  }
+}
+
+/// [Widget] which returns a subtitle to display under the [Chat]'s title.
+class ChatSubtitle extends StatelessWidget {
+  const ChatSubtitle(this.chat, {super.key});
+
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+
+    return Obx(() {
+      if (chat!.chat.value.isGroup) {
+        final String? subtitle = chat!.chat.value.getSubtitle();
+        if (subtitle != null) {
+          return Text(subtitle, style: style);
+        }
+      }
+
+      return const SizedBox();
+    });
+  }
+}
+
+/// [Widget] which returns a [Chat.avatar] visual representation along with its
+/// manipulation buttons.
+class ChatAvatar extends StatelessWidget {
+  const ChatAvatar(
+    this.chat, {
+    super.key,
+    required this.avatar,
+    this.avatarKey,
+    this.pickAvatar,
+    this.deleteAvatar,
+  });
+
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
+
+  /// [GlobalKey] used to uniquely identify the [State] of the avatar widget.
+  final GlobalKey<State<StatefulWidget>>? avatarKey;
+
+  /// Reactive status object related to the avatar.
+  final Rx<RxStatus> avatar;
+
+  /// [Function] that allows the user to select and pick an avatar image.
+  final Future<void> Function()? pickAvatar;
+
+  /// [Function] that allows the user to delete the avatar image.
+  final Future<void> Function()? deleteAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -407,26 +457,26 @@ class _AvatarWidget extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             WidgetButton(
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              onPressed: c.chat?.chat.value.avatar == null
-                  ? c.pickAvatar
+              key: Key('ChatAvatar_${chat!.id}'),
+              onPressed: chat?.chat.value.avatar == null
+                  ? pickAvatar
                   : () async {
                       await GalleryPopup.show(
                         context: context,
                         gallery: GalleryPopup(
-                          initialKey: c.avatarKey,
+                          initialKey: avatarKey,
                           children: [
                             GalleryItem.image(
-                              c.chat!.chat.value.avatar!.original.url,
-                              c.chat!.chat.value.id.val,
+                              chat!.chat.value.avatar!.original.url,
+                              chat!.chat.value.id.val,
                             ),
                           ],
                         ),
                       );
                     },
               child: AvatarWidget.fromRxChat(
-                c.chat,
-                key: c.avatarKey,
+                chat,
+                key: avatarKey,
                 radius: 100,
               ),
             ),
@@ -434,7 +484,7 @@ class _AvatarWidget extends StatelessWidget {
               child: Obx(() {
                 return AnimatedSwitcher(
                   duration: 200.milliseconds,
-                  child: c.avatar.value.isLoading
+                  child: avatar.value.isLoading
                       ? Container(
                           width: 200,
                           height: 200,
@@ -456,7 +506,7 @@ class _AvatarWidget extends StatelessWidget {
           children: [
             WidgetButton(
               key: const Key('UploadAvatar'),
-              onPressed: c.pickAvatar,
+              onPressed: pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
                 style: TextStyle(
@@ -465,14 +515,14 @@ class _AvatarWidget extends StatelessWidget {
                 ),
               ),
             ),
-            if (c.chat?.chat.value.avatar != null) ...[
+            if (chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
                 style: const TextStyle(color: Colors.black, fontSize: 11),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
-                onPressed: c.deleteAvatar,
+                onPressed: deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
                   style: TextStyle(
@@ -489,31 +539,34 @@ class _AvatarWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [Chat.name] editable field.
-class _NameWidget extends StatelessWidget {
-  const _NameWidget(this.c);
+/// [Widget] which returns a [Chat.name] editable field.
+class ChatName extends StatelessWidget {
+  const ChatName(this.chat, this.name, {super.key});
 
-  ///
-  final ChatInfoController c;
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
+
+  /// [State] of a [TextField] related to the chat name.
+  final TextFieldState name;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       return _PaddingWidget(
-        child: ReactiveTextField(
+        ReactiveTextField(
           key: const Key('RenameChatField'),
-          state: c.name,
-          label: c.chat?.chat.value.name == null
-              ? c.chat?.title.value
+          state: name,
+          label: chat?.chat.value.name == null
+              ? chat?.title.value
               : 'label_name'.l10n,
           hint: 'label_name_hint'.l10n,
-          onSuffixPressed: c.name.text.isEmpty
+          onSuffixPressed: name.text.isEmpty
               ? null
               : () {
-                  PlatformUtils.copy(text: c.name.text);
+                  PlatformUtils.copy(text: name.text);
                   MessagePopup.success('label_copied'.l10n);
                 },
-          trailing: c.name.text.isEmpty
+          trailing: name.text.isEmpty
               ? null
               : Transform.translate(
                   offset: const Offset(0, -1),
@@ -528,12 +581,15 @@ class _NameWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [Chat.directLink] editable field.
-class _LinkWidget extends StatelessWidget {
-  const _LinkWidget(this.c);
+/// [Widget] which returns a [Chat.directLink] editable field.
+class ChatLink extends StatelessWidget {
+  const ChatLink(this.chat, this.link, {super.key});
 
-  ///
-  final ChatInfoController c;
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
+
+  /// [State] of a [TextField] related to the chat link.
+  final TextFieldState link;
 
   @override
   Widget build(BuildContext context) {
@@ -544,18 +600,18 @@ class _LinkWidget extends StatelessWidget {
         children: [
           ReactiveTextField(
             key: const Key('LinkField'),
-            state: c.link,
-            onSuffixPressed: c.link.isEmpty.value
+            state: link,
+            onSuffixPressed: link.isEmpty.value
                 ? null
                 : () {
                     PlatformUtils.copy(
                       text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
+                          '${Config.origin}${Routes.chatDirectLink}/${link.text}',
                     );
 
                     MessagePopup.success('label_copied'.l10n);
                   },
-            trailing: c.link.isEmpty.value
+            trailing: link.isEmpty.value
                 ? null
                 : Transform.translate(
                     offset: const Offset(0, -1),
@@ -583,7 +639,7 @@ class _LinkWidget extends StatelessWidget {
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
                               'count':
-                                  c.chat?.chat.value.directLink?.usageCount ?? 0
+                                  chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
@@ -607,38 +663,54 @@ class _LinkWidget extends StatelessWidget {
   }
 }
 
-/// Returns a list of [Chat.members].
-class _MembersWidget extends StatelessWidget {
-  const _MembersWidget(
-    this.c, {
-    required this.id,
-    required this.removeChatMember,
+/// [Widget] which returns a list of [Chat.members].
+class ChatMembers extends StatelessWidget {
+  const ChatMembers(
+    this.id, {
+    super.key,
+    required this.removeChatCallMember,
+    required this.redialChatCallMember,
+    this.chat,
+    this.me,
+    this.removeChatMember,
   });
 
-  ///
-  final ChatInfoController c;
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
 
-  ///
+  /// ID of the current user.
+  final UserId? me;
+
+  /// ID of the current [chat].
   final ChatId id;
 
-  ///
-  final void Function(ChatInfoController c, BuildContext context, RxUser user)
-      removeChatMember;
+  /// [Function] that removes a [chat] member from an ongoing call.
+  final Future<void> Function(UserId userId) removeChatCallMember;
+
+  /// [Function] that redials a [chat] call member.
+  final Future<void> Function(UserId userId) redialChatCallMember;
+
+  /// [Function] that removes a [chat] member.
+  final void Function(
+    ChatInfoController c,
+    BuildContext context,
+    RxUser user,
+  )? removeChatMember;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final RxUser? me = c.chat!.members[c.me];
+      final RxUser? rxMe = chat!.members[me];
       final List<RxUser> members = [];
 
-      for (var u in c.chat!.members.entries) {
-        if (u.key != c.me) {
+      for (var u in chat!.members.entries) {
+        if (u.key != me) {
           members.add(u.value);
         }
       }
 
-      if (me != null) {
-        members.insert(0, me);
+      if (rxMe != null) {
+        members.insert(0, rxMe);
       }
 
       return Column(
@@ -655,7 +727,7 @@ class _MembersWidget extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           ...members.map((e) {
-            final bool inCall = c.chat?.chat.value.ongoingCall?.members
+            final bool inCall = chat?.chat.value.ongoingCall?.members
                     .any((u) => u.user.id == e.id) ==
                 true;
 
@@ -665,11 +737,11 @@ class _MembersWidget extends StatelessWidget {
               dense: true,
               onTap: () => router.user(e.id, push: true),
               trailing: [
-                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
+                if (e.id != me && chat?.chat.value.ongoingCall != null) ...[
                   if (inCall)
                     WidgetButton(
                       key: const Key('Drop'),
-                      onPressed: () => c.removeChatCallMember(e.id),
+                      onPressed: () => removeChatCallMember(e.id),
                       child: Container(
                         height: 22,
                         width: 22,
@@ -691,7 +763,7 @@ class _MembersWidget extends StatelessWidget {
                       color: Theme.of(context).colorScheme.secondary,
                       type: MaterialType.circle,
                       child: InkWell(
-                        onTap: () => c.redialChatCallMember(e.id),
+                        onTap: () => redialChatCallMember(e.id),
                         borderRadius: BorderRadius.circular(60),
                         child: SizedBox(
                           width: 22,
@@ -708,9 +780,9 @@ class _MembersWidget extends StatelessWidget {
                     ),
                   const SizedBox(width: 12),
                 ],
-                if (e.id == c.me)
+                if (e.id == me)
                   WidgetButton(
-                    onPressed: () => removeChatMember(c, context, e),
+                    onPressed: () => removeChatMember,
                     child: Text(
                       'btn_leave'.l10n,
                       style: TextStyle(
@@ -722,7 +794,7 @@ class _MembersWidget extends StatelessWidget {
                 else
                   WidgetButton(
                     key: const Key('DeleteMemberButton'),
-                    onPressed: () => removeChatMember(c, context, e),
+                    onPressed: () => removeChatMember,
                     child: SvgImage.asset(
                       'assets/icons/delete.svg',
                       height: 14 * 1.5,
@@ -738,58 +810,67 @@ class _MembersWidget extends StatelessWidget {
   }
 }
 
-/// Dense [Padding] wrapper.
-class _DenseWidget extends StatelessWidget {
-  const _DenseWidget({required this.child});
+/// [Widget] which returns the action buttons to do with this [Chat].
+class ChatActions extends StatelessWidget {
+  const ChatActions(
+    this.chat, {
+    super.key,
+    required this.isMonolog,
+    required this.isLocal,
+    this.hideChat,
+    this.clearChat,
+    this.leaveGroup,
+    this.blacklistChat,
+    this.unfavoriteChat,
+    this.favoriteChat,
+    this.unmuteChat,
+    this.muteChat,
+  });
 
-  /// [Widget] that will be wrapped in padding.
-  final Widget child;
+  /// Unified reactive [Chat] with chat items.
+  final RxChat? chat;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-      child: child,
-    );
-  }
-}
+  /// Indicator whether the [chat] is a monolog or not.
+  final bool isMonolog;
 
-/// Returns the action buttons to do with this [Chat].
-class _ActionsWidget extends StatelessWidget {
-  ///
-  final ChatInfoController c;
+  /// Indicator whether the [chat] is a local or not.
+  final bool isLocal;
 
-  ///
-  final void Function(ChatInfoController c, BuildContext context) hideChat;
+  /// [Function] that unfavorites the chat.
+  final Future<void> Function()? unfavoriteChat;
 
-  ///
-  final void Function(ChatInfoController c, BuildContext context) clearChat;
+  /// [Function] that favorites the chat.
+  final Future<void> Function()? favoriteChat;
 
-  ///
-  final void Function(ChatInfoController c, BuildContext context) leaveGroup;
+  /// [Function] that unmutes the chat.
+  final Future<void> Function()? unmuteChat;
 
-  ///
+  /// [Function] that mutes the chat.
+  final Future<void> Function()? muteChat;
+
+  /// [Function] that hides the chat.
+  final void Function(ChatInfoController c, BuildContext context)? hideChat;
+
+  /// [Function] that clears the chat.
+  final void Function(ChatInfoController c, BuildContext context)? clearChat;
+
+  /// [Function] that leaves the group chat.
+  final void Function(ChatInfoController c, BuildContext context)? leaveGroup;
+
+  /// [Function] that adds the chat to the blacklist.
   final void Function(
     ChatInfoController c,
     BuildContext context,
-  ) blacklistChat;
-
-  const _ActionsWidget(
-    this.c, {
-    required this.hideChat,
-    required this.clearChat,
-    required this.leaveGroup,
-    required this.blacklistChat,
-  });
+  )? blacklistChat;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!c.isMonolog) ...[
+        if (!isMonolog) ...[
           _DenseWidget(
-            child: FieldButton(
+            FieldButton(
               onPressed: () {},
               text: 'btn_add_to_contacts'.l10n,
               trailing: Transform.translate(
@@ -804,17 +885,16 @@ class _ActionsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
-        if (!c.isLocal) ...[
+        if (!isLocal) ...[
           _DenseWidget(
-            child: Obx(() {
-              final bool favorited =
-                  c.chat?.chat.value.favoritePosition != null;
+            Obx(() {
+              final bool favorited = chat?.chat.value.favoritePosition != null;
 
               return FieldButton(
                 key: Key(
                   favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
                 ),
-                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+                onPressed: favorited ? unfavoriteChat : favoriteChat,
                 text: favorited
                     ? 'btn_delete_from_favorites'.l10n
                     : 'btn_add_to_favorites'.l10n,
@@ -833,13 +913,13 @@ class _ActionsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
-        if (!c.isMonolog) ...[
+        if (!isMonolog) ...[
           _DenseWidget(
-            child: Obx(() {
-              final bool muted = c.chat?.chat.value.muted != null;
+            Obx(() {
+              final bool muted = chat?.chat.value.muted != null;
 
               return FieldButton(
-                onPressed: muted ? c.unmuteChat : c.muteChat,
+                onPressed: muted ? unmuteChat : muteChat,
                 text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
                 trailing: Transform.translate(
                   offset: const Offset(0, -1),
@@ -866,9 +946,9 @@ class _ActionsWidget extends StatelessWidget {
           const SizedBox(height: 10),
         ],
         _DenseWidget(
-          child: FieldButton(
+          FieldButton(
             key: const Key('HideChatButton'),
-            onPressed: () => hideChat(c, context),
+            onPressed: () => hideChat,
             text: 'btn_hide_chat'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -882,9 +962,9 @@ class _ActionsWidget extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _DenseWidget(
-          child: FieldButton(
+          FieldButton(
             key: const Key('ClearHistoryButton'),
-            onPressed: () => clearChat(c, context),
+            onPressed: () => clearChat,
             text: 'btn_clear_history'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -896,11 +976,11 @@ class _ActionsWidget extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
-        if (!c.isMonolog) ...[
+        if (!isMonolog) ...[
           const SizedBox(height: 10),
           _DenseWidget(
-            child: FieldButton(
-              onPressed: () => leaveGroup(c, context),
+            FieldButton(
+              onPressed: () => leaveGroup,
               text: 'btn_leave_group'.l10n,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
@@ -914,8 +994,8 @@ class _ActionsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           _DenseWidget(
-            child: FieldButton(
-              onPressed: () => blacklistChat(c, context),
+            FieldButton(
+              onPressed: () => blacklistChat,
               text: 'btn_block'.l10n,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
@@ -929,7 +1009,7 @@ class _ActionsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           _DenseWidget(
-            child: FieldButton(
+            FieldButton(
               onPressed: () {},
               text: 'btn_report'.l10n,
               trailing: Transform.translate(
@@ -948,21 +1028,23 @@ class _ActionsWidget extends StatelessWidget {
   }
 }
 
+/// [Widget] that displays a customizable button with a [leading] widget
+/// and a [title] widget.
 class BigButton extends StatelessWidget {
   const BigButton({
     super.key,
-    required this.leading,
     required this.title,
+    this.leading,
     this.onTap,
   });
 
-  ///
+  /// Leading [Widget] displayed before the title.
   final Widget? leading;
 
-  ///
+  /// Title [Widget] displayed in the button.
   final Widget title;
 
-  ///
+  /// [Function] called when the button is tapped.
   final void Function()? onTap;
 
   @override
