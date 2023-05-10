@@ -28,10 +28,10 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../../domain/repository/chat.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -50,7 +50,6 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/controller.dart';
-import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
@@ -59,7 +58,7 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
@@ -908,27 +907,29 @@ class AllowMultipleHorizontalDragGestureRecognizer
   void rejectGesture(int pointer) => acceptGesture(pointer);
 }
 
-/// Returns a centered [time] label.
+/// [Widget] which returns a centered [time] label.
 class TimeLabelWidget extends StatelessWidget {
   const TimeLabelWidget(
     this.i, {
     super.key,
     required this.time,
-    required this.animation,
     required this.opacity,
+    this.animation,
   });
 
-  ///
+  /// Index of this [TimeLabelWidget] in the list.
   final int i;
 
-  ///
+  /// Opacity of the [TimeLabelWidget].
   final double opacity;
 
-  ///
+  /// [DateTime] which holds the time that this [TimeLabelWidget] is
+  /// displaying.
   final DateTime time;
 
-  ///
-  final AnimationController animation;
+  /// [AnimationController] object that controls the animation of this
+  /// [TimeLabelWidget].
+  final AnimationController? animation;
 
   @override
   Widget build(BuildContext context) {
@@ -971,12 +972,13 @@ class TimeLabelWidget extends StatelessWidget {
   }
 }
 
-/// Builds a visual representation of an [UnreadMessagesElement].
+/// [Widget] which builds a visual representation of an
+/// [UnreadMessagesElement].
 class UnreadLabel extends StatelessWidget {
   const UnreadLabel(this.unreadMessages, {super.key});
 
-  ///
-  final int unreadMessages;
+  /// Label indicating the number of unread messages.
+  final int? unreadMessages;
 
   @override
   Widget build(BuildContext context) {
@@ -1001,24 +1003,28 @@ class UnreadLabel extends StatelessWidget {
   }
 }
 
-/// Returns a header subtitle of the [Chat].
+/// [Widget] which returns a header subtitle of the [Chat].
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
-    required this.chat,
-    required this.me,
     required this.duration,
     required this.getUser,
+    this.chat,
+    this.me,
   });
 
-  ///
+  /// [RxChat] object that contains information on the chat being displayed,
+  /// including ongoing call information and typing users.
   final RxChat? chat;
 
+  /// ID of the person currently signed in to the chat.
   final UserId? me;
 
+  /// [Duration] object that represents the duration of the chat.
   final Rx<Duration?> duration;
 
-  final Future<RxUser?> Function(UserId id) getUser;
+  /// [Function] that retrieves information about a user.
+  final Future<RxUser?>? Function(UserId id) getUser;
 
   @override
   Widget build(BuildContext context) {
@@ -1160,35 +1166,38 @@ class ChatSubtitle extends StatelessWidget {
   }
 }
 
-/// Returns a bottom bar of this [ChatView] to display under the messages list
-/// containing a send/edit field.
+/// [Widget] which returns a bottom bar of this [ChatView] to display under
+/// the messages list containing a send/edit field.
 class BottomBar extends StatelessWidget {
   const BottomBar({
     super.key,
-    required this.chat,
     required this.edit,
-    required this.send,
-    required this.unblacklist,
-    required this.keepTyping,
     required this.animateTo,
+    this.send,
+    this.unblacklist,
+    this.keepTyping,
+    this.chat,
   });
 
-  ///
+  /// [RxChat] object that represents the active chat.
   final RxChat? chat;
 
-  ///
+  /// Reactive [MessageFieldController] object that represents the message
+  /// input [MessageFieldView] if the user is editing an existing message.
   final Rx<MessageFieldController?> edit;
 
-  ///
-  final MessageFieldController send;
+  /// [MessageFieldController] object that represents the message input
+  /// [MessageFieldView] if the user is creating a new message.
+  final MessageFieldController? send;
 
-  ///
-  final Future<void> Function() unblacklist;
+  /// [Function] that is called when the user chooses to unblock the chat.
+  final Future<void> Function()? unblacklist;
 
-  ///
-  final void Function() keepTyping;
+  /// [Function] that is called when the user is typing a message.
+  final void Function()? keepTyping;
 
-  ///
+  /// [Function] that is called when the user selects a chat item to animate
+  /// the screen to the corresponding position.
   final Future<void> Function(
     ChatItemId id, {
     bool offsetBasedOnBottom,
@@ -1222,12 +1231,12 @@ class BottomBar extends StatelessWidget {
   }
 }
 
-/// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+/// [WidgetButton] which removing this [Chat] from the blacklist.
 class BlockedField extends StatelessWidget {
-  const BlockedField({super.key, required this.unblacklist});
+  const BlockedField({super.key, this.unblacklist});
 
-  ///
-  final Future<void> Function() unblacklist;
+  /// [Function] that is called when the user chooses to unblock the chat.
+  final Future<void> Function()? unblacklist;
 
   @override
   Widget build(BuildContext context) {
