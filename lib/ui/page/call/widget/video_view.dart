@@ -302,7 +302,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   }
 }
 
-/// [Widget] for displaying a video stream using [RtcVideoRenderer].
+/// [Widget] displaying a video stream using [RtcVideoRenderer].
 class VideoContainer extends StatelessWidget {
   const VideoContainer(
     this.fit, {
@@ -319,7 +319,7 @@ class VideoContainer extends StatelessWidget {
   /// [RtcVideoRenderer] to display.
   final RtcVideoRenderer renderer;
 
-  /// [Widget] to display the video stream.
+  /// [Widget] displaying the video stream.
   final Widget? video;
 
   /// [BoxFit] specifies how the [video] should be fit inside the widget.
@@ -328,18 +328,16 @@ class VideoContainer extends StatelessWidget {
   /// Indicator whether the [video]'s aspect ratio should be respected or not.
   final bool respectAspectRatio;
 
-  /// [Border] radius of this video.
+  /// [BorderRadius] of this [VideoContainer].
   final BorderRadius? borderRadius;
 
-  /// [Border] to apply to [RtcVideoView].
+  /// [Border] of this [VideoContainer].
   final Border? border;
 
-  /// [Function] that returns a widget to be displayed before the video stream
-  /// is available.
+  /// Builder building the background when the video's size is not determined.
   final Widget Function()? framelessBuilder;
 
-  /// [Function] to call when waiting for the video stream size to be
-  /// determined.
+  /// Callback waiting for the video stream size to be determined.
   final void Function()? waitTilSizeDetermined;
 
   @override
@@ -383,8 +381,7 @@ class VideoContainer extends StatelessWidget {
     return _buildAspected();
   }
 
-  /// [Function] builds the video content based on the aspect ratio
-  /// and fit parameters.
+  /// Builds the video content based on the aspect ratio and fit parameters.
   Widget _buildAspected() {
     if (fit != null && fit == BoxFit.contain) {
       return AspectRatio(

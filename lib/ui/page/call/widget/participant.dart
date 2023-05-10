@@ -99,29 +99,40 @@ class ParticipantWidget extends StatelessWidget {
       return Stack(
         children: [
           if (!hasVideo) ...background(),
-          AnimatedOpacity(
-            key: const Key('AnimatedOpacity'),
+          AnimatedSwitcher(
+            key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            opacity: !hasVideo ? 0.0 : 1.0,
-            child: Center(
-              child: RtcVideoView(
-                participant.video.value!.renderer.value as RtcVideoRenderer,
-                source: participant.source,
-                key: participant.videoKey,
-                mirror: participant.member.owner == MediaOwnerKind.local &&
-                    participant.source == MediaSourceKind.Device,
-                fit: fit,
-                borderRadius: borderRadius ?? BorderRadius.circular(10),
-                border: outline == null ? null : Border.all(color: outline!),
-                onSizeDetermined: onSizeDetermined,
-                enableContextMenu: false,
-                respectAspectRatio: respectAspectRatio,
-                offstageUntilDetermined: offstageUntilDetermined,
-                framelessBuilder: () => Stack(children: background()),
-              ),
+            layoutBuilder: (current, previous) => Stack(
+              alignment: Alignment.center,
+              children: [
+                if (previous.isNotEmpty) previous.first,
+                if (current != null) current,
+              ],
             ),
+            child: !hasVideo
+                ? Container()
+                : Center(
+                    child: RtcVideoView(
+                      participant.video.value!.renderer.value
+                          as RtcVideoRenderer,
+                      source: participant.source,
+                      key: participant.videoKey,
+                      mirror:
+                          participant.member.owner == MediaOwnerKind.local &&
+                              participant.source == MediaSourceKind.Device,
+                      fit: fit,
+                      borderRadius: borderRadius ?? BorderRadius.circular(10),
+                      border:
+                          outline == null ? null : Border.all(color: outline!),
+                      onSizeDetermined: onSizeDetermined,
+                      enableContextMenu: false,
+                      respectAspectRatio: respectAspectRatio,
+                      offstageUntilDetermined: offstageUntilDetermined,
+                      framelessBuilder: () => Stack(children: background()),
+                    ),
+                  ),
           ),
           Obx(() {
             final Widget child;
@@ -161,7 +172,7 @@ class ParticipantWidget extends StatelessWidget {
           }),
           Positioned.fill(
             child: HandRaisedIcon(
-              isRaised: participant.member.isHandRaised.value,
+              raised: participant.member.isHandRaised.value,
             ),
           ),
         ],
@@ -409,18 +420,18 @@ class ParticipantDecoratorWidget extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns a raised hand animated icon.
+/// Raised hand animated icon.
 class HandRaisedIcon extends StatelessWidget {
-  const HandRaisedIcon({super.key, required this.isRaised});
+  const HandRaisedIcon({super.key, required this.raised});
 
-  /// Indicator that determines if the hand is raised or not.
-  final bool isRaised;
+  /// Indicator whether a hand is raised or not.
+  final bool raised;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 150),
-      opacity: isRaised ? 1.0 : 0.0,
+      opacity: raised ? 1.0 : 0.0,
       child: CircleAvatar(
         radius: 45,
         backgroundColor: const Color(0xD8818181),
