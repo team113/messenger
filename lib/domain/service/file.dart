@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// Add hive storing all downloaded files? // next pulls?
-
 import 'dart:async';
 import 'dart:io';
 
@@ -84,7 +82,8 @@ class Downloading {
   /// CancelToken canceling the [file] downloading.
   CancelToken _token = CancelToken();
 
-  /// [Future] completing when this [Downloading] is finished or canceled.
+  /// Returns [Future] completing when this [Downloading] is finished or
+  /// canceled.
   Future<File?>? get future => _completer?.future;
 
   /// Starts the [file] downloading.

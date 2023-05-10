@@ -1039,7 +1039,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem].
-  Future<void> _download(GalleryItem item) async {
+  Future<void> _download(GalleryItem item, {String? path}) async {
     try {
       try {
         await FileService.download(
@@ -1047,6 +1047,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           item.checksum,
           item.name,
           item.size,
+          path: path,
           downloadIfExist: true,
         ).future;
       } catch (_) {
@@ -1057,6 +1058,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             item.checksum,
             item.name,
             item.size,
+            path: path,
             downloadIfExist: true,
           ).future;
         } else {
@@ -1084,36 +1086,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       );
 
       if (path != null) {
-        try {
-          await FileService.download(
-            item.link,
-            item.checksum,
-            item.name,
-            item.size,
-            path: path,
-            downloadIfExist: true,
-          ).future;
-        } catch (_) {
-          if (item.onError != null) {
-            await item.onError?.call();
-            await FileService.download(
-              item.link,
-              item.checksum,
-              item.name,
-              item.size,
-              path: path,
-              downloadIfExist: true,
-            ).future;
-          } else {
-            rethrow;
-          }
-        }
-
-        if (mounted) {
-          MessagePopup.success(item.isVideo
-              ? 'label_video_downloaded'.l10n
-              : 'label_image_downloaded'.l10n);
-        }
+        _download(item, path: path);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

@@ -112,7 +112,8 @@ class ImageAttachment extends Attachment {
       _downloadsSubscription = FileService.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            if (e.element.checksum == original.checksum) {
+            if (original.checksum != null &&
+                e.element.checksum == original.checksum) {
               downloading.value = e.element;
             }
             break;
@@ -157,15 +158,15 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] is downloaded.
   final RxBool _downloaded = RxBool(false);
 
-  /// Indicates whether this [FileAttachment] is downloading.
-  @override
-  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
-
   /// [StreamSubscription] for the [FileService.downloads] changes.
   StreamSubscription? _downloadsSubscription;
 
   /// [StreamSubscription] for the [Downloading.status] changes.
   StreamSubscription? _statusSubscription;
+
+  /// Indicates whether this [FileAttachment] is downloading.
+  @override
+  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
 
   @override
   DownloadStatus get downloadStatus =>
@@ -195,7 +196,8 @@ class FileAttachment extends Attachment {
       _downloadsSubscription = FileService.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            if (e.element.checksum == original.checksum) {
+            if (original.checksum != null &&
+                e.element.checksum == original.checksum) {
               downloading.value = e.element;
               _listenStatus();
             }
