@@ -25,7 +25,7 @@ class ConstrainedRow extends StatelessWidget {
     this.children = const <Widget>[],
   });
 
-  /// [Widget]'s that should be placed in the [ConstrainedRow].
+  /// [Widget]'s that should be placed in this [ConstrainedRow].
   final List<Widget> children;
 
   @override

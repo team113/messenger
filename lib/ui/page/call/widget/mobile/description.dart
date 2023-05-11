@@ -20,15 +20,15 @@ import 'package:flutter/material.dart';
 /// [Column] consisting of the [child] with the provided [description].
 class Description extends StatelessWidget {
   const Description({
-    Key? key,
+    super.key,
     required this.child,
     required this.description,
-  }) : super(key: key);
+  });
 
-  /// [Widget] that will be displayed along with the description.
+  /// [Widget] displayed along with the description.
   final Widget child;
 
-  /// [Widget] that displays a description for the child widget.
+  /// [Widget] displays a description for the child widget.
   final Widget description;
 
   @override

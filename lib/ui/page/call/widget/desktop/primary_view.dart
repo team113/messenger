@@ -52,50 +52,50 @@ class PrimaryView extends StatelessWidget {
     this.overlayBuilder,
   });
 
-  /// [Function] that is called when a drag event is completed.
+  /// Callback, called when a drag event is completed.
   final void Function(DragData d)? onDragEnded;
 
-  /// [Function] that is called when an item is added to the widget.
+  /// Callback, called when an item is added to the widget.
   final dynamic Function(DragData, int)? onAdded;
 
-  /// [Function] that is called when an item is about to be accepted
+  /// Callback, called when an item is about to be accepted
   /// into the widget.
   final bool Function(DragData?)? onWillAccept;
 
-  /// [Function] that is called when an item is removed from the widget.
+  /// Callback, called when an item is removed from the widget.
   final void Function(DragData?)? onLeave;
 
-  /// [Function] that is called when a drag event starts.
+  /// Callback, called when a drag event starts.
   final dynamic Function(DragData)? onDragStarted;
 
   /// [Function] that returns the current offset value.
   final Offset Function()? onOffset;
 
-  /// [Function] that is called when a "dough" is broken.
+  /// Callback, called when a `dough` is broken.
   final void Function(DragData)? onDoughBreak;
 
   /// [double] value representing the size of the widget.
   final double size;
 
-  /// [Rx] variable that stores the dragged "dough" renderer.
+  /// [Rx] participant that stores the dragged `dough` renderer.
   final Rx<Participant?> doughDraggedRenderer;
 
-  /// [Rx] variable that stores the ID of the chat.
+  /// [Rx] chat id that stores the ID of the chat.
   final Rx<ChatId> chatId;
 
-  /// [Rx] variable that stores the number of secondary drag events.
+  /// [Rx] integer that stores the number of secondary drag events.
   final RxInt secondaryDrags;
 
-  /// [Rx] variable that stores the number of primary targets.
+  /// [Rx] integer that stores the number of primary targets.
   final RxInt primaryTargets;
 
-  /// [Rx] variable that stores the number of primary drag events.
+  /// [Rx] integer that stores the number of primary drag events.
   final RxInt primaryDrags;
 
   /// [Rx] indicator that stores the state of the secondary drag event.
   final RxBool secondaryDragged;
 
-  /// [Rx] variable that stores the hovered renderer.
+  /// [Rx] participant that stores the hovered renderer.
   final Rx<Participant?> hoveredRenderer;
 
   /// [Function] that builds an overlay widget.

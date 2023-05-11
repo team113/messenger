@@ -44,15 +44,15 @@ class Launchpad extends StatelessWidget {
   /// Indicator whether [Launchpad] is enabled.
   final bool enabled;
 
-  /// [Function] that is called when the mouse cursor enters the area
+  /// Callback, called when the mouse cursor enters the area
   /// of this [Launchpad].
   final void Function(PointerEnterEvent)? onEnter;
 
-  /// [Function] that is called when the mouse cursor moves in the area
+  /// Callback, called when the mouse cursor moves in the area
   /// of this [Launchpad].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// [Function] that is called when the mouse cursor leaves the area
+  /// Callback, called when the mouse cursor leaves the area
   /// of this [Launchpad].
   final void Function(PointerExitEvent)? onExit;
 
@@ -63,10 +63,10 @@ class Launchpad extends StatelessWidget {
   /// [CallButton] list, which is a panel of buttons in [Launchpad].
   final RxList<CallButton> panel;
 
-  /// Callback function that is called when accepting a draggable element.
+  /// Callback, called when accepting a draggable element.
   final void Function(CallButton)? onAccept;
 
-  /// Callback function that is called when the dragged element is above
+  /// Callback, called when the dragged element is above
   /// the widget, but has not yet been released.
   final bool Function(CallButton?)? onWillAccept;
 

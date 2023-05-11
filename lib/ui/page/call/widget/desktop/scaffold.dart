@@ -38,7 +38,8 @@ class StackableScaffold extends StatelessWidget {
 
   /// [Widget] that represents the title bar.
   ///
-  /// It is displayed at the top of the scaffold if [WebUtils.isPopup] is false.
+  /// It is displayed at the top of the scaffold if [WebUtils.isPopup]
+  /// is false.
   final Widget? titleBar;
 
   /// Callback [Function] that handles drag update events.

@@ -42,26 +42,26 @@ class TitleBar extends StatelessWidget {
     this.toggleFullscreen,
   });
 
-  /// Callback called when double-tapping on the [TitleBar].
+  /// Callback, called when double-tapping on the [TitleBar].
   final VoidCallback? onDoubleTap;
 
   /// Variable that imposes restrictions on the size of the element.
   final BoxConstraints constraints;
 
-  /// Callback that is called when you touch on the left side
+  /// Callback, called when you touch on the left side
   /// of the [TitleBar].
   final VoidCallback? onTap;
 
-  /// Chat Information.
+  /// Chat information.
   final Rx<RxChat?> chat;
 
   /// Header arguments.
   final Map<String, String> titleArguments;
 
-  /// Callback that is called when you click on the "full-screen" button.
+  /// Callback, called when you click on the "full-screen" button.
   final VoidCallback? toggleFullscreen;
 
-  /// Indicator indicating whether the application is in full-screen mode.
+  /// Indicator whether the application is in full-screen mode.
   final RxBool fullscreen;
 
   @override

@@ -43,28 +43,28 @@ class SecondaryTarget extends StatelessWidget {
     this.onWillAccept,
   });
 
-  /// [Size] object that represents the size of the widget.
+  /// [Size] object that represents the size of this [SecondaryTarget].
   final Size size;
 
-  /// [Axis] enumeration value that specifies the secondary axis of the widget.
+  /// [Axis] enumeration value that specifies the secondary axis of this
+  /// [SecondaryTarget].
   final Axis secondaryAxis;
 
-  /// [RxList] object that contains a list of Participant objects.
+  /// [Rx] objects that contains a list of [Participant] objects.
   ///
   /// It represents the secondary data source of the widget.
   final RxList<Participant> secondary;
 
-  /// [Rx] object that contains a Participant object.
+  /// [Rx] object that contains a [Participant] object.
   ///
   /// It represents the participant that is currently being dragged.
   final Rx<Participant?> doughDraggedRenderer;
 
-  /// Callback function that called when a drag operation enters the target
+  /// Callback, called when a drag operation enters the target
   /// [Widget] to determine whether the [Widget] can accept the dragged data.
   final bool Function(DragData?)? onWillAccept;
 
-  /// [RxInt] object that represents the number of primary drag operations
-  /// that have been performed.
+  /// Count of a primary drag operations that have been performed.
   final RxInt primaryDrags;
 
   /// [Rx] object that contains an [Alignment] object.
@@ -73,8 +73,7 @@ class SecondaryTarget extends StatelessWidget {
   /// to the primary [Widget].
   final Rx<Alignment?> secondaryAlignment;
 
-  /// Callback [Function] that called to remove focus from the
-  /// specified [Participant].
+  /// Callback, called to remove focus from the specified [Participant].
   final void Function(Participant) unfocus;
 
   @override

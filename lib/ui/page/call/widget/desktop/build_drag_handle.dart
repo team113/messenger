@@ -45,14 +45,10 @@ class BuildDragHandle extends StatelessWidget {
   /// Width of the [SecondaryScaler].
   final double width;
 
-  /// [Function] that is responsible for handling the events of dragging
-  /// an element on the screen, returning a callback function that will be
-  /// called every time the user moves the element.
+  /// Callback reporting the `x` and `y` drag deltas.
   final dynamic Function(double, double)? onDragUpdate;
 
-  /// [Function] that is responsible for handling element dragging events
-  /// is called only once at the moment when the user finishes dragging
-  /// the element.
+  /// Callback, called when dragging is ended.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
   /// Link to the item that is being dragged now.

@@ -32,7 +32,7 @@ class CallDock extends StatelessWidget {
     super.key,
     required this.showBottomUi,
     required this.answer,
-    required this.relocateSecondary,
+    required this.listener,
     this.dock,
     this.audioButton,
     this.videoButton,
@@ -50,21 +50,21 @@ class CallDock extends StatelessWidget {
   /// [Widget] of the call button with audio.
   final Widget? audioButton;
 
-  /// [Widget] of a call button with a video.
+  /// [Widget] of the call button with video.
   final Widget? videoButton;
 
   /// [Widget] of the reject call button.
   final Widget? declineButton;
 
-  /// [Function] that is called when the mouse cursor enters the area
+  /// Callback, called when the mouse cursor enters the area
   /// of this [CallDock].
   final void Function(PointerEnterEvent)? onEnter;
 
-  /// [Function] that is called when the mouse cursor moves in the area
+  /// Callback, called when the mouse cursor moves in the area
   /// of this [CallDock].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// [Function] that is called when the mouse cursor leaves the area
+  /// Callback, called when the mouse cursor leaves the area
   /// of this [CallDock].
   final void Function(PointerExitEvent)? onExit;
 
@@ -80,8 +80,8 @@ class CallDock extends StatelessWidget {
   /// [Key] for handling [dock] widget states.
   final Key? dockKey;
 
-  /// Relocates the secondary view accounting the possible intersections.
-  final VoidCallback relocateSecondary;
+  /// Callback, called every time the value of the animation changes.
+  final VoidCallback listener;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class CallDock extends StatelessWidget {
           isOpen: showBottomUi,
           duration: 400.milliseconds,
           translate: false,
-          listener: relocateSecondary,
+          listener: listener,
           child: MouseRegion(
             onEnter: onEnter,
             onHover: onHover,

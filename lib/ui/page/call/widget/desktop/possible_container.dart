@@ -29,8 +29,7 @@ class PossibleContainer extends StatelessWidget {
     super.key,
   });
 
-  /// Variable determines the alignment of the [PossibleContainer]
-  /// on the screen.
+  /// [AlignmentGeometry] of this [PossibleContainer].
   final AlignmentGeometry? alignment;
 
   @override

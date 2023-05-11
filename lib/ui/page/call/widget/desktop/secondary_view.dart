@@ -74,34 +74,34 @@ class SecondaryView extends StatelessWidget {
   /// [RxList] of participants that are displayed in the secondary panel.
   final RxList<Participant> secondary;
 
-  /// [Rx] variable that holds the alignment of the secondary panel.
+  /// [Rx] that holds the alignment of the secondary panel.
   final Rx<Alignment?> secondaryAlignment;
 
-  /// [Rx] variable that holds the left position of the secondary panel.
+  /// [Rx] that holds the left position of the secondary panel.
   final RxnDouble secondaryLeft;
 
-  /// [Rx] variable that holds the top position of the secondary panel.
+  /// [Rx] that holds the top position of the secondary panel.
   final RxnDouble secondaryTop;
 
-  /// [Rx] variable that holds the right position of the secondary panel.
+  /// [Rx] that holds the right position of the secondary panel.
   final RxnDouble secondaryRight;
 
-  /// [Rx] variable that holds the bottom position of the secondary panel.
+  /// [Rx] that holds the bottom position of the secondary panel.
   final RxnDouble secondaryBottom;
 
-  /// [Rx] variable that holds the width of the secondary panel.
+  /// [Rx] that holds the width of the secondary panel.
   final RxDouble secondaryWidth;
 
-  /// [Rx] variable that holds the height of the secondary panel.
+  /// [Rx] that holds the height of the secondary panel.
   final RxDouble secondaryHeight;
 
   /// [Size] that holds the size of the widget.
   final Size size;
 
-  /// [Function] that is called when a drag event is completed.
+  /// CallBack, called when a drag event is completed.
   final void Function(DragData d)? onDragEnded;
 
-  /// [Function] that is called when the secondary panel is resized.
+  /// CallBack, called when the secondary panel is resized.
   final void Function(
     BuildContext context, {
     ScaleModeY? y,
@@ -110,26 +110,26 @@ class SecondaryView extends StatelessWidget {
     double? dy,
   }) resizeSecondary;
 
-  /// [Function] that is called when the secondary panel is updated.
+  /// CallBack, called when the secondary panel is updated.
   final void Function() updateSecondaryAttach;
 
-  /// [Rx] variable that holds the [Participant] being dragged.
+  /// [Rx] that holds the [Participant] being dragged.
   final Rx<Participant?> draggedRenderer;
 
-  /// [Function] that is called when a [Participant] is added to the widget.
+  /// CallBack, called when a [Participant] is added to the widget.
   final dynamic Function(DragData, int)? onAdded;
 
-  /// [Function] that is called to check if a [Participant] can be
+  /// CallBack, called to check if a [Participant] can be
   /// added to the widget.
   final bool Function(DragData?)? onWillAccept;
 
-  /// [Function] that is called when a [Participant] leaves the widget.
+  /// CallBack, called when a [Participant] leaves the widget.
   final void Function(DragData?)? onLeave;
 
-  /// [Function] that is called when a drag event is started.
+  /// CallBack, called when a drag event is started.
   final dynamic Function(DragData)? onDragStarted;
 
-  /// [Function] that is called when a drag event is cancelled.
+  /// CallBack, called when a drag event is cancelled.
   final void Function(DragData)? onDoughBreak;
 
   /// [Function] that returns the [Offset] of the widget.
@@ -144,7 +144,7 @@ class SecondaryView extends StatelessWidget {
   /// [Function] that builds the item widget for the [ReorderableFit].
   final Widget Function(DragData) itemBuilder;
 
-  /// [Rx] variable that holds the chat ID.
+  /// [Rx] that holds the chat ID.
   final Rx<ChatId> chatId;
 
   /// [GlobalKey] that uniquely identifies the secondary panel.
@@ -153,33 +153,32 @@ class SecondaryView extends StatelessWidget {
   /// Indicator whether any dragging event has occurred.
   final bool isAnyDrag;
 
-  /// [Function] that is called when a pan event is started.
+  /// CallBack, called when a pan event is started.
   final void Function(DragStartDetails)? onPanStart;
 
-  /// [Function] that is called when a pan event is updated.
+  /// CallBack, called when a pan event is updated.
   final void Function(DragUpdateDetails)? onPanUpdate;
 
-  /// [Function] that is called when a pan event is ended.
+  /// CallBack, called when a pan event is ended.
   final void Function(DragEndDetails)? onPanEnd;
 
-  /// [Rx] indicator variable that indicates whether the secondary panel
-  /// is currently being hovered over.
+  /// [Rx] indicator whether the secondary panel is currently being hovered
+  /// over.
   final RxBool secondaryHovered;
 
-  /// [Rx] indicator variable that indicates whether the secondary panel
-  /// is currently minimized or not.
+  /// [Rx] indicator whether the secondary panel is currently minimized or not.
   final RxBool minimized;
 
-  /// [Rx] indicator variable that indicates whether the secondary panel
-  /// is currently in full-screen mode or not.
+  /// [Rx] indicator whether the secondary panel is currently in full-screen
+  /// mode or not.
   final RxBool fullscreen;
 
-  /// [Rx] integer variable that stores the number of drags
-  /// that have been performed on the primary panel.
+  /// [Rx] integer that stores the number of drags that have been performed
+  /// on the primary panel.
   final RxInt primaryDrags;
 
-  /// [Rx] integer variable that stores the number of targets
-  /// that have been set for the secondary panel.
+  /// [Rx] integer that stores the number of targets that have been set for
+  /// the secondary panel.
   final RxInt secondaryTargets;
 
   /// Focuses all [Participant]s, which means putting them in theirs

@@ -36,14 +36,13 @@ class AnimatedParticipant extends StatelessWidget {
   /// participating in a call.
   final Participant e;
 
-  /// Indicator that determines whether the participant's
-  /// sound is muted or not.
+  /// Indicator whether the participant's sound is muted or not.
   final bool muted;
 
-  /// Indicator that determines whether animation is turned on or off.
+  /// Indicator whether animation is turned on or off.
   final bool animated;
 
-  /// Indicator that determines whether the widget is minimized or not.
+  /// Indicator whether the widget is minimized or not.
   final RxBool minimized;
 
   @override

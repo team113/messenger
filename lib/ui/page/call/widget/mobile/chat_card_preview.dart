@@ -47,10 +47,10 @@ class ChatCardPreview extends StatelessWidget {
   /// Callback [Function] that opens a screen to add members to the chat.
   final Future<void> Function() openAddMember;
 
-  /// [Rx] object representing the current duration of the call.
+  /// [Rx] representing the current duration of the call.
   final Rx<Duration> duration;
 
-  /// [CallMember] object representing the current user.
+  /// [CallMember] representing the current user.
   final CallMember me;
 
   @override

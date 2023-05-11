@@ -618,7 +618,7 @@ class DesktopCall extends StatelessWidget {
                             showBottomUi: showBottomUi,
                             answer: answer,
                             dockKey: c.dockKey,
-                            relocateSecondary: c.relocateSecondary,
+                            listener: c.relocateSecondary,
                           ),
                           Launchpad(
                             displayMore: c.displayMore,
