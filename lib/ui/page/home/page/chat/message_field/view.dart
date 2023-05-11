@@ -207,29 +207,41 @@ class MessageHeader extends StatelessWidget {
     required this.onItemPressed,
   });
 
+  ///
   final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
       attachments;
 
+  ///
   final Rx<Attachment?> hoveredAttachment;
 
+  ///
   final TextFieldState field;
 
+  ///
   final Rx<ChatItem?> edited;
 
+  ///
   final ScrollController scrollController;
 
+  ///
   final RxList<ChatItemQuoteInput> quotes;
 
+  ///
   final RxList<ChatItem> replied;
 
+  ///
   final BoxConstraints? boxConstraints;
 
+  ///
   final UserId? me;
 
+  ///
   final Rx<ChatItem?> hoveredReply;
 
+  ///
   final Future<RxUser?> Function(UserId id) getUser;
 
+  ///
   final Future<void> Function(ChatItemId)? onItemPressed;
 
   @override
