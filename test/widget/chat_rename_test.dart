@@ -57,7 +57,8 @@ import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/info/controller.dart'
+    as prefix;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -315,7 +316,8 @@ void main() async {
     Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
-      child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
+      child: const prefix.ChatInfoView(
+          ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
