@@ -188,8 +188,8 @@ class MessageFieldView extends StatelessWidget {
   }
 }
 
-/// Returns a visual representation of the message attachments, replies,
-/// quotes and edited message.
+/// [Widget] which returns a visual representation of the message attachments,
+/// replies, quotes and edited message.
 class MessageHeader extends StatelessWidget {
   const MessageHeader({
     super.key,
@@ -207,41 +207,41 @@ class MessageHeader extends StatelessWidget {
     required this.onItemPressed,
   });
 
-  ///
+  /// [Attachment]s of this [ChatMessage].
   final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
       attachments;
 
-  ///
+  /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment;
 
-  ///
+  /// [TextFieldState] for a [ChatMessageText].
   final TextFieldState field;
 
-  ///
+  /// [ChatItem] being edited.
   final Rx<ChatItem?> edited;
 
-  ///
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController;
 
-  ///
+  /// [ChatItemQuoteInput]s to be forwarded.
   final RxList<ChatItemQuoteInput> quotes;
 
-  ///
+  /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem> replied;
 
-  ///
+  /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? boxConstraints;
 
-  ///
+  /// Unique ID of an [User].
   final UserId? me;
 
-  ///
+  /// Replied [ChatItem] being hovered.
   final Rx<ChatItem?> hoveredReply;
 
-  ///
+  /// Returns an [User] from [UserService] by the provided [id].
   final Future<RxUser?> Function(UserId id) getUser;
 
-  ///
+  /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId)? onItemPressed;
 
   @override
@@ -787,37 +787,39 @@ class MessageField extends StatelessWidget {
     required this.onChanged,
   });
 
-  ///
+  /// Indicator whether [Attachment]s can be attached to this
+  /// [MessageFieldView].
   final bool canAttach;
 
-  ///
+  /// Indicator whether forwarding is possible within this [MessageFieldView].
   final bool canForward;
 
-  ///
+  /// Indicator whether forwarding mode is enabled.
   final RxBool forwarding;
 
-  ///
+  /// [TextFieldState] for a [ChatMessageText].
   final TextFieldState field;
 
-  ///
+  /// [Key] of a [ReactiveTextField] this [MessageFieldView] has.
   final Key? fieldKey;
 
-  ///
+  /// [Key] of a send button this [MessageFieldView] has.
   final Key? sendKey;
 
-  ///
+  /// Opens a file choose popup and adds the selected files to the attachments.
   final Future<void> Function() pickFile;
 
-  ///
+  /// Opens the camera app and adds the captured image to the attachments.
   final Future<void> Function() pickImageFromCamera;
 
-  ///
+  /// Opens a media choose popup and adds the selected files to the
+  /// attachments.
   final Future<void> Function() pickMedia;
 
-  ///
+  /// Opens the camera app and adds the captured video to the attachments.
   final Future<void> Function() pickVideoFromCamera;
 
-  ///
+  /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
 
   @override
