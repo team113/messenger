@@ -355,7 +355,7 @@ class UserView extends StatelessWidget {
 class _DenseWidget extends StatelessWidget {
   const _DenseWidget(this.child);
 
-  ///
+  /// [Widget] that will be wrapped in padding.
   final Widget child;
 
   @override
@@ -369,7 +369,7 @@ class _DenseWidget extends StatelessWidget {
 class _PaddingWidget extends StatelessWidget {
   const _PaddingWidget(this.child);
 
-  ///
+  /// [Widget] that will be wrapped with padding.
   final Widget child;
 
   @override
@@ -378,7 +378,7 @@ class _PaddingWidget extends StatelessWidget {
   }
 }
 
-// Builds a stylized button representing a single action.
+/// [Widget] which builds a stylized button representing a single action.
 class ActionWidget extends StatelessWidget {
   const ActionWidget({
     super.key,
@@ -387,13 +387,13 @@ class ActionWidget extends StatelessWidget {
     this.trailing,
   });
 
-  ///
+  /// Text to display in this [ActionWidget].
   final String? text;
 
-  ///
+  /// Optional trailing widget.
   final Widget? trailing;
 
-  ///
+  /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
 
   @override
@@ -418,7 +418,6 @@ class ActionWidget extends StatelessWidget {
 }
 
 /// Returns the action buttons to do with this [User].
-/// Returns the action buttons to do with this [User].
 class ActionsWidget extends StatelessWidget {
   const ActionsWidget({
     super.key,
@@ -440,53 +439,54 @@ class ActionsWidget extends StatelessWidget {
     required this.unblacklist,
   });
 
-  ///
+  /// Indicator whether this [user] is already in the contacts list of the
+  /// authenticated [MyUser].
   final RxBool inContacts;
 
-  ///
+  /// Temporary indicator whether the [user] is favorite.
   final RxBool inFavorites;
 
-  ///
+  /// Status of the [user] fetching.
   final Rx<RxStatus> status;
 
-  ///
+  /// Status of a [blacklist] progression.
   final Rx<RxStatus> blacklistStatus;
 
-  ///
+  /// Reactive [User] itself.
   final RxUser? user;
 
-  ///
+  /// Indicates whether this [user] is blacklisted.
   final BlacklistRecord? isBlacklisted;
 
-  ///
+  /// Adds the [user] to the contacts list of the authenticated [MyUser].
   final Future<void> Function() addToContacts;
 
-  ///
+  /// Removes the [user] from the favorites.
   final Future<void> Function() unfavoriteContact;
 
-  ///
+  /// Marks the [user] as favorited.
   final Future<void> Function() favoriteContact;
 
-  ///
+  /// Unmutes a [Chat]-dialog with the [user].
   final Future<void> Function() unmuteChat;
 
-  ///
+  /// Mutes a [Chat]-dialog with the [user].
   final Future<void> Function() muteChat;
 
-  ///
+  /// Removes the [user] from the blacklist of the authenticated [MyUser].
   final Future<void> Function() unblacklist;
 
-  ///
+  /// Opens a confirmation popup deleting the [User] from address book.
   final Future<void> Function(UserController c, BuildContext context)
       removeFromContacts;
 
-  ///
+  /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   final Future<void> Function(UserController c, BuildContext context) hideChat;
 
-  ///
+  /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   final Future<void> Function(UserController c, BuildContext context) clearChat;
 
-  ///
+  /// Opens a confirmation popup blacklisting the [User].
   final Future<void> Function(UserController c, BuildContext context)
       blacklistUser;
 
@@ -570,11 +570,11 @@ class ActionsWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [User.name] copyable field.
+/// [Widget] which returns a [User.name] copyable field.
 class NameWidget extends StatelessWidget {
   const NameWidget({super.key, this.user});
 
-  ///
+  /// Reactive [User] itself.
   final RxUser? user;
 
   @override
@@ -592,11 +592,11 @@ class NameWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [User.status] copyable field.
+/// [Widget] which returns a [User.status] copyable field.
 class StatusWidget extends StatelessWidget {
   const StatusWidget({super.key, this.user});
 
-  ///
+  /// Reactive [User] itself.
   final RxUser? user;
 
   @override
@@ -620,11 +620,11 @@ class StatusWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [User.presence] text.
+/// [Widget] which returns a [User.presence] text.
 class PresenceWidget extends StatelessWidget {
   const PresenceWidget({super.key, this.user});
 
-  ///
+  /// Reactive [User] itself.
   final RxUser? user;
 
   @override
@@ -658,7 +658,7 @@ class PresenceWidget extends StatelessWidget {
 class NumWidget extends StatelessWidget {
   const NumWidget({super.key, this.user});
 
-  ///
+  /// Reactive [User] itself.
   final RxUser? user;
 
   @override
@@ -679,11 +679,11 @@ class NumWidget extends StatelessWidget {
   }
 }
 
-/// Returns the blacklisted information of this [User].
+/// Widget which returns the blacklisted information of this [User].
 class BlockedWidget extends StatelessWidget {
   const BlockedWidget({super.key, this.isBlacklisted});
 
-  ///
+  /// Indicates whether [user] is blacklisted.
   final BlacklistRecord? isBlacklisted;
 
   @override
@@ -715,7 +715,7 @@ class BlockedWidget extends StatelessWidget {
 class BlockedField extends StatelessWidget {
   const BlockedField({super.key, required this.unblacklist});
 
-  ///
+  /// Removes the [user] from the blacklist of the authenticated [MyUser].
   final Future<void> Function() unblacklist;
 
   @override
