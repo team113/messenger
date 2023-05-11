@@ -23,15 +23,15 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../../domain/model/application_settings.dart';
-import '../../../../../domain/model/media_settings.dart';
-import '../../../../../domain/repository/user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
+import '/domain/model/application_settings.dart';
+import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -197,9 +197,9 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                             const SizedBox(height: 10),
-                            ProfileName(name: c.name, login: c.login),
-                            ProfilePresence(myUser: c.myUser),
-                            ProfileStatus(status: c.status),
+                            ProfileName(c.name, c.login),
+                            ProfilePresence(c.myUser),
+                            ProfileStatus(c.status),
                           ],
                         );
 
@@ -207,27 +207,19 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            ProfileNum(num: c.num, myUser: c.myUser),
-                            ProfileLogin(login: c.login, myUser: c.myUser),
+                            ProfileNum(c.myUser, c.num),
+                            ProfileLogin(c.myUser, c.login),
                             const SizedBox(height: 10),
-                            ProfileEmails(
-                              myUser: c.myUser,
-                              deleteEmail: _deleteEmail,
-                            ),
-                            ProfilePhones(
-                              myUser: c.myUser,
-                              deletePhone: _deletePhone,
-                            ),
-                            ProfilePassword(myUser: c.myUser),
+                            ProfileEmails(c.myUser, _deleteEmail),
+                            ProfilePhones(c.myUser, _deletePhone),
+                            ProfilePassword(c.myUser),
                           ],
                         );
 
                       case ProfileTab.link:
                         return Block(
                           title: 'label_your_direct_link'.l10n,
-                          children: [
-                            ProfileLink(link: c.link, myUser: c.myUser),
-                          ],
+                          children: [ProfileLink(c.myUser, c.link)],
                         );
 
                       case ProfileTab.background:
@@ -235,9 +227,9 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_background'.l10n,
                           children: [
                             ProfileBackground(
-                              background: c.background,
-                              pickBackground: c.pickBackground,
-                              removeBackground: c.removeBackground,
+                              c.background,
+                              c.pickBackground,
+                              c.removeBackground,
                             )
                           ],
                         );
@@ -245,14 +237,14 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.chats:
                         return Block(
                           title: 'label_chats'.l10n,
-                          children: [ProfileChats(settings: c.settings)],
+                          children: [ProfileChats(c.settings)],
                         );
 
                       case ProfileTab.calls:
                         if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                           return Block(
                             title: 'label_calls'.l10n,
-                            children: [ProfileCall(settings: c.settings)],
+                            children: [ProfileCall(c.settings)],
                           );
                         }
 
@@ -264,9 +256,9 @@ class MyProfileView extends StatelessWidget {
                             title: 'label_media'.l10n,
                             children: [
                               ProfileMedia(
-                                devices: c.devices,
-                                media: c.media,
-                                enumerateDevices: c.enumerateDevices,
+                                c.devices,
+                                c.media,
+                                c.enumerateDevices,
                               )
                             ],
                           );
@@ -279,9 +271,9 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_audio_notifications'.l10n,
                           children: [
                             ProfileNotifications(
-                              myUser: c.myUser,
-                              isMuting: c.isMuting,
-                              toggleMute: c.toggleMute,
+                              c.myUser,
+                              c.isMuting,
+                              c.toggleMute,
                             )
                           ],
                         );
@@ -290,10 +282,7 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            ProfileStorage(
-                              settings: c.settings,
-                              setLoadImages: c.setLoadImages,
-                            )
+                            ProfileStorage(c.settings, c.setLoadImages)
                           ],
                         );
 
@@ -306,9 +295,7 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.blacklist:
                         return Block(
                           title: 'label_blocked_users'.l10n,
-                          children: [
-                            ProfileBlockedUsers(blacklist: c.blacklist)
-                          ],
+                          children: [ProfileBlockedUsers(c.blacklist)],
                         );
 
                       case ProfileTab.download:
@@ -325,7 +312,7 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_danger_zone'.l10n,
                           children: const [
-                            ProfileDanger(deleteAccount: _deleteAccount),
+                            ProfileDanger(_deleteAccount),
                           ],
                         );
 
@@ -417,7 +404,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
 class _Padding extends StatelessWidget {
   const _Padding(this.child);
 
-  ///
+  /// [Widget] to be padded.
   final Widget child;
 
   @override
@@ -429,7 +416,7 @@ class _Padding extends StatelessWidget {
 class _Dense extends StatelessWidget {
   const _Dense(this.child);
 
-  ///
+  /// [Widget] to be padded.
   final Widget child;
 
   @override
@@ -437,14 +424,14 @@ class _Dense extends StatelessWidget {
       Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
 }
 
-/// Returns [MyUser.name] editable field.
+/// [Widget] which returns [MyUser.name] editable field.
 class ProfileName extends StatelessWidget {
-  const ProfileName({super.key, required this.name, required this.login});
+  const ProfileName(this.name, this.login, {super.key});
 
-  ///
+  /// [MyUser.name]'s field state.
   final TextFieldState name;
 
-  ///
+  /// [MyUser.login]'s field state.
   final TextFieldState login;
 
   @override
@@ -476,11 +463,11 @@ class ProfileName extends StatelessWidget {
   }
 }
 
-/// Returns [WidgetButton] displaying the [MyUser.presence].
+/// [Widget] which returns [WidgetButton] displaying the [MyUser.presence].
 class ProfilePresence extends StatelessWidget {
-  const ProfilePresence({super.key, required this.myUser});
+  const ProfilePresence(this.myUser, {super.key});
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   @override
@@ -502,11 +489,11 @@ class ProfilePresence extends StatelessWidget {
   }
 }
 
-/// Returns [MyUser.status] editable field.
+/// [Widget] which returns [MyUser.status] editable field.
 class ProfileStatus extends StatelessWidget {
-  const ProfileStatus({super.key, required this.status});
+  const ProfileStatus(this.status, {super.key});
 
-  ///
+  /// [MyUser.status]'s field state.
   final TextFieldState status;
 
   @override
@@ -538,14 +525,14 @@ class ProfileStatus extends StatelessWidget {
   }
 }
 
-/// Returns [MyUser.num] copyable field.
+/// [Widget] which returns [MyUser.num] copyable field.
 class ProfileNum extends StatelessWidget {
-  const ProfileNum({super.key, required this.num, required this.myUser});
+  const ProfileNum(this.myUser, this.num, {super.key});
 
-  ///
+  /// [MyUser.num]'s copyable state.
   final TextFieldState num;
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   @override
@@ -567,14 +554,14 @@ class ProfileNum extends StatelessWidget {
   }
 }
 
-/// Returns [MyUser.login] editable field.
+/// [Widget] which returns [MyUser.login] editable field.
 class ProfileLogin extends StatelessWidget {
-  const ProfileLogin({super.key, required this.login, required this.myUser});
+  const ProfileLogin(this.myUser, this.login, {super.key});
 
-  ///
+  /// [MyUser.login]'s field state.
   final TextFieldState login;
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   @override
@@ -681,18 +668,15 @@ class ProfileLogin extends StatelessWidget {
   }
 }
 
-/// Returns addable list of [MyUser.emails].
+/// [Widget] which returns addable list of [MyUser.emails].
 class ProfileEmails extends StatelessWidget {
-  const ProfileEmails({
-    super.key,
-    required this.myUser,
-    required this.deleteEmail,
-  });
+  const ProfileEmails(this.myUser, this.deleteEmail, {super.key});
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
-  ///
+  /// Opens a confirmation popup deleting the provided [email] from the
+  /// [MyUser.emails].
   final Future<void> Function(
     MyProfileController c,
     BuildContext context,
@@ -853,18 +837,15 @@ class ProfileEmails extends StatelessWidget {
   }
 }
 
-/// Returns addable list of [MyUser.phones].
+/// [Widget] which returns addable list of [MyUser.phones].
 class ProfilePhones extends StatelessWidget {
-  const ProfilePhones({
-    super.key,
-    required this.myUser,
-    required this.deletePhone,
-  });
+  const ProfilePhones(this.myUser, this.deletePhone, {super.key});
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
-  ///
+  /// Opens a confirmation popup deleting the provided [phone] from the
+  /// [MyUser.phones].
   final Future<void> Function(
     MyProfileController c,
     BuildContext context,
@@ -1025,12 +1006,12 @@ class ProfilePhones extends StatelessWidget {
   }
 }
 
-/// Returns the buttons changing or setting the password of the currently
-/// authenticated [MyUser].
+/// [Widget] which returns the buttons changing or setting the password of
+/// the currently authenticated [MyUser].
 class ProfilePassword extends StatelessWidget {
-  const ProfilePassword({super.key, required this.myUser});
+  const ProfilePassword(this.myUser, {super.key});
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   @override
@@ -1060,13 +1041,14 @@ class ProfilePassword extends StatelessWidget {
   }
 }
 
+/// [Widget] which represents a [ProfileTab.link] section for a user.
 class ProfileLink extends StatelessWidget {
-  const ProfileLink({super.key, required this.link, required this.myUser});
+  const ProfileLink(this.myUser, this.link, {super.key});
 
-  ///
+  /// [MyUser.chatDirectLink]'s copyable state.
   final TextFieldState link;
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   @override
@@ -1144,22 +1126,22 @@ class ProfileLink extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.background] section.
+/// [Widget] which returns the contents of a [ProfileTab.background] section.
 class ProfileBackground extends StatelessWidget {
-  const ProfileBackground({
+  const ProfileBackground(
+    this.background,
+    this.pickBackground,
+    this.removeBackground, {
     super.key,
-    required this.background,
-    required this.pickBackground,
-    required this.removeBackground,
   });
 
-  ///
+  /// Returns the current background's [Uint8List] value.
   final Rx<Uint8List?> background;
 
-  ///
+  /// Opens an image choose popup and sets the selected file as a [background].
   final Future<void> Function() pickBackground;
 
-  ///
+  /// Removes the currently set [background].
   final Future<void> Function() removeBackground;
 
   @override
@@ -1295,11 +1277,11 @@ class ProfileBackground extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.chats] section.
+/// [Widget] which returns the contents of a [ProfileTab.chats] section.
 class ProfileChats extends StatelessWidget {
-  const ProfileChats({super.key, required this.settings});
+  const ProfileChats(this.settings, {super.key});
 
-  ///
+  /// Returns the current [ApplicationSettings] value.
   final Rx<ApplicationSettings?> settings;
 
   @override
@@ -1343,11 +1325,11 @@ class ProfileChats extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.calls] section.
+/// [Widget] which returns the contents of a [ProfileTab.calls] section.
 class ProfileCall extends StatelessWidget {
-  const ProfileCall({super.key, required this.settings});
+  const ProfileCall(this.settings, {super.key});
 
-  ///
+  /// Returns the current [ApplicationSettings] value.
   final Rx<ApplicationSettings?> settings;
 
   @override
@@ -1372,22 +1354,24 @@ class ProfileCall extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.media] section.
+/// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
-  const ProfileMedia({
+  const ProfileMedia(
+    this.devices,
+    this.media,
+    this.enumerateDevices, {
     super.key,
-    required this.devices,
-    required this.media,
-    required this.enumerateDevices,
   });
 
-  ///
+  /// List of [MediaDeviceInfo] of all the available devices.
   final RxList<MediaDeviceInfo> devices;
 
-  ///
+  /// Returns the current [MediaSettings] value.
   final Rx<MediaSettings?> media;
 
-  ///
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available media input devices, such as microphones, cameras, and so
+  /// forth.
   final Future<void> Function() enumerateDevices;
 
   @override
@@ -1471,22 +1455,23 @@ class ProfileMedia extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.notifications] section.
+/// [Widget] which returns the contents of a [ProfileTab.notifications]
+/// section.
 class ProfileNotifications extends StatelessWidget {
-  const ProfileNotifications({
+  const ProfileNotifications(
+    this.myUser,
+    this.isMuting,
+    this.toggleMute, {
     super.key,
-    required this.myUser,
-    required this.isMuting,
-    required this.toggleMute,
   });
 
-  ///
+  /// Returns the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
-  ///
+  /// Indicator whether there's an ongoing [toggleMute] happening.
   final RxBool isMuting;
 
-  ///
+  /// Toggles [MyUser.muted] status.
   final Future<void> Function(bool enabled) toggleMute;
 
   @override
@@ -1535,18 +1520,14 @@ class ProfileNotifications extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.storage] section.
+/// [Widget] which returns the contents of a [ProfileTab.storage] section.
 class ProfileStorage extends StatelessWidget {
-  const ProfileStorage({
-    super.key,
-    required this.settings,
-    required this.setLoadImages,
-  });
+  const ProfileStorage(this.settings, this.setLoadImages, {super.key});
 
-  ///
+  /// Returns the current [ApplicationSettings] value.
   final Rx<ApplicationSettings?> settings;
 
-  ///
+  /// Sets the [ApplicationSettings.loadImages] value.
   final Future<void> Function(bool enabled) setLoadImages;
 
   @override
@@ -1590,7 +1571,7 @@ class ProfileStorage extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.language] section.
+/// [Widget] which returns the contents of a [ProfileTab.language] section.
 class ProfileLanguage extends StatelessWidget {
   const ProfileLanguage({super.key});
 
@@ -1613,11 +1594,11 @@ class ProfileLanguage extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.blacklist] section.
+/// [Widget] which returns the contents of a [ProfileTab.blacklist] section.
 class ProfileBlockedUsers extends StatelessWidget {
-  const ProfileBlockedUsers({super.key, required this.blacklist});
+  const ProfileBlockedUsers(this.blacklist, {super.key});
 
-  ///
+  /// Returns the [User]s blacklisted by the authenticated [MyUser].
   final RxList<RxUser> blacklist;
 
   @override
@@ -1640,7 +1621,7 @@ class ProfileBlockedUsers extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.download] section.
+/// [Widget] which returns the contents of a [ProfileTab.download] section.
 class ProfileDownloads extends StatelessWidget {
   const ProfileDownloads({super.key});
 
@@ -1694,11 +1675,11 @@ class ProfileDownloads extends StatelessWidget {
   }
 }
 
-/// Returns the contents of a [ProfileTab.danger] section.
+/// [Widget] which returns the contents of a [ProfileTab.danger] section.
 class ProfileDanger extends StatelessWidget {
-  const ProfileDanger({super.key, required this.deleteAccount});
+  const ProfileDanger(this.deleteAccount, {super.key});
 
-  ///
+  /// Opens a confirmation popup deleting the [MyUser]'s account.
   final Future<void> Function(
     MyProfileController c,
     BuildContext context,
