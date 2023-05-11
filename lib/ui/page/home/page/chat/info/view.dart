@@ -836,28 +836,28 @@ class ChatActions extends StatelessWidget {
   /// Indicator whether the [chat] is a local or not.
   final bool isLocal;
 
-  /// [Function] that unfavorites the chat.
+  /// Callback, called when unfavorites the chat.
   final Future<void> Function()? unfavoriteChat;
 
-  /// [Function] that favorites the chat.
+  /// Callback, called when favorites the chat.
   final Future<void> Function()? favoriteChat;
 
-  /// [Function] that unmutes the chat.
+  /// Callback, called when unmutes the chat.
   final Future<void> Function()? unmuteChat;
 
-  /// [Function] that mutes the chat.
+  /// Callback, called when mutes the chat.
   final Future<void> Function()? muteChat;
 
-  /// [Function] that hides the chat.
+  /// Callback, called when hides the chat.
   final void Function(ChatInfoController c, BuildContext context)? hideChat;
 
-  /// [Function] that clears the chat.
+  /// Callback, called when clears the chat.
   final void Function(ChatInfoController c, BuildContext context)? clearChat;
 
-  /// [Function] that leaves the group chat.
+  /// Callback, called when leaves the group chat.
   final void Function(ChatInfoController c, BuildContext context)? leaveGroup;
 
-  /// [Function] that adds the chat to the blacklist.
+  /// Callback, called when adds the chat to the blacklist.
   final void Function(
     ChatInfoController c,
     BuildContext context,
@@ -1044,7 +1044,7 @@ class BigButton extends StatelessWidget {
   /// Title [Widget] displayed in the button.
   final Widget title;
 
-  /// [Function] called when the button is tapped.
+  /// Callback, called when the button is tapped.
   final void Function()? onTap;
 
   @override
