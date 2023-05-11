@@ -122,10 +122,6 @@ void main() async {
     }
   };
 
-  var chatsWithCall = {
-    'recentChats': {'nodes': []}
-  };
-
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -230,14 +226,6 @@ void main() async {
     last: null,
     before: null,
   )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-  when(graphQlProvider.recentChats(
-    first: 120,
-    after: null,
-    last: null,
-    before: null,
-    withOngoingCalls: true,
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(chatsWithCall)));
 
   when(
     graphQlProvider.uploadAttachment(
