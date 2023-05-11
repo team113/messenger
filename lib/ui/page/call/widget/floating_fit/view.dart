@@ -162,7 +162,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                       floatingKey: c.floatingKey,
                       width: c.width.value,
                       height: c.height.value,
-                      paneled: _paneled,
+                      item: _paneled,
                       itemBuilder: widget.itemBuilder,
                       overlayBuilder: widget.overlayBuilder,
                       onManipulated: widget.onManipulated,
@@ -275,7 +275,7 @@ class _FloatingPanel<T> extends StatelessWidget {
     this.right,
     this.bottom, {
     super.key,
-    required this.paneled,
+    required this.item,
     required this.itemBuilder,
     required this.overlayBuilder,
     required this.width,
@@ -319,7 +319,7 @@ class _FloatingPanel<T> extends StatelessWidget {
   final void Function(ScaleEndDetails)? onScaleEnd;
 
   /// [_FloatingItem] to put in this [_FloatingPanel].
-  final _FloatingItem<T> paneled;
+  final _FloatingItem<T> item;
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -349,7 +349,7 @@ class _FloatingPanel<T> extends StatelessWidget {
     );
   }
 
-  /// Shadow that is displayed around this [_FloatingPanel].
+  /// Shadow around this [_FloatingPanel].
   Widget _buildShadow() {
     return Positioned(
       key: floatingKey,
@@ -416,15 +416,15 @@ class _FloatingPanel<T> extends StatelessWidget {
         height: height,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: paneled.entry == null
+          child: item.entry == null
               ? KeyedSubtree(
-                  key: paneled.itemKey,
+                  key: item.itemKey,
                   child: Stack(
                     children: [
-                      itemBuilder(paneled.item),
+                      itemBuilder(item.item),
                       AnimatedDelayedSwitcher(
                         duration: 100.milliseconds,
-                        child: overlayBuilder(paneled.item),
+                        child: overlayBuilder(item.item),
                       ),
                     ],
                   ),
@@ -435,7 +435,7 @@ class _FloatingPanel<T> extends StatelessWidget {
     );
   }
 
-  /// Gestures that can be used to control this [_FloatingPanel].
+  /// Gestures controlling this [_FloatingPanel].
   Widget _buildGestureDetector() {
     return Positioned(
       left: left,
