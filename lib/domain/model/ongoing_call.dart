@@ -704,11 +704,11 @@ class OngoingCall {
             await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
+            final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               screen: TrackPreferences(device: screenDevice.value),
             );
-            if (track.isNotEmpty) {
-              _addLocalTrack(track.first);
+            for (var e in tracks) {
+              _addLocalTrack(e);
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -754,13 +754,27 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
-            await _room?.enableAudio();
-            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
-              audio: TrackPreferences(device: audioDevice.value),
-            );
-            if (track.isNotEmpty) {
-              _addLocalTrack(track.first);
+            if (members[_me]
+                    ?.tracks
+                    .where((t) =>
+                        t.kind == MediaKind.Audio &&
+                        t.source == MediaSourceKind.Device)
+                    .isEmpty ??
+                false) {
+              await _room?.enableAudio();
+              final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+                audio: TrackPreferences(device: audioDevice.value),
+              );
+              for (var e in tracks) {
+                _addLocalTrack(e);
+              }
             }
+            await _room?.unmuteAudio();
+            members[_me]!
+                .tracks
+                .firstWhereOrNull((e) => e.kind == MediaKind.Audio)
+                ?.isMuted
+                .value = false;
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -783,8 +797,12 @@ class OngoingCall {
         if (!enabled) {
           audioState.value = LocalTrackState.disabling;
           try {
-            await _room?.disableAudio();
-            _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
+            await _room?.muteAudio();
+            members[_me]!
+                .tracks
+                .firstWhereOrNull((e) => e.kind == MediaKind.Audio)
+                ?.isMuted
+                .value = true;
             audioState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -808,14 +826,14 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            final List<LocalMediaTrack> track = await MediaUtils.getTracks(
+            final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               video: TrackPreferences(
                 device: videoDevice.value,
                 facingMode: videoDevice.value == null ? FacingMode.User : null,
               ),
             );
-            if (track.isNotEmpty) {
-              _addLocalTrack(track.first);
+            for (var e in tracks) {
+              _addLocalTrack(e);
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -1097,6 +1115,14 @@ class OngoingCall {
         _errors.add('Connection restored'); // for notification
 
         connectionLost = false;
+      }
+    });
+
+    _room!.onLocalTrack((e) {
+      if (members[_me]!
+          .tracks
+          .none((t) => t.kind == e.kind() && t.source == e.mediaSourceKind())) {
+        _addLocalTrack(e);
       }
     });
 

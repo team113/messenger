@@ -106,14 +106,8 @@ class CameraSwitchController extends GetxController {
     final String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
-      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
-      if (camera != null) {
-        constraints.deviceId(camera);
-      }
-
-      final settings = MediaStreamSettings()..deviceVideo(constraints);
       final List<LocalMediaTrack> tracks =
-          await MediaUtils.mediaManager?.initLocalTracks(settings) ?? [];
+          await MediaUtils.getTracks(video: TrackPreferences(device: camera));
 
       print(
           '${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().deviceId()}')}');

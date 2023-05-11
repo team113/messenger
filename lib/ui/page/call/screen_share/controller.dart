@@ -114,9 +114,9 @@ class ScreenShareController extends GetxController {
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
   Future<void> initRenderer(MediaDisplayDetails display) async {
-    final List<LocalMediaTrack> tracks = await MediaUtils.mediaManager
-            ?.initLocalTracks(_mediaStreamSettings(display.deviceId())) ??
-        [];
+    final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+      screen: TrackPreferences(device: display.deviceId(), framerate: 5),
+    );
 
     _localTracks.addAll(tracks);
 
@@ -138,17 +138,5 @@ class ScreenShareController extends GetxController {
       t.free();
     }
     _localTracks.clear();
-  }
-
-  /// Constructs the [MediaStreamSettings] with the provided [screenDevice].
-  MediaStreamSettings _mediaStreamSettings(String screenDevice) {
-    MediaStreamSettings settings = MediaStreamSettings();
-
-    DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
-    constraints.deviceId(screenDevice);
-    constraints.idealFrameRate(5);
-
-    settings.displayVideo(constraints);
-    return settings;
   }
 }
