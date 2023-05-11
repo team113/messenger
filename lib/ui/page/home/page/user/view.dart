@@ -21,9 +21,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../domain/repository/user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
