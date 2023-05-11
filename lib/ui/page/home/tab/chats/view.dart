@@ -552,7 +552,7 @@ class ChatsTabView extends StatelessWidget {
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
-                            final List<RxChat> inCall = [];
+                            final List<RxChat> calls = [];
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
@@ -565,7 +565,7 @@ class ChatsTabView extends StatelessWidget {
                                       e.chat.value.isMonolog) &&
                                   !isHidden) {
                                 if (e.chat.value.ongoingCall != null) {
-                                  inCall.add(e);
+                                  calls.add(e);
                                 } else if (e.chat.value.favoritePosition !=
                                     null) {
                                   favorites.add(e);
@@ -641,7 +641,7 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
-                                      inCall.mapIndexed((i, e) {
+                                      calls.mapIndexed((i, e) {
                                         return AnimationConfiguration
                                             .staggeredList(
                                           position: i,

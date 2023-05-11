@@ -167,13 +167,12 @@ class ChatRepository extends DisposableInterface
     _initDraftSubscription();
 
     try {
+      // TODO: [chats] should consist of 3 lists:
+      //       - with [OngoingCall]s;
+      //       - favorite [Chat]s;
+      //       - recent [Chat]s.
       HashMap<ChatId, ChatData> chats =
           await Backoff.run(_recentChats, _cancelToken);
-
-      HashMap<ChatId, ChatData> chatsWithCall = await Backoff.run(
-        () => _recentChats(withOngoingCalls: true),
-        _cancelToken,
-      );
 
       for (HiveChat c in _chatLocal.chats) {
         if (!c.value.id.isLocal && !chats.containsKey(c.value.id)) {
@@ -181,7 +180,6 @@ class ChatRepository extends DisposableInterface
         }
       }
 
-      chats.addAll(chatsWithCall);
       for (ChatData c in chats.values) {
         _chats[c.chat.value.id]?.subscribe();
         _putEntry(c);
@@ -1269,15 +1267,10 @@ class ChatRepository extends DisposableInterface
   // TODO: Chat list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [HiveChat]s from the remote.
-  Future<HashMap<ChatId, ChatData>> _recentChats({
-    bool? withOngoingCalls,
-  }) async {
+  Future<HashMap<ChatId, ChatData>> _recentChats() async {
     const maxInt = 120;
-    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
-      first: maxInt,
-      withOngoingCalls: withOngoingCalls,
-    ))
-        .recentChats;
+    RecentChats$Query$RecentChats query =
+        (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
 
     HashMap<ChatId, ChatData> chats = HashMap();
     for (var c in query.nodes) {

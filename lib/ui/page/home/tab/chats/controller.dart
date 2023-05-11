@@ -510,43 +510,33 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    // [chats] are guaranteed to have favorite [Chat]s on the top.
-    final List<RxChat> chats =
-        this.chats.where((e) => e.chat.value.favoritePosition != null).toList()
-          ..sort(
-            (a, b) => a.chat.value.favoritePosition!
-                .compareTo(b.chat.value.favoritePosition!),
-          );
-
-    final List<RxChat> notInCall =
-        chats.where((e) => e.chat.value.ongoingCall == null).toList();
-
-    int indexTo = chats.indexWhere((e) =>
-            e.chat.value.id ==
-            notInCall[to > from ? to - 1 : to].chat.value.id) +
-        (to > from ? 1 : 0);
-
-    final int indexFrom = chats
-        .indexWhere((e) => e.chat.value.id == notInCall[from].chat.value.id);
+    final List<RxChat> favorites = chats
+        .where((e) =>
+            e.chat.value.ongoingCall == null &&
+            e.chat.value.favoritePosition != null)
+        .toList();
 
     double position;
 
-    if (indexTo <= 0) {
-      position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (indexTo >= chats.length) {
-      position = chats[chats.length - 1].chat.value.favoritePosition!.val * 2;
+    if (to <= 0) {
+      position = favorites.first.chat.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.chat.value.favoritePosition!.val * 2;
     } else {
-      position = (chats[indexTo].chat.value.favoritePosition!.val +
-              chats[indexTo - 1].chat.value.favoritePosition!.val) /
+      position = (favorites[to].chat.value.favoritePosition!.val +
+              favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
 
-    if (indexTo > indexFrom) {
-      indexTo--;
+    if (to > from) {
+      to--;
     }
 
-    final ChatId chatId = chats[indexFrom].id;
-    chats.insert(indexTo, chats.removeAt(indexFrom));
+    final int start = chats.indexOf(favorites[from]);
+    final int end = chats.indexOf(favorites[to]);
+
+    final ChatId chatId = chats[start].id;
+    chats.insert(end, chats.removeAt(start));
 
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
@@ -653,9 +643,9 @@ class ChatsTabController extends GetxController {
       }
 
       if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
-        return -1;
-      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
         return 1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
+        return -1;
       }
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);

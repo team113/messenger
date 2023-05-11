@@ -249,7 +249,7 @@ void main() async {
       ),
     );
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
