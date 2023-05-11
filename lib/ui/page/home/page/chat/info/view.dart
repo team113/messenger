@@ -437,16 +437,17 @@ class ChatAvatar extends StatelessWidget {
   /// Unified reactive [Chat] with chat items.
   final RxChat? chat;
 
-  /// [GlobalKey] used to uniquely identify the [State] of the avatar widget.
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey<State<StatefulWidget>>? avatarKey;
 
-  /// Reactive status object related to the avatar.
+  /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar;
 
-  /// [Function] that allows the user to select and pick an avatar image.
+  /// Opens a file choose popup and updates the [Chat.avatar] with the selected
+  /// image, if any.
   final Future<void> Function()? pickAvatar;
 
-  /// [Function] that allows the user to delete the avatar image.
+  /// Resets the [Chat.avatar] to `null`.
   final Future<void> Function()? deleteAvatar;
 
   @override
@@ -546,7 +547,7 @@ class ChatName extends StatelessWidget {
   /// Unified reactive [Chat] with chat items.
   final RxChat? chat;
 
-  /// [State] of a [TextField] related to the chat name.
+  /// [Chat.name] field state.
   final TextFieldState name;
 
   @override
@@ -588,7 +589,7 @@ class ChatLink extends StatelessWidget {
   /// Unified reactive [Chat] with chat items.
   final RxChat? chat;
 
-  /// [State] of a [TextField] related to the chat link.
+  /// [Chat.directLink] field state.
   final TextFieldState link;
 
   @override
@@ -675,22 +676,23 @@ class ChatMembers extends StatelessWidget {
     this.removeChatMember,
   });
 
-  /// Unified reactive [Chat] with chat items.
+  /// ID of the [Chat] of this info page.
   final RxChat? chat;
 
   /// ID of the current user.
   final UserId? me;
 
-  /// ID of the current [chat].
+  /// Returns [MyUser]'s [UserId].
   final ChatId id;
 
-  /// [Function] that removes a [chat] member from an ongoing call.
+  /// Redials the [User] identified by its [userId].
   final Future<void> Function(UserId userId) removeChatCallMember;
 
-  /// [Function] that redials a [chat] call member.
+  /// Removes the specified [User] from a [OngoingCall] happening in the
+  /// [chat].
   final Future<void> Function(UserId userId) redialChatCallMember;
 
-  /// [Function] that removes a [chat] member.
+  /// Opens a confirmation popup removing the provided [user].
   final void Function(
     ChatInfoController c,
     BuildContext context,
@@ -830,34 +832,34 @@ class ChatActions extends StatelessWidget {
   /// Unified reactive [Chat] with chat items.
   final RxChat? chat;
 
-  /// Indicator whether the [chat] is a monolog or not.
+  /// Indicates whether the [chat] is a monolog.
   final bool isMonolog;
 
-  /// Indicator whether the [chat] is a local or not.
+  /// Indicates whether the [chat] is local.
   final bool isLocal;
 
-  /// Callback, called when unfavorites the chat.
+  /// Removes the [chat] from the favorites.
   final Future<void> Function()? unfavoriteChat;
 
-  /// Callback, called when favorites the chat.
+  /// Marks the [chat] as favorited.
   final Future<void> Function()? favoriteChat;
 
-  /// Callback, called when unmutes the chat.
+  /// Unmutes the [chat].
   final Future<void> Function()? unmuteChat;
 
-  /// Callback, called when mutes the chat.
+  /// Mutes the [chat].
   final Future<void> Function()? muteChat;
 
-  /// Callback, called when hides the chat.
+  /// Opens a confirmation popup hiding this [Chat].
   final void Function(ChatInfoController c, BuildContext context)? hideChat;
 
-  /// Callback, called when clears the chat.
+  /// Opens a confirmation popup clearing this [Chat].
   final void Function(ChatInfoController c, BuildContext context)? clearChat;
 
-  /// Callback, called when leaves the group chat.
+  /// Opens a confirmation popup leaving this [Chat].
   final void Function(ChatInfoController c, BuildContext context)? leaveGroup;
 
-  /// Callback, called when adds the chat to the blacklist.
+  /// Opens a confirmation popup blacklisting this [Chat].
   final void Function(
     ChatInfoController c,
     BuildContext context,
