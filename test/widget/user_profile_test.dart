@@ -425,7 +425,7 @@ void main() async {
     expect(find.text('5769 2360 9862 1822 '), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
-    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
     expect(deleteFromContacts, findsOneWidget);
