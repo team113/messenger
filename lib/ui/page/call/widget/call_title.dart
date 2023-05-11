@@ -31,13 +31,13 @@ import '/ui/page/home/widget/avatar.dart';
 class CallTitle extends StatelessWidget {
   const CallTitle(
     this.me, {
-    Key? key,
+    super.key,
     this.chat,
     this.title,
     this.avatar,
     this.state,
     this.withDots = false,
-  }) : super(key: key);
+  });
 
   /// [Chat] that contains the current [OngoingCall].
   final Chat? chat;

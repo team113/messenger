@@ -37,7 +37,7 @@ import 'animated_transition.dart';
 /// Otherwise, the whole available space will be occupied.
 class ReorderableFit<T extends Object> extends StatelessWidget {
   const ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -67,7 +67,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;

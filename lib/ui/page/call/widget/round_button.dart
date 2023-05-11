@@ -28,7 +28,7 @@ import 'conditional_backdrop.dart';
 /// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
-    Key? key,
+    super.key,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
@@ -39,7 +39,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.style,
     this.border,
     this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the button is tapped or activated other way.
   ///
