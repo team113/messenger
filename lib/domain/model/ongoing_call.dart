@@ -1672,7 +1672,7 @@ class OngoingCall {
     if (removed.any((e) => e.deviceId() == videoDevice.value) ||
         (videoDevice.value == null &&
             removed.any((e) =>
-            e.deviceId() == previous.video().firstOrNull?.deviceId()))) {
+                e.deviceId() == previous.video().firstOrNull?.deviceId()))) {
       setVideoEnabled(false);
       videoDevice.value = null;
     }

@@ -191,7 +191,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
     super.key,
-        this.muted = false,
+    this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
   });
