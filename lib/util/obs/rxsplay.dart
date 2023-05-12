@@ -127,8 +127,8 @@ class RxSplayTreeMap<K, V>
   }
 
   @override
-  void forEach(void Function(K key, V value) f) {
-    _value.forEach(f);
+  void forEach(void Function(K key, V value) action) {
+    _value.forEach(action);
     refresh();
   }
 
