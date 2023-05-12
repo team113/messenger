@@ -1267,7 +1267,7 @@ Widget _devices(CallController c) {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: c.deviceChanges.reversed.mapIndexed((i, e) {
+      children: c.deviceChanges.reversed.take(3).mapIndexed((i, e) {
         final String title;
 
         if (e.device != null) {
@@ -1310,18 +1310,20 @@ Widget _devices(CallController c) {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      16,
-                      12,
-                      4,
-                      12,
-                    ),
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        16,
+                        12,
+                        4,
+                        12,
+                      ),
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

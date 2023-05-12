@@ -60,6 +60,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.quality = AvatarQuality.big,
     this.badgeColor,
+    this.label,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -226,6 +227,33 @@ class AvatarWidget extends StatelessWidget {
     );
   }
 
+  factory AvatarWidget.fromMonolog(
+    Chat? chat,
+    UserId? me, {
+    Key? key,
+    double? radius,
+    double? maxRadius,
+    double? minRadius,
+    double opacity = 1,
+    Color? badgeColor,
+  }) =>
+      AvatarWidget(
+        key: key,
+        label: LayoutBuilder(builder: (context, constraints) {
+          return Icon(
+            Icons.edit_note,
+            size: constraints.maxWidth / 1.57, // 60 / x => 38
+            color: Colors.white,
+          );
+        }),
+        color: chat?.colorDiscriminant(me).sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+        badgeColor: badgeColor,
+      );
+
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
     Chat? chat,
@@ -275,6 +303,20 @@ class AvatarWidget extends StatelessWidget {
     }
 
     return Obx(() {
+      if (chat.chat.value.isMonolog) {
+        if (chat.chat.value.avatar == null) {
+          return AvatarWidget.fromMonolog(
+            chat.chat.value,
+            chat.me,
+            radius: radius,
+            maxRadius: maxRadius,
+            minRadius: minRadius,
+            opacity: opacity,
+            badgeColor: badgeColor,
+          );
+        }
+      }
+
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
@@ -345,6 +387,8 @@ class AvatarWidget extends StatelessWidget {
   final AvatarQuality quality;
 
   final Color? badgeColor;
+
+  final Widget? label;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -485,17 +529,19 @@ class AvatarWidget extends StatelessWidget {
           child: Stack(
             children: [
               Center(
-                child: Text(
-                  (title ?? '??').initials(),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 15 * (maxWidth / 40.0),
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
+                child: label ??
+                    Text(
+                      (title ?? '??').initials(),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontSize: 15 * (maxWidth / 40.0),
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
 
-                  // Disable the accessibility size settings for this [Text].
-                  textScaleFactor: 1,
-                ),
+                      // Disable the accessibility size settings for this [Text].
+                      textScaleFactor: 1,
+                    ),
               ),
               if (avatar != null)
                 ClipOval(

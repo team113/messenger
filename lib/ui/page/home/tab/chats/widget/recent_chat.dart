@@ -167,13 +167,9 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         // avatarBuilder: chat.isMonolog
-        //     ? (color, _) => avatarBuilder(
-        //           AvatarWidget.fromMyUser(
-        //             myUser,
-        //             radius: 30,
-        //             badgeColor: color,
-        //           ),
-        //         )
+        //     ? (color, w) => chat.avatar == null
+        //         ? avatarBuilder(AvatarWidget.fromMonolog(chat, me, radius: 30))
+        //         : avatarBuilder(w)
         //     : (_, w) => avatarBuilder(w),
         status: [
           const SizedBox(width: 4),

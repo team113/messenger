@@ -973,7 +973,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         ],
         if (widget.timestamp) ...[
-          if (_fromMe) ...[
+          if (_fromMe && !isMonolog) ...[
             if (isSent || isDelivered || isRead || isSending || isError)
               Icon(
                 (isRead || isDelivered)
@@ -2263,7 +2263,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     final bool isMonolog = widget.chat.value?.isMonolog == true;
-    final double swipeableWidth = _fromMe ? 65 : 50;
+    final double swipeableWidth = _fromMe && !isMonolog ? 65 : 50;
 
     // Builds the provided [builder] and the [avatars], if any.
     Widget child(bool menu, BoxConstraints constraints) {
@@ -2300,12 +2300,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       translate: _fromMe,
       design: _fromMe ? SwipeableStyle.secondary : SwipeableStyle.primary,
       width: swipeableWidth,
-      isSent: isSent && _fromMe,
+      isSent: isSent && _fromMe && !isMonolog,
       isDelivered: isSent &&
           _fromMe &&
+          !isMonolog &&
           (widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
               isMonolog),
-      isRead: isSent && (!_fromMe || _isRead || isMonolog),
+      isRead: isSent && !isMonolog && (!_fromMe || _isRead),
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
@@ -2645,7 +2646,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: Key('MessageStatus_${item.id}'),
         child: MessageTimestamp(
           at: item.at,
-          status: _fromMe ? item.status.value : null,
+          status: _fromMe && !isMonolog ? item.status.value : null,
           read: _isRead || isMonolog,
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||

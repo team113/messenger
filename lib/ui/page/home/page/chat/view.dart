@@ -729,7 +729,10 @@ class _ChatViewState extends State<ChatView>
                                           return Center(
                                             child: Text(
                                               key: const Key('NoMessages'),
-                                              'label_no_messages'.l10n,
+                                              isMonolog
+                                                  ? 'label_chat_monolog_description'
+                                                      .l10n
+                                                  : 'label_no_messages'.l10n,
                                             ),
                                           );
                                         }
