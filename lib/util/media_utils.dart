@@ -35,6 +35,10 @@ class MediaUtils {
   /// [MediaManagerHandle.onDeviceChange].
   static StreamController<List<MediaDeviceDetails>>? _devicesController;
 
+  /// [StreamController] of the [MediaDisplayDetails]s updating in the
+  /// [MediaManagerHandle.onDeviceChange].
+  static StreamController<List<MediaDisplayDetails>>? _displaysController;
+
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
     if (_jason == null) {
@@ -67,16 +71,24 @@ class MediaUtils {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
-        print('_devicesController!.add');
-        _devicesController!.add(
-          (await mediaManager?.enumerateDevices() ?? [])
-              .where((e) => e.deviceId().isNotEmpty)
-              .toList(),
-        );
+        await _onDeviceChange();
       });
     }
 
     return _devicesController!.stream;
+  }
+
+  /// Returns a [Stream] of the [MediaDisplayDetails]s changes.
+  static Stream<List<MediaDisplayDetails>> get onDisplayChange {
+    if (_displaysController == null) {
+      _displaysController = StreamController.broadcast();
+      mediaManager?.onDeviceChange(() async {
+        await _onDeviceChange();
+      });
+      _onDeviceChange();
+    }
+
+    return _displaysController!.stream;
   }
 
   /// Returns [LocalMediaTrack]s of the [audio], [video] and [screen] devices.
@@ -130,6 +142,13 @@ class MediaUtils {
         .toList();
   }
 
+  /// Returns the currently available [MediaDisplayDetails]s.
+  static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
+    return (await mediaManager?.enumerateDisplays() ?? [])
+        .where((e) => e.deviceId().isNotEmpty)
+        .toList();
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   static MediaStreamSettings _mediaStreamSettings({
@@ -164,6 +183,23 @@ class MediaUtils {
     }
 
     return settings;
+  }
+
+  /// Enumerates devices and displays and adds them to the [_devicesController]
+  /// and [_displaysController].
+  static Future<void> _onDeviceChange() async {
+    print('MediaUtils _onDeviceChange');
+    _devicesController?.add(
+      (await mediaManager?.enumerateDevices() ?? [])
+          .where((e) => e.deviceId().isNotEmpty)
+          .toList(),
+    );
+
+    _displaysController?.add(
+      (await mediaManager?.enumerateDisplays() ?? [])
+          .where((e) => e.deviceId().isNotEmpty)
+          .toList(),
+    );
   }
 }
 

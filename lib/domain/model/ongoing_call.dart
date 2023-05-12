@@ -278,6 +278,10 @@ class OngoingCall {
   /// the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [StreamSubscription] for the [MediaUtils.onDisplaysChange] stream updating
+  /// the [displays].
+  StreamSubscription? _displaysSubscription;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -350,6 +354,23 @@ class OngoingCall {
         _pickOutputDevice(previous, added, removed);
 
         print('\n[onDeviceChange]: ${logDevices()}');
+      });
+
+      _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
+        final List<MediaDisplayDetails> previous =
+            List.from(displays, growable: false);
+
+        displays.value = e;
+
+        final List<MediaDisplayDetails> removed = [];
+
+        for (MediaDisplayDetails d in previous) {
+          if (displays.none((p) => p.deviceId() == d.deviceId())) {
+            removed.add(d);
+          }
+        }
+
+        _pickScreenDevice(removed);
       });
 
       _initRoom();
@@ -661,6 +682,7 @@ class OngoingCall {
         _closeRoom();
       }
       _devicesSubscription?.cancel();
+      _displaysSubscription?.cancel();
       _heartbeat?.cancel();
       _membersSubscription?.cancel();
       connected = false;
@@ -701,7 +723,9 @@ class OngoingCall {
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
-            await _updateSettings(screenDevice: deviceId);
+            await _updateSettings(
+              screenDevice: deviceId ?? displays.firstOrNull?.deviceId(),
+            );
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
@@ -734,6 +758,7 @@ class OngoingCall {
             await _room?.disableVideo(MediaSourceKind.Display);
             _removeLocalTracks(MediaKind.Video, MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.disabled;
+            screenDevice.value = null;
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
@@ -885,13 +910,10 @@ class OngoingCall {
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
     try {
-      devices.value = (await MediaUtils.mediaManager?.enumerateDevices() ?? [])
-          .where((e) => e.deviceId().isNotEmpty)
-          .toList();
+      devices.value = await MediaUtils.enumerateDevices();
 
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-        displays.value =
-            await MediaUtils.mediaManager?.enumerateDisplays() ?? [];
+        displays.value = await MediaUtils.enumerateDisplays();
       }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
@@ -1115,14 +1137,6 @@ class OngoingCall {
         _errors.add('Connection restored'); // for notification
 
         connectionLost = false;
-      }
-    });
-
-    _room!.onLocalTrack((e) {
-      if (members[_me]!
-          .tracks
-          .none((t) => t.kind == e.kind() && t.source == e.mediaSourceKind())) {
-        _addLocalTrack(e);
       }
     });
 
@@ -1474,9 +1488,11 @@ class OngoingCall {
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
-          if (!hasRemote) {
-            await _updateTracks();
-          }
+          await _updateTracks(
+            audio: audioDevice != null,
+            video: videoDevice != null,
+            screen: screenDevice != null,
+          );
         } catch (_) {
           // No-op.
         }
@@ -1488,23 +1504,28 @@ class OngoingCall {
 
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
-  Future<void> _updateTracks() async {
+  Future<void> _updateTracks({
+    bool audio = false,
+    bool video = false,
+    bool screen = false,
+  }) async {
     print('\n[_updateTracks] before: ${logDevices()}');
 
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-      audio: hasAudio ? TrackPreferences(device: audioDevice.value) : null,
-      video: videoState.value.isEnabled
+      audio: hasAudio && audio
+          ? TrackPreferences(device: audioDevice.value)
+          : null,
+      video: videoState.value.isEnabled && video
           ? TrackPreferences(
               device: videoDevice.value,
               facingMode: videoDevice.value == null ? FacingMode.User : null,
             )
           : null,
-      screen: screenShareState.value.isEnabled
+      screen: screenShareState.value.isEnabled && screen
           ? TrackPreferences(device: screenDevice.value)
           : null,
     );
 
-    _disposeLocalMedia();
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
@@ -1649,6 +1670,13 @@ class OngoingCall {
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       setAudioDevice(devices.audio().first.deviceId());
+    }
+  }
+
+  /// Disables screen sharing if the [screenDevice] is [removed].
+  void _pickScreenDevice(List<MediaDisplayDetails> removed) {
+    if (removed.any((e) => e.deviceId() == screenDevice.value)) {
+      setScreenShareEnabled(false);
     }
   }
 

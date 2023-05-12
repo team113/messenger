@@ -971,6 +971,7 @@ class CallController extends GetxController {
     }
   }
 
+  // TODO: fix this function.
   /// Toggles speaker on and off.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
