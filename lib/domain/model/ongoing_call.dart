@@ -352,6 +352,7 @@ class OngoingCall {
 
         _pickAudioDevice(previous, added, removed);
         _pickOutputDevice(previous, added, removed);
+        _pickVideoDevice(previous, removed);
 
         print('\n[onDeviceChange]: ${logDevices()}');
       });
@@ -1670,6 +1671,20 @@ class OngoingCall {
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       setAudioDevice(devices.audio().first.deviceId());
+    }
+  }
+
+  /// Picks the [videoDevice] based on the provided [previous] and [removed].
+  void _pickVideoDevice([
+    List<MediaDeviceDetails> previous = const [],
+    List<MediaDeviceDetails> removed = const [],
+  ]) {
+    if (removed.any((e) => e.deviceId() == videoDevice.value) ||
+        (videoDevice.value == null &&
+            removed.any((e) =>
+            e.deviceId() == previous.video().firstOrNull?.deviceId()))) {
+      setVideoEnabled(false);
+      videoDevice.value = null;
     }
   }
 
