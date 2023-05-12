@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -337,7 +338,7 @@ class _HomeViewState extends State<HomeView> {
                   width: double.infinity,
                   height: double.infinity,
                 ),
-                _background(c),
+                HomeBackground(c.background, c.sideBarWidth),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
                   sideBar,
@@ -353,17 +354,33 @@ class _HomeViewState extends State<HomeView> {
       },
     );
   }
+}
 
-  /// Builds the [HomeController.background] visual representation.
-  Widget _background(HomeController c) {
+/// [Widget] which builds the [HomeController.background] visual
+/// representation.
+class HomeBackground extends StatelessWidget {
+  const HomeBackground(
+    this.background,
+    this.sideBarWidth, {
+    super.key,
+  });
+
+  /// Returns the background's [Uint8List].
+  final Rx<Uint8List?> background;
+
+  /// Current width of the side bar.
+  final RxDouble sideBarWidth;
+
+  @override
+  Widget build(BuildContext context) {
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
           final Widget image;
-          if (c.background.value != null) {
+          if (background.value != null) {
             image = Image.memory(
-              c.background.value!,
-              key: Key('Background_${c.background.value?.lengthInBytes}'),
+              background.value!,
+              key: Key('Background_${background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );
           } else {
@@ -404,7 +421,7 @@ class _HomeViewState extends State<HomeView> {
                     ConditionalBackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                       child: Obx(() {
-                        double width = c.sideBarWidth.value;
+                        double width = sideBarWidth.value;
                         return ConstrainedBox(
                           constraints: BoxConstraints(
                             maxWidth: context.isNarrow ? 0 : width,
