@@ -55,9 +55,6 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  @override
-  void onReady() => Future.delayed(const Duration(milliseconds: 500), animate);
-
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
     try {
