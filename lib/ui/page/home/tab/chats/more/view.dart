@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../../domain/model/my_user.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -68,11 +69,11 @@ class ChatsMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  _mute(context, c),
+                  SwitchMute(c.myUser, c.isMuting, c.toggleMute),
                   const SizedBox(height: 21),
-                  _header(context, 'label_your_direct_link'.l10n),
+                  MoreHeader(text: 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
-                  _link(context, c),
+                  ChatDirectLink(c.myUser, c.link),
                 ],
               ),
             ),
@@ -82,9 +83,18 @@ class ChatsMoreView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Returns a styled as a header [Container] with the provided [text].
-  Widget _header(BuildContext context, String text) {
+/// [Widget] which returns a styled as a header [Container] with the provided
+/// [text].
+class MoreHeader extends StatelessWidget {
+  const MoreHeader({super.key, required this.text});
+
+  /// Text that will be displayed in the header.
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -101,9 +111,23 @@ class ChatsMoreView extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Returns a [Switch] toggling [MyUser.muted].
-  Widget _mute(BuildContext context, ChatsMoreController c) {
+/// [Widget] which returns a [Switch] toggling [MyUser.muted].
+class SwitchMute extends StatelessWidget {
+  const SwitchMute(this.myUser, this.isMuting, this.toggleMute, {super.key});
+
+  /// Returns the currently authenticated [MyUser].
+  final Rx<MyUser?> myUser;
+
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  final RxBool isMuting;
+
+  /// Toggles [MyUser.muted] status.
+  final Future<void> Function(bool enabled) toggleMute;
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -111,7 +135,7 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: (c.myUser.value?.muted == null
+                text: (myUser.value?.muted == null
                         ? 'label_enabled'
                         : 'label_disabled')
                     .l10n,
@@ -134,8 +158,8 @@ class ChatsMoreView extends StatelessWidget {
                     key: const Key('MuteMyUserSwitch'),
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.myUser.value?.muted == null,
-                    onChanged: c.isMuting.value ? null : c.toggleMute,
+                    value: myUser.value?.muted == null,
+                    onChanged: isMuting.value ? null : toggleMute,
                   ),
                 ),
               ),
@@ -145,9 +169,20 @@ class ChatsMoreView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns a [MyUser.chatDirectLink] editable field.
-  Widget _link(BuildContext context, ChatsMoreController c) {
+/// Returns a [MyUser.chatDirectLink] editable field.
+class ChatDirectLink extends StatelessWidget {
+  const ChatDirectLink(this.myUser, this.link, {super.key});
+
+  /// Returns the currently authenticated [MyUser].
+  final Rx<MyUser?> myUser;
+
+  /// [MyUser.chatDirectLink]'s copyable state.
+  final TextFieldState link;
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,25 +190,27 @@ class ChatsMoreView extends StatelessWidget {
         children: [
           ReactiveTextField(
             key: const Key('LinkField'),
-            state: c.link,
-            onSuffixPressed: c.link.isEmpty.value
+            state: link,
+            onSuffixPressed: link.isEmpty.value
                 ? null
                 : () {
                     PlatformUtils.copy(
                       text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
+                          '${Config.origin}${Routes.chatDirectLink}/${link.text}',
                     );
 
                     MessagePopup.success('label_copied'.l10n);
                   },
-            trailing: c.link.isEmpty.value
+            trailing: link.isEmpty.value
                 ? null
                 : Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child:
-                          SvgImage.asset('assets/icons/copy.svg', height: 15),
+                      child: SvgImage.asset(
+                        'assets/icons/copy.svg',
+                        height: 15,
+                      ),
                     ),
                   ),
             label: '${Config.origin}/',
@@ -192,8 +229,7 @@ class ChatsMoreView extends StatelessWidget {
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
                               'count':
-                                  c.myUser.value?.chatDirectLink?.usageCount ??
-                                      0
+                                  myUser.value?.chatDirectLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(

@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
@@ -51,7 +52,7 @@ import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({Key? key}) : super(key: key);
+  const ChatsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -818,9 +819,17 @@ class ChatsTabView extends StatelessWidget {
                   );
                 }),
                 bottomNavigationBar: c.groupCreating.value
-                    ? _createGroup(context, c)
+                    ? CreateGroup(
+                        groupCreating: c.groupCreating,
+                        closeGroupCreating: c.closeGroupCreating,
+                        createGroup: c.createGroup,
+                      )
                     : c.selecting.value
-                        ? _selectButtons(context, c)
+                        ? SelectButtons(
+                            selectedChats: c.selectedChats,
+                            toggleSelecting: c.toggleSelecting,
+                            hideChats: _hideChats,
+                          )
                         : null,
               );
             }),
@@ -843,142 +852,6 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
-  Widget _createGroup(BuildContext context, ChatsTabController c) {
-    return Obx(() {
-      final Widget child;
-
-      if (c.groupCreating.value) {
-        Widget button({
-          Key? key,
-          Widget? leading,
-          required Widget child,
-          void Function()? onPressed,
-          Color? color,
-        }) {
-          return Expanded(
-            child: OutlinedRoundedButton(
-              key: key,
-              leading: leading,
-              title: child,
-              onPressed: onPressed,
-              color: color,
-              shadows: const [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: Color(0x22000000),
-                  blurStyle: BlurStyle.outer,
-                ),
-              ],
-            ),
-          );
-        }
-
-        child = Padding(
-          padding: EdgeInsets.fromLTRB(
-            8,
-            7,
-            8,
-            PlatformUtils.isMobile && !PlatformUtils.isWeb
-                ? router.context!.mediaQuery.padding.bottom + 7
-                : 12,
-          ),
-          child: Row(
-            children: [
-              button(
-                child: Text(
-                  'btn_close'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.black),
-                ),
-                onPressed: c.closeGroupCreating,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 10),
-              button(
-                child: Text(
-                  'btn_create_group'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onPressed: c.createGroup,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ],
-          ),
-        );
-      } else {
-        child = const SizedBox();
-      }
-
-      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
-    });
-  }
-
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [Chat]s manipulation.
-  Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    const List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: Color(0x22000000),
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_close'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: c.toggleSelecting,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteChats'),
-                title: Text(
-                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color:
-                        c.selectedChats.isEmpty ? Colors.black : Colors.white,
-                  ),
-                ),
-                onPressed: c.selectedChats.isEmpty
-                    ? null
-                    : () => _hideChats(context, c),
-                color: Theme.of(context).colorScheme.secondary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
     );
   }
 
@@ -1036,5 +909,178 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
     } else {
       resolve(GestureDisposition.accepted);
     }
+  }
+}
+
+/// [Widget] which returns an animated [OutlinedRoundedButton]s for creating
+/// a group.
+class CreateGroup extends StatelessWidget {
+  const CreateGroup({
+    super.key,
+    required this.groupCreating,
+    required this.closeGroupCreating,
+    required this.createGroup,
+  });
+
+  /// Indicator whether group creation is active.
+  final RxBool groupCreating;
+
+  /// Disables and disposes the group creating.
+  final void Function() closeGroupCreating;
+
+  /// Creates a [Chat]-group with
+  final Future<void> Function() createGroup;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final Widget child;
+
+      if (groupCreating.value) {
+        Widget button({
+          Key? key,
+          Widget? leading,
+          required Widget child,
+          void Function()? onPressed,
+          Color? color,
+        }) {
+          return Expanded(
+            child: OutlinedRoundedButton(
+              key: key,
+              leading: leading,
+              title: child,
+              onPressed: onPressed,
+              color: color,
+              shadows: const [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: Color(0x22000000),
+                  blurStyle: BlurStyle.outer,
+                ),
+              ],
+            ),
+          );
+        }
+
+        child = Padding(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            7,
+            8,
+            PlatformUtils.isMobile && !PlatformUtils.isWeb
+                ? router.context!.mediaQuery.padding.bottom + 7
+                : 12,
+          ),
+          child: Row(
+            children: [
+              button(
+                child: Text(
+                  'btn_close'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: const TextStyle(color: Colors.black),
+                ),
+                onPressed: closeGroupCreating,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 10),
+              button(
+                child: Text(
+                  'btn_create_group'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onPressed: createGroup,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ],
+          ),
+        );
+      } else {
+        child = const SizedBox();
+      }
+
+      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+    });
+  }
+}
+
+/// [Widget] which returns the animated [OutlinedRoundedButton]s for multiple
+/// selected [Chat]s manipulation.
+class SelectButtons extends StatelessWidget {
+  const SelectButtons({
+    super.key,
+    required this.toggleSelecting,
+    required this.selectedChats,
+    required this.hideChats,
+  });
+
+  /// Toggles the [Chat]s selection.
+  final void Function() toggleSelecting;
+
+  /// Reactive list of [ChatId]s of the selected [Chat]s.
+  final RxList<ChatId> selectedChats;
+
+  /// Opens a confirmation popup hiding the selected chats.
+  final Future<void> Function(BuildContext context, ChatsTabController c)
+      hideChats;
+
+  @override
+  Widget build(BuildContext context) {
+    const List<CustomBoxShadow> shadows = [
+      CustomBoxShadow(
+        blurRadius: 8,
+        color: Color(0x22000000),
+        blurStyle: BlurStyle.outer,
+      ),
+    ];
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        8,
+        7,
+        8,
+        PlatformUtils.isMobile && !PlatformUtils.isWeb
+            ? router.context!.mediaQuery.padding.bottom + 7
+            : 12,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedRoundedButton(
+              title: Text(
+                'btn_close'.l10n,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.black),
+              ),
+              onPressed: toggleSelecting,
+              color: Colors.white,
+              shadows: shadows,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Obx(() {
+            return Expanded(
+              child: OutlinedRoundedButton(
+                key: const Key('DeleteChats'),
+                title: Text(
+                  'btn_delete_count'.l10nfmt({'count': selectedChats.length}),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: selectedChats.isEmpty ? Colors.black : Colors.white,
+                  ),
+                ),
+                onPressed: selectedChats.isEmpty ? null : () => hideChats,
+                color: Theme.of(context).colorScheme.secondary,
+                shadows: shadows,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 }
