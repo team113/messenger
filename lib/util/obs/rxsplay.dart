@@ -23,8 +23,11 @@ import 'package:get/get.dart';
 /// `GetX`-reactive [SplayTreeMap].
 ///
 /// Behaves like a wrapper around [SplayTreeMap].
-class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
-    with NotifyManager<SplayTreeMap<K, V>>, RxObjectMixin<SplayTreeMap<K, V>>
+class RxSplayTreeMap<K, V>
+    with
+        MapMixin<K, V>,
+        NotifyManager<SplayTreeMap<K, V>>,
+        RxObjectMixin<SplayTreeMap<K, V>>
     implements RxInterface<SplayTreeMap<K, V>> {
   /// Creates a new [SplayTreeMap] with the provided [initial] keys and values.
   RxSplayTreeMap([Map<K, V> initial = const {}])
@@ -141,16 +144,16 @@ class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
   @override
   bool containsValue(Object? value) => _value.containsValue(value);
 
-  @override
+  /// Returns the first key of this [RxSplayTreeMap].
   K? firstKey() => _value.firstKey();
 
-  @override
+  /// Returns the last key of this [RxSplayTreeMap].
   K? lastKey() => _value.lastKey();
 
-  @override
+  /// Returns the key preceding the provided [key].
   K? lastKeyBefore(K key) => _value.lastKeyBefore(key);
 
-  @override
+  /// Returns the key following the provided [key].
   K? firstKeyAfter(K key) => _value.firstKeyAfter(key);
 
   @override
