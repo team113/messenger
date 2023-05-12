@@ -325,7 +325,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               ),
                             ),
                           const SizedBox(height: 10),
-                          _contextMenu(fade, slide),
+                          ContextMenuActions(
+                            slide: slide,
+                            fade: fade,
+                            actions: widget.actions,
+                            alignment: widget.alignment,
+                            bounds: _bounds,
+                            unconstrained: widget.unconstrained,
+                            margin: widget.margin,
+                            actionsKey: widget.actionsKey,
+                            dismiss: _dismiss,
+                          ),
                         ],
                       ),
                     )
@@ -358,7 +368,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
-                    _contextMenu(fade, slide),
+                    ContextMenuActions(
+                      slide: slide,
+                      fade: fade,
+                      actions: widget.actions,
+                      alignment: widget.alignment,
+                      bounds: _bounds,
+                      unconstrained: widget.unconstrained,
+                      margin: widget.margin,
+                      actionsKey: widget.actionsKey,
+                      dismiss: _dismiss,
+                    ),
                   ]
                 ],
               );
@@ -369,29 +389,82 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  /// Returns a visual representation of the context menu itself.
-  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+  /// Starts a dismiss animation.
+  void _dismiss() {
+    HapticFeedback.selectionClick();
+    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
+    _fading.reverse();
+  }
+}
+
+/// Returns a visual representation of the context menu itself.
+class ContextMenuActions extends StatelessWidget {
+  ContextMenuActions({
+    super.key,
+    required this.actions,
+    required this.dismiss,
+    required this.alignment,
+    required this.bounds,
+    required this.unconstrained,
+    required this.margin,
+    required this.slide,
+    required this.fade,
+    required this.actionsKey,
+    this.pointerDown,
+  });
+
+  ///
+  final Alignment alignment;
+
+  ///
+  final Rect bounds;
+
+  ///
+  final bool unconstrained;
+
+  ///
+  final EdgeInsets margin;
+
+  ///
+  final Animation<Offset> slide;
+
+  ///
+  final Animation<double> fade;
+
+  ///
+  final GlobalKey<State<StatefulWidget>> actionsKey;
+
+  ///
+  final List<ContextMenuItem> actions;
+
+  ///
+  late Offset? pointerDown;
+
+  ///
+  final void Function() dismiss;
+
+  @override
+  Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     EdgeInsets padding;
 
-    if (widget.alignment == Alignment.bottomLeft ||
-        widget.alignment == Alignment.bottomRight) {
+    if (alignment == Alignment.bottomLeft ||
+        alignment == Alignment.bottomRight) {
       const double minWidth = 230;
-      final double menuWidth = _bounds.right - _bounds.left;
+      final double menuWidth = bounds.right - bounds.left;
 
-      if (widget.alignment == Alignment.bottomLeft) {
+      if (alignment == Alignment.bottomLeft) {
         padding = EdgeInsets.only(
-          left: _bounds.left - 5,
+          left: bounds.left - 5,
           right: menuWidth < minWidth
-              ? width - _bounds.left - minWidth
-              : width - _bounds.right - 5,
+              ? width - bounds.left - minWidth
+              : width - bounds.right - 5,
         );
       } else {
         padding = EdgeInsets.only(
-          left: menuWidth < minWidth
-              ? _bounds.right - minWidth
-              : _bounds.left - 5,
-          right: width - _bounds.right - 5,
+          left:
+              menuWidth < minWidth ? bounds.right - minWidth : bounds.left - 5,
+          right: width - bounds.right - 5,
         );
       }
 
@@ -401,25 +474,25 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           right: width - minWidth - 8,
         );
       }
-    } else if (widget.unconstrained) {
+    } else if (unconstrained) {
       padding = const EdgeInsets.only(left: 0, right: 0);
     } else {
       padding = EdgeInsets.only(
-        left: max(0, _bounds.left - 10),
-        right: max(0, width - _bounds.right - 10),
+        left: max(0, bounds.left - 10),
+        right: max(0, width - bounds.right - 10),
       );
     }
 
     return Align(
-      alignment: widget.alignment,
+      alignment: alignment,
       child: Padding(
-        padding: widget.margin.add(padding),
+        padding: margin.add(padding),
         child: SlideTransition(
           position: slide,
           child: FadeTransition(
             opacity: fade,
             child: Padding(
-              key: widget.actionsKey,
+              key: actionsKey,
               padding: EdgeInsets.only(
                 bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
@@ -435,12 +508,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   Widget _actions() {
     List<Widget> widgets = [];
 
-    for (int i = 0; i < widget.actions.length; ++i) {
-      if (widget.actions[i] is! ContextMenuDivider) {
-        widgets.add(widget.actions[i]);
+    for (int i = 0; i < actions.length; ++i) {
+      if (actions[i] is! ContextMenuDivider) {
+        widgets.add(actions[i]);
 
         // Add a divider, if required.
-        if (i < widget.actions.length - 1) {
+        if (i < actions.length - 1) {
           widgets.add(
             Container(
               color: const Color(0x11000000),
@@ -452,16 +525,16 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     }
 
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) {
-        if (_pointerDown != null &&
-            (_pointerDown!.distance - d.position.distance).abs() < 7) {
-          _dismiss();
+        if (pointerDown != null &&
+            (pointerDown!.distance - d.position.distance).abs() < 7) {
+          dismiss();
         }
       },
-      onPointerDown: (d) => _pointerDown = d.position,
+      onPointerDown: (d) => pointerDown = d.position,
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(
@@ -480,12 +553,5 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         ),
       ),
     );
-  }
-
-  /// Starts a dismiss animation.
-  void _dismiss() {
-    HapticFeedback.selectionClick();
-    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
-    _fading.reverse();
   }
 }
