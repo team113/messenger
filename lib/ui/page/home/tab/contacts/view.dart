@@ -577,11 +577,11 @@ class ContactTileWidget extends StatelessWidget {
   /// it from the [selectedContacts].
   final void Function(RxChatContact contact) selectContact;
 
-  /// Removes the specified [ChatContact] identified by its [id] from the
+  /// Removes the specified [ChatContact] identified by its id from the
   /// favorites.
   final Future<void> Function(ChatContactId id) unfavoriteContact;
 
-  /// Marks the specified [ChatContact] identified by its [id] as favorited.
+  /// Marks the specified [ChatContact] identified by its id as favorited.
   final Future<void> Function(
     ChatContactId id, [
     ChatContactFavoritePosition? position,
@@ -722,7 +722,7 @@ class ContactTileWidget extends StatelessWidget {
 }
 
 /// [Widget] which returns the animated [OutlinedRoundedButton]s for multiple
-/// selected [ChatContacts]s manipulation.
+/// selected chat contacts manipulation.
 class ChatSelectButtons extends StatelessWidget {
   const ChatSelectButtons(
     this.selectedContacts, {
