@@ -41,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
         - Participants dialing indication. ([#286], [#281])
     - Chats tab:
         - Inverted selected chat colors. ([#405])
+        - Chats with ongoing calls sorting above favorites. ([#392], [#371])
 
 ### Fixed
 
@@ -63,10 +64,12 @@ All user visible changes to this project will be documented in this file. This p
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
+[#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380
 [#388]: /../../pull/388
+[#392]: /../../pull/392
 [#393]: /../../pull/393
 [#399]: /../../pull/399
 [#403]: /../../pull/403
