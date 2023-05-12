@@ -796,11 +796,6 @@ class OngoingCall {
               }
             }
             await _room?.unmuteAudio();
-            members[_me]!
-                .tracks
-                .firstWhereOrNull((e) => e.kind == MediaKind.Audio)
-                ?.isMuted
-                .value = false;
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -824,11 +819,6 @@ class OngoingCall {
           audioState.value = LocalTrackState.disabling;
           try {
             await _room?.muteAudio();
-            members[_me]!
-                .tracks
-                .firstWhereOrNull((e) => e.kind == MediaKind.Audio)
-                ?.isMuted
-                .value = true;
             audioState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
