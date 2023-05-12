@@ -406,8 +406,14 @@ class CallController extends GetxController {
   bool get withVideo => _currentCall.value.withVideo ?? false;
 
   RxList<MediaDeviceDetails> get devices => _currentCall.value.devices;
-  RxList<MediaDeviceDetails> get deviceChanges =>
+  RxList<CallNotification> get deviceChanges =>
       _currentCall.value.deviceChanges;
+
+  void addNotification({MediaDeviceDetails? device, int? score}) =>
+      _currentCall.value.addNotification(device: device, score: score);
+
+  void removeNotification(CallNotification notification) =>
+      _currentCall.value.removeNotification(notification);
 
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;

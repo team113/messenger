@@ -50,3 +50,39 @@ class WidgetButton extends StatelessWidget {
     );
   }
 }
+
+/// Simple [GestureDetector]-based button without any decorations.
+class ListenerButton extends StatelessWidget {
+  const ListenerButton({
+    Key? key,
+    required this.child,
+    this.behavior,
+    this.onPressed,
+  }) : super(key: key);
+
+  /// [Widget] to press.
+  final Widget child;
+
+  /// [HitTestBehavior] of this [WidgetButton].
+  final HitTestBehavior? behavior;
+
+  /// Callback, called when the [child] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+      child: Listener(
+        onPointerDown: (e) {
+          onPressed?.call();
+        },
+        behavior: behavior ?? HitTestBehavior.deferToChild,
+        child: Container(
+          color: Colors.transparent,
+          child: child,
+        ),
+      ),
+    );
+  }
+}

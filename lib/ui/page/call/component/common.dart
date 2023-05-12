@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -87,7 +88,8 @@ class ReconnectButton extends CallButton {
       asset: 'more',
       hinted: hinted,
       onPressed: () {
-        c.deviceChanges.add(c.devices.audio().first);
+        c.addNotification(score: 2);
+        c.addNotification(device: c.devices.audio().first);
       },
       // onPressed: c.connectionLost.toggle,
     );
@@ -489,6 +491,17 @@ Widget callTitle(CallController c) {
     final bool isDialog = c.chat.value?.chat.value.isDialog == true;
     final bool withDots = c.state.value != OngoingCallState.active &&
         (c.state.value == OngoingCallState.joining || isOutgoing);
+
+    final Map<String, dynamic> args = {'by': 'x'};
+    if (!isOutgoing && !isDialog) {
+      final recipient = c.chat.value?.members.values
+          .firstWhereOrNull((e) => e.id != c.me.id.userId);
+      if (recipient != null) {
+        args['by'] =
+            recipient.user.value.name?.val ?? recipient.user.value.num.val;
+      }
+    }
+
     final String? state = c.state.value == OngoingCallState.active
         ? c.duration.value.toString().split('.').first.padLeft(8, '0')
         : c.state.value == OngoingCallState.joining
@@ -499,11 +512,11 @@ Widget callTitle(CallController c) {
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
                     ? c.income
-                        ? 'label_paid_video_call'.l10n
-                        : 'label_video_call'.l10n
+                        ? 'label_paid_video_call'.l10nfmt(args)
+                        : 'label_video_call'.l10nfmt(args)
                     : c.income
-                        ? 'label_paid_audio_call'.l10n
-                        : 'label_audio_call'.l10n;
+                        ? 'label_paid_audio_call'.l10nfmt(args)
+                        : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
       c.me.id.userId,

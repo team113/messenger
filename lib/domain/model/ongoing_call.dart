@@ -24,6 +24,7 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
@@ -229,7 +230,7 @@ class OngoingCall {
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
-  final RxList<MediaDeviceDetails> deviceChanges = RxList();
+  final RxList<CallNotification> deviceChanges = RxList();
 
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
@@ -1117,6 +1118,17 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
+      conn.onQualityScoreUpdate((p0) {
+        if (p0 <= 2) {
+          addNotification(score: p0);
+        }
+
+        Log.print(
+          'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p0',
+          'CALL',
+        );
+      });
+
       Log.print('onNewConnection', 'CALL');
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
@@ -1604,23 +1616,31 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.output().isNotEmpty) {
-      _addDeviceNotification(added.output().first);
+      addNotification(device: added.output().first);
       setOutputDevice(added.output().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
-      _addDeviceNotification(devices.output().first);
+      addNotification(device: devices.output().first);
       setOutputDevice(devices.output().first.deviceId());
     }
   }
 
-  void _addDeviceNotification(MediaDeviceDetails device) {
-    deviceChanges.add(device);
+  final Map<String, Timer> _deviceTimers = {};
 
-    Timer(const Duration(seconds: 5), () {
-      deviceChanges.remove(device);
+  void addNotification({MediaDeviceDetails? device, int? score}) {
+    final notification = CallNotification(device: device, score: score);
+    deviceChanges.add(notification);
+
+    _deviceTimers[notification.id] = Timer(const Duration(seconds: 5), () {
+      deviceChanges.remove(notification);
     });
+  }
+
+  void removeNotification(CallNotification notification) {
+    deviceChanges.remove(notification);
+    _deviceTimers.remove(notification.id)?.cancel();
   }
 
   /// Picks the [audioDevice] based on the provided [previous], [added] and
@@ -1631,13 +1651,13 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     if (added.audio().isNotEmpty) {
-      _addDeviceNotification(added.audio().first);
+      addNotification(device: added.audio().first);
       setAudioDevice(added.audio().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
-      _addDeviceNotification(devices.audio().first);
+      addNotification(device: devices.audio().first);
       setAudioDevice(devices.audio().first.deviceId());
     }
   }
@@ -1900,4 +1920,13 @@ extension DevicesList on List<MediaDeviceDetails> {
   Iterable<MediaDeviceDetails> output() {
     return where((i) => i.kind() == MediaDeviceKind.AudioOutput);
   }
+}
+
+// Низкая скорость Интернет-соединения.
+class CallNotification {
+  CallNotification({this.device, this.score});
+
+  late final String id = const Uuid().v4();
+  final MediaDeviceDetails? device;
+  final int? score;
 }

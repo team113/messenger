@@ -628,8 +628,8 @@ class MyVerticalMultiDragGestureRecognizer extends MultiDragGestureRecognizer {
       'Migrate to supportedDevices. '
       'This feature was deprecated after v2.3.0-1.0.pre.',
     )
-        super.kind,
-    super.supportedDevices,
+        // super.kind,
+        super.supportedDevices,
   });
 
   @override

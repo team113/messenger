@@ -756,6 +756,7 @@ class ChatsTabView extends StatelessWidget {
                             //         e is! ChatElement)
                             //     .toList();
 
+                            final List<RxChat> calls = [];
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
@@ -767,7 +768,10 @@ class ChatsTabView extends StatelessWidget {
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
                                   !isHidden) {
-                                if (e.chat.value.favoritePosition != null) {
+                                if (e.chat.value.ongoingCall != null) {
+                                  calls.add(e);
+                                } else if (e.chat.value.favoritePosition !=
+                                    null) {
                                   favorites.add(e);
                                 } else {
                                   chats.add(e);
@@ -940,6 +944,31 @@ class ChatsTabView extends StatelessWidget {
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
                                     top: CustomAppBar.height,
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildListDelegate.fixed(
+                                      calls.mapIndexed((i, e) {
+                                        return AnimationConfiguration
+                                            .staggeredList(
+                                          position: i,
+                                          duration: const Duration(
+                                            milliseconds: 375,
+                                          ),
+                                          child: SlideAnimation(
+                                            horizontalOffset: 50,
+                                            child: FadeInAnimation(
+                                              child: tile(e),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                                SliverPadding(
+                                  padding: const EdgeInsets.only(
                                     left: 10,
                                     right: 10,
                                   ),

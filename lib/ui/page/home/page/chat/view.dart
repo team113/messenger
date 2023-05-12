@@ -122,7 +122,7 @@ class _ChatViewState extends State<ChatView>
         void onDetailsTap() {
           final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(

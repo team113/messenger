@@ -314,7 +314,7 @@ class _HomeViewState extends State<HomeView> {
                                     child: Obx(() {
                                       return SvgImage.asset(
                                         c.publicsToggle.value
-                                            ? 'assets/icons/publics_muted4.svg'
+                                            ? 'assets/icons/publics_muted6.svg'
                                             : 'assets/icons/publics13.svg',
                                         width: 32,
                                         height: 31,
@@ -377,7 +377,7 @@ class _HomeViewState extends State<HomeView> {
 
                                     if (c.myUser.value?.muted != null) {
                                       child = SvgImage.asset(
-                                        'assets/icons/chats_muted4.svg',
+                                        'assets/icons/chats_muted5.svg',
                                         key: const Key('Muted'),
                                         width: 39.26,
                                         height: 33.5,

@@ -1042,7 +1042,7 @@ class UserView extends StatelessWidget {
             ? null
             : () {
                 Clipboard.setData(
-                  ClipboardData(text: c.user?.user.value.name?.val),
+                  ClipboardData(text: c.user!.user.value.name!.val),
                 );
                 MessagePopup.success('label_copied'.l10n);
               },

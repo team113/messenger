@@ -514,6 +514,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     switch (message.action.kind) {
       case ChatInfoActionKind.created:
+        final action = message.action as ChatInfoActionCreated;
+
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.authorId, (context, user) {
             if (user != null) {
@@ -548,7 +550,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         } else if (widget.chat.value?.isMonolog == true) {
           content = Text('label_monolog_created'.l10n);
         } else {
-          content = Text('label_dialog_created'.l10n);
+          if (action.directLinkSlug == null) {
+            content = Text('label_dialog_created'.l10n);
+          } else {
+            content = Text('label_dialog_created_by_link'.l10n);
+          }
         }
         break;
 

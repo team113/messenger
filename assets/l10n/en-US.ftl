@@ -478,7 +478,10 @@ label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
     }]
-label_audio_call = Audio call
+label_audio_call = Audio call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -809,7 +812,10 @@ label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
-label_video_call = Video call
+label_video_call = Video call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
@@ -931,3 +937,4 @@ btn_display_transactions = Display transactions
 btn_hide_transactions = Hide transactions
 btn_display_balance = Display balance
 btn_hide_balance = Hide balance
+label_dialog_created_by_link = Dialog created via direct link
