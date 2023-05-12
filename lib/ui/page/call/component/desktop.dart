@@ -1416,7 +1416,6 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
-                expanded: c.doughDraggedRenderer.value == participant,
               );
             });
           },
@@ -1959,7 +1958,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   offstageUntilDetermined: true,
                   respectAspectRatio: true,
                   borderRadius: BorderRadius.zero,
-                  expanded: c.doughDraggedRenderer.value == participant,
                 ),
               );
             },

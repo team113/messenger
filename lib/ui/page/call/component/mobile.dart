@@ -137,12 +137,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                       IgnorePointer(
                         child: ParticipantWidget(
                           e,
-                          muted: muted,
                           offstageUntilDetermined: true,
                         ),
                       ),
                       ParticipantOverlayWidget(
                         e,
+                        muted: muted,
                         hovered: animated,
                         preferBackdrop: !c.minimized.value,
                       ),

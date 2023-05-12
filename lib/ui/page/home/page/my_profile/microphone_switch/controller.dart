@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
@@ -48,8 +49,7 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) => devices.value =
-          e.where((d) => d.kind() == MediaDeviceKind.AudioInput).toList(),
+      (e) => devices.value = e.audio().toList(),
     );
 
     await WebUtils.microphonePermission();

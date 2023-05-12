@@ -66,8 +66,7 @@ class CameraSwitchController extends GetxController {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
       (e) {
         print('[$runtimeType] onDeviceChange');
-        devices.value =
-            e.where((d) => d.kind() == MediaDeviceKind.VideoInput).toList();
+        devices.value = e.video().toList();
       },
     );
 
