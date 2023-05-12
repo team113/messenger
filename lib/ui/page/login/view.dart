@@ -50,26 +50,6 @@ class LoginView extends StatelessWidget {
           final Widget header;
           final List<Widget> children;
 
-          // Returns a primary styled [OutlinedRoundedButton].
-          Widget primaryButton({
-            Key? key,
-            String? title,
-            VoidCallback? onPressed,
-          }) {
-            return OutlinedRoundedButton(
-              key: key,
-              maxWidth: double.infinity,
-              title: Text(
-                title ?? '',
-                style: TextStyle(
-                  color: onPressed == null ? Colors.black : Colors.white,
-                ),
-              ),
-              onPressed: onPressed,
-              color: Theme.of(context).colorScheme.secondary,
-            );
-          }
-
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
@@ -98,7 +78,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed:
@@ -135,7 +115,7 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.recoveryCode.isEmpty.value
@@ -192,7 +172,7 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.newPassword.isEmpty.value ||
@@ -270,7 +250,7 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('LoginButton'),
                   title: 'btn_login'.l10n,
                   onPressed: c.signIn,
@@ -304,6 +284,33 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+}
+
+/// [Widget] which returns a primary styled [OutlinedRoundedButton].
+class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({super.key, this.title, this.onPressed});
+
+  /// Text to display.
+  final String? title;
+
+  /// Callback, called when this button is tapped or activated other way.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedRoundedButton(
+      key: key,
+      maxWidth: double.infinity,
+      title: Text(
+        title ?? '',
+        style: TextStyle(
+          color: onPressed == null ? Colors.black : Colors.white,
+        ),
+      ),
+      onPressed: onPressed,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }
