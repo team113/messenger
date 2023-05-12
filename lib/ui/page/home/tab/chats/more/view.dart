@@ -19,7 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../domain/model/my_user.dart';
+import '/domain/model/my_user.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';

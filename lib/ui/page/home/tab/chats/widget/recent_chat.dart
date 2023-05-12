@@ -145,7 +145,7 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         status: [
-          _StatusWidget(rxChat, me),
+          ChatStatus(rxChat, me),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
             style: Theme.of(context).textTheme.titleSmall,
@@ -159,12 +159,12 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(
-                  child: _SubtitleWidget(
+                  child: ChatSubtitle(
+                    me,
                     rxChat: rxChat,
                     inCall: inCall,
                     onDrop: onDrop,
                     onJoin: onJoin,
-                    me: me,
                     selected: selected,
                     getUser: getUser,
                     attachment: _attachment,
@@ -190,7 +190,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _Counter(rxChat),
+                  UnreadCounter(rxChat),
                 ] else
                   ...trailing!,
               ],
@@ -409,15 +409,15 @@ extension DateTimeToShort on DateTime {
   }
 }
 
-/// Builds a [ChatItem.status] visual representation.
-class _StatusWidget extends StatelessWidget {
+/// [Widget] which builds a [ChatItem.status] visual representation.
+class ChatStatus extends StatelessWidget {
+  const ChatStatus(this.rxChat, this.me, {super.key});
+
+  /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
+
+  /// [UserId] of the authenticated [MyUser].
   final UserId? me;
-  const _StatusWidget(
-    this.rxChat,
-    this.me, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -464,13 +464,13 @@ class _StatusWidget extends StatelessWidget {
   }
 }
 
-/// Returns a visual representation of the [Chat.unreadCount] counter.
-class _Counter extends StatelessWidget {
+/// [Widget] which returns a visual representation of the [Chat.unreadCount]
+/// counter.
+class UnreadCounter extends StatelessWidget {
+  const UnreadCounter(this.rxChat, {super.key});
+
+  /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
-  const _Counter(
-    this.rxChat, {
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -510,29 +510,50 @@ class _Counter extends StatelessWidget {
   }
 }
 
-/// Builds a subtitle for the provided [RxChat] containing either its
-/// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-class _SubtitleWidget extends StatelessWidget {
-  final RxChat rxChat;
-  final bool Function()? inCall;
-  final void Function()? onDrop;
-  final void Function()? onJoin;
-  final UserId? me;
-  final bool selected;
-  final Widget Function(Attachment e, {Future<void> Function()? onError})
-      attachment;
-  final Future<RxUser?> Function(UserId)? getUser;
-  const _SubtitleWidget({
-    Key? key,
+/// [Widget] which builds a subtitle for the provided [RxChat] containing
+/// either its [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing
+/// typing.
+class ChatSubtitle extends StatelessWidget {
+  const ChatSubtitle(
+    this.me, {
+    super.key,
     required this.rxChat,
     required this.inCall,
     required this.onDrop,
     required this.onJoin,
-    required this.me,
     required this.selected,
     required this.getUser,
     required this.attachment,
-  }) : super(key: key);
+  });
+
+  /// [RxChat] this [RecentChatTile] is about.
+  final RxChat rxChat;
+
+  /// Callback, called to check whether this device of the currently
+  /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
+
+  /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action
+  /// is triggered.
+  final void Function()? onDrop;
+
+  /// Callback, called when a join [Chat.ongoingCall] in this [rxChat] action
+  /// is triggered.
+  final void Function()? onJoin;
+
+  /// [UserId] of the authenticated [MyUser].
+  final UserId? me;
+
+  /// Indicator whether this [RecentChatTile] is selected.
+  final bool selected;
+
+  /// Callback, called when a [RxUser] identified by the provided [UserId]
+  /// is required.
+  final Future<RxUser?> Function(UserId)? getUser;
+
+  /// Builds an [Attachment] visual representation.
+  final Widget Function(Attachment e, {Future<void> Function()? onError})
+      attachment;
 
   @override
   Widget build(BuildContext context) {
@@ -828,13 +849,30 @@ class _SubtitleWidget extends StatelessWidget {
         } else if (item is ChatInfo) {
           Widget content = Text('${item.action}');
 
+          // Builds a [FutureBuilder] returning a [User] fetched by the provided
+          // [id].
+          Widget userBuilder(
+            UserId id,
+            Widget Function(BuildContext context, User? user) builder,
+          ) {
+            return FutureBuilder(
+              future: getUser?.call(id),
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return Obx(() => builder(context, snapshot.data!.user.value));
+                }
+
+                return builder(context, null);
+              },
+            );
+          }
+
           switch (item.action.kind) {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
-                content = _UserBuilder(
-                  id: item.authorId,
-                  getUser: getUser,
-                  builder: (context, user) {
+                content = userBuilder(
+                  item.authorId,
+                  (context, user) {
                     user ??= (item as ChatInfo).author;
                     final Map<String, dynamic> args = {
                       'author': user.name?.val ?? user.num.val,
@@ -854,20 +892,20 @@ class _SubtitleWidget extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               if (item.authorId != action.user.id) {
-                content = _UserBuilder(
-                    id: action.user.id,
-                    getUser: getUser,
-                    builder: (context, user) {
-                      final User author = (item as ChatInfo).author;
-                      user ??= action.user;
+                content = userBuilder(
+                  action.user.id,
+                  (context, user) {
+                    final User author = (item as ChatInfo).author;
+                    user ??= action.user;
 
-                      final Map<String, dynamic> args = {
-                        'author': author.name?.val ?? author.num.val,
-                        'user': user.name?.val ?? user.num.val,
-                      };
+                    final Map<String, dynamic> args = {
+                      'author': author.name?.val ?? author.num.val,
+                      'user': user.name?.val ?? user.num.val,
+                    };
 
-                      return Text('label_user_added_user'.l10nfmt(args));
-                    });
+                    return Text('label_user_added_user'.l10nfmt(args));
+                  },
+                );
               } else {
                 content = Text(
                   'label_was_added'.l10nfmt(
@@ -881,20 +919,20 @@ class _SubtitleWidget extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberRemoved;
 
               if (item.authorId != action.user.id) {
-                content = _UserBuilder(
-                    id: action.user.id,
-                    getUser: getUser,
-                    builder: (context, user) {
-                      final User author = (item as ChatInfo).author;
-                      user ??= action.user;
+                content = userBuilder(
+                  action.user.id,
+                  (context, user) {
+                    final User author = (item as ChatInfo).author;
+                    user ??= action.user;
 
-                      final Map<String, dynamic> args = {
-                        'author': author.name?.val ?? author.num.val,
-                        'user': user.name?.val ?? user.num.val,
-                      };
+                    final Map<String, dynamic> args = {
+                      'author': author.name?.val ?? author.num.val,
+                      'user': user.name?.val ?? user.num.val,
+                    };
 
-                      return Text('label_user_removed_user'.l10nfmt(args));
-                    });
+                    return Text('label_user_removed_user'.l10nfmt(args));
+                  },
+                );
               } else {
                 content = Text(
                   'label_was_removed'.l10nfmt(
@@ -948,33 +986,5 @@ class _SubtitleWidget extends StatelessWidget {
         child: Row(children: subtitle),
       );
     });
-  }
-}
-
-// Builds a [FutureBuilder] returning a [User] fetched by the provided
-// [id].
-class _UserBuilder extends StatelessWidget {
-  final UserId id;
-  final Widget Function(BuildContext context, User? user) builder;
-  final Future<RxUser?> Function(UserId)? getUser;
-  const _UserBuilder({
-    Key? key,
-    required this.id,
-    required this.builder,
-    required this.getUser,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getUser?.call(id),
-      builder: (context, snapshot) {
-        if (snapshot.data != null) {
-          return Obx(() => builder(context, snapshot.data!.user.value));
-        }
-
-        return builder(context, null);
-      },
-    );
   }
 }

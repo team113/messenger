@@ -820,13 +820,13 @@ class ChatsTabView extends StatelessWidget {
                 }),
                 bottomNavigationBar: c.groupCreating.value
                     ? CreateGroup(
-                        groupCreating: c.groupCreating,
-                        closeGroupCreating: c.closeGroupCreating,
-                        createGroup: c.createGroup,
+                        c.groupCreating,
+                        c.closeGroupCreating,
+                        c.createGroup,
                       )
                     : c.selecting.value
                         ? SelectButtons(
-                            selectedChats: c.selectedChats,
+                            c.selectedChats,
                             toggleSelecting: c.toggleSelecting,
                             hideChats: _hideChats,
                           )
@@ -915,11 +915,11 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
 /// [Widget] which returns an animated [OutlinedRoundedButton]s for creating
 /// a group.
 class CreateGroup extends StatelessWidget {
-  const CreateGroup({
+  const CreateGroup(
+    this.groupCreating,
+    this.closeGroupCreating,
+    this.createGroup, {
     super.key,
-    required this.groupCreating,
-    required this.closeGroupCreating,
-    required this.createGroup,
   });
 
   /// Indicator whether group creation is active.
@@ -1009,10 +1009,10 @@ class CreateGroup extends StatelessWidget {
 /// [Widget] which returns the animated [OutlinedRoundedButton]s for multiple
 /// selected [Chat]s manipulation.
 class SelectButtons extends StatelessWidget {
-  const SelectButtons({
+  const SelectButtons(
+    this.selectedChats, {
     super.key,
     required this.toggleSelecting,
-    required this.selectedChats,
     required this.hideChats,
   });
 
