@@ -380,7 +380,8 @@ class PlatformUtilsImpl {
   }
 
   /// Stores the provided [text] on the [Clipboard].
-  void copy({String? text}) => Clipboard.setData(ClipboardData(text: text));
+  void copy({required String text}) =>
+      Clipboard.setData(ClipboardData(text: text));
 }
 
 /// Determining whether a [BuildContext] is mobile or not.
