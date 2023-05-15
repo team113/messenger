@@ -198,7 +198,7 @@ class CallSettingsView extends StatelessWidget {
   }
 }
 
-/// [Widget] for displaying a header with a text in the settings screen.
+/// [Widget] for displaying a header with a [text] in the settings screen.
 class SettingsHeader extends StatelessWidget {
   const SettingsHeader({
     super.key,
@@ -209,7 +209,7 @@ class SettingsHeader extends StatelessWidget {
   /// [Text] to be displayed in this [SettingsHeader].
   final String text;
 
-  /// Padding around the [SettingsHeader].
+  /// Padding around this [SettingsHeader].
   final EdgeInsetsGeometry padding;
 
   @override
