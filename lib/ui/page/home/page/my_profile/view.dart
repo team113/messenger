@@ -210,8 +210,8 @@ class MyProfileView extends StatelessWidget {
                             ProfileNum(c.myUser, c.num),
                             ProfileLogin(c.myUser, c.login),
                             const SizedBox(height: 10),
-                            ProfileEmails(c.myUser, _deleteEmail),
-                            ProfilePhones(c.myUser, _deletePhone),
+                            ProfileEmails(c.myUser, () => _deleteEmail),
+                            ProfilePhones(c.myUser),
                             ProfilePassword(c.myUser),
                           ],
                         );
@@ -311,8 +311,8 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: const [
-                            ProfileDanger(_deleteAccount),
+                          children: [
+                            ProfileDanger(() => _deleteAccount(c, context)),
                           ],
                         );
 
@@ -428,10 +428,10 @@ class _Dense extends StatelessWidget {
 class ProfileName extends StatelessWidget {
   const ProfileName(this.name, this.login, {super.key});
 
-  /// [MyUser.name]'s field state.
+  /// [MyUser.name] field state.
   final TextFieldState name;
 
-  /// [MyUser.login]'s field state.
+  /// [MyUser.login] field state.
   final TextFieldState login;
 
   @override
@@ -467,7 +467,7 @@ class ProfileName extends StatelessWidget {
 class ProfilePresence extends StatelessWidget {
   const ProfilePresence(this.myUser, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   @override
@@ -493,7 +493,7 @@ class ProfilePresence extends StatelessWidget {
 class ProfileStatus extends StatelessWidget {
   const ProfileStatus(this.status, {super.key});
 
-  /// [MyUser.status]'s field state.
+  /// [MyUser.status] field state.
   final TextFieldState status;
 
   @override
@@ -529,10 +529,10 @@ class ProfileStatus extends StatelessWidget {
 class ProfileNum extends StatelessWidget {
   const ProfileNum(this.myUser, this.num, {super.key});
 
-  /// [MyUser.num]'s copyable state.
+  /// [MyUser.num] copyable state.
   final TextFieldState num;
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   @override
@@ -558,10 +558,10 @@ class ProfileNum extends StatelessWidget {
 class ProfileLogin extends StatelessWidget {
   const ProfileLogin(this.myUser, this.login, {super.key});
 
-  /// [MyUser.login]'s field state.
+  /// [MyUser.login] field state.
   final TextFieldState login;
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   @override
@@ -670,18 +670,14 @@ class ProfileLogin extends StatelessWidget {
 
 /// [Widget] which returns addable list of [MyUser.emails].
 class ProfileEmails extends StatelessWidget {
-  const ProfileEmails(this.myUser, this.deleteEmail, {super.key});
+  const ProfileEmails(this.myUser, this.onTrailingPressed, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   /// Opens a confirmation popup deleting the provided [email] from the
   /// [MyUser.emails].
-  final Future<void> Function(
-    MyProfileController c,
-    BuildContext context,
-    UserEmail email,
-  )? deleteEmail;
+  final void Function()? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -702,7 +698,7 @@ class ProfileEmails extends StatelessWidget {
                   PlatformUtils.copy(text: e.val);
                   MessagePopup.success('label_copied'.l10n);
                 },
-                onTrailingPressed: () => deleteEmail,
+                onTrailingPressed: () => onTrailingPressed,
                 trailing: Transform.translate(
                   key: const Key('DeleteEmail'),
                   offset: const Offset(0, -1),
@@ -839,18 +835,10 @@ class ProfileEmails extends StatelessWidget {
 
 /// [Widget] which returns addable list of [MyUser.phones].
 class ProfilePhones extends StatelessWidget {
-  const ProfilePhones(this.myUser, this.deletePhone, {super.key});
+  const ProfilePhones(this.myUser, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
-
-  /// Opens a confirmation popup deleting the provided [phone] from the
-  /// [MyUser.phones].
-  final Future<void> Function(
-    MyProfileController c,
-    BuildContext context,
-    UserPhone phone,
-  ) deletePhone;
 
   @override
   Widget build(BuildContext context) {
@@ -1011,7 +999,7 @@ class ProfilePhones extends StatelessWidget {
 class ProfilePassword extends StatelessWidget {
   const ProfilePassword(this.myUser, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   @override
@@ -1045,11 +1033,11 @@ class ProfilePassword extends StatelessWidget {
 class ProfileLink extends StatelessWidget {
   const ProfileLink(this.myUser, this.link, {super.key});
 
-  /// [MyUser.chatDirectLink]'s copyable state.
-  final TextFieldState link;
-
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
+
+  /// [MyUser.chatDirectLink] copyable state.
+  final TextFieldState link;
 
   @override
   Widget build(BuildContext context) {
@@ -1135,7 +1123,8 @@ class ProfileBackground extends StatelessWidget {
     super.key,
   });
 
-  /// Returns the current background's [Uint8List] value.
+  /// Reactive [Uint8List] that returns the current background as a
+  /// [Uint8List].
   final Rx<Uint8List?> background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
@@ -1281,7 +1270,7 @@ class ProfileBackground extends StatelessWidget {
 class ProfileChats extends StatelessWidget {
   const ProfileChats(this.settings, {super.key});
 
-  /// Returns the current [ApplicationSettings] value.
+  /// Reactive [ApplicationSettings] that returns the current settings.
   final Rx<ApplicationSettings?> settings;
 
   @override
@@ -1329,7 +1318,7 @@ class ProfileChats extends StatelessWidget {
 class ProfileCall extends StatelessWidget {
   const ProfileCall(this.settings, {super.key});
 
-  /// Returns the current [ApplicationSettings] value.
+  /// Reactive [ApplicationSettings] that returns the current settings.
   final Rx<ApplicationSettings?> settings;
 
   @override
@@ -1366,7 +1355,7 @@ class ProfileMedia extends StatelessWidget {
   /// List of [MediaDeviceInfo] of all the available devices.
   final RxList<MediaDeviceInfo> devices;
 
-  /// Returns the current [MediaSettings] value.
+  /// Reactive [MediaSettings] that returns the current media settings value.
   final Rx<MediaSettings?> media;
 
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
@@ -1465,14 +1454,14 @@ class ProfileNotifications extends StatelessWidget {
     super.key,
   });
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive [MyUser] that stores the currently authenticated user.
   final Rx<MyUser?> myUser;
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
   final RxBool isMuting;
 
   /// Toggles [MyUser.muted] status.
-  final Future<void> Function(bool enabled) toggleMute;
+  final void Function(bool enabled) toggleMute;
 
   @override
   Widget build(BuildContext context) {
@@ -1524,11 +1513,11 @@ class ProfileNotifications extends StatelessWidget {
 class ProfileStorage extends StatelessWidget {
   const ProfileStorage(this.settings, this.setLoadImages, {super.key});
 
-  /// Returns the current [ApplicationSettings] value.
+  /// Reactive [ApplicationSettings] that returns the current settings.
   final Rx<ApplicationSettings?> settings;
 
-  /// Sets the [ApplicationSettings.loadImages] value.
-  final Future<void> Function(bool enabled) setLoadImages;
+  /// Called when the user toggles the switch on or off.
+  final void Function(bool enabled) setLoadImages;
 
   @override
   Widget build(BuildContext context) {
@@ -1598,7 +1587,7 @@ class ProfileLanguage extends StatelessWidget {
 class ProfileBlockedUsers extends StatelessWidget {
   const ProfileBlockedUsers(this.blacklist, {super.key});
 
-  /// Returns the [User]s blacklisted by the authenticated [MyUser].
+  /// Reactive [List] of [User]s blacklisted by an authenticated [MyUser].
   final RxList<RxUser> blacklist;
 
   @override
@@ -1627,9 +1616,9 @@ class ProfileDownloads extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Dense(
+    return const _Dense(
       Column(
-        children: const [
+        children: [
           DownloadButton(
             asset: 'windows',
             width: 21.93,
@@ -1677,13 +1666,10 @@ class ProfileDownloads extends StatelessWidget {
 
 /// [Widget] which returns the contents of a [ProfileTab.danger] section.
 class ProfileDanger extends StatelessWidget {
-  const ProfileDanger(this.deleteAccount, {super.key});
+  const ProfileDanger(this.onPressed, {super.key});
 
-  /// Opens a confirmation popup deleting the [MyUser]'s account.
-  final Future<void> Function(
-    MyProfileController c,
-    BuildContext context,
-  ) deleteAccount;
+  /// Callback, called when this [ProfileDanger] is pressed.
+  final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -1700,7 +1686,7 @@ class ProfileDanger extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            onPressed: () => _deleteAccount,
+            onPressed: onPressed,
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
