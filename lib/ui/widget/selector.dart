@@ -346,7 +346,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
       if (left != null && left < 0) {
         left = 0;
-      } else if (right != null && right > constraints.maxWidth) {
+      } else if (right! > constraints.maxWidth) {
         right = constraints.maxWidth;
       }
 

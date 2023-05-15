@@ -1215,12 +1215,21 @@ class ChatController extends GetxController {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-      await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
+        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
