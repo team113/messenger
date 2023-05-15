@@ -64,8 +64,8 @@ class CallSettingsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 12),
-                  HeaderWidget(text: 'label_media'.l10n),
-                  DenseWidget(
+                  SettingsHeader(text: 'label_media'.l10n),
+                  _Dense(
                     child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
@@ -99,7 +99,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  DenseWidget(
+                  _Dense(
                     child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
@@ -133,7 +133,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  DenseWidget(
+                  _Dense(
                     child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
@@ -167,8 +167,8 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  HeaderWidget(text: 'label_calls'.l10n),
-                  DenseWidget(
+                  SettingsHeader(text: 'label_calls'.l10n),
+                  _Dense(
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
@@ -199,17 +199,17 @@ class CallSettingsView extends StatelessWidget {
 }
 
 /// [Widget] for displaying a header with a text in the settings screen.
-class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({
+class SettingsHeader extends StatelessWidget {
+  const SettingsHeader({
     super.key,
     required this.text,
     this.padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
   });
 
-  /// [Text] to be displayed in the [HeaderWidget].
+  /// [Text] to be displayed in this [SettingsHeader].
   final String text;
 
-  /// Padding around the [HeaderWidget].
+  /// Padding around the [SettingsHeader].
   final EdgeInsetsGeometry padding;
 
   @override
@@ -233,10 +233,10 @@ class HeaderWidget extends StatelessWidget {
 }
 
 /// Dense [Padding] wrapper.
-class DenseWidget extends StatelessWidget {
-  const DenseWidget({super.key, this.child});
+class _Dense extends StatelessWidget {
+  const _Dense({this.child});
 
-  /// [Widget] to be displayed inside the [DenseWidget].
+  /// [Widget] to be displayed inside this [_Dense].
   final Widget? child;
 
   @override

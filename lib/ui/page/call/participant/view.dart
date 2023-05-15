@@ -39,10 +39,10 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class ParticipantView extends StatelessWidget {
   const ParticipantView({
-    Key? key,
+    super.key,
     required this.call,
     required this.duration,
-  }) : super(key: key);
+  });
 
   /// [OngoingCall] this modal is bound to.
   final Rx<OngoingCall> call;
@@ -138,11 +138,12 @@ class ParticipantView extends StatelessWidget {
                                     user: e,
                                     call: call,
                                     me: c.me,
-                                    removeChatMember: c.removeChatMember,
-                                    redialChatCallMember:
-                                        c.redialChatCallMember,
-                                    removeChatCallMember:
-                                        c.removeChatCallMember,
+                                    removeChatMember: () =>
+                                        c.removeChatMember(e.id),
+                                    redialChatCallMember: () =>
+                                        c.redialChatCallMember(e.id),
+                                    removeChatCallMember: () =>
+                                        c.removeChatCallMember(e.id),
                                   ))
                               .toList(),
                         ),
@@ -203,20 +204,21 @@ class CallMemberTile extends StatelessWidget {
   /// [OngoingCall] this modal is bound to.
   final Rx<OngoingCall> call;
 
-  /// Unified reactive [User].
+  /// [RxUser], representing the user who is the subject of this
+  /// [CallMemberTile].
   final RxUser user;
 
   /// [UserId] that is currently logged in.
   final UserId? me;
 
   /// [Function] that removes a member from the chat.
-  final Future<void> Function(UserId userId) removeChatMember;
+  final Future<void> Function() removeChatMember;
 
   /// [Function] that removes a member from the ongoing call.
-  final Future<void> Function(UserId userId) removeChatCallMember;
+  final void Function() removeChatCallMember;
 
   /// [Function] that redials a member from the ongoing call.
-  final Future<void> Function(UserId memberId) redialChatCallMember;
+  final void Function() redialChatCallMember;
 
   @override
   Widget build(BuildContext context) {
@@ -255,9 +257,7 @@ class CallMemberTile extends StatelessWidget {
                         color: isRedialed ? Colors.grey : Colors.red,
                         type: MaterialType.circle,
                         child: InkWell(
-                          onTap: isRedialed
-                              ? null
-                              : () => removeChatCallMember(user.id),
+                          onTap: isRedialed ? null : removeChatCallMember,
                           borderRadius: borderRadius,
                           child: SizedBox(
                             width: width,
@@ -273,7 +273,7 @@ class CallMemberTile extends StatelessWidget {
                         color: Theme.of(context).colorScheme.secondary,
                         type: MaterialType.circle,
                         child: InkWell(
-                          onTap: () => redialChatCallMember(user.id),
+                          onTap: redialChatCallMember,
                           borderRadius: borderRadius,
                           child: SizedBox(
                             width: width,
@@ -312,7 +312,7 @@ class CallMemberTile extends StatelessWidget {
               );
 
               if (result == true) {
-                await removeChatMember(user.id);
+                await removeChatMember();
               }
             },
             child: user.id == me
