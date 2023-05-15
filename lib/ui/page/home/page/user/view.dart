@@ -238,10 +238,11 @@ class UserView extends StatelessWidget {
                             unfavoriteContact: c.unfavoriteContact,
                             muteChat: c.muteChat,
                             unmuteChat: c.unmuteChat,
-                            removeFromContacts: _removeFromContacts,
-                            hideChat: _hideChat,
-                            clearChat: _clearChat,
-                            blacklistUser: _blacklistUser,
+                            removeFromContacts: () =>
+                                _removeFromContacts(c, context),
+                            hideChat: () => _hideChat(c, context),
+                            clearChat: () => _clearChat(c, context),
+                            blacklistUser: () => _blacklistUser(c, context),
                           )
                         ],
                       ),
@@ -390,7 +391,7 @@ class ActionWidget extends StatelessWidget {
   /// Text to display in this [ActionWidget].
   final String? text;
 
-  /// Optional trailing widget.
+  /// Trailing to display in this [ActionWidget].
   final Widget? trailing;
 
   /// Callback, called when this button is tapped or activated other way.
@@ -417,33 +418,33 @@ class ActionWidget extends StatelessWidget {
   }
 }
 
-/// Returns the action buttons to do with this [User].
+/// [Widget] which returns the action buttons to do with this [User].
 class ActionsWidget extends StatelessWidget {
   const ActionsWidget({
     super.key,
-    required this.removeFromContacts,
-    required this.hideChat,
-    required this.clearChat,
-    required this.blacklistUser,
     required this.inContacts,
     required this.inFavorites,
     required this.status,
     required this.blacklistStatus,
-    required this.user,
-    required this.isBlacklisted,
-    required this.addToContacts,
-    required this.unfavoriteContact,
-    required this.favoriteContact,
-    required this.unmuteChat,
-    required this.muteChat,
-    required this.unblacklist,
+    this.removeFromContacts,
+    this.hideChat,
+    this.clearChat,
+    this.blacklistUser,
+    this.user,
+    this.isBlacklisted,
+    this.addToContacts,
+    this.unfavoriteContact,
+    this.favoriteContact,
+    this.unmuteChat,
+    this.muteChat,
+    this.unblacklist,
   });
 
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   final RxBool inContacts;
 
-  /// Temporary indicator whether the [user] is favorite.
+  /// Indicator whether the [user] is favorite.
   final RxBool inFavorites;
 
   /// Status of the [user] fetching.
@@ -455,40 +456,38 @@ class ActionsWidget extends StatelessWidget {
   /// Reactive [User] itself.
   final RxUser? user;
 
-  /// Indicates whether this [user] is blacklisted.
+  /// Indicator whether this [user] is blacklisted.
   final BlacklistRecord? isBlacklisted;
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
-  final Future<void> Function() addToContacts;
+  final void Function()? addToContacts;
 
   /// Removes the [user] from the favorites.
-  final Future<void> Function() unfavoriteContact;
+  final void Function()? unfavoriteContact;
 
   /// Marks the [user] as favorited.
-  final Future<void> Function() favoriteContact;
+  final void Function()? favoriteContact;
 
   /// Unmutes a [Chat]-dialog with the [user].
-  final Future<void> Function() unmuteChat;
+  final void Function()? unmuteChat;
 
   /// Mutes a [Chat]-dialog with the [user].
-  final Future<void> Function() muteChat;
+  final void Function()? muteChat;
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  final Future<void> Function() unblacklist;
+  final void Function()? unblacklist;
 
   /// Opens a confirmation popup deleting the [User] from address book.
-  final Future<void> Function(UserController c, BuildContext context)
-      removeFromContacts;
+  final void Function()? removeFromContacts;
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
-  final Future<void> Function(UserController c, BuildContext context) hideChat;
+  final void Function()? hideChat;
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
-  final Future<void> Function(UserController c, BuildContext context) clearChat;
+  final void Function()? clearChat;
 
   /// Opens a confirmation popup blacklisting the [User].
-  final Future<void> Function(UserController c, BuildContext context)
-      blacklistUser;
+  final void Function()? blacklistUser;
 
   @override
   Widget build(BuildContext context) {
@@ -654,7 +653,7 @@ class PresenceWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [User.num] copyable field.
+/// [Widget] which returns a [User.num] copyable field.
 class NumWidget extends StatelessWidget {
   const NumWidget({super.key, this.user});
 
@@ -679,11 +678,11 @@ class NumWidget extends StatelessWidget {
   }
 }
 
-/// Widget which returns the blacklisted information of this [User].
+/// [Widget] which returns the blacklisted information of this [User].
 class BlockedWidget extends StatelessWidget {
   const BlockedWidget({super.key, this.isBlacklisted});
 
-  /// Indicates whether [user] is blacklisted.
+  /// Indicates whether [User] is blacklisted.
   final BlacklistRecord? isBlacklisted;
 
   @override
@@ -711,11 +710,12 @@ class BlockedWidget extends StatelessWidget {
   }
 }
 
-/// Returns a [WidgetButton] for removing the [User] from the blacklist.
+/// [Widget] which returns a [WidgetButton] for removing the [User] from the
+/// blacklist.
 class BlockedField extends StatelessWidget {
   const BlockedField({super.key, required this.unblacklist});
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
+  /// Removes the [User] from the blacklist of the authenticated [RxUser].
   final Future<void> Function() unblacklist;
 
   @override
