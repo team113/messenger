@@ -74,7 +74,7 @@ class AttachmentSourceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      _ButtonWidget(
+      AttachmentButton(
         icon: null,
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
@@ -86,7 +86,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
       ),
       if (PlatformUtils.isAndroid)
-        _ButtonWidget(
+        AttachmentButton(
           icon: null,
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
@@ -96,7 +96,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             height: 60,
           ),
         ),
-      _ButtonWidget(
+      AttachmentButton(
         icon: null,
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
@@ -106,7 +106,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           height: 60,
         ),
       ),
-      _ButtonWidget(
+      AttachmentButton(
         icon: null,
         text: 'label_file'.l10n,
         onPressed: onPickFile,
@@ -139,24 +139,25 @@ class AttachmentSourceSelector extends StatelessWidget {
   }
 }
 
-class _ButtonWidget extends StatelessWidget {
-  const _ButtonWidget({
+class AttachmentButton extends StatelessWidget {
+  const AttachmentButton({
+    super.key,
     this.text,
     this.icon,
     this.child,
     this.onPressed,
   });
 
-  ///
+  /// Text displayed on this [AttachmentButton].
   final String? text;
 
-  ///
+  /// Icon displayed on this [AttachmentButton].
   final IconData? icon;
 
-  ///
+  /// [Widget] displayed on this [AttachmentButton].
   final Widget? child;
 
-  ///
+  /// Callback, called when this [AttachmentButton] is pressed.
   final void Function()? onPressed;
 
   @override

@@ -275,7 +275,7 @@ class _MobileControlsState extends State<MobileControls>
   }
 }
 
-/// Returns the bottom controls bar.
+/// [Widget] which returns the bottom controls bar.
 class BottomControlBar extends StatefulWidget {
   BottomControlBar({
     super.key,
@@ -291,7 +291,7 @@ class BottomControlBar extends StatefulWidget {
     this.hideTimer,
   });
 
-  ///
+  /// Indicator whether user interface should be visible or not.
   final bool hideStuff;
 
   /// [VideoPlayerController] controlling the video playback.
@@ -315,10 +315,10 @@ class BottomControlBar extends StatefulWidget {
   /// Indicator whether the video progress bar is being dragged.
   bool dragging;
 
-  ///
+  /// Starts the [hideTimer].
   final void Function() startHideTimer;
 
-  ///
+  /// Cancels the [hideTimer] and starts it again.
   final void Function() cancelAndRestartTimer;
 
   @override

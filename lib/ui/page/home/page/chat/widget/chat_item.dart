@@ -1417,7 +1417,7 @@ extension FixedDigitsExtension on Text {
   }
 }
 
-/// Renders [item] as [ChatInfo].
+/// [Widget] which renders [item] as [ChatInfo].
 class RenderAsChatInfo extends StatelessWidget {
   const RenderAsChatInfo({
     super.key,
@@ -1430,25 +1430,27 @@ class RenderAsChatInfo extends StatelessWidget {
     required this.getUser,
   });
 
-  ///
+  /// Reactive value of a [Chat] this [item] is posted in.
   final Rx<Chat?> chat;
 
-  ///
+  /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
 
-  ///
+  /// [User] posted this [item].
   final RxUser? rxUser;
 
-  ///
+  /// Animation that controls a [SwipeableStatus].
   final AnimationController? animation;
 
-  ///
+  /// Indicator whether this [ChatItemWidget.item] was posted by the
+  /// authenticated [MyUser].
   final bool fromMe;
 
-  ///
+  /// Indicator whether this [ChatItem] was read by any [User].
   final bool isRead;
 
-  ///
+  /// Callback, called when a [RxUser] identified by the provided [UserId]
+  /// is required.
   final Future<RxUser?> Function(UserId)? getUser;
 
   @override
@@ -1764,7 +1766,7 @@ class RenderAsChatInfo extends StatelessWidget {
   }
 }
 
-/// Renders [item] as [ChatMessage].
+/// [Widget] which renders [item] as [ChatMessage].
 class RenderAsChatMessage extends StatelessWidget {
   RenderAsChatMessage({
     super.key,
@@ -1792,34 +1794,36 @@ class RenderAsChatMessage extends StatelessWidget {
     required this.margin,
   });
 
-  ///
+  /// Reactive value of a [Chat] this [item] is posted in.
   final Rx<Chat?> chat;
 
-  ///
+  /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
 
-  ///
+  /// [User] posted this [item].
   final RxUser? rxUser;
 
-  ///
+  /// Indicator whether this [ChatItemWidget.item] was posted by the
+  /// authenticated [MyUser].
   final bool fromMe;
 
-  ///
+  /// Indicator whether this [ChatItem] was read by any [User].
   final bool isRead;
 
-  ///
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  ///
+  /// [TextSpan] of the [ChatItemWidget.item] to display as a text of the
+  /// [ChatItemWidget].
   final TextSpan? text;
 
-  ///
+  /// [UserId] of the authenticated [MyUser].
   final UserId me;
 
-  ///
+  /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
 
-  /// double avatarOffset = 0,
+  /// Returns rounded rectangle of a child representing a message box.
   final Widget Function(
     BuildContext context,
     Widget Function(bool) builder, {
@@ -1829,38 +1833,40 @@ class RenderAsChatMessage extends StatelessWidget {
   ///
   final double avatarOffset;
 
-  /// bool timestamp = false
-  ///
+  /// Renders the provided [item] as a replied message.
   final Widget Function(ChatItemQuote item, {bool timestamp}) repliedMessage;
 
-  ///
+  /// Indicator whether a [ChatItem.at] should be displayed within the
+  /// [ChatItemWidget].
   final bool timestamp;
 
-  ///
+  /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
 
-  ///
+  /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
   SelectedContent? selection;
 
-  ///
+  /// Builds a [MessageTimestamp] of the provided [item].
   final Widget Function(ChatItem item) timestampWidget;
 
-  ///
+  /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
+  /// corresponding [Widget].
   final List<GlobalKey<State<StatefulWidget>>> galleryKeys;
 
-  ///
+  /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
-  ///
+  /// Callback, called when a gallery list is required.
   final List<Attachment> Function()? onGallery;
 
-  ///
+  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
+  /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
-  ///
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(FileAttachment)? onFileTap;
 
-  ///
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
   final EdgeInsets margin;
 
   @override
@@ -2178,40 +2184,42 @@ class RenderAsChatCall extends StatefulWidget {
     required this.rounded,
   });
 
-  ///
+  /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
 
-  ///
+  /// [Timer] rebuilding this widget every second if the [widget.item]
+  ///  represents an ongoing [ChatCall].
   Timer? ongoingCallTimer;
 
-  ///
+  /// Indicates whether this [ChatItemWidget.item] was posted by the
+  /// authenticated [MyUser].
   final bool fromMe;
 
-  ///
+  /// Indicates whether this [ChatItem] was read by any [User].
   final bool isRead;
 
-  ///
+  /// Reactive value of a [Chat] this [item] is posted in.
   final Rx<Chat?> chat;
 
-  ///
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  ///
+  /// [UserId] of the authenticated [MyUser].
   final UserId me;
 
-  ///
+  /// [User] posted this [item].
   final RxUser? rxUser;
 
-  ///
+  /// Indicator whether a [ChatItem.at] should be displayed within this [ChatItemWidget].
   final bool timestamp;
 
-  ///
+  /// Builds a [MessageTimestamp] of the provided [item].
   final Widget Function(ChatItem item) timestampWidget;
 
-  ///
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
   final EdgeInsets margin;
 
-  ///
+  /// Returns rounded rectangle of a [child] representing a message box.
   final Widget Function(
     BuildContext context,
     Widget Function(bool) builder, {

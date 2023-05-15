@@ -92,6 +92,9 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Latest [VideoPlayerValue] value.
   late VideoPlayerValue _latestValue;
 
+  /// Latest volume value.
+  double? _latestVolume;
+
   /// [Timer] for hiding the user interface after a timeout.
   Timer? _hideTimer;
 
@@ -198,8 +201,12 @@ class _DesktopControlsState extends State<DesktopControls>
                   chewieController: _chewieController,
                   barHeight: _barHeight,
                   latestValue: _latestValue,
+                  latestVolume: _latestVolume,
                   dragging: _dragging,
                   volumeKey: _volumeKey,
+                  hideTimer: _hideTimer,
+                  volumeEntry: _volumeEntry,
+                  isFullscreen: widget.isFullscreen,
                   playPause: _playPause,
                   startHideTimer: _startHideTimer,
                   cancelAndRestartTimer: _cancelAndRestartTimer,
@@ -394,10 +401,10 @@ class BottomControlBar extends StatefulWidget {
     this.isFullscreen,
   });
 
-  ///
+  /// Indicator whether the bottom controls bar should be visible or not.
   final bool showBottomBar;
 
-  ///
+  /// Indicator whether user interface should be visible or not.
   final bool showInterface;
 
   /// [VideoPlayerController] controlling the video playback.
@@ -406,40 +413,41 @@ class BottomControlBar extends StatefulWidget {
   /// [ChewieController] controlling the [Chewie] functionality.
   final ChewieController chewieController;
 
-  ///
+  /// Toggles play and pause of a [controller]. Starts video from the start
+  /// if the playback is done.
   final void Function() playPause;
 
-  ///
+  /// Height of the bottom controls bar.
   final double barHeight;
 
-  ///
+  /// Latest [VideoPlayerValue] value.
   final VideoPlayerValue latestValue;
 
-  ///
+  /// Indicator whether the video progress bar is being dragged.
   bool dragging;
 
-  ///
+  /// [Timer] for hiding the user interface after a timeout.
   final Timer? hideTimer;
 
-  ///
+  /// Starts the [hideTimer].
   final void Function([Duration? duration]) startHideTimer;
 
-  ///
+  /// [OverlayEntry] of the volume popup bar.
   OverlayEntry? volumeEntry;
 
-  ///
+  /// [GlobalKey] of the [volumeEntry].
   final GlobalKey<State<StatefulWidget>> volumeKey;
 
-  ///
+  /// Cancels the [_hideTimer] and starts it again.
   final void Function() cancelAndRestartTimer;
 
-  ///
+  /// Latest volume value.
   double? latestVolume;
 
-  ///
+  /// Invokes a fullscreen toggle action.
   final void Function() onExpandCollapse;
 
-  ///
+  /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
   @override

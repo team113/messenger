@@ -134,22 +134,22 @@ class SwipeableWithStatus extends StatelessWidget {
     required this.swipeable,
   });
 
-  ///
+  /// Indicator whether status is sent.
   final bool isSent;
 
-  ///
+  /// Indicator whether status is delivered.
   final bool isDelivered;
 
-  ///
+  /// Indicator whether status is read.
   final bool isRead;
 
-  ///
+  /// Indicator whether status is sending.
   final bool isSending;
 
-  ///
+  /// Indicator whether status is error.
   final bool isError;
 
-  ///
+  /// Widget to display upon swipe.
   final Widget swipeable;
 
   @override

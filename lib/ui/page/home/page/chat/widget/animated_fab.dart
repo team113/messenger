@@ -23,13 +23,13 @@ import 'package:flutter/material.dart';
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
-    Key? key,
+    super.key,
     required this.closedIcon,
     required this.openedIcon,
     this.labelStyle,
     this.actions = const [],
     this.height = 400,
-  }) : super(key: key);
+  });
 
   /// Icon in a closed state.
   final Widget closedIcon;
@@ -129,17 +129,18 @@ class _AnimatedFabState extends State<AnimatedFab>
         child: _overlayEntry == null
             ? Container(
                 key: _fabKey,
-                child: _FabWidget(
-                    controller: _controller,
-                    closedIcon: widget.closedIcon,
-                    openedIcon: widget.openedIcon,
-                    toggleOverlay: () => _toggleOverlay()),
+                child: Fab(
+                  controller: _controller,
+                  closedIcon: widget.closedIcon,
+                  openedIcon: widget.openedIcon,
+                  onTap: () => _toggleOverlay(),
+                ),
               )
-            : _FabWidget(
+            : Fab(
                 controller: _controller,
                 closedIcon: widget.closedIcon,
                 openedIcon: widget.openedIcon,
-                toggleOverlay: () => _toggleOverlay(),
+                onTap: () => _toggleOverlay(),
               ),
       );
 
@@ -188,11 +189,12 @@ class _AnimatedFabState extends State<AnimatedFab>
                 top: offset.dy,
                 child: Container(
                   key: _fabKey,
-                  child: _FabWidget(
-                      controller: _controller,
-                      closedIcon: widget.closedIcon,
-                      openedIcon: widget.openedIcon,
-                      toggleOverlay: () => _toggleOverlay()),
+                  child: Fab(
+                    controller: _controller,
+                    closedIcon: widget.closedIcon,
+                    openedIcon: widget.openedIcon,
+                    onTap: () => _toggleOverlay(),
+                  ),
                 ),
               ),
               ...widget.actions.mapIndexed(
@@ -254,7 +256,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _ButtonWidget(icon: e.icon, onTap: onTap),
+                            CircularButton(icon: e.icon, onTap: onTap),
                             if (e.label != null) ...[
                               const SizedBox(width: 5),
                               Material(
@@ -308,17 +310,14 @@ class _AnimatedFabState extends State<AnimatedFab>
   }
 }
 
-/// Returns an [InkWell] circular button with an [icon].
-class _ButtonWidget extends StatelessWidget {
-  const _ButtonWidget({
-    required this.icon,
-    this.onTap,
-  });
+/// [Widget] which returns an [InkWell] circular button with an [icon].
+class CircularButton extends StatelessWidget {
+  const CircularButton({super.key, required this.icon, this.onTap});
 
-  ///
+  /// Callback, called when the button is pressed.
   final void Function()? onTap;
 
-  ///
+  /// [Widget] that will be displayed on this [CircularButton].
   final Widget icon;
 
   @override
@@ -342,30 +341,32 @@ class _ButtonWidget extends StatelessWidget {
   }
 }
 
-/// Returns an animated circular button toggling overlay.
-class _FabWidget extends StatelessWidget {
-  const _FabWidget({
+/// [Widget] which returns an animated circular button toggling overlay.
+class Fab extends StatelessWidget {
+  const Fab({
+    super.key,
     required this.controller,
     required this.closedIcon,
     required this.openedIcon,
-    this.toggleOverlay,
+    this.onTap,
   });
 
-  ///
+  /// [AnimationController] of expandable actions.
   final AnimationController controller;
 
-  ///
+  /// [Widget] to be displayed as the button icon when it is in a closed state.
   final Widget closedIcon;
 
-  ///
+  /// [Widget] to be displayed as the button icon when it is in an opened
+  /// state.
   final Widget openedIcon;
 
-  ///
-  final void Function()? toggleOverlay;
+  /// Callback, called when the button is tapped.
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return _ButtonWidget(
+    return CircularButton(
       icon: AnimatedBuilder(
         animation: controller,
         builder: (BuildContext context, Widget? _) => Transform.rotate(
@@ -381,7 +382,7 @@ class _FabWidget extends StatelessWidget {
           ),
         ),
       ),
-      onTap: toggleOverlay,
+      onTap: onTap,
     );
   }
 }
