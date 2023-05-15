@@ -502,9 +502,12 @@ class _ChatViewState extends State<ChatView>
                             chat: c.chat,
                             edit: c.edit,
                             send: c.send,
-                            unblacklist: c.unblacklist,
-                            keepTyping: c.keepTyping,
-                            animateTo: c.animateTo,
+                            unblacklist: () => c.unblacklist(),
+                            keepTyping: () => c.keepTyping(),
+                            onEdit: (id) =>
+                                c.animateTo(id, offsetBasedOnBottom: true),
+                            onSend: (id) =>
+                                c.animateTo(id, offsetBasedOnBottom: true),
                           ),
                         ),
                       ),
@@ -920,7 +923,7 @@ class TimeLabelWidget extends StatelessWidget {
   /// Index of this [TimeLabelWidget] in the list.
   final int i;
 
-  /// Opacity of the [TimeLabelWidget].
+  /// Opacity of this [TimeLabelWidget].
   final double opacity;
 
   /// [DateTime] which holds the time that this [TimeLabelWidget] is
@@ -1172,11 +1175,12 @@ class BottomBar extends StatelessWidget {
   const BottomBar({
     super.key,
     required this.edit,
-    required this.animateTo,
     this.send,
     this.unblacklist,
     this.keepTyping,
     this.chat,
+    this.onEdit,
+    this.onSend,
   });
 
   /// [RxChat] object that represents the active chat.
@@ -1191,23 +1195,21 @@ class BottomBar extends StatelessWidget {
   final MessageFieldController? send;
 
   /// [Function] that is called when the user chooses to unblock the chat.
-  final Future<void> Function()? unblacklist;
+  final void Function()? unblacklist;
 
   /// [Function] that is called when the user is typing a message.
   final void Function()? keepTyping;
 
-  /// [Function] that is called when the user selects a chat item to animate
-  /// the screen to the corresponding position.
-  final Future<void> Function(
-    ChatItemId id, {
-    bool offsetBasedOnBottom,
-    double offset,
-  }) animateTo;
+  ///
+  final Future<void> Function(ChatItemId)? onEdit;
+
+  ///
+  final Future<void> Function(ChatItemId)? onSend;
 
   @override
   Widget build(BuildContext context) {
     if (chat?.blacklisted == true) {
-      return BlockedField(unblacklist: unblacklist);
+      return BlockedField(onPressed: unblacklist);
     }
 
     return Obx(() {
@@ -1215,26 +1217,26 @@ class BottomBar extends StatelessWidget {
           ? MessageFieldView(
               key: const Key('EditField'),
               controller: edit.value,
-              onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
+              onItemPressed: onEdit,
               canAttach: false,
             )
           : MessageFieldView(
               key: const Key('SendField'),
               controller: send,
               onChanged: chat!.chat.value.isMonolog ? null : keepTyping,
-              onItemPressed: (id) => animateTo(id, offsetBasedOnBottom: true),
+              onItemPressed: onSend,
               canForward: true,
             );
     });
   }
 }
 
-/// [WidgetButton] which removing this [Chat] from the blacklist.
+/// [Widget] which removing this [Chat] from the blacklist.
 class BlockedField extends StatelessWidget {
-  const BlockedField({super.key, this.unblacklist});
+  const BlockedField({super.key, this.onPressed});
 
-  /// [Function] that is called when the user chooses to unblock the chat.
-  final Future<void> Function()? unblacklist;
+  /// Callback, called when the [BlockedField] is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -1274,7 +1276,7 @@ class BlockedField extends StatelessWidget {
                       child: Transform.translate(
                         offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                         child: WidgetButton(
-                          onPressed: unblacklist,
+                          onPressed: onPressed,
                           child: IgnorePointer(
                             child: ReactiveTextField(
                               enabled: false,
