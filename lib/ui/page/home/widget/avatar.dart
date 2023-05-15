@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/file.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
@@ -240,11 +241,15 @@ class AvatarWidget extends StatelessWidget {
       AvatarWidget(
         key: key,
         label: LayoutBuilder(builder: (context, constraints) {
-          return Icon(
-            Icons.edit_note,
-            size: constraints.maxWidth / 1.57, // 60 / x => 38
-            color: Colors.white,
+          return SvgImage.asset(
+            'assets/icons/notes3.svg',
+            height: 28.96 * constraints.maxWidth / 60,
           );
+          // return Icon(
+          //   Icons.edit_note,
+          //   size: constraints.maxWidth / 1.57, // 60 / x => 38
+          //   color: Colors.white,
+          // );
         }),
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
@@ -511,24 +516,25 @@ class AvatarWidget extends StatelessWidget {
           bottom: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
           end: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
         ),
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
-            ),
-            shape: BoxShape.circle,
-          ),
-          child: Stack(
-            children: [
-              Center(
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(0.5),
+              constraints: BoxConstraints(
+                minHeight: minHeight,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
                 child: label ??
                     Text(
                       (title ?? '??').initials(),
@@ -543,8 +549,10 @@ class AvatarWidget extends StatelessWidget {
                       textScaleFactor: 1,
                     ),
               ),
-              if (avatar != null)
-                ClipOval(
+            ),
+            if (avatar != null)
+              Positioned.fill(
+                child: ClipOval(
                   child: RetryImage(
                     file?.url ?? avatar!.original.url,
                     checksum: file?.checksum ?? avatar!.original.checksum,
@@ -554,8 +562,8 @@ class AvatarWidget extends StatelessWidget {
                     displayProgress: false,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     });

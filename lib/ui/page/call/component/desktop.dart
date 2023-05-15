@@ -647,14 +647,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           }),
         ),
 
-        Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: _devices(c),
-          ),
-        ),
-
         Obx(() {
           bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
@@ -863,6 +855,14 @@ Widget desktopCall(CallController c, BuildContext context) {
                 : Container(),
           );
         }),
+
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _devices(c),
+          ),
+        ),
 
         // If there's any error to show, display it.
         Obx(() {

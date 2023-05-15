@@ -1404,6 +1404,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
+    // time = const Duration(minutes: 1).localizedString();
+
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = _fromMe
@@ -1421,15 +1423,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: message.withVideo
                 ? SvgImage.asset(
-                    'assets/icons/call_video2${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 13 * 1.4,
+                    'assets/icons/call_video3${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 11,
                   )
                 : SvgImage.asset(
-                    'assets/icons/call_audio2${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 15 * 1.4,
+                    'assets/icons/call_audio4${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 12,
                   ),
           ),
           Flexible(
@@ -1448,13 +1450,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (time != null) ...[
                   const SizedBox(width: 8),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 1),
-                    child: Text(
-                      time,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ).fixedDigits(),
+                    padding: const EdgeInsets.only(top: 2.5),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        Text(
+                          time,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ).fixedDigits(),
+                        // Opacity(
+                        //   opacity: 0,
+                        //   child: Text(
+                        //     const Duration(hours: 1).localizedString(),
+                        //     maxLines: 1,
+                        //     overflow: TextOverflow.ellipsis,
+                        //     style: Theme.of(context).textTheme.titleSmall,
+                        //   ).fixedDigits(),
+                        // ),
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -1475,93 +1491,112 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (!_fromMe &&
-                    widget.chat.value?.isGroup == true &&
-                    widget.avatar)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                    child: Text(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!_fromMe &&
+                      widget.chat.value?.isGroup == true &&
+                      widget.avatar)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      child: Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        WidgetSpan(child: call),
+                        // if (widget.paid && !_fromMe) ...[
+                        //   const WidgetSpan(child: SizedBox(width: 3)),
+                        //   if (!_fromMe) ...[
+                        //     WidgetSpan(
+                        //       child: Transform.translate(
+                        //         offset: const Offset(0, 5),
+                        //         child: Text(
+                        //           '¤',
+                        //           style: style.systemMessageStyle.copyWith(
+                        //             fontFamily: 'Gapopa',
+                        //             fontWeight: FontWeight.w300,
+                        //             color: paidColor,
+                        //             fontSize: 11,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     const WidgetSpan(child: SizedBox(width: 1)),
+                        //     WidgetSpan(
+                        //       child: Transform.translate(
+                        //         offset: const Offset(0, 5),
+                        //         child: Text(
+                        //           '123',
+                        //           style: style.systemMessageStyle.copyWith(
+                        //             color: paidColor,
+                        //             fontSize: 11,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ]
+                        // ],
+                        // if (widget.paid && !_fromMe && widget.timestamp) ...[
+                        //   WidgetSpan(
+                        //     child: Transform.translate(
+                        //       offset: const Offset(0, 4),
+                        //       child: Container(
+                        //         margin: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                        //         color: Theme.of(context).colorScheme.primary,
+                        //         height: 10,
+                        //         width: 0.5,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ],
+                        // if (widget.timestamp)
+                        //   WidgetSpan(
+                        //     child: Opacity(
+                        //       opacity: 0,
+                        //       child: Padding(
+                        //         padding: const EdgeInsets.only(left: 4),
+                        //         child: _timestamp(widget.item.value),
+                        //       ),
+                        //     ),
+                        //   ),
+                      ],
                     ),
                   ),
-                const SizedBox(height: 4),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      WidgetSpan(child: call),
-                      if (widget.paid && !_fromMe) ...[
-                        const WidgetSpan(child: SizedBox(width: 3)),
-                        if (!_fromMe) ...[
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: const Offset(0, 5),
-                              child: Text(
-                                '¤',
-                                style: style.systemMessageStyle.copyWith(
-                                  fontFamily: 'Gapopa',
-                                  fontWeight: FontWeight.w300,
-                                  color: paidColor,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const WidgetSpan(child: SizedBox(width: 1)),
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: const Offset(0, 5),
-                              child: Text(
-                                '123',
-                                style: style.systemMessageStyle.copyWith(
-                                  color: paidColor,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]
-                      ],
-                      if (widget.paid && !_fromMe && widget.timestamp) ...[
-                        WidgetSpan(
-                          child: Transform.translate(
-                            offset: const Offset(0, 4),
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                              color: Theme.of(context).colorScheme.primary,
-                              height: 10,
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (widget.timestamp)
-                        WidgetSpan(
-                          child: Opacity(
-                            opacity: 0,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: _timestamp(widget.item.value),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+                  if (widget.timestamp)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          // if (time != null)
+                          //   Text(
+                          //     time,
+                          //     maxLines: 1,
+                          //     overflow: TextOverflow.ellipsis,
+                          //     style: Theme.of(context).textTheme.titleSmall,
+                          //   ).fixedDigits(),
+                          if (widget.timestamp) _timestamp(widget.item.value),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
-          if (widget.timestamp)
-            Positioned(
-              right: 8,
-              bottom: 4,
-              child: _timestamp(widget.item.value),
-            )
+          // if (widget.timestamp)
+          //   Positioned(
+          //     right: 8,
+          //     bottom: 4,
+          //     child: _timestamp(widget.item.value),
+          //   )
         ],
       ),
     );
@@ -2736,11 +2771,11 @@ extension LocalizedDurationExtension on Duration {
   String hhMmSs() {
     var microseconds = inMicroseconds;
 
+    if (microseconds < 0) microseconds = -microseconds;
+
     var hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
     var hoursPadding = hours < 10 ? '0' : '';
-
-    if (microseconds < 0) microseconds = -microseconds;
 
     var minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
@@ -2750,9 +2785,9 @@ extension LocalizedDurationExtension on Duration {
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
     var secondsPadding = seconds < 10 ? '0' : '';
 
-    if (hours == 0) {
-      return '$minutesPadding$minutes:$secondsPadding$seconds';
-    }
+    // if (hours == 0) {
+    //   return '$minutesPadding$minutes:$secondsPadding$seconds';
+    // }
 
     return '$hoursPadding$hours:$minutesPadding$minutes:$secondsPadding$seconds';
   }
@@ -2776,14 +2811,17 @@ extension LocalizedDurationExtension on Duration {
     var seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
-    String result = '$seconds ${'label_duration_second_short'.l10n}';
+    String result =
+        '${seconds.toString().padLeft(2, '0')} ${'label_duration_second_short'.l10n}';
 
     if (minutes != 0) {
-      result = '$minutes ${'label_duration_minute_short'.l10n} $result';
+      result =
+          '${minutes.toString().padLeft(2, '0')} ${'label_duration_minute_short'.l10n} $result';
     }
 
     if (hours != 0) {
-      result = '$hours ${'label_duration_hour_short'.l10n} $result';
+      result =
+          '${hours.toString().padLeft(2, '0')} ${'label_duration_hour_short'.l10n} $result';
     }
 
     return result;

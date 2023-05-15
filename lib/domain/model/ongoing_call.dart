@@ -1119,7 +1119,7 @@ class OngoingCall {
 
     _room!.onNewConnection((conn) {
       conn.onQualityScoreUpdate((p0) {
-        if (p0 <= 2) {
+        if (p0 <= 1) {
           addNotification(score: p0);
         }
 
@@ -1438,8 +1438,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join(
-        '${link.val.replaceFirst('localhost', '192.168.50.100')}?token=$creds');
+    await _room?.join('${link.val}?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
