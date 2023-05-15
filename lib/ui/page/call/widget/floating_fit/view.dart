@@ -163,9 +163,11 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                       width: c.width.value,
                       height: c.height.value,
                       item: _paneled,
-                      itemBuilder: widget.itemBuilder,
-                      overlayBuilder: widget.overlayBuilder,
-                      onManipulated: widget.onManipulated,
+                      itemBuilder: () => widget.itemBuilder(_paneled.item),
+                      overlayBuilder: () =>
+                          widget.overlayBuilder(_paneled.item),
+                      onPointerDown: (_) => widget.onManipulated?.call(true),
+                      onPointerUp: (_) => widget.onManipulated?.call(false),
                       onTap: _swap,
                       onScaleStart: (d) {
                         c.bottomShifted = null;
@@ -265,7 +267,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
   }
 }
 
-/// Visual representation of a floating panel.
+/// [Widget] which returns visual representation of a floating panel.
 class _FloatingPanel<T> extends StatelessWidget {
   const _FloatingPanel(
     this.left,
@@ -279,11 +281,12 @@ class _FloatingPanel<T> extends StatelessWidget {
     required this.width,
     required this.height,
     this.floatingKey,
-    this.onManipulated,
     this.onTap,
     this.onScaleStart,
     this.onScaleUpdate,
     this.onScaleEnd,
+    this.onPointerDown,
+    this.onPointerUp,
   });
 
   /// Left position of this [_FloatingPanel].
@@ -320,14 +323,18 @@ class _FloatingPanel<T> extends StatelessWidget {
   final _FloatingItem<T> item;
 
   /// Builder building the provided item.
-  final Widget Function(T data) itemBuilder;
+  final Widget Function() itemBuilder;
 
   /// Builder building the provided item's overlay.
-  final Widget Function(T data) overlayBuilder;
+  final Widget Function() overlayBuilder;
 
-  /// Callback, called when this [_FloatingPanel] is being manipulated in some
-  /// way.
-  final void Function(bool)? onManipulated;
+  /// Callback, called when a pointer comes into contact with the screen, or
+  /// has its button pressed at this widget's location.
+  final void Function(PointerDownEvent)? onPointerDown;
+
+  /// Callback, called when a pointer that triggered an [onPointerDown] is no
+  /// longer in contact with the screen.
+  final void Function(PointerUpEvent)? onPointerUp;
 
   /// Callback, called when this [_FloatingPanel] is tapped.
   final void Function()? onTap;
@@ -419,10 +426,10 @@ class _FloatingPanel<T> extends StatelessWidget {
                   key: item.itemKey,
                   child: Stack(
                     children: [
-                      itemBuilder(item.item),
+                      itemBuilder(),
                       AnimatedDelayedSwitcher(
                         duration: 100.milliseconds,
-                        child: overlayBuilder(item.item),
+                        child: overlayBuilder(),
                       ),
                     ],
                   ),
@@ -441,8 +448,8 @@ class _FloatingPanel<T> extends StatelessWidget {
       top: top,
       bottom: bottom,
       child: Listener(
-        onPointerDown: (_) => onManipulated?.call(true),
-        onPointerUp: (_) => onManipulated?.call(false),
+        onPointerDown: onPointerDown,
+        onPointerUp: onPointerUp,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
