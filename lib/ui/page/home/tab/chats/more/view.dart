@@ -90,7 +90,7 @@ class ChatsMoreView extends StatelessWidget {
 class MoreHeader extends StatelessWidget {
   const MoreHeader({super.key, required this.text});
 
-  /// Text that will be displayed in the header.
+  /// Text that will be displayed in this [MoreHeader].
   final String text;
 
   @override
@@ -117,7 +117,7 @@ class MoreHeader extends StatelessWidget {
 class SwitchMute extends StatelessWidget {
   const SwitchMute(this.myUser, this.isMuting, this.toggleMute, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive variable that stores the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
@@ -171,14 +171,14 @@ class SwitchMute extends StatelessWidget {
   }
 }
 
-/// Returns a [MyUser.chatDirectLink] editable field.
+/// [Widget] which returns a [MyUser.chatDirectLink] editable field.
 class ChatDirectLink extends StatelessWidget {
   const ChatDirectLink(this.myUser, this.link, {super.key});
 
-  /// Returns the currently authenticated [MyUser].
+  /// Reactive variable that stores the currently authenticated [MyUser].
   final Rx<MyUser?> myUser;
 
-  /// [MyUser.chatDirectLink]'s copyable state.
+  /// [MyUser.chatDirectLink] copyable state.
   final TextFieldState link;
 
   @override

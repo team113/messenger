@@ -929,7 +929,7 @@ class CreateGroup extends StatelessWidget {
   final void Function() closeGroupCreating;
 
   /// Creates a [Chat]-group with
-  final Future<void> Function() createGroup;
+  final void Function() createGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -938,7 +938,7 @@ class CreateGroup extends StatelessWidget {
 
       if (groupCreating.value) {
         Widget button({
-          Key? key,
+          super.key,
           Widget? leading,
           required Widget child,
           void Function()? onPressed,
@@ -1016,15 +1016,14 @@ class SelectButtons extends StatelessWidget {
     required this.hideChats,
   });
 
-  /// Toggles the [Chat]s selection.
-  final void Function() toggleSelecting;
-
   /// Reactive list of [ChatId]s of the selected [Chat]s.
   final RxList<ChatId> selectedChats;
 
+  /// Toggles the [Chat]s selection.
+  final void Function() toggleSelecting;
+
   /// Opens a confirmation popup hiding the selected chats.
-  final Future<void> Function(BuildContext context, ChatsTabController c)
-      hideChats;
+  final void Function() hideChats;
 
   @override
   Widget build(BuildContext context) {
