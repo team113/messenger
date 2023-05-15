@@ -33,7 +33,7 @@ import '/store/model/chat.dart';
 import '/util/log.dart';
 
 /// [Chat] related functionality.
-abstract class ChatGraphQlMixin {
+mixin ChatGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns a [Chat] by its ID.
