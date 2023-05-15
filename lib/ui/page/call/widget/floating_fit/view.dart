@@ -214,8 +214,6 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     );
   }
 
-  /// Returns the visual representation of a floating panel.
-
   /// Swaps the [_paneled] and the [_primary] items with an animation.
   void _swap() {
     final _FloatingItem<T> paneled = _paneled;

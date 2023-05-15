@@ -1399,7 +1399,7 @@ Widget _primaryView(CallController c) {
               });
             });
           },
-          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          decoratorBuilder: (_) => const ParticipantDecorator(),
           itemConstraints: (_DragData data) {
             final double size = (c.size.longestSide * 0.33).clamp(100, 250);
             return BoxConstraints(maxWidth: size, maxHeight: size);
@@ -1945,7 +1945,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 );
               });
             },
-            decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+            decoratorBuilder: (_) => const ParticipantDecorator(),
             itemConstraints: (_DragData data) {
               final double size = (c.size.longestSide * 0.33).clamp(100, 250);
               return BoxConstraints(maxWidth: size, maxHeight: size);

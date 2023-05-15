@@ -87,7 +87,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               itemBuilder: (e) {
                 return Stack(
                   children: [
-                    const ParticipantDecoratorWidget(),
+                    const ParticipantDecorator(),
                     IgnorePointer(
                       child: ParticipantWidget(
                         e,
@@ -133,7 +133,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 Widget builder(bool animated) {
                   final Widget stack = Stack(
                     children: [
-                      const ParticipantDecoratorWidget(),
+                      const ParticipantDecorator(),
                       IgnorePointer(
                         child: ParticipantWidget(
                           e,

@@ -395,8 +395,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 }
 
 /// [Participant] background decoration containing a border.
-class ParticipantDecoratorWidget extends StatelessWidget {
-  const ParticipantDecoratorWidget({super.key});
+class ParticipantDecorator extends StatelessWidget {
+  const ParticipantDecorator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +420,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
   }
 }
 
-/// Raised hand animated icon.
+/// [Widget] which returns a raised hand icon with animation.
 class HandRaisedIcon extends StatelessWidget {
   const HandRaisedIcon({super.key, required this.raised});
 
