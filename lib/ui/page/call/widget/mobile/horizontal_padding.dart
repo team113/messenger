@@ -19,10 +19,7 @@ import 'package:flutter/material.dart';
 
 /// Wraps the [child] widget passed to it and adds margins to the right and left.
 class HorizontalPadding extends StatelessWidget {
-  const HorizontalPadding({
-    super.key,
-    required this.child,
-  });
+  const HorizontalPadding({super.key, required this.child});
 
   /// [Widget] that should be placed in this [HorizontalPadding].
   final Widget child;

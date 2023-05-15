@@ -24,10 +24,7 @@ import '../conditional_backdrop.dart';
 /// It is used to visualize the possible locations for dropping an item
 /// during drag-and-drop operations.
 class PossibleContainer extends StatelessWidget {
-  const PossibleContainer(
-    this.alignment, {
-    super.key,
-  });
+  const PossibleContainer(this.alignment, {super.key});
 
   /// [AlignmentGeometry] of this [PossibleContainer].
   final AlignmentGeometry? alignment;

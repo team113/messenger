@@ -373,7 +373,8 @@ class DesktopCall extends StatelessWidget {
                                                             .l10n
                                                         : 'btn_call_video_on'
                                                             .l10n,
-                                                    onPressed: c.toggleVideo,
+                                                    onPressed: () =>
+                                                        c.toggleVideo(),
                                                   ),
                                                   ContextMenuButton(
                                                     label: c.audioState.value
@@ -382,7 +383,8 @@ class DesktopCall extends StatelessWidget {
                                                             .l10n
                                                         : 'btn_call_audio_on'
                                                             .l10n,
-                                                    onPressed: c.toggleAudio,
+                                                    onPressed: () =>
+                                                        c.toggleAudio(),
                                                   ),
                                                 ],
                                               ],
@@ -750,7 +752,7 @@ class DesktopCall extends StatelessWidget {
             bool preferTitle = c.state.value != OngoingCallState.active;
             return GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onDoubleTap: c.toggleFullscreen,
+              onDoubleTap: () => c.toggleFullscreen(),
               onPanUpdate: preferTitle
                   ? (d) {
                       c.left.value = c.left.value + d.delta.dx;
@@ -944,7 +946,7 @@ class DesktopCall extends StatelessWidget {
                 secondaryWidth: c.secondaryWidth,
                 secondaryHeight: c.secondaryHeight,
                 size: c.size,
-                focusAll: c.focusAll,
+                focusAll: () => c.focusAll(),
                 onDragEnded: (DragData d) {
                   c.secondaryDrags.value = 0;
                   c.draggedRenderer.value = null;
@@ -954,7 +956,7 @@ class DesktopCall extends StatelessWidget {
                   c.isCursorHidden.value = false;
                 },
                 resizeSecondary: c.resizeSecondary,
-                updateSecondaryAttach: c.updateSecondaryAttach,
+                updateSecondaryAttach: () => c.updateSecondaryAttach(),
                 draggedRenderer: c.draggedRenderer,
                 onAdded: (d, i) => c.unfocus(d.participant),
                 onWillAccept: (d) {
@@ -1134,13 +1136,13 @@ class DesktopCall extends StatelessWidget {
                                 label: c.videoState.value.isEnabled
                                     ? 'btn_call_video_off'.l10n
                                     : 'btn_call_video_on'.l10n,
-                                onPressed: c.toggleVideo,
+                                onPressed: () => c.toggleVideo(),
                               ),
                               ContextMenuButton(
                                 label: c.audioState.value.isEnabled
                                     ? 'btn_call_audio_off'.l10n
                                     : 'btn_call_audio_on'.l10n,
-                                onPressed: c.toggleAudio,
+                                onPressed: () => c.toggleAudio(),
                               ),
                             ],
                           ],
@@ -1276,9 +1278,7 @@ class DesktopCall extends StatelessWidget {
                       y: ScaleModeY.top,
                       dy: dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1295,9 +1295,7 @@ class DesktopCall extends StatelessWidget {
                       x: ScaleModeX.left,
                       dx: dx,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1314,9 +1312,7 @@ class DesktopCall extends StatelessWidget {
                       x: ScaleModeX.right,
                       dx: -dx,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1333,9 +1329,7 @@ class DesktopCall extends StatelessWidget {
                       y: ScaleModeY.bottom,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1359,9 +1353,7 @@ class DesktopCall extends StatelessWidget {
                       dx: dx,
                       dy: dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1383,9 +1375,7 @@ class DesktopCall extends StatelessWidget {
                       dx: -dx,
                       dy: dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1407,9 +1397,7 @@ class DesktopCall extends StatelessWidget {
                       dx: dx,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1432,9 +1420,7 @@ class DesktopCall extends StatelessWidget {
                       dx: -dx,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) {
-                      c.updateSecondaryAttach();
-                    },
+                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1462,12 +1448,12 @@ class DesktopCall extends StatelessWidget {
                               c.applyConstraints(context);
                             },
                             titleBar: TitleBar(
-                              onDoubleTap: c.toggleFullscreen,
+                              onDoubleTap: () => c.toggleFullscreen(),
                               constraints:
                                   BoxConstraints(maxWidth: c.size.width - 60),
                               chat: c.chat,
                               titleArguments: c.titleArguments,
-                              toggleFullscreen: c.toggleFullscreen,
+                              toggleFullscreen: () => c.toggleFullscreen(),
                               fullscreen: c.fullscreen,
                               onTap: WebUtils.isPopup
                                   ? null
@@ -1500,19 +1486,17 @@ class DesktopCall extends StatelessWidget {
             c.applyConstraints(context);
           },
           titleBar: TitleBar(
-            onDoubleTap: c.toggleFullscreen,
+            onDoubleTap: () => c.toggleFullscreen(),
             constraints: BoxConstraints(maxWidth: c.size.width - 60),
             chat: c.chat,
             titleArguments: c.titleArguments,
-            toggleFullscreen: c.toggleFullscreen,
+            toggleFullscreen: () => c.toggleFullscreen(),
             fullscreen: c.fullscreen,
             onTap: WebUtils.isPopup
                 ? null
                 : () {
                     router.chat(c.chatId.value);
-                    if (c.fullscreen.value) {
-                      c.toggleFullscreen();
-                    }
+                    if (c.fullscreen.value) () => c.toggleFullscreen();
                   },
           ),
         );

@@ -44,6 +44,17 @@ class Launchpad extends StatelessWidget {
   /// Indicator whether [Launchpad] is enabled.
   final bool enabled;
 
+  /// Indicator whether at least one element from the [panel] list satisfies
+  /// the condition set by the [test] function.
+  final bool Function(CallButton?) test;
+
+  /// [CallButton] list, which is a panel of buttons in [Launchpad].
+  final RxList<CallButton> panel;
+
+  /// Indicator whether additional elements should be displayed
+  /// in [Launchpad].
+  final RxBool displayMore;
+
   /// Callback, called when the mouse cursor enters the area
   /// of this [Launchpad].
   final void Function(PointerEnterEvent)? onEnter;
@@ -56,23 +67,12 @@ class Launchpad extends StatelessWidget {
   /// of this [Launchpad].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Indicator whether at least one element from the [panel] list satisfies
-  /// the condition set by the [test] function.
-  final bool Function(CallButton?) test;
-
-  /// [CallButton] list, which is a panel of buttons in [Launchpad].
-  final RxList<CallButton> panel;
-
   /// Callback, called when accepting a draggable element.
   final void Function(CallButton)? onAccept;
 
   /// Callback, called when the dragged element is above
   /// the widget, but has not yet been released.
   final bool Function(CallButton?)? onWillAccept;
-
-  /// Indicator whether additional elements should be displayed
-  /// in [Launchpad].
-  final RxBool displayMore;
 
   /// List of [Widget] that will be displayed in the [Launchpad].
   final List<Widget> children;

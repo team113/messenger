@@ -44,6 +44,9 @@ class CallDock extends StatelessWidget {
     this.dockKey,
   });
 
+  /// [Key] for handling [dock] widget states.
+  final Key? dockKey;
+
   /// [Widget] that will be shown at the bottom of the screen.
   final Widget? dock;
 
@@ -68,6 +71,9 @@ class CallDock extends StatelessWidget {
   /// of this [CallDock].
   final void Function(PointerExitEvent)? onExit;
 
+  /// Callback, called every time the value of the animation changes.
+  final Function()? listener;
+
   /// Indicator whether the call is outgoing.
   final bool? isOutgoing;
 
@@ -76,12 +82,6 @@ class CallDock extends StatelessWidget {
 
   /// Indicator whether the call is incoming.
   final bool answer;
-
-  /// [Key] for handling [dock] widget states.
-  final Key? dockKey;
-
-  /// Callback, called every time the value of the animation changes.
-  final VoidCallback listener;
 
   @override
   Widget build(BuildContext context) {

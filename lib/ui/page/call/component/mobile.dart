@@ -148,7 +148,7 @@ class MobileCall extends StatelessWidget {
                       if (center == e)
                         ContextMenuButton(
                           label: 'btn_call_uncenter'.l10n,
-                          onPressed: c.focusAll,
+                          onPressed: () => c.focusAll(),
                           trailing: const Icon(Icons.center_focus_weak),
                         )
                       else
@@ -191,7 +191,7 @@ class MobileCall extends StatelessWidget {
                           label: c.videoState.value.isEnabled
                               ? 'btn_call_video_off'.l10n
                               : 'btn_call_video_on'.l10n,
-                          onPressed: c.toggleVideo,
+                          onPressed: () => c.toggleVideo(),
                           trailing: c.videoState.value.isEnabled
                               ? const Icon(Icons.videocam)
                               : const Icon(Icons.videocam_off),
@@ -200,7 +200,7 @@ class MobileCall extends StatelessWidget {
                           label: c.audioState.value.isEnabled
                               ? 'btn_call_audio_off'.l10n
                               : 'btn_call_audio_on'.l10n,
-                          onPressed: c.toggleAudio,
+                          onPressed: () => c.toggleAudio(),
                           trailing: e.video.value?.renderer.value != null
                               ? const Icon(Icons.mic)
                               : const Icon(Icons.mic_off),
@@ -640,11 +640,11 @@ class MobileCall extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 366),
                 child: ChatCardPreview(
-                  actualMembers: c.members.keys.map((k) => k.userId).toSet(),
-                  chat: c.chat.value,
-                  openAddMember: () => c.openAddMember(context),
-                  duration: c.duration,
                   me: c.me,
+                  chat: c.chat.value,
+                  duration: c.duration,
+                  actualMembers: c.members.keys.map((k) => k.userId).toSet(),
+                  onTap: () => c.openAddMember(context),
                 ),
               ),
               const SizedBox(height: 15),
