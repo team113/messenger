@@ -167,6 +167,10 @@ class ChatRepository extends DisposableInterface
     _initDraftSubscription();
 
     try {
+      // TODO: [chats] should consist of 3 lists:
+      //       - with [OngoingCall]s;
+      //       - favorite [Chat]s;
+      //       - recent [Chat]s.
       HashMap<ChatId, ChatData> chats =
           await Backoff.run(_recentChats, _cancelToken);
 
