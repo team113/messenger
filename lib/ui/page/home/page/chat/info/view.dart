@@ -232,7 +232,7 @@ class ChatInfoView extends StatelessWidget {
                           me: c.me,
                           redialChatCallMember: c.redialChatCallMember,
                           removeChatCallMember: c.removeChatCallMember,
-                          removeChatMember: _removeChatMember,
+                          removeChatMember: () => _removeChatMember,
                         )
                       ],
                     ),
@@ -252,10 +252,10 @@ class ChatInfoView extends StatelessWidget {
                         favoriteChat: c.favoriteChat,
                         unmuteChat: c.unmuteChat,
                         muteChat: c.muteChat,
-                        hideChat: _hideChat,
-                        clearChat: _clearChat,
-                        leaveGroup: _leaveGroup,
-                        blacklistChat: _blacklistChat,
+                        hideChat: () => _hideChat(c, context),
+                        clearChat: () => _clearChat(c, context),
+                        leaveGroup: () => _leaveGroup(c, context),
+                        blacklistChat: () => _blacklistChat(c, context),
                       )
                     ],
                   ),
@@ -402,7 +402,7 @@ class _DenseWidget extends StatelessWidget {
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle(this.chat, {super.key});
 
-  /// Unified reactive [Chat] with chat items.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
   @override
@@ -434,7 +434,7 @@ class ChatAvatar extends StatelessWidget {
     this.deleteAvatar,
   });
 
-  /// Unified reactive [Chat] with chat items.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
@@ -544,7 +544,7 @@ class ChatAvatar extends StatelessWidget {
 class ChatName extends StatelessWidget {
   const ChatName(this.chat, this.name, {super.key});
 
-  /// Unified reactive [Chat] with chat items.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
   /// [Chat.name] field state.
@@ -586,7 +586,7 @@ class ChatName extends StatelessWidget {
 class ChatLink extends StatelessWidget {
   const ChatLink(this.chat, this.link, {super.key});
 
-  /// Unified reactive [Chat] with chat items.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
   /// [Chat.directLink] field state.
@@ -676,28 +676,24 @@ class ChatMembers extends StatelessWidget {
     this.removeChatMember,
   });
 
-  /// ID of the [Chat] of this info page.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
   /// ID of the current user.
   final UserId? me;
 
-  /// Returns [MyUser]'s [UserId].
+  /// ID of the current chat.
   final ChatId id;
 
   /// Redials the [User] identified by its [userId].
-  final Future<void> Function(UserId userId) removeChatCallMember;
+  final void Function(UserId userId) removeChatCallMember;
 
   /// Removes the specified [User] from a [OngoingCall] happening in the
   /// [chat].
-  final Future<void> Function(UserId userId) redialChatCallMember;
+  final void Function(UserId userId) redialChatCallMember;
 
   /// Opens a confirmation popup removing the provided [user].
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-    RxUser user,
-  )? removeChatMember;
+  final void Function()? removeChatMember;
 
   @override
   Widget build(BuildContext context) {
@@ -829,41 +825,38 @@ class ChatActions extends StatelessWidget {
     this.muteChat,
   });
 
-  /// Unified reactive [Chat] with chat items.
+  /// Reactive [Chat] with chat items.
   final RxChat? chat;
 
-  /// Indicates whether the [chat] is a monolog.
+  /// Indicator whether the [chat] is a monolog.
   final bool isMonolog;
 
-  /// Indicates whether the [chat] is local.
+  /// Indicator whether the [chat] is local.
   final bool isLocal;
 
   /// Removes the [chat] from the favorites.
-  final Future<void> Function()? unfavoriteChat;
+  final void Function()? unfavoriteChat;
 
   /// Marks the [chat] as favorited.
-  final Future<void> Function()? favoriteChat;
+  final void Function()? favoriteChat;
 
   /// Unmutes the [chat].
-  final Future<void> Function()? unmuteChat;
+  final void Function()? unmuteChat;
 
   /// Mutes the [chat].
-  final Future<void> Function()? muteChat;
+  final void Function()? muteChat;
 
   /// Opens a confirmation popup hiding this [Chat].
-  final void Function(ChatInfoController c, BuildContext context)? hideChat;
+  final void Function()? hideChat;
 
   /// Opens a confirmation popup clearing this [Chat].
-  final void Function(ChatInfoController c, BuildContext context)? clearChat;
+  final void Function()? clearChat;
 
   /// Opens a confirmation popup leaving this [Chat].
-  final void Function(ChatInfoController c, BuildContext context)? leaveGroup;
+  final void Function()? leaveGroup;
 
   /// Opens a confirmation popup blacklisting this [Chat].
-  final void Function(
-    ChatInfoController c,
-    BuildContext context,
-  )? blacklistChat;
+  final void Function()? blacklistChat;
 
   @override
   Widget build(BuildContext context) {
@@ -1040,7 +1033,7 @@ class BigButton extends StatelessWidget {
     this.onTap,
   });
 
-  /// Leading [Widget] displayed before the title.
+  /// [Widget] displayed before the title.
   final Widget? leading;
 
   /// Title [Widget] displayed in the button.
