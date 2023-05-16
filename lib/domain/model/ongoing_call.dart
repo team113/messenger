@@ -726,12 +726,11 @@ class OngoingCall {
             );
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
+
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               screen: ScreenPreferences(device: screenDevice.value),
             );
-            for (LocalMediaTrack e in tracks) {
-              _addLocalTrack(e);
-            }
+            tracks.forEach(_addLocalTrack);
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
@@ -785,12 +784,11 @@ class OngoingCall {
                     .isEmpty ??
                 false) {
               await _room?.enableAudio();
+
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
                 audio: AudioPreferences(device: audioDevice.value),
               );
-              for (LocalMediaTrack e in tracks) {
-                _addLocalTrack(e);
-              }
+              tracks.forEach(_addLocalTrack);
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
@@ -839,15 +837,14 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
+
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               video: VideoPreferences(
                 device: videoDevice.value,
                 facingMode: videoDevice.value == null ? FacingMode.User : null,
               ),
             );
-            for (LocalMediaTrack e in tracks) {
-              _addLocalTrack(e);
-            }
+            tracks.forEach(_addLocalTrack);
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
