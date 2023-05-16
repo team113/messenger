@@ -31,12 +31,11 @@ class MediaUtils {
   /// [MediaManagerHandle] maintaining the media devices.
   static MediaManagerHandle? _mediaManager;
 
-  /// [StreamController] of the [MediaDeviceDetails] updating in the
-  /// [MediaManagerHandle.onDeviceChange].
+  /// [StreamController] piping the [MediaDeviceDetails] changes in the
+  /// [MediaManagerHandle.onDeviceChange] callback.
   static StreamController<List<MediaDeviceDetails>>? _devicesController;
 
-  /// [StreamController] of the [MediaDisplayDetails] updating in the
-  /// [MediaManagerHandle.onDeviceChange].
+  /// [StreamController] piping the [MediaDisplayDetails] changes.
   static StreamController<List<MediaDisplayDetails>>? _displaysController;
 
   /// Returns the [Jason] instance of these [MediaUtils].
