@@ -526,6 +526,7 @@ class DesktopCall extends StatelessWidget {
           // Empty drop zone if [secondary] is empty.
           SecondaryTarget(
             size: c.size,
+            primaryDrags: c.primaryDrags,
             secondaryAxis:
                 c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
             secondary: c.secondary,
@@ -533,7 +534,6 @@ class DesktopCall extends StatelessWidget {
             onWillAccept: (d) => d?.chatId == c.chatId.value,
             secondaryAlignment: c.secondaryAlignment,
             unfocus: c.unfocus,
-            primaryDrags: c.primaryDrags,
           ),
         ]);
 
