@@ -736,7 +736,7 @@ class ChatController extends GetxController {
             insert = false;
           } else if (previous is ChatMessageElement &&
               previous.item.value.authorId == item.authorId &&
-              item.at.val.difference(previous.item.value.at.val) <
+              item.at.val.difference(previous.item.value.at.val).abs() <
                   groupForwardThreshold) {
             // Add the previous [ChatMessage] to this [ChatForwardElement.note],
             // if it was posted less than [groupForwardThreshold] ago.
@@ -1400,12 +1400,21 @@ class ChatController extends GetxController {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-      await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
+        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the

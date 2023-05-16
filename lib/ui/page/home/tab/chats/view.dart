@@ -1332,6 +1332,7 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
     if (event.buttons == kPrimaryButton) {
       resolve(GestureDisposition.rejected);
     } else {
+      print('accepted');
       resolve(GestureDisposition.accepted);
     }
   }

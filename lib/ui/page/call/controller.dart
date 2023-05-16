@@ -25,8 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart'
-    show MediaDeviceInfo, VideoView;
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -978,9 +977,12 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
+      // TODO: `medea_jason` should have `onScreenChange` callback.
+      await _currentCall.value.enumerateDevices(media: false);
+
       if (_currentCall.value.displays.length > 1) {
         final MediaDisplayDetails? display =
-            await ScreenShareView.show(context, _currentCall);
+            await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(
@@ -1035,7 +1037,9 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles speaker on and off.
+  /// Toggles between the speakerphone and earpiece output.
+  ///
+  /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();

@@ -1418,7 +1418,7 @@ Widget _primaryView(CallController c) {
               return Obx(() {
                 bool? muted = participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
-                    : participant.audio.value?.isMuted.value ?? false;
+                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1581,7 +1581,6 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
-                expanded: c.doughDraggedRenderer.value == participant,
               );
             });
           },
@@ -2009,9 +2008,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool muted = participant.member.owner == MediaOwnerKind.local
+                bool? muted = participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
-                    : participant.audio.value?.isMuted.value ?? false;
+                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -2121,16 +2120,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
             itemBuilder: (_DragData data) {
-              var participant = data.participant;
-              return Obx(
-                () => ParticipantWidget(
-                  participant,
-                  key: ObjectKey(participant),
-                  offstageUntilDetermined: true,
-                  respectAspectRatio: true,
-                  borderRadius: BorderRadius.zero,
-                  expanded: c.doughDraggedRenderer.value == participant,
-                ),
+              return ParticipantWidget(
+                data.participant,
+                key: ObjectKey(data.participant),
+                offstageUntilDetermined: true,
+                respectAspectRatio: true,
+                borderRadius: BorderRadius.zero,
               );
             },
             children:

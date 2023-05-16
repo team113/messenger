@@ -29,8 +29,7 @@ import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart'
-    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -1416,7 +1415,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget call = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.black.withOpacity(0.03),
+        // color: Colors.black.withOpacity(0.03),
       ),
       padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
       child: Row(

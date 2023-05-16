@@ -115,7 +115,6 @@ class _MinimizableViewState extends State<MinimizableView>
       debugLabel: '$runtimeType',
     );
     _controller.addListener(_animationListener);
-    _controller.addStatusListener(_animationStatusListener);
 
     widget.onInit?.call(_controller);
     super.initState();
@@ -232,14 +231,6 @@ class _MinimizableViewState extends State<MinimizableView>
         SizeTween(begin: _lastBiggest, end: _size).evaluate(_controller)!);
 
     setState(() {});
-  }
-
-  /// Resets the [_bottom] and [_right] on [AnimationStatus.dismissed] status.
-  void _animationStatusListener(AnimationStatus status) {
-    if (status == AnimationStatus.dismissed) {
-      _bottom = 10;
-      _right = 10;
-    }
   }
 
   /// Handles a [GestureDetector.onVerticalDragEnd] callback.

@@ -171,6 +171,7 @@ class RecentChatTile extends StatelessWidget {
         //         ? avatarBuilder(AvatarWidget.fromMonolog(chat, me, radius: 30))
         //         : avatarBuilder(w)
         //     : (_, w) => avatarBuilder(w),
+        avatarBuilder: (_, w) => avatarBuilder(w),
         status: [
           const SizedBox(width: 4),
           _status(context, inverted),

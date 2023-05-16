@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
@@ -59,6 +58,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
@@ -462,10 +462,7 @@ Widget _status(MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset(
-                  'assets/icons/copy.svg',
-                  height: 15,
-                ),
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
     ),
@@ -601,10 +598,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgImage.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
           label: 'label_login'.l10n,
@@ -709,10 +703,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
             ),
@@ -801,10 +792,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddEmailView.show(
@@ -867,10 +855,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
               onPressed: () {
@@ -1119,13 +1104,11 @@ Widget _background(BuildContext context, MyProfileController c) {
                     children: [
                       Positioned.fill(
                         child: c.background.value == null
-                            ? Container(
-                                child: SvgImage.asset(
-                                  'assets/images/background_light.svg',
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
+                            ? SvgImage.asset(
+                                'assets/images/background_light.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
                               )
                             : Image.memory(
                                 c.background.value!,
@@ -1273,7 +1256,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.video().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1297,7 +1280,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.audio().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1321,7 +1304,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.output().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -2333,8 +2316,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return _dense(
-    Column(
-      children: const [
+    const Column(
+      children: [
         DownloadButton(
           asset: 'windows',
           width: 21.93,

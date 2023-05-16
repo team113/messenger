@@ -84,8 +84,8 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
-     this.onPin,
-  this.pinned = false,
+    this.onPin,
+    this.pinned = false,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.

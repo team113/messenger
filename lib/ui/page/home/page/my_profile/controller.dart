@@ -38,7 +38,6 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
@@ -47,6 +46,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -128,12 +128,6 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Client for communicating with the [_mediaManager].
-  Jason? _jason;
-
-  /// Handle to a media manager tracking all the connected devices.
-  MediaManagerHandle? _mediaManager;
-
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
 
@@ -151,6 +145,10 @@ class MyProfileController extends GetxController {
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
+
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -170,16 +168,9 @@ class MyProfileController extends GetxController {
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
-      try {
-        _jason = Jason();
-        _mediaManager = _jason?.mediaManager();
-        _mediaManager?.onDeviceChange(() => enumerateDevices());
-        enumerateDevices();
-      } catch (_) {
-        // [Jason] might not be supported on the current platform.
-        _jason = null;
-        _mediaManager = null;
-      }
+      _devicesSubscription =
+          MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+      MediaUtils.enumerateDevices().then((e) => devices.value = e);
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -499,12 +490,9 @@ class MyProfileController extends GetxController {
 
   @override
   void onClose() {
-    _mediaManager?.free();
-    _mediaManager = null;
-    _jason?.free();
-    _jason = null;
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
@@ -589,15 +577,6 @@ class MyProfileController extends GetxController {
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
-  }
-
-  /// Populates [devices] with a list of [MediaDeviceDetails] objects representing
-  /// available media input devices, such as microphones, cameras, and so forth.
-  Future<void> enumerateDevices() async {
-    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
-        .whereNot((e) => e.deviceId().isEmpty)
-        .toList();
-    devices.refresh();
   }
 
   /// Deletes the provided [email] from [MyUser.emails].

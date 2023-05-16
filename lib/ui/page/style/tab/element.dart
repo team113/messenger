@@ -73,14 +73,18 @@ class ElementStyleTabView extends StatelessWidget {
               element(
                 title: 'Logo в полный рост.',
                 asset: 'assets/images/logo/logo0000.svg',
-                child: SvgImage.asset('assets/images/logo/logo0000.svg',
-                    height: 350),
+                child: SvgImage.asset(
+                  'assets/images/logo/logo0000.svg',
+                  height: 350,
+                ),
               ),
               element(
                 title: 'Logo голова.',
                 asset: 'assets/images/logo/head0000.svg',
-                child: SvgImage.asset('assets/images/logo/head0000.svg',
-                    height: 160),
+                child: SvgImage.asset(
+                  'assets/images/logo/head0000.svg',
+                  height: 160,
+                ),
               ),
               element(
                 background: true,
