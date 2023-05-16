@@ -365,10 +365,10 @@ class HomeBackground extends StatelessWidget {
     super.key,
   });
 
-  /// Returns the background's [Uint8List].
+  /// Reactive background as a [Uint8List].
   final Rx<Uint8List?> background;
 
-  /// Current width of the side bar.
+  /// Width of the side bar.
   final RxDouble sideBarWidth;
 
   @override

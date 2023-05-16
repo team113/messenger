@@ -23,7 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '../../../../../domain/model/contact.dart';
+import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -50,7 +50,7 @@ import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
-  const ContactsTabView({Key? key}) : super(key: key);
+  const ContactsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -355,11 +355,24 @@ class ContactsTabView extends StatelessWidget {
                                     favorites: c.favorites,
                                     selectedContacts: c.selectedContacts,
                                     selecting: c.selecting,
-                                    selectContact: c.selectContact,
-                                    unfavoriteContact: c.unfavoriteContact,
-                                    favoriteContact: c.favoriteContact,
-                                    toggleSelecting: c.toggleSelecting,
-                                    removeFromContacts: _removeFromContacts,
+                                    unfavoriteContact: () =>
+                                        c.unfavoriteContact(
+                                      contact.contact.value.id,
+                                    ),
+                                    favoriteContact: () => c.favoriteContact(
+                                      contact.contact.value.id,
+                                    ),
+                                    toggleSelecting: () => c.toggleSelecting(),
+                                    removeFromContacts: () =>
+                                        _removeFromContacts(
+                                            c, context, contact),
+                                    onTap: c.selecting.value
+                                        ? () => c.selectContact(contact)
+                                        : contact.contact.value.users.isNotEmpty
+                                            // TODO: Open [Routes.contact] page when it's implemented.
+                                            ? () => router
+                                                .user(contact.user.value!.id)
+                                            : null,
                                     avatarBuilder: (child) {
                                       if (PlatformUtils.isMobile) {
                                         return ReorderableDelayedDragStartListener(
@@ -446,11 +459,25 @@ class ContactsTabView extends StatelessWidget {
                                         favorites: c.favorites,
                                         selectedContacts: c.selectedContacts,
                                         selecting: c.selecting,
-                                        selectContact: c.selectContact,
-                                        unfavoriteContact: c.unfavoriteContact,
-                                        favoriteContact: c.favoriteContact,
-                                        toggleSelecting: c.toggleSelecting,
-                                        removeFromContacts: _removeFromContacts,
+                                        unfavoriteContact: () =>
+                                            c.unfavoriteContact(
+                                          e.contact.value.id,
+                                        ),
+                                        favoriteContact: () =>
+                                            c.favoriteContact(
+                                          e.contact.value.id,
+                                        ),
+                                        toggleSelecting: () =>
+                                            c.toggleSelecting(),
+                                        removeFromContacts: () =>
+                                            _removeFromContacts(c, context, e),
+                                        onTap: c.selecting.value
+                                            ? () => c.selectContact(e)
+                                            : e.contact.value.users.isNotEmpty
+                                                // TODO: Open [Routes.contact] page when it's implemented.
+                                                ? () => router
+                                                    .user(e.user.value!.id)
+                                                : null,
                                       ),
                                     ),
                                   ),
@@ -492,7 +519,7 @@ class ContactsTabView extends StatelessWidget {
               ? ChatSelectButtons(
                   c.selectedContacts,
                   toggleSelecting: c.toggleSelecting,
-                  removeContacts: _removeContacts,
+                  removeContacts: () => _removeContacts(context, c),
                 )
               : null,
         );
@@ -554,11 +581,11 @@ class ContactTileWidget extends StatelessWidget {
     required this.favorites,
     required this.selectedContacts,
     required this.selecting,
-    required this.selectContact,
     required this.unfavoriteContact,
     required this.favoriteContact,
     required this.toggleSelecting,
     this.avatarBuilder,
+    required this.onTap,
   });
 
   /// Reactive favorited [ChatContact].
@@ -573,19 +600,15 @@ class ContactTileWidget extends StatelessWidget {
   /// Indicator whether multiple [ChatContact]s selection is active.
   final RxBool selecting;
 
-  /// Selects or unselects the provided [contact], meaning adding or removing
-  /// it from the [selectedContacts].
-  final void Function(RxChatContact contact) selectContact;
+  /// Callback, called when this [ContactTileWidget] is tapped.
+  final void Function()? onTap;
 
   /// Removes the specified [ChatContact] identified by its id from the
   /// favorites.
-  final Future<void> Function(ChatContactId id) unfavoriteContact;
+  final void Function() unfavoriteContact;
 
   /// Marks the specified [ChatContact] identified by its id as favorited.
-  final Future<void> Function(
-    ChatContactId id, [
-    ChatContactFavoritePosition? position,
-  ]) favoriteContact;
+  final void Function() favoriteContact;
 
   /// Toggles the [ChatContact]s selection.
   final void Function() toggleSelecting;
@@ -595,11 +618,7 @@ class ContactTileWidget extends StatelessWidget {
 
   /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
-  final Future<void> Function(
-    ContactsTabController c,
-    BuildContext context,
-    RxChatContact contact,
-  ) removeFromContacts;
+  final void Function() removeFromContacts;
 
   @override
   Widget build(BuildContext context) {
@@ -624,29 +643,24 @@ class ContactTileWidget extends StatelessWidget {
                   child: avatarBuilder?.call(child) ?? child,
                 )
             : avatarBuilder,
-        onTap: selecting.value
-            ? () => selectContact(contact)
-            : contact.contact.value.users.isNotEmpty
-                // TODO: Open [Routes.contact] page when it's implemented.
-                ? () => router.user(contact.user.value!.id)
-                : null,
+        onTap: onTap,
         actions: [
           favorite
               ? ContextMenuButton(
                   key: const Key('UnfavoriteContactButton'),
                   label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: () => unfavoriteContact(contact.contact.value.id),
+                  onPressed: unfavoriteContact,
                   trailing: const Icon(Icons.star_border),
                 )
               : ContextMenuButton(
                   key: const Key('FavoriteContactButton'),
                   label: 'btn_add_to_favorites'.l10n,
-                  onPressed: () => favoriteContact(contact.contact.value.id),
+                  onPressed: favoriteContact,
                   trailing: const Icon(Icons.star),
                 ),
           ContextMenuButton(
             label: 'btn_delete'.l10n,
-            onPressed: () => removeFromContacts,
+            onPressed: removeFromContacts,
             trailing: const Icon(Icons.delete),
           ),
           const ContextMenuDivider(),
@@ -738,10 +752,7 @@ class ChatSelectButtons extends StatelessWidget {
   final void Function() toggleSelecting;
 
   /// Opens a confirmation popup deleting the selected contacts.
-  final Future<void> Function(
-    BuildContext context,
-    ContactsTabController c,
-  ) removeContacts;
+  final void Function() removeContacts;
 
   @override
   Widget build(BuildContext context) {
