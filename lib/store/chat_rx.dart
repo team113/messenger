@@ -953,14 +953,21 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
-              chatEntity.value.ongoingCall = event.call;
-
-              if (chat.value.isGroup) {
-                chatEntity.value.ongoingCall!.conversationStartedAt =
-                    PreciseDateTime.now();
+              if (!chat.value.isDialog) {
+                event.call.conversationStartedAt = PreciseDateTime.now();
               }
 
+              chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
+
+              var message =
+                  await get(event.call.id, timestamp: event.call.timestamp);
+
+              if (message != null) {
+                event.call.at = message.value.at;
+                message.value = event.call;
+                message.save();
+              }
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -1025,7 +1032,18 @@ class HiveRxChat extends RxChat {
 
                 if (ids != null && ids.length >= 2) {
                   chatEntity.value.ongoingCall?.conversationStartedAt =
-                      PreciseDateTime.now();
+                      event.at;
+
+                  if (chatEntity.value.ongoingCall != null) {
+                    final call = chatEntity.value.ongoingCall!;
+                    var message = await get(call.id, timestamp: call.timestamp);
+
+                    if (message != null) {
+                      call.at = message.value.at;
+                      message.value = call;
+                      message.save();
+                    }
+                  }
                 }
               }
               break;
@@ -1033,6 +1051,12 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.lastItemUpdated:
               event as EventChatLastItemUpdated;
               chatEntity.value.lastItem = event.lastItem?.value;
+              if (!chatEntity.value.isDialog &&
+                  chatEntity.value.lastItem is ChatCall) {
+                (chatEntity.value.lastItem as ChatCall).conversationStartedAt =
+                    PreciseDateTime.now();
+              }
+
               chatEntity.value.updatedAt =
                   event.lastItem?.value.at ?? chatEntity.value.updatedAt;
               if (event.lastItem != null) {

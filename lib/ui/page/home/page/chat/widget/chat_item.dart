@@ -1200,18 +1200,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: SelectionContainer.disabled(
-                  child: Column(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      ...files.mapIndexed(
-                        (i, e) => ChatItemWidget.fileAttachment(
-                          e,
-                          onFileTap: widget.onFileTap,
+                      Flexible(
+                        child: Column(
+                          children: [
+                            ...files.mapIndexed(
+                              (i, e) => ChatItemWidget.fileAttachment(
+                                e,
+                                onFileTap: widget.onFileTap,
+                              ),
+                            ),
+                            // if (_text == null && !timeInBubble)
+                            //   Opacity(opacity: 0, child: _timestamp(msg)),
+                          ],
                         ),
                       ),
-                      if (_text == null && !timeInBubble)
-                        Opacity(opacity: 0, child: _timestamp(msg)),
+                      if (_text == null && widget.timestamp && !timeInBubble)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4, right: 4),
+                          child: _timestamp(msg),
+                        ),
                     ],
                   ),
                 ),
@@ -1235,11 +1247,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           widget.chat.value?.isGroup == true &&
                           widget.avatar
                       ? 0
-                      : _text != null
-                          ? msg.repliesTo.isNotEmpty
-                              ? 0
-                              : 10
-                          : 0,
+                      : msg.repliesTo.isNotEmpty || files.isNotEmpty
+                          ? 0
+                          : 10,
                   12,
                   _text != null ? 10 : 0,
                   // files.isEmpty ? 10 : 0,
@@ -1326,7 +1336,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ),
               ),
-              if (widget.timestamp || widget.paid)
+              if ((files.isEmpty || _text != null) && widget.timestamp ||
+                  widget.paid)
                 Positioned(
                   right: timeInBubble ? 4 : 8,
                   bottom: 4,
@@ -1417,7 +1428,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         borderRadius: BorderRadius.circular(10),
         // color: Colors.black.withOpacity(0.03),
       ),
-      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1490,112 +1501,110 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!_fromMe &&
-                      widget.chat.value?.isGroup == true &&
-                      widget.avatar)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                      child: Text(
-                        widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.val ??
-                            'dot'.l10n * 3,
-                        style: style.boldBody.copyWith(color: color),
-                      ),
-                    ),
-                  const SizedBox(height: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        WidgetSpan(child: call),
-                        // if (widget.paid && !_fromMe) ...[
-                        //   const WidgetSpan(child: SizedBox(width: 3)),
-                        //   if (!_fromMe) ...[
-                        //     WidgetSpan(
-                        //       child: Transform.translate(
-                        //         offset: const Offset(0, 5),
-                        //         child: Text(
-                        //           '¤',
-                        //           style: style.systemMessageStyle.copyWith(
-                        //             fontFamily: 'Gapopa',
-                        //             fontWeight: FontWeight.w300,
-                        //             color: paidColor,
-                        //             fontSize: 11,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     const WidgetSpan(child: SizedBox(width: 1)),
-                        //     WidgetSpan(
-                        //       child: Transform.translate(
-                        //         offset: const Offset(0, 5),
-                        //         child: Text(
-                        //           '123',
-                        //           style: style.systemMessageStyle.copyWith(
-                        //             color: paidColor,
-                        //             fontSize: 11,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ]
-                        // ],
-                        // if (widget.paid && !_fromMe && widget.timestamp) ...[
-                        //   WidgetSpan(
-                        //     child: Transform.translate(
-                        //       offset: const Offset(0, 4),
-                        //       child: Container(
-                        //         margin: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                        //         color: Theme.of(context).colorScheme.primary,
-                        //         height: 10,
-                        //         width: 0.5,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ],
-                        // if (widget.timestamp)
-                        //   WidgetSpan(
-                        //     child: Opacity(
-                        //       opacity: 0,
-                        //       child: Padding(
-                        //         padding: const EdgeInsets.only(left: 4),
-                        //         child: _timestamp(widget.item.value),
-                        //       ),
-                        //     ),
-                        //   ),
-                      ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
                     ),
                   ),
-                  if (widget.timestamp)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Row(
-                        children: [
-                          const Spacer(),
-                          // if (time != null)
-                          //   Text(
-                          //     time,
-                          //     maxLines: 1,
-                          //     overflow: TextOverflow.ellipsis,
-                          //     style: Theme.of(context).textTheme.titleSmall,
-                          //   ).fixedDigits(),
-                          if (widget.timestamp) _timestamp(widget.item.value),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+                const SizedBox(height: 4),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(child: call),
+                      if (widget.paid && !_fromMe) ...[
+                        const WidgetSpan(child: SizedBox(width: 3)),
+                        if (!_fromMe) ...[
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0, 5),
+                              child: Text(
+                                '¤',
+                                style: style.systemMessageStyle.copyWith(
+                                  fontFamily: 'Gapopa',
+                                  fontWeight: FontWeight.w300,
+                                  color: paidColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const WidgetSpan(child: SizedBox(width: 1)),
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0, 5),
+                              child: Text(
+                                '123',
+                                style: style.systemMessageStyle.copyWith(
+                                  color: paidColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]
+                      ],
+                      if (widget.paid && !_fromMe && widget.timestamp) ...[
+                        WidgetSpan(
+                          child: Transform.translate(
+                            offset: const Offset(0, 4),
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                              color: Theme.of(context).colorScheme.primary,
+                              height: 10,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (widget.timestamp)
+                        WidgetSpan(
+                          child: Opacity(
+                            opacity: 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _timestamp(widget.item.value),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // if (widget.timestamp)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 8),
+                //     child: Row(
+                //       children: [
+                //         const Spacer(),
+                //         // if (time != null)
+                //         //   Text(
+                //         //     time,
+                //         //     maxLines: 1,
+                //         //     overflow: TextOverflow.ellipsis,
+                //         //     style: Theme.of(context).textTheme.titleSmall,
+                //         //   ).fixedDigits(),
+                //         if (widget.timestamp) _timestamp(widget.item.value),
+                //       ],
+                //     ),
+                //   ),
+              ],
             ),
           ),
-          // if (widget.timestamp)
-          //   Positioned(
-          //     right: 8,
-          //     bottom: 4,
-          //     child: _timestamp(widget.item.value),
-          //   )
+          if (widget.timestamp)
+            Positioned(
+              right: 8,
+              bottom: 4,
+              child: _timestamp(widget.item.value),
+            )
         ],
       ),
     );
@@ -2810,17 +2819,14 @@ extension LocalizedDurationExtension on Duration {
     var seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
-    String result =
-        '${seconds.toString().padLeft(2, '0')} ${'label_duration_second_short'.l10n}';
+    String result = '$seconds ${'label_duration_second_short'.l10n}';
 
     if (minutes != 0) {
-      result =
-          '${minutes.toString().padLeft(2, '0')} ${'label_duration_minute_short'.l10n} $result';
+      result = '$minutes ${'label_duration_minute_short'.l10n} $result';
     }
 
     if (hours != 0) {
-      result =
-          '${hours.toString().padLeft(2, '0')} ${'label_duration_hour_short'.l10n} $result';
+      result = '$hours ${'label_duration_hour_short'.l10n} $result';
     }
 
     return result;
