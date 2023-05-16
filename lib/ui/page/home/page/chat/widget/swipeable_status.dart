@@ -91,7 +91,7 @@ class SwipeableStatus extends StatelessWidget {
             padding: padding,
             child: SizedBox(
                 width: width,
-                child: SwipeableWithStatus(
+                child: _Status(
                   isSent: isSent,
                   isDelivered: isDelivered,
                   isRead: isRead,
@@ -122,10 +122,9 @@ class SwipeableStatus extends StatelessWidget {
       );
 }
 
-/// Returns a [Row] of [swipeable] and a status.
-class SwipeableWithStatus extends StatelessWidget {
-  const SwipeableWithStatus({
-    super.key,
+/// [Widget] which returns a [Row] of [swipeable] and a status.
+class _Status extends StatelessWidget {
+  const _Status({
     required this.isSent,
     required this.isDelivered,
     required this.isRead,
@@ -149,7 +148,7 @@ class SwipeableWithStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
-  /// Widget to display upon swipe.
+  /// [Widget] to display upon swipe.
   final Widget swipeable;
 
   @override

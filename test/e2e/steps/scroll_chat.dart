@@ -26,7 +26,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item/chat_item.dart';
 
 /// Scrolls the currently opened [Chat] and ensures the provided number of
 /// [ChatMessage]s are visible.

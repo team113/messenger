@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -19,11 +18,11 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
+import 'attachment_button.dart';
 
 /// Modal for choosing a source to pick an [Attachment] from.
 ///
@@ -135,50 +134,6 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
         const SizedBox(height: 10),
       ],
-    );
-  }
-}
-
-class AttachmentButton extends StatelessWidget {
-  const AttachmentButton({
-    super.key,
-    this.text,
-    this.icon,
-    this.child,
-    this.onPressed,
-  });
-
-  /// Text displayed on this [AttachmentButton].
-  final String? text;
-
-  /// Icon displayed on this [AttachmentButton].
-  final IconData? icon;
-
-  /// [Widget] displayed on this [AttachmentButton].
-  final Widget? child;
-
-  /// Callback, called when this [AttachmentButton] is pressed.
-  final void Function()? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: RoundFloatingButton(
-        text: text,
-        withBlur: false,
-        onPressed: () {
-          onPressed?.call();
-          Navigator.of(context).pop();
-        },
-        style: const TextStyle(fontSize: 15, color: Colors.black),
-        color: Theme.of(context).colorScheme.secondary,
-        child: SizedBox(
-          width: 60,
-          height: 60,
-          child: child ?? Icon(icon, color: Colors.white, size: 30),
-        ),
-      ),
     );
   }
 }

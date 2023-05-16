@@ -26,34 +26,33 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/view.dart';
 import 'widget/back_button.dart';
+import 'widget/blocked_field.dart';
 import 'widget/chat_forward.dart';
-import 'widget/chat_item.dart';
+import 'widget/chat_item/chat_item.dart';
+import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
+import 'widget/time_label.dart';
+import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
@@ -193,7 +192,13 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) _chatSubtitle(c),
+                                    if (!isMonolog)
+                                      ChatSubtitle(
+                                        chat: c.chat,
+                                        me: c.me,
+                                        duration: c.duration,
+                                        getUser: (id) => c.getUser(id),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -767,10 +772,16 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: _timeLabel(element.id.at.val, c, i),
+        child: TimeLabel(
+          i,
+          time: element.id.at.val,
+          stickyIndex: c.stickyIndex,
+          showSticky: c.showSticky,
+          animation: _animation,
+        ),
       );
     } else if (element is UnreadMessagesElement) {
-      return SelectionContainer.disabled(child: _unreadLabel(context, c));
+      return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
@@ -809,198 +820,11 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox();
   }
 
-  /// Returns a header subtitle of the [Chat].
-  Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
-
-    return Obx(() {
-      Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.ongoingCall != null) {
-        final subtitle = StringBuffer();
-        if (!context.isMobile) {
-          subtitle.write(
-              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
-        }
-
-        final Set<UserId> actualMembers =
-            chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
-        subtitle.write(
-          'label_a_of_b'.l10nfmt(
-            {'a': actualMembers.length, 'b': c.chat!.members.length},
-          ),
-        );
-
-        if (c.duration.value != null) {
-          subtitle.write(
-            '${'space_vertical_space'.l10n}${c.duration.value?.hhMmSs()}',
-          );
-        }
-
-        return Text(subtitle.toString(), style: style);
-      }
-
-      bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
-      if (isTyping) {
-        if (c.chat?.chat.value.isGroup == false) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: AnimatedTyping(),
-              ),
-            ],
-          );
-        }
-
-        Iterable<String> typings = c.chat!.typingUsers
-            .where((e) => e.id != c.me)
-            .map((e) => e.name?.val ?? e.num.val);
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 3),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 3),
-              child: AnimatedTyping(),
-            ),
-          ],
-        );
-      }
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(subtitle, style: style);
-        }
-      } else if (chat.value.isDialog) {
-        final ChatMember? partner =
-            chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
-        if (partner != null) {
-          return Row(
-            children: [
-              if (c.chat?.chat.value.muted != null) ...[
-                SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(partner.user.id),
-                  builder: (_, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final String? subtitle = c.chat!.chat.value
-                            .getSubtitle(partner: snapshot.data!.user.value);
-
-                        final UserTextStatus? status =
-                            snapshot.data!.user.value.status;
-
-                        if (status != null || subtitle != null) {
-                          final StringBuffer buffer =
-                              StringBuffer(status ?? '');
-
-                          if (status != null && subtitle != null) {
-                            buffer.write('space_vertical_space'.l10n);
-                          }
-
-                          buffer.write(subtitle ?? '');
-
-                          return Text(buffer.toString(), style: style);
-                        }
-
-                        return const SizedBox();
-                      });
-                    }
-
-                    return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          );
-        }
-      }
-
-      return const SizedBox();
-    });
-  }
-
-  /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SwipeableStatus(
-        animation: _animation,
-        padding: const EdgeInsets.only(right: 8),
-        crossAxisAlignment: CrossAxisAlignment.center,
-        swipeable: Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat('dd.MM.yy').format(time)),
-        ),
-        child: Obx(() {
-          return AnimatedOpacity(
-            key: Key('$i$time'),
-            opacity: c.stickyIndex.value == i
-                ? c.showSticky.isTrue
-                    ? 1
-                    : 0
-                : 1,
-            duration: const Duration(milliseconds: 250),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: style.systemMessageBorder,
-                  color: style.systemMessageColor,
-                ),
-                child: Text(
-                  time.toRelative(),
-                  style: style.systemMessageStyle,
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return _blockedField(c);
+      return BlockedField(unblacklist: () => c.unblacklist());
     }
 
     return Obx(() {
@@ -1039,94 +863,6 @@ class _ChatViewState extends State<ChatView>
       c.isHorizontalScroll.value = false;
       c.horizontalScrollTimer.value = null;
     });
-  }
-
-  /// Builds a visual representation of an [UnreadMessagesElement].
-  Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: style.systemMessageBorder,
-        color: style.systemMessageColor,
-      ),
-      child: Center(
-        child: Text(
-          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
-        ),
-      ),
-    );
-  }
-
-  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
-  Widget _blockedField(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: SafeArea(
-        child: Container(
-          key: const Key('BlockedField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: WidgetButton(
-                          onPressed: c.unblacklist,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              enabled: false,
-                              state: TextFieldState(text: 'btn_unblock'.l10n),
-                              filled: false,
-                              dense: true,
-                              textAlign: TextAlign.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

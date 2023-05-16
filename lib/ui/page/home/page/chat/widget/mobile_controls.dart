@@ -125,7 +125,7 @@ class _MobileControlsState extends State<MobileControls>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  BottomControlBar(
+                  _BottomControlBar(
                     hideStuff: _hideStuff,
                     controller: _controller,
                     chewieController: _chewieController,
@@ -276,9 +276,8 @@ class _MobileControlsState extends State<MobileControls>
 }
 
 /// [Widget] which returns the bottom controls bar.
-class BottomControlBar extends StatefulWidget {
-  BottomControlBar({
-    super.key,
+class _BottomControlBar extends StatefulWidget {
+  _BottomControlBar({
     required this.hideStuff,
     required this.controller,
     required this.chewieController,
@@ -322,10 +321,10 @@ class BottomControlBar extends StatefulWidget {
   final void Function() cancelAndRestartTimer;
 
   @override
-  State<BottomControlBar> createState() => _BottomControlBarState();
+  State<_BottomControlBar> createState() => _BottomControlBarState();
 }
 
-class _BottomControlBarState extends State<BottomControlBar> {
+class _BottomControlBarState extends State<_BottomControlBar> {
   @override
   Widget build(BuildContext context) {
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;

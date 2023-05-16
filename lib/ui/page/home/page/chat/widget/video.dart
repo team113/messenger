@@ -32,14 +32,14 @@ import '/util/platform_utils.dart';
 class Video extends StatefulWidget {
   const Video(
     this.url, {
-    Key? key,
+    super.key,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
     this.isFullscreen,
     this.onError,
     this.showInterfaceFor,
-  }) : super(key: key);
+  });
 
   /// URL of the video to display.
   final String url;

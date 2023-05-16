@@ -20,6 +20,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import 'circular_button.dart';
+
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
@@ -129,14 +131,14 @@ class _AnimatedFabState extends State<AnimatedFab>
         child: _overlayEntry == null
             ? Container(
                 key: _fabKey,
-                child: Fab(
+                child: _Fab(
                   controller: _controller,
                   closedIcon: widget.closedIcon,
                   openedIcon: widget.openedIcon,
                   onTap: () => _toggleOverlay(),
                 ),
               )
-            : Fab(
+            : _Fab(
                 controller: _controller,
                 closedIcon: widget.closedIcon,
                 openedIcon: widget.openedIcon,
@@ -189,7 +191,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                 top: offset.dy,
                 child: Container(
                   key: _fabKey,
-                  child: Fab(
+                  child: _Fab(
                     controller: _controller,
                     closedIcon: widget.closedIcon,
                     openedIcon: widget.openedIcon,
@@ -310,44 +312,12 @@ class _AnimatedFabState extends State<AnimatedFab>
   }
 }
 
-/// [Widget] which returns an [InkWell] circular button with an [icon].
-class CircularButton extends StatelessWidget {
-  const CircularButton({super.key, required this.icon, this.onTap});
-
-  /// Callback, called when the button is pressed.
-  final void Function()? onTap;
-
-  /// [Widget] that will be displayed on this [CircularButton].
-  final Widget icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.circle,
-      color: Colors.white,
-      shadowColor: const Color(0x55000000),
-      elevation: 6,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Container(
-          decoration: const BoxDecoration(shape: BoxShape.circle),
-          width: 42,
-          height: 42,
-          child: Center(child: icon),
-        ),
-      ),
-    );
-  }
-}
-
 /// [Widget] which returns an animated circular button toggling overlay.
-class Fab extends StatelessWidget {
-  const Fab({
-    super.key,
+class _Fab extends StatelessWidget {
+  const _Fab({
     required this.controller,
-    required this.closedIcon,
-    required this.openedIcon,
+    this.closedIcon,
+    this.openedIcon,
     this.onTap,
   });
 
@@ -355,11 +325,11 @@ class Fab extends StatelessWidget {
   final AnimationController controller;
 
   /// [Widget] to be displayed as the button icon when it is in a closed state.
-  final Widget closedIcon;
+  final Widget? closedIcon;
 
   /// [Widget] to be displayed as the button icon when it is in an opened
   /// state.
-  final Widget openedIcon;
+  final Widget? openedIcon;
 
   /// Callback, called when the button is tapped.
   final void Function()? onTap;

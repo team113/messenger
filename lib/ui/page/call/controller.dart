@@ -43,7 +43,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '../home/page/chat/widget/chat_item/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';

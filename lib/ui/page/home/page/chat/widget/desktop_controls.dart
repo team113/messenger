@@ -36,12 +36,12 @@ import '/ui/widget/progress_indicator.dart';
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
   const DesktopControls({
-    Key? key,
+    super.key,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
-  }) : super(key: key);
+  });
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -194,7 +194,7 @@ class _DesktopControlsState extends State<DesktopControls>
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                BottomControlBar(
+                _BottomControlBar(
                   showBottomBar: _showBottomBar,
                   showInterface: _showInterface,
                   controller: _controller,
@@ -380,9 +380,8 @@ class _DesktopControlsState extends State<DesktopControls>
 }
 
 /// Returns the bottom controls bar.
-class BottomControlBar extends StatefulWidget {
-  BottomControlBar({
-    super.key,
+class _BottomControlBar extends StatefulWidget {
+  _BottomControlBar({
     required this.showBottomBar,
     required this.showInterface,
     required this.controller,
@@ -451,10 +450,10 @@ class BottomControlBar extends StatefulWidget {
   final RxBool? isFullscreen;
 
   @override
-  State<BottomControlBar> createState() => _BottomControlBarState();
+  State<_BottomControlBar> createState() => _BottomControlBarState();
 }
 
-class _BottomControlBarState extends State<BottomControlBar> {
+class _BottomControlBarState extends State<_BottomControlBar> {
   @override
   Widget build(BuildContext context) {
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
