@@ -974,8 +974,9 @@ class CallController extends GetxController {
     }
   }
 
-  // TODO: fix this function.
-  /// Toggles speaker on and off.
+  /// Toggles between the speakerphone and earpiece output.
+  ///
+  /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
