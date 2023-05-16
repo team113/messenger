@@ -577,24 +577,24 @@ class ContactTileWidget extends StatelessWidget {
   const ContactTileWidget(
     this.contact, {
     super.key,
-    required this.removeFromContacts,
     required this.favorites,
     required this.selectedContacts,
     required this.selecting,
-    required this.unfavoriteContact,
-    required this.favoriteContact,
-    required this.toggleSelecting,
+    this.unfavoriteContact,
+    this.favoriteContact,
+    this.removeFromContacts,
+    this.toggleSelecting,
     this.avatarBuilder,
-    required this.onTap,
+    this.onTap,
   });
 
   /// Reactive favorited [ChatContact].
   final RxChatContact contact;
 
-  /// Reactive list of favorited [ChatContact]s.
+  /// Reactive [List] of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites;
 
-  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
+  /// Reactive [List] of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts;
 
   /// Indicator whether multiple [ChatContact]s selection is active.
@@ -605,20 +605,20 @@ class ContactTileWidget extends StatelessWidget {
 
   /// Removes the specified [ChatContact] identified by its id from the
   /// favorites.
-  final void Function() unfavoriteContact;
+  final void Function()? unfavoriteContact;
 
   /// Marks the specified [ChatContact] identified by its id as favorited.
-  final void Function() favoriteContact;
+  final void Function()? favoriteContact;
 
   /// Toggles the [ChatContact]s selection.
-  final void Function() toggleSelecting;
+  final void Function()? toggleSelecting;
 
   /// Returns a [ListTile] with [contact]'s information.
   final Widget Function(Widget)? avatarBuilder;
 
   /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
-  final void Function() removeFromContacts;
+  final void Function()? removeFromContacts;
 
   @override
   Widget build(BuildContext context) {
@@ -745,7 +745,7 @@ class ChatSelectButtons extends StatelessWidget {
     required this.toggleSelecting,
   });
 
-  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
+  /// Reactive [List] of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts;
 
   /// Toggles the [ChatContact]s selection.
