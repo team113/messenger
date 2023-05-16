@@ -275,6 +275,7 @@ class CallWorker extends DisposableService {
   @override
   void onClose() {
     _audioPlayer?.dispose();
+    _audioPlayer = null;
 
     AudioCache.instance.clear('audio/ringing.mp3');
     AudioCache.instance.clear('audio/chinese.mp3');
