@@ -26,7 +26,7 @@ import '/themes.dart';
 import '/ui/page/call/controller.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
-/// [CallDock] which contains the [CallController.buttons].
+/// [Widget] which contains the [CallController.buttons].
 class CallDock extends StatelessWidget {
   const CallDock({
     super.key,
@@ -59,6 +59,15 @@ class CallDock extends StatelessWidget {
   /// [Widget] of the reject call button.
   final Widget? declineButton;
 
+  /// Indicator whether the call is outgoing.
+  final bool? isOutgoing;
+
+  /// Indicator whether to show the [dock].
+  final bool showBottomUi;
+
+  /// Indicator whether the call is incoming.
+  final bool answer;
+
   /// Callback, called when the mouse cursor enters the area
   /// of this [CallDock].
   final void Function(PointerEnterEvent)? onEnter;
@@ -73,15 +82,6 @@ class CallDock extends StatelessWidget {
 
   /// Callback, called every time the value of the animation changes.
   final Function()? listener;
-
-  /// Indicator whether the call is outgoing.
-  final bool? isOutgoing;
-
-  /// Indicator whether to show the [dock].
-  final bool showBottomUi;
-
-  /// Indicator whether the call is incoming.
-  final bool answer;
 
   @override
   Widget build(BuildContext context) {

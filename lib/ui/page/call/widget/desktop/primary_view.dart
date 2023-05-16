@@ -52,6 +52,42 @@ class PrimaryView extends StatelessWidget {
     this.overlayBuilder,
   });
 
+  /// [double] value representing the size of the widget.
+  final double size;
+
+  /// [Rx] chat id that stores the ID of the chat.
+  final Rx<ChatId> chatId;
+
+  /// [Rx] integer that stores the number of secondary drag events.
+  final RxInt secondaryDrags;
+
+  /// [Rx] integer that stores the number of primary targets.
+  final RxInt primaryTargets;
+
+  /// [Rx] integer that stores the number of primary drag events.
+  final RxInt primaryDrags;
+
+  /// [Rx] participant that stores the dragged `dough` renderer.
+  final Rx<Participant?> doughDraggedRenderer;
+
+  /// [Rx] participant that stores the hovered renderer.
+  final Rx<Participant?> hoveredRenderer;
+
+  /// [RxMap] that stores the fit of the renderer.
+  final RxMap<String, BoxFit?> rendererBoxFit;
+
+  /// [RxList] of participants.
+  final RxList<Participant> primary;
+
+  /// [Rx] indicator that stores the state of the secondary drag event.
+  final RxBool secondaryDragged;
+
+  /// [Rx] indicator that stores the minimized state of the widget.
+  final RxBool minimized;
+
+  /// [Rx] indicator that stores the full-screen state of the widget.
+  final RxBool fullscreen;
+
   /// Callback, called when a drag event is completed.
   final void Function(DragData d)? onDragEnded;
 
@@ -68,50 +104,14 @@ class PrimaryView extends StatelessWidget {
   /// Callback, called when a drag event starts.
   final dynamic Function(DragData)? onDragStarted;
 
-  /// [Function] that returns the current offset value.
+  /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
   /// Callback, called when a `dough` is broken.
   final void Function(DragData)? onDoughBreak;
 
-  /// [double] value representing the size of the widget.
-  final double size;
-
-  /// [Rx] participant that stores the dragged `dough` renderer.
-  final Rx<Participant?> doughDraggedRenderer;
-
-  /// [Rx] chat id that stores the ID of the chat.
-  final Rx<ChatId> chatId;
-
-  /// [Rx] integer that stores the number of secondary drag events.
-  final RxInt secondaryDrags;
-
-  /// [Rx] integer that stores the number of primary targets.
-  final RxInt primaryTargets;
-
-  /// [Rx] integer that stores the number of primary drag events.
-  final RxInt primaryDrags;
-
-  /// [Rx] indicator that stores the state of the secondary drag event.
-  final RxBool secondaryDragged;
-
-  /// [Rx] participant that stores the hovered renderer.
-  final Rx<Participant?> hoveredRenderer;
-
-  /// [Function] that builds an overlay widget.
+  /// Builder creating overlay of the provided item.
   final Widget Function(DragData)? overlayBuilder;
-
-  /// [RxMap] that stores the fit of the renderer.
-  final RxMap<String, BoxFit?> rendererBoxFit;
-
-  /// [RxList] of participants.
-  final RxList<Participant> primary;
-
-  /// [Rx] indicator that stores the minimized state of the widget.
-  final RxBool minimized;
-
-  /// [Rx] indicator that stores the full-screen state of the widget.
-  final RxBool fullscreen;
 
   @override
   Widget build(BuildContext context) {

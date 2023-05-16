@@ -43,35 +43,28 @@ class SecondaryTarget extends StatelessWidget {
     this.onWillAccept,
   });
 
-  /// [Size] object that represents the size of this [SecondaryTarget].
+  /// [Size] that represents the size of this [SecondaryTarget].
   final Size size;
 
   /// [Axis] enumeration value that specifies the secondary axis of this
   /// [SecondaryTarget].
   final Axis secondaryAxis;
 
-  /// [Rx] objects that contains a list of [Participant] objects.
-  ///
-  /// It represents the secondary data source of the widget.
+  /// [Rx] participant that contains a list of [Participant] objects.
   final RxList<Participant> secondary;
 
-  /// [Rx] object that contains a [Participant] object.
-  ///
-  /// It represents the participant that is currently being dragged.
+  /// [Rx] participant that contains a [Participant] object.
   final Rx<Participant?> doughDraggedRenderer;
-
-  /// Callback, called when a drag operation enters the target
-  /// [Widget] to determine whether the [Widget] can accept the dragged data.
-  final bool Function(DragData?)? onWillAccept;
 
   /// Count of a primary drag operations that have been performed.
   final RxInt primaryDrags;
 
   /// [Rx] object that contains an [Alignment] object.
-  ///
-  /// It represents the alignment of the secondary widget with respect
-  /// to the primary [Widget].
   final Rx<Alignment?> secondaryAlignment;
+
+  /// Called to determine whether this widget is interested in receiving a
+  /// given piece of data being dragged over this drag target.
+  final bool Function(DragData?)? onWillAccept;
 
   /// Callback, called to remove focus from the specified [Participant].
   final void Function(Participant) unfocus;

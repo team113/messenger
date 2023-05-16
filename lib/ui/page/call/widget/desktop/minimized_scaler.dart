@@ -33,17 +33,17 @@ class MinimizedScaler extends StatelessWidget {
   /// Interface for mouse cursor definitions.
   final MouseCursor cursor;
 
-  /// Callback, called when dragging is updated.
-  final Function(double, double)? onDragUpdate;
-
-  /// Callback, called when dragging ends.
-  final dynamic Function(DragEndDetails)? onDragEnd;
-
   /// Width of this [MinimizedScaler].
   final double? width;
 
   /// Height of this [MinimizedScaler].
   final double? height;
+
+  /// Callback, called when dragging is updated.
+  final dynamic Function(double, double)? onDragUpdate;
+
+  /// Callback, called when dragging ends.
+  final dynamic Function(DragEndDetails)? onDragEnd;
 
   @override
   Widget build(BuildContext context) {

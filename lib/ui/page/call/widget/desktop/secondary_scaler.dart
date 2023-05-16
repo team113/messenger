@@ -38,6 +38,12 @@ class SecondaryScaler extends StatelessWidget {
   /// Interface for mouse cursor definitions.
   final MouseCursor cursor;
 
+  /// Width of this [SecondaryScaler].
+  final double? width;
+
+  /// Height of this [SecondaryScaler].
+  final double? height;
+
   /// [Rx] participant that contains information about the renderer being dragged.
   final Rx<Participant?> draggedRenderer;
 
@@ -46,12 +52,6 @@ class SecondaryScaler extends StatelessWidget {
 
   /// Callback, called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
-
-  /// Width of this [SecondaryScaler].
-  final double? width;
-
-  /// Height of this [SecondaryScaler].
-  final double? height;
 
   @override
   Widget build(BuildContext context) {

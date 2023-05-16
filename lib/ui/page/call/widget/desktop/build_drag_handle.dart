@@ -45,14 +45,15 @@ class BuildDragHandle extends StatelessWidget {
   /// Width of the [SecondaryScaler].
   final double width;
 
+  /// [Rx] participant that contains information about the renderer being
+  /// dragged.
+  final Rx<Participant?> draggedRenderer;
+
   /// Callback reporting the `x` and `y` drag deltas.
   final dynamic Function(double, double)? onDragUpdate;
 
-  /// Callback, called when dragging is ended.
+  /// Callback, called when dragging ends.
   final dynamic Function(DragEndDetails)? onDragEnd;
-
-  /// Link to the item that is being dragged now.
-  final Rx<Participant?> draggedRenderer;
 
   @override
   Widget build(BuildContext context) {

@@ -71,6 +71,12 @@ class SecondaryView extends StatelessWidget {
     this.onPanEnd,
   });
 
+  /// [GlobalKey] that uniquely identifies the secondary panel.
+  final GlobalKey<State<StatefulWidget>> secondaryKey;
+
+  /// [Rx] that holds the chat ID.
+  final Rx<ChatId> chatId;
+
   /// [RxList] of participants that are displayed in the secondary panel.
   final RxList<Participant> secondary;
 
@@ -95,8 +101,36 @@ class SecondaryView extends StatelessWidget {
   /// [Rx] that holds the height of the secondary panel.
   final RxDouble secondaryHeight;
 
+  /// [Rx] indicator whether the secondary panel is currently being hovered
+  /// over.
+  final RxBool secondaryHovered;
+
+  /// [Rx] indicator whether the secondary panel is currently minimized or not.
+  final RxBool minimized;
+
+  /// [Rx] indicator whether the secondary panel is currently in full-screen
+  /// mode or not.
+  final RxBool fullscreen;
+
+  /// [Rx] integer that stores the number of drags that have been performed
+  /// on the primary panel.
+  final RxInt primaryDrags;
+
+  /// [Rx] integer that stores the number of targets that have been set for
+  /// the secondary panel.
+  final RxInt secondaryTargets;
+
+  /// [Rx] that holds the [Participant] being dragged.
+  final Rx<Participant?> draggedRenderer;
+
   /// [Size] that holds the size of the widget.
   final Size size;
+
+  /// Maximum width and height that satisfies the constraints.
+  final double itemConstraintsSize;
+
+  /// Indicator whether any dragging event has occurred.
+  final bool isAnyDrag;
 
   /// CallBack, called when a drag event is completed.
   final void Function(DragData d)? onDragEnded;
@@ -112,9 +146,6 @@ class SecondaryView extends StatelessWidget {
 
   /// CallBack, called when the secondary panel is updated.
   final void Function() updateSecondaryAttach;
-
-  /// [Rx] that holds the [Participant] being dragged.
-  final Rx<Participant?> draggedRenderer;
 
   /// CallBack, called when a [Participant] is added to the widget.
   final dynamic Function(DragData, int)? onAdded;
@@ -138,20 +169,8 @@ class SecondaryView extends StatelessWidget {
   /// [Function] that builds the overlay widget for the [ReorderableFit].
   final Widget Function(DragData)? overlayBuilder;
 
-  /// Variable that holds the size constraint for the [ReorderableFit].
-  final double itemConstraintsSize;
-
   /// [Function] that builds the item widget for the [ReorderableFit].
   final Widget Function(DragData) itemBuilder;
-
-  /// [Rx] that holds the chat ID.
-  final Rx<ChatId> chatId;
-
-  /// [GlobalKey] that uniquely identifies the secondary panel.
-  final GlobalKey<State<StatefulWidget>> secondaryKey;
-
-  /// Indicator whether any dragging event has occurred.
-  final bool isAnyDrag;
 
   /// CallBack, called when a pan event is started.
   final void Function(DragStartDetails)? onPanStart;
@@ -161,25 +180,6 @@ class SecondaryView extends StatelessWidget {
 
   /// CallBack, called when a pan event is ended.
   final void Function(DragEndDetails)? onPanEnd;
-
-  /// [Rx] indicator whether the secondary panel is currently being hovered
-  /// over.
-  final RxBool secondaryHovered;
-
-  /// [Rx] indicator whether the secondary panel is currently minimized or not.
-  final RxBool minimized;
-
-  /// [Rx] indicator whether the secondary panel is currently in full-screen
-  /// mode or not.
-  final RxBool fullscreen;
-
-  /// [Rx] integer that stores the number of drags that have been performed
-  /// on the primary panel.
-  final RxInt primaryDrags;
-
-  /// [Rx] integer that stores the number of targets that have been set for
-  /// the secondary panel.
-  final RxInt secondaryTargets;
 
   /// Focuses all [Participant]s, which means putting them in theirs
   /// `default` groups.

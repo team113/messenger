@@ -44,14 +44,14 @@ class ChatCardPreview extends StatelessWidget {
   /// [RxChat] object representing the chat, or null if there is no chat.
   final RxChat? chat;
 
-  /// Callback [Function] that opens a screen to add members to the chat.
-  final void Function() onTap;
+  /// [CallMember] representing the current user.
+  final CallMember me;
 
   /// [Rx] representing the current duration of the call.
   final Rx<Duration> duration;
 
-  /// [CallMember] representing the current user.
-  final CallMember me;
+  /// Callback [Function] that opens a screen to add members to the chat.
+  final void Function() onTap;
 
   @override
   Widget build(BuildContext context) {

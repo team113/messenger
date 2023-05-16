@@ -55,7 +55,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
 
-/// Returns a mobile design of a [CallView].
+/// [Widget] which returns a mobile design of a [CallView].
 class MobileCall extends StatelessWidget {
   const MobileCall(this.c, {super.key});
 

@@ -17,7 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-/// Wraps the [child] widget passed to it and adds margins to the right and left.
+/// [Widget] which which creates insets with symmetrical vertical and
+/// horizontal offsets around the [child].
 class HorizontalPadding extends StatelessWidget {
   const HorizontalPadding({super.key, required this.child});
 

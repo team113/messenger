@@ -58,7 +58,7 @@ import '/util/platform_utils.dart';
 import '/util/web/non_web.dart';
 import 'common.dart';
 
-/// Returns a desktop design of a [CallView].
+/// [Widget] which returns a desktop design of a [CallView].
 class DesktopCall extends StatelessWidget {
   const DesktopCall(this.c, {super.key});
 

@@ -20,7 +20,7 @@ import 'package:messenger/util/web/web_utils.dart';
 
 import '/themes.dart';
 
-/// [Scaffold] widget for desktop which combines all stackable content.
+/// [Scaffold] which combines all stackable content.
 class StackableScaffold extends StatelessWidget {
   const StackableScaffold({
     super.key,
@@ -37,9 +37,6 @@ class StackableScaffold extends StatelessWidget {
   final List<Widget> ui;
 
   /// [Widget] that represents the title bar.
-  ///
-  /// It is displayed at the top of the scaffold if [WebUtils.isPopup]
-  /// is false.
   final Widget? titleBar;
 
   /// Callback [Function] that handles drag update events.
