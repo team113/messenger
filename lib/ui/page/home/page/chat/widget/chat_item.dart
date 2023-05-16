@@ -817,55 +817,64 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       (menu, constraints) {
         final List<Widget> children = [
-          if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                12,
-                msg.attachments.isEmpty && _text == null ? 4 : 8,
-                9,
-                files.isEmpty && media.isNotEmpty && _text == null
-                    ? 8
-                    : files.isNotEmpty && _text == null
-                        ? 0
-                        : 4,
-              ),
-              child: SelectionText(
-                widget.user?.user.value.name?.val ??
-                    widget.user?.user.value.num.val ??
-                    'dot'.l10n * 3,
-                selectable: PlatformUtils.isDesktop || menu,
-                onSelecting: widget.onSelecting,
-                onChanged: (a) => _selection = a,
-                style: style.boldBody.copyWith(color: color),
-              ),
-            ),
-          if (msg.repliesTo.isNotEmpty)
-            ...msg.repliesTo.mapIndexed((i, e) {
-              return SelectionContainer.disabled(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.04),
-                    borderRadius: style.cardRadius,
-                    border: Border.fromBorderSide(BorderSide(
-                      color: Colors.black.withOpacity(0.1),
-                      width: 0.5,
-                    )),
-                  ),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.55,
-                    child: WidgetButton(
-                      onPressed:
-                          menu ? null : () => widget.onRepliedTap?.call(e),
-                      child: _repliedMessage(e, constraints),
+          if (!_fromMe &&
+              widget.chat.value?.isGroup == true &&
+              widget.avatar) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                    child: SelectionText(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      selectable: PlatformUtils.isDesktop || menu,
+                      onSelecting: widget.onSelecting,
+                      onChanged: (a) => _selection = a,
+                      style: style.boldBody.copyWith(color: color),
                     ),
                   ),
                 ),
-              );
+              ],
+            ),
+            const SizedBox(height: 4),
+          ] else
+            SizedBox(height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0),
+          if (msg.repliesTo.isNotEmpty) ...[
+            ...msg.repliesTo.expand((e) {
+              return [
+                SelectionContainer.disabled(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.04),
+                      borderRadius: style.cardRadius,
+                      border: Border.fromBorderSide(BorderSide(
+                        color: Colors.black.withOpacity(0.1),
+                        width: 0.5,
+                      )),
+                    ),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
+                      child: WidgetButton(
+                        onPressed:
+                            menu ? null : () => widget.onRepliedTap?.call(e),
+                        child: _repliedMessage(e, constraints),
+                      ),
+                    ),
+                  ),
+                ),
+                if (msg.repliesTo.last != e) const SizedBox(height: 6),
+              ];
             }),
-          if (media.isNotEmpty)
+            SizedBox(
+                height: _text != null || msg.attachments.isNotEmpty ? 6 : 0),
+          ],
+          if (media.isNotEmpty) ...[
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
@@ -921,66 +930,71 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
               ),
             ),
-          if (files.isNotEmpty)
+            SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
+          ],
+          if (files.isNotEmpty) ...[
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: SelectionContainer.disabled(
-                  child: Column(
-                    children: [
-                      ...files.mapIndexed(
-                        (i, e) => ChatItemWidget.fileAttachment(
-                          e,
-                          onFileTap: widget.onFileTap,
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: [
+                    ...files.expand(
+                      (e) => [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          child: ChatItemWidget.fileAttachment(
+                            e,
+                            onFileTap: widget.onFileTap,
+                          ),
                         ),
+                        if (files.last != e) const SizedBox(height: 6),
+                      ],
+                    ),
+                    if (_text == null && !timeInBubble)
+                      Opacity(opacity: 0, child: _timestamp(msg)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
+          if (_text != null ||
+              (widget.timestamp && msg.attachments.isEmpty)) ...[
+            Row(
+              children: [
+                Flexible(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.7,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                      child: SelectionText.rich(
+                        TextSpan(
+                          children: [
+                            if (_text != null) _text!,
+                            if (widget.timestamp && !timeInBubble) ...[
+                              const WidgetSpan(child: SizedBox(width: 4)),
+                              WidgetSpan(
+                                child: Opacity(opacity: 0, child: _timestamp(msg)),
+                              )
+                            ],
+                          ],
+                        ),
+                        key: Key('Text_${widget.item.value.id}'),
+                        selectable:
+                            (PlatformUtils.isDesktop || menu) && _text != null,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody,
                       ),
-                      if (_text == null && !timeInBubble)
-                        Opacity(opacity: 0, child: _timestamp(msg)),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          if (_text != null || (widget.timestamp && msg.attachments.isEmpty))
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.7,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  12,
-                  !_fromMe &&
-                          widget.chat.value?.isGroup == true &&
-                          widget.avatar
-                      ? 0
-                      : _text != null
-                          ? msg.repliesTo.isNotEmpty || files.isNotEmpty
-                              ? 0
-                              : 10
-                          : 0,
-                  12,
-                  _text != null ? 10 : 0,
-                ),
-                child: SelectionText.rich(
-                  TextSpan(
-                    children: [
-                      if (_text != null) _text!,
-                      if (widget.timestamp && !timeInBubble)
-                        WidgetSpan(
-                          child: Opacity(opacity: 0, child: _timestamp(msg)),
-                        ),
-                    ],
-                  ),
-                  key: Key('Text_${widget.item.value.id}'),
-                  selectable:
-                      (PlatformUtils.isDesktop || menu) && _text != null,
-                  onSelecting: widget.onSelecting,
-                  onChanged: (a) => _selection = a,
-                  style: style.boldBody,
-                ),
-              ),
-            ),
+            if (_text != null) const SizedBox(height: 8),
+          ],
         ];
 
         return Container(
@@ -1229,7 +1243,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     if (item is ChatMessageQuote) {
       if (item.attachments.isNotEmpty) {
-        int take = constraints.maxWidth ~/ 52;
+        int take = (constraints.maxWidth - 35) ~/ 52;
         if (take <= item.attachments.length - 1) {
           take -= 1;
         }
@@ -1437,7 +1451,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Widget Function(bool menu, BoxConstraints constraints) builder,
   ) {
     final ChatItem item = widget.item.value;
-    final double swipeableWidth = _fromMe ? 65 : 50;
 
     String? copyable;
     if (item is ChatMessage) {
@@ -1525,7 +1538,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
-      width: swipeableWidth,
       status: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
@@ -1648,13 +1660,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: min(
-                        550,
-                        constraints.maxWidth - swipeableWidth,
-                      ),
+                  final BoxConstraints itemConstraints = BoxConstraints(
+                    maxWidth: min(
+                      550,
+                      constraints.maxWidth - SwipeableStatus.width,
                     ),
+                  );
+
+                  return ConstrainedBox(
+                    constraints: itemConstraints,
                     child: Material(
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
@@ -1824,11 +1838,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ],
                         ],
                         builder: PlatformUtils.isMobile
-                            ? (menu) => child(menu, constraints)
+                            ? (menu) => child(menu, itemConstraints)
                             : null,
                         child: PlatformUtils.isMobile
                             ? null
-                            : child(false, constraints),
+                            : child(false, itemConstraints),
                       ),
                     ),
                   );

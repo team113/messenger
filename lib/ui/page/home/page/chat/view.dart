@@ -675,7 +675,6 @@ class _ChatViewState extends State<ChatView>
                     m.memberId != c.me &&
                     m.memberId != element.authorId),
             user: u.data,
-            getUser: c.getUser,
             animation: _animation,
             timestamp: c.settings.value?.timelineEnabled != true,
             onHide: () async {

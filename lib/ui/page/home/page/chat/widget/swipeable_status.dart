@@ -26,7 +26,6 @@ class SwipeableStatus extends StatelessWidget {
     super.key,
     required this.child,
     required this.swipeable,
-    this.width = 65,
     this.animation,
     this.translate = false,
     this.isSent = false,
@@ -40,7 +39,7 @@ class SwipeableStatus extends StatelessWidget {
   });
 
   /// Expanded width of the [swipeable].
-  final double width;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -93,7 +92,10 @@ class SwipeableStatus extends StatelessWidget {
         _animatedBuilder(
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
+            child: SizedBox(
+              width: status ? width : width - 15,
+              child: _swipeableWithStatus(context),
+            ),
           ),
         ),
       ],
@@ -154,8 +156,8 @@ class SwipeableStatus extends StatelessWidget {
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: translated ? Offset(width, 0) : Offset.zero,
-              end: translated ? Offset.zero : Offset(-width, 0),
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

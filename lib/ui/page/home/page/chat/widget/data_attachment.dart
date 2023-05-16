@@ -122,7 +122,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? const Color(0xFFD1E1F0)
+                    ? const Color(0x2F0084FF)
                     : const Color(0x00D1E1F0),
                 border: Border.all(
                   width: 2,
@@ -183,7 +183,7 @@ class _DataAttachmentState extends State<DataAttachment> {
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: widget.onPressed,
             child: Container(
