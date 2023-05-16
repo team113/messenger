@@ -828,7 +828,7 @@ class ChatsTabView extends StatelessWidget {
                         ? SelectButtons(
                             c.selectedChats,
                             toggleSelecting: c.toggleSelecting,
-                            hideChats: _hideChats,
+                            hideChats: () => _hideChats(context, c),
                           )
                         : null,
               );
@@ -938,7 +938,7 @@ class CreateGroup extends StatelessWidget {
 
       if (groupCreating.value) {
         Widget button({
-          super.key,
+          Key? key,
           Widget? leading,
           required Widget child,
           void Function()? onPressed,
@@ -1016,7 +1016,7 @@ class SelectButtons extends StatelessWidget {
     required this.hideChats,
   });
 
-  /// Reactive list of [ChatId]s of the selected [Chat]s.
+  /// Reactive [List] of [ChatId]s of the selected [Chat]s.
   final RxList<ChatId> selectedChats;
 
   /// Toggles the [Chat]s selection.
