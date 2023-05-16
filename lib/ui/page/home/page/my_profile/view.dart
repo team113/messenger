@@ -1261,8 +1261,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return _dense(
-    Column(
-      children: const [
+    const Column(
+      children: [
         DownloadButton(
           asset: 'windows',
           width: 21.93,

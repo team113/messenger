@@ -25,7 +25,7 @@ import '/domain/model/user.dart';
 import '/store/model/contact.dart';
 
 /// [ChatContact]s related functionality.
-abstract class ContactGraphQlMixin {
+mixin ContactGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns address book of the authenticated [MyUser] ordered alphabetically

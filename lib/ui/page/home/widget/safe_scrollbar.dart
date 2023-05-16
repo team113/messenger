@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
@@ -66,9 +64,9 @@ class SafeScrollbar extends StatelessWidget {
       );
     }
 
-    final EdgeInsets padding = EdgeInsets.fromWindowPadding(
-      window.viewPadding,
-      window.devicePixelRatio,
+    final EdgeInsets padding = EdgeInsets.fromViewPadding(
+      View.of(context).viewPadding,
+      View.of(context).devicePixelRatio,
     );
 
     return MediaQuery(
