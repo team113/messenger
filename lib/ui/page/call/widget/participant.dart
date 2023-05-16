@@ -28,6 +28,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
+import 'hand_raised_icon.dart';
 import 'video_view.dart';
 
 /// [Participant] visual representation.
@@ -395,8 +396,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 }
 
 /// [Participant] background decoration containing a border.
-class ParticipantDecorator extends StatelessWidget {
-  const ParticipantDecorator({super.key});
+class ParticipantDecoratorWidget extends StatelessWidget {
+  const ParticipantDecoratorWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -415,27 +416,6 @@ class ParticipantDecorator extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// [Widget] which returns a raised hand icon with animation.
-class HandRaisedIcon extends StatelessWidget {
-  const HandRaisedIcon({super.key, required this.raised});
-
-  /// Indicator whether a hand is raised or not.
-  final bool raised;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 150),
-      opacity: raised ? 1.0 : 0.0,
-      child: CircleAvatar(
-        radius: 45,
-        backgroundColor: const Color(0xD8818181),
-        child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
       ),
     );
   }
