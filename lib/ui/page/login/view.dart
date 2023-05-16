@@ -296,7 +296,7 @@ class PrimaryButton extends StatelessWidget {
   final String? title;
 
   /// Callback, called when this button is tapped or activated other way.
-  final VoidCallback? onPressed;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
