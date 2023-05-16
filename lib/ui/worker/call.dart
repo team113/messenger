@@ -278,6 +278,7 @@ class CallWorker extends DisposableService {
 
     AudioCache.instance.clear('audio/ringing.mp3');
     AudioCache.instance.clear('audio/chinese.mp3');
+    AudioCache.instance.clear('audio/pop.mp3');
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -347,8 +348,11 @@ class CallWorker extends DisposableService {
     await runZonedGuarded(
       () async {
         _audioPlayer = AudioPlayer();
-        await AudioCache.instance
-            .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
+        await AudioCache.instance.loadAll([
+          'audio/ringing.mp3',
+          'audio/chinese.mp3',
+          'audio/pop.mp3',
+        ]);
       },
       (e, _) {
         if (e is MissingPluginException) {

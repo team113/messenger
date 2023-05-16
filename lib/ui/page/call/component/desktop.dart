@@ -1950,15 +1950,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
             itemBuilder: (_DragData data) {
-              var participant = data.participant;
-              return Obx(
-                () => ParticipantWidget(
-                  participant,
-                  key: ObjectKey(participant),
-                  offstageUntilDetermined: true,
-                  respectAspectRatio: true,
-                  borderRadius: BorderRadius.zero,
-                ),
+              return ParticipantWidget(
+                data.participant,
+                key: ObjectKey(data.participant),
+                offstageUntilDetermined: true,
+                respectAspectRatio: true,
+                borderRadius: BorderRadius.zero,
               );
             },
             children:

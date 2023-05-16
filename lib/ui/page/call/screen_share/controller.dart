@@ -115,7 +115,7 @@ class ScreenShareController extends GetxController {
   /// Initializes a [RtcVideoRenderer] for the provided [display].
   Future<void> initRenderer(MediaDisplayDetails display) async {
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-      screen: TrackPreferences(device: display.deviceId(), framerate: 5),
+      screen: ScreenPreferences(device: display.deviceId(), framerate: 5),
     );
 
     _localTracks.addAll(tracks);

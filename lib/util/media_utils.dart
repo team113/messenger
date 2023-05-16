@@ -31,11 +31,11 @@ class MediaUtils {
   /// [MediaManagerHandle] maintaining the media devices.
   static MediaManagerHandle? _mediaManager;
 
-  /// [StreamController] of the [MediaDeviceDetails]s updating in the
+  /// [StreamController] of the [MediaDeviceDetails] updating in the
   /// [MediaManagerHandle.onDeviceChange].
   static StreamController<List<MediaDeviceDetails>>? _devicesController;
 
-  /// [StreamController] of the [MediaDisplayDetails]s updating in the
+  /// [StreamController] of the [MediaDisplayDetails] updating in the
   /// [MediaManagerHandle.onDeviceChange].
   static StreamController<List<MediaDisplayDetails>>? _displaysController;
 
@@ -66,26 +66,33 @@ class MediaUtils {
     return _mediaManager;
   }
 
-  /// Returns a [Stream] of the [MediaDeviceDetails]s changes.
+  /// Returns a [Stream] of the [MediaDeviceDetails] changes.
   static Stream<List<MediaDeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
-        await _onDeviceChange();
+        _devicesController?.add(
+          (await mediaManager?.enumerateDevices() ?? [])
+              .where((e) => e.deviceId().isNotEmpty)
+              .toList(),
+        );
       });
     }
 
     return _devicesController!.stream;
   }
 
-  /// Returns a [Stream] of the [MediaDisplayDetails]s changes.
+  /// Returns a [Stream] of the [MediaDisplayDetails] changes.
   static Stream<List<MediaDisplayDetails>> get onDisplayChange {
     if (_displaysController == null) {
       _displaysController = StreamController.broadcast();
-      mediaManager?.onDeviceChange(() async {
-        await _onDeviceChange();
+      Future(() async {
+        _displaysController?.add(
+          (await mediaManager?.enumerateDisplays() ?? [])
+              .where((e) => e.deviceId().isNotEmpty)
+              .toList(),
+        );
       });
-      _onDeviceChange();
     }
 
     return _displaysController!.stream;
@@ -93,30 +100,15 @@ class MediaUtils {
 
   /// Returns [LocalMediaTrack]s of the [audio], [video] and [screen] devices.
   static Future<List<LocalMediaTrack>> getTracks({
-    TrackPreferences? audio,
-    TrackPreferences? video,
-    TrackPreferences? screen,
+    AudioPreferences? audio,
+    VideoPreferences? video,
+    ScreenPreferences? screen,
   }) async {
     if (mediaManager == null) {
       return [];
     }
 
     final List<LocalMediaTrack> tracks = [];
-
-    // if (audio != null) {
-    //   final LocalMediaTrack? track = _tracks.firstWhereOrNull(
-    //     (e) =>
-    //         e.kind() == MediaKind.Audio &&
-    //         e.mediaSourceKind() == MediaSourceKind.Device &&
-    //         (audio!.device == null || e.getTrack().deviceId() == audio.device),
-    //   );
-
-    //   if (track != null) {
-    //     print('[MediaUtils] Re-use audio track: $track');
-    //     tracks.add(track);
-    //     audio = null;
-    //   }
-    // }
 
     if (audio != null || video != null || screen != null) {
       final List<LocalMediaTrack> local = await mediaManager!.initLocalTracks(
@@ -126,12 +118,10 @@ class MediaUtils {
       tracks.addAll(local);
     }
 
-    print('return ${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()}')}');
-
     return tracks;
   }
 
-  /// Returns the [MediaDeviceDetails]s currently available with the provided
+  /// Returns the [MediaDeviceDetails] currently available with the provided
   /// [kind], if specified.
   static Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
@@ -142,7 +132,7 @@ class MediaUtils {
         .toList();
   }
 
-  /// Returns the currently available [MediaDisplayDetails]s.
+  /// Returns the currently available [MediaDisplayDetails].
   static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
     return (await mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
@@ -152,9 +142,9 @@ class MediaUtils {
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   static MediaStreamSettings _mediaStreamSettings({
-    TrackPreferences? audio,
-    TrackPreferences? video,
-    TrackPreferences? screen,
+    AudioPreferences? audio,
+    VideoPreferences? video,
+    ScreenPreferences? screen,
   }) {
     final MediaStreamSettings settings = MediaStreamSettings();
 
@@ -184,43 +174,33 @@ class MediaUtils {
 
     return settings;
   }
-
-  /// Enumerates devices and displays and adds them to the [_devicesController]
-  /// and [_displaysController].
-  static Future<void> _onDeviceChange() async {
-    print('MediaUtils _onDeviceChange');
-    _devicesController?.add(
-      (await mediaManager?.enumerateDevices() ?? [])
-          .where((e) => e.deviceId().isNotEmpty)
-          .toList(),
-    );
-
-    _displaysController?.add(
-      (await mediaManager?.enumerateDisplays() ?? [])
-          .where((e) => e.deviceId().isNotEmpty)
-          .toList(),
-    );
-  }
 }
 
-/// A [LocalMediaTrack] reference.
+/// [LocalMediaTrack] preferences.
 class TrackPreferences {
-  const TrackPreferences({
-    this.device,
-    this.facingMode,
-    this.framerate,
-  });
+  const TrackPreferences({this.device});
 
-  /// ID of a device.
+  /// ID of a device to use.
   final String? device;
+}
 
-  /// [FacingMode] of this [TrackPreferences].
-  ///
-  /// Used only for video tracks.
+/// [TrackPreferences] of a microphone track.
+class AudioPreferences extends TrackPreferences {
+  const AudioPreferences({super.device});
+}
+
+/// [TrackPreferences] of a video camera track.
+class VideoPreferences extends TrackPreferences {
+  const VideoPreferences({super.device, this.facingMode});
+
+  /// Preferred [FacingMode] of the video track.
   final FacingMode? facingMode;
+}
 
-  /// Framerate of this [TrackPreferences].
-  ///
-  /// Used only for screen tracks.
+/// [TrackPreferences] of a screen share track.
+class ScreenPreferences extends TrackPreferences {
+  const ScreenPreferences({super.device, this.framerate});
+
+  /// Preferred framerate of the screen track.
   final int? framerate;
 }

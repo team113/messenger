@@ -914,9 +914,12 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
+      // TODO: `medea_jason` should have `onScreenChange` callback.
+      await _currentCall.value.enumerateDevices(media: false);
+
       if (_currentCall.value.displays.length > 1) {
         final MediaDisplayDetails? display =
-            await ScreenShareView.show(context, _currentCall);
+            await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(

@@ -63,12 +63,8 @@ class CameraSwitchController extends GetxController {
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
-    _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) {
-        print('[$runtimeType] onDeviceChange');
-        devices.value = e.video().toList();
-      },
-    );
+    _devicesSubscription = MediaUtils.onDeviceChange
+        .listen((e) => devices.value = e.video().toList());
 
     await WebUtils.cameraPermission();
     devices.value =
@@ -106,10 +102,7 @@ class CameraSwitchController extends GetxController {
 
     await _initRendererGuard.protect(() async {
       final List<LocalMediaTrack> tracks =
-          await MediaUtils.getTracks(video: TrackPreferences(device: camera));
-
-      print(
-          '${tracks.map((e) => '${e.kind()} ${e.mediaSourceKind()} ${e.getTrack().deviceId()}')}');
+          await MediaUtils.getTracks(video: VideoPreferences(device: camera));
 
       if (isClosed) {
         tracks.firstOrNull?.free();
