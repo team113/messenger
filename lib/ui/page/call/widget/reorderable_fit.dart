@@ -357,6 +357,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         }
 
         return _ReorderableFit<T>(
+          key: key,
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -559,8 +560,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/pop.mp3');
-
+    _audioPlayer = null;
     super.dispose();
   }
 
@@ -998,11 +998,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   Future<void> _initAudio() async {
     // [AudioPlayer] constructor creates a hanging [Future], which can't be
     // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'reorderableFitWrap');
-        await AudioCache.instance.loadAll(['audio/pop.mp3']);
-      },
+    runZonedGuarded(
+      () => _audioPlayer = AudioPlayer(),
       (e, _) {
         if (e is MissingPluginException) {
           _audioPlayer = null;

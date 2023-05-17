@@ -36,14 +36,12 @@ class ParticipantWidget extends StatelessWidget {
     this.participant, {
     super.key,
     this.fit,
-    this.muted = false,
     this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.expanded = false,
   });
 
   /// [Participant] this [ParticipantWidget] represents.
@@ -51,11 +49,6 @@ class ParticipantWidget extends StatelessWidget {
 
   /// [BoxFit] mode of a [Participant.video] renderer.
   final BoxFit? fit;
-
-  /// Indicator whether this video should display `muted` icon or not.
-  ///
-  /// If `null`, then displays [Participant.audio] muted status.
-  final bool? muted;
 
   /// Indicator whether [Participant.video] should take exactly the size of its
   /// renderer's stream.
@@ -76,10 +69,6 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
-
-  /// Indicator whether this [ParticipantWidget] should have its background
-  /// expanded.
-  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +208,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
-        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
       bool isVideoDisabled = participant.video.value?.renderer.value == null &&
