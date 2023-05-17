@@ -98,9 +98,8 @@ class ProfileLink extends StatelessWidget {
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            await LinkDetailsView.show(context);
-                          },
+                          ..onTap =
+                              () async => await LinkDetailsView.show(context),
                       ),
                     ],
                   ),
