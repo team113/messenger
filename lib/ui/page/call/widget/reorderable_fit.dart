@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -357,6 +358,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         }
 
         return _ReorderableFit<T>(
+          key: key,
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -559,8 +561,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/pop.mp3');
-
+    _audioPlayer = null;
     super.dispose();
   }
 
@@ -998,12 +999,18 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'reorderableFitWrap');
-      await AudioCache.instance.loadAll(['audio/pop.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    runZonedGuarded(
+      () => _audioPlayer = AudioPlayer(),
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }
 

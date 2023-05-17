@@ -101,9 +101,9 @@ Widget mobileCall(CallController c, BuildContext context) {
               },
               overlayBuilder: (e) {
                 return Obx(() {
-                  final bool muted = e.member.owner == MediaOwnerKind.local
+                  final bool? muted = e.member.owner == MediaOwnerKind.local
                       ? !c.audioState.value.isEnabled
-                      : e.audio.value?.isMuted.value ?? false;
+                      : null;
 
                   // TODO: Implement opened context menu detection for
                   //       `hovered` indicator.
@@ -127,9 +127,9 @@ Widget mobileCall(CallController c, BuildContext context) {
             fit: c.minimized.value,
             itemBuilder: (e) {
               return Obx(() {
-                final bool muted = e.member.owner == MediaOwnerKind.local
+                final bool? muted = e.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
-                    : e.audio.value?.isMuted.value ?? false;
+                    : null;
 
                 // Builds the [Participant] with a [AnimatedClipRRect].
                 Widget builder(bool animated) {

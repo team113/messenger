@@ -127,7 +127,7 @@ class CameraSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e = c.devices[i];
+                            final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||

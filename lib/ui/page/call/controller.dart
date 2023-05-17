@@ -908,9 +908,12 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
+      // TODO: `medea_jason` should have `onScreenChange` callback.
+      await _currentCall.value.enumerateDevices(media: false);
+
       if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayInfo? display =
-            await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayDetails? display =
+            await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(
@@ -950,7 +953,8 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
+    List<MediaDeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       int selected = _currentCall.value.videoDevice.value == null
           ? 0
@@ -964,17 +968,19 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles speaker on and off.
+  /// Toggles between the speakerphone and earpiece output.
+  ///
+  /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceInfo> outputs =
+      final List<MediaDeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        MediaDeviceInfo? device;
+        MediaDeviceDetails? device;
 
         if (PlatformUtils.isIOS) {
           device = _currentCall.value.devices.output().firstWhereOrNull(
