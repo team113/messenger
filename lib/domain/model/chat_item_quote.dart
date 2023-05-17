@@ -72,7 +72,6 @@ abstract class ChatItemQuote {
   @HiveField(0)
   final ChatItem? original;
 
-  // TODO: [ChatItemQuote.author] is [User] on backend.
   /// [User] who created the quoted [ChatItem].
   @HiveField(1)
   final UserId author;
