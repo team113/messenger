@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -1259,10 +1260,15 @@ class OngoingCall {
         }
       });
 
+      Future.delayed(3.seconds, () {
+        member?.quality.value = 2;
+      });
+
       conn.onQualityScoreUpdate((p0) {
-        if (p0 <= 1) {
-          addNotification(score: p0);
-        }
+        member?.quality.value = p0;
+        // if (p0 <= 1) {
+        //   addNotification(score: p0);
+        // }
 
         Log.print(
           'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p0',
@@ -1666,6 +1672,14 @@ class OngoingCall {
   final Map<String, Timer> _deviceTimers = {};
 
   void addNotification({MediaDeviceDetails? device, int? score}) {
+    if (score != null) {
+      members.values
+          .firstWhereOrNull((e) => e.id.userId != _me.userId)
+          ?.quality
+          .value = Random().nextInt(3) + 1;
+      return;
+    }
+
     final notification = CallNotification(device: device, score: score);
     deviceChanges.add(notification);
 
@@ -1862,6 +1876,8 @@ class CallMember {
 
   /// Indicator whether this [CallMember] is redialing.
   final RxBool isRedialing;
+
+  final RxInt quality = RxInt(4);
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;

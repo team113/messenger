@@ -923,7 +923,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     // Indicator whether the [_timestamp] should be displayed in a bubble above
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
-    final bool timeInBubble = media.isNotEmpty;
+    final bool timeInBubble =
+        media.isNotEmpty && _text == null && files.isEmpty;
 
     // const Color paidColor = Color(0xFFF19CBB);
     // const Color paidColor = Color(0xFF8383ff);
@@ -1154,10 +1155,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             widget.avatar)
                     ? Radius.zero
                     : const Radius.circular(15),
-                bottomLeft:
-                    _text != null ? Radius.zero : const Radius.circular(15),
-                bottomRight:
-                    _text != null ? Radius.zero : const Radius.circular(15),
+                bottomLeft: _text != null || files.isNotEmpty
+                    ? Radius.zero
+                    : const Radius.circular(15),
+                bottomRight: _text != null || files.isNotEmpty
+                    ? Radius.zero
+                    : const Radius.circular(15),
               ),
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
@@ -1208,12 +1211,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       Flexible(
                         child: Column(
                           children: [
+                            const SizedBox(height: 6),
                             ...files.mapIndexed(
-                              (i, e) => ChatItemWidget.fileAttachment(
-                                e,
-                                onFileTap: widget.onFileTap,
-                              ),
+                              (i, e) {
+                                return ChatItemWidget.fileAttachment(
+                                  e,
+                                  onFileTap: widget.onFileTap,
+                                );
+                              },
                             ),
+                            const SizedBox(height: 6),
                             // if (_text == null && !timeInBubble)
                             //   Opacity(opacity: 0, child: _timestamp(msg)),
                           ],

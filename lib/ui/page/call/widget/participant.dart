@@ -246,6 +246,23 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
+      if (participant.member.quality.value <= 3) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 3, right: 3),
+            child: Icon(
+              participant.member.quality.value == 1
+                  ? Icons.network_wifi_1_bar
+                  : participant.member.quality.value == 2
+                      ? Icons.network_wifi_2_bar
+                      : Icons.network_wifi,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+        );
+      }
+
       if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));

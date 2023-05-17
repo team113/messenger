@@ -129,7 +129,7 @@ dependency_overrides:
   analyzer: ^5.12.0
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.8.0-dev+rev.5ef094710c5b08c6d99436bdc49e262e6d52d782
-  medea_jason: 0.3.0-dev+rev.eb4d90e0bb6f33734dd240c753c0427c55ca7d80
+  medea_jason: 0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
   # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
