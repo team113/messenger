@@ -42,6 +42,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
@@ -1154,7 +1155,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.video().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1178,7 +1179,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.audio().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1202,7 +1203,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.output().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1261,8 +1262,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return _dense(
-    Column(
-      children: const [
+    const Column(
+      children: [
         DownloadButton(
           asset: 'windows',
           width: 21.93,
