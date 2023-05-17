@@ -40,11 +40,11 @@ class ScreenShareView extends StatelessWidget {
   static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<MediaDisplayInfo?> show<T>(
+  static Future<MediaDisplayDetails?> show<T>(
     BuildContext context,
     Rx<OngoingCall> call,
   ) {
-    return ModalPopup.show<MediaDisplayInfo?>(
+    return ModalPopup.show<MediaDisplayDetails?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -90,7 +90,7 @@ class ScreenShareView extends StatelessWidget {
                     shrinkWrap: true,
                     itemBuilder: (_, i) {
                       return Obx(() {
-                        final MediaDisplayInfo e = c.call.value.displays[i];
+                        final MediaDisplayDetails e = c.call.value.displays[i];
                         return GestureDetector(
                           onTap: () => c.selected.value = e,
                           child: SizedBox(
