@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item/chat_item.dart';
@@ -35,30 +33,26 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 import '../message_timestamp.dart';
 
-// ignore: must_be_immutable
+/// [Widget] which renders [item] as [ChatCall].
 class RenderAsChatCall extends StatefulWidget {
-  RenderAsChatCall({
+  const RenderAsChatCall({
     super.key,
     required this.item,
-    required this.ongoingCallTimer,
     required this.fromMe,
     required this.isRead,
     required this.chat,
     required this.avatar,
-    required this.me,
-    required this.rxUser,
     required this.timestamp,
     required this.timestampWidget,
     required this.margin,
     required this.rounded,
+    required this.startCallTimer,
+    this.rxUser,
+    this.me,
   });
 
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
-
-  /// [Timer] rebuilding this widget every second if the [item]
-  /// represents an ongoing [ChatCall].
-  Timer? ongoingCallTimer;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
@@ -74,7 +68,7 @@ class RenderAsChatCall extends StatefulWidget {
   final bool avatar;
 
   /// [UserId] of the authenticated [MyUser].
-  final UserId me;
+  final UserId? me;
 
   /// [User] posted this [item].
   final RxUser? rxUser;
@@ -95,6 +89,9 @@ class RenderAsChatCall extends StatefulWidget {
     double avatarOffset,
   }) rounded;
 
+  /// Starts the call timer.
+  final void Function() startCallTimer;
+
   @override
   State<RenderAsChatCall> createState() => _RenderAsChatCallState();
 }
@@ -106,15 +103,7 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing) {
-      widget.ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    } else {
-      widget.ongoingCallTimer?.cancel();
-    }
+    widget.startCallTimer();
 
     bool isMissed = false;
 

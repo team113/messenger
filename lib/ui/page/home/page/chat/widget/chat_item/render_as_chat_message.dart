@@ -43,9 +43,8 @@ import '../selection_text.dart';
 import 'chat_item.dart';
 
 /// [Widget] which renders [item] as [ChatMessage].
-// ignore: must_be_immutable
 class RenderAsChatMessage extends StatelessWidget {
-  RenderAsChatMessage({
+  const RenderAsChatMessage({
     super.key,
     required this.chat,
     required this.item,
@@ -65,10 +64,10 @@ class RenderAsChatMessage extends StatelessWidget {
     this.avatarOffset,
     this.onRepliedTap,
     this.onSelecting,
-    this.selection,
     this.onAttachmentError,
     this.onGallery,
     this.onFileTap,
+     this.onChanged,
   });
 
   /// Reactive value of a [Chat] this [item] is posted in.
@@ -97,15 +96,12 @@ class RenderAsChatMessage extends StatelessWidget {
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
 
-  ///
+  /// [Offset] for the avatar of the [ChatItemWidget.item].
   final double? avatarOffset;
 
   /// Indicator whether a [ChatItem.at] should be displayed within the
   /// [ChatItemWidget].
   final bool timestamp;
-
-  /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
-  SelectedContent? selection;
 
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
@@ -136,6 +132,9 @@ class RenderAsChatMessage extends StatelessWidget {
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
+
+  /// Callback, called when the [SelectionText] changes.
+  final void Function(SelectedContent?)? onChanged;
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
@@ -279,7 +278,8 @@ class RenderAsChatMessage extends StatelessWidget {
                     'dot'.l10n * 3,
                 selectable: PlatformUtils.isDesktop || menu,
                 onSelecting: onSelecting,
-                onChanged: (a) => selection = a,
+                onChanged: onChanged,
+                // onChanged: (a) => selection = a,
                 style: style.boldBody.copyWith(color: color),
               ),
             ),
@@ -308,7 +308,8 @@ class RenderAsChatMessage extends StatelessWidget {
                   ),
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: onSelecting,
-                  onChanged: (a) => selection = a,
+                  onChanged: onChanged,
+                  // onChanged: (a) => selection = a,
                   style: style.boldBody,
                 ),
               ),

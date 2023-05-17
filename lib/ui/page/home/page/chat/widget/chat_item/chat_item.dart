@@ -56,14 +56,14 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/page/home/page/chat/widget/animated_offset.dart';
+import '/ui/page/home/page/chat/widget/data_attachment.dart';
+import '/ui/page/home/page/chat/widget/media_attachment.dart';
+import '/ui/page/home/page/chat/widget/message_info/view.dart';
+import '/ui/page/home/page/chat/widget/message_timestamp.dart';
+import '/ui/page/home/page/chat/widget/selection_text.dart';
+import '/ui/page/home/page/chat/widget/swipeable_status.dart';
 import '/util/platform_utils.dart';
-import '../animated_offset.dart';
-import '../data_attachment.dart';
-import '../media_attachment.dart';
-import '../message_info/view.dart';
-import '../message_timestamp.dart';
-import '../selection_text.dart';
-import '../swipeable_status.dart';
 import 'render_as_chat_call.dart';
 import 'render_as_chat_info.dart';
 import 'render_as_chat_message.dart';
@@ -480,13 +480,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             avatarOffset: 0,
             timestamp: widget.timestamp,
             onSelecting: widget.onSelecting,
-            selection: _selection,
             galleryKeys: _galleryKeys,
             onAttachmentError: widget.onAttachmentError,
             onGallery: widget.onGallery,
             loadImages: widget.loadImages,
             onFileTap: widget.onFileTap,
             margin: widget.margin,
+            onChanged: (a) => _selection = a,
             rounded: _rounded,
             repliedMessage: _repliedMessage,
             timestampWidget: _timestamp,
@@ -499,7 +499,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           return SelectionContainer.disabled(
               child: RenderAsChatCall(
             item: widget.item,
-            ongoingCallTimer: _ongoingCallTimer,
             fromMe: _fromMe,
             isRead: _isRead,
             chat: widget.chat,
@@ -510,6 +509,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             margin: widget.margin,
             timestampWidget: _timestamp,
             rounded: _rounded,
+            startCallTimer: () => startCallTimer(_ongoingCallTimer),
           ));
         } else if (widget.item.value is ChatInfo) {
           return SelectionContainer.disabled(
@@ -1232,6 +1232,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       throw Exception(
         'Use `ChatForward` widget for rendering `ChatForward`s instead',
       );
+    }
+  }
+
+  /// Starts the [ongoingCallTimer].
+  void startCallTimer(Timer? ongoingCallTimer) {
+    var message = widget.item.value as ChatCall;
+
+    bool isOngoing =
+        message.finishReason == null && message.conversationStartedAt != null;
+
+    if (isOngoing) {
+      ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
+      ongoingCallTimer?.cancel();
     }
   }
 }

@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports, must_be_immutable
+// ignore_for_file: implementation_imports
 
 import 'dart:async';
 
@@ -71,7 +71,7 @@ class _MobileControlsState extends State<MobileControls>
   Timer? _showAfterExpandCollapseTimer;
 
   /// Indicator whether the video progress bar is being dragged.
-  final bool _dragging = false;
+  bool _dragging = false;
 
   @override
   void dispose() {
@@ -131,11 +131,27 @@ class _MobileControlsState extends State<MobileControls>
                     chewieController: _chewieController,
                     barHeight: _barHeight,
                     latestValue: _latestValue,
-                    latestVolume: _latestVolume,
                     hideTimer: _hideTimer,
-                    dragging: _dragging,
                     startHideTimer: _startHideTimer,
                     cancelAndRestartTimer: _cancelAndRestartTimer,
+                    onDragStart: () {
+                      setState(() => _dragging = true);
+                      _hideTimer?.cancel();
+                    },
+                    onDragEnd: () {
+                      setState(() => _dragging = false);
+                      _startHideTimer();
+                    },
+                    onTap: () {
+                      _cancelAndRestartTimer();
+
+                      if (_latestValue.volume == 0) {
+                        _controller.setVolume(_latestVolume ?? 0.5);
+                      } else {
+                        _latestVolume = _controller.value.volume;
+                        _controller.setVolume(0.0);
+                      }
+                    },
                   )
                 ],
               ),
@@ -277,17 +293,18 @@ class _MobileControlsState extends State<MobileControls>
 
 /// [Widget] which returns the bottom controls bar.
 class _BottomControlBar extends StatefulWidget {
-  _BottomControlBar({
+  const _BottomControlBar({
     required this.hideStuff,
     required this.controller,
     required this.chewieController,
     required this.barHeight,
     required this.latestValue,
-    required this.dragging,
     required this.startHideTimer,
     required this.cancelAndRestartTimer,
-    this.latestVolume,
     this.hideTimer,
+    this.onTap,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   /// Indicator whether user interface should be visible or not.
@@ -305,20 +322,23 @@ class _BottomControlBar extends StatefulWidget {
   /// Latest [VideoPlayerValue] value.
   final VideoPlayerValue latestValue;
 
-  /// Latest volume value.
-  double? latestVolume;
-
   /// [Timer], used to hide user interface after a timeout.
   final Timer? hideTimer;
-
-  /// Indicator whether the video progress bar is being dragged.
-  bool dragging;
 
   /// Starts the [hideTimer].
   final void Function() startHideTimer;
 
   /// Cancels the [hideTimer] and starts it again.
   final void Function() cancelAndRestartTimer;
+
+  /// Callback, called when a `mute` button is tapped.
+  final void Function()? onTap;
+
+  /// Callback, called when volume drag started.
+  final dynamic Function()? onDragStart;
+
+  /// Callback, called when volume drag ended.
+  final dynamic Function()? onDragEnd;
 
   @override
   State<_BottomControlBar> createState() => _BottomControlBarState();
@@ -404,16 +424,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
     return GestureDetector(
-      onTap: () {
-        widget.cancelAndRestartTimer();
-
-        if (widget.latestValue.volume == 0) {
-          widget.controller.setVolume(widget.latestVolume ?? 0.5);
-        } else {
-          widget.latestVolume = widget.controller.value.volume;
-          widget.controller.setVolume(0.0);
-        }
-      },
+      onTap: widget.onTap,
       child: AnimatedOpacity(
         opacity: widget.hideStuff ? 0.0 : 1.0,
         duration: const Duration(milliseconds: 300),
@@ -446,14 +457,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
         barHeight: 2,
         handleHeight: 6,
         drawShadow: true,
-        onDragStart: () {
-          setState(() => widget.dragging = true);
-          widget.hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => widget.dragging = false);
-          widget.startHideTimer();
-        },
+        onDragStart: widget.onDragStart,
+        onDragEnd: widget.onDragEnd,
         colors: widget.chewieController.materialProgressColors ??
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,

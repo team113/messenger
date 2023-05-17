@@ -40,7 +40,7 @@ class TimeLabel extends StatelessWidget {
   /// [DateTime]  that represents the time value.
   final DateTime time;
 
-  /// Sticky element index of a [FlutterListView] currently being visible.
+  /// Sticky element index of a [ListView] currently being visible.
   final RxnInt stickyIndex;
 
   /// Indicator whether sticky header should be visible or not.

@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports, must_be_immutable
+// ignore_for_file: implementation_imports
 
 import 'dart:async';
 import 'dart:ui';
@@ -108,7 +108,7 @@ class _DesktopControlsState extends State<DesktopControls>
   Timer? _showAfterExpandCollapseTimer;
 
   /// Indicator whether the video progress bar is being dragged.
-  final bool _dragging = false;
+  bool _dragging = false;
 
   @override
   void initState() {
@@ -201,16 +201,30 @@ class _DesktopControlsState extends State<DesktopControls>
                   chewieController: _chewieController,
                   barHeight: _barHeight,
                   latestValue: _latestValue,
-                  latestVolume: _latestVolume,
-                  dragging: _dragging,
                   volumeKey: _volumeKey,
                   hideTimer: _hideTimer,
-                  volumeEntry: _volumeEntry,
                   isFullscreen: widget.isFullscreen,
                   playPause: _playPause,
                   startHideTimer: _startHideTimer,
                   cancelAndRestartTimer: _cancelAndRestartTimer,
                   onExpandCollapse: _onExpandCollapse,
+                  onTap: () {
+                    _cancelAndRestartTimer();
+                    if (_latestValue.volume == 0) {
+                      _controller.setVolume(_latestVolume ?? 0.5);
+                    } else {
+                      _latestVolume = _controller.value.volume;
+                      _controller.setVolume(0.0);
+                    }
+                  },
+                  onDragStart: () {
+                    setState(() => _dragging = true);
+                    _hideTimer?.cancel();
+                  },
+                  onDragEnd: () {
+                    setState(() => _dragging = false);
+                    _startHideTimer();
+                  },
                 )
               ],
             ),
@@ -379,9 +393,9 @@ class _DesktopControlsState extends State<DesktopControls>
   }
 }
 
-/// Returns the bottom controls bar.
+/// [Widget] which returns the bottom controls bar.
 class _BottomControlBar extends StatefulWidget {
-  _BottomControlBar({
+  const _BottomControlBar({
     required this.showBottomBar,
     required this.showInterface,
     required this.controller,
@@ -389,15 +403,15 @@ class _BottomControlBar extends StatefulWidget {
     required this.playPause,
     required this.barHeight,
     required this.latestValue,
-    required this.dragging,
     required this.startHideTimer,
     required this.volumeKey,
     required this.cancelAndRestartTimer,
     required this.onExpandCollapse,
     this.hideTimer,
-    this.volumeEntry,
-    this.latestVolume,
     this.isFullscreen,
+    this.onDragStart,
+    this.onDragEnd,
+    this.onTap,
   });
 
   /// Indicator whether the bottom controls bar should be visible or not.
@@ -422,17 +436,11 @@ class _BottomControlBar extends StatefulWidget {
   /// Latest [VideoPlayerValue] value.
   final VideoPlayerValue latestValue;
 
-  /// Indicator whether the video progress bar is being dragged.
-  bool dragging;
-
   /// [Timer] for hiding the user interface after a timeout.
   final Timer? hideTimer;
 
   /// Starts the [hideTimer].
   final void Function([Duration? duration]) startHideTimer;
-
-  /// [OverlayEntry] of the volume popup bar.
-  OverlayEntry? volumeEntry;
 
   /// [GlobalKey] of the [volumeEntry].
   final GlobalKey<State<StatefulWidget>> volumeKey;
@@ -440,20 +448,29 @@ class _BottomControlBar extends StatefulWidget {
   /// Cancels the [_hideTimer] and starts it again.
   final void Function() cancelAndRestartTimer;
 
-  /// Latest volume value.
-  double? latestVolume;
-
   /// Invokes a fullscreen toggle action.
   final void Function() onExpandCollapse;
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
+  /// Callback, called when a `mute` button is tapped.
+  final void Function()? onTap;
+
+  /// Callback, called when volume drag started.
+  final dynamic Function()? onDragStart;
+
+  /// Callback, called when volume drag ended.
+  final dynamic Function()? onDragEnd;
+
   @override
   State<_BottomControlBar> createState() => _BottomControlBarState();
 }
 
 class _BottomControlBarState extends State<_BottomControlBar> {
+  /// [OverlayEntry] of the volume popup bar.
+  OverlayEntry? _volumeEntry;
+
   @override
   Widget build(BuildContext context) {
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
@@ -535,14 +552,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
         barHeight: 2,
         handleHeight: 6,
         drawShadow: false,
-        onDragStart: () {
-          setState(() => widget.dragging = true);
-          widget.hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => widget.dragging = false);
-          widget.startHideTimer();
-        },
+        onDragStart: widget.onDragStart,
+        onDragEnd: widget.onDragEnd,
         colors: widget.chewieController.materialProgressColors ??
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
@@ -566,8 +577,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
             opaque: false,
             onExit: (d) {
               if (mounted) {
-                widget.volumeEntry?.remove();
-                widget.volumeEntry = null;
+                _volumeEntry?.remove();
+                _volumeEntry = null;
                 setState(() {});
               }
             },
@@ -618,7 +629,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
   Widget _buildMuteButton(VideoPlayerController controller) {
     return MouseRegion(
       onEnter: (_) {
-        if (mounted && widget.volumeEntry == null) {
+        if (mounted && _volumeEntry == null) {
           Offset offset = Offset.zero;
           final keyContext = widget.volumeKey.currentContext;
           if (keyContext != null) {
@@ -626,22 +637,13 @@ class _BottomControlBarState extends State<_BottomControlBar> {
             offset = box.localToGlobal(Offset.zero);
           }
 
-          widget.volumeEntry =
-              OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true).insert(widget.volumeEntry!);
+          _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
+          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
           setState(() {});
         }
       },
       child: GestureDetector(
-        onTap: () {
-          widget.cancelAndRestartTimer();
-          if (widget.latestValue.volume == 0) {
-            controller.setVolume(widget.latestVolume ?? 0.5);
-          } else {
-            widget.latestVolume = controller.value.volume;
-            controller.setVolume(0.0);
-          }
-        },
+        onTap: widget.onTap,
         child: ClipRect(
           child: SizedBox(
             key: widget.volumeKey,
