@@ -62,9 +62,6 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
               .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
@@ -195,13 +192,18 @@ class AuthView extends StatelessWidget {
                             ...header,
                             Flexible(
                               child: Obx(
-                                () => AnimatedLogo(
-                                  key: const ValueKey('Logo'),
-                                  svgAsset:
-                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                  onInit: Config.disableInfiniteAnimations
-                                      ? null
-                                      : (a) => _setBlink(c, a),
+                                () => InkWell(
+                                  onTap: () {
+                                    router.go(Routes.style);
+                                  },
+                                  child: AnimatedLogo(
+                                    key: const ValueKey('Logo'),
+                                    svgAsset:
+                                        'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                    onInit: Config.disableInfiniteAnimations
+                                        ? null
+                                        : (a) => _setBlink(c, a),
+                                  ),
                                 ),
                               ),
                             ),

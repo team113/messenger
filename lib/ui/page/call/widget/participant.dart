@@ -173,10 +173,7 @@ class ParticipantWidget extends StatelessWidget {
           ? CircleAvatar(
               radius: 45,
               backgroundColor: style.colors.secondaryOpacity87,
-              child: SvgImage.asset(
-                'assets/icons/hand_up.svg',
-                width: 90,
-              ),
+              child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
             )
           : Container(),
     );
@@ -416,7 +413,9 @@ class ParticipantDecoratorWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: style.colors.onBackgroundOpacity20, width: 0.5),
+                  color: style.colors.onBackgroundOpacity20,
+                  width: 0.5,
+                ),
               ),
               child: const IgnorePointer(),
             ),

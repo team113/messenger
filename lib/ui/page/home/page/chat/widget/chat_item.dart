@@ -187,6 +187,7 @@ class ChatItemWidget extends StatefulWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     final bool isLocal = e is LocalAttachment;
+
     final bool isVideo;
     if (isLocal) {
       isVideo = e.file.isVideo;
@@ -751,12 +752,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.secondary),
+                style: style.systemMessageStyle.copyWith(
+                  color: style.colors.secondary,
+                ),
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessageStyle.copyWith(
+              color: style.colors.primary,
+            ),
           ),
         );
         break;

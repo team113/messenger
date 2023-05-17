@@ -22,13 +22,10 @@ import 'package:flutter/services.dart';
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
-    /// All the necessary properties of [Color]s that are used in various
-    /// elements of the application interface
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
       primaryHighlight: Colors.blue,
-      primaryHighlightShiny: const Color(0xFF00A3FF),
-      primaryHighlightShinyAuxiliary: const Color(0xFF58A6EF),
+      primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShinier: const Color(0xFFB6DCFF),
       primaryHighlightShiniest: const Color(0xFFDBEAFD),
       onPrimary: Colors.white,
@@ -66,7 +63,7 @@ class Themes {
       ],
     );
 
-    TextStyle textStyle = TextStyle(
+    final TextStyle textStyle = TextStyle(
       fontFamily: 'SFUI',
       fontFamilyFallback: const ['.SF UI Display'],
       color: colors.onBackground,
@@ -74,7 +71,9 @@ class Themes {
       fontWeight: FontWeight.w400,
     );
 
-    return ThemeData.light().copyWith(
+    final ThemeData theme = ThemeData.light();
+
+    return theme.copyWith(
         extensions: [
           Style(
             colors: colors,
@@ -92,10 +91,8 @@ class Themes {
               width: 0.5,
             ),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedBorder: Border.all(
-              color: colors.primaryHighlightShinyAuxiliary,
-              width: 0.5,
-            ),
+            cardSelectedBorder:
+                Border.all(color: colors.primaryHighlightShiny, width: 0.5),
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
@@ -129,38 +126,35 @@ class Themes {
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
-        appBarTheme: ThemeData.light().appBarTheme.copyWith(
-              backgroundColor: colors.primaryHighlightShiniest,
-              foregroundColor: colors.secondary,
-              iconTheme: ThemeData.light().appBarTheme.iconTheme?.copyWith(
-                    color: colors.secondary,
-                  ),
-              actionsIconTheme:
-                  ThemeData.light().appBarTheme.iconTheme?.copyWith(
-                        color: colors.secondary,
-                      ),
-              systemOverlayStyle: SystemUiOverlayStyle(
-                systemNavigationBarColor: colors.primaryHighlight,
-                statusBarColor: colors.transparent,
-              ),
-              elevation: 0,
-              centerTitle: true,
-              titleTextStyle: textStyle.copyWith(
-                color: colors.onBackground,
-                fontWeight: FontWeight.w300,
-                fontSize: 18,
-              ),
-            ),
-        tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
-              labelColor: colors.primary,
-              unselectedLabelColor: colors.secondary,
-            ),
+        appBarTheme: theme.appBarTheme.copyWith(
+          backgroundColor: colors.primaryHighlightShiniest,
+          foregroundColor: colors.secondary,
+          iconTheme: theme.appBarTheme.iconTheme?.copyWith(
+            color: colors.secondary,
+          ),
+          actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
+            color: colors.secondary,
+          ),
+          systemOverlayStyle: SystemUiOverlayStyle(
+            systemNavigationBarColor: colors.primaryHighlight,
+            statusBarColor: colors.transparent,
+          ),
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: textStyle.copyWith(
+            color: colors.onBackground,
+            fontWeight: FontWeight.w300,
+            fontSize: 18,
+          ),
+        ),
+        tabBarTheme: theme.tabBarTheme.copyWith(
+          labelColor: colors.primary,
+          unselectedLabelColor: colors.secondary,
+        ),
         primaryIconTheme: const IconThemeData.fallback().copyWith(
           color: colors.secondary,
         ),
-        iconTheme: ThemeData.light().iconTheme.copyWith(
-              color: colors.onBackground,
-            ),
+        iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
           displayLarge: textStyle.copyWith(
             color: colors.secondary,
@@ -200,93 +194,90 @@ class Themes {
             fontSize: 13,
           ),
         ),
-        inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
-              focusColor: colors.primary,
-              hoverColor: colors.transparent,
-              fillColor: colors.primary,
-              hintStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              labelStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              errorStyle:
-                  textStyle.copyWith(color: colors.dangerColor, fontSize: 13),
-              helperStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              prefixStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              suffixStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              counterStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 13,
-                fontWeight: FontWeight.w300,
-              ),
-              floatingLabelStyle: textStyle.copyWith(
-                color: colors.secondaryHighlightDarkest,
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
-              ),
-              errorMaxLines: 5,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  width: 2,
-                  color: colors.secondaryHighlightDark,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
-                ),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  color: colors.secondaryHighlightDark,
-                ),
-              ),
+        inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+          focusColor: colors.primary,
+          hoverColor: colors.transparent,
+          fillColor: colors.primary,
+          hintStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          labelStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          errorStyle:
+              textStyle.copyWith(color: colors.dangerColor, fontSize: 13),
+          helperStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          prefixStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          suffixStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          counterStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+          floatingLabelStyle: textStyle.copyWith(
+            color: colors.secondaryHighlightDarkest,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          errorMaxLines: 5,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(
+              width: 2,
+              color: colors.secondaryHighlightDark,
             ),
-        textSelectionTheme: ThemeData.light().textSelectionTheme.copyWith(
-              cursorColor: colors.primary,
-              selectionHandleColor: colors.primary,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(
+              color: colors.secondaryHighlightDark,
             ),
-        floatingActionButtonTheme:
-            ThemeData.light().floatingActionButtonTheme.copyWith(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                ),
-        bottomNavigationBarTheme:
-            ThemeData.light().bottomNavigationBarTheme.copyWith(
-                  backgroundColor: colors.primaryHighlightShiniest,
-                  selectedItemColor: colors.primary,
-                  unselectedItemColor: colors.secondary,
-                ),
-        progressIndicatorTheme:
-            ThemeData.light().progressIndicatorTheme.copyWith(
-                  color: colors.primary,
-                ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(
+              color: colors.secondaryHighlightDark,
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(
+              color: colors.secondaryHighlightDark,
+            ),
+          ),
+        ),
+        textSelectionTheme: theme.textSelectionTheme.copyWith(
+          cursorColor: colors.primary,
+          selectionHandleColor: colors.primary,
+        ),
+        floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
+        ),
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: colors.primaryHighlightShiniest,
+          selectedItemColor: colors.primary,
+          unselectedItemColor: colors.secondary,
+        ),
+        progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
+          color: colors.primary,
+        ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.secondary,
@@ -325,18 +316,18 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
-              interactive: true,
-              thickness: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.dragged) ||
-                    states.contains(MaterialState.hovered)) {
-                  return 6;
-                }
+        scrollbarTheme: theme.scrollbarTheme.copyWith(
+          interactive: true,
+          thickness: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.dragged) ||
+                states.contains(MaterialState.hovered)) {
+              return 6;
+            }
 
-                return 4;
-              }),
-            ),
-        radioTheme: ThemeData.light().radioTheme.copyWith(
+            return 4;
+          }),
+        ),
+        radioTheme: theme.radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
               return Colors.white;
@@ -494,13 +485,6 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
-    Color? transparent,
-    Color? acceptColor,
-    Color? acceptAuxiliaryColor,
-    Color? declineColor,
-    Color? dangerColor,
-    Color? warningColor,
-    List<Color>? userColors,
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
@@ -603,13 +587,12 @@ class Style extends ThemeExtension<Style> {
   }
 }
 
-/// Set of properties representing the colors of the application.
+/// [Color]s used throughout the application.
 class Palette {
   Palette({
     required this.primary,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
-    required this.primaryHighlightShinyAuxiliary,
     required this.primaryHighlightShinier,
     required this.primaryHighlightShiniest,
     required this.onPrimary,
@@ -696,144 +679,143 @@ class Palette {
         onBackgroundOpacity63 =
             onBackgroundOpacity63 ?? onBackground.withOpacity(0.63);
 
-  /// Main [Color] of the application.
+  /// Primary [Color] of the application.
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
 
-  /// Background [Color] of elements associated with the [primary] color.
+  /// [Color] for elements to put above the [primary] color.
   ///
-  /// Used for - button background, pop-ups, dialog boxes, etc.
-  final Color secondaryBackground;
-
-  /// Light shade of the primary background [Color].
-  final Color secondaryBackgroundLight;
-
-  /// Lightest shade of the primary background [Color].
-  final Color secondaryBackgroundLightest;
-
-  /// [Color] for highlighting UI elements, used to highlight the active
-  /// elements.
-  final Color secondaryHighlight;
-
-  /// Dark shade of the accent [Color]. Used to create contrast and depth
-  /// effect.
-  final Color secondaryHighlightDark;
-
-  /// Darkest shade of the main accent [Color].
-  ///
-  /// Used to emphasize buttons, labels, or other user interface elements
-  /// that should be highlighted and easily visible to the user.
-  final Color secondaryHighlightDarkest;
-
-  /// 87% opacity of the [primary] color.
-  ///
-  /// Used for - [RtcVideoView], [ElementStyleTabView], .
-  final Color secondaryOpacity87;
-
-  /// 73% opacity of the [primary] color.
-  ///
-  /// Used for - [HintWidget] elements.
-  final Color secondaryOpacity73;
-
-  /// [Color] that is used for elements that are displayed on top
-  /// of the main color of the application.
-  ///
-  /// Used for - text on buttons and icons.
+  /// Used for texts on [primary] buttons and icons.
   final Color onPrimary;
 
-  /// 7% opacity of the [onPrimary] color.
+  // TODO: Review if might be removed.
+  /// 80% opacity of the [onPrimary] color.
   ///
-  /// Used for - [DragTarget] boxes, [DecorationTween], etc.
-  final Color onPrimaryOpacity7;
+  /// Used for text in [MobileControls].
+  final Color onPrimaryOpacity80;
+
+  // TODO: Review if might be removed.
+  /// 60% opacity of the [onPrimary] color.
+  ///
+  /// Used as a pull to open container color in mobile call.
+  final Color onPrimaryOpacity60;
+
+  // TODO: Review if might be removed.
+  /// 50% opacity of the [onPrimary] color.
+  ///
+  /// Used as a border to highlight the answer call button.
+  final Color onPrimaryOpacity50;
+
+  // TODO: Review if might be removed.
+  /// 40% opacity of the [onPrimary] color.
+  ///
+  /// Used as a header background in a [MessageFieldView].
+  final Color onPrimaryOpacity40;
 
   /// 25% opacity of the [onPrimary] color.
   ///
-  /// Used for - [BoxDecoration].
+  /// Used as a replied message background in [ChatItemWidget].
   final Color onPrimaryOpacity25;
 
-  /// 40% opacity of the [onPrimary] color.
+  /// 7% opacity of the [onPrimary] color.
   ///
-  /// Used for - [MessageFieldView] containers.
-  final Color onPrimaryOpacity40;
+  /// Used to highlight some [DragTarget]s and backgrounds.
+  final Color onPrimaryOpacity7;
 
-  /// 50% opacity of the [onPrimary] color.
+  /// Highlight [Color] of the [primary] elements.
   ///
-  /// Used for - [AcceptVideoButton], [ChewieProgressColors] etc.
-  final Color onPrimaryOpacity50;
-
-  /// 60% opacity of the [onPrimary] color.
-  ///
-  /// Used for - [mobileCall] boxes.
-  final Color onPrimaryOpacity60;
-
-  /// 80% opacity of the [onPrimary] color.
-  ///
-  /// Used for - [MobileControls] text.
-  final Color onPrimaryOpacity80;
-
-  /// [Color] is used to combine with the main color, giving the interface a
-  /// nice and balanced look.
-  ///
-  /// Used for - lists, the background of some elements and other additional
-  /// interface elements.
-  final Color secondary;
-
-  /// Highlight [Color] of the secondary element.
-  ///
-  /// Used to highlight secondary elements when hovering or when activated.
+  /// Used to highlight [primary] elements when hovering or activated.
   final Color primaryHighlight;
 
-  /// Glowing tone of secondary [Color] that is used to draw the user's
-  /// attention to an area of the screen that contains important information.
+  /// Highlight [Color] to draw attention to specific [primary] elements.
+  ///
+  /// Used as a border of the selected [ChatTile]s and [ContactTile]s.
   final Color primaryHighlightShiny;
 
-  /// Highlight [Color] to draw attention to specific elements in the UI.
+  // TODO: Review if might be removed.
+  /// Shinier highlight [Color] to draw attention to specific [primary]
+  /// elements.
   ///
-  /// Used for - [ChatTile], [ContactTile].
-  final Color primaryHighlightShinyAuxiliary;
-
-  /// [Color] used to highlight or highlight interface elements of secondary
-  /// importance with a brighter sheen.
+  /// Used for background dimming in a non-active call.
   final Color primaryHighlightShinier;
 
-  /// Most brilliant and contrasting secondary highlight [Color].
+  /// The shiniest and most contrasting [primary] highlight [Color].
   ///
-  /// Used as a background or to highlight certain elements.
+  /// Used to highlight read [ChatMessage]s and [ChatForward]s.
   final Color primaryHighlightShiniest;
 
-  /// [Color] that is displayed on a secondary color background.
+  /// Secondary [Color] used alongside with [primary].
   ///
-  /// Used as an accent color for the interface and does not cause eye strain.
+  /// Used for texts, icons, outlines.
+  final Color secondary;
+
+  /// Background [Color] of the [secondary] elements.
+  ///
+  /// Used for buttons background, pop-ups, dialog boxes.
+  final Color secondaryBackground;
+
+  /// Light shade of the [secondaryBackground] color.
+  final Color secondaryBackgroundLight;
+
+  /// Lightest shade of the [secondaryBackground].
+  final Color secondaryBackgroundLightest;
+
+  /// [Color] highlighting the active [secondary] elements.
+  final Color secondaryHighlight;
+
+  /// Dark shade of the [secondaryHighlight].
+  ///
+  /// Used to create contrast and depth effect.
+  final Color secondaryHighlightDark;
+
+  /// Darkest shade of the [secondaryHighlight].
+  ///
+  /// Used to emphasize buttons, labels, or other user interface elements.
+  final Color secondaryHighlightDarkest;
+
+  // TODO: Review if might be removed.
+  /// 87% opacity of the [secondary] color.
+  ///
+  /// Used as the muted indicator background in calls.
+  final Color secondaryOpacity87;
+
+  // TODO: Review if might be removed.
+  /// 73% opacity of the [secondary] color.
+  ///
+  /// Used as a text color in [HintWidget]s.
+  final Color secondaryOpacity73;
+
+  /// [Color] for elements to put above the [secondary] color.
   final Color onSecondary;
 
   /// 88% opacity of the [onSecondary] color.
   ///
-  /// Used for - [CallController.panel] box, [SlidingUpPanel], etc.
+  /// Used as a hovered mobile call panel and desktop call launchpad background.
   final Color onSecondaryOpacity88;
 
   /// 60% opacity of the [onSecondary] color.
   ///
-  /// Used for - [desktopCall] boxes, [SlidingUpPanel], etc.
+  /// Used as a mobile call panel and desktop call launchpad background.
   final Color onSecondaryOpacity60;
 
   /// 50% opacity of the [onSecondary] color.
   ///
-  /// Used for - [CallButton], [chat] card, [GalleryPopup] interface, etc.
+  /// Used for [CallButton]s and [GalleryPopup] buttons.
   final Color onSecondaryOpacity50;
 
+  // TODO: Review if might be removed.
   /// 30% opacity of the [onSecondary] color.
   ///
-  /// Used for - [desktopCall] elements, [ParticipantOverlayWidget] tooltip,
-  /// etc.
+  /// Used as a possible alignment container highlight in desktop call.
   final Color onSecondaryOpacity30;
 
   /// 20% opacity of the [onSecondary] color.
   ///
-  /// Used for - [dock], [Selector] hover, etc.
+  /// Used as a [Dock] color.
   final Color onSecondaryOpacity20;
 
-  /// Used to set the background [Color] for the overall look.
+  /// Background [Color] of the application.
   final Color background;
 
   /// [Color] responsible for the helper background color.
@@ -843,6 +825,8 @@ class Palette {
   final Color backgroundAuxiliary;
 
   /// Slightly lighter [Color] than the standard [backgroundAuxiliary] color.
+  ///
+  /// Used in a secondary call panel.
   final Color backgroundAuxiliaryLight;
 
   /// [Color] represents an even lighter shade than the standard
@@ -853,75 +837,72 @@ class Palette {
   /// color.
   final Color backgroundAuxiliaryLightest;
 
-  /// Neutral [Color] that does not compete with the main content of the
-  /// application.
-  ///
-  /// For example for text, BoxShadow's, etc.
+  /// [Color] for elements to put above the [background] color.
   final Color onBackground;
 
-  /// 2% opacity of the [onBackground] color.
+  // TODO: Review if might be removed.
+  /// 63% opacity of the [onBackground] color.
   ///
-  /// Used for - [mobileCall], [ColoredBox], etc.
-  final Color onBackgroundOpacity2;
-
-  /// 7% opacity of the [onBackground] color.
-  ///
-  /// Used for - [ColoredBox], [AddContactListTile] selectedTileColor, etc.
-  final Color onBackgroundOpacity7;
-
-  /// 13% opacity of the [onBackground] color.
-  ///
-  /// Used for - [CustomBoxShadow], [MessageFieldView], [DesktopControls]
-  /// buildHitArea, etc.
-  final Color onBackgroundOpacity13;
-
-  /// 20% opacity of the [onBackground] color.
-  ///
-  /// Used for - [ParticipantDecoratorWidget], [CustomBoxShadow], etc.
-  final Color onBackgroundOpacity20;
-
-  /// 27% opacity of the [onBackground] color.
-  ///
-  /// Used for - [desktopCall] secondary panel shadow, [HintWidget] card shadow,
-  /// etc.
-  final Color onBackgroundOpacity27;
-
-  /// 33% opacity of the [onBackground] color.
-  ///
-  /// Used for - [ChatView] id, [ChatInfoView], etc.
-  final Color onBackgroundOpacity33;
-
-  /// 40% opacity of the [onBackground] color.
-  ///
-  /// Used for - mobile and desktop [ChatView] bottom bar, etc.
-  final Color onBackgroundOpacity40;
-
-  /// 50% opacity of the [onBackground] color.
-  ///
-  /// Used for - [MessageFieldView] attachment.
-  final Color onBackgroundOpacity50;
+  /// Used as a connecting participant background.
+  final Color onBackgroundOpacity63;
 
   /// 56% opacity of the [onBackground] color.
   ///
-  /// Used for - [CallView] primary view, [ParticipantWidget] elements, etc.
+  /// Used as a redialing participant background.
   final Color onBackgroundOpacity56;
 
-  /// 63% opacity of the [onBackground] color.
+  // TODO: Review if might be removed.
+  /// 50% opacity of the [onBackground] color.
   ///
-  /// Used for - [mobileCall] and [ParticipantWidget] elements.
-  final Color onBackgroundOpacity63;
+  /// Used as a play video circle button background.
+  final Color onBackgroundOpacity50;
+
+  /// 40% opacity of the [onBackground] color.
+  ///
+  /// Used as a video player controls background.
+  final Color onBackgroundOpacity40;
+
+  // TODO: Unify shadow colors.
+  /// 33% opacity of the [onBackground] color.
+  ///
+  /// Used as a shadow [Color] in some elements.
+  final Color onBackgroundOpacity33;
+
+  /// 27% opacity of the [onBackground] color.
+  ///
+  /// Used as a shadow [Color] in some elements.
+  final Color onBackgroundOpacity27;
+
+  /// 20% opacity of the [onBackground] color.
+  ///
+  /// Used as a shadow and border [Color] in some elements, elevation of
+  /// [ChatTile]s and [ContactTile]s.
+  final Color onBackgroundOpacity20;
+
+  /// 13% opacity of the [onBackground] color.
+  ///
+  /// Used as a shadow [Color] in some elements.
+  final Color onBackgroundOpacity13;
+
+  /// 7% opacity of the [onBackground] color.
+  ///
+  /// Used as a divider color in [ContextMenu].
+  final Color onBackgroundOpacity7;
+
+  /// 2% opacity of the [onBackground] color.
+  ///
+  /// Used as a shadow in [RetryImage]s and [ContextMenu]s, background of a
+  /// replied message.
+  final Color onBackgroundOpacity2;
 
   /// Completely transparent [Color] that has no visible saturation or
   /// brightness.
-  ///
-  /// Used to indicate the absence of a color or background of the element on
-  /// which it is used.
   final Color transparent;
 
   /// Indicator of an affirmative color to visually confirm elements of the user
   /// interface.
   ///
-  /// For example, for the "Accept call" buttons.
+  /// Used in accept call button.
   final Color acceptColor;
 
   /// [Color] is used as an auxiliary color to display pleasant action
@@ -931,24 +912,19 @@ class Palette {
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
   ///
-  /// For example, on the "Cancel call" button.
+  /// Used in decline call button.
   final Color declineColor;
 
   /// [Color] used to indicate dangerous or critical elements in the user
   /// interface.
-  ///
-  /// Used for error messages or warnings about a potential threat.
   final Color dangerColor;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warningColor;
 
-  /// [Colors] refer to the range of colors that can be used for a profile
-  /// picture.
+  /// [Color]s associated with the [User].
   ///
-  /// These colors may predefine or customizable and are selected to help
-  /// differentiate between users or to provide a visual cue for different types
-  /// of accounts.
+  /// Used for [AvatarWidget]s and [UserName]s.
   final List<Color> userColors;
 
   /// Linear interpolation between two [Palette] objects based on a given [t]
@@ -963,10 +939,8 @@ class Palette {
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
       primaryHighlightShiny: Color.lerp(
-          color.primaryHighlightShiny, other.primaryHighlightShiny, t)!,
-      primaryHighlightShinyAuxiliary: Color.lerp(
-        color.primaryHighlightShinyAuxiliary,
-        other.primaryHighlightShinyAuxiliary,
+        color.primaryHighlightShiny,
+        other.primaryHighlightShiny,
         t,
       )!,
       primaryHighlightShinier: Color.lerp(

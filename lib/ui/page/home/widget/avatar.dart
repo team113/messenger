@@ -337,7 +337,7 @@ class AvatarWidget extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
-      Color? gradient;
+      final Color gradient;
 
       if (color != null) {
         gradient =

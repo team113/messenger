@@ -185,6 +185,7 @@ class AddPhoneView extends StatelessWidget {
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,
+                        color: style.colors.primary,
                       );
                     }),
                   ],
