@@ -192,18 +192,13 @@ class AuthView extends StatelessWidget {
                             ...header,
                             Flexible(
                               child: Obx(
-                                () => InkWell(
-                                  onTap: () {
-                                    router.go(Routes.style);
-                                  },
-                                  child: AnimatedLogo(
-                                    key: const ValueKey('Logo'),
-                                    svgAsset:
-                                        'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                    onInit: Config.disableInfiniteAnimations
-                                        ? null
-                                        : (a) => _setBlink(c, a),
-                                  ),
+                                () => AnimatedLogo(
+                                  key: const ValueKey('Logo'),
+                                  svgAsset:
+                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                  onInit: Config.disableInfiniteAnimations
+                                      ? null
+                                      : (a) => _setBlink(c, a),
                                 ),
                               ),
                             ),
