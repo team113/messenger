@@ -73,6 +73,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.user,
     this.animation,
     this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -117,6 +118,10 @@ class ChatForwardWidget extends StatefulWidget {
   /// Indicator whether a [ChatItem.at] should be displayed within this
   /// [ChatForwardWidget].
   final bool timestamp;
+
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of these [forwards] is triggered.
   final void Function()? onHide;
@@ -383,11 +388,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       final Style style = Theme.of(context).extension<Style>()!;
 
-      final Color color = widget.user?.user.value.id == widget.me
-          ? Theme.of(context).colorScheme.secondary
-          : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              AvatarWidget.colors.length];
-
       List<Widget> content = [];
       List<Attachment> attachments = [];
 
@@ -579,50 +579,65 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
             child: Stack(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                        child: IntrinsicWidth(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Flexible(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 12,
-                                        right: 9,
-                                      ),
-                                      child: SelectionText(
-                                        widget.user?.user.value.name?.val ??
-                                            widget.user?.user.value.num.val ??
-                                            'dot'.l10n * 3,
-                                        selectable:
-                                            PlatformUtils.isDesktop || menu,
-                                        onChanged: (a) => _selection = a,
-                                        onSelecting: widget.onSelecting,
-                                        style: style.boldBody
-                                            .copyWith(color: color),
-                                      ),
+                FutureBuilder<RxUser?>(
+                    future: widget.getUser?.call(quote.author),
+                    builder: (context, snapshot) {
+                      final Color color = snapshot.data?.user.value.id ==
+                              widget.me
+                          ? Theme.of(context).colorScheme.secondary
+                          : AvatarWidget.colors[
+                              (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                  AvatarWidget.colors.length];
+
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                              child: IntrinsicWidth(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 12,
+                                              right: 9,
+                                            ),
+                                            child: SelectionText(
+                                              widget.user?.user.value.name?.val ??
+                                                  widget.user?.user.value.num
+                                                      .val ??
+                                                  'dot'.l10n * 3,
+                                              selectable:
+                                                  PlatformUtils.isDesktop ||
+                                                      menu,
+                                              onChanged: (a) => _selection = a,
+                                              onSelecting: widget.onSelecting,
+                                              style: style.boldBody
+                                                  .copyWith(color: color),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(
+                                        height: attachments.isNotEmpty ? 6 : 3),
+                                    ...content,
+                                  ],
+                                ),
                               ),
-                              SizedBox(height: attachments.isNotEmpty ? 6 : 3),
-                              ...content,
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                        ],
+                      );
+                    }),
                 Positioned(
                   right: timeInBubble ? 15 : 8,
                   bottom: timeInBubble ? 13 : 4,
@@ -826,10 +841,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (user != null) {
           avatars.add(
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: widget.user == null
-                    ? AvatarWidget.fromUser(user, radius: 10)
-                    : AvatarWidget.fromRxUser(widget.user, radius: 10)),
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: FutureBuilder<RxUser?>(
+                future: widget.getUser?.call(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                  }
+                  return AvatarWidget.fromUser(user, radius: 10);
+                },
+              ),
+            ),
           );
         }
       }
