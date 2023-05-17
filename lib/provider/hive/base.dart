@@ -88,7 +88,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Removes all entries from the [Box].
   @mustCallSuper
   Future<void> clear() => _mutex.protect(() async {
-        if (_isReady) {
+        if (_isReady && _box.isOpen) {
           await box.clear();
         }
       });
