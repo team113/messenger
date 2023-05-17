@@ -67,7 +67,7 @@ class RenderAsChatMessage extends StatelessWidget {
     this.onAttachmentError,
     this.onGallery,
     this.onFileTap,
-     this.onChanged,
+    this.onChanged,
   });
 
   /// Reactive value of a [Chat] this [item] is posted in.
