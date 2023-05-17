@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../page/user/widget/dense.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import 'dense.dart';
 
 /// [Widget] which builds a stylized button representing a single action.
 class ActionWidget extends StatelessWidget {

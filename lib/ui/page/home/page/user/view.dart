@@ -227,12 +227,12 @@ class UserView extends StatelessWidget {
                             blacklistStatus: c.blacklistStatus,
                             user: c.user,
                             isBlacklisted: c.isBlacklisted,
-                            addToContacts: c.addToContacts,
-                            unblacklist: c.unblacklist,
-                            favoriteContact: c.favoriteContact,
-                            unfavoriteContact: c.unfavoriteContact,
-                            muteChat: c.muteChat,
-                            unmuteChat: c.unmuteChat,
+                            addToContacts: () => c.addToContacts(),
+                            unblacklist: () => c.unblacklist(),
+                            favoriteContact: () => c.favoriteContact(),
+                            unfavoriteContact: () => c.unfavoriteContact(),
+                            muteChat: () => c.muteChat(),
+                            unmuteChat: () => c.unmuteChat(),
                             removeFromContacts: () =>
                                 _removeFromContacts(c, context),
                             hideChat: () => _hideChat(c, context),
@@ -253,7 +253,7 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: BlockedField(unblacklist: c.unblacklist),
+                  child: BlockedField(unblacklist: () => c.unblacklist()),
                 );
               }),
             );
