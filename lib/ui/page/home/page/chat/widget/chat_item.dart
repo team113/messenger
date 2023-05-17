@@ -74,6 +74,7 @@ class ChatItemWidget extends StatefulWidget {
     super.key,
     required this.item,
     required this.chat,
+    required this.authorId,
     required this.me,
     this.user,
     this.avatar = true,
@@ -102,6 +103,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Reactive value of a [Chat] this [item] is posted in.
   final Rx<Chat?> chat;
+
+  /// [UserId] of the [user] who posted this [item].
+  final UserId authorId;
 
   /// [UserId] of the authenticated [MyUser].
   final UserId me;
@@ -466,7 +470,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             'Use `ChatForward` widget for rendering `ChatForward`s instead',
           );
         } else if (widget.item.value is ChatCall) {
-          return SelectionContainer.disabled(child: _renderAsChatCall(context));
+          return _renderAsChatCall(context);
         } else if (widget.item.value is ChatInfo) {
           return SelectionContainer.disabled(child: _renderAsChatInfo());
         }
@@ -826,10 +830,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                    child: SelectionText(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
+                    child: SelectionText.rich(
+                      TextSpan(
+                        text: widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap =
+                              () => router.user(widget.authorId, push: true),
+                      ),
                       selectable: PlatformUtils.isDesktop || menu,
                       onSelecting: widget.onSelecting,
                       onChanged: (a) => _selection = a,
@@ -941,12 +950,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     ...files.expand(
                       (e) => [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          child: ChatItemWidget.fileAttachment(
-                            e,
-                            onFileTap: widget.onFileTap,
-                          ),
+                        ChatItemWidget.fileAttachment(
+                          e,
+                          onFileTap: widget.onFileTap,
                         ),
                         if (files.last != e) const SizedBox(height: 6),
                       ],
@@ -1153,62 +1159,72 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ),
     );
 
-    final Widget child = AnimatedOpacity(
-      duration: const Duration(milliseconds: 500),
-      opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (!_fromMe &&
-                    widget.chat.value?.isGroup == true &&
-                    widget.avatar)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                    child: Text(
-                      widget.user?.user.value.name?.val ??
-                          widget.user?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
-                    ),
-                  ),
-                const SizedBox(height: 4),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      WidgetSpan(child: call),
-                      if (widget.timestamp)
-                        WidgetSpan(
-                          child: Opacity(
-                            opacity: 0,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: _timestamp(widget.item.value),
-                            ),
+    Widget child(bool menu) => AnimatedOpacity(
+          duration: const Duration(milliseconds: 500),
+          opacity: _isRead || !_fromMe ? 1 : 0.55,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!_fromMe &&
+                        widget.chat.value?.isGroup == true &&
+                        widget.avatar)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        child: SelectionText.rich(
+                          TextSpan(
+                            text: widget.user?.user.value.name?.val ??
+                                widget.user?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () =>
+                                  router.user(widget.authorId, push: true),
                           ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onSelecting: widget.onSelecting,
+                          onChanged: (a) => _selection = a,
+                          style: style.boldBody.copyWith(color: color),
                         ),
-                    ],
-                  ),
+                      ),
+                    const SizedBox(height: 4),
+                    SelectionContainer.disabled(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            WidgetSpan(child: call),
+                            if (widget.timestamp)
+                              WidgetSpan(
+                                child: Opacity(
+                                  opacity: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 4),
+                                    child: _timestamp(widget.item.value),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (widget.timestamp)
+                Positioned(
+                  right: 8,
+                  bottom: 4,
+                  child: _timestamp(widget.item.value),
+                )
+            ],
           ),
-          if (widget.timestamp)
-            Positioned(
-              right: 8,
-              bottom: 4,
-              child: _timestamp(widget.item.value),
-            )
-        ],
-      ),
-    );
+        );
 
     return _rounded(
       context,
-      (_, __) => Padding(
+      (menu, __) => Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
@@ -1227,7 +1243,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: child,
+            child: child(menu),
           ),
         ),
       ),
@@ -1404,7 +1420,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             decoration: BoxDecoration(
               border: Border(left: BorderSide(width: 2, color: color)),
             ),
-            margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+            margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
             child: Stack(
               children: [
@@ -1415,7 +1431,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     Row(
                       children: [
                         Expanded(
-                          child: SelectionText(
+                          child: Text(
                             snapshot.data?.user.value.name?.val ??
                                 snapshot.data?.user.value.num.val ??
                                 'dot'.l10n * 3,
@@ -1478,22 +1494,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
-        if (user != null) {
-          avatars.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: FutureBuilder<RxUser?>(
-                future: widget.getUser?.call(user.id),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
-                  }
-                  return AvatarWidget.fromUser(user, radius: 10);
-                },
-              ),
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(m.memberId),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
             ),
-          );
-        }
+          ),
+        );
       }
 
       if (widget.reads.length > maxAvatars) {

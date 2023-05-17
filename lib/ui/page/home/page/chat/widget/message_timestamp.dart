@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
@@ -29,9 +30,11 @@ class MessageTimestamp extends StatelessWidget {
     super.key,
     required this.at,
     this.status,
+    this.date = false,
     this.read = false,
     this.delivered = false,
     this.inverted = false,
+    this.fontSize,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -39,6 +42,9 @@ class MessageTimestamp extends StatelessWidget {
 
   /// [SendingStatus] to display in this [MessageTimestamp], if any.
   final SendingStatus? status;
+
+  /// Indicator whether this [MessageTimestamp] should displayed a date.
+  final bool date;
 
   /// Indicator whether this [MessageTimestamp] is considered to be read,
   /// meaning it should display an appropriate icon.
@@ -51,6 +57,9 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator, whether this [MessageTimestamp] should have its colors
   /// inverted.
   final bool inverted;
+
+  /// Optional font size of this [MessageTimestamp].
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +102,12 @@ class MessageTimestamp extends StatelessWidget {
         ],
         SelectionContainer.disabled(
           child: Text(
-            DateFormat.Hm().format(at.val.toLocal()),
+            DateFormat.Hm().format(at.val.toLocal()) +
+                (date
+                    ? ' ${DateFormat.yMd(L10n.chosen.value?.locale.toString()).format(at.val.toLocal())}'
+                    : ''),
             style: style.systemMessageStyle.copyWith(
-              fontSize: 11,
+              fontSize: fontSize ?? 11,
               color: inverted ? const Color(0xFFDEDEDE) : null,
             ),
           ),

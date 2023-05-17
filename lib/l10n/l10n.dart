@@ -66,7 +66,7 @@ class L10n {
     }
 
     if (languages.contains(lang)) {
-      await initializeDateFormatting(lang.locale.toString(), null);
+      await initializeDateFormatting(lang.locale.toString());
       chosen.value = lang;
       _bundle = FluentBundle(lang.toString())
         ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
