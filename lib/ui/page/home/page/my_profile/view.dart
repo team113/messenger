@@ -90,7 +90,7 @@ class MyProfileView extends StatelessWidget {
                               children: [
                                 WidgetButton(
                                   onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
+                                      ? () => c.uploadAvatar()
                                       : () async {
                                           await GalleryPopup.show(
                                             context: context,
@@ -143,7 +143,7 @@ class MyProfileView extends StatelessWidget {
                                 children: [
                                   WidgetButton(
                                     key: const Key('UploadAvatar'),
-                                    onPressed: c.uploadAvatar,
+                                    onPressed: () => c.uploadAvatar(),
                                     child: Text(
                                       'btn_upload'.l10n,
                                       style: TextStyle(
@@ -164,7 +164,7 @@ class MyProfileView extends StatelessWidget {
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
-                                      onPressed: c.deleteAvatar,
+                                      onPressed: () => c.deleteAvatar(),
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
                                         style: TextStyle(
@@ -211,8 +211,8 @@ class MyProfileView extends StatelessWidget {
                           children: [
                             ProfileBackground(
                               c.background,
-                              c.pickBackground,
-                              c.removeBackground,
+                              () => c.pickBackground(),
+                              () => c.removeBackground(),
                             )
                           ],
                         );
@@ -250,7 +250,7 @@ class MyProfileView extends StatelessWidget {
                             ProfileNotifications(
                               c.myUser,
                               c.isMuting,
-                              c.toggleMute,
+                              (enabled) => c.toggleMute(enabled),
                             )
                           ],
                         );
@@ -259,7 +259,10 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            ProfileStorage(c.settings, c.setLoadImages)
+                            ProfileStorage(
+                              c.settings,
+                              (enabled) => c.setLoadImages(enabled),
+                            )
                           ],
                         );
 
