@@ -29,26 +29,21 @@ import '/ui/page/home/page/my_profile/camera_switch/controller.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/controller.dart';
 import '/ui/page/home/page/my_profile/output_switch/controller.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/util/media_utils.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
   const ProfileMedia(
     this.devices,
-    this.media,
-    this.enumerateDevices, {
+    this.media, {
     super.key,
   });
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  final RxList<MediaDeviceInfo> devices;
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices;
 
   /// Reactive [MediaSettings] that returns the current media settings value.
   final Rx<MediaSettings?> media;
-
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
-  /// available media input devices, such as microphones, cameras, and so
-  /// forth.
-  final Future<void> Function() enumerateDevices;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +66,7 @@ class ProfileMedia extends StatelessWidget {
                 );
 
                 if (devices.video().isEmpty) {
-                  enumerateDevices();
+                  devices.value = await MediaUtils.enumerateDevices();
                 }
               },
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -95,7 +90,7 @@ class ProfileMedia extends StatelessWidget {
                 );
 
                 if (devices.audio().isEmpty) {
-                  enumerateDevices();
+                  devices.value = await MediaUtils.enumerateDevices();
                 }
               },
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -119,7 +114,7 @@ class ProfileMedia extends StatelessWidget {
                 );
 
                 if (devices.output().isEmpty) {
-                  enumerateDevices();
+                  devices.value = await MediaUtils.enumerateDevices();
                 }
               },
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
