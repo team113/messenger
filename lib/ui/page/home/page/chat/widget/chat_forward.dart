@@ -427,25 +427,25 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     autoLoad: widget.loadImages,
                   )
                 : SizedBox(
-                  width: media.length * 120,
-                  height: max(media.length * 60, 300),
-                  child: FitView(
-                    dividerColor: Colors.transparent,
-                    children: media
-                        .mapIndexed(
-                          (i, e) => ChatItemWidget.mediaAttachment(
-                            context,
-                            e,
-                            media,
-                            key: _galleryKeys[msg.id]?[i],
-                            onGallery: widget.onGallery,
-                            onError: widget.onAttachmentError,
-                            autoLoad: widget.loadImages,
-                          ),
-                        )
-                        .toList(),
+                    width: media.length * 120,
+                    height: max(media.length * 60, 300),
+                    child: FitView(
+                      dividerColor: Colors.transparent,
+                      children: media
+                          .mapIndexed(
+                            (i, e) => ChatItemWidget.mediaAttachment(
+                              context,
+                              e,
+                              media,
+                              key: _galleryKeys[msg.id]?[i],
+                              onGallery: widget.onGallery,
+                              onError: widget.onAttachmentError,
+                              autoLoad: widget.loadImages,
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
-                ),
             SizedBox(height: files.isNotEmpty || text != null ? 6 : 0),
           ],
           if (files.isNotEmpty) ...[
@@ -595,15 +595,20 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 children: [
                                   Flexible(
                                     child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                                      padding: const EdgeInsets.only(
+                                        left: 12,
+                                        right: 9,
+                                      ),
                                       child: SelectionText(
                                         widget.user?.user.value.name?.val ??
                                             widget.user?.user.value.num.val ??
                                             'dot'.l10n * 3,
-                                        selectable: PlatformUtils.isDesktop || menu,
+                                        selectable:
+                                            PlatformUtils.isDesktop || menu,
                                         onChanged: (a) => _selection = a,
                                         onSelecting: widget.onSelecting,
-                                        style: style.boldBody.copyWith(color: color),
+                                        style: style.boldBody
+                                            .copyWith(color: color),
                                       ),
                                     ),
                                   ),
@@ -803,9 +808,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) =>
-          !e.at.val.isBefore(widget.forwards.first.value.at.val) &&
-          e.memberId != widget.authorId,
+      (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
     );
 
     const int maxAvatars = 5;
@@ -875,9 +878,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
-          widget.chat.value?.lastDelivery
-                  .isBefore(widget.forwards.first.value.at) ==
-              false,
+          widget.chat.value?.lastDelivery.isBefore(_at) == false,
       isRead: isSent && (!_fromMe || _isRead),
       isError: widget.forwards.first.value.status.value == SendingStatus.error,
       isSending:
@@ -1051,7 +1052,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             ),
                             if (_fromMe &&
                                 widget.note.value != null &&
-                                (widget.note.value!.value.at
+                                (_at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ||
                                     !_isRead))
@@ -1134,11 +1135,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SelectionContainer.disabled(
       child: Text(
-        '${'label_date_ymd'.l10nfmt({
-              'year': quote.at.val.year.toString().padLeft(4, '0'),
-              'month': quote.at.val.month.toString().padLeft(2, '0'),
-              'day': quote.at.val.day.toString().padLeft(2, '0'),
-            })} ${DateFormat.Hm().format(quote.at.val.toLocal())}',
+        '${DateFormat.yMd(L10n.chosen.value?.locale.toString()).format(
+          quote.at.val.toLocal(),
+        )} ${DateFormat.Hm().format(quote.at.val.toLocal())}',
         style: style.systemMessageStyle.copyWith(color: color),
       ),
     );

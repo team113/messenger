@@ -461,7 +461,6 @@ label_current_language = Текущий язык
 label_current_password = Текущий пароль
 label_danger_zone = Опасная зона
 label_date = Дата
-label_date_ymd = {$day}.{$month}.{$year}
 label_delete_account = Удалить аккаунт
 label_delete_chats = Удалить чаты
 label_delete_contact = Удалить контакт

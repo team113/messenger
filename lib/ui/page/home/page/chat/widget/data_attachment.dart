@@ -122,7 +122,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? const Color(0x2F0084FF)
+                    ? const Color(0x220084FF)
                     : const Color(0x00D1E1F0),
                 border: Border.all(
                   width: 2,

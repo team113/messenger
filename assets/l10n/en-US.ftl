@@ -446,7 +446,6 @@ label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
 label_date = Date
-label_date_ymd = {$year}.{$month}.{$day}
 label_delete_account = Delete account
 label_delete_chats = Delete chats
 label_delete_contact = Delete contact

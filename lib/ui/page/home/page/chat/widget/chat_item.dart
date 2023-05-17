@@ -976,7 +976,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             if (widget.timestamp && !timeInBubble) ...[
                               const WidgetSpan(child: SizedBox(width: 4)),
                               WidgetSpan(
-                                child: Opacity(opacity: 0, child: _timestamp(msg)),
+                                child:
+                                    Opacity(opacity: 0, child: _timestamp(msg)),
                               )
                             ],
                           ],
