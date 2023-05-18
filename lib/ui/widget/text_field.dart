@@ -259,7 +259,7 @@ class ReactiveTextField extends StatelessWidget {
                                           )
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
-                                            width: 24,
+                                            width: trailingWidth,
                                             child: suffix != null
                                                 ? Icon(suffix)
                                                 : trailing == null

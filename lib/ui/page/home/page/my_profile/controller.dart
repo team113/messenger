@@ -615,6 +615,9 @@ class MyProfileController extends GetxController {
   Future<void> setLoadImages(bool enabled) =>
       _settingsRepo.setLoadImages(enabled);
 
+  Future<void> setLeaveWhenAlone(bool enabled) =>
+      _settingsRepo.setLeaveWhenAlone(enabled);
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].
   ///

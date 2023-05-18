@@ -109,4 +109,9 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
       );
+
+  Future<void> setLeaveWhenAlone(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..leaveWhenAlone = enabled,
+      );
 }

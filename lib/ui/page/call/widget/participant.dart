@@ -246,18 +246,16 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (participant.member.quality.value <= 3) {
+      if (participant.member.quality.value <= 1) {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 3, right: 3),
-            child: Icon(
-              participant.member.quality.value == 1
-                  ? Icons.network_wifi_1_bar
-                  : participant.member.quality.value == 2
-                      ? Icons.network_wifi_2_bar
-                      : Icons.network_wifi,
-              size: 20,
-              color: Colors.white,
+            child: Transform.translate(
+              offset: const Offset(-1, 0),
+              child: SvgImage.asset(
+                'assets/icons/signal_level.svg',
+                height: 15.5,
+              ),
             ),
           ),
         );
@@ -271,7 +269,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         if (isVideoDisabled) {
           additionally.add(
             Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
+              padding: const EdgeInsets.only(left: 3, right: 3),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -281,7 +279,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         } else {
           additionally.add(
             Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
+              padding: const EdgeInsets.only(left: 3, right: 3),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -290,9 +288,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           );
         }
       } else if (isVideoDisabled) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 4));
-        }
+        // if (additionally.isNotEmpty) {
+        //   additionally.add(const SizedBox(width: 4));
+        // }
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 5, right: 5),

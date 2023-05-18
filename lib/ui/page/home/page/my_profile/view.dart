@@ -64,6 +64,7 @@ import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
+import 'call_leave_switch/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -259,7 +260,7 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
+                        if (PlatformUtils.isDesktop) {
                           return Block(
                             title: 'label_calls'.l10n,
                             children: [_call(context, c)],
@@ -337,6 +338,77 @@ class MyProfileView extends StatelessWidget {
                                                 ? null
                                                 : const BoxConstraints(
                                                     maxWidth: 400),
+                                            child: Column(
+                                              children: [
+                                                const Spacer(),
+                                                _verification(context, c),
+                                              ],
+                                            ),
+                                          ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        );
+
+                      case ProfileTab.donates:
+                        return Stack(
+                          children: [
+                            Block(
+                              title: 'label_donates'.l10n,
+                              children: [_donates(context, c)],
+                            ),
+                            Positioned.fill(
+                              child: Obx(() {
+                                return IgnorePointer(
+                                  ignoring: c.verified.value,
+                                  child: Center(
+                                    child: AnimatedContainer(
+                                      margin:
+                                          const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                      duration: 200.milliseconds,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: c.verified.value
+                                            ? const Color(0x00000000)
+                                            : const Color(0x0A000000),
+                                      ),
+                                      constraints: context.isNarrow
+                                          ? null
+                                          : const BoxConstraints(maxWidth: 400),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            Positioned.fill(
+                              child: Center(
+                                child: Obx(() {
+                                  return AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: c.verified.value
+                                        ? const SizedBox()
+                                        : Container(
+                                            key: const Key('123'),
+                                            alignment: Alignment.bottomCenter,
+                                            padding: const EdgeInsets.fromLTRB(
+                                              32,
+                                              16,
+                                              32,
+                                              16,
+                                            ),
+                                            margin: const EdgeInsets.fromLTRB(
+                                              8,
+                                              4,
+                                              8,
+                                              4,
+                                            ),
+                                            constraints: context.isNarrow
+                                                ? null
+                                                : const BoxConstraints(
+                                                    maxWidth: 400,
+                                                  ),
                                             child: Column(
                                               children: [
                                                 const Spacer(),
@@ -1176,9 +1248,29 @@ Widget _background(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
+      // if (PlatformUtils.isWeb) ...[
+      _dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'label_open_calls_in'.l10n,
+              style: style.systemMessageStyle.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
       _dense(
         Obx(() {
           return FieldButton(
@@ -1191,6 +1283,76 @@ Widget _call(BuildContext context, MyProfileController c) {
           );
         }),
       ),
+      const SizedBox(height: 16),
+      // ],
+      _dense(
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            IgnorePointer(
+              child: ReactiveTextField(
+                maxLines: null,
+                state: TextFieldState(
+                  text: 'label_leave_group_call_when_alone'.l10n,
+                  editable: false,
+                ),
+                trailing: const SizedBox(width: 40),
+                trailingWidth: 40,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Transform.scale(
+                  scale: 0.7,
+                  transformHitTests: false,
+                  child: Theme(
+                    data: ThemeData(platform: TargetPlatform.macOS),
+                    child: Obx(
+                      () => Switch.adaptive(
+                        activeColor: Theme.of(context).colorScheme.secondary,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        value: c.settings.value?.leaveWhenAlone == true,
+                        onChanged: c.setLeaveWhenAlone,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      // _dense(
+      //   Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: Padding(
+      //       padding: const EdgeInsets.only(left: 21.0),
+      //       child: Text(
+      //         'label_leave_group_call_when_alone'.l10n,
+      //         style: style.systemMessageStyle.copyWith(
+      //           color: Theme.of(context).colorScheme.primary,
+      //           fontSize: 15,
+      //           fontWeight: FontWeight.w400,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // const SizedBox(height: 4),
+      // _dense(
+      //   Obx(() {
+      //     return FieldButton(
+      //       text: (c.settings.value?.leaveWhenAlone ?? false)
+      //           ? 'label_leave_group_call_when_alone'.l10n
+      //           : 'label_don_t_leave_group_call_when_alone'.l10n,
+      //       maxLines: null,
+      //       onPressed: () => CallLeaveSwitchView.show(context),
+      //       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      //     );
+      //   }),
+      // ),
     ],
   );
 }
@@ -1899,39 +2061,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
 
   Widget title(String label, [bool enabled = true]) {
-    // return _dense(
-    //   Row(
-    //     children: [
-    //       // Expanded(
-    //       //   child: ,
-    //       // ),
-    //       Container(
-    //         height: 1,
-    //         width: 15,
-    //         color: Colors.grey,
-    //       ),
-    //       const SizedBox(width: 4),
-    //       Text(
-    //         label,
-    //         style: style.systemMessageStyle.copyWith(
-    //           // color: Theme.of(context).colorScheme.primary,
-    //           color: Colors.black,
-    //           fontSize: 15,
-    //           fontWeight: FontWeight.w400,
-    //         ),
-    //       ),
-    //       const SizedBox(width: 4),
-    //       Expanded(
-    //         child: Container(
-    //           height: 1,
-    //           width: double.infinity,
-    //           color: Colors.grey,
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
-
     return _dense(
       Align(
         alignment: Alignment.center,
@@ -2000,117 +2129,12 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         ],
       ),
     );
-
-    return _padding(
-      Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          ReactiveTextField(
-            enabled: enabled,
-            state: state,
-            hint: '0.00',
-            prefixText: '    ',
-            prefixStyle: const TextStyle(fontSize: 13),
-            label: label,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            type: TextInputType.number,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 21, bottom: 4),
-            child: Text(
-              '¤',
-              style: TextStyle(
-                fontFamily: 'Gapopa',
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   return Obx(() {
     return Column(
       children: [
-        // AnimatedSizeAndFade(
-        //   fadeDuration: 300.milliseconds,
-        //   sizeDuration: 300.milliseconds,
-        //   child: c.verified.value
-        //       ? const SizedBox(width: double.infinity)
-        //       : Column(
-        //           key: const Key('123'),
-        //           children: [
-        //             _dense(
-        //               Text(
-        //                 'label_verify_your_account'.l10n,
-        //                 style: style.systemMessageStyle.copyWith(
-        //                   color: Colors.black,
-        //                   fontSize: 15,
-        //                   fontWeight: FontWeight.w400,
-        //                 ),
-        //               ),
-        //             ),
-        //             const SizedBox(height: 12),
-        //             _dense(
-        //               Theme(
-        //                 data: Theme.of(context).copyWith(
-        //                   inputDecorationTheme:
-        //                       Theme.of(context).inputDecorationTheme.copyWith(
-        //                             border: Theme.of(context)
-        //                                 .inputDecorationTheme
-        //                                 .border
-        //                                 ?.copyWith(
-        //                                   borderSide: c.hintVerified.value
-        //                                       ? BorderSide(
-        //                                           color: Theme.of(context)
-        //                                               .colorScheme
-        //                                               .primary,
-        //                                         )
-        //                                       : Theme.of(context)
-        //                                           .inputDecorationTheme
-        //                                           .border
-        //                                           ?.borderSide,
-        //                                 ),
-        //                           ),
-        //                 ),
-        //                 child: FieldButton(
-        //                   text: 'btn_verify_account'.l10n,
-        //                   // trailing: Transform.translate(
-        //                   //   offset: const Offset(0, -1),
-        //                   //   child: Transform.scale(
-        //                   //     scale: 1.15,
-        //                   //     child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-        //                   //   ),
-        //                   // ),
-        //                   onPressed: () {
-        //                     c.verified.value = true;
-        //                   },
-        //                   style: TextStyle(
-        //                       color: Theme.of(context).colorScheme.secondary),
-        //                 ),
-        //               ),
-        //             ),
-        //             const SizedBox(height: 12 * 2),
-        //           ],
-        //         ),
-        // ),
         if (!c.verified.value) ...[],
-        // title('От избранных (чатов и контактов)'),
-        // const SizedBox(height: 4),
-        // field(
-        //   label: 'label_fee_per_incoming_message'.l10n,
-        //   state: c.messageCost,
-        // ),
-        // field(
-        //   label: 'label_fee_per_incoming_call_minute'.l10n,
-        //   state: c.callsCost,
-        // ),
-        // const SizedBox(height: 12 * 2),
-
         title(
           'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
           c.verified.value,
@@ -2128,35 +2152,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           enabled: c.verified.value,
           contacts: false,
         ),
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-        //   child: Row(
-        //     children: [
-        //       RichText(
-        //         text: TextSpan(
-        //           style: const TextStyle(
-        //             fontSize: 11,
-        //             fontWeight: FontWeight.normal,
-        //           ),
-        //           children: [
-        //             TextSpan(
-        //               text: 'label_details'.l10n,
-        //               style: TextStyle(
-        //                 color: c.verified.value
-        //                     ? Theme.of(context).colorScheme.secondary
-        //                     : Theme.of(context).colorScheme.primary,
-        //               ),
-        //               recognizer: TapGestureRecognizer()
-        //                 ..onTap = () async {
-        //                   await GetPaidView.show(context);
-        //                 },
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         const SizedBox(height: 12 * 2),
         title('От Ваших контактов', c.verified.value),
         const SizedBox(height: 6),
@@ -2172,36 +2167,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           enabled: c.verified.value,
           contacts: true,
         ),
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-        //   child: Row(
-        //     children: [
-        //       RichText(
-        //         text: TextSpan(
-        //           style: const TextStyle(
-        //             fontSize: 11,
-        //             fontWeight: FontWeight.normal,
-        //           ),
-        //           children: [
-        //             TextSpan(
-        //               text: 'label_details'.l10n,
-        //               style: TextStyle(
-        //                 color: c.verified.value
-        //                     ? Theme.of(context).colorScheme.secondary
-        //                     : Theme.of(context).colorScheme.primary,
-        //               ),
-        //               recognizer: TapGestureRecognizer()
-        //                 ..onTap = () async {
-        //                   await GetPaidView.show(context);
-        //                 },
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-
         const SizedBox(height: 12 * 2),
         title('От индивидуальных пользователей', c.verified.value),
         const SizedBox(height: 6),
@@ -2229,39 +2194,110 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                       ? Colors.black
                       : Theme.of(context).colorScheme.secondary,
             ),
-            // style: TextStyle(
-            //     color: c.blacklist.isEmpty
-            //         ? Colors.black
-            //         : Theme.of(context).colorScheme.secondary),
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(24, 4, 24, 6),
-        //   child: Row(
-        //     children: [
-        //       RichText(
-        //         text: TextSpan(
-        //           style: const TextStyle(
-        //             fontSize: 11,
-        //             fontWeight: FontWeight.normal,
-        //           ),
-        //           children: [
-        //             TextSpan(
-        //               text: 'label_details'.l10n,
-        //               style: TextStyle(
-        //                 color: Theme.of(context).colorScheme.secondary,
-        //               ),
-        //               recognizer: TapGestureRecognizer()
-        //                 ..onTap = () async {
-        //                   await GetPaidView.show(context);
-        //                 },
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
+        Opacity(opacity: 0, child: _verification(context, c)),
+      ],
+    );
+  });
+}
+
+Widget _donates(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  Widget title(String label, [bool enabled = true]) {
+    return _dense(
+      Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 0.0),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: style.systemMessageStyle.copyWith(
+              // color: Theme.of(context).colorScheme.primary,
+              color: enabled
+                  ? Colors.black
+                  : Theme.of(context).colorScheme.primary,
+              fontSize: 15,
+
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget field({
+    required TextFieldState state,
+    required String label,
+    bool contacts = false,
+    bool enabled = true,
+  }) {
+    return _padding(
+      Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          ReactiveTextField(
+            state: state,
+            prefixText: '    ',
+            prefixStyle: const TextStyle(fontSize: 13),
+            label: label,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            style: TextStyle(
+              color: enabled
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 21, bottom: 4),
+            child: Text(
+              '¤',
+              style: TextStyle(
+                fontFamily: 'Gapopa',
+                fontWeight: FontWeight.w400,
+                color: enabled
+                    ? Colors.black
+                    : Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return Obx(() {
+    return Column(
+      children: [
+        // title(
+        //   'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
+        //   c.verified.value,
         // ),
+        field(
+          label: 'Минимальная сумма доната'.l10n,
+          state: c.contactMessageCost,
+          enabled: c.verified.value,
+          contacts: true,
+        ),
+        _padding(
+          ReactiveTextField(
+            key: const Key('StatusField'),
+            state: TextFieldState(text: '0'),
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+            label: 'Максимальная длина сообщения'.l10n,
+            filled: true,
+            style: TextStyle(
+              color: c.verified.value
+                  ? Colors.black
+                  : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+
         Opacity(opacity: 0, child: _verification(context, c)),
       ],
     );

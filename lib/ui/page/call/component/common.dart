@@ -494,12 +494,7 @@ Widget callTitle(CallController c) {
 
     final Map<String, dynamic> args = {'by': 'x'};
     if (!isOutgoing && !isDialog) {
-      final recipient = c.chat.value?.members.values
-          .firstWhereOrNull((e) => e.id != c.me.id.userId);
-      if (recipient != null) {
-        args['by'] =
-            recipient.user.value.name?.val ?? recipient.user.value.num.val;
-      }
+      args['by'] = c.callerName;
     }
 
     final String? state = c.state.value == OngoingCallState.active

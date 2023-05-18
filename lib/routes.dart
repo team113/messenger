@@ -117,6 +117,7 @@ enum ProfileTab {
   media,
   welcome,
   getPaid,
+  donates,
   notifications,
   storage,
   language,

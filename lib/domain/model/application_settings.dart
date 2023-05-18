@@ -37,6 +37,7 @@ class ApplicationSettings extends HiveObject {
     this.displayFunds = true,
     this.displayTransactions = true,
     this.timelineEnabled = false,
+    this.leaveWhenAlone = false,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -89,4 +90,7 @@ class ApplicationSettings extends HiveObject {
   /// in a [Chat].
   @HiveField(11)
   bool timelineEnabled;
+
+  @HiveField(12)
+  bool leaveWhenAlone;
 }

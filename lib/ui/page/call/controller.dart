@@ -877,6 +877,19 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
+
+          print(
+              '${_settingsRepository.applicationSettings.value?.leaveWhenAlone == true}, ${e.value?.isConnected.value == true}, ${e.key?.userId != me.id.userId}, ${_currentCall.value.members.keys} vs ${me.id}');
+
+          if (_settingsRepository.applicationSettings.value?.leaveWhenAlone ==
+                  true &&
+              e.value?.isConnected.value == true &&
+              e.key?.userId != me.id.userId &&
+              _currentCall.value.members.keys
+                  .where((e) => e != me.id)
+                  .isEmpty) {
+            drop();
+          }
           break;
 
         case OperationKind.updated:

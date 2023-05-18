@@ -194,6 +194,24 @@ class CallSettingsView extends StatelessWidget {
                   header('label_calls'.l10n),
                   _dense(
                     context,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 21.0),
+                        child: Text(
+                          'label_open_calls_in'.l10n,
+                          style: style.systemMessageStyle.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  _dense(
+                    context,
                     WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
@@ -209,6 +227,50 @@ class CallSettingsView extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _dense(
+                    context,
+                    Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        IgnorePointer(
+                          child: ReactiveTextField(
+                            maxLines: null,
+                            state: TextFieldState(
+                              text: 'label_leave_group_call_when_alone'.l10n,
+                              editable: false,
+                            ),
+                            trailing: const SizedBox(width: 40),
+                            trailingWidth: 40,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: Transform.scale(
+                              scale: 0.7,
+                              transformHitTests: false,
+                              child: Theme(
+                                data: ThemeData(platform: TargetPlatform.macOS),
+                                child: Obx(
+                                  () => Switch.adaptive(
+                                    activeColor:
+                                        Theme.of(context).colorScheme.secondary,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    value: c.settings.value?.leaveWhenAlone ==
+                                        true,
+                                    onChanged: c.setLeaveWhenAlone,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

@@ -361,15 +361,11 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.calls:
-                    if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                      child = card(
-                        icon: Icons.call,
-                        title: 'label_calls'.l10n,
-                        subtitle: 'label_calls_displaying'.l10n,
-                      );
-                    } else {
-                      return const SizedBox();
-                    }
+                    child = card(
+                      icon: Icons.call,
+                      title: 'label_calls'.l10n,
+                      subtitle: 'label_calls_displaying'.l10n,
+                    );
                     break;
 
                   case ProfileTab.media:
@@ -397,6 +393,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.paid,
                       title: 'label_get_paid_for_incoming'.l10n,
                       subtitle: 'label_message_and_call_cost'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.donates:
+                    child = card(
+                      icon: Icons.donut_small,
+                      title: 'label_donates'.l10n,
+                      subtitle: 'label_donates_preferences'.l10n,
                     );
                     break;
 

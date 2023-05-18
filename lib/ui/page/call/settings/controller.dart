@@ -103,4 +103,8 @@ class CallSettingsController extends GetxController {
   Future<void> enumerateDevices() async {
     await _call.value.enumerateDevices();
   }
+
+  void setLeaveWhenAlone(bool enabled) {
+    _settingsRepo.setLeaveWhenAlone(enabled);
+  }
 }

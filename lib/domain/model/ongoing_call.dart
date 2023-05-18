@@ -417,6 +417,7 @@ class OngoingCall {
     }
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
+    members[_me]?.id = id;
     members.move(_me, id);
     _me = id;
 
@@ -1676,7 +1677,7 @@ class OngoingCall {
       members.values
           .firstWhereOrNull((e) => e.id.userId != _me.userId)
           ?.quality
-          .value = Random().nextInt(3) + 1;
+          .value = Random().nextInt(4) + 1;
       return;
     }
 
