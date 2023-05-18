@@ -27,7 +27,7 @@ import '/util/message_popup.dart';
 
 /// Colors tab view of the [Routes.style] page.
 class ColorStyleTabView extends StatefulWidget {
-  const ColorStyleTabView({Key? key}) : super(key: key);
+  const ColorStyleTabView({super.key});
 
   @override
   State<ColorStyleTabView> createState() => _ColorStyleTabViewState();
@@ -64,7 +64,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 child: Text(
                   color.toHex(),
                   style: TextStyle(
-                    color: hsl.lightness > 0.5 ? Colors.black : Colors.white,
+                    color: hsl.lightness > 0.7 ? Colors.black : Colors.white,
                   ),
                 ),
               ),
@@ -87,143 +87,212 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
     }
 
     return Scaffold(
-      backgroundColor:
-          isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
-      body: ListView(
-        controller: ScrollController(),
-        padding: const EdgeInsets.all(8),
-        children: [
-          const SizedBox(height: 20),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.light_mode, color: style.colors.warningColor),
-              Switch(
-                value: isDarkMode,
-                onChanged: (b) => setState(() => isDarkMode = b),
-              ),
-              Icon(Icons.dark_mode, color: style.colors.secondary),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              color(style.colors.primary, 'Цвет кнопок и ссылок.'),
-              color(style.colors.secondary, 'Цвет текста и обводок.'),
-              color(style.colors.background, 'Общий фон.'),
-              color(style.colors.secondaryBackground, 'Фон текста и обводки.'),
-              color(
-                style.colors.secondaryBackgroundLight,
-                'Цвет заднего фона звонка.',
-              ),
-              color(
-                style.colors.secondaryBackgroundLightest,
-                'Цвет заднего фона аватара, кнопок звонка.',
-              ),
-              color(style.colors.secondaryHighlight, 'Цвет колеса загрузки.'),
-              color(
-                style.colors.secondaryHighlightDark,
-                'Цвет кнопок навигационной панели.',
-              ),
-              color(
-                style.colors.secondaryHighlightDarkest,
-                'Цвет надписей и иконок над задним фоном звонка.',
-              ),
-              color(
-                style.colors.onPrimary,
-                'Цвет, использующийся в левой части страницы профиля.',
-              ),
-              color(style.colors.primaryHighlight, 'Цвет выпадающего меню.'),
-              color(
-                style.colors.primaryHighlightShinier,
-                'Цвет затемнения основного вида при неактивном вызове.',
-              ),
-              color(
-                style.colors.primaryHighlightShiniest,
-                'Цвет сообщения в чате.',
-              ),
-              color(style.colors.onSecondary, 'Цвет кнопок в звонке.'),
-              color(style.colors.backgroundAuxiliary, 'Цвет активного звонка.'),
-              color(
-                style.colors.backgroundAuxiliaryLight,
-                'Цвет фона профиля.',
-              ),
-              color(
-                style.colors.backgroundAuxiliaryLighter,
-                'Цвет отмены загрузки.',
-              ),
-              color(
-                style.colors.backgroundAuxiliaryLightest,
-                'Цвет фона участников группы.',
-              ),
-              color(
-                style.colors.onBackground,
-                'Цвет основного текста приложения.',
-              ),
-              color(style.colors.acceptColor, 'Цвет кнопки принятия звонка.'),
-              color(
-                style.colors.acceptAuxiliaryColor,
-                'Цвет панели пользователя.',
-              ),
-              color(
-                style.colors.declineColor,
-                'Цвет кнопки завершения звонка.',
-              ),
-              color(
-                style.colors.dangerColor,
-                'Цвет, предупредающий о чем-либо.',
-              ),
-              color(style.colors.warningColor, 'Цвет статуса "Не беспокоить".'),
-            ],
-          ),
-          const SizedBox(height: 50),
-          Text(
-            'Цвета аватаров:',
-            style: context.textTheme.displayLarge!.copyWith(
-              color: isDarkMode ? Colors.white : Colors.black,
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        color: isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
+        child: ListView(
+          controller: ScrollController(),
+          padding: const EdgeInsets.all(8),
+          children: [
+            const SizedBox(height: 20),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.light_mode, color: style.colors.warningColor),
+                Switch(
+                  value: isDarkMode,
+                  onChanged: (b) => setState(() => isDarkMode = b),
+                ),
+                Icon(Icons.dark_mode, color: style.colors.secondary),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 16,
-            runSpacing: 16,
-            children: style.colors.userColors.map(color).toList(),
-          ),
-          const SizedBox(height: 60),
-        ],
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                color(
+                  style.colors.onBackground,
+                  'Цвет основного текста приложения.',
+                ),
+                color(
+                    style.colors.secondaryBackground, 'Фон текста и обводки.'),
+                color(
+                  style.colors.secondaryBackgroundLight,
+                  'Цвет заднего фона звонка.',
+                ),
+                color(
+                  style.colors.secondaryBackgroundLightest,
+                  'Цвет заднего фона аватара, кнопок звонка.',
+                ),
+                color(style.colors.secondary, 'Цвет текста и обводок.'),
+                color(
+                  style.colors.secondaryHighlightDarkest,
+                  'Цвет надписей и иконок над задним фоном звонка.',
+                ),
+                color(
+                  style.colors.secondaryHighlightDark,
+                  'Цвет кнопок навигационной панели.',
+                ),
+                color(style.colors.secondaryHighlight, 'Цвет колеса загрузки.'),
+                color(style.colors.background, 'Общий фон.'),
+                color(
+                  style.colors.secondaryOpacity87,
+                  'Цвет поднятой руки и выключенного микрофона в звонке.',
+                ),
+                color(
+                  style.colors.secondaryOpacity73,
+                  'Цвет текста всплывающей подсказки.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity63,
+                  'Цвет круглого индикатора переподключения корреспондента',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity56,
+                  'Дополнительный цвет тени плавающей панели.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity50,
+                  'Цвет фона прикрепленного файла.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity40,
+                  'Цвет нижнего бара в чате.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity33,
+                  'Цвет затемненного контейнера в звонке с видео.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity27,
+                  'Цвет тени плавающей панели.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity20,
+                  'Цвет панели с кнопками в звонке.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity13,
+                  'Цвет кнопки проигрывания видео.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity7,
+                  'Цвет разделителей в приложении.',
+                ),
+                color(
+                  style.colors.onBackgroundOpacity2,
+                  'Цвет текста "Подключение", "Звоним" и т.д. в звонке.',
+                ),
+                color(
+                  style.colors.onPrimary,
+                  'Цвет, использующийся в левой части страницы профиля.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity80,
+                  'Цвет текста времени в видео.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity60,
+                  'Цвет тени вокруг выдвигающихся кнопок из нижней панели.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity50,
+                  'Цвет обводки кнопок принятия звонка с аудио и видео.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity40,
+                  'Цвет тени сообщений с ответами, закреплениями, изменениями.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity25,
+                  'Цвет тени пересланных сообщений.',
+                ),
+                color(
+                  style.colors.onPrimaryOpacity7,
+                  'Дополнительный цвет бэкграунда звонка.',
+                ),
+                color(
+                    style.colors.backgroundAuxiliary, 'Цвет активного звонка.'),
+                color(
+                  style.colors.backgroundAuxiliaryLight,
+                  'Цвет фона профиля.',
+                ),
+                color(
+                  style.colors.onSecondaryOpacity88,
+                  'Цвет верхней перетаскиваемой строки заголовка.',
+                ),
+                color(style.colors.onSecondary, 'Цвет кнопок в звонке.'),
+                color(
+                  style.colors.onSecondaryOpacity60,
+                  'Дополнительный цвет верхней перетаскиваемой строки заголовка.',
+                ),
+                color(
+                  style.colors.onSecondaryOpacity50,
+                  'Цвет карточки сообщения.',
+                ),
+                color(
+                  style.colors.onSecondaryOpacity30,
+                  'Дополнительный цвет системной подсказки.',
+                ),
+                color(
+                  style.colors.onSecondaryOpacity20,
+                  'Цвет мобильного селектора.',
+                ),
+                color(style.colors.primaryHighlight, 'Цвет выпадающего меню.'),
+                color(style.colors.primary, 'Цвет кнопок и ссылок.'),
+                color(
+                  style.colors.primaryHighlightShinier,
+                  'Цвет затемнения основного вида при неактивном вызове.',
+                ),
+                color(
+                  style.colors.primaryHighlightShiniest,
+                  'Цвет сообщения в чате.',
+                ),
+                color(
+                  style.colors.backgroundAuxiliaryLighter,
+                  'Цвет отмены загрузки.',
+                ),
+                color(
+                  style.colors.backgroundAuxiliaryLightest,
+                  'Цвет фона участников группы.',
+                ),
+                color(
+                  style.colors.acceptAuxiliaryColor,
+                  'Цвет панели пользователя.',
+                ),
+                color(style.colors.acceptColor, 'Цвет кнопки принятия звонка.'),
+                color(
+                  style.colors.dangerColor,
+                  'Цвет, предупредающий о чем-либо.',
+                ),
+                color(
+                  style.colors.declineColor,
+                  'Цвет кнопки завершения звонка.',
+                ),
+                color(
+                    style.colors.warningColor, 'Цвет статуса "Не беспокоить".'),
+              ],
+            ),
+            const SizedBox(height: 50),
+            Text(
+              'Цвета аватаров:',
+              style: context.textTheme.displayLarge!.copyWith(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              children: style.colors.userColors.map(color).toList(),
+            ),
+            const SizedBox(height: 60),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-/// Displays a colored container.
-class _Colored extends StatelessWidget {
-  const _Colored({
-    Key? key,
-    this.color,
-    this.outline,
-  }) : super(key: key);
-
-  /// Color of the container.
-  final Color? color;
-
-  /// Optional outline of the container.
-  final Color? outline;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        border: Border.all(color: outline ?? style.colors.onBackground),
-      ),
-      height: 50,
     );
   }
 }
