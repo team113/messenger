@@ -35,9 +35,6 @@ class PrimaryView extends StatelessWidget {
     required this.chatId,
     required this.secondaryDrags,
     required this.primaryTargets,
-    required this.primaryDrags,
-    required this.secondaryDragged,
-    required this.hoveredRenderer,
     required this.rendererBoxFit,
     required this.primary,
     required this.minimized,
@@ -64,23 +61,14 @@ class PrimaryView extends StatelessWidget {
   /// [Rx] integer that stores the number of primary targets.
   final RxInt primaryTargets;
 
-  /// [Rx] integer that stores the number of primary drag events.
-  final RxInt primaryDrags;
-
   /// [Rx] participant that stores the dragged `dough` renderer.
   final Rx<Participant?> doughDraggedRenderer;
-
-  /// [Rx] participant that stores the hovered renderer.
-  final Rx<Participant?> hoveredRenderer;
 
   /// [RxMap] that stores the fit of the renderer.
   final RxMap<String, BoxFit?> rendererBoxFit;
 
   /// [RxList] of participants.
   final RxList<Participant> primary;
-
-  /// [Rx] indicator that stores the state of the secondary drag event.
-  final RxBool secondaryDragged;
 
   /// [Rx] indicator that stores the minimized state of the widget.
   final RxBool minimized;

@@ -174,9 +174,6 @@ class DesktopCall extends StatelessWidget {
                                   primary: c.primary,
                                   minimized: c.minimized,
                                   fullscreen: c.fullscreen,
-                                  primaryDrags: c.primaryDrags,
-                                  secondaryDragged: c.secondaryDragged,
-                                  hoveredRenderer: c.hoveredRenderer,
                                   overlayBuilder: (DragData data) {
                                     var participant = data.participant;
 

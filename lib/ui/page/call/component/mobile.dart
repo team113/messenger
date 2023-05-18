@@ -577,19 +577,20 @@ class MobileCall extends StatelessWidget {
                     child: AudioButton(c).build(),
                   )),
                   HorizontalPadding(
-                      child: Description(
-                    description: AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
-                        c.videoState.value == LocalTrackState.enabled ||
-                                c.videoState.value == LocalTrackState.enabling
-                            ? 'btn_call_video_off_desc'.l10n
-                            : 'btn_call_video_on_desc'.l10n,
+                    child: Description(
+                      description: AnimatedOpacity(
+                        opacity: c.isPanelOpen.value ? 1 : 0,
+                        duration: 200.milliseconds,
+                        child: Text(
+                          c.videoState.value == LocalTrackState.enabled ||
+                                  c.videoState.value == LocalTrackState.enabling
+                              ? 'btn_call_video_off_desc'.l10n
+                              : 'btn_call_video_on_desc'.l10n,
+                        ),
                       ),
+                      child: VideoButton(c).build(),
                     ),
-                    child: VideoButton(c).build(),
-                  )),
+                  ),
                   HorizontalPadding(
                       child: Description(
                     description: AnimatedOpacity(

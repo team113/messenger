@@ -448,13 +448,13 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
   });
 
-  /// Relative path to the file of the resource.
+  /// Name of the asset to place into this [CallButtonWidget].
   final String? asset;
 
   /// Callback, called when this [CallButtonWidget] is pressed.
   final VoidCallback? onPressed;
 
-  /// Hint text for this [CallButtonWidget].
+  /// Hint text of this [CallButtonWidget].
   final String? hint;
 
   /// Additional button extension for displaying a [hint].
@@ -469,7 +469,7 @@ class CallButtonWidget extends StatelessWidget {
   /// Background color of this [CallButtonWidget].
   final Color color;
 
-  /// Width of the asset used for this [CallButtonWidget].
+  /// /// Width of the [asset].
   final double assetWidth;
 
   /// Border style of this [CallButtonWidget].

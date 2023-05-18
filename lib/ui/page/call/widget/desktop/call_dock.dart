@@ -68,16 +68,14 @@ class CallDock extends StatelessWidget {
   /// Indicator whether the call is incoming.
   final bool answer;
 
-  /// Callback, called when the mouse cursor enters the area
-  /// of this [CallDock].
+  /// Callback, called when the mouse cursor enters the area of this [CallDock].
   final void Function(PointerEnterEvent)? onEnter;
 
-  /// Callback, called when the mouse cursor moves in the area
-  /// of this [CallDock].
+  /// Callback, called when the mouse cursor moves in the area of this
+  /// [CallDock].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// Callback, called when the mouse cursor leaves the area
-  /// of this [CallDock].
+  /// Callback, called when the mouse cursor leaves the area of this [CallDock].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called every time the value of the animation changes.
