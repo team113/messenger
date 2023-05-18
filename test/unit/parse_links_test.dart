@@ -94,7 +94,10 @@ void main() {
       final TextSpan span7 = text7.parseLinks([]);
       expect(span7.children!.length, 3);
       expect(span7.children![0].toPlainText(), 'Link with dashes ');
-      expect(span7.children![1].toPlainText(), 'https://www.link-with-dashes.com');
+      expect(
+        span7.children![1].toPlainText(),
+        'https://www.link-with-dashes.com',
+      );
       expect((span7.children![1] as TextSpan).recognizer != null, true);
       expect(span7.children![2].toPlainText(), '.');
 
@@ -114,14 +117,22 @@ void main() {
       expect((span9.children![1] as TextSpan).recognizer != null, true);
       expect(span9.children![2].toPlainText(), '.');
 
-      const String text10 = 'Link with spec symbols is not parsed google\$.com.';
+      const String text10 =
+          'Link with spec symbols is not parsed google\$.com.';
       final TextSpan span10 = text10.parseLinks([]);
-      expect(span10.toPlainText(), 'Link with spec symbols is not parsed google\$.com.');
+      expect(
+        span10.toPlainText(),
+        'Link with spec symbols is not parsed google\$.com.',
+      );
 
-      const String text11 = 'Link with spec symbols is not parsed goog\$le.com.';
+      const String text11 =
+          'Link with spec symbols is not parsed goog\$le.com.';
       final TextSpan span11 = text11.parseLinks([]);
       expect(span11.children!.length, 3);
-      expect(span11.children![0].toPlainText(), 'Link with spec symbols is not parsed goog\$');
+      expect(
+        span11.children![0].toPlainText(),
+        'Link with spec symbols is not parsed goog\$',
+      );
       expect(span11.children![1].toPlainText(), 'le.com');
       expect((span11.children![1] as TextSpan).recognizer != null, true);
       expect(span11.children![2].toPlainText(), '.');
