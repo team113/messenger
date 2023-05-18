@@ -356,7 +356,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: style.colors.onPrimaryOpacity40,
+            color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,

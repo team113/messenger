@@ -190,20 +190,8 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                   'Цвет, использующийся в левой части страницы профиля.',
                 ),
                 color(
-                  style.colors.onPrimaryOpacity80,
-                  'Цвет текста времени в видео.',
-                ),
-                color(
-                  style.colors.onPrimaryOpacity60,
-                  'Цвет тени вокруг выдвигающихся кнопок из нижней панели.',
-                ),
-                color(
                   style.colors.onPrimaryOpacity50,
                   'Цвет обводки кнопок принятия звонка с аудио и видео.',
-                ),
-                color(
-                  style.colors.onPrimaryOpacity40,
-                  'Цвет тени сообщений с ответами, закреплениями, изменениями.',
                 ),
                 color(
                   style.colors.onPrimaryOpacity25,

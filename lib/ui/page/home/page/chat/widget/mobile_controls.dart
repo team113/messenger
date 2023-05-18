@@ -327,7 +327,7 @@ class _MobileControlsState extends State<MobileControls>
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: style.colors.onPrimaryOpacity80,
+              color: style.colors.onPrimaryOpacity50,
               fontWeight: FontWeight.normal,
             ),
           )

@@ -110,7 +110,7 @@ class Themes {
               color: colors.primaryHighlightShiniest,
               width: 0.5,
             ),
-            sidebarColor: colors.onPrimaryOpacity40,
+            sidebarColor: colors.onPrimaryOpacity50,
             systemMessageBorder: Border.all(
               color: colors.secondaryHighlightDarkest,
               width: 0.5,
@@ -596,10 +596,7 @@ class Palette {
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
-    Color? onPrimaryOpacity40,
     Color? onPrimaryOpacity50,
-    Color? onPrimaryOpacity60,
-    Color? onPrimaryOpacity80,
     required this.secondary,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
@@ -640,10 +637,7 @@ class Palette {
     required this.userColors,
   })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
-        onPrimaryOpacity40 = onPrimaryOpacity40 ?? onPrimary.withOpacity(0.40),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
-        onPrimaryOpacity60 = onPrimaryOpacity60 ?? onPrimary.withOpacity(0.60),
-        onPrimaryOpacity80 = onPrimaryOpacity80 ?? onPrimary.withOpacity(0.80),
         secondaryOpacity73 = secondaryOpacity73 ?? secondary.withOpacity(0.73),
         secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
         onSecondaryOpacity20 =
@@ -687,29 +681,10 @@ class Palette {
   /// Used for texts on [primary] buttons and icons.
   final Color onPrimary;
 
-  // TODO: Review if might be removed.
-  /// 80% opacity of the [onPrimary] color.
-  ///
-  /// Used for text in [MobileControls].
-  final Color onPrimaryOpacity80;
-
-  // TODO: Review if might be removed.
-  /// 60% opacity of the [onPrimary] color.
-  ///
-  /// Used as a pull to open container color in mobile call.
-  final Color onPrimaryOpacity60;
-
-  // TODO: Review if might be removed.
   /// 50% opacity of the [onPrimary] color.
   ///
   /// Used as a border to highlight the answer call button.
   final Color onPrimaryOpacity50;
-
-  // TODO: Review if might be removed.
-  /// 40% opacity of the [onPrimary] color.
-  ///
-  /// Used as a header background in a [MessageFieldView].
-  final Color onPrimaryOpacity40;
 
   /// 25% opacity of the [onPrimary] color.
   ///
@@ -941,14 +916,8 @@ class Palette {
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
       onPrimaryOpacity25:
           Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
-      onPrimaryOpacity40:
-          Color.lerp(color.onPrimaryOpacity40, other.onPrimaryOpacity40, t)!,
       onPrimaryOpacity50:
           Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
-      onPrimaryOpacity60:
-          Color.lerp(color.onPrimaryOpacity60, other.onPrimaryOpacity60, t)!,
-      onPrimaryOpacity80:
-          Color.lerp(color.onPrimaryOpacity80, other.onPrimaryOpacity80, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
       secondaryOpacity73:
           Color.lerp(color.secondaryOpacity73, other.secondaryOpacity73, t)!,
