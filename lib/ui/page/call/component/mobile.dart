@@ -320,7 +320,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: style.colors.onBackgroundOpacity63,
+                            color: style.colors.onBackgroundOpacity50,
                           ),
                           height: 40,
                           child: Obx(() {
@@ -442,7 +442,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: style.colors.onBackgroundOpacity33)
+                ? Container(color: style.colors.onBackgroundOpacity27)
                 : null,
           ),
         );

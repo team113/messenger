@@ -81,7 +81,7 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: style.colors.onBackgroundOpacity33,
+                      shadowColor: style.colors.onBackgroundOpacity27,
                       color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),

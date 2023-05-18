@@ -96,7 +96,7 @@ class MessageFieldView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity33,
+      shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,

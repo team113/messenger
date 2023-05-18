@@ -129,7 +129,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.colors.onBackgroundOpacity56,
+                color: style.colors.onBackgroundOpacity50,
                 child: Padding(
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
@@ -146,7 +146,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: style.colors.onBackgroundOpacity63,
+                color: style.colors.onBackgroundOpacity50,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -172,7 +172,7 @@ class ParticipantWidget extends StatelessWidget {
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: style.colors.secondaryOpacity87,
+              backgroundColor: style.colors.secondaryOpacity85,
               child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
             )
           : Container(),
@@ -333,7 +333,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? style.colors.onSecondaryOpacity30
+                    ? style.colors.onSecondaryOpacity20
                     : style.colors.onSecondary,
               ),
               padding: EdgeInsets.only(

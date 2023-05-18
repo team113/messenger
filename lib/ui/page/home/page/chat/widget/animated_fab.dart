@@ -304,7 +304,7 @@ class _AnimatedFabState extends State<AnimatedFab>
     return Material(
       type: MaterialType.circle,
       color: style.colors.onPrimary,
-      shadowColor: style.colors.onBackgroundOpacity33,
+      shadowColor: style.colors.onBackgroundOpacity27,
       elevation: 6,
       child: InkWell(
         customBorder: const CircleBorder(),

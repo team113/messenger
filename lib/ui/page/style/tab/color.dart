@@ -138,20 +138,8 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(style.colors.secondaryHighlight, 'Цвет колеса загрузки.'),
                 color(style.colors.background, 'Общий фон.'),
                 color(
-                  style.colors.secondaryOpacity87,
+                  style.colors.secondaryOpacity85,
                   'Цвет поднятой руки и выключенного микрофона в звонке.',
-                ),
-                color(
-                  style.colors.secondaryOpacity73,
-                  'Цвет текста всплывающей подсказки.',
-                ),
-                color(
-                  style.colors.onBackgroundOpacity63,
-                  'Цвет круглого индикатора переподключения корреспондента',
-                ),
-                color(
-                  style.colors.onBackgroundOpacity56,
-                  'Дополнительный цвет тени плавающей панели.',
                 ),
                 color(
                   style.colors.onBackgroundOpacity50,
@@ -160,10 +148,6 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(
                   style.colors.onBackgroundOpacity40,
                   'Цвет нижнего бара в чате.',
-                ),
-                color(
-                  style.colors.onBackgroundOpacity33,
-                  'Цвет затемненного контейнера в звонке с видео.',
                 ),
                 color(
                   style.colors.onBackgroundOpacity27,
@@ -219,10 +203,6 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(
                   style.colors.onSecondaryOpacity50,
                   'Цвет карточки сообщения.',
-                ),
-                color(
-                  style.colors.onSecondaryOpacity30,
-                  'Дополнительный цвет системной подсказки.',
                 ),
                 color(
                   style.colors.onSecondaryOpacity20,

@@ -93,7 +93,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.colors.onSecondaryOpacity30,
+                color: style.colors.onSecondaryOpacity20,
               ),
             ),
           );
@@ -601,7 +601,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(color: style.colors.onBackgroundOpacity33)
+                  ? Container(color: style.colors.onBackgroundOpacity27)
                   : null,
             );
           }),
@@ -1447,7 +1447,7 @@ Widget _primaryView(CallController c) {
                                 borderRadius: BorderRadius.circular(16),
                                 color: !c.minimized.value || c.fullscreen.value
                                     ? style.colors.onBackgroundOpacity27
-                                    : style.colors.onBackgroundOpacity56,
+                                    : style.colors.onBackgroundOpacity50,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -2159,7 +2159,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
                                           ? style.colors.onBackgroundOpacity27
-                                          : style.colors.onBackgroundOpacity56,
+                                          : style.colors.onBackgroundOpacity50,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),

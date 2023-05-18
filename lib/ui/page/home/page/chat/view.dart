@@ -161,7 +161,7 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: style.colors.onBackgroundOpacity33,
+                            shadowColor: style.colors.onBackgroundOpacity27,
                             color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),

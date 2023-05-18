@@ -395,7 +395,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_on',
                   onPressed: () {},
                   hint: 'Turn video off',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -406,7 +406,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'video_off',
                   onPressed: () {},
                   hint: 'Turn video on',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -417,7 +417,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_on',
                   onPressed: () {},
                   hint: 'Mute',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -428,7 +428,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'microphone_off',
                   onPressed: () {},
                   hint: 'Unmute',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -439,7 +439,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_on',
                   onPressed: () {},
                   hint: 'Share screen',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -450,7 +450,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'screen_share_off',
                   onPressed: () {},
                   hint: 'Stop sharing',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -460,7 +460,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'speaker_on',
                   onPressed: () {},
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -470,7 +470,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'speaker_off',
                   onPressed: () {},
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -480,7 +480,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_front',
                   onPressed: () {},
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -490,7 +490,7 @@ class ElementStyleTabView extends StatelessWidget {
                 child: RoundFloatingButton(
                   asset: 'camera_back',
                   onPressed: () {},
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               element(
@@ -730,7 +730,7 @@ class ElementStyleTabView extends StatelessWidget {
                   asset: 'settings',
                   onPressed: () {},
                   hint: 'Settings',
-                  color: style.colors.secondaryOpacity87,
+                  color: style.colors.secondaryOpacity85,
                 ),
               ),
               const SizedBox(height: 60),

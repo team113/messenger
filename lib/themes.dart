@@ -76,7 +76,7 @@ class Themes {
         extensions: [
           Style(
             colors: colors,
-            barrierColor: colors.onBackgroundOpacity63,
+            barrierColor: colors.onBackgroundOpacity50,
             boldBody: textStyle.copyWith(
               color: colors.onBackground,
               fontSize: 17,
@@ -604,11 +604,9 @@ class Palette {
     required this.secondaryHighlight,
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
-    Color? secondaryOpacity73,
-    Color? secondaryOpacity87,
+    Color? secondaryOpacity85,
     required this.onSecondary,
     Color? onSecondaryOpacity20,
-    Color? onSecondaryOpacity30,
     Color? onSecondaryOpacity50,
     Color? onSecondaryOpacity60,
     Color? onSecondaryOpacity88,
@@ -626,8 +624,6 @@ class Palette {
     Color? onBackgroundOpacity33,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
-    Color? onBackgroundOpacity56,
-    Color? onBackgroundOpacity63,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -638,12 +634,9 @@ class Palette {
   })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
-        secondaryOpacity73 = secondaryOpacity73 ?? secondary.withOpacity(0.73),
-        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
+        secondaryOpacity85 = secondaryOpacity85 ?? secondary.withOpacity(0.87),
         onSecondaryOpacity20 =
             onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
-        onSecondaryOpacity30 =
-            onSecondaryOpacity30 ?? onSecondary.withOpacity(0.30),
         onSecondaryOpacity50 =
             onSecondaryOpacity50 ?? onSecondary.withOpacity(0.50),
         onSecondaryOpacity60 =
@@ -660,16 +653,10 @@ class Palette {
             onBackgroundOpacity20 ?? onBackground.withOpacity(0.20),
         onBackgroundOpacity27 =
             onBackgroundOpacity27 ?? onBackground.withOpacity(0.27),
-        onBackgroundOpacity33 =
-            onBackgroundOpacity33 ?? onBackground.withOpacity(0.33),
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
-        onBackgroundOpacity56 =
-            onBackgroundOpacity56 ?? onBackground.withOpacity(0.56),
-        onBackgroundOpacity63 =
-            onBackgroundOpacity63 ?? onBackground.withOpacity(0.63);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
 
   /// Primary [Color] of the application.
   ///
@@ -740,17 +727,10 @@ class Palette {
   /// Used to emphasize buttons, labels, or other user interface elements.
   final Color secondaryHighlightDarkest;
 
-  // TODO: Review if might be removed.
   /// 87% opacity of the [secondary] color.
   ///
   /// Used as the muted indicator background in calls.
-  final Color secondaryOpacity87;
-
-  // TODO: Review if might be removed.
-  /// 73% opacity of the [secondary] color.
-  ///
-  /// Used as a text color in [HintWidget]s.
-  final Color secondaryOpacity73;
+  final Color secondaryOpacity85;
 
   /// [Color] for elements to put above the [secondary] color.
   final Color onSecondary;
@@ -769,12 +749,6 @@ class Palette {
   ///
   /// Used for [CallButton]s and [GalleryPopup] buttons.
   final Color onSecondaryOpacity50;
-
-  // TODO: Review if might be removed.
-  /// 30% opacity of the [onSecondary] color.
-  ///
-  /// Used as a possible alignment container highlight in desktop call.
-  final Color onSecondaryOpacity30;
 
   /// 20% opacity of the [onSecondary] color.
   ///
@@ -806,18 +780,6 @@ class Palette {
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
 
-  // TODO: Review if might be removed.
-  /// 63% opacity of the [onBackground] color.
-  ///
-  /// Used as a connecting participant background.
-  final Color onBackgroundOpacity63;
-
-  /// 56% opacity of the [onBackground] color.
-  ///
-  /// Used as a redialing participant background.
-  final Color onBackgroundOpacity56;
-
-  // TODO: Review if might be removed.
   /// 50% opacity of the [onBackground] color.
   ///
   /// Used as a play video circle button background.
@@ -827,12 +789,6 @@ class Palette {
   ///
   /// Used as a video player controls background.
   final Color onBackgroundOpacity40;
-
-  // TODO: Unify shadow colors.
-  /// 33% opacity of the [onBackground] color.
-  ///
-  /// Used as a shadow [Color] in some elements.
-  final Color onBackgroundOpacity33;
 
   /// 27% opacity of the [onBackground] color.
   ///
@@ -919,10 +875,8 @@ class Palette {
       onPrimaryOpacity50:
           Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
-      secondaryOpacity73:
-          Color.lerp(color.secondaryOpacity73, other.secondaryOpacity73, t)!,
-      secondaryOpacity87:
-          Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
+      secondaryOpacity85:
+          Color.lerp(color.secondaryOpacity85, other.secondaryOpacity85, t)!,
       secondaryHighlight:
           Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t)!,
       secondaryHighlightDark: Color.lerp(
@@ -938,8 +892,6 @@ class Palette {
       onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t)!,
       onSecondaryOpacity20: Color.lerp(
           color.onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,
-      onSecondaryOpacity30: Color.lerp(
-          color.onSecondaryOpacity30, other.onSecondaryOpacity30, t)!,
       onSecondaryOpacity50: Color.lerp(
           color.onSecondaryOpacity50, other.onSecondaryOpacity50, t)!,
       onSecondaryOpacity60: Color.lerp(
@@ -966,16 +918,10 @@ class Palette {
           color.onBackgroundOpacity20, other.onBackgroundOpacity20, t)!,
       onBackgroundOpacity27: Color.lerp(
           color.onBackgroundOpacity27, other.onBackgroundOpacity27, t)!,
-      onBackgroundOpacity33: Color.lerp(
-          color.onBackgroundOpacity33, other.onBackgroundOpacity33, t)!,
       onBackgroundOpacity40: Color.lerp(
           color.onBackgroundOpacity40, other.onBackgroundOpacity40, t)!,
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
-      onBackgroundOpacity56: Color.lerp(
-          color.onBackgroundOpacity56, other.onBackgroundOpacity56, t)!,
-      onBackgroundOpacity63: Color.lerp(
-          color.onBackgroundOpacity63, other.onBackgroundOpacity63, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
       acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t)!,
       acceptAuxiliaryColor: Color.lerp(
