@@ -302,16 +302,16 @@ class PlatformUtilsImpl {
     CancelToken? cancelToken,
     bool temporary = false,
   }) async {
-    int total = 100;
-    for (int count = 0; count <= total; count++) {
-      if (cancelToken?.isCancelled == true) {
-        break;
-      }
-      await Future.delayed(40.milliseconds);
-      onReceiveProgress?.call(count, total);
-    }
+    // int total = 100;
+    // for (int count = 0; count <= total; count++) {
+    //   if (cancelToken?.isCancelled == true) {
+    //     break;
+    //   }
+    //   await Future.delayed(40.milliseconds);
+    //   onReceiveProgress?.call(count, total);
+    // }
 
-    return File('test/path');
+    // return File('test/path');
 
     dynamic completeWith;
 
