@@ -109,10 +109,10 @@ void main() {
       expect((span8.children![1] as TextSpan).recognizer != null, true);
       expect(span8.children![2].toPlainText(), '.');
 
-      const String text9 = 'Link with dash in end https://www.google.com/.';
+      const String text9 = 'Link with slash in end https://www.google.com/.';
       final TextSpan span9 = text9.parseLinks([]);
       expect(span9.children!.length, 3);
-      expect(span9.children![0].toPlainText(), 'Link with dash in end ');
+      expect(span9.children![0].toPlainText(), 'Link with slash in end ');
       expect(span9.children![1].toPlainText(), 'https://www.google.com/');
       expect((span9.children![1] as TextSpan).recognizer != null, true);
       expect(span9.children![2].toPlainText(), '.');
