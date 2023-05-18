@@ -174,6 +174,10 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                   'Цвет, использующийся в левой части страницы профиля.',
                 ),
                 color(
+                  style.colors.onPrimaryOpacity95,
+                  'Цвет сообщения, которое было получено.',
+                ),
+                color(
                   style.colors.onPrimaryOpacity50,
                   'Цвет обводки кнопок принятия звонка с аудио и видео.',
                 ),
@@ -202,7 +206,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 ),
                 color(
                   style.colors.onSecondaryOpacity50,
-                  'Цвет карточки сообщения.',
+                  'Цвет сообщения, которое было отправлено и прочитано.',
                 ),
                 color(
                   style.colors.onSecondaryOpacity20,
@@ -212,7 +216,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(style.colors.primary, 'Цвет кнопок и ссылок.'),
                 color(
                   style.colors.primaryHighlightShiniest,
-                  'Цвет сообщения в чате.',
+                  'Цвет сообщения, которое было отправлено, но не прочитано.',
                 ),
                 color(
                   style.colors.backgroundAuxiliaryLighter,
