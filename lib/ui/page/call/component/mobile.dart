@@ -302,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: style.colors.primaryHighlightShinier,
+                    color: style.colors.onBackgroundOpacity50,
                   ),
                 );
               }

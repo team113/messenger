@@ -243,10 +243,6 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(style.colors.primaryHighlight, 'Цвет выпадающего меню.'),
                 color(style.colors.primary, 'Цвет кнопок и ссылок.'),
                 color(
-                  style.colors.primaryHighlightShinier,
-                  'Цвет затемнения основного вида при неактивном вызове.',
-                ),
-                color(
                   style.colors.primaryHighlightShiniest,
                   'Цвет сообщения в чате.',
                 ),

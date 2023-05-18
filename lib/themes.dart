@@ -26,13 +26,12 @@ class Themes {
       primary: const Color(0xFF63B4FF),
       primaryHighlight: Colors.blue,
       primaryHighlightShiny: const Color(0xFF58A6EF),
-      primaryHighlightShinier: const Color(0xFFB6DCFF),
-      primaryHighlightShiniest: const Color(0xFFDBEAFD),
+      primaryHighlightShiniest: const Color(0xFFD2E3F9),
       onPrimary: Colors.white,
       secondary: const Color(0xFF888888),
-      secondaryHighlight: const Color(0xFFF5F5F5),
+      secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
-      secondaryHighlightDarkest: const Color(0xFFC0C0C0),
+      secondaryHighlightDarkest: const Color(0xFFD2D2D2),
       secondaryBackground: const Color(0xFF222222),
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
@@ -108,12 +107,12 @@ class Themes {
             ),
             readMessageColor: colors.primaryHighlightShiniest,
             secondaryBorder: Border.all(
-              color: colors.primaryHighlightShinier,
+              color: colors.primaryHighlightShiniest,
               width: 0.5,
             ),
             sidebarColor: colors.onPrimaryOpacity40,
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlight,
+              color: colors.secondaryHighlightDarkest,
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight.withOpacity(0.95),
@@ -593,7 +592,6 @@ class Palette {
     required this.primary,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
-    required this.primaryHighlightShinier,
     required this.primaryHighlightShiniest,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
@@ -732,13 +730,6 @@ class Palette {
   ///
   /// Used as a border of the selected [ChatTile]s and [ContactTile]s.
   final Color primaryHighlightShiny;
-
-  // TODO: Review if might be removed.
-  /// Shinier highlight [Color] to draw attention to specific [primary]
-  /// elements.
-  ///
-  /// Used for background dimming in a non-active call.
-  final Color primaryHighlightShinier;
 
   /// The shiniest and most contrasting [primary] highlight [Color].
   ///
@@ -943,8 +934,6 @@ class Palette {
         other.primaryHighlightShiny,
         t,
       )!,
-      primaryHighlightShinier: Color.lerp(
-          color.primaryHighlightShinier, other.primaryHighlightShinier, t)!,
       primaryHighlightShiniest: Color.lerp(
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
