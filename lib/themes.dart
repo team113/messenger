@@ -84,7 +84,7 @@ class Themes {
             cardBlur: 5,
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
-            cardColor: colors.onPrimary.withOpacity(0.95),
+            cardColor: colors.onPrimaryOpacity95,
             cardHoveredBorder: Border.all(
               color: colors.primaryHighlightShiniest,
               width: 0.5,
@@ -115,7 +115,7 @@ class Themes {
               color: colors.secondaryHighlightDarkest,
               width: 0.5,
             ),
-            systemMessageColor: colors.secondaryHighlight.withOpacity(0.95),
+            systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: textStyle.copyWith(
               color: colors.secondary,
               fontSize: 13,
@@ -126,7 +126,7 @@ class Themes {
         ],
         scaffoldBackgroundColor: colors.transparent,
         appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: colors.primaryHighlightShiniest,
+          backgroundColor: colors.onPrimaryOpacity25,
           foregroundColor: colors.secondary,
           iconTheme: theme.appBarTheme.iconTheme?.copyWith(
             color: colors.secondary,
@@ -597,6 +597,7 @@ class Palette {
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity50,
+    Color? onPrimaryOpacity95,
     required this.secondary,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
@@ -634,6 +635,7 @@ class Palette {
   })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
+        onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
         secondaryOpacity85 = secondaryOpacity85 ?? secondary.withOpacity(0.87),
         onSecondaryOpacity20 =
             onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
@@ -667,6 +669,11 @@ class Palette {
   ///
   /// Used for texts on [primary] buttons and icons.
   final Color onPrimary;
+
+  /// 95% opacity of the [onPrimary] color.
+  ///
+  /// Used as a card colors.
+  final Color onPrimaryOpacity95;
 
   /// 50% opacity of the [onPrimary] color.
   ///
@@ -874,6 +881,8 @@ class Palette {
           Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
       onPrimaryOpacity50:
           Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
+      onPrimaryOpacity95:
+          Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
       secondaryOpacity85:
           Color.lerp(color.secondaryOpacity85, other.secondaryOpacity85, t)!,
