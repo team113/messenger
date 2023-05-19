@@ -261,7 +261,12 @@ class ReactiveTextField extends StatelessWidget {
                         .inputDecorationTheme
                         .floatingLabelStyle
                         ?.copyWith(color: style.colors.dangerColor)
-                    : null,
+                    : state.isFocused.value
+                        ? Theme.of(context)
+                            .inputDecorationTheme
+                            .floatingLabelStyle
+                            ?.copyWith(color: style.colors.primary)
+                        : null,
               ),
         ),
         child: Column(

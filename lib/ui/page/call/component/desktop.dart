@@ -1160,7 +1160,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: style.colors.transparent,
+                            color: style.colors.onPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

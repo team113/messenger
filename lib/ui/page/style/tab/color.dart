@@ -138,7 +138,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(style.colors.secondaryHighlight, 'Цвет колеса загрузки.'),
                 color(style.colors.background, 'Общий фон.'),
                 color(
-                  style.colors.secondaryOpacity85,
+                  style.colors.secondaryOpacity87,
                   'Цвет поднятой руки и выключенного микрофона в звонке.',
                 ),
                 color(

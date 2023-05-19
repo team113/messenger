@@ -31,11 +31,11 @@ class Themes {
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
-      secondaryHighlightDarkest: const Color(0xFFD2D2D2),
+      secondaryHighlightDarkest: const Color(0xFFC4C4C4),
       secondaryBackground: const Color(0xFF222222),
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
-      onSecondary: const Color(0xBB1F3C5D),
+      onSecondary: const Color(0xFF4E5A78),
       background: const Color(0xFFF5F8FA),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
@@ -237,27 +237,24 @@ class Themes {
           errorMaxLines: 5,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              width: 2,
-              color: colors.secondaryHighlightDark,
-            ),
+            borderSide: BorderSide(color: colors.primary),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide(
-              color: colors.secondaryHighlightDark,
+              color: colors.secondaryHighlightDarkest,
             ),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide(
-              color: colors.secondaryHighlightDark,
+              color: colors.secondaryHighlightDarkest,
             ),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide(
-              color: colors.secondaryHighlightDark,
+              color: colors.secondaryHighlightDarkest,
             ),
           ),
         ),
@@ -605,7 +602,7 @@ class Palette {
     required this.secondaryHighlight,
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
-    Color? secondaryOpacity85,
+    Color? secondaryOpacity87,
     required this.onSecondary,
     Color? onSecondaryOpacity20,
     Color? onSecondaryOpacity50,
@@ -636,7 +633,7 @@ class Palette {
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
         onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
-        secondaryOpacity85 = secondaryOpacity85 ?? secondary.withOpacity(0.87),
+        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
         onSecondaryOpacity20 =
             onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
         onSecondaryOpacity50 =
@@ -710,6 +707,11 @@ class Palette {
   /// Used for texts, icons, outlines.
   final Color secondary;
 
+  /// 87% opacity of the [secondary] color.
+  ///
+  /// Used as the muted indicator background in calls.
+  final Color secondaryOpacity87;
+
   /// Background [Color] of the [secondary] elements.
   ///
   /// Used for buttons background, pop-ups, dialog boxes.
@@ -733,11 +735,6 @@ class Palette {
   ///
   /// Used to emphasize buttons, labels, or other user interface elements.
   final Color secondaryHighlightDarkest;
-
-  /// 87% opacity of the [secondary] color.
-  ///
-  /// Used as the muted indicator background in calls.
-  final Color secondaryOpacity85;
 
   /// [Color] for elements to put above the [secondary] color.
   final Color onSecondary;
@@ -884,8 +881,8 @@ class Palette {
       onPrimaryOpacity95:
           Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
-      secondaryOpacity85:
-          Color.lerp(color.secondaryOpacity85, other.secondaryOpacity85, t)!,
+      secondaryOpacity87:
+          Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
       secondaryHighlight:
           Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t)!,
       secondaryHighlightDark: Color.lerp(

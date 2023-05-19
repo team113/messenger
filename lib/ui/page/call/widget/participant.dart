@@ -172,7 +172,7 @@ class ParticipantWidget extends StatelessWidget {
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: style.colors.secondaryOpacity85,
+              backgroundColor: style.colors.secondaryOpacity87,
               child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
             )
           : Container(),

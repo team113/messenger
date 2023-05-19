@@ -76,7 +76,7 @@ class HintWidget extends StatelessWidget {
                         : 'label_hint_from_gapopa'.l10n,
                     style: TextStyle(
                       fontSize: 13,
-                      color: style.colors.secondaryOpacity85,
+                      color: style.colors.secondaryOpacity87,
                     ),
                   ),
                 ),
@@ -87,7 +87,7 @@ class HintWidget extends StatelessWidget {
                     child: Icon(
                       Icons.close,
                       size: 16,
-                      color: style.colors.secondaryOpacity85,
+                      color: style.colors.secondaryOpacity87,
                     ),
                   ),
                 ),
@@ -102,7 +102,7 @@ class HintWidget extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 13,
-                  color: style.colors.secondaryOpacity85,
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
             ),
