@@ -37,7 +37,7 @@ class AnimatedParticipant extends StatelessWidget {
   final Participant e;
 
   /// Indicator whether the participant's sound is muted or not.
-  final bool muted;
+  final bool? muted;
 
   /// Indicator whether animation is turned on or off.
   final bool animated;

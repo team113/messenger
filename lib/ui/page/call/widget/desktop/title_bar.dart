@@ -54,7 +54,7 @@ class TitleBar extends StatelessWidget {
   /// Header arguments.
   final Map<String, String> titleArguments;
 
-  /// Callback, called when you click on the "full-screen" button.
+  /// Callback, called when you click on the `full-screen` button.
   final Function()? toggleFullscreen;
 
   /// Callback, called when you touch on the left side

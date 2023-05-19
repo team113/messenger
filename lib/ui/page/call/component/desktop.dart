@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '../../../../util/web/web_utils.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title.dart';
@@ -55,7 +56,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/non_web.dart';
+
 import 'common.dart';
 
 /// [Widget] which returns a desktop design of a [CallView].
@@ -184,9 +185,7 @@ class DesktopCall extends StatelessWidget {
                                             participant.member.owner ==
                                                     MediaOwnerKind.local
                                                 ? !c.audioState.value.isEnabled
-                                                : participant.audio.value
-                                                        ?.isMuted.value ??
-                                                    false;
+                                                : null;
 
                                         bool anyDragIsHappening =
                                             c.secondaryDrags.value != 0 ||
@@ -1034,25 +1033,22 @@ class DesktopCall extends StatelessWidget {
                 primaryDrags: c.primaryDrags,
                 secondaryTargets: c.secondaryTargets,
                 itemBuilder: (DragData data) {
-                  var participant = data.participant;
-                  return Obx(
-                    () => ParticipantWidget(
-                      participant,
-                      key: ObjectKey(participant),
-                      offstageUntilDetermined: true,
-                      respectAspectRatio: true,
-                      borderRadius: BorderRadius.zero,
-                    ),
+                  return ParticipantWidget(
+                    data.participant,
+                    key: ObjectKey(data.participant),
+                    offstageUntilDetermined: true,
+                    respectAspectRatio: true,
+                    borderRadius: BorderRadius.zero,
                   );
                 },
                 overlayBuilder: (DragData data) {
                   var participant = data.participant;
 
                   return Obx(() {
-                    bool muted =
+                    bool? muted =
                         participant.member.owner == MediaOwnerKind.local
                             ? !c.audioState.value.isEnabled
-                            : participant.audio.value?.isMuted.value ?? false;
+                            : null;
 
                     bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                         c.primaryDrags.value != 0 ||
