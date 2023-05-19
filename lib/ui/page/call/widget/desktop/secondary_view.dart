@@ -30,6 +30,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/page/call/component/desktop.dart';
 import '/ui/page/call/controller.dart';
 import 'drag_drop_handler.dart';
+import 'positioned_boilerplate.dart';
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 class SecondaryView extends StatelessWidget {
@@ -920,58 +921,6 @@ class SecondaryView extends StatelessWidget {
           ],
         );
       }),
-    );
-  }
-}
-
-class PositionedBoilerplateWidget extends StatelessWidget {
-  const PositionedBoilerplateWidget({
-    Key? key,
-    required this.width,
-    required this.height,
-    this.child,
-    this.left,
-    this.right,
-    this.top,
-    this.bottom,
-  }) : super(key: key);
-
-  /// The widget contained by this widget
-  final Widget? child;
-
-  /// The distance between the left edge of the [PositionedBoilerplateWidget]
-  /// and the left edge of the parent widget.
-  final double? left;
-
-  /// The distance between the right edge of the [PositionedBoilerplateWidget]
-  /// and the right edge of the parent widget.
-  final double? right;
-
-  /// The distance between the top edge of the [PositionedBoilerplateWidget]
-  /// and the top edge of the parent widget.
-  final double? top;
-
-  /// The distance between the bottom edge of the [PositionedBoilerplateWidget]
-  /// and the bottom edge of the parent widget.
-  final double? bottom;
-
-  /// The width of the [PositionedBoilerplateWidget].
-  final double width;
-
-  /// The height of the [PositionedBoilerplateWidget].
-  final double height;
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: left == null ? null : (left! - Scaler.size / 2),
-      right: right == null ? null : (right! - Scaler.size / 2),
-      top: top == null ? null : (top! - Scaler.size / 2),
-      bottom: bottom == null ? null : (bottom! - Scaler.size / 2),
-      child: SizedBox(
-        width: width + Scaler.size,
-        height: height + Scaler.size,
-        child: child,
-      ),
     );
   }
 }

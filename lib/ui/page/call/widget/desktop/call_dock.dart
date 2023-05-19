@@ -26,7 +26,8 @@ import '/themes.dart';
 import '/ui/page/call/controller.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
-/// [Widget] which contains the [CallController.buttons].
+/// [Widget] which contains set of buttons and callbacks for handling
+/// call-related functionalities.
 class CallDock extends StatelessWidget {
   const CallDock({
     super.key,

@@ -34,9 +34,7 @@ class ConstrainedRow extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 400),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ...children.map((e) => Expanded(child: e)).toList(),
-        ],
+        children: [...children.map((e) => Expanded(child: e)).toList()],
       ),
     );
   }
