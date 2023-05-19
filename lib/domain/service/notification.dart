@@ -91,6 +91,7 @@ class NotificationService extends DisposableService {
   void onClose() {
     _onFocusChanged?.cancel();
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/notification.mp3');
   }
 
@@ -154,11 +155,20 @@ class NotificationService extends DisposableService {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-      await AudioCache.instance.loadAll(['audio/notification.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
+        await AudioCache.instance.loadAll(['audio/notification.mp3']);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }

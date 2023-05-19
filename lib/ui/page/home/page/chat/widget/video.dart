@@ -116,11 +116,11 @@ class _VideoState extends State<Video> {
               child: Chewie(controller: _chewie!),
             )
           : _hasError
-              ? Center(
-                  key: const Key('Error'),
+              ? const Center(
+                  key: Key('Error'),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.error, size: 48, color: Colors.red),
                       SizedBox(height: 10),
                       Text(

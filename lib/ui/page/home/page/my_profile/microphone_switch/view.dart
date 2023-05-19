@@ -86,7 +86,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e = c.devices[i];
+                            final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.mic.value == null && i == 0) ||

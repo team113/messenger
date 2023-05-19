@@ -275,9 +275,11 @@ class CallWorker extends DisposableService {
   @override
   void onClose() {
     _audioPlayer?.dispose();
+    _audioPlayer = null;
 
     AudioCache.instance.clear('audio/ringing.mp3');
     AudioCache.instance.clear('audio/chinese.mp3');
+    AudioCache.instance.clear('audio/pop.mp3');
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -342,13 +344,25 @@ class CallWorker extends DisposableService {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer();
-      await AudioCache.instance
-          .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer();
+        await AudioCache.instance.loadAll([
+          'audio/ringing.mp3',
+          'audio/chinese.mp3',
+          'audio/pop.mp3',
+        ]);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Initializes a connection to the [_background] worker.

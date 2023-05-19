@@ -20,7 +20,7 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -510,19 +510,21 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    // [chats] are guaranteed to have favorite [Chat]s on the top.
-    final int length =
-        chats.where((e) => e.chat.value.favoritePosition != null).length;
+    final List<RxChat> favorites = chats
+        .where((e) =>
+            e.chat.value.ongoingCall == null &&
+            e.chat.value.favoritePosition != null)
+        .toList();
 
     double position;
 
     if (to <= 0) {
-      position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (to >= length) {
-      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
+      position = favorites.first.chat.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.chat.value.favoritePosition!.val * 2;
     } else {
-      position = (chats[to].chat.value.favoritePosition!.val +
-              chats[to - 1].chat.value.favoritePosition!.val) /
+      position = (favorites[to].chat.value.favoritePosition!.val +
+              favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
 
@@ -530,8 +532,11 @@ class ChatsTabController extends GetxController {
       to--;
     }
 
-    final ChatId chatId = chats[from].id;
-    chats.insert(to, chats.removeAt(from));
+    final int start = chats.indexOf(favorites[from]);
+    final int end = chats.indexOf(favorites[to]);
+
+    final ChatId chatId = chats[start].id;
+    chats.insert(end, chats.removeAt(start));
 
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
@@ -613,6 +618,18 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      } else if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall != null) {
+        return a.chat.value.ongoingCall!.at
+            .compareTo(b.chat.value.ongoingCall!.at);
+      }
+
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -631,6 +648,12 @@ class ChatsTabController extends GetxController {
       } else if (a.chat.value.ongoingCall == null &&
           b.chat.value.ongoingCall != null) {
         return 1;
+      }
+
+      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
+        return 1;
+      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
+        return -1;
       }
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
@@ -693,10 +716,10 @@ class _ChatSortingData {
       chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != updatedAt || hasCall != hasCall) {
+        if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
-          hasCall = hasCall;
+          this.hasCall = hasCall;
         }
       },
     );

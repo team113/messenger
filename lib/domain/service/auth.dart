@@ -325,7 +325,7 @@ class AuthService extends GetxService {
   Future<void> renewSession() async {
     if (WebUtils.credentialsUpdating) {
       // Wait until the [Credentials] are done updating in another tab.
-      await Future.delayed(5.seconds);
+      await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
 
       if (!_shouldRefresh) {
         // [Credentials] are successfully updated.
