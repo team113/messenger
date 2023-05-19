@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -72,6 +73,8 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget button({
       required String text,
       IconData? icon,
@@ -87,12 +90,12 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: const TextStyle(fontSize: 15, color: Colors.black),
-          color: Theme.of(context).colorScheme.secondary,
+          style: TextStyle(fontSize: 15, color: style.colors.onBackground),
+          color: style.colors.primary,
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
+            child: child ?? Icon(icon, color: style.colors.onPrimary, size: 30),
           ),
         ),
       );
@@ -152,7 +155,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           key: const Key('CloseButton'),
           title: Text('btn_close'.l10n),
           onPressed: Navigator.of(context).pop,
-          color: const Color(0xFFEEEEEE),
+          color: style.colors.secondaryHighlight,
         ),
         const SizedBox(height: 10),
       ],

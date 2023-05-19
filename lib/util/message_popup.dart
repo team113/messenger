@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -51,15 +52,17 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(router.context!)
+        .textTheme
+        .bodyLarge
+        ?.copyWith(color: style.colors.onBackground);
+
     return ModalPopup.show(
       context: router.context!,
       child: Builder(
         builder: (context) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black);
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -86,7 +89,7 @@ class MessagePopup {
                               children: description,
                               style: thin?.copyWith(
                                 fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                           ),
@@ -109,10 +112,10 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),
