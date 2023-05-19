@@ -136,7 +136,6 @@ class PrimaryView extends StatelessWidget {
                   fit: rendererBoxFit[
                       participant.video.value?.renderer.value?.track.id() ??
                           ''],
-                  expanded: doughDraggedRenderer.value == participant,
                 );
               });
             },

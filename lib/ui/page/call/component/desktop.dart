@@ -1042,7 +1042,6 @@ class DesktopCall extends StatelessWidget {
                       offstageUntilDetermined: true,
                       respectAspectRatio: true,
                       borderRadius: BorderRadius.zero,
-                      expanded: c.doughDraggedRenderer.value == participant,
                     ),
                   );
                 },
