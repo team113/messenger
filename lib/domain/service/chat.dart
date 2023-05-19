@@ -124,8 +124,8 @@ class ChatService extends DisposableService {
   }
 
   /// Resends the specified [item].
-  Future<void> resendChatItem(ChatItem item) =>
-      _chatRepository.resendChatItem(item);
+  Future<void> resendChatItem(ChatItem item, ChatId id) =>
+      _chatRepository.resendChatItem(item, id);
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {

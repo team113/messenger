@@ -446,7 +446,7 @@ class ChatController extends GetxController {
   Future<void> resendItem(ChatItem item) async {
     if (item.status.value == SendingStatus.error) {
       await _chatService
-          .resendChatItem(item)
+          .resendChatItem(item, chat?.id ?? item.chatId)
           .then((_) => _playMessageSent())
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))

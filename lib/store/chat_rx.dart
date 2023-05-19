@@ -406,6 +406,27 @@ class HiveRxChat extends RxChat {
     await _readTimer?.future;
   }
 
+  /// Creates a local [ChatMessage] with the provided arguments.
+  ChatItem postLocalMessage({
+    PreciseDateTime? existingDateTime,
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+    List<ChatItem> repliesTo = const [],
+  }) {
+    HiveChatMessage message = HiveChatMessage.sending(
+      chatId: chat.value.id,
+      me: me!,
+      text: text,
+      repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
+      attachments: attachments ?? [],
+      existingDateTime: existingDateTime,
+    );
+
+    put(message, ignoreVersion: true);
+
+    return message.value;
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -414,7 +435,7 @@ class HiveRxChat extends RxChat {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<ChatItem> postChatMessage({
+  Future<void> postChatMessage({
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
     ChatMessageText? text,
@@ -443,7 +464,8 @@ class HiveRxChat extends RxChat {
     // If the [ChatMessage] being posted is local, then no remote queries should
     // be performed, so return the constructed item right away.
     if (id.isLocal) {
-      return message.value;
+      message.value.status.value = SendingStatus.error;
+      return;
     }
 
     _pending.add(message.value);
@@ -516,8 +538,6 @@ class HiveRxChat extends RxChat {
     } finally {
       put(message, ignoreVersion: true);
     }
-
-    return message.value;
   }
 
   /// Puts the provided [item] to [Hive].
@@ -798,10 +818,6 @@ class HiveRxChat extends RxChat {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      if (chat.value.isMonolog &&
-          _chatRepository.localMonologFavoritePosition != null) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
 
       BoxEvent event = _localSubscription!.current;
       int i = messages.indexWhere((e) => e.value.timestamp == event.key);

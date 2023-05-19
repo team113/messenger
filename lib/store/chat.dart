@@ -258,8 +258,7 @@ class ChatRepository extends DisposableInterface
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      // If recipient is us, then return an [ensureRemoteMonolog].
-      if (chatId.userId == me) {
+      if (chatId.isLocalMonolog(me)) {
         return await ensureRemoteMonolog();
       }
 
@@ -308,14 +307,18 @@ class ChatRepository extends DisposableInterface
     ChatItem? local;
 
     if (chatId.isLocal) {
-      local = await rxChat?.postChatMessage(
+      local = rxChat?.postLocalMessage(
         existingDateTime: PreciseDateTime.now().add(10.seconds),
         text: text,
         attachments: attachments,
         repliesTo: repliesTo,
       );
 
-      rxChat = await ensureRemoteDialog(chatId);
+      try {
+        rxChat = await ensureRemoteDialog(chatId);
+      } catch (_) {
+        // No-op.
+      }
     }
 
     await rxChat?.postChatMessage(
@@ -353,8 +356,8 @@ class ChatRepository extends DisposableInterface
       );
 
   @override
-  Future<void> resendChatItem(ChatItem item) async {
-    HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
+  Future<void> resendChatItem(ChatItem item, ChatId id) async {
+    HiveRxChat? rxChat = _chats[id] ?? (await get(id));
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
@@ -368,8 +371,8 @@ class ChatRepository extends DisposableInterface
       }
 
       // If this [item] is posted in a local [Chat], then make it remote first.
-      if (item.chatId.isLocal) {
-        rxChat = await ensureRemoteDialog(item.chatId);
+      if (id.isLocal) {
+        rxChat = await ensureRemoteDialog(id);
       }
 
       await rxChat?.postChatMessage(
@@ -394,7 +397,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
-    if (id.isLocal && id.userId == me) {
+    if (id.isLocalMonolog(me)) {
       await ensureRemoteMonolog(name);
       return;
     }
@@ -444,7 +447,7 @@ class ChatRepository extends DisposableInterface
     ChatData? monolog;
 
     try {
-      if (id.isLocal && id.userId == me) {
+      if (id.isLocalMonolog(me)) {
         _monologShouldBeHidden = true;
         monolog = _chat(await _graphQlProvider.createMonologChat(null));
 
@@ -779,7 +782,7 @@ class ChatRepository extends DisposableInterface
       chat?.chat.update((c) => c?.avatar = null);
     }
 
-    if (id.isLocal && id.userId == me) {
+    if (id.isLocalMonolog(me)) {
       id = (await ensureRemoteMonolog()).id;
     }
 
@@ -909,7 +912,7 @@ class ChatRepository extends DisposableInterface
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
-      if (id.isLocal && id.userId == me) {
+      if (id.isLocalMonolog(me)) {
         localMonologFavoritePosition = newPosition;
         final HiveRxChat chat = await ensureRemoteMonolog();
         await favoriteChat(chat.id, position);
@@ -918,8 +921,7 @@ class ChatRepository extends DisposableInterface
 
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
-      if (chat?.chat.value.isMonolog == true &&
-          localMonologFavoritePosition != null) {
+      if (chat?.chat.value.isMonolog == true) {
         localMonologFavoritePosition = null;
       }
 
@@ -1196,11 +1198,12 @@ class ChatRepository extends DisposableInterface
         } else {
           if (chat.chat.value.isMonolog &&
               localMonologFavoritePosition != null) {
+            event.value.value.favoritePosition = localMonologFavoritePosition;
             localMonologFavoritePosition = null;
-          } else {
-            chat.chat.value = event.value.value;
-            chat.chat.refresh();
           }
+
+          chat.chat.value = event.value.value;
+          chat.chat.refresh();
         }
       }
     }
@@ -1257,8 +1260,6 @@ class ChatRepository extends DisposableInterface
           if (event.chat.chat.value.isMonolog) {
             if (_monologShouldBeHidden) {
               _monologShouldBeHidden = false;
-              break;
-            } else if (localMonologFavoritePosition != null) {
               break;
             }
           }
@@ -1333,17 +1334,14 @@ class ChatRepository extends DisposableInterface
           if (localChat != null) {
             chats.move(localId, data.chat.value.id);
 
-            bool isFavoritedLocalMonolog = data.chat.value.isMonolog &&
+            bool isLocalMonologFavorited = data.chat.value.isMonolog &&
                 localMonologFavoritePosition != null;
-            if (isFavoritedLocalMonolog) {
+            if (isLocalMonologFavorited) {
               data.chat.value.favoritePosition = localMonologFavoritePosition;
             }
 
             await localChat.updateChat(data.chat.value);
 
-            if (isFavoritedLocalMonolog) {
-              data.chat.value.favoritePosition = null;
-            }
 
             entry = localChat;
           }
