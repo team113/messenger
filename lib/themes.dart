@@ -410,7 +410,7 @@ class Style extends ThemeExtension<Style> {
     required this.unreadMessageColor,
   });
 
-  /// Set of properties representing the [Color]s of the application.
+  /// [Palette] to use in the application.
   final Palette colors;
 
   /// [Color] of the modal background barrier.
@@ -538,7 +538,7 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      colors: Palette.lerp(colors, other.colors, t) as Palette,
+      colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
@@ -855,7 +855,7 @@ class Palette {
 
   /// Linear interpolation between two [Palette] objects based on a given [t]
   /// value.
-  static Palette? lerp(Palette color, Palette? other, double t) {
+  static Palette lerp(Palette color, Palette? other, double t) {
     if (other is! Palette) {
       return color;
     }
