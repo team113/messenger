@@ -560,6 +560,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     super.dispose();
   }
 

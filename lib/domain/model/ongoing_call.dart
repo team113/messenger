@@ -1674,10 +1674,12 @@ class OngoingCall {
 
   void addNotification({MediaDeviceDetails? device, int? score}) {
     if (score != null) {
-      members.values
-          .firstWhereOrNull((e) => e.id.userId != _me.userId)
-          ?.quality
-          .value = Random().nextInt(4) + 1;
+      final member =
+          members.values.firstWhereOrNull((e) => e.id.userId != _me.userId);
+
+      if (member != null) {
+        member.quality.value = member.quality.value == 1 ? 4 : 1;
+      }
       return;
     }
 

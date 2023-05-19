@@ -134,6 +134,7 @@ class NotificationService extends DisposableService {
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/notification2.mp3');
   }
 

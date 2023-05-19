@@ -2154,7 +2154,7 @@ class _ChatViewState extends State<ChatView>
             child: MessageFieldView(
               key: const Key('SendField'),
               controller: c.send,
-              onChanged: c.keepTyping,
+              onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
               onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
               canForward: true,
               // background:

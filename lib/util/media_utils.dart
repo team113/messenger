@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'log.dart';
+import 'platform_utils.dart';
 import 'web/web_utils.dart';
 
 /// Helper providing direct access to media related resources like media
@@ -85,13 +86,16 @@ class MediaUtils {
   static Stream<List<MediaDisplayDetails>> get onDisplayChange {
     if (_displaysController == null) {
       _displaysController = StreamController.broadcast();
-      Future(() async {
-        _displaysController?.add(
-          (await mediaManager?.enumerateDisplays() ?? [])
-              .where((e) => e.deviceId().isNotEmpty)
-              .toList(),
-        );
-      });
+
+      if (!PlatformUtils.isWeb) {
+        Future(() async {
+          _displaysController?.add(
+            (await mediaManager?.enumerateDisplays() ?? [])
+                .where((e) => e.deviceId().isNotEmpty)
+                .toList(),
+          );
+        });
+      }
     }
 
     return _displaysController!.stream;
@@ -133,6 +137,10 @@ class MediaUtils {
 
   /// Returns the currently available [MediaDisplayDetails].
   static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
+    if (PlatformUtils.isWeb) {
+      return [];
+    }
+
     return (await mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();

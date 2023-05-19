@@ -171,6 +171,7 @@ class PublicController extends GetxController {
   void onClose() {
     _messagesSubscription.cancel();
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/message_sent.mp3');
   }
 

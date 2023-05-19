@@ -253,7 +253,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: Transform.translate(
               offset: const Offset(-1, 0),
               child: SvgImage.asset(
-                'assets/icons/signal_level.svg',
+                'assets/icons/signal_level5.svg',
                 height: 15.5,
               ),
             ),

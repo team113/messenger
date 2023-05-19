@@ -260,14 +260,10 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop) {
-                          return Block(
-                            title: 'label_calls'.l10n,
-                            children: [_call(context, c)],
-                          );
-                        }
-
-                        return const SizedBox();
+                        return Block(
+                          title: 'label_calls'.l10n,
+                          children: [_call(context, c)],
+                        );
 
                       case ProfileTab.media:
                         if (!PlatformUtils.isMobile) {
@@ -1253,37 +1249,39 @@ Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      // if (PlatformUtils.isWeb) ...[
-      _dense(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
-            child: Text(
-              'label_open_calls_in'.l10n,
-              style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
+      if (PlatformUtils.isDesktop && PlatformUtils.isWeb) ...[
+        // if (PlatformUtils.isWeb) ...[
+        _dense(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_open_calls_in'.l10n,
+                style: style.systemMessageStyle.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
         ),
-      ),
-      const SizedBox(height: 4),
-      _dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.settings.value?.enablePopups ?? true)
-                ? 'label_open_calls_in_window'.l10n
-                : 'label_open_calls_in_app'.l10n,
-            maxLines: null,
-            onPressed: () => CallWindowSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          );
-        }),
-      ),
-      const SizedBox(height: 16),
+        const SizedBox(height: 4),
+        _dense(
+          Obx(() {
+            return FieldButton(
+              text: (c.settings.value?.enablePopups ?? true)
+                  ? 'label_open_calls_in_window'.l10n
+                  : 'label_open_calls_in_app'.l10n,
+              maxLines: null,
+              onPressed: () => CallWindowSwitchView.show(context),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+      ],
       // ],
       _dense(
         Stack(
