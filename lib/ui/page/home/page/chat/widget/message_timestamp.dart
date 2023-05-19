@@ -73,30 +73,30 @@ class MessageTimestamp extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (status != null) ...[
-          if (isSent || isDelivered || isRead || isSending || isError)
-            Icon(
-              (isRead || isDelivered)
-                  ? Icons.done_all
+        if (status != null &&
+            (isSent || isDelivered || isRead || isSending || isError)) ...[
+          Icon(
+            (isRead || isDelivered)
+                ? Icons.done_all
+                : isSending
+                    ? Icons.access_alarm
+                    : isError
+                        ? Icons.error_outline
+                        : Icons.done,
+            color: isRead
+                ? Theme.of(context).colorScheme.secondary
+                : isError
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+            size: 12,
+            key: Key(
+              isError
+                  ? 'Error'
                   : isSending
-                      ? Icons.access_alarm
-                      : isError
-                          ? Icons.error_outline
-                          : Icons.done,
-              color: isRead
-                  ? Theme.of(context).colorScheme.secondary
-                  : isError
-                      ? Colors.red
-                      : Theme.of(context).colorScheme.primary,
-              size: 12,
-              key: Key(
-                isError
-                    ? 'Error'
-                    : isSending
-                        ? 'Sending'
-                        : 'Sent',
-              ),
+                      ? 'Sending'
+                      : 'Sent',
             ),
+          ),
           const SizedBox(width: 3),
         ],
         SelectionContainer.disabled(
