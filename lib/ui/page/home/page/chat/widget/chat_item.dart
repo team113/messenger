@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart'
@@ -771,8 +770,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isRead: isSent && (!_fromMe || _isRead),
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
-        swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
-        padding: const EdgeInsets.only(bottom: 8),
+        swipeable: Text(message.at.val.toLocal().hm),
+        padding: const EdgeInsets.only(bottom: 6.5),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1000,7 +999,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ],
             ),
-            if (_text != null) const SizedBox(height: 8),
+            if (_text != null) const SizedBox(height: 6),
           ],
         ];
 
@@ -1554,15 +1553,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       animation: widget.animation,
       translate: _fromMe,
       status: _fromMe,
-      isSent: isSent && _fromMe,
-      isDelivered: isSent &&
-          _fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(item.at) == false,
-      isRead: isSent && (!_fromMe || _isRead),
+      isSent: isSent,
+      isDelivered:
+          isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
+      isRead: isSent && _isRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
-      swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding: EdgeInsets.only(bottom: avatars.isNotEmpty ? 33 : 13),
+      swipeable: Text(item.at.val.toLocal().hm),
+      padding: EdgeInsets.only(
+        bottom: (avatars.isNotEmpty ? 28 : 7) + widget.margin.bottom,
+      ),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,

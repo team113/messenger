@@ -149,7 +149,7 @@ class RecentChatTile extends StatelessWidget {
         status: [
           _status(context, inverted),
           Text(
-            chat.updatedAt.val.toLocal().toShort(),
+            chat.updatedAt.val.toLocal().short,
             style: Theme.of(context)
                 .textTheme
                 .titleSmall
@@ -931,36 +931,4 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
-  ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
-  }
 }

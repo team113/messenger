@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
@@ -905,15 +904,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       animation: widget.animation,
       translate: _fromMe,
       status: _fromMe,
-      isSent: isSent && _fromMe,
-      isDelivered: isSent &&
-          _fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(_at) == false,
-      isRead: isSent && (!_fromMe || _isRead),
+      isSent: isSent,
+      isDelivered:
+          isSent && widget.chat.value?.lastDelivery.isBefore(_at) == false,
+      isRead: isSent && _isRead,
       isError: widget.forwards.first.value.status.value == SendingStatus.error,
       isSending:
           widget.forwards.first.value.status.value == SendingStatus.sending,
-      swipeable: Text(DateFormat.Hm().format(_at.val.toLocal())),
+      swipeable: Text(_at.val.toLocal().hm),
       padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -102,10 +101,7 @@ class MessageTimestamp extends StatelessWidget {
         ],
         SelectionContainer.disabled(
           child: Text(
-            DateFormat.Hm().format(at.val.toLocal()) +
-                (date
-                    ? ' ${DateFormat.yMd(L10n.chosen.value?.locale.toString()).format(at.val.toLocal())}'
-                    : ''),
+            date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
             style: style.systemMessageStyle.copyWith(
               fontSize: fontSize ?? 11,
               color: inverted ? const Color(0xFFDEDEDE) : null,
