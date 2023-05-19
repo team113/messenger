@@ -25,8 +25,8 @@ import 'secondary_scaler.dart';
 
 /// Handle with a drag-and-drop function that allows the user to resize and
 /// manipulate user interface elements.
-class BuildDragHandle extends StatelessWidget {
-  const BuildDragHandle(
+class DragDropHandler extends StatelessWidget {
+  const DragDropHandler(
     this.height,
     this.width,
     this.alignment,

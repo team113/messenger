@@ -29,7 +29,7 @@ import '/util/platform_utils.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/page/call/component/desktop.dart';
 import '/ui/page/call/controller.dart';
-import 'build_drag_handle.dart';
+import 'drag_drop_handler.dart';
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 class SecondaryView extends StatelessWidget {
@@ -317,7 +317,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.centerLeft,
@@ -344,7 +344,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.centerRight,
@@ -371,7 +371,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.bottomCenter,
@@ -398,7 +398,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.topCenter,
@@ -425,7 +425,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.topLeft,
@@ -454,7 +454,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.topRight,
@@ -483,7 +483,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.bottomLeft,
@@ -512,7 +512,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == null
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.bottomRight,
@@ -663,7 +663,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == Alignment.centerRight
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.centerLeft,
@@ -690,7 +690,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == Alignment.centerLeft
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.centerRight,
@@ -717,7 +717,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == Alignment.topCenter
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.bottomCenter,
@@ -744,7 +744,7 @@ class SecondaryView extends StatelessWidget {
               height: height,
               child: Obx(
                 () => secondaryAlignment.value == Alignment.bottomCenter
-                    ? BuildDragHandle(
+                    ? DragDropHandler(
                         width,
                         height,
                         Alignment.topCenter,

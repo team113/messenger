@@ -457,10 +457,10 @@ class CallButtonWidget extends StatelessWidget {
   /// Hint text of this [CallButtonWidget].
   final String? hint;
 
-  /// Additional button extension for displaying a [hint].
+  /// Indicator whether [hint] should be displayed.
   final bool hinted;
 
-  /// Additional button extension to fill the available space.
+  /// Indicator whether the available space needs to be filled.
   final bool expanded;
 
   /// Additional button extension for blurred background.
