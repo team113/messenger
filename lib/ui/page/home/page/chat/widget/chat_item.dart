@@ -2057,7 +2057,7 @@ extension LocalizedDurationExtension on Duration {
 extension LinkParsingExtension on String {
   /// [RegExp] detecting links and e-mails in a [parseLinks] method.
   static final RegExp _regex = RegExp(
-    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)',
+    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|((([a-z]+:\/\/)?(www\.)?([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,})((\/\S*)?[^,\u0027")}\].:;?!`\s])?)',
   );
 
   /// Returns [TextSpan]s containing plain text along with links and e-mails
