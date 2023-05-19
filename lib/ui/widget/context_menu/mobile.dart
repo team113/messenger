@@ -434,6 +434,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
     List<Widget> widgets = [];
+    final Style style = Theme.of(context).extension<Style>()!;
 
     for (int i = 0; i < widget.actions.length; ++i) {
       if (widget.actions[i] is! ContextMenuDivider) {
@@ -443,7 +444,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         if (i < widget.actions.length - 1) {
           widgets.add(
             Container(
-              color: const Color(0x11000000),
+              color: style.colors.onBackgroundOpacity7,
               height: 1,
               width: double.infinity,
             ),
@@ -451,8 +452,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         }
       }
     }
-
-    final Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) {
