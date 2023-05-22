@@ -448,7 +448,7 @@ class UserView extends StatelessWidget {
       ReactiveTextField(
         state: c.email,
         label: 'Добавить E-mail',
-        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        // style: TextStyle(color: Theme.of(context).colorScheme.primary),
       ),
     );
     widgets.add(const SizedBox(height: 10));
@@ -501,7 +501,7 @@ class UserView extends StatelessWidget {
       ReactiveTextField(
         state: c.phone,
         label: 'Добавить телефон',
-        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        // style: TextStyle(color: Theme.of(context).colorScheme.primary),
       ),
     );
     widgets.add(const SizedBox(height: 10));
@@ -776,7 +776,7 @@ class UserView extends StatelessWidget {
                     editable: false,
                   ),
                   style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             );
@@ -798,7 +798,7 @@ class UserView extends StatelessWidget {
                     editable: false,
                   ),
                   style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             );
@@ -840,7 +840,7 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                   style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             );
@@ -856,7 +856,7 @@ class UserView extends StatelessWidget {
         //           editable: false,
         //         ),
         //         style:
-        //             TextStyle(color: Theme.of(context).colorScheme.secondary),
+        //             TextStyle(color: Theme.of(context).colorScheme.primary),
         //       ),
         //     ),
         //   ),
@@ -881,8 +881,7 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -907,8 +906,7 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -923,8 +921,7 @@ class UserView extends StatelessWidget {
                   text: c.blocked.value ? 'Разблокировать' : 'Заблокировать',
                   editable: false,
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -939,8 +936,7 @@ class UserView extends StatelessWidget {
                   text: 'Пожаловаться',
                   editable: false,
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -961,8 +957,7 @@ class UserView extends StatelessWidget {
                   text: 'Написать сообщение',
                   editable: false,
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),

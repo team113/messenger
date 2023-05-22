@@ -148,7 +148,7 @@ class PartnerMoreView extends StatelessWidget {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: Theme.of(context).colorScheme.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.displayTransactions,
                     onChanged: c.setDisplayTransactions,

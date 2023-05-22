@@ -108,7 +108,7 @@ class InsufficientFundsView extends StatelessWidget {
                         Navigator.of(context).pop();
                         c.topUp();
                       },
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],

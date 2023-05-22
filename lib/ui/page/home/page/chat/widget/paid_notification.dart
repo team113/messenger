@@ -84,7 +84,7 @@ class PaidNotification extends StatelessWidget {
                   Text(
                     'Принять и продолжить',
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],

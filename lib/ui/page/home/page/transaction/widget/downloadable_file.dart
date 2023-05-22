@@ -62,15 +62,15 @@ class _DownloadableFileState extends State<DownloadableFile> {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 2,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Theme.of(context).colorScheme.secondary,
-                    Theme.of(context).colorScheme.secondary,
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary,
                     const Color(0xFFD1E1F0),
                   ],
                   stops: [
@@ -98,7 +98,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
             width: 34,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             child: const Center(
               child: Icon(
@@ -122,7 +122,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                   _hovered ? const Color(0xFFD1E1F0) : const Color(0x00D1E1F0),
               border: Border.all(
                 width: 2,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             child: Center(

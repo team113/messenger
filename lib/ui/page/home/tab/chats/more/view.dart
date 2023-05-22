@@ -158,7 +158,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: Theme.of(context).colorScheme.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -225,13 +225,13 @@ class ChatsMoreView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {

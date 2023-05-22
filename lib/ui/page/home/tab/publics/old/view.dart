@@ -364,7 +364,7 @@ class PublicsTabView extends StatelessWidget {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: c.createGroup,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -1123,7 +1123,7 @@ class PublicsTabView extends StatelessWidget {
                 Text(
                   'Печатает'.l10n,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 3),
@@ -1146,7 +1146,7 @@ class PublicsTabView extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),

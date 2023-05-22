@@ -88,7 +88,7 @@ class PartnerTabView extends StatelessWidget {
                     offset: const Offset(0, 0),
                     child: Icon(
                       Icons.account_balance_wallet_outlined,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     // child: SvgImage.asset(
                     //   'assets/icons/transactions.svg',

@@ -77,7 +77,7 @@ class GetPaidView extends StatelessWidget {
                         email: c.myUser.value?.emails.unconfirmed,
                       );
                     },
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   );
                 }
 
@@ -90,7 +90,7 @@ class GetPaidView extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 );
               }),
             ),
@@ -172,7 +172,7 @@ class GetPaidView extends StatelessWidget {
                                     fontFamily: 'Gapopa',
                                     fontWeight: FontWeight.w400,
                                     color:
-                                        Theme.of(context).colorScheme.primary,
+                                        Theme.of(context).colorScheme.secondary,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -210,7 +210,7 @@ class GetPaidView extends StatelessWidget {
                                     fontFamily: 'Gapopa',
                                     fontWeight: FontWeight.w400,
                                     color:
-                                        Theme.of(context).colorScheme.primary,
+                                        Theme.of(context).colorScheme.secondary,
                                     fontSize: 15,
                                   ),
                                 ),

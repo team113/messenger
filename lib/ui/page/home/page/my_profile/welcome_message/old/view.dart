@@ -302,7 +302,7 @@ class WelcomeMessageView extends StatelessWidget {
                 child: Text(
                   'btn_edit'.l10n,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 11,
                   ),
                 ),
@@ -317,7 +317,7 @@ class WelcomeMessageView extends StatelessWidget {
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 11,
                   ),
                 ),

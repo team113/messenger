@@ -80,11 +80,13 @@ class PaidListView extends StatelessWidget {
                       itemBuilder: (context, i) {
                         RxUser? user = c.blacklist[i];
 
-                        final textStyle =
-                            Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 13,
-                                );
+                        final textStyle = Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 13,
+                            );
 
                         return ContactTile(
                           user: user,
@@ -161,7 +163,7 @@ class PaidListView extends StatelessWidget {
                             // Text(
                             //   '28.12.2022',
                             //   style: TextStyle(
-                            //     color: Theme.of(context).colorScheme.primary,
+                            //     color: Theme.of(context).colorScheme.secondary,
                             //     fontSize: 13,
                             //   ),
                             // ),
@@ -173,7 +175,7 @@ class PaidListView extends StatelessWidget {
                             //     'btn_unblock_short'.l10n,
                             //     style: TextStyle(
                             //       color:
-                            //           Theme.of(context).colorScheme.secondary,
+                            //           Theme.of(context).colorScheme.primary,
                             //       fontSize: 13,
                             //     ),
                             //   ),

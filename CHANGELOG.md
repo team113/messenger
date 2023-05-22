@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
-        - Clickable links and emails. ([#388])
+        - Clickable links and emails. ([#436], [#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#333], [#326])    
@@ -41,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
         - Participants dialing indication. ([#286], [#281])
     - Chats tab:
         - Inverted selected chat colors. ([#405])
+        - Chats with ongoing calls sorting above favorites. ([#392], [#371])
 
 ### Fixed
 
@@ -65,14 +66,17 @@ All user visible changes to this project will be documented in this file. This p
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
+[#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380
 [#388]: /../../pull/388
+[#392]: /../../pull/392
 [#393]: /../../pull/393
 [#399]: /../../pull/399
 [#403]: /../../pull/403
 [#405]: /../../pull/405
+[#436]: /../../pull/436
 
 
 

@@ -714,10 +714,10 @@ class UserView extends StatelessWidget {
                         },
                         trailing: Icon(
                           Icons.verified_outlined,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -808,7 +808,7 @@ class UserView extends StatelessWidget {
           //                     c.verified.value = true;
           //                   },
           //                   style: TextStyle(
-          //                       color: Theme.of(context).colorScheme.secondary),
+          //                       color: Theme.of(context).colorScheme.primary),
           //                 ),
           //               ),
           //             ),
@@ -848,8 +848,8 @@ class UserView extends StatelessWidget {
                   },
                   style: TextStyle(
                     color: c.verified.value
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).colorScheme.primary,
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 Padding(
@@ -859,7 +859,7 @@ class UserView extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 15,
                     ),
                   ),
@@ -901,8 +901,8 @@ class UserView extends StatelessWidget {
                   },
                   style: TextStyle(
                     color: c.verified.value
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).colorScheme.primary,
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 Padding(
@@ -912,7 +912,7 @@ class UserView extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 15,
                     ),
                   ),
@@ -935,8 +935,8 @@ class UserView extends StatelessWidget {
           //               text: 'label_details'.l10n,
           //               style: TextStyle(
           //                 color: c.verified.value
-          //                     ? Theme.of(context).colorScheme.secondary
-          //                     : Theme.of(context).colorScheme.primary,
+          //                     ? Theme.of(context).colorScheme.primary
+          //                     : Theme.of(context).colorScheme.secondary,
           //               ),
           //               recognizer: TapGestureRecognizer()
           //                 ..onTap = () async {

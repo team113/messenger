@@ -77,7 +77,7 @@ class ContactSupportView extends StatelessWidget {
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -110,7 +110,7 @@ class ContactSupportView extends StatelessWidget {
                             Navigator.of(context).pop();
                             c.support();
                           },
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   );
                 }),
               ),

@@ -246,7 +246,7 @@ class SearchView extends StatelessWidget {
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     );
                   }),
                 ),

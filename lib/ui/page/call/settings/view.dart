@@ -113,7 +113,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }),
@@ -148,7 +148,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }),
@@ -183,7 +183,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }),
@@ -201,7 +201,7 @@ class CallSettingsView extends StatelessWidget {
                         child: Text(
                           'label_open_calls_in'.l10n,
                           style: style.systemMessageStyle.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
@@ -223,7 +223,7 @@ class CallSettingsView extends StatelessWidget {
                           ),
                           maxLines: null,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -258,7 +258,7 @@ class CallSettingsView extends StatelessWidget {
                                 child: Obx(
                                   () => Switch.adaptive(
                                     activeColor:
-                                        Theme.of(context).colorScheme.secondary,
+                                        Theme.of(context).colorScheme.primary,
                                     materialTapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap,
                                     value: c.settings.value?.leaveWhenAlone ==

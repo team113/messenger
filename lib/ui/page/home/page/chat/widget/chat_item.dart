@@ -938,7 +938,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // const Color paidColor = Color(0xFFb68ad1);
     const Color paidColor = Color(0xFF7eae76);
 
-    // final Color paidColor = Theme.of(context).colorScheme.secondary;
+    // final Color paidColor = Theme.of(context).colorScheme.primary;
 
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
@@ -971,7 +971,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.paid && !_fromMe && widget.timestamp) ...[
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.secondary,
             height: 10,
             width: 0.5,
           ),
@@ -988,12 +988,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Icons.error_outline
                             : Icons.done,
                 color: isRead
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : isError
                         ? style.colors.dangerColor
                         : timeInBubble
                             ? Colors.white
-                            : Theme.of(context).colorScheme.primary,
+                            : Theme.of(context).colorScheme.secondary,
                 size: 12,
               ),
             const SizedBox(width: 3),
@@ -2039,7 +2039,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           //             '${'plus'.l10n}$count',
           //             style: TextStyle(
           //               fontSize: 15,
-          //               color: Theme.of(context).colorScheme.primary,
+          //               color: Theme.of(context).colorScheme.secondary,
           //             ),
           //           ),
           //         ),

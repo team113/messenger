@@ -64,7 +64,7 @@ class BalanceProviderWidget extends StatelessWidget {
                   (e) => IconTheme(
                     data: IconThemeData(
                       size: 48,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     child: e,
                   ),

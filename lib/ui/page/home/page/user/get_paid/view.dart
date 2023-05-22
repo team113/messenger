@@ -67,7 +67,7 @@ class GetPaidView2 extends StatelessWidget {
                 ],
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ),

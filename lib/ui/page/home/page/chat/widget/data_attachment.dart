@@ -65,15 +65,15 @@
 //                 decoration: BoxDecoration(
 //                   border: Border.all(
 //                     width: 2,
-//                     color: Theme.of(context).colorScheme.secondary,
+//                     color: Theme.of(context).colorScheme.primary,
 //                   ),
 //                   shape: BoxShape.circle,
 //                   gradient: LinearGradient(
 //                     begin: Alignment.bottomCenter,
 //                     end: Alignment.topCenter,
 //                     colors: [
-//                       Theme.of(context).colorScheme.secondary,
-//                       Theme.of(context).colorScheme.secondary,
+//                       Theme.of(context).colorScheme.primary,
+//                       Theme.of(context).colorScheme.primary,
 //                       const Color(0xFFD1E1F0),
 //                     ],
 //                     stops: [
@@ -101,7 +101,7 @@
 //               width: 17,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Theme.of(context).colorScheme.secondary,
+//                 color: Theme.of(context).colorScheme.primary,
 //               ),
 //               child: const Center(
 //                 child: Icon(
@@ -126,7 +126,7 @@
 //                     : const Color(0x00D1E1F0),
 //                 border: Border.all(
 //                   width: 2,
-//                   color: Theme.of(context).colorScheme.secondary,
+//                   color: Theme.of(context).colorScheme.primary,
 //                 ),
 //               ),
 //               child: KeyedSubtree(
@@ -235,7 +235,7 @@
 //                       overflow: TextOverflow.ellipsis,
 //                       style: style.boldBody.copyWith(
 //                         fontSize: 13,
-//                         color: Theme.of(context).colorScheme.primary,
+//                         color: Theme.of(context).colorScheme.secondary,
 //                       ),
 //                     ),
 //                   ),
@@ -506,7 +506,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             //       style: style.systemMessageStyle.copyWith(
                             //         fontSize: 11,
                             //         color:
-                            //             Theme.of(context).colorScheme.primary,
+                            //             Theme.of(context).colorScheme.secondary,
                             //       ),
                             //     );
                             //   }),
@@ -538,7 +538,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             //       style: style.systemMessageStyle.copyWith(
                             //         fontSize: 11,
                             //         color:
-                            //             Theme.of(context).colorScheme.primary,
+                            //             Theme.of(context).colorScheme.secondary,
                             //       ),
                             //     );
                             //   }),
@@ -583,7 +583,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                   //     overflow: TextOverflow.ellipsis,
                   //     style: style.boldBody.copyWith(
                   //       fontSize: 13,
-                  //       color: Theme.of(context).colorScheme.primary,
+                  //       color: Theme.of(context).colorScheme.secondary,
                   //     ),
                   //   ),
                   // ),

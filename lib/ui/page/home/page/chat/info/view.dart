@@ -431,11 +431,15 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(color: style.colors.secondary),
+                        style: TextStyle(
+                          color: style.colors.secondary,
+                        ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: TextStyle(color: style.colors.primary),
+                        style: TextStyle(
+                          color: style.colors.primary,
+                        ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],

@@ -99,7 +99,7 @@ class TransactionView extends StatelessWidget {
               //   padding: const EdgeInsets.only(right: 16),
               //   child: Icon(
               //     Icons.line_style,
-              //     color: Theme.of(context).colorScheme.secondary,
+              //     color: Theme.of(context).colorScheme.primary,
               //   ),
               // ),
             ],
@@ -465,7 +465,7 @@ class TransactionView extends StatelessWidget {
                       //   onPressed: () {},
                       //   text: 'Invoice №12353519',
                       //   style: TextStyle(
-                      //     color: Theme.of(context).colorScheme.secondary,
+                      //     color: Theme.of(context).colorScheme.primary,
                       //   ),
                       //   trailing: Transform.scale(
                       //     scale: 1.15,
@@ -483,7 +483,7 @@ class TransactionView extends StatelessWidget {
                     //       onPressed: () {},
                     //       text: 'Support',
                     //       style: TextStyle(
-                    //         color: Theme.of(context).colorScheme.secondary,
+                    //         color: Theme.of(context).colorScheme.primary,
                     //       ),
                     //       trailing: Transform.scale(
                     //         scale: 1.15,

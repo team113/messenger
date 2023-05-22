@@ -140,7 +140,7 @@ class ScreenShareView extends StatelessWidget {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 12),

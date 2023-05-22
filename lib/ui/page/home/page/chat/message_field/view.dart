@@ -851,7 +851,7 @@ class MessageFieldView extends StatelessWidget {
                 child: Text(
                   'Редактирование сообщения'.l10n,
                   style: style.boldBody.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -862,7 +862,7 @@ class MessageFieldView extends StatelessWidget {
                   'Cancel',
                   style: style.boldBody.copyWith(
                     fontSize: 13,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 // child: Container(

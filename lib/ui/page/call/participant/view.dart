@@ -154,7 +154,7 @@ class ParticipantView extends StatelessWidget {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -210,7 +210,7 @@ class ParticipantView extends StatelessWidget {
                       ? isRedialed
                           ? Colors.grey
                           : Colors.red
-                      : Theme.of(context).colorScheme.secondary,
+                      : Theme.of(context).colorScheme.primary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: inCall
@@ -265,7 +265,7 @@ class ParticipantView extends StatelessWidget {
                 ? Text(
                     'btn_leave'.l10n,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 15,
                     ),
                   )

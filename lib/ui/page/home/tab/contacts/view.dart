@@ -235,7 +235,7 @@ class ContactsTabView extends StatelessWidget {
                           height: double.infinity,
                           child: Icon(
                             Icons.more_vert,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -299,7 +299,7 @@ class ContactsTabView extends StatelessWidget {
               //     height: double.infinity,
               //     child: Icon(
               //       Icons.more_vert,
-              //       color: Theme.of(context).colorScheme.secondary,
+              //       color: Theme.of(context).colorScheme.primary,
               //     ),
               //   ),
               // ),
@@ -332,13 +332,13 @@ class ContactsTabView extends StatelessWidget {
                       height: double.infinity,
                       // child: Icon(
                       //   Icons.more_horiz,
-                      //   color: Theme.of(context).colorScheme.secondary,
+                      //   color: Theme.of(context).colorScheme.primary,
                       // ),
                       // child: Icon(
                       //   key: const Key('ArrowBack'),
                       //   Icons.select_all,
                       //   size: 20,
-                      //   color: Theme.of(context).colorScheme.secondary,
+                      //   color: Theme.of(context).colorScheme.primary,
                       // ),
                       child: SelectedDot(
                         selected: selected,
@@ -369,7 +369,7 @@ class ContactsTabView extends StatelessWidget {
                               key: const Key('ArrowBack'),
                               Icons.arrow_back_ios_new,
                               size: 20,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.primary,
                             )
                           : SvgImage.asset(
                               'assets/icons/search.svg',

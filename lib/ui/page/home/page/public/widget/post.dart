@@ -882,7 +882,7 @@ class _PostWidgetState extends State<PostWidget> {
                                         // Icon(
                                         //   Icons.comment,
                                         //   size: 21,
-                                        //   color: Theme.of(context).colorScheme.secondary,
+                                        //   color: Theme.of(context).colorScheme.primary,
                                         // ),
                                         const SizedBox(width: 4),
                                         const Text('1205'),

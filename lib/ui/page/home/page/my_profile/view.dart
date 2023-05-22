@@ -1256,7 +1256,7 @@ Widget _call(BuildContext context, MyProfileController c) {
               child: Text(
                 'label_open_calls_in'.l10n,
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
@@ -1273,7 +1273,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                   : 'label_open_calls_in_app'.l10n,
               maxLines: null,
               onPressed: () => CallWindowSwitchView.show(context),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             );
           }),
         ),
@@ -1306,7 +1306,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                     data: ThemeData(platform: TargetPlatform.macOS),
                     child: Obx(
                       () => Switch.adaptive(
-                        activeColor: Theme.of(context).colorScheme.secondary,
+                        activeColor: Theme.of(context).colorScheme.primary,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         value: c.settings.value?.leaveWhenAlone == true,
                         onChanged: c.setLeaveWhenAlone,
@@ -1327,7 +1327,7 @@ Widget _call(BuildContext context, MyProfileController c) {
       //       child: Text(
       //         'label_leave_group_call_when_alone'.l10n,
       //         style: style.systemMessageStyle.copyWith(
-      //           color: Theme.of(context).colorScheme.primary,
+      //           color: Theme.of(context).colorScheme.secondary,
       //           fontSize: 15,
       //           fontWeight: FontWeight.w400,
       //         ),
@@ -1344,7 +1344,7 @@ Widget _call(BuildContext context, MyProfileController c) {
       //           : 'label_don_t_leave_group_call_when_alone'.l10n,
       //       maxLines: null,
       //       onPressed: () => CallLeaveSwitchView.show(context),
-      //       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      //       style: TextStyle(color: Theme.of(context).colorScheme.primary),
       //     );
       //   }),
       // ),
@@ -1673,7 +1673,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
           child: Text(
             'btn_edit'.l10n,
             style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               // fontSize: 11,
             ),
           ),
@@ -1688,7 +1688,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
           child: Text(
             'btn_delete'.l10n.toLowerCase(),
             style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               // fontSize: 11,
             ),
           ),
@@ -1909,7 +1909,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                             ? 'btn_add'.l10n
                             : 'btn_edit'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 11,
                         ),
                       ),
@@ -1924,7 +1924,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       child: Text(
                         'btn_delete'.l10n.toLowerCase(),
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 11,
                         ),
                       ),
@@ -2026,10 +2026,10 @@ Widget _verification(BuildContext context, MyProfileController c) {
                       },
                       trailing: Icon(
                         Icons.verified_outlined,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -2072,7 +2072,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             label,
             textAlign: TextAlign.center,
             style: style.systemMessageStyle.copyWith(
-              // color: Theme.of(context).colorScheme.primary,
+              // color: Theme.of(context).colorScheme.secondary,
               color:
                   enabled ? style.colors.onBackground : style.colors.secondary,
               fontSize: 15,
@@ -2109,8 +2109,8 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             },
             style: TextStyle(
               color: enabled
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.primary,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
           Padding(
@@ -2121,8 +2121,8 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                 fontFamily: 'Gapopa',
                 fontWeight: FontWeight.w400,
                 color: enabled
-                    ? Theme.of(context).colorScheme.secondary
-                    : Theme.of(context).colorScheme.primary,
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
                 fontSize: 15,
               ),
             ),
@@ -2216,7 +2216,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
             label,
             textAlign: TextAlign.center,
             style: style.systemMessageStyle.copyWith(
-              // color: Theme.of(context).colorScheme.primary,
+              // color: Theme.of(context).colorScheme.secondary,
               color:
                   enabled ? style.colors.onBackground : style.colors.secondary,
               fontSize: 15,
@@ -2247,8 +2247,8 @@ Widget _donates(BuildContext context, MyProfileController c) {
             floatingLabelBehavior: FloatingLabelBehavior.always,
             style: TextStyle(
               color: enabled
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.primary,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
           Padding(

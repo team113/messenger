@@ -325,7 +325,7 @@ class ReactiveTextField extends StatelessWidget {
                 prefix: prefix,
                 prefixIcon: prefixIcon,
                 prefixIconColor: prefixIconColor,
-                fillColor: fillColor,
+                fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 // fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
@@ -344,7 +344,7 @@ class ReactiveTextField extends StatelessWidget {
                 labelText: label,
                 // hintStyle: style?.copyWith(color: Color(0xFFC6C6C6)),
                 hintStyle: this.style?.copyWith(
-                      // color: Theme.of(context).colorScheme.primary,
+                      // color: Theme.of(context).colorScheme.secondary,
                       color: const Color(0xFFC6C6C6),
                     ),
                 hintText: hint,

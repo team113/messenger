@@ -177,7 +177,7 @@ class ChatsTabView extends StatelessWidget {
                                   'label_chats'.l10n,
                                   // style: TextStyle(
                                   //   color:
-                                  //       Theme.of(context).colorScheme.secondary,
+                                  //       Theme.of(context).colorScheme.primary,
                                   // ),
                                 ),
                                 // const SizedBox(width: 0),
@@ -187,7 +187,7 @@ class ChatsTabView extends StatelessWidget {
                                 //     Icons.more_horiz,
                                 //     size: 16,
                                 //     color:
-                                //         Theme.of(context).colorScheme.secondary,
+                                //         Theme.of(context).colorScheme.primary,
                                 //   ),
                                 // )
                               ],
@@ -257,13 +257,13 @@ class ChatsTabView extends StatelessWidget {
                             height: double.infinity,
                             // child: Icon(
                             //   Icons.more_horiz,
-                            //   color: Theme.of(context).colorScheme.secondary,
+                            //   color: Theme.of(context).colorScheme.primary,
                             // ),
                             // child: Icon(
                             //   key: const Key('ArrowBack'),
                             //   Icons.select_all,
                             //   size: 20,
-                            //   color: Theme.of(context).colorScheme.secondary,
+                            //   color: Theme.of(context).colorScheme.primary,
                             // ),
                             child: SelectedDot(
                               selected: selected,
@@ -292,7 +292,7 @@ class ChatsTabView extends StatelessWidget {
                             height: double.infinity,
                             // child: Icon(
                             //   Icons.more_horiz,
-                            //   color: Theme.of(context).colorScheme.secondary,
+                            //   color: Theme.of(context).colorScheme.primary,
                             // ),
                             child: c.searching.value
                                 ? Icon(
@@ -300,7 +300,7 @@ class ChatsTabView extends StatelessWidget {
                                     Icons.arrow_back_ios_new,
                                     size: 20,
                                     color:
-                                        Theme.of(context).colorScheme.secondary,
+                                        Theme.of(context).colorScheme.primary,
                                   )
                                 : SvgImage.asset(
                                     'assets/icons/search.svg',
@@ -430,8 +430,7 @@ class ChatsTabView extends StatelessWidget {
                                 height: double.infinity,
                                 child: Icon(
                                   Icons.more_vert,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),

@@ -1504,7 +1504,7 @@ class _ChatViewState extends State<ChatView>
                 TextSpan(
                   text: user.name?.val ?? user.num.val,
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => router.user(user.id, push: true),
@@ -1537,7 +1537,7 @@ class _ChatViewState extends State<ChatView>
 //                   TextSpan(
 //                     text: '${user?.name?.val ?? user?.num.val}',
 //                     style: style.systemMessageStyle.copyWith(
-//                       color: Theme.of(context).colorScheme.secondary,
+//                       color: Theme.of(context).colorScheme.primary,
 //                     ),
 //                     recognizer: TapGestureRecognizer()
 //                       ..onTap = () => router.user(user!.id, push: true),
@@ -1589,7 +1589,7 @@ class _ChatViewState extends State<ChatView>
 //                     TextSpan(
 //                       text: '${user?.name?.val ?? user?.num.val}',
 //                       style: style.systemMessageStyle.copyWith(
-//                         color: Theme.of(context).colorScheme.secondary,
+//                         color: Theme.of(context).colorScheme.primary,
 //                       ),
 //                       recognizer: TapGestureRecognizer()
 //                         ..onTap = () => router.user(user!.id, push: true),
@@ -1718,7 +1718,7 @@ class _ChatViewState extends State<ChatView>
                     TextSpan(
                       text: 'label_forwarded_message'.l10n,
                       style: style.boldBody.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     if (quote.text != null)
@@ -1816,7 +1816,7 @@ class _ChatViewState extends State<ChatView>
                     //   angle: pi / 5,
                     //   child: const Icon(
                     //     Icons.push_pin,
-                    //     // color: Theme.of(context).colorScheme.secondary,
+                    //     // color: Theme.of(context).colorScheme.primary,
                     //     color: Color(0xFF888888),
                     //     size: 12,
                     //   ),
@@ -1827,7 +1827,7 @@ class _ChatViewState extends State<ChatView>
                       '${c.displayPinned.value + 1}/${c.pinned.length}',
                       style: style.systemMessageStyle.copyWith(
                         fontSize: 11,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -1847,7 +1847,7 @@ class _ChatViewState extends State<ChatView>
           'Закреплено сообщений: 1/3',
           style: style.systemMessageStyle.copyWith(
             fontSize: 15,
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       );
@@ -1884,7 +1884,7 @@ class _ChatViewState extends State<ChatView>
               child: PaidNotification(
                 border: c.paidBorder.value
                     ? Border.all(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                         width: 2,
                       )
                     : Border.all(
@@ -2004,8 +2004,7 @@ class _ChatViewState extends State<ChatView>
                         decoration: BoxDecoration(
                           border: c.paidBorder.value
                               ? Border.all(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 2,
                                 )
                               : Border.all(
@@ -2036,7 +2035,7 @@ class _ChatViewState extends State<ChatView>
                             Text(
                               'Принять и продолжить',
                               style: style.systemMessageStyle.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ],
@@ -2134,8 +2133,7 @@ class _ChatViewState extends State<ChatView>
                               Text(
                                 'Принять и продолжить',
                                 style: style.systemMessageStyle.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ],
@@ -2197,7 +2195,7 @@ class _ChatViewState extends State<ChatView>
           //                       //   style: thin?.copyWith(
           //                       //     fontSize: 18,
           //                       //     color:
-          //                       //         Theme.of(context).colorScheme.secondary,
+          //                       //         Theme.of(context).colorScheme.primary,
           //                       //   ),
           //                       // ),
           //                     ],
@@ -2237,7 +2235,7 @@ class _ChatViewState extends State<ChatView>
           //                   'Принять',
           //                   style: thin?.copyWith(
           //                     fontSize: 18,
-          //                     color: Theme.of(context).colorScheme.secondary,
+          //                     color: Theme.of(context).colorScheme.primary,
           //                   ),
           //                 ),
           //               ),
@@ -2293,7 +2291,7 @@ class _ChatViewState extends State<ChatView>
           //                       //           thin?.copyWith(color: Colors.white),
           //                       //     ),
           //                       //     color:
-          //                       //         Theme.of(context).colorScheme.secondary,
+          //                       //         Theme.of(context).colorScheme.primary,
           //                       //   ),
           //                       // ),
           //                     ],

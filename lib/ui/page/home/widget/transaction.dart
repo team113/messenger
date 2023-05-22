@@ -92,7 +92,7 @@ class TransactionWidget extends StatelessWidget {
                   // const SizedBox(width: 12),
                   // Icon(
                   //   Icons.add,
-                  //   color: Theme.of(context).colorScheme.secondary,
+                  //   color: Theme.of(context).colorScheme.primary,
                   // ),
                   // const SizedBox(width: 18),
                   Expanded(

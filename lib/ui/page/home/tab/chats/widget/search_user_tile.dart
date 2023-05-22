@@ -77,7 +77,7 @@ class SearchUserTile extends StatelessWidget {
               style: TextStyle(
                 color: selected
                     ? Colors.white
-                    : Theme.of(context).colorScheme.primary,
+                    : Theme.of(context).colorScheme.secondary,
               ),
             ),
           ],

@@ -122,7 +122,7 @@ class _ChatTileState extends State<ChatTile> {
       // color: Colors.orange,
       // color: Colors.amber,
       // color: Color(0xFFD0D0D0),
-      // color: Theme.of(context).colorScheme.secondary,
+      // color: Theme.of(context).colorScheme.primary,
       color: style.cardHoveredBorder.top.color.darken(0.1),
       width: 1,
     );
@@ -141,7 +141,7 @@ class _ChatTileState extends State<ChatTile> {
     // final Border specialBorderGrey =
     //     Border.all(color: Color(0xFFD0D0D0), width: 1);
 
-    final Color secondary = Theme.of(context).colorScheme.secondary;
+    final Color secondary = Theme.of(context).colorScheme.primary;
 
     // const Color normal = Colors.white;
     // const Color hover = Color.fromARGB(255, 181, 225, 255);

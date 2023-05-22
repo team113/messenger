@@ -117,7 +117,7 @@ class _DownloadableFileState extends State<DownloadableButton> {
         },
         text: 'Invoice №12353519',
         style: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.primary,
         ),
         trailing: leading,
       );
