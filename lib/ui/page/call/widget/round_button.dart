@@ -39,6 +39,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.withBlur = false,
     this.style,
     this.border,
+    this.inverted = false,
     this.child,
   });
 
@@ -73,6 +74,8 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
+
+  final bool inverted;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -166,7 +169,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: style.colors.onPrimary,
+                      color: widget.inverted
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
                       fontSize: 13,
                     ),
                 maxLines: 2,

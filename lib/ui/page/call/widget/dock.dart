@@ -34,6 +34,7 @@ class Dock<T extends Object> extends StatefulWidget {
     Key? key,
     required this.items,
     required this.itemBuilder,
+    this.isDraggable,
     this.onReorder,
     this.itemWidth = 48,
     this.onDragStarted,
@@ -47,6 +48,8 @@ class Dock<T extends Object> extends StatefulWidget {
 
   /// Builder building the provided item.
   final Widget Function(T item) itemBuilder;
+
+  final bool Function(T item)? isDraggable;
 
   /// Max width [itemBuilder] is allowed to build within.
   final double itemWidth;
@@ -191,7 +194,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
                     return DelayedDraggable(
-                      maxSimultaneousDrags: _entry == null ? 1 : 0,
+                      maxSimultaneousDrags:
+                          widget.isDraggable?.call(e.item) == true
+                              ? _entry == null
+                                  ? 1
+                                  : 0
+                              : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: Transform.translate(
                         offset: -Offset(

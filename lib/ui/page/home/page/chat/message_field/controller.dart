@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'buttons.dart';
 
 export 'view.dart';
 
@@ -168,6 +169,26 @@ class MessageFieldController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  final RxBool displayMore = RxBool(false);
+
+  final GlobalKey globalKey = GlobalKey();
+  late final RxList<ChatButton> panel = RxList([
+    AttachmentButton(this),
+    AudioMessageButton(this),
+    VideoMessageButton(this),
+    ContactButton(this),
+    DonateButton(this),
+    GeopositionButton(this),
+  ]);
+
+  late final RxList<ChatButton> buttons = RxList([
+    MoreButton(this),
+    FieldButton(this),
+    SendButton(this),
+  ]);
+
+  OverlayEntry? entry;
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
@@ -191,9 +212,13 @@ class MessageFieldController extends GetxController {
 
   @override
   void onClose() {
+    entry?.remove();
+    entry = null;
+
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
+
     clear();
     super.onClose();
   }
@@ -254,6 +279,9 @@ class MessageFieldController extends GetxController {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
   }
+
+  /// Toggles the [displayMore].
+  void toggleMore() => displayMore.toggle();
 
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].

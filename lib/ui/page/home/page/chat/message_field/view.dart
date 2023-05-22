@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/dock.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -47,6 +48,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'overlay.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -467,7 +469,34 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildField(MessageFieldController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    // return Container(
+    //   width: double.infinity,
+    //   key: c.globalKey,
+    //   constraints: const BoxConstraints(minHeight: 56),
+    //   decoration: BoxDecoration(color: background ?? style.cardColor),
+    //   child: Obx(() {
+    //     return Dock(
+    //       // ignore: invalid_use_of_protected_member
+    //       items: c.buttons.value,
+    //       itemWidth: 48,
+    //       itemBuilder: (e) => e.build(hinted: false),
+    //       onReorder: (buttons) {
+    //         c.buttons.clear();
+    //         c.buttons.addAll(buttons);
+    //       },
+    //       // onDragStarted: (b) {
+    //       //   c.showDragAndDropButtonsHint = false;
+    //       //   c.draggedButton.value = b;
+    //       // },
+    //       // onDragEnded: (_) => c.draggedButton.value = null,
+    //       onLeave: (_) => c.displayMore.value = true,
+    //       onWillAccept: (d) => d?.c == c,
+    //     );
+    //   }),
+    // );
+
     return Container(
+      key: c.globalKey,
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(color: background ?? style.cardColor),
       child: Row(
@@ -476,28 +505,45 @@ class MessageFieldView extends StatelessWidget {
         children: [
           WidgetButton(
             onPressed: canAttach
-                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? c.pickFile
-                    : () async {
-                        c.field.focus.unfocus();
-                        await AttachmentSourceSelector.show(
-                          context,
-                          onPickFile: c.pickFile,
-                          onTakePhoto: c.pickImageFromCamera,
-                          onPickMedia: c.pickMedia,
-                          onTakeVideo: c.pickVideoFromCamera,
-                        );
-                      }
+                ? () {
+                    c.entry?.remove();
+                    c.entry = null;
+
+                    c.entry = OverlayEntry(builder: (context) {
+                      return MessageFieldOverlay(c);
+                    });
+
+                    Overlay.of(context, rootOverlay: true).insert(c.entry!);
+                  }
                 : null,
+            // onPressed: canAttach
+            //     ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+            //         ? c.pickFile
+            //         : () async {
+            //             c.field.focus.unfocus();
+            //             await AttachmentSourceSelector.show(
+            //               context,
+            //               onPickFile: c.pickFile,
+            //               onTakePhoto: c.pickImageFromCamera,
+            //               onPickMedia: c.pickMedia,
+            //               onTakeVideo: c.pickVideoFromCamera,
+            //             );
+            //           }
+            //     : null,
             child: SizedBox(
               width: 56,
               height: 56,
               child: Center(
                 child: SvgImage.asset(
-                  'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
-                  height: 22,
-                  width: 22,
+                  'assets/icons/chat_more.svg',
+                  height: 18,
+                  width: 18,
                 ),
+                // child: SvgImage.asset(
+                //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
+                //   height: 22,
+                //   width: 22,
+                // ),
               ),
             ),
           ),
@@ -550,12 +596,18 @@ class MessageFieldView extends StatelessWidget {
                               width: 26,
                               height: 22,
                             )
-                          : SvgImage.asset(
-                              'assets/icons/send${disabled ? '_disabled' : ''}.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
-                            ),
+                          : c.field.isEmpty.value
+                              ? Icon(
+                                  Icons.emoji_emotions_outlined,
+                                  color: style.colors.primary,
+                                  size: 28,
+                                )
+                              : SvgImage.asset(
+                                  'assets/icons/send${disabled ? '_disabled' : ''}.svg',
+                                  key: sendKey ?? const Key('Send'),
+                                  height: 22.85,
+                                  width: 25.18,
+                                ),
                     ),
                   ),
                 ),
