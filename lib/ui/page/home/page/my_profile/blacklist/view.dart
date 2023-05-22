@@ -61,8 +61,7 @@ class BlacklistView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_blocked_count'
-                        .l10nfmt({'count': c.blacklist.length}),
+                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
                     style: thin?.copyWith(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
