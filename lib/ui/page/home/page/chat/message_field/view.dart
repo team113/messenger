@@ -89,11 +89,12 @@ class MessageFieldView extends StatelessWidget {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
       borderSide: BorderSide.none,
     );
-    final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme.of(context).copyWith(
       shadowColor: style.colors.onBackgroundOpacity27,

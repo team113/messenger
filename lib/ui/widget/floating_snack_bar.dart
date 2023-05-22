@@ -123,7 +123,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                     border: style.cardHoveredBorder,
                     boxShadow: [
                       BoxShadow(
-                        color: style.colors.onBackgroundOpacity2,
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       ),

@@ -112,7 +112,7 @@ class _ChatViewState extends State<ChatView>
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
         void onDetailsTap() {
-          Chat? chat = c.chat?.chat.value;
+          final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);

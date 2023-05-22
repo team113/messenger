@@ -35,6 +35,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -274,8 +275,9 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = KeyedSubtree(
+                child = AnimatedDelayedSwitcher(
                   key: UniqueKey(),
+                  delay: const Duration(milliseconds: 300),
                   child: Center(
                     key: const Key('NothingFound'),
                     child: Text('label_nothing_found'.l10n),
@@ -458,16 +460,13 @@ class ContactsTabView extends StatelessWidget {
                     duration: 200.milliseconds,
                     color: c.search.value != null
                         ? style.colors.secondaryHighlight
-                        : style.colors.secondaryHighlight.withOpacity(1),
+                        : style.colors.transparent,
                   );
                 }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
-                    ),
+                ContextMenuInterceptor(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               ],
@@ -648,7 +647,7 @@ class ContactsTabView extends StatelessWidget {
           Expanded(
             child: OutlinedRoundedButton(
               title: Text(
-                'btn_close'.l10n,
+                'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: context.textTheme.bodyLarge!.copyWith(

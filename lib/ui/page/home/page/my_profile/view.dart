@@ -1378,7 +1378,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         FieldButton(
-          text: 'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
+          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
           style: context.textTheme.bodyLarge!.copyWith(
