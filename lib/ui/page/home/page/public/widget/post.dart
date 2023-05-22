@@ -1132,11 +1132,12 @@ class _PostWidgetState extends State<PostWidget> {
           key: Key('FutureBuilder_${item.id}'),
           future: widget.getUser?.call(item.authorId),
           builder: (context, snapshot) {
-            Color color = snapshot.data?.user.value.id == widget.me
-                ? const Color(0xFF63B4FF)
-                : AvatarWidget.colors[
-                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                        AvatarWidget.colors.length];
+            const Color color = Colors.blue;
+            // Color color = snapshot.data?.user.value.id == widget.me
+            //     ? const Color(0xFF63B4FF)
+            //     : AvatarWidget.colors[
+            //         (snapshot.data?.user.value.num.val.sum() ?? 3) %
+            //             AvatarWidget.colors.length];
 
             return Row(
               key: Key('Row_${item.id}'),
@@ -1146,7 +1147,7 @@ class _PostWidgetState extends State<PostWidget> {
                 const SizedBox(width: 12),
                 Flexible(
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       border: Border(
                         left: BorderSide(width: 2, color: color),
                       ),
