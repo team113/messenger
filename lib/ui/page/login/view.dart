@@ -96,7 +96,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 58),
+                    style: theme.displaySmall,
                   ),
                 ),
               );
@@ -243,7 +243,7 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: context.textTheme.bodyLarge!
+                          style: context.textTheme.bodySmall!
                               .copyWith(color: style.colors.primary),
                         ),
                       ),

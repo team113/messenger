@@ -84,7 +84,7 @@ class MenuTabView extends StatelessWidget {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: context.textTheme.bodyLarge?.copyWith(
+                                style: context.textTheme.bodySmall?.copyWith(
                                   color: style.colors.secondary,
                                 ),
                               );

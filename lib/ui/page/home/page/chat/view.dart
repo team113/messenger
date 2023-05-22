@@ -992,7 +992,7 @@ class _ChatViewState extends State<ChatView>
                 child: Text(
                   time.toRelative(),
                   style: context.textTheme.bodySmall!.copyWith(
-                    color: context.theme.colorScheme.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
               ),

@@ -52,8 +52,6 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final Color primary = Theme.of(context).colorScheme.primary;
-
         // Header part of the page.
         //
         // All frames of the animation are drawn in offstage in order to
@@ -66,7 +64,9 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: context.textTheme.displayLarge!.copyWith(color: primary),
+            style: context.textTheme.displayLarge!.copyWith(
+              color: style.colors.secondary,
+            ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -74,7 +74,9 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: context.textTheme.bodyLarge!.copyWith(color: primary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: style.colors.secondary,
+            ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -89,8 +91,8 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: context.textTheme.displaySmall!.copyWith(
-                color: Colors.white,
+              style: context.textTheme.labelLarge!.copyWith(
+                color: style.colors.onPrimary,
               ),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
@@ -102,7 +104,7 @@ class AuthView extends StatelessWidget {
             key: const Key('SignInButton'),
             title: Text(
               'btn_login'.l10n,
-              style: context.textTheme.displaySmall,
+              style: context.textTheme.labelLarge,
             ),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
@@ -247,7 +249,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context).textTheme.displaySmall,
+                style: Theme.of(context).textTheme.labelLarge,
               ),
             ),
           ),

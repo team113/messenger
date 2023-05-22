@@ -553,7 +553,7 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: context.textTheme.bodyLarge!.copyWith(
+                  style: context.textTheme.bodySmall!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,

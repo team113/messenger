@@ -934,7 +934,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 selectable: PlatformUtils.isDesktop || menu,
                 onSelecting: widget.onSelecting,
                 onChanged: (a) => _selection = a,
-                style: context.textTheme.displaySmall!.copyWith(color: color),
+                style: context.textTheme.labelLarge!.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.normal,
+                ),
               ),
             ),
           if (_text != null)

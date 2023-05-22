@@ -202,7 +202,7 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            _num(c),
+                            _num(context, c),
                             _login(c, context),
                             const SizedBox(height: 10),
                             _emails(c, context),
@@ -390,20 +390,28 @@ Widget _presence(MyProfileController c, BuildContext context) {
 }
 
 /// Returns [MyUser.num] copyable field.
-Widget _num(MyProfileController c) => _padding(
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: c.num,
-            label: 'label_num'.l10n,
-            copy: c.myUser.value?.num.val,
+Widget _num(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  return _padding(
+    Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CopyableTextField(
+          key: const Key('NumCopyable'),
+          state: c.num,
+          label: 'label_num'.l10n,
+          copy: c.myUser.value?.num.val,
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.secondary,
+            fontWeight: FontWeight.normal,
           ),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
+        ),
+        const SizedBox(height: 10),
+      ],
+    ),
+  );
+}
 
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
@@ -454,13 +462,13 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
+                      style: context.textTheme.bodySmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
+                      style: context.textTheme.bodySmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -519,13 +527,13 @@ Widget _login(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: context.textTheme.bodyMedium!.copyWith(
+                  style: TextStyle(
                     color: style.colors.secondary,
                   ),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: context.textTheme.bodyLarge!.copyWith(
+                  style: context.textTheme.bodySmall!.copyWith(
                     color: style.colors.primary,
                   ),
                   recognizer: TapGestureRecognizer()
@@ -709,8 +717,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: style.colors.secondary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: style.colors.secondary,
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ),
       ]);
@@ -870,8 +880,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: context.textTheme.bodyMedium!.copyWith(
+            style: context.textTheme.bodyLarge!.copyWith(
               color: style.colors.secondary,
+              fontWeight: FontWeight.normal,
             ),
           ),
         ),

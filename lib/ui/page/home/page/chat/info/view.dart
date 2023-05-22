@@ -444,6 +444,7 @@ class ChatInfoView extends StatelessWidget {
                         text: 'label_details'.l10n,
                         style: context.textTheme.bodyLarge!.copyWith(
                           color: style.colors.primary,
+                          fontSize: 3,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
