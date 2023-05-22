@@ -1340,7 +1340,6 @@ class ChatRepository extends DisposableInterface
             }
 
             await localChat.updateChat(data.chat.value);
-
             entry = localChat;
           }
 
