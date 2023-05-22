@@ -47,7 +47,7 @@ abstract class ChatItem {
 
   /// ID of the [Chat] this [ChatItem] was posted in.
   @HiveField(1)
-  final ChatId chatId;
+  ChatId chatId;
 
   /// ID of the [User] who posted this [ChatItem].
   @HiveField(2)

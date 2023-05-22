@@ -677,7 +677,10 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      saved.forEach(_local.put);
+      for (var e in saved) {
+        e.value.chatId = newChat.id;
+        _local.put(e);
+      }
 
       _initLocalSubscription();
     }

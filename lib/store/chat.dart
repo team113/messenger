@@ -356,8 +356,8 @@ class ChatRepository extends DisposableInterface
       );
 
   @override
-  Future<void> resendChatItem(ChatItem item, ChatId id) async {
-    HiveRxChat? rxChat = _chats[id] ?? (await get(id));
+  Future<void> resendChatItem(ChatItem item) async {
+    HiveRxChat? rxChat = _chats[item.chatId];
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
@@ -371,8 +371,8 @@ class ChatRepository extends DisposableInterface
       }
 
       // If this [item] is posted in a local [Chat], then make it remote first.
-      if (id.isLocal) {
-        rxChat = await ensureRemoteDialog(id);
+      if (item.chatId.isLocal) {
+        rxChat = await ensureRemoteDialog(item.chatId);
       }
 
       await rxChat?.postChatMessage(
@@ -1202,6 +1202,11 @@ class ChatRepository extends DisposableInterface
             localMonologFavoritePosition = null;
           }
 
+          if (chat.chat.value.isMonolog && _monologShouldBeHidden) {
+            event.value.value.isHidden = _monologShouldBeHidden;
+            _monologShouldBeHidden = false;
+          }
+
           chat.chat.value = event.value.value;
           chat.chat.refresh();
         }
@@ -1257,13 +1262,6 @@ class ChatRepository extends DisposableInterface
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
-          if (event.chat.chat.value.isMonolog) {
-            if (_monologShouldBeHidden) {
-              _monologShouldBeHidden = false;
-              break;
-            }
-          }
-
           _putEntry(event.chat);
         }
         break;
@@ -1338,10 +1336,10 @@ class ChatRepository extends DisposableInterface
                 localMonologFavoritePosition != null;
             if (isLocalMonologFavorited) {
               data.chat.value.favoritePosition = localMonologFavoritePosition;
+              localMonologFavoritePosition = null;
             }
 
             await localChat.updateChat(data.chat.value);
-
 
             entry = localChat;
           }

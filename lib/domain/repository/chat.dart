@@ -89,7 +89,7 @@ abstract class AbstractChatRepository {
   });
 
   /// Resends the specified [item].
-  Future<void> resendChatItem(ChatItem item, ChatId id);
+  Future<void> resendChatItem(ChatItem item);
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].
