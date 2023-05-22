@@ -22,11 +22,11 @@ import 'package:get/get.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'widget/primary_button.dart';
 
 /// View for logging in or recovering access on.
 ///
@@ -287,37 +287,6 @@ class LoginView extends StatelessWidget {
           );
         });
       },
-    );
-  }
-}
-
-/// [Widget] which returns a primary styled [OutlinedRoundedButton].
-class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, this.title, this.onPressed});
-
-  /// Text to display.
-  final String? title;
-
-  /// Callback, called when this button is tapped or activated other way.
-  final void Function()? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return OutlinedRoundedButton(
-      key: key,
-      maxWidth: double.infinity,
-      title: Text(
-        title ?? '',
-        style: TextStyle(
-          color: onPressed == null
-              ? style.colors.onBackground
-              : style.colors.onPrimary,
-        ),
-      ),
-      onPressed: onPressed,
-      color: style.colors.primary,
     );
   }
 }
