@@ -202,9 +202,7 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(
-                          color: style.colors.secondary,
-                        ),
+                        style: TextStyle(color: style.colors.secondary),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,

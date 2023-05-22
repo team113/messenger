@@ -351,8 +351,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     bool timestamp = false,
   }) {
     return Obx(() {
-      ChatForward msg = forward.value as ChatForward;
-      ChatItemQuote quote = msg.quote;
+      final ChatForward msg = forward.value as ChatForward;
+      final ChatItemQuote quote = msg.quote;
 
       final Style style = Theme.of(context).extension<Style>()!;
 
@@ -361,14 +361,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       if (quote is ChatMessageQuote) {
         if (quote.attachments.isNotEmpty) {
-          List<Attachment> media = quote.attachments
+          final List<Attachment> media = quote.attachments
               .where((e) =>
                   e is ImageAttachment ||
                   (e is FileAttachment && e.isVideo) ||
                   (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
               .toList();
 
-          List<Attachment> files = quote.attachments
+          final List<Attachment> files = quote.attachments
               .where((e) =>
                   (e is FileAttachment && !e.isVideo) ||
                   (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
